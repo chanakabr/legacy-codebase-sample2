@@ -611,6 +611,7 @@
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
+    <Compile Include="Controllers\SocialActionController.cs" />
     <Compile Include="Controllers\SocialFriendActivityController.cs" />
     <Compile Include="Controllers\MetaController.cs" />
     <Compile Include="Controllers\DeviceBrandController.cs" />
@@ -1016,12 +1017,14 @@
     <Compile Include="Models\Social\KalturaSocialPlatform.cs" />
     <Compile Include="Models\Social\KalturaSocialPrivacy.cs" />
     <Compile Include="Models\Social\KalturaSocialResponse.cs" />
+    <Compile Include="Models\Social\KalturaSocialStatus.cs" />
     <Compile Include="Models\Social\KalturaSocialUser.cs" />
     <Compile Include="Models\Social\KalturaSocialNetwork.cs" />
     <Compile Include="Models\API\KalturaTimeShiftedTvPartnerSettings.cs">
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Models\Social\KalturaSocialUserConfig.cs" />
+    <Compile Include="Models\Social\KalturaUserSocialAction.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspensionState.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
