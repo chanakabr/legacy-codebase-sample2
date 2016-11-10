@@ -171,7 +171,7 @@ namespace Users
 
             if (!bRes)
             {
-                DataRow dr = DAL.UtilsDal.GetEncrypterData(nGroupID);
+                DataRow dr = DAL.UtilsDal.GetEncrypterData(nGroupID, "USERS_CONNECTION_STRING");
 
                 if (dr != null)
                 {

@@ -12,13 +12,13 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string BILLING_CONNECTION_STRING = "CONNECTION_STRING";
+        private const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION_STRING";
         private const string SP_IS_DOUBLE_ADYEN_TRANSACTION = "IsDoubleAdyenTransaction";
 
         public static DataTable Get_UserToken(int nGroupID, string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spUserToken = new ODBCWrapper.StoredProcedure("Get_UserToken");
-            spUserToken.SetConnectionKey("CONNECTION_STRING");
+            spUserToken.SetConnectionKey("BILLING_CONNECTION_STRING");
             spUserToken.AddParameter("@GroupID", nGroupID);
             spUserToken.AddParameter("@SiteGuid", sSiteGuid);
 
@@ -32,7 +32,7 @@ namespace DAL
         public static DataTable IsUserMultiCC(int nGroupID)
         {
             ODBCWrapper.StoredProcedure spUserToken = new ODBCWrapper.StoredProcedure("IsUserMultiCC");
-            spUserToken.SetConnectionKey("CONNECTION_STRING");
+            spUserToken.SetConnectionKey("BILLING_CONNECTION_STRING");
             spUserToken.AddParameter("@GroupID", nGroupID);
 
             DataSet ds = spUserToken.ExecuteDataSet();
@@ -45,7 +45,7 @@ namespace DAL
         public static DataTable Get_UserDigits(int nGroupID, string sSiteGuid)
         {
             ODBCWrapper.StoredProcedure spUserToken = new ODBCWrapper.StoredProcedure("Get_UserDigits");
-            spUserToken.SetConnectionKey("CONNECTION_STRING");
+            spUserToken.SetConnectionKey("BILLING_CONNECTION_STRING");
             spUserToken.AddParameter("@GroupID", nGroupID);
             spUserToken.AddParameter("@SiteGuid", sSiteGuid);
 
@@ -59,7 +59,7 @@ namespace DAL
         public static bool IsDoubleAdyenTransaction(int nGroupID, string sSiteGuid, string sPspReference, string sStatus)
         {
             ODBCWrapper.StoredProcedure spIsDoubleAdyenTransaction = new ODBCWrapper.StoredProcedure(SP_IS_DOUBLE_ADYEN_TRANSACTION);
-            spIsDoubleAdyenTransaction.SetConnectionKey("CONNECTION_STRING");
+            spIsDoubleAdyenTransaction.SetConnectionKey("BILLING_CONNECTION_STRING");
             spIsDoubleAdyenTransaction.AddParameter("@GroupID", nGroupID);
             spIsDoubleAdyenTransaction.AddParameter("@SiteGuid", sSiteGuid.Trim());
             spIsDoubleAdyenTransaction.AddParameter("@PspReference", sPspReference.Trim());
@@ -245,7 +245,7 @@ namespace DAL
         public static DataTable Get_PurchaseMailData(string sPSPReference)
         {
             ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_PurchaseMailData");
-            spGetPurchaseMailData.SetConnectionKey("CONNECTION_STRING");
+            spGetPurchaseMailData.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetPurchaseMailData.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = spGetPurchaseMailData.ExecuteDataSet();
 
@@ -259,7 +259,7 @@ namespace DAL
             ref string last4Digits, ref string customData, ref string ppvModuleCode, ref string subCode, ref string ppCode)
         {
             //ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_PurchaseMailData");
-            //spGetPurchaseMailData.SetConnectionKey("CONNECTION_STRING");
+            //spGetPurchaseMailData.SetConnectionKey("BILLING_CONNECTION_STRING");
             //spGetPurchaseMailData.AddParameter("@PSPReference", sPSPReference);
             //DataSet ds = spGetPurchaseMailData.ExecuteDataSet();
 
@@ -268,7 +268,7 @@ namespace DAL
             //return null;
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_PurchaseMailData");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -299,7 +299,7 @@ namespace DAL
         public static DataTable Get_M1_PurchaseMailData(int nM1TransactionID)
         {
             ODBCWrapper.StoredProcedure spGetPurchaseMailData = new ODBCWrapper.StoredProcedure("Get_M1_PurchaseMailData");
-            spGetPurchaseMailData.SetConnectionKey("CONNECTION_STRING");
+            spGetPurchaseMailData.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetPurchaseMailData.AddParameter("@M1TransactionID", nM1TransactionID);
             DataSet ds = spGetPurchaseMailData.ExecuteDataSet();
 
@@ -312,7 +312,7 @@ namespace DAL
         public static void Insert_AdyenNotification(string sPSPReference, string sEventCode, string sSuccess, string sLast4Digits, string sReason)
         {
             ODBCWrapper.StoredProcedure spInsertAdyenNotification = new ODBCWrapper.StoredProcedure("Insert_AdyenNotification");
-            spInsertAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spInsertAdyenNotification.SetConnectionKey("BILLING_CONNECTION_STRING");
             spInsertAdyenNotification.AddParameter("@PSPReference", sPSPReference);
             spInsertAdyenNotification.AddParameter("@EventCode", sEventCode);
             spInsertAdyenNotification.AddParameter("@AdyenSuccess", sSuccess);
@@ -327,7 +327,7 @@ namespace DAL
         public static void Update_AdyenNotification(string sPSPReference, bool bMarkToDelete)
         {
             ODBCWrapper.StoredProcedure spUpdateAdyenNotification = new ODBCWrapper.StoredProcedure("Update_AdyenNotification");
-            spUpdateAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spUpdateAdyenNotification.SetConnectionKey("BILLING_CONNECTION_STRING");
             spUpdateAdyenNotification.AddParameter("@PSPReference", sPSPReference);
             spUpdateAdyenNotification.AddParameter("@MarkToDelete", bMarkToDelete ? 1 : 0);
             spUpdateAdyenNotification.AddParameter("@UpdateDate", DateTime.UtcNow);
@@ -341,7 +341,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification");
-            spGetDataForAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spGetDataForAdyenNotification.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetDataForAdyenNotification.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = spGetDataForAdyenNotification.ExecuteDataSet();
             if (ds != null)
@@ -378,7 +378,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGetDataForAdyenNotification = new ODBCWrapper.StoredProcedure("Get_DataForAdyenNotification_And_HandleMail");
-            spGetDataForAdyenNotification.SetConnectionKey("CONNECTION_STRING");
+            spGetDataForAdyenNotification.SetConnectionKey("BILLING_CONNECTION_STRING");
             spGetDataForAdyenNotification.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = spGetDataForAdyenNotification.ExecuteDataSet();
             if (ds != null)
@@ -424,7 +424,7 @@ namespace DAL
         public static void Update_AdyenTransactionStatusReasonLast4Digits(long lIDInAdyenTransactions, string sAdyenStatus, string sAdyenReason, string sLast4Digits)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_AdyenTransactionStatusReasonLast4Digits");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@ID", lIDInAdyenTransactions);
             sp.AddParameter("@AdyenStatus", sAdyenStatus);
             sp.AddParameter("@AdyenReason", sAdyenReason);
@@ -436,7 +436,7 @@ namespace DAL
         public static void Update_AdyenCancelOrRefundRequestStatus(string sCancelOrRefundPSPReference, int nCancelOrRefundStatus)
         {
             ODBCWrapper.StoredProcedure spUpdateCancelOrRefundRequestStatus = new ODBCWrapper.StoredProcedure("Update_AdyenCancelOrRefundRequestStatus");
-            spUpdateCancelOrRefundRequestStatus.SetConnectionKey("CONNECTION_STRING");
+            spUpdateCancelOrRefundRequestStatus.SetConnectionKey("BILLING_CONNECTION_STRING");
             spUpdateCancelOrRefundRequestStatus.AddParameter("@CancelOrRefundPSPRef", sCancelOrRefundPSPReference);
             spUpdateCancelOrRefundRequestStatus.AddParameter("@RequestStatus", nCancelOrRefundStatus);
             spUpdateCancelOrRefundRequestStatus.AddParameter("@UpdateDate", DateTime.UtcNow);
@@ -448,7 +448,7 @@ namespace DAL
         {
 
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewAdyenCancelOrRefund");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@Price", price);
             sp.AddParameter("@CurrencyCode", sCurrencyCode);
@@ -472,7 +472,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataForAdyenCancelOrRefund");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@PSPReference", sCancelOrRefundPSPReference);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -500,7 +500,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataForResendingAdyenCancelOrRefund");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -533,7 +533,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_DataOfAdyenNotificationForAdyenCallback");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@PSPReference", sPSPReference);
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -600,7 +600,7 @@ namespace DAL
         public static int Insert_M1Transaction(int nGroupID, string sSiteGUID, int nItemType, string sChargedMobileNumber, string sCustomerServiceID, double dPrice, int nCustomDataID, int nStatus)
         {
             ODBCWrapper.StoredProcedure spInsertM1Transaction = new ODBCWrapper.StoredProcedure("Insert_M1Transaction");
-            spInsertM1Transaction.SetConnectionKey("CONNECTION_STRING");
+            spInsertM1Transaction.SetConnectionKey("BILLING_CONNECTION_STRING");
             spInsertM1Transaction.AddParameter("@GroupID", nGroupID);
             spInsertM1Transaction.AddParameter("@SiteGuid", sSiteGUID);
             spInsertM1Transaction.AddParameter("@ItemType", nItemType);
@@ -629,7 +629,7 @@ namespace DAL
         public static DataTable Get_M1CustomerServiceType(int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_M1CustomerServiceType");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@GroupID", nGroupID);
 
             DataSet ds = sp.ExecuteDataSet();
@@ -642,7 +642,7 @@ namespace DAL
         public static long Insert_NewCustomData(string sCustomData, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCustomData");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "BILLING_CONNECTION_STRING");
             sp.AddParameter("@CustomData", sCustomData);
             sp.AddParameter("@CreateDate", DateTime.UtcNow);
             return sp.ExecuteReturnValue<long>();
@@ -656,7 +656,7 @@ namespace DAL
         public static long Get_LatestCustomDataID(string sCustomData, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_LatestCustomDataID");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "BILLING_CONNECTION_STRING");
             sp.AddParameter("@CustomData", sCustomData);
             return sp.ExecuteReturnValue<long>();
         }
@@ -696,7 +696,7 @@ namespace DAL
             int nInternalCode, string sConfirmationMsg, string sKlicOperationID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCinepolisTransaction");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
 
             sp.AddParameter("@SiteGuid", lSiteGuid);
             sp.AddParameter("@Price", dPrice);
@@ -742,7 +742,7 @@ namespace DAL
             byte bytStatus, int nBusinessModuleType)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CinepolisTransactionID");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@SiteGuid", lSiteGuid);
             sp.AddParameter("@Price", dPrice);
             sp.AddParameter("@BankAuthorisationID", sBankAuthorisationID);
@@ -761,7 +761,7 @@ namespace DAL
         public static bool Update_PurchaseIDInCinepolisTransactions(long lCinepolisTransactionID, long lPurchaseID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_PurchaseIDInCinepolisTransactions");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@PurchaseID", lPurchaseID);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
@@ -773,7 +773,7 @@ namespace DAL
             int nInternalCode, string sMessage, long lPurchaseID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CinepolisConfirmationData");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
             sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
             sp.AddParameter("@InternalCode", nInternalCode);
@@ -788,7 +788,7 @@ namespace DAL
             int nInternalCode, string sMessage, string sConnKey)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CinepolisConfirmationDataByBillingID");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "BILLING_CONNECTION_STRING");
             sp.AddParameter("@BillingTransactionID", lBillingTransactionID);
             sp.AddParameter("@ConfirmationSuccess", bytConfirmationSuccess);
             sp.AddParameter("@InternalCode", nInternalCode);
@@ -803,7 +803,7 @@ namespace DAL
         public static bool Update_CinepolisTransactionStatus(byte bytTransactionStatus, long lCinepolisTransactionID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_CinepolisTransactionStatus");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@TransactionStatus", bytTransactionStatus);
             sp.AddParameter("@UpdateDate", DateTime.UtcNow);
             sp.AddParameter("@CinepolisTransactionID", lCinepolisTransactionID);
@@ -816,7 +816,7 @@ namespace DAL
         {
             bool res = false;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CinepolisSecret");
-            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
+            sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "BILLING_CONNECTION_STRING");
             DataSet ds = sp.ExecuteDataSet();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
             {
@@ -839,7 +839,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_IsSendMail");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@CurrentMailType", currentMailType);
             sp.AddParameter("@PSPReference", pspReference);
 
@@ -883,7 +883,7 @@ namespace DAL
         {
             bool res = false;
             StoredProcedure sp = new StoredProcedure("Get_InitialAdyenCallbackData");
-            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@SkinCode", skinCode);
             sp.AddParameter("@CustomDataID", customDataID);
 
@@ -929,7 +929,7 @@ namespace DAL
             }
 
             StoredProcedure spInsertStoredProcedure = new StoredProcedure("Insert_NewOfflineTransaction");
-            spInsertStoredProcedure.SetConnectionKey("CONNECTION_STRING");
+            spInsertStoredProcedure.SetConnectionKey("BILLING_CONNECTION_STRING");
             spInsertStoredProcedure.AddParameter("SiteGuid", p_nSiteGuid);
             spInsertStoredProcedure.AddParameter("Price", p_dPrice);
             spInsertStoredProcedure.AddParameter("CurrencyCode", p_sCurrencyCode);
@@ -963,7 +963,7 @@ namespace DAL
             int nReferenceTransactionID, int nStatus)
         {
             ODBCWrapper.StoredProcedure spInsertSmartSunTransaction = new ODBCWrapper.StoredProcedure("Insert_SmartSunTransaction");
-            spInsertSmartSunTransaction.SetConnectionKey("CONNECTION_STRING");
+            spInsertSmartSunTransaction.SetConnectionKey("BILLING_CONNECTION_STRING");
             spInsertSmartSunTransaction.AddParameter("@GroupID", nGroupID);
             spInsertSmartSunTransaction.AddParameter("@SiteGuid", sSiteGUID);
             spInsertSmartSunTransaction.AddParameter("@ItemType", nItemType);
