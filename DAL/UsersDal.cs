@@ -1348,6 +1348,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SALT", "=", sSalt);
 
