@@ -156,7 +156,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<UserSocialActionResponse, KalturaSocialAction>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
+                .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
                 ;
         }
 
