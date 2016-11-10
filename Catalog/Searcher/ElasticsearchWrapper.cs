@@ -1449,6 +1449,15 @@ namespace Catalog
                                             EpgId = epgId
                                         });
                                     }
+                                    else
+                                    {
+                                        searchResultsList.Add(new UnifiedSearchResult()
+                                        {
+                                            AssetId = assetId,
+                                            m_dUpdateDate = doc.update_date,
+                                            AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                        });
+                                    }
                                 }
                                 else
                                 {

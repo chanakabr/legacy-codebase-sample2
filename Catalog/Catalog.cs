@@ -7350,7 +7350,7 @@ namespace Catalog
                                 else if (searchResult.AssetType == eAssetTypes.NPVR)
                                 {
                                     activeRecordingIds.Add(searchResult.AssetId);
-                                    unFilteredresult.First(x => x.AssetId == searchResult.AssetId &&
+                                    unFilteredresult.First(x => x.RecordingId.ToString() == searchResult.AssetId &&
                                                                 x.AssetTypeId == (int)eAssetTypes.NPVR)
                                                                 .UpdateDate = searchResult.m_dUpdateDate;
                                 }
@@ -7365,7 +7365,7 @@ namespace Catalog
                         //remove recordings that are not active
                         unFilteredresult.RemoveAll(x =>
                             x.AssetTypeId == (int)eAssetTypes.NPVR &&
-                            !activeRecordingIds.Contains(x.AssetId));
+                            !activeRecordingIds.Contains(x.RecordingId.ToString()));
                     }
 
                     // filter status 

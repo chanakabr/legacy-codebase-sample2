@@ -2281,8 +2281,8 @@ namespace DAL
             {
                 foreach (DataRow dr in settingsTable.Rows)
                 {
-                    int ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "OSS_Adapter_id");
-                    if (ossAdapterId != ossAdapterRes.ID)
+                    int ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "OSS_Adapter_id", 0);
+                    if (ossAdapterId > 0 && ossAdapterId != ossAdapterRes.ID)
                         continue;
 
                     string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
@@ -2402,7 +2402,7 @@ namespace DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtResult = ds.Tables[0];

@@ -2335,12 +2335,12 @@ namespace Tvinci.Core.DAL
             {
                 Location = nLoactionSec,
                 UDID = sUDID,
-                AssetID = 0,
+                AssetID = int.Parse(sAssetID),
                 UserID = nSiteUserGuid,
                 CreatedAt = currentDate,
                 CreatedAtEpoch = Utils.DateTimeToUnixTimestamp(currentDate),
                 playType = ApiObjects.ePlayType.NPVR.ToString(),
-                NpvrID = sAssetID,
+                NpvrID = recordingId.ToString(),
                 AssetAction = action,
                 FileDuration = fileDuration,
                 AssetTypeId = (int)eAssetTypes.NPVR
