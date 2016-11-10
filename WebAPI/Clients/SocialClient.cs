@@ -20,6 +20,7 @@ using ApiObjects;
 using Social;
 using Social.Requests;
 using ObjectsConvertor.Mapping;
+using ApiObjects.Social;
 
 namespace WebAPI.Clients
 {
@@ -535,13 +536,7 @@ namespace WebAPI.Clients
             ApiObjects.Social.SocialPrivacySettingsResponse response = new ApiObjects.Social.SocialPrivacySettingsResponse();
             ApiObjects.Social.SocialPrivacySettings settings = new ApiObjects.Social.SocialPrivacySettings();
 
-            //settings.SocialNetworks = SocialMappings.ConvertSocialNetwork(socialActionConfig);
-
             settings.SocialNetworks = AutoMapper.Mapper.Map<ApiObjects.Social.SocialNetwork[]>(socialActionConfig).ToList();
-
-           // Mapper.CreateMap<Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
-
-
 
             Group group = GroupsManager.GetGroup(groupId);
             try
@@ -568,7 +563,6 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            //socialConfig = SocialMappings.ConvertSocialNetwork(response.settings);
             socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
            
             return socialConfig;
@@ -605,9 +599,49 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
-            //socialConfig = SocialMappings.ConvertSocialNetwork(response.settings);
             socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
             return socialConfig;
+        }
+
+        internal KalturaUserSocialAction AddSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
+        {
+            KalturaUserSocialAction actionResponse = new KalturaUserSocialAction();
+            UserSocialActionResponse response = new UserSocialActionResponse();
+            UserSocialActionRequest request = new UserSocialActionRequest();
+
+            request = AutoMapper.Mapper.Map<ApiObjects.Social.UserSocialActionRequest>(socialAction);
+
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    request.SiteGuid = userId;
+                    request.DeviceUDID = udid;
+                    response = Client.AddUserSocialAction(group.SocialCredentials.Username, group.SocialCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddSocialAction.  groupID: {0}, socialAction: {1}, exception: {2}", groupId, socialAction.ToString(), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            //continue here - implament mapping here !!!!
+            actionResponse = AutoMapper.Mapper.Map<KalturaUserSocialAction>(response.Networks);
+
+            return actionResponse;  
         }
     }
 }

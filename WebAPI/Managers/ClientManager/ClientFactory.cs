@@ -53,7 +53,7 @@ namespace WebAPI.ClientManagers.Client
 
                     client = new CatalogClient()
                     {
-                        Module = new Catalog.IserviceClient("Catalog_WSHttpBinding_Iservice")
+                        Module = new Catalog.IserviceClient(TCMClient.Settings.Instance.GetValue<string>("CatalogEndPoint"))
                     };
                     ((Catalog.IserviceClient)client.Module).Endpoint.Address = new EndpointAddress(url);
 
