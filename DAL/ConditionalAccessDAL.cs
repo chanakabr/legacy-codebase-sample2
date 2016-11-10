@@ -74,6 +74,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("ppv_purchases");
+                insertQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
 
                 if (sSubCode != null)
@@ -127,6 +128,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 selectQuery += " select id from ppv_purchases with (nolock) where ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
 
@@ -312,6 +314,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
+                updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", nIsRecurring);
                 updateQuery += " WHERE ";
 
@@ -347,7 +350,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
-                //updateQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
                 updateQuery += " WHERE ";
@@ -378,6 +381,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("ppv_purchases");
+                updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
                 updateQuery += " WHERE ";
@@ -727,13 +731,10 @@ namespace DAL
         }
 
         public static long Insert_NewPPVPurchase(long groupID, long contentID, string siteGuid, double price, string currency, long maxNumOfUses, string customData, string subscriptionCode,
-            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null, string connectionString = null)
+            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
-            if (!string.IsNullOrEmpty(connectionString))
-            {
-                sp.SetConnectionKey(connectionString);
-            }
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
 
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@MediaFileID", contentID);

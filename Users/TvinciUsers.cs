@@ -312,6 +312,7 @@ namespace Users
         {
             Int32 nRet = 0;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery += "select id from users where status=1 and is_active=1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN", "=", sToken);
             selectQuery += " and ";
@@ -352,6 +353,7 @@ namespace Users
                 resp.m_RespStatus = ResponseStatus.OK;
 
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN", "=", DBNull.Value);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("CP_TOKEN_LAST_DATE", "=", DateTime.UtcNow.AddDays(-15));
                 updateQuery += " where ";
@@ -735,6 +737,7 @@ namespace Users
             UserResponseObject retVal = new UserResponseObject();
             retVal.m_RespStatus = ResponseStatus.UserDoesNotExist;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery += " select id from users where is_active = 1 and status = 1 and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("coguid", "=", sCoGuid);
             selectQuery += " and ";
@@ -1345,6 +1348,7 @@ namespace Users
             if (result == true)
             {
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select username, email_add from users(nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nSiteGuid);
 
@@ -1682,6 +1686,7 @@ namespace Users
             try
             {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_log");
+                insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("USER_ID", "=", int.Parse(sSiteGUID));
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MESSAGE", "=", sMessage);

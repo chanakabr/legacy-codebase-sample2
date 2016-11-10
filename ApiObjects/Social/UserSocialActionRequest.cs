@@ -18,6 +18,8 @@ namespace ApiObjects.Social
 
         public eUserAction Action { get; set; }
 
+        public List<ApiObjects.KeyValuePair> ExtraParams { get; set; }
+
         //public SocialPlatform network { get; set; }
 
         public UserSocialActionRequest()
@@ -26,11 +28,13 @@ namespace ApiObjects.Social
             AssetID = 0;            
             Action = eUserAction.UNKNOWN;
             AssetType = eAssetType.UNKNOWN;
+            ExtraParams = null;
         }
 
         public override string ToString()
         {
-            string res = string.Format("AssetType : {0}, DeviceUDID :{1}, SiteGuid : {2}, AssetID :{3}, Action : {4}", AssetType.ToString(), DeviceUDID, SiteGuid, AssetID, Action.ToString());
+            string res = string.Format("AssetType : {0}, DeviceUDID :{1}, SiteGuid : {2}, AssetID :{3}, Action : {4}, ExtraParams : {5}", AssetType.ToString(), DeviceUDID, SiteGuid, AssetID, Action.ToString(),
+               string.Join(",", ExtraParams));
             return res;
         }
 

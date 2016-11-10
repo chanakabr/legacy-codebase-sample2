@@ -249,6 +249,7 @@ namespace ApiObjects.Response
         UserDoseNotExists = 7011,
         NoFacebookAction = 7012,
         NotAllowed = 7013,
+        AssetAlreadyRated = 7014,
                    
        /* MEDIA_ALEADY_FOLLOWED = 12,
         MEDIA_ALREADY_RATED = 14,*/

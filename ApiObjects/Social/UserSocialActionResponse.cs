@@ -8,20 +8,20 @@ namespace ApiObjects.Social
 {
     public class UserSocialActionResponse
     {
-        public List<NetworkActionStatus> networks { get; set; }
+        public List<NetworkActionStatus> Networks { get; set; }
 
-        public ApiObjects.Response.Status status { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }
 
         public UserSocialActionResponse()
         {
-            networks = new List<NetworkActionStatus>();
-            status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            Networks = new List<NetworkActionStatus>();
+            Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
         }
     }
 
     public class NetworkActionStatus
     {
-        public ApiObjects.Response.Status status { get; set; }
-        public SocialPlatform? network { get; set; }
+        public ApiObjects.Response.Status Status { get; set; }
+        public SocialPlatform? Network { get; set; }
     }
 }
