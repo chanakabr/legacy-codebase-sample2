@@ -45,6 +45,15 @@ namespace WebAPI.Models.Social
         [XmlElement(ElementName = "assetType")]
         public KalturaAssetType AssetType { get; set; }
 
+        /// <summary>
+        /// ActionStatus 
+        /// </summary
+        [DataMember(Name = "status")]
+        [JsonProperty("status")]
+        [XmlElement(ElementName = "status", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaSocialStatus Status { get; set; }
+
         public override string ToString()
         {
             string res = string.Format("actionType : {0}, Time :{1}, AssetId : {2}, AssetID :{3}, AssetType : {4}", ActionType.ToString(), Time, AssetId , AssetType);

@@ -604,9 +604,9 @@ namespace WebAPI.Clients
             return socialConfig;
         }
 
-        internal KalturaUserSocialAction AddSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
+        internal KalturaSocialAction AddSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
         {
-            KalturaUserSocialAction actionResponse = new KalturaUserSocialAction();
+            KalturaSocialAction actionResponse = new KalturaSocialAction();
             UserSocialActionResponse response = new UserSocialActionResponse();
             UserSocialActionRequest request = new UserSocialActionRequest();
 
@@ -621,6 +621,7 @@ namespace WebAPI.Clients
                     request.SiteGuid = userId;
                     request.DeviceUDID = udid;
                     response = Client.AddUserSocialAction(group.SocialCredentials.Username, group.SocialCredentials.Password, request);
+                    
                 }
             }
             catch (Exception ex)
@@ -637,10 +638,9 @@ namespace WebAPI.Clients
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            //continue here - implament mapping here !!!!
-            actionResponse = AutoMapper.Mapper.Map<KalturaUserSocialAction>(response.Networks);
+            }        
+                        
+            actionResponse = AutoMapper.Mapper.Map<KalturaSocialAction>(response);
 
             return actionResponse;
         }

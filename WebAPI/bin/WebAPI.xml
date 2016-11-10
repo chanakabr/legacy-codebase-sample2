@@ -4137,11 +4137,6 @@
             Enable Recording playback for non entitled channel
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonExistingChannel">
-            <summary>
-            Enable Recording playback for non existing channel
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
             <summary>
             Recording-asset info
@@ -7757,6 +7752,7 @@
             Type of the asset that was acted upon, currently only VOD (media)
             </summary>
         </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaSocialAction.Status" -->
         <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Rate">
             <summary>
             The value of the rating
@@ -8003,13 +7999,6 @@
             List of action permission items
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaUserSocialAction.NetworkStatus">
-            <summary>
-            List of action permission items
-            </summary>
-        </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaNetworkActionStatus.Status" -->
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaNetworkActionStatus.Network" -->
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
             <summary>
             Favorite request filter 
