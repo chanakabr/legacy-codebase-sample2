@@ -579,6 +579,16 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.SocialActionController.Add(WebAPI.Models.Social.KalturaSocialAction)">
+            <summary>
+            Insert new user social action
+            </summary>
+            <param name="socialAction">social Action Object</param>
+            <remarks>
+            Possible status codes:
+            </remarks>
+            <param name="channel">KSQL channel Object</param>
+        </member>
         <member name="M:WebAPI.Controllers.SocialFriendActivityController.List(WebAPI.Models.Social.KalturaSocialFriendActivityFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get a list of the social friends activity for a user
@@ -7941,6 +7951,13 @@
             List of action permission items
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaUserSocialAction.NetworkStatus">
+            <summary>
+            List of action permission items
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaNetworkActionStatus.Status" -->
+        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaNetworkActionStatus.Network" -->
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
             <summary>
             Favorite request filter 
