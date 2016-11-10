@@ -17147,7 +17147,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public Recording GetRecordingByID(long domainID, long domainRecordingID)
+        public Recording GetRecordingByID(long domainID, long domainRecordingID, bool shouldReplaceRecordingObjectId = true)
         {
             Recording response = new Recording();
             try
@@ -17161,7 +17161,11 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                response = DomainRecordingIdToRecordingMap[domainRecordingID];
+                if (shouldReplaceRecordingObjectId)
+                {
+                    response = DomainRecordingIdToRecordingMap[domainRecordingID];
+                }
+
                 response.Id = domainRecordingID;
             }
 
