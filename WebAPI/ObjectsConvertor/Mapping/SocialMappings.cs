@@ -133,23 +133,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialAction>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)));
+                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)));
 
             Mapper.CreateMap<KalturaSocialAction ,ApiObjects.Social.UserSocialActionRequest>()
                  .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.Type)));
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)));
 
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionRate>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
+                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
                   .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => ConvertRateParams(src.ExtraParams)));
 
             Mapper.CreateMap<KalturaSocialActionRate, ApiObjects.Social.UserSocialActionRequest>()
                  .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
-                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.Type)))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)))
                   .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => ConvertRateParams(src.Rate)));
 
 
@@ -363,7 +363,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new KalturaSocialAction()
                 {
-                    Type = actionType
+                    ActionType = actionType
                 };
             }
 
