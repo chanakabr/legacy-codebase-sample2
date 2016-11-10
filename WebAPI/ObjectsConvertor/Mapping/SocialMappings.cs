@@ -145,7 +145,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 result = new KalturaSocialAction()
                 {
-                    Type = actionType
+                    ActionType = actionType
                 };
             }
 

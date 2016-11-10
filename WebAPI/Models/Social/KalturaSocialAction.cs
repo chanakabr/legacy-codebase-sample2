@@ -19,14 +19,14 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "actionType")]
         [JsonProperty("actionType")]
         [XmlElement(ElementName = "actionType")]
-        public KalturaSocialActionType Type { get; set; }
+        public KalturaSocialActionType ActionType { get; set; }
 
         /// <summary>
         /// EPOC based timestamp for when the action occurred
         /// </summary>
-        [DataMember(Name = "actionTime")]
-        [JsonProperty("actionTime")]
-        [XmlElement(ElementName = "actionTime")]
+        [DataMember(Name = "time")]
+        [JsonProperty("time")]
+        [XmlElement(ElementName = "time")]
         public long? Time { get; set; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Social
 
         public KalturaSocialActionRate(int value)
         {
-            Type = KalturaSocialActionType.RATE;
+            ActionType = KalturaSocialActionType.RATE;
             Rate = value;
         }
     }

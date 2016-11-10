@@ -7675,7 +7675,7 @@
             Profile picture URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Type">
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionType">
             <summary>
             Action type
             </summary>
