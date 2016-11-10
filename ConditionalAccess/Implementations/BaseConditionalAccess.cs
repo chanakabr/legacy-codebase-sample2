@@ -17161,12 +17161,11 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                response = DomainRecordingIdToRecordingMap[domainRecordingID];
                 if (shouldReplaceRecordingObjectId)
                 {
-                    response = DomainRecordingIdToRecordingMap[domainRecordingID];
+                    response.Id = domainRecordingID;
                 }
-
-                response.Id = domainRecordingID;
             }
 
             catch (Exception ex)
