@@ -203,8 +203,9 @@ namespace ElasticSearchHandler.IndexBuilders
                             try
                             {
                                 // If there is at least 1 media type, build its definitions
-                                if (currentChannel.m_nMediaType != null && currentChannel.m_nMediaType.Count > 0 &&
-                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                                if (currentChannel.m_nMediaType == null || currentChannel.m_nMediaType.Count == 0 || 
+                                    (currentChannel.m_nMediaType != null && currentChannel.m_nMediaType.Count > 0 &&
+                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0))
                                 {
                                     UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
 
