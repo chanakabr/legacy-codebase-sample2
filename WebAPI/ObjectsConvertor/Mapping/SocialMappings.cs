@@ -14,6 +14,7 @@ using WebAPI.Models.Users;
 using WebAPI.Models.General;
 using Social;
 using WebAPI.Models.Social;
+using ApiObjects.Social;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -129,6 +130,219 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
 
+            Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialAction>()
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)));
+
+            Mapper.CreateMap<KalturaSocialAction ,ApiObjects.Social.UserSocialActionRequest>()
+                 .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.Type)));
+
+            Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionRate>()
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
+                  .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => ConvertRateParams(src.ExtraParams)));
+
+            Mapper.CreateMap<KalturaSocialActionRate, ApiObjects.Social.UserSocialActionRequest>()
+                 .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.Type)))
+                  .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => ConvertRateParams(src.Rate)));
+
+            Mapper.CreateMap<List<NetworkActionStatus>,KalturaUserSocialAction>()
+                 .ForMember(dest => dest.NetworkStatus, opt => opt.MapFrom(src => ConvertNetworkActionStatus(src)));
+        }
+
+        private static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
+        {
+            List<KalturaNetworkActionStatus> result = new List<KalturaNetworkActionStatus>();
+            KalturaNetworkActionStatus kns;
+            foreach (NetworkActionStatus networkStatus in src)
+            {
+                kns = new KalturaNetworkActionStatus();
+                if (networkStatus.Network != null)
+                {
+                    switch (networkStatus.Network)
+                    {
+                        case SocialPlatform.FACEBOOK:
+                            kns.Network = KalturaSocialNetwork.facebook;
+                            break;
+                        default:
+                            kns.Network = null;
+                            break;
+                    }
+                }
+                switch (networkStatus.Status.Code)
+                {
+                    case (int)ApiObjects.Response.eResponseStatus.Error:
+                        kns.Status = KalturaSocialStatus.error;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.OK:
+                        kns.Status = KalturaSocialStatus.ok;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.UserDoesNotExist:
+                        kns.Status = KalturaSocialStatus.user_does_not_exist;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound:
+                        kns.Status = KalturaSocialStatus.no_user_social_settings_found;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked:
+                        kns.Status = KalturaSocialStatus.asset_already_liked;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.NotAllowed:
+                        kns.Status = KalturaSocialStatus.not_allowed;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.InvalidParameters:
+                        kns.Status = KalturaSocialStatus.invalid_parameters;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.NoFacebookAction:
+                        kns.Status = KalturaSocialStatus.no_facebook_action;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyRated:
+                        kns.Status = KalturaSocialStatus.asset_already_rated;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists:
+                        kns.Status = KalturaSocialStatus.asset_dose_not_exists;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.InvalidPlatformRequest:
+                        kns.Status = KalturaSocialStatus.invalid_platform_request;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.InvalidAccessToken:
+                        kns.Status = KalturaSocialStatus.invalid_access_token;
+                        break;
+                    default:
+                        kns.Status = KalturaSocialStatus.error;
+                        break;
+                }
+                result.Add(kns);
+            }
+
+            return result;
+        }
+
+        private static List<ApiObjects.KeyValuePair> ConvertRateParams(int RateValue)
+        {
+            List<ApiObjects.KeyValuePair> ExtraParams = new List<KeyValuePair>();
+            ExtraParams.Add(new KeyValuePair() { key = "rating:value", value = RateValue.ToString()});
+            return ExtraParams;
+        }
+
+        private static eUserAction ConvertSocialActionType(KalturaSocialActionType kalturaSocialActionType)
+        {
+            eUserAction result;
+            switch (kalturaSocialActionType)
+            {
+                case KalturaSocialActionType.LIKE:
+                    result = eUserAction.LIKE;
+                    break;
+                case KalturaSocialActionType.WATCH:
+                    result = eUserAction.WATCHES;
+                    break;
+                case KalturaSocialActionType.RATE:
+                    result = eUserAction.RATES;
+                    break;
+                case KalturaSocialActionType.UNLIKE:
+                    result = eUserAction.UNLIKE;
+                    break;
+                case KalturaSocialActionType.SHARE:
+                    result = eUserAction.SHARE;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Action");
+            }
+            return result;
+        }
+
+        private static KalturaAssetType ConvertAssetType(KalturaAssetType kalturaAssetType)
+        {
+            switch (kalturaAssetType)
+            {
+                case KalturaAssetType.media:
+                    return KalturaAssetType.media;
+                    break;
+                case KalturaAssetType.recording:
+                    return KalturaAssetType.recording;
+                    break;
+                case KalturaAssetType.epg:
+                    return KalturaAssetType.epg;
+                    break;
+                default:
+                    return KalturaAssetType.media;
+                    break;
+            }
+        }
+
+        private static int ConvertRateParams(List<KeyValuePair> list)
+        {
+            int RateValue = 0;
+            Dictionary<string, string> extraParams = KvpListToDictionary(ref list);
+            if (extraParams.ContainsKey("rating:value") && !int.TryParse(extraParams["rating:value"], out RateValue))
+                return RateValue;
+            return RateValue;
+        }
+        
+        private static Dictionary<string, string> KvpListToDictionary(ref List<KeyValuePair> lExtraParams)
+        {
+            Dictionary<string, string> dResult = new Dictionary<string, string>();
+
+            if (lExtraParams != null && lExtraParams.Count > 0)
+            {
+                for (int i = 0; i < lExtraParams.Count; i++)
+                {
+                    if (lExtraParams[i] != null && !string.IsNullOrEmpty(lExtraParams[i].key) && !string.IsNullOrEmpty(lExtraParams[i].value))
+                    {
+                        dResult[lExtraParams[i].key] = lExtraParams[i].value;
+                    }
+                }
+            }
+
+            return dResult;
+        }
+
+        private static KalturaSocialActionType ConvertSocialActionType(eUserAction eUserAction)
+        {
+            KalturaSocialActionType result = KalturaSocialActionType.LIKE;
+            switch (eUserAction)
+            {  
+                case eUserAction.LIKE:
+                    result = KalturaSocialActionType.LIKE;
+                    break;
+                case eUserAction.UNLIKE:
+                    result = KalturaSocialActionType.UNLIKE;
+                    break;
+                case eUserAction.SHARE:
+                    result = KalturaSocialActionType.SHARE;
+                    break;
+                case eUserAction.WATCHES:
+                    break;
+                    result = KalturaSocialActionType.WATCH;
+                    break;
+                case eUserAction.RATES:
+                    result = KalturaSocialActionType.RATE;
+                    break;   
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown Action");                   
+            }
+            return result;
+        }
+
+        private static KalturaAssetType ConvertAssetType(eAssetType eAssetType)
+        {
+            switch (eAssetType)
+            {                
+                case eAssetType.MEDIA:
+                    return KalturaAssetType.media;
+                    break;
+                case eAssetType.PROGRAM:
+                    return KalturaAssetType.epg;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown AssetType");
+                    break;
+            }
         }
 
         private static KalturaSocialAction ConvertToKalturaSocialAction(ResolutionContext context)
@@ -445,5 +659,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return ksc;
         }
+        
     }
 }

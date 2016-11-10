@@ -44,6 +44,12 @@ namespace WebAPI.Models.Social
         [JsonProperty("assetType")]
         [XmlElement(ElementName = "assetType")]
         public KalturaAssetType AssetType { get; set; }
+
+        public override string ToString()
+        {
+            string res = string.Format("actionType : {0}, Time :{1}, AssetId : {2}, AssetID :{3}, AssetType : {4}", Type.ToString(), Time, AssetId , AssetType);
+            return res;  
+        }
     }
 
     public class KalturaSocialActionRate : KalturaSocialAction
@@ -61,6 +67,12 @@ namespace WebAPI.Models.Social
             Type = KalturaSocialActionType.RATE;
             Rate = value;
         }
+
+        public override string ToString()
+        {
+            string res = string.Format("{0}, Rate Value = {1} ", base.ToString(), Rate);
+            return res;
+        }
     }
 
     public enum KalturaSocialActionType
@@ -68,5 +80,7 @@ namespace WebAPI.Models.Social
         LIKE,
         WATCH,
         RATE,
+        UNLIKE,
+        SHARE       
     }
 }
