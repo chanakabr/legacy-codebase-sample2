@@ -2281,8 +2281,8 @@ namespace DAL
             {
                 foreach (DataRow dr in settingsTable.Rows)
                 {
-                    int ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "OSS_Adapter_id");
-                    if (ossAdapterId != ossAdapterRes.ID)
+                    int ossAdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "OSS_Adapter_id", 0);
+                    if (ossAdapterId > 0 && ossAdapterId != ossAdapterRes.ID)
                         continue;
 
                     string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
