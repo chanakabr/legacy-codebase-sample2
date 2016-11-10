@@ -2402,7 +2402,7 @@ namespace DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@status", status);
-                DataSet ds = sp.ExecuteDataSetWithListParam();
+                DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     DataTable dtResult = ds.Tables[0];
