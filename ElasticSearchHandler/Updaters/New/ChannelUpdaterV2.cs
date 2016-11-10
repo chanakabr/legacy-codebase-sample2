@@ -16,7 +16,7 @@ namespace ElasticSearchHandler.Updaters
     public class ChannelUpdaterV2 : IElasticSearchUpdater
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        public static readonly string PERCOLATOR = "_percolator";
+        public static readonly string PERCOLATOR = ".percolator";
 
         private int m_nGroupID;
         private ElasticSearch.Common.ESSerializerV2 m_oESSerializer;
@@ -117,16 +117,16 @@ namespace ElasticSearchHandler.Updaters
 
             if (mediaAliases != null && mediaAliases.Count > 0)
             {
-                foreach (int nChannelID in ids)
+                foreach (int channelID in ids)
                 {
                     foreach (string index in mediaAliases)
                     {
-                        deleteResult = esApi.DeleteDoc(PERCOLATOR, index, nChannelID.ToString());
+                        deleteResult = esApi.DeleteDoc(index, PERCOLATOR, channelID.ToString());
                         result &= deleteResult.Ok;
 
                         if (!deleteResult.Ok)
                         {
-                            log.Error("Error - " + string.Concat("Could not delete channel from elasticsearch. ID=", nChannelID));
+                            log.Error("Error - " + string.Concat("Could not delete channel from elasticsearch. ID=", channelID));
                         }
                     }
                 }
@@ -142,7 +142,7 @@ namespace ElasticSearchHandler.Updaters
                 {
                     foreach (string index in epgAliases)
                     {
-                        deleteResult = esApi.DeleteDoc(PERCOLATOR, index, channelId.ToString());
+                        deleteResult = esApi.DeleteDoc(index, PERCOLATOR, channelId.ToString());
                         result &= deleteResult.Ok;
 
                         if (!deleteResult.Ok)
@@ -218,7 +218,7 @@ namespace ElasticSearchHandler.Updaters
                         {
                             foreach (string alias in mediaAliases)
                             {
-                                result = esApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                                result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQuery);
                             }
                         }
 
@@ -226,7 +226,7 @@ namespace ElasticSearchHandler.Updaters
                         {
                             foreach (string alias in epgAliases)
                             {
-                                result = esApi.AddQueryToPercolator(alias, channel.m_nChannelID.ToString(), ref channelQuery);
+                                result = esApi.AddQueryToPercolatorV2(alias, channel.m_nChannelID.ToString(), ref channelQuery);
                             }
                         }
 
