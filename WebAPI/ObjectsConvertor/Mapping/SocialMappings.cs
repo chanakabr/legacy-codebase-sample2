@@ -152,76 +152,80 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => ConvertSocialActionType(src.Type)))
                   .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => ConvertRateParams(src.Rate)));
 
-            Mapper.CreateMap<List<NetworkActionStatus>,KalturaUserSocialAction>()
-                 .ForMember(dest => dest.NetworkStatus, opt => opt.MapFrom(src => ConvertNetworkActionStatus(src)));
+
+            Mapper.CreateMap<UserSocialActionResponse, KalturaSocialAction>()
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
+                .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
+                ;
         }
 
-        private static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
-        {
-            List<KalturaNetworkActionStatus> result = new List<KalturaNetworkActionStatus>();
-            KalturaNetworkActionStatus kns;
-            foreach (NetworkActionStatus networkStatus in src)
-            {
-                kns = new KalturaNetworkActionStatus();
-                if (networkStatus.Network != null)
-                {
-                    switch (networkStatus.Network)
-                    {
-                        case SocialPlatform.FACEBOOK:
-                            kns.Network = KalturaSocialNetwork.facebook;
-                            break;
-                        default:
-                            kns.Network = null;
-                            break;
-                    }
-                }
-                switch (networkStatus.Status.Code)
-                {
-                    case (int)ApiObjects.Response.eResponseStatus.Error:
-                        kns.Status = KalturaSocialStatus.error;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.OK:
-                        kns.Status = KalturaSocialStatus.ok;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.UserDoesNotExist:
-                        kns.Status = KalturaSocialStatus.user_does_not_exist;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound:
-                        kns.Status = KalturaSocialStatus.no_user_social_settings_found;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked:
-                        kns.Status = KalturaSocialStatus.asset_already_liked;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.NotAllowed:
-                        kns.Status = KalturaSocialStatus.not_allowed;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.InvalidParameters:
-                        kns.Status = KalturaSocialStatus.invalid_parameters;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.NoFacebookAction:
-                        kns.Status = KalturaSocialStatus.no_facebook_action;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyRated:
-                        kns.Status = KalturaSocialStatus.asset_already_rated;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists:
-                        kns.Status = KalturaSocialStatus.asset_dose_not_exists;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.InvalidPlatformRequest:
-                        kns.Status = KalturaSocialStatus.invalid_platform_request;
-                        break;
-                    case (int)ApiObjects.Response.eResponseStatus.InvalidAccessToken:
-                        kns.Status = KalturaSocialStatus.invalid_access_token;
-                        break;
-                    default:
-                        kns.Status = KalturaSocialStatus.error;
-                        break;
-                }
-                result.Add(kns);
-            }
+        //private static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
+        //{
+        //    List<KalturaNetworkActionStatus> result = new List<KalturaNetworkActionStatus>();
+        //    KalturaNetworkActionStatus kns;
+        //    foreach (NetworkActionStatus networkStatus in src)
+        //    {
+        //        kns = new KalturaNetworkActionStatus();
+        //        if (networkStatus.Network != null)
+        //        {
+        //            switch (networkStatus.Network)
+        //            {
+        //                case SocialPlatform.FACEBOOK:
+        //                    kns.Network = KalturaSocialNetwork.facebook;
+        //                    break;
+        //                default:
+        //                    kns.Network = null;
+        //                    break;
+        //            }
+        //        }
+        //        switch (networkStatus.Status.Code)
+        //        {
+        //            case (int)ApiObjects.Response.eResponseStatus.Error:
+        //                kns.Status = KalturaSocialStatus.error;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.OK:
+        //                kns.Status = KalturaSocialStatus.ok;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.UserDoesNotExist:
+        //                kns.Status = KalturaSocialStatus.user_does_not_exist;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound:
+        //                kns.Status = KalturaSocialStatus.no_user_social_settings_found;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked:
+        //                kns.Status = KalturaSocialStatus.asset_already_liked;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.NotAllowed:
+        //                kns.Status = KalturaSocialStatus.not_allowed;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.InvalidParameters:
+        //                kns.Status = KalturaSocialStatus.invalid_parameters;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.NoFacebookAction:
+        //                kns.Status = KalturaSocialStatus.no_facebook_action;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyRated:
+        //                kns.Status = KalturaSocialStatus.asset_already_rated;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists:
+        //                kns.Status = KalturaSocialStatus.asset_dose_not_exists;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.InvalidPlatformRequest:
+        //                kns.Status = KalturaSocialStatus.invalid_platform_request;
+        //                break;
+        //            case (int)ApiObjects.Response.eResponseStatus.InvalidAccessToken:
+        //                kns.Status = KalturaSocialStatus.invalid_access_token;
+        //                break;
+        //            default:
+        //                kns.Status = KalturaSocialStatus.error;
+        //                break;
+        //        }
+        //        result.Add(kns);
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
         private static List<ApiObjects.KeyValuePair> ConvertRateParams(int RateValue)
         {
@@ -256,21 +260,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaAssetType ConvertAssetType(KalturaAssetType kalturaAssetType)
+        private static eAssetType ConvertAssetType(KalturaAssetType kalturaAssetType)
         {
             switch (kalturaAssetType)
             {
                 case KalturaAssetType.media:
-                    return KalturaAssetType.media;
+                    return eAssetType.MEDIA;
                     break;
                 case KalturaAssetType.recording:
-                    return KalturaAssetType.recording;
+                    return eAssetType.UNKNOWN;
                     break;
                 case KalturaAssetType.epg:
-                    return KalturaAssetType.epg;
+                    return eAssetType.PROGRAM;
                     break;
                 default:
-                    return KalturaAssetType.media;
+                    return eAssetType.UNKNOWN;
                     break;
             }
         }
