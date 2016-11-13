@@ -31,6 +31,15 @@ namespace DalCB
             bool bResult = false;
             try
             {
+                ViewStaleState? staleState = null;
+                var staleStateConfig = TVinciShared.WS_Utils.GetTcmConfigValue("FRIENDS_ACTIVITY_VIEW_STALE_STATE");
+                if (!string.IsNullOrEmpty(staleStateConfig))
+                {
+                    ViewStaleState parsedStaleState = ViewStaleState.None;
+                    if (Enum.TryParse(staleStateConfig, true, out parsedStaleState))
+                        staleState = parsedStaleState;
+                }
+
                 long epochTime = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
                 object[] startKey = new object[] { sSiteGuid, epochTime };
                 object[] endKey = new object[] { sSiteGuid, 0 };
@@ -46,6 +55,7 @@ namespace DalCB
                         isDescending = true,
                         skip = nSkip,
                         limit = nNumOfRecords,
+                        staleState = staleState
                     });
                 }
                 else
@@ -55,6 +65,7 @@ namespace DalCB
                         startKey = startKey,
                         endKey = endKey,
                         isDescending = true,
+                        staleState = staleState
                     });
                 }
 
