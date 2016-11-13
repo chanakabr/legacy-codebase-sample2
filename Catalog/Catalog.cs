@@ -4395,7 +4395,7 @@ namespace Catalog
 
                 using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                 {
-                    var recording = cas.GetRecordingByID(userName, password, domainId, domainRecordingId);
+                    var recording = cas.GetRecordingByDomainRecordingId(userName, password, domainId, domainRecordingId);
                     
                     // Validate recording
                     if (recording != null && recording.Status != null && recording.Status.Code == 0)
@@ -7317,13 +7317,28 @@ namespace Catalog
                             searchDefinitions.shouldSearchMedia = true;
                         }
 
+                        searchDefinitions.recordingsToDomainRecordingsMapping = new Dictionary<string, string>();
+                        searchDefinitions.recordingsToEpgMapping = new Dictionary<string, string>();
+
                         var listofRecordings = unFilteredresult.Where(x => x.AssetTypeId == (int)eAssetTypes.NPVR)
-                            .Select(x => x.RecordingId.ToString()).ToList();
+                            .Select(x => 
+                                {
+                                    // map the recording to its domain recording id
+                                    searchDefinitions.recordingsToDomainRecordingsMapping[x.RecordingId.ToString()] = x.AssetId;
+                                    return x.RecordingId.ToString();
+                                }).ToList();
 
                         if (listofRecordings.Count > 0)
                         {
                             searchDefinitions.specificAssets.Add(eAssetTypes.NPVR, listofRecordings);
                             searchDefinitions.shouldSearchRecordings = true;
+
+                            if (searchDefinitions.extraReturnFields == null)
+                            {
+                                searchDefinitions.extraReturnFields = new List<string>();
+                            }
+
+                            searchDefinitions.extraReturnFields.Add("epg_id");
                         }
 
                         ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
@@ -7350,9 +7365,12 @@ namespace Catalog
                                 else if (searchResult.AssetType == eAssetTypes.NPVR)
                                 {
                                     activeRecordingIds.Add(searchResult.AssetId);
-                                    unFilteredresult.First(x => x.RecordingId.ToString() == searchResult.AssetId &&
-                                                                x.AssetTypeId == (int)eAssetTypes.NPVR)
-                                                                .UpdateDate = searchResult.m_dUpdateDate;
+                                    var recordingResult = unFilteredresult.First(x => x.AssetId.ToString() == searchResult.AssetId &&
+                                                                x.AssetTypeId == (int)eAssetTypes.NPVR);
+
+                                    recordingResult.UpdateDate = searchResult.m_dUpdateDate;
+                                    recordingResult.EpgId = 
+                                        long.Parse((searchResult as RecordingSearchResult).EpgId);
                                 }
                             }
                         }
@@ -7365,7 +7383,7 @@ namespace Catalog
                         //remove recordings that are not active
                         unFilteredresult.RemoveAll(x =>
                             x.AssetTypeId == (int)eAssetTypes.NPVR &&
-                            !activeRecordingIds.Contains(x.RecordingId.ToString()));
+                            !activeRecordingIds.Contains(x.AssetId.ToString()));
                     }
 
                     // filter status 
