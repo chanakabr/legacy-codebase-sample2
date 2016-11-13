@@ -380,6 +380,13 @@ namespace WebAPI.Clients
                 {
                     watchHistory = watchHistoryResponse.result.FirstOrDefault(x => x.AssetId == ((KalturaAssetInfo)assetInfo).Id.ToString());
 
+                    KalturaAssetType assetType = KalturaAssetType.media;
+
+                    if (watchHistory.AssetType == eAssetTypes.NPVR)
+                    {
+                        assetType = KalturaAsset.recording;
+                    }
+
                     if (watchHistory != null)
                     {
                         finalResults.Objects.Add(new KalturaAssetHistory()
@@ -388,7 +395,8 @@ namespace WebAPI.Clients
                             Duration = watchHistory.Duration,
                             IsFinishedWatching = watchHistory.IsFinishedWatching,
                             LastWatched = watchHistory.LastWatch,
-                            Position = watchHistory.Location
+                            Position = watchHistory.Location,
+                            AssetType = assetType
                         });
                     }
                 }
