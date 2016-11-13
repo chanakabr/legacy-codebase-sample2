@@ -384,7 +384,7 @@ namespace WebAPI.Clients
 
                     if (watchHistory.AssetType == eAssetTypes.NPVR)
                     {
-                        assetType = KalturaAsset.recording;
+                        assetType = KalturaAssetType.recording;
                     }
 
                     if (watchHistory != null)
