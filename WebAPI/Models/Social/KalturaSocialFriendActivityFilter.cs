@@ -46,7 +46,8 @@ namespace WebAPI.Models.Social
                 foreach (string action in splitActions)
                 {
                     KalturaSocialActionType parsedAction;
-                    if (Enum.TryParse(action, true, out parsedAction))
+                    if (Enum.TryParse(action, true, out parsedAction) && 
+                        (parsedAction == KalturaSocialActionType.LIKE || parsedAction == KalturaSocialActionType.RATE || parsedAction == KalturaSocialActionType.WATCH))
                     {
                         actions.Add(parsedAction);
                     }
