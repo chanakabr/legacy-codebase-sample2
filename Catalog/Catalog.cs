@@ -4395,7 +4395,7 @@ namespace Catalog
 
                 using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                 {
-                    var recording = cas.GetRecordingByID(userName, password, domainId, domainRecordingId);
+                    var recording = cas.GetRecordingByDomainRecordingId(userName, password, domainId, domainRecordingId);
                     
                     // Validate recording
                     if (recording != null && recording.Status != null && recording.Status.Code == 0)
