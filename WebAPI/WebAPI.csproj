@@ -1020,7 +1020,7 @@
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Models\Social\KalturaSocialUserConfig.cs" />
-    <Compile Include="Models\Social\KalturaUserSocialAction.cs" />
+    <Compile Include="Models\Social\KalturaUserSocialActionResponse.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspensionState.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />
