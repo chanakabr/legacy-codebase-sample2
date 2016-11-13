@@ -1020,6 +1020,7 @@ namespace Users
             bool isAllowed = false;
             DataTable dt = null;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery += "select allow_delete_user from groups_parameters where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
             dt = selectQuery.Execute("query", true);
