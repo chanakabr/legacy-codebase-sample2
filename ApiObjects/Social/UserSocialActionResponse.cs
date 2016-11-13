@@ -8,7 +8,7 @@ namespace ApiObjects.Social
 {
     public class UserSocialActionResponse
     {
-       // public List<NetworkActionStatus> Networks { get; set; }
+        public List<NetworkActionStatus> NetworksStatus { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
 
@@ -16,7 +16,7 @@ namespace ApiObjects.Social
 
         public UserSocialActionResponse(UserSocialActionRequest userAction)
         {
-            //Networks = new List<NetworkActionStatus>();
+            NetworksStatus = new List<NetworkActionStatus>();
             Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
             this.UserAction = userAction;
         }
@@ -24,12 +24,12 @@ namespace ApiObjects.Social
         public UserSocialActionResponse()
         {
             Status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
-        }
+        }        
     }
 
-    //public class NetworkActionStatus
-    //{
-    //    public ApiObjects.Response.Status Status { get; set; }
-    //    public SocialPlatform? Network { get; set; }
-    //}
+    public class NetworkActionStatus
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+        public SocialPlatform? Network { get; set; }        
+    }
 }
