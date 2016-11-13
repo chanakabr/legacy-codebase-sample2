@@ -127,7 +127,7 @@ namespace Users
             KeyValuePair<string, string> kvp;
             try
             {
-                nGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("users", "group_id", nUserID).ToString());
+                nGroupID = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("users", "group_id", nUserID, "USERS_CONNECTION_STRING").ToString());
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery.SetCachedSec(0);
