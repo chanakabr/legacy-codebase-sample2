@@ -32,9 +32,9 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [Throws(eResponseStatus.HouseholdNotExists)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.NoPinDefined)]
         public KalturaPin Get(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
@@ -99,7 +99,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         public KalturaPin Update(KalturaEntityReferenceBy by, KalturaPinType type, KalturaPin pin, int? ruleId = null)
         {
@@ -281,7 +281,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoPinDefined)]
         [Throws(eResponseStatus.PinMismatch)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         public bool Validate(string pin, KalturaPinType type, int? ruleId = null)
         {

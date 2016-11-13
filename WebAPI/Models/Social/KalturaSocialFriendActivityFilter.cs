@@ -52,7 +52,7 @@ namespace WebAPI.Models.Social
                     }
                     else
                     {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialFriendActivityFilter.actionIn", action);
+                        throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSocialFriendActivityFilter.actionTypeIn", action);
                     }
                 }
             }

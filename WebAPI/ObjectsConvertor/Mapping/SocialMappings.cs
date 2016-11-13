@@ -13,6 +13,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.Users;
 using WebAPI.Models.General;
 using Social;
+using Social.SocialFeed;
 using WebAPI.Models.Social;
 using ApiObjects.Social;
 
@@ -122,12 +123,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.ActivitySubject.ActorTvinciUsername))
                 .ForMember(dest => dest.UserPictureUrl, opt => opt.MapFrom(src => src.ActivitySubject.ActorPicUrl));
 
-            // ActivityVerb to KalturaSocialAction
+            // SocialActivityDoc to KalturaSocialAction
+            Mapper.CreateMap<SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
+
+            // SocialPlatformFeedList to KalturaSocialComment
+            Mapper.CreateMap<SocialFeedItem, KalturaSocialComment>().ConstructUsing(ConvertToKalturaSocialComment);
+
+            // SocialFeedItem to KalturaSocialComment
+            Mapper.CreateMap<SocialFeedItem, KalturaSocialComment>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName));
+
+            // SocialFeedItem to KalturaTwitterTwit
+            Mapper.CreateMap<SocialFeedItem, KalturaTwitterTwit>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
+                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
+                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+
+            // SocialFeedItem to KalturaFacebookPost
+            Mapper.CreateMap<SocialFeedItem, KalturaFacebookPost>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
+                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
+                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl))
+                .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.FeedItemLink))
+                .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
+
+            // SocialFeedItem to KalturaSocialNetworkComment
+            Mapper.CreateMap<SocialFeedItem, KalturaSocialNetworkComment>()
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
+                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
+                .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
+                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
 
             Mapper.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
 
             Mapper.CreateMap<ApiObjects.Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
 
+            // ActivityVerb to KalturaSocialAction
             Mapper.CreateMap<SocialActivityDoc, KalturaSocialAction>().ConstructUsing(ConvertToKalturaSocialAction);
 
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialAction>()
@@ -291,7 +333,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static eAssetType ConvertAssetType(KalturaAssetType kalturaAssetType)
+        public static eAssetType ConvertAssetType(KalturaAssetType kalturaAssetType)
         {
             switch (kalturaAssetType)
             {
@@ -378,6 +420,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown AssetType");
                     break;
             }
+        }
+
+        private static KalturaSocialComment ConvertToKalturaSocialComment(ResolutionContext context)
+        {
+            KalturaSocialComment result = null;
+            var comment = (SocialFeedItem)context.SourceValue;
+            switch (comment.SocialPlatform)
+            {
+                case eSocialPlatform.InApp:
+                    result = AutoMapper.Mapper.Map<KalturaSocialComment>(comment);
+                    break;
+                case eSocialPlatform.Facebook:
+                    result = AutoMapper.Mapper.Map<KalturaFacebookPost>(comment);
+                    break;
+                case eSocialPlatform.Twitter:
+                    result = AutoMapper.Mapper.Map<KalturaTwitterTwit>(comment);
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown social platform");
+                    break;
+            }
+
+            return result;
         }
 
         private static KalturaSocialAction ConvertToKalturaSocialAction(ResolutionContext context)
@@ -541,6 +606,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     throw new ClientException((int)StatusCode.Error, "Unknown social action");
             }
 
+            return result;
+        }
+
+        internal static Social.eSocialPlatform ConvertSocialPlatform(KalturaSocialPlatform socialPlatform)
+        {
+            Social.eSocialPlatform result;
+            switch (socialPlatform)
+            {
+                case KalturaSocialPlatform.IN_APP:
+                    result = Social.eSocialPlatform.InApp;
+                    break;
+                case KalturaSocialPlatform.FACEBOOK:
+                    result = Social.eSocialPlatform.Facebook;
+                    break;
+                case KalturaSocialPlatform.TWITTER:
+                    result = Social.eSocialPlatform.Twitter;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown social platform");
+                    break;
+            }
+
+            return result;
+        }
+
+        internal static SocialFeedOrderBy ConvertSocialFeedOrderBy(KalturaSocialCommentOrderBy orderBy)
+        {
+            SocialFeedOrderBy result;
+            switch (orderBy)
+            {
+                case KalturaSocialCommentOrderBy.CREATE_DATE_ASC:
+                    result = SocialFeedOrderBy.CreateDateAsc;
+                    break;
+                case KalturaSocialCommentOrderBy.CREATE_DATE_DESC:
+                    result = SocialFeedOrderBy.CreateDateDesc;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown social comment order by");
+                    break;
+            }
             return result;
         }
 

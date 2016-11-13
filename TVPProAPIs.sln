@@ -117,6 +117,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamingProvider", "..\tvm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialBL", "..\ws_social\SocialBL\SocialBL.csproj", "{8C7A7D38-912B-4F4F-86C8-8F2EB3E2BB5A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CouchbaseManager", "..\tvmcore\CouchbaseManager\CouchbaseManager.csproj", "{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -525,6 +527,14 @@ Global
 		{8C7A7D38-912B-4F4F-86C8-8F2EB3E2BB5A}.Local|Any CPU.Build.0 = Local|Any CPU
 		{8C7A7D38-912B-4F4F-86C8-8F2EB3E2BB5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C7A7D38-912B-4F4F-86C8-8F2EB3E2BB5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Basic|Any CPU.ActiveCfg = Local|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Basic|Any CPU.Build.0 = Local|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|Any CPU.ActiveCfg = Local|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Local|Any CPU.Build.0 = Local|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

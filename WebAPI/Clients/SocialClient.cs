@@ -21,7 +21,7 @@ using Social;
 using Social.Requests;
 using ObjectsConvertor.Mapping;
 using ApiObjects.Social;
-using WebAPI.Filters;
+using Social.SocialFeed;
 
 namespace WebAPI.Clients
 {
@@ -565,7 +565,7 @@ namespace WebAPI.Clients
             }
 
             socialConfig = AutoMapper.Mapper.Map<KalturaSocialConfig>(response.settings);
-           
+
             return socialConfig;
 
         }
@@ -575,14 +575,14 @@ namespace WebAPI.Clients
             KalturaSocialConfig socialConfig = new KalturaSocialConfig();
 
             ApiObjects.Social.SocialPrivacySettingsResponse response = new ApiObjects.Social.SocialPrivacySettingsResponse();
-          
+
             Group group = GroupsManager.GetGroup(groupId);
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // change status to Status - first in social ws 
-                    response = Client.GetUserSocialPrivacySettings(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);                    
+                    response = Client.GetUserSocialPrivacySettings(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);
                 }
             }
             catch (Exception ex)
@@ -590,7 +590,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while GetUserSocialPrivacySettings groupID: {0}, userId: {1}, exception: {2}", groupId, userId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
-            
+
             if (response == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -642,7 +642,48 @@ namespace WebAPI.Clients
                       
             actionResponse = AutoMapper.Mapper.Map<KalturaUserSocialActionResponse>(response);            
 
-            return actionResponse;  
+            return actionResponse;
+        }
+
+        internal KalturaSocialCommentListResponse GetSocialFeed(int groupId, string userId, long assetId, KalturaAssetType assetType, KalturaSocialPlatform socialPlatform,
+            int pageSize, int pageIndex, long createDateSince, KalturaSocialCommentOrderBy orderBy)
+        {
+            KalturaSocialCommentListResponse friendsActivity = new KalturaSocialCommentListResponse();
+            SocialFeedResponse response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            eSocialPlatform wsPlatform = SocialMappings.ConvertSocialPlatform(socialPlatform);
+            eAssetType wsAssetType = SocialMappings.ConvertAssetType(assetType);
+            SocialFeedOrderBy wsOrderBy = SocialMappings.ConvertSocialFeedOrderBy(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Client.GetSocialFeed(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, (int)assetId, wsAssetType, wsPlatform,
+                        pageSize, pageIndex, createDateSince, wsOrderBy);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling social service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            friendsActivity.Objects = AutoMapper.Mapper.Map<List<KalturaSocialComment>>(response.SocialFeeds);
+            friendsActivity.TotalCount = response.TotalCount;
+
+            return friendsActivity;
         }
 
         private string GetAllFails(List<NetworkActionStatus> NetworksStatus)
