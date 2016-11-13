@@ -1,227 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
-  <wsdl:types>
-    <xsd:schema targetNamespace="/Imports">
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd0" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Catalog.Request" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/Catalog" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/Catalog.Response" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd9" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/GroupsCacheManager" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd11" namespace="http://schemas.datacontract.org/2004/07/Users" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd12" namespace="http://schemas.datacontract.org/2004/07/DAL" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Statistics" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd14" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Base" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd15" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd16" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.CrowdsourceItems.Implementations" />
-      <xsd:import schemaLocation="http://localhost/WS_Catalog/Service.svc?xsd=xsd17" namespace="http://schemas.datacontract.org/2004/07/System.Collections.Generic" />
-    </xsd:schema>
-  </wsdl:types>
-  <wsdl:message name="Iservice_IngestAdiData_InputMessage">
-    <wsdl:part name="parameters" element="IngestAdiData" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_IngestAdiData_OutputMessage">
-    <wsdl:part name="parameters" element="IngestAdiDataResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_IngestTvinciData_InputMessage">
-    <wsdl:part name="parameters" element="IngestTvinciData" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_IngestTvinciData_OutputMessage">
-    <wsdl:part name="parameters" element="IngestTvinciDataResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_IngestKalturaEpg_InputMessage">
-    <wsdl:part name="parameters" element="IngestKalturaEpg" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_IngestKalturaEpg_OutputMessage">
-    <wsdl:part name="parameters" element="IngestKalturaEpgResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetResponse_InputMessage">
-    <wsdl:part name="parameters" element="GetResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetResponse_OutputMessage">
-    <wsdl:part name="parameters" element="GetResponseResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetMediasByIDs_InputMessage">
-    <wsdl:part name="parameters" element="GetMediasByIDs" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetMediasByIDs_OutputMessage">
-    <wsdl:part name="parameters" element="GetMediasByIDsResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateChannel_InputMessage">
-    <wsdl:part name="parameters" element="UpdateChannel" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateChannel_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateChannelResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RemoveChannelFromCache_InputMessage">
-    <wsdl:part name="parameters" element="RemoveChannelFromCache" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RemoveChannelFromCache_OutputMessage">
-    <wsdl:part name="parameters" element="RemoveChannelFromCacheResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateIndex_InputMessage">
-    <wsdl:part name="parameters" element="UpdateIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateIndex_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateIndexResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateChannelIndex_InputMessage">
-    <wsdl:part name="parameters" element="UpdateChannelIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateChannelIndex_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateChannelIndexResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetProgramsByIDs_InputMessage">
-    <wsdl:part name="parameters" element="GetProgramsByIDs" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetProgramsByIDs_OutputMessage">
-    <wsdl:part name="parameters" element="GetProgramsByIDsResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateOperator_InputMessage">
-    <wsdl:part name="parameters" element="UpdateOperator" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateOperator_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateOperatorResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateEpgIndex_InputMessage">
-    <wsdl:part name="parameters" element="UpdateEpgIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateEpgIndex_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateEpgIndexResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateEpgChannelIndex_InputMessage">
-    <wsdl:part name="parameters" element="UpdateEpgChannelIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateEpgChannelIndex_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateEpgChannelIndexResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebuildIndex_InputMessage">
-    <wsdl:part name="parameters" element="RebuildIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebuildIndex_OutputMessage">
-    <wsdl:part name="parameters" element="RebuildIndexResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebuildGroup_InputMessage">
-    <wsdl:part name="parameters" element="RebuildGroup" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebuildGroup_OutputMessage">
-    <wsdl:part name="parameters" element="RebuildGroupResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetGroup_InputMessage">
-    <wsdl:part name="parameters" element="GetGroup" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_GetGroup_OutputMessage">
-    <wsdl:part name="parameters" element="GetGroupResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateRecordingsIndex_InputMessage">
-    <wsdl:part name="parameters" element="UpdateRecordingsIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_UpdateRecordingsIndex_OutputMessage">
-    <wsdl:part name="parameters" element="UpdateRecordingsIndexResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebuildEpgChannel_InputMessage">
-    <wsdl:part name="parameters" element="RebuildEpgChannel" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebuildEpgChannel_OutputMessage">
-    <wsdl:part name="parameters" element="RebuildEpgChannelResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_ClearStatistics_InputMessage">
-    <wsdl:part name="parameters" element="ClearStatistics" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_ClearStatistics_OutputMessage">
-    <wsdl:part name="parameters" element="ClearStatisticsResponse" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebaseIndex_InputMessage">
-    <wsdl:part name="parameters" element="RebaseIndex" />
-  </wsdl:message>
-  <wsdl:message name="Iservice_RebaseIndex_OutputMessage">
-    <wsdl:part name="parameters" element="RebaseIndexResponse" />
-  </wsdl:message>
-  <wsdl:portType name="Iservice">
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Service" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsp:Policy wsu:Id="WSHttpBinding_Iservice_policy">
+    <wsp:ExactlyOne>
+      <wsp:All>
+        <wsaw:UsingAddressing />
+      </wsp:All>
+    </wsp:ExactlyOne>
+  </wsp:Policy>
+  <wsdl:import namespace="" location="http://localhost:82/WS_Catalog/Service.svc?wsdl=wsdl0" />
+  <wsdl:types />
+  <wsdl:binding name="WSHttpBinding_Iservice" type="Iservice">
+    <wsp:PolicyReference URI="#WSHttpBinding_Iservice_policy" />
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="IngestAdiData">
-      <wsdl:input wsaw:Action="urn:Iservice/IngestAdiData" message="Iservice_IngestAdiData_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/IngestAdiDataResponse" message="Iservice_IngestAdiData_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/IngestAdiData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="IngestTvinciData">
-      <wsdl:input wsaw:Action="urn:Iservice/IngestTvinciData" message="Iservice_IngestTvinciData_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/IngestTvinciDataResponse" message="Iservice_IngestTvinciData_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/IngestTvinciData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="IngestKalturaEpg">
-      <wsdl:input wsaw:Action="urn:Iservice/IngestKalturaEpg" message="Iservice_IngestKalturaEpg_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/IngestKalturaEpgResponse" message="Iservice_IngestKalturaEpg_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/IngestKalturaEpg" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetResponse">
-      <wsdl:input wsaw:Action="urn:Iservice/GetResponse" message="Iservice_GetResponse_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/GetResponseResponse" message="Iservice_GetResponse_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/GetResponse" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetMediasByIDs">
-      <wsdl:input wsaw:Action="urn:Iservice/GetMediasByIDs" message="Iservice_GetMediasByIDs_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/GetMediasByIDsResponse" message="Iservice_GetMediasByIDs_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/GetMediasByIDs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateChannel">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateChannel" message="Iservice_UpdateChannel_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateChannelResponse" message="Iservice_UpdateChannel_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RemoveChannelFromCache">
-      <wsdl:input wsaw:Action="urn:Iservice/RemoveChannelFromCache" message="Iservice_RemoveChannelFromCache_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/RemoveChannelFromCacheResponse" message="Iservice_RemoveChannelFromCache_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/RemoveChannelFromCache" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateIndex" message="Iservice_UpdateIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateIndexResponse" message="Iservice_UpdateIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateChannelIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateChannelIndex" message="Iservice_UpdateChannelIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateChannelIndexResponse" message="Iservice_UpdateChannelIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateChannelIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetProgramsByIDs">
-      <wsdl:input wsaw:Action="urn:Iservice/GetProgramsByIDs" message="Iservice_GetProgramsByIDs_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/GetProgramsByIDsResponse" message="Iservice_GetProgramsByIDs_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/GetProgramsByIDs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateOperator">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateOperator" message="Iservice_UpdateOperator_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateOperatorResponse" message="Iservice_UpdateOperator_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateOperator" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateEpgIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateEpgIndex" message="Iservice_UpdateEpgIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateEpgIndexResponse" message="Iservice_UpdateEpgIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateEpgIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateEpgChannelIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateEpgChannelIndex" message="Iservice_UpdateEpgChannelIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateEpgChannelIndexResponse" message="Iservice_UpdateEpgChannelIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateEpgChannelIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RebuildIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/RebuildIndex" message="Iservice_RebuildIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/RebuildIndexResponse" message="Iservice_RebuildIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/RebuildIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RebuildGroup">
-      <wsdl:input wsaw:Action="urn:Iservice/RebuildGroup" message="Iservice_RebuildGroup_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/RebuildGroupResponse" message="Iservice_RebuildGroup_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/RebuildGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="GetGroup">
-      <wsdl:input wsaw:Action="urn:Iservice/GetGroup" message="Iservice_GetGroup_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/GetGroupResponse" message="Iservice_GetGroup_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/GetGroup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="UpdateRecordingsIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/UpdateRecordingsIndex" message="Iservice_UpdateRecordingsIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/UpdateRecordingsIndexResponse" message="Iservice_UpdateRecordingsIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/UpdateRecordingsIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RebuildEpgChannel">
-      <wsdl:input wsaw:Action="urn:Iservice/RebuildEpgChannel" message="Iservice_RebuildEpgChannel_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/RebuildEpgChannelResponse" message="Iservice_RebuildEpgChannel_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/RebuildEpgChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="ClearStatistics">
-      <wsdl:input wsaw:Action="urn:Iservice/ClearStatistics" message="Iservice_ClearStatistics_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/ClearStatisticsResponse" message="Iservice_ClearStatistics_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/ClearStatistics" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RebaseIndex">
-      <wsdl:input wsaw:Action="urn:Iservice/RebaseIndex" message="Iservice_RebaseIndex_InputMessage" />
-      <wsdl:output wsaw:Action="urn:Iservice/RebaseIndexResponse" message="Iservice_RebaseIndex_OutputMessage" />
+      <soap12:operation soapAction="urn:Iservice/RebaseIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
     </wsdl:operation>
-  </wsdl:portType>
+  </wsdl:binding>
+  <wsdl:service name="Service">
+    <wsdl:port name="WSHttpBinding_Iservice" binding="tns:WSHttpBinding_Iservice">
+      <soap12:address location="http://localhost:82/WS_Catalog/Service.svc" />
+      <wsa10:EndpointReference>
+        <wsa10:Address>http://localhost:82/WS_Catalog/Service.svc</wsa10:Address>
+      </wsa10:EndpointReference>
+    </wsdl:port>
+  </wsdl:service>
 </wsdl:definitions>

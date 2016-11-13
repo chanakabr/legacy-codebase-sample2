@@ -195,6 +195,15 @@ namespace WebAPI.Utils
                         {
                             key = new CacheKey(searchResult.EpgId, searchResult.m_dUpdateDate);
                         }
+                        else
+                        {
+                            var watchHistory = id as UserWatchHistory;
+
+                            if (watchHistory != null)
+                            {
+                                key = new CacheKey(watchHistory.EpgId.ToString(), watchHistory.m_dUpdateDate);
+                            }
+                        }
                     }
                     else
                     {
@@ -324,8 +333,22 @@ namespace WebAPI.Utils
                     }
                     case eAssetTypes.NPVR:
                     {
+                        string epgId = string.Empty;
                         var searchResult = item as RecordingSearchResult;
-                        string epgId = searchResult.EpgId;
+
+                        if (searchResult != null)
+                        {
+                            epgId = searchResult.EpgId;
+                        }
+                        else
+                        {
+                            var watchHistory = item as UserWatchHistory;
+
+                            if (watchHistory != null)
+                            {
+                                epgId = watchHistory.EpgId.ToString();
+                            }
+                        }
 
                         baseObject = epgs.Where(p => p != null && p.AssetId.ToString() == epgId).FirstOrDefault();
 
