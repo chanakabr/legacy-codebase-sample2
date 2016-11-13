@@ -42,6 +42,19 @@ namespace WebAPI.Models.Catalog
         public long AssetId { get; set; }
 
         /// <summary>
+        /// Asset identifier
+        /// </summary>
+        [DataMember(Name = "assetType")]
+        [JsonProperty(PropertyName = "assetType")]
+        [XmlElement(ElementName = "assetType")]
+        [SchemeProperty(ReadOnly = true)]
+        public KalturaAssetType AssetType
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Position in seconds of the relevant asset
         /// </summary>
         [DataMember(Name = "position")]
