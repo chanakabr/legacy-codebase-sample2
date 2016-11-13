@@ -33,6 +33,13 @@ namespace ApiObjects.MediaMarks
             set;
         }
 
+        [JsonProperty("epgId")]
+        public long EpgId
+        {
+            get;
+            set;
+        }
+
         public bool IsFinishedWatching { get; set; }
 
         public DateTime UpdateDate { get; set; }

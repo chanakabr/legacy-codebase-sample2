@@ -29,5 +29,12 @@ namespace Catalog.Response
         //public DateTime AssetUpdatedDate { get; set; }
 
         public bool IsFinishedWatching { get; set; }
+
+        [JsonProperty("epgId")]
+        public long EpgId
+        {
+            get;
+            set;
+        }
     }
 }

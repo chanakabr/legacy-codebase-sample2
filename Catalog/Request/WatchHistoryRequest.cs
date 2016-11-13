@@ -98,7 +98,8 @@ namespace Catalog.Request
                         AssetId = item.AssetId,
                         UserID = item.UserID,
                         AssetTypeId = item.AssetTypeId,
-                        m_dUpdateDate = item.UpdateDate
+                        m_dUpdateDate = item.UpdateDate,
+                        EpgId = item.EpgId
                     };
 
                     switch (item.AssetTypeId)

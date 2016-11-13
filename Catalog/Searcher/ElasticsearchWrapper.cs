@@ -1441,7 +1441,10 @@ namespace Catalog
                                         {
                                             epgId = epgMapping[recordingId];
                                         }
-
+                                        else if (doc.extraReturnFields.ContainsKey("epg_id"))
+                                        {
+                                            epgId = doc.extraReturnFields["epg_id"];
+                                        }
                                         searchResultsList.Add(new RecordingSearchResult()
                                         {
                                             AssetId = domainRecordingId,
@@ -1451,11 +1454,19 @@ namespace Catalog
                                     }
                                     else
                                     {
-                                        searchResultsList.Add(new UnifiedSearchResult()
+                                        string epgId = string.Empty;
+
+                                        if (doc.extraReturnFields.ContainsKey("epg_id"))
+                                        {
+                                            epgId = doc.extraReturnFields["epg_id"];
+                                        }
+
+                                        searchResultsList.Add(new RecordingSearchResult()
                                         {
                                             AssetId = assetId,
                                             m_dUpdateDate = doc.update_date,
-                                            AssetType = UnifiedSearchResult.ParseType(doc.type)
+                                            AssetType = UnifiedSearchResult.ParseType(doc.type),
+                                            EpgId = epgId
                                         });
                                     }
                                 }
