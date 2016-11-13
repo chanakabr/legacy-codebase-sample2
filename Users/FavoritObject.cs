@@ -148,6 +148,7 @@ namespace Users
             #region Get Channel Media's User Favorit
             // Get Channel Media 
             ODBCWrapper.DataSetSelectQuery selectchannelquery = new ODBCWrapper.DataSetSelectQuery();
+            selectchannelquery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectchannelquery += "select * from users_favorites where is_active=1 and status=1 and IS_CHANNEL=1";
             selectchannelquery += "and";
             selectchannelquery += ODBCWrapper.Parameter.NEW_PARAM("SITE_USER_GUID", "=", sUserGUID);
@@ -217,6 +218,7 @@ namespace Users
         static public void RemoveFavorit(string sSiteGUID, Int32 nGroupID, Int32 nID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
+            updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
             updateQuery += " where ";
@@ -249,6 +251,7 @@ namespace Users
                     counter++;
                 }
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " where ";
@@ -283,6 +286,7 @@ namespace Users
                     counter++;
                 }
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " where ";
@@ -307,6 +311,7 @@ namespace Users
             Int32 nRowID = 0;
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             selectQuery += "select id from users_favorites where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
             selectQuery += " and ";
@@ -337,6 +342,7 @@ namespace Users
             if (nRowID != 0)
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users_favorites");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
@@ -351,6 +357,7 @@ namespace Users
             else
             {
                 ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("users_favorites");
+                insertQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
