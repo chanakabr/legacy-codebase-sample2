@@ -263,6 +263,7 @@ namespace Users
         private bool UpdateAllDynamicData(int nUserID, int nGroupID, Dictionary<int, KeyValuePair<string, string>> dUpdate, List<KeyValuePair<string, string>> lInsert, List<int> lToRemove)
         {
             ODBCWrapper.DirectQuery directQuery = new ODBCWrapper.DirectQuery();
+            directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
             //directQuery += "declare @UpdateDate datetime";
             //directQuery += "set  @UpdateDate= '" + DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss") + "'";
 
