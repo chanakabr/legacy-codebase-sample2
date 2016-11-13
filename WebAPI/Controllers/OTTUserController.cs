@@ -54,13 +54,13 @@ namespace WebAPI.Controllers
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>Possible status codes: 
-        /// UserNotInHousehold = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWIthNoHousehold = 2024, User does not exist = 2000
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
         /// </remarks>
         [Route("loginWithPin"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.PinNotExists)]
         [Throws(eResponseStatus.PinExpired)]
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotRegistered)]
         [Throws(eResponseStatus.ErrorOnInitUser)]
         [Throws(eResponseStatus.UserNotMasterApproved)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
         {
@@ -108,13 +108,13 @@ namespace WebAPI.Controllers
         /// <param name="extraParams">extra params</param>
         /// <param name="udid">Device UDID</param>
         /// <remarks>        
-        /// UserNotInHousehold = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserNotInDomain = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
         /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
         /// </remarks>
         [Route("login"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandard("extraParams", "extra_params")]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.InsideLockTime)]
@@ -601,7 +601,7 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [Throws(eResponseStatus.HouseholdSuspended)]
+        [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]

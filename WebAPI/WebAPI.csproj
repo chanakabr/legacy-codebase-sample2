@@ -147,6 +147,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="api.asmx" />
     <Content Include="bin\WebAPI.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -154,6 +155,9 @@
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="ws_users_module.asmx" />
+    <Content Include="ws_pricing_module.asmx" />
+    <Content Include="ws_social_module.asmx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -415,6 +419,9 @@
     <None Include="Service References\Catalog\Service5.disco" />
     <None Include="Service References\Catalog\Service1.disco" />
     <None Include="Service References\Catalog\Service11.disco" />
+    <Content Include="ws_domains_module.asmx" />
+    <Content Include="ws_cas_module.asmx" />
+    <Content Include="ws_billing_module.asmx" />
     <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
@@ -739,7 +746,6 @@
     <Compile Include="Controllers\ParentalRuleController.cs" />
     <Compile Include="Controllers\TransactionHistoryController.cs" />
     <Compile Include="Controllers\UserRoleController.cs" />
-    <Compile Include="Exceptions\EnumResponseStatus.cs" />
     <Compile Include="Exceptions\PartialSuccessException.cs" />
     <Compile Include="Filters\RequestParser.cs" />
     <Compile Include="Exceptions\NotFoundException.cs" />
@@ -1024,7 +1030,7 @@
       <ExcludeFromStyleCop>True</ExcludeFromStyleCop>
     </Compile>
     <Compile Include="Models\Social\KalturaSocialUserConfig.cs" />
-    <Compile Include="Models\Social\KalturaUserSocialAction.cs" />
+    <Compile Include="Models\Social\KalturaUserSocialActionResponse.cs" />
     <Compile Include="Models\Users\KalturaHouseholdSuspensionState.cs" />
     <Compile Include="Models\Users\KalturaFavoriteFilter.cs" />
     <Compile Include="Models\Users\KalturaLoginResponse.cs" />

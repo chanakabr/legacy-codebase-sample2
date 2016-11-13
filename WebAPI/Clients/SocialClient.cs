@@ -604,9 +604,9 @@ namespace WebAPI.Clients
             return socialConfig;
         }
 
-        internal KalturaSocialAction AddSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
+        internal KalturaUserSocialActionResponse AddSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
         {
-            KalturaSocialAction actionResponse = new KalturaSocialAction();
+            KalturaUserSocialActionResponse actionResponse = new KalturaUserSocialActionResponse();
             UserSocialActionResponse response = new UserSocialActionResponse();
             UserSocialActionRequest request = new UserSocialActionRequest();
 
@@ -638,9 +638,9 @@ namespace WebAPI.Clients
             if (response.Status.Code != (int)StatusCode.OK)
             {
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }        
-                        
-            actionResponse = AutoMapper.Mapper.Map<KalturaSocialAction>(response);
+            }
+                      
+            actionResponse = AutoMapper.Mapper.Map<KalturaUserSocialActionResponse>(response);            
 
             return actionResponse;
         }
@@ -684,6 +684,20 @@ namespace WebAPI.Clients
             friendsActivity.TotalCount = response.TotalCount;
 
             return friendsActivity;
+        }
+
+        private string GetAllFails(List<NetworkActionStatus> NetworksStatus)
+        {            
+            List<string> fails = new List<string>();
+            foreach (NetworkActionStatus item in NetworksStatus)
+            {
+                if (item.Status.Code != (int)StatusCode.OK)
+                {
+                    fails.Add(string.Format("network - {0}: status code - {1}: status message - {2}", item.Network != null ? item.Network.ToString() : "null" , item.Status.Code, item.Status.Message));
+                }
+            }
+            string result = string.Join(",", fails);
+            return result;
         }
     }
 }

@@ -24,10 +24,11 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="channel">KSQL channel Object</param>
         [Route("add"), HttpPost]
-        [ApiAuthorize]        
-        public KalturaSocialAction Add(KalturaSocialAction socialAction)
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        public KalturaUserSocialActionResponse Add(KalturaSocialAction socialAction)
         {
-            KalturaSocialAction response = null;
+            KalturaUserSocialActionResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;

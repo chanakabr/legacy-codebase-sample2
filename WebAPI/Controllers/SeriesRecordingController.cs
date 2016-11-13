@@ -23,15 +23,15 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Series Recording identifier</param>       
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
@@ -59,16 +59,16 @@ namespace WebAPI.Controllers
         /// <param name="id">Series Recording identifier</param>
         /// <param name="epgId">epg program identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
         [Route("cancelByEpgId"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("epgId", MinLong = 1)]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
@@ -98,16 +98,16 @@ namespace WebAPI.Controllers
         /// <param name="id">Series Recording identifier</param>
         /// <param name="seasonNumber">Season Number</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         [Route("cancelBySeasonNumber"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("seasonNumber", MinLong = 1)]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
@@ -137,14 +137,14 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Series Recording identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
@@ -172,16 +172,16 @@ namespace WebAPI.Controllers
         /// <param name="id">Series Recording identifier</param>
         /// <param name="seasonNumber">Season Number</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoHousehold = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         [Route("deleteBySeasonNumber"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("seasonNumber", MinInteger = 1)]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
@@ -210,13 +210,13 @@ namespace WebAPI.Controllers
            /// </summary>
            /// <param name="filter">Filter parameters for filtering out the result - support order by only - START_DATE_ASC, START_DATE_DESC, ID_ASC,ID_DESC,SERIES_ID_ASC, SERIES_ID_DESC</param>
            /// <returns></returns>
-           /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoHousehold = 2024</remarks>
+           /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024</remarks>
            [Route("list"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
            public KalturaSeriesRecordingListResponse List(KalturaSeriesRecordingFilter filter = null)
            {
                KalturaSeriesRecordingListResponse response = null;
@@ -248,15 +248,15 @@ namespace WebAPI.Controllers
         /// </summary>
            /// <param name="recording">SeriesRecording Object</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInHousehold = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoHousehold = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
+        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
+        /// UserWithNoDomain = 2024, ServiceNotAllowed = 3003, NotEntitled = 3032, AccountCdvrNotEnabled = 3033, ProgramCdvrNotEnabled = 3035,
         /// AccountSeriesRecordingNotEnabled = 3046, AlreadyRecordedAsSeriesOrSeason = 3047, InvalidAssetId = 4024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInHousehold)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.ServiceNotAllowed)]
         [Throws(eResponseStatus.NotEntitled)]
         [Throws(eResponseStatus.AccountCdvrNotEnabled)]
