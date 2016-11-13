@@ -393,6 +393,7 @@ namespace DAL
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 selectQuery += "select id from users WITH (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("FACEBOOK_ID", "=", sFacebookID);
                 selectQuery += " and ";
@@ -1348,6 +1349,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("users");
+                updateQuery.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("SALT", "=", sSalt);
 
