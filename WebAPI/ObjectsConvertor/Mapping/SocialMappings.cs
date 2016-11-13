@@ -136,7 +136,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
 
             // SocialFeedItem to KalturaFacebookPost
             Mapper.CreateMap<SocialFeedItem, KalturaFacebookPost>()
@@ -145,7 +145,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl))
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl))
                 .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.FeedItemLink))
                 .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
 
@@ -156,7 +156,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
 
             Mapper.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
 

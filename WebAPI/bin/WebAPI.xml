@@ -600,7 +600,7 @@
             <summary>
             Get a list of the social friends activity for a user
             </summary>
-            <param name="filter">Country filter</param>
+            <param name="filter">Social friend activity filter</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
@@ -7644,9 +7644,9 @@
             Number of likes
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialNetworkComment.WriterImageUrl">
+        <member name="P:WebAPI.Models.Social.KalturaSocialNetworkComment.AuthorImageUrl">
             <summary>
-            The URL of the profile picture of the writer
+            The URL of the profile picture of the author of the comment
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaFacebookPost.Comments">

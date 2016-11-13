@@ -56,12 +56,12 @@ namespace WebAPI.Models.Social
         public string LikeCounter { get; set; }
 
         /// <summary>
-        /// The URL of the profile picture of the writer
+        /// The URL of the profile picture of the author of the comment
         /// </summary>
-        [DataMember(Name = "writerImageUrl")]
-        [JsonProperty(PropertyName = "writerImageUrl")]
-        [XmlElement(ElementName = "writerImageUrl")]
-        public string WriterImageUrl { get; set; }
+        [DataMember(Name = "authorImageUrl")]
+        [JsonProperty(PropertyName = "authorImageUrl")]
+        [XmlElement(ElementName = "authorImageUrl")]
+        public string AuthorImageUrl { get; set; }
     }
 
     public class KalturaTwitterTwit : KalturaSocialNetworkComment
