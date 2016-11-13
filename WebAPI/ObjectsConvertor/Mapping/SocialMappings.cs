@@ -102,7 +102,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FacebookImage, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFacebookImage))
                 .ForMember(dest => dest.FacebookToken, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFacebookToken))
                 .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sAffiliateCode))
-                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_ExternalToken))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_CoGuid))
                 .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_UserType))
                 .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
                 .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))

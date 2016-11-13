@@ -9236,6 +9236,11 @@
             Asset identifier
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetHistory.AssetType">
+            <summary>
+            Asset identifier
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetHistory.Position">
             <summary>
             Position in seconds of the relevant asset
