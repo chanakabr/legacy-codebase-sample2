@@ -129,13 +129,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // SocialPlatformFeedList to KalturaSocialComment
             Mapper.CreateMap<SocialFeedItem, KalturaSocialComment>().ConstructUsing(ConvertToKalturaSocialComment);
 
-            // SocialFeedItem to KalturaSocialComment
-            Mapper.CreateMap<SocialFeedItem, KalturaSocialComment>()
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
-                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName));
-
             // SocialFeedItem to KalturaTwitterTwit
             Mapper.CreateMap<SocialFeedItem, KalturaTwitterTwit>()
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
@@ -156,8 +149,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.FeedItemLink))
                 .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
 
-            // SocialFeedItem to KalturaSocialNetworkComment
-            Mapper.CreateMap<SocialFeedItem, KalturaSocialNetworkComment>()
+            // SocialFeedItemComment to KalturaSocialNetworkComment
+            Mapper.CreateMap<SocialFeedItemComment, KalturaSocialNetworkComment>()
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
@@ -391,14 +384,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static KalturaSocialComment ConvertToKalturaSocialComment(ResolutionContext context)
+        private static KalturaSocialComment ConvertToKalturaSocialComment(SocialFeedItem comment)
         {
             KalturaSocialComment result = null;
-            var comment = (SocialFeedItem)context.SourceValue;
             switch (comment.SocialPlatform)
             {
                 case eSocialPlatform.InApp:
-                    result = AutoMapper.Mapper.Map<KalturaSocialComment>(comment);
+                    result = new KalturaSocialComment()
+                    {
+                        CreateDate = comment.CreateDate,
+                        Header = comment.Title,
+                        Text = comment.Body,
+                        Writer = comment.CreatorName
+                    };
                     break;
                 case eSocialPlatform.Facebook:
                     result = AutoMapper.Mapper.Map<KalturaFacebookPost>(comment);
