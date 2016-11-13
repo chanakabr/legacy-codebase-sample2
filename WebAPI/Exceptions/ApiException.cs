@@ -15,37 +15,37 @@ namespace WebAPI.Exceptions
 {
     public class ApiException : HttpResponseException
     {
-        // Household Section 1000 - 1999
-        public static ClientExceptionType HOUSEHOLD_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.HouseholdAlreadyExists, "Household Already Exists");
+        // Domain Section 1000 - 1999
+        public static ClientExceptionType Domain_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.DomainAlreadyExists, "Domain Already Exists");
         public static ClientExceptionType EXCEEDED_LIMIT = new ClientExceptionType(eResponseStatus.ExceededLimit, "Exceeded Limit");
         public static ClientExceptionType DEVICE_TYPE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.DeviceTypeNotAllowed, "Device Type Not Allowed");
-        public static ClientExceptionType DEVICE_NOT_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.DeviceNotInHousehold, "Device Not In Household");
+        public static ClientExceptionType DEVICE_NOT_IN_Domain = new ClientExceptionType(eResponseStatus.DeviceNotInDomain, "Device Not In Domain");
         public static ClientExceptionType MASTER_EMAIL_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.MasterEmailAlreadyExists, "Master Email Already Exists");
-        public static ClientExceptionType USER_NOT_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.UserNotInHousehold, "User Not In Household");
-        public static ClientExceptionType HOUSEHOLD_NOT_EXISTS = new ClientExceptionType(eResponseStatus.HouseholdNotExists, "Household Not Exists");
-        public static ClientExceptionType HOUSEHOLD_USER_FAILED = new ClientExceptionType(eResponseStatus.HouseholdUserFailed, "Household User Failed");
-        public static ClientExceptionType HOUSEHOLD_CREATED_WITHOUT_NPVRACCOUNT = new ClientExceptionType(eResponseStatus.HouseholdCreatedWithoutNPVRAccount, "Household Created Without NPVRAccount");
-        public static ClientExceptionType HOUSEHOLD_SUSPENDED = new ClientExceptionType(eResponseStatus.HouseholdSuspended, "Household Suspended");
+        public static ClientExceptionType USER_NOT_IN_Domain = new ClientExceptionType(eResponseStatus.UserNotInDomain, "User Not In Domain");
+        public static ClientExceptionType Domain_NOT_EXISTS = new ClientExceptionType(eResponseStatus.DomainNotExists, "Domain Not Exists");
+        public static ClientExceptionType Domain_USER_FAILED = new ClientExceptionType(eResponseStatus.HouseholdUserFailed, "Domain User Failed");
+        public static ClientExceptionType Domain_CREATED_WITHOUT_NPVRACCOUNT = new ClientExceptionType(eResponseStatus.DomainCreatedWithoutNPVRAccount, "Domain Created Without NPVRAccount");
+        public static ClientExceptionType Domain_SUSPENDED = new ClientExceptionType(eResponseStatus.DomainSuspended, "Domain Suspended");
         public static ClientExceptionType DLM_NOT_EXIST = new ClientExceptionType(eResponseStatus.DlmNotExist, "Dlm Not Exist");
         public static ClientExceptionType WRONG_PASSWORD_OR_USER_NAME = new ClientExceptionType(eResponseStatus.WrongPasswordOrUserName, "Wrong Password Or User Name");
-        public static ClientExceptionType HOUSEHOLD_ALREADY_SUSPENDED = new ClientExceptionType(eResponseStatus.HouseholdAlreadySuspended, "Household Already Suspended");
-        public static ClientExceptionType HOUSEHOLD_ALREADY_ACTIVE = new ClientExceptionType(eResponseStatus.HouseholdAlreadyActive, "Household Already Active");
+        public static ClientExceptionType Domain_ALREADY_SUSPENDED = new ClientExceptionType(eResponseStatus.DomainAlreadySuspended, "Domain Already Suspended");
+        public static ClientExceptionType Domain_ALREADY_ACTIVE = new ClientExceptionType(eResponseStatus.DomainAlreadyActive, "Domain Already Active");
         public static ClientExceptionType LIMITATION_PERIOD = new ClientExceptionType(eResponseStatus.LimitationPeriod, "Limitation Period");
         public static ClientExceptionType DEVICE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.DeviceAlreadyExists, "Device Already Exists");
-        public static ClientExceptionType DEVICE_EXISTS_IN_OTHER_HOUSEHOLDS = new ClientExceptionType(eResponseStatus.DeviceExistsInOtherHouseholds, "Device Exists In Other Households");
-        public static ClientExceptionType NO_USERS_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.NoUsersInHousehold, "No Users In Household");
-        public static ClientExceptionType USER_EXISTS_IN_OTHER_HOUSEHOLDS = new ClientExceptionType(eResponseStatus.UserExistsInOtherHouseholds, "User Exists In Other Households");
+        public static ClientExceptionType DEVICE_EXISTS_IN_OTHER_DomainS = new ClientExceptionType(eResponseStatus.DeviceExistsInOtherDomains, "Device Exists In Other Domains");
+        public static ClientExceptionType NO_USERS_IN_Domain = new ClientExceptionType(eResponseStatus.NoUsersInDomain, "No Users In Domain");
+        public static ClientExceptionType USER_EXISTS_IN_OTHER_DomainS = new ClientExceptionType(eResponseStatus.UserExistsInOtherDomains, "User Exists In Other Domains");
         public static ClientExceptionType DEVICE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.DeviceNotExists, "Device Not Exists");
-        public static ClientExceptionType USER_NOT_EXISTS_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.UserNotExistsInHousehold, "User Not Exists In Household");
+        public static ClientExceptionType USER_NOT_EXISTS_IN_Domain = new ClientExceptionType(eResponseStatus.UserNotExistsInDomain, "User Not Exists In Domain");
         public static ClientExceptionType ACTION_USER_NOT_MASTER = new ClientExceptionType(eResponseStatus.ActionUserNotMaster, "Action User Not Master");
         public static ClientExceptionType EXCEEDED_USER_LIMIT = new ClientExceptionType(eResponseStatus.ExceededUserLimit, "Exceeded User Limit");
-        public static ClientExceptionType HOUSEHOLD_NOT_INITIALIZED = new ClientExceptionType(eResponseStatus.HouseholdNotInitialized, "Household Not Initialized");
+        public static ClientExceptionType Domain_NOT_INITIALIZED = new ClientExceptionType(eResponseStatus.DomainNotInitialized, "Domain Not Initialized");
         public static ClientExceptionType DEVICE_NOT_CONFIRMED = new ClientExceptionType(eResponseStatus.DeviceNotConfirmed, "Device Not Confirmed");
         public static ClientExceptionType REQUEST_FAILED = new ClientExceptionType(eResponseStatus.RequestFailed, "Request Failed");
         public static ClientExceptionType INVALID_USER = new ClientExceptionType(eResponseStatus.InvalidUser, "Invalid User");
         public static ClientExceptionType USER_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.UserNotAllowed, "User Not Allowed");
         public static ClientExceptionType DUPLICATE_PIN = new ClientExceptionType(eResponseStatus.DuplicatePin, "Duplicate Pin");
-        public static ClientExceptionType USER_ALREADY_IN_HOUSEHOLD = new ClientExceptionType(eResponseStatus.UserAlreadyInHousehold, "User Already In Household");
+        public static ClientExceptionType USER_ALREADY_IN_Domain = new ClientExceptionType(eResponseStatus.UserAlreadyInDomain, "User Already In Domain");
         public static ClientExceptionType NOT_ALLOWED_TO_DELETE = new ClientExceptionType(eResponseStatus.NotAllowedToDelete, "Not Allowed To Delete");
         public static ClientExceptionType HOME_NETWORK_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.HomeNetworkAlreadyExists, "Home Network Already Exists");
         public static ClientExceptionType HOME_NETWORK_LIMITATION = new ClientExceptionType(eResponseStatus.HomeNetworkLimitation, "Home Network Limitation");
@@ -73,7 +73,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType NOT_ACTIVATED = new ClientExceptionType(eResponseStatus.NotActivated, "Not Activated");
         public static ClientExceptionType ERROR_ON_INIT_USER = new ClientExceptionType(eResponseStatus.ErrorOnInitUser, "Error On Init User");
         public static ClientExceptionType USER_NOT_MASTER_APPROVED = new ClientExceptionType(eResponseStatus.UserNotMasterApproved, "User Not Master Approved");
-        public static ClientExceptionType USER_WITH_NO_HOUSEHOLD = new ClientExceptionType(eResponseStatus.UserWithNoHousehold, "User With No Household");
+        public static ClientExceptionType USER_WITH_NO_Domain = new ClientExceptionType(eResponseStatus.UserWithNoDomain, "User With No Domain");
         public static ClientExceptionType USER_TYPE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserTypeDoesNotExist, "User Type Does Not Exist");
         public static ClientExceptionType ACTIVATION_TOKEN_NOT_FOUND = new ClientExceptionType(eResponseStatus.ActivationTokenNotFound, "Activation Token Not Found");
         public static ClientExceptionType USER_ALREADY_MASTER_APPROVED = new ClientExceptionType(eResponseStatus.UserAlreadyMasterApproved, "User Already Master Approved");
@@ -117,7 +117,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PROGRAM_NOT_IN_RECORDING_SCHEDULE_WINDOW = new ClientExceptionType(eResponseStatus.ProgramNotInRecordingScheduleWindow, "Program Not In Recording Schedule Window");
         public static ClientExceptionType RECORDING_NOT_FOUND = new ClientExceptionType(eResponseStatus.RecordingNotFound, "Recording Not Found");
         public static ClientExceptionType RECORDING_FAILED = new ClientExceptionType(eResponseStatus.RecordingFailed, "Recording Failed");
-        public static ClientExceptionType PAYMENT_METHOD_IS_USED_BY_HOUSEHOLD = new ClientExceptionType(eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Household");
+        public static ClientExceptionType PAYMENT_METHOD_IS_USED_BY_Domain = new ClientExceptionType(eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Domain");
         public static ClientExceptionType EXCEEDED_QUOTA = new ClientExceptionType(eResponseStatus.ExceededQuota, "Exceeded Quota");
         public static ClientExceptionType RECORDING_STATUS_NOT_VALID = new ClientExceptionType(eResponseStatus.RecordingStatusNotValid, "Recording Status Not Valid");
         public static ClientExceptionType EXCEEDED_PROTECTION_QUOTA = new ClientExceptionType(eResponseStatus.ExceededProtectionQuota, "Exceeded Protection Quota");
@@ -194,7 +194,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType UN_KNOWN_BILLING_PROVIDER = new ClientExceptionType(eResponseStatus.UnKnownBillingProvider, "Un Known Billing Provider");
         public static ClientExceptionType PAYMENT_GATEWAY_ID_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentGatewayIdRequired, "Payment Gateway Id Required");
         public static ClientExceptionType PAYMENT_GATEWAY_PARAMS_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentGatewayParamsRequired, "Payment Gateway Params Required");
-        public static ClientExceptionType PAYMENT_GATEWAY_NOT_SET_FOR_HOUSEHOLD = new ClientExceptionType(eResponseStatus.PaymentGatewayNotSetForHousehold, "Payment Gateway Not Set For Household");
+        public static ClientExceptionType PAYMENT_GATEWAY_NOT_SET_FOR_Domain = new ClientExceptionType(eResponseStatus.PaymentGatewayNotSetForHousehold, "Payment Gateway Not Set For Domain");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_EXIST = new ClientExceptionType(eResponseStatus.PaymentGatewayNotExist, "Payment Gateway Not Exist");
         public static ClientExceptionType PAYMENT_GATEWAY_CHARGE_ID_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentGatewayChargeIdRequired, "Payment Gateway Charge Id Required");
         public static ClientExceptionType NO_CONFIGURATION_FOUND = new ClientExceptionType(eResponseStatus.NoConfigurationFound, "No Configuration Found");
@@ -203,14 +203,14 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ERROR_SAVING_PAYMENT_GATEWAY_TRANSACTION = new ClientExceptionType(eResponseStatus.ErrorSavingPaymentGatewayTransaction, "Error Saving Payment Gateway Transaction");
         public static ClientExceptionType ERROR_SAVING_PAYMENT_GATEWAY_PENDING = new ClientExceptionType(eResponseStatus.ErrorSavingPaymentGatewayPending, "Error Saving Payment Gateway Pending");
         public static ClientExceptionType EXTERNAL_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.ExternalIdentifierRequired, "External Identifier Required");
-        public static ClientExceptionType ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD = new ClientExceptionType(eResponseStatus.ErrorSavingPaymentGatewayHousehold, "Error Saving Payment Gateway Household");
+        public static ClientExceptionType ERROR_SAVING_PAYMENT_GATEWAY_Domain = new ClientExceptionType(eResponseStatus.ErrorSavingPaymentGatewayHousehold, "Error Saving Payment Gateway Domain");
         public static ClientExceptionType NO_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.NoPaymentGateway, "No Payment Gateway");
         public static ClientExceptionType PAYMENT_GATEWAY_NAME_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentGatewayNameRequired, "Payment Gateway Name Required");
         public static ClientExceptionType PAYMENT_GATEWAY_SHARED_SECRET_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentGatewaySharedSecretRequired, "Payment Gateway Shared Secret Required");
-        public static ClientExceptionType HOUSEHOLD_ALREADY_SET_TO_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.HouseholdAlreadySetToPaymentGateway, "Household Already Set To Payment Gateway");
-        public static ClientExceptionType CHARGE_ID_ALREADY_SET_TO_HOUSEHOLD_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway, "Charge Id Already Set To Household Payment Gateway");
-        public static ClientExceptionType CHARGE_ID_NOT_SET_TO_HOUSEHOLD = new ClientExceptionType(eResponseStatus.ChargeIdNotSetToHousehold, "Charge Id Not Set To Household");
-        public static ClientExceptionType HOUSEHOLD_NOT_SET_TO_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.HouseholdNotSetToPaymentGateway, "Household Not Set To Payment Gateway");
+        public static ClientExceptionType Domain_ALREADY_SET_TO_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.HouseholdAlreadySetToPaymentGateway, "Domain Already Set To Payment Gateway");
+        public static ClientExceptionType CHARGE_ID_ALREADY_SET_TO_Domain_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway, "Charge Id Already Set To Domain Payment Gateway");
+        public static ClientExceptionType CHARGE_ID_NOT_SET_TO_Domain = new ClientExceptionType(eResponseStatus.ChargeIdNotSetToHousehold, "Charge Id Not Set To Domain");
+        public static ClientExceptionType Domain_NOT_SET_TO_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.HouseholdNotSetToPaymentGateway, "Domain Not Set To Payment Gateway");
         public static ClientExceptionType PAYMENT_GATEWAY_SELECTION_IS_DISABLED = new ClientExceptionType(eResponseStatus.PaymentGatewaySelectionIsDisabled, "Payment Gateway Selection Is Disabled");
         public static ClientExceptionType NO_RESPONSE_FROM_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.NoResponseFromPaymentGateway, "No Response From Payment Gateway");
         public static ClientExceptionType INVALID_ACCOUNT = new ClientExceptionType(eResponseStatus.InvalidAccount, "Invalid Account");
@@ -226,16 +226,16 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType NO_PAYMENT_GATEWAY_TO_INSERT = new ClientExceptionType(eResponseStatus.NoPaymentGatewayToInsert, "No Payment Gateway To Insert");
         public static ClientExceptionType UNKNOWN_TRANSACTION_STATE = new ClientExceptionType(eResponseStatus.UnknownTransactionState, "Unknown Transaction State");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_VALID = new ClientExceptionType(eResponseStatus.PaymentGatewayNotValid, "Payment Gateway Not Valid");
-        public static ClientExceptionType HOUSEHOLD_REQUIRED = new ClientExceptionType(eResponseStatus.HouseholdRequired, "Household Required");
+        public static ClientExceptionType Domain_REQUIRED = new ClientExceptionType(eResponseStatus.HouseholdRequired, "Domain Required");
         public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_FAIL_REASON_UNKNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, "Payment Gateway Adapter Fail Reason Unknown");
         public static ClientExceptionType NO_PARTNER_CONFIGURATION_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoPartnerConfigurationToUpdate, "No Partner Configuration To Update");
         public static ClientExceptionType NO_CONFIGURATION_VALUE_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoConfigurationValueToUpdate, "No Configuration Value To Update");
-        public static ClientExceptionType PAYMENT_METHOD_NOT_SET_FOR_HOUSEHOLD = new ClientExceptionType(eResponseStatus.PaymentMethodNotSetForHousehold, "Payment Method Not Set For Household");
+        public static ClientExceptionType PAYMENT_METHOD_NOT_SET_FOR_Domain = new ClientExceptionType(eResponseStatus.PaymentMethodNotSetForHousehold, "Payment Method Not Set For Domain");
         public static ClientExceptionType PAYMENT_METHOD_NOT_EXIST = new ClientExceptionType(eResponseStatus.PaymentMethodNotExist, "Payment Method Not Exist");
         public static ClientExceptionType PAYMENT_METHOD_ID_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentMethodIdRequired, "Payment Method Id Required");
         public static ClientExceptionType PAYMENT_METHOD_EXTERNAL_ID_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentMethodExternalIdRequired, "Payment Method External Id Required");
-        public static ClientExceptionType ERROR_SAVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD = new ClientExceptionType(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, "Error Saving Payment Gateway Household Payment Method");
-        public static ClientExceptionType PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, "Payment Method Already Set To Household Payment Gateway");
+        public static ClientExceptionType ERROR_SAVING_PAYMENT_GATEWAY_Domain_PAYMENT_METHOD = new ClientExceptionType(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod, "Error Saving Payment Gateway Domain Payment Method");
+        public static ClientExceptionType PAYMENT_METHOD_ALREADY_SET_TO_Domain_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, "Payment Method Already Set To Domain Payment Gateway");
         public static ClientExceptionType PAYMENT_METHOD_NAME_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentMethodNameRequired, "Payment Method Name Required");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = new ClientExceptionType(eResponseStatus.PaymentGatewayNotSupportPaymentMethod, "Payment Gateway Not Support Payment Method");
 

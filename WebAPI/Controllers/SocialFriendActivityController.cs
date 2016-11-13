@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         /// <summary>
          /// Get a list of the social friends activity for a user
         /// </summary>
-        /// <param name="filter">Country filter</param>
+        /// <param name="filter">Social friend activity filter</param>
         /// <remarks></remarks>
          [Route("list"), HttpPost]
          [ApiAuthorize]

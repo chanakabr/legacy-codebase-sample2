@@ -129,13 +129,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // SocialPlatformFeedList to KalturaSocialComment
             Mapper.CreateMap<SocialFeedItem, KalturaSocialComment>().ConstructUsing(ConvertToKalturaSocialComment);
 
-            // SocialFeedItem to KalturaSocialComment
-            Mapper.CreateMap<SocialFeedItem, KalturaSocialComment>()
-                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-                .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
-                .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName));
-
             // SocialFeedItem to KalturaTwitterTwit
             Mapper.CreateMap<SocialFeedItem, KalturaTwitterTwit>()
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
@@ -143,7 +136,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
 
             // SocialFeedItem to KalturaFacebookPost
             Mapper.CreateMap<SocialFeedItem, KalturaFacebookPost>()
@@ -152,18 +145,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl))
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl))
                 .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.FeedItemLink))
                 .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
 
-            // SocialFeedItem to KalturaSocialNetworkComment
-            Mapper.CreateMap<SocialFeedItem, KalturaSocialNetworkComment>()
+            // SocialFeedItemComment to KalturaSocialNetworkComment
+            Mapper.CreateMap<SocialFeedItemComment, KalturaSocialNetworkComment>()
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.Header, opt => opt.MapFrom(src => src.Title))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.Body))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.CreatorName))
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
-                .ForMember(dest => dest.WriterImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
+                .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
 
             Mapper.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
 
@@ -200,74 +193,105 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
                 ;
+
+            Mapper.CreateMap<UserSocialActionResponse, KalturaSocialActionRate>()
+               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.UserAction.AssetID))
+               .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.UserAction.AssetType)))
+               .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.UserAction.Action)))
+               .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => ConvertRateParams(src.UserAction.ExtraParams)))
+               ;
+                        
+            Mapper.CreateMap<ApiObjects.Social.UserSocialActionResponse, KalturaUserSocialActionResponse>().ConstructUsing(ConvertSocialActionResponse);
+            
         }
 
-        //private static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
-        //{
-        //    List<KalturaNetworkActionStatus> result = new List<KalturaNetworkActionStatus>();
-        //    KalturaNetworkActionStatus kns;
-        //    foreach (NetworkActionStatus networkStatus in src)
-        //    {
-        //        kns = new KalturaNetworkActionStatus();
-        //        if (networkStatus.Network != null)
-        //        {
-        //            switch (networkStatus.Network)
-        //            {
-        //                case SocialPlatform.FACEBOOK:
-        //                    kns.Network = KalturaSocialNetwork.facebook;
-        //                    break;
-        //                default:
-        //                    kns.Network = null;
-        //                    break;
-        //            }
-        //        }
-        //        switch (networkStatus.Status.Code)
-        //        {
-        //            case (int)ApiObjects.Response.eResponseStatus.Error:
-        //                kns.Status = KalturaSocialStatus.error;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.OK:
-        //                kns.Status = KalturaSocialStatus.ok;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.UserDoesNotExist:
-        //                kns.Status = KalturaSocialStatus.user_does_not_exist;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound:
-        //                kns.Status = KalturaSocialStatus.no_user_social_settings_found;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked:
-        //                kns.Status = KalturaSocialStatus.asset_already_liked;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.NotAllowed:
-        //                kns.Status = KalturaSocialStatus.not_allowed;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.InvalidParameters:
-        //                kns.Status = KalturaSocialStatus.invalid_parameters;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.NoFacebookAction:
-        //                kns.Status = KalturaSocialStatus.no_facebook_action;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyRated:
-        //                kns.Status = KalturaSocialStatus.asset_already_rated;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists:
-        //                kns.Status = KalturaSocialStatus.asset_dose_not_exists;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.InvalidPlatformRequest:
-        //                kns.Status = KalturaSocialStatus.invalid_platform_request;
-        //                break;
-        //            case (int)ApiObjects.Response.eResponseStatus.InvalidAccessToken:
-        //                kns.Status = KalturaSocialStatus.invalid_access_token;
-        //                break;
-        //            default:
-        //                kns.Status = KalturaSocialStatus.error;
-        //                break;
-        //        }
-        //        result.Add(kns);
-        //    }
+        private static KalturaUserSocialActionResponse ConvertSocialActionResponse(UserSocialActionResponse src)
+        {
+            KalturaUserSocialActionResponse response = new KalturaUserSocialActionResponse();;
 
-        //    return result;
-        //}
+            response.NetworkStatus = ConvertNetworkActionStatus(src.NetworksStatus);
+
+            if (src.UserAction != null && src.UserAction.Action == eUserAction.RATES)
+            {
+                response.SocialAction = AutoMapper.Mapper.Map<KalturaSocialActionRate>(src.UserAction);
+            }
+            else
+            {
+                response.SocialAction = AutoMapper.Mapper.Map<KalturaSocialAction>(src.UserAction);
+            }
+
+            return response;
+        }
+       
+        private static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
+        {
+            List<KalturaNetworkActionStatus> result = new List<KalturaNetworkActionStatus>();
+            KalturaNetworkActionStatus kns;
+            foreach (NetworkActionStatus networkStatus in src)
+            {
+                kns = new KalturaNetworkActionStatus();
+                if (networkStatus.Network != null)
+                {
+                    switch (networkStatus.Network)
+                    {
+                        case SocialPlatform.FACEBOOK:
+                            kns.Network = KalturaSocialNetwork.facebook;
+                            break;
+                        default:
+                            kns.Network = null;
+                            break;
+                    }
+                }
+                switch (networkStatus.Status.Code)
+                {
+                    case (int)ApiObjects.Response.eResponseStatus.Error:
+                        kns.Status = KalturaSocialStatus.error;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.OK:
+                        kns.Status = KalturaSocialStatus.ok;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.UserDoesNotExist:
+                        kns.Status = KalturaSocialStatus.user_does_not_exist;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound:
+                        kns.Status = KalturaSocialStatus.no_user_social_settings_found;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked:
+                        kns.Status = KalturaSocialStatus.asset_already_liked;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.NotAllowed:
+                        kns.Status = KalturaSocialStatus.not_allowed;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.InvalidParameters:
+                        kns.Status = KalturaSocialStatus.invalid_parameters;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.NoFacebookAction:
+                        kns.Status = KalturaSocialStatus.no_facebook_action;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.AssetAlreadyRated:
+                        kns.Status = KalturaSocialStatus.asset_already_rated;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists:
+                        kns.Status = KalturaSocialStatus.asset_dose_not_exists;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.InvalidPlatformRequest:
+                        kns.Status = KalturaSocialStatus.invalid_platform_request;
+                        break;
+                    case (int)ApiObjects.Response.eResponseStatus.InvalidAccessToken:
+                        kns.Status = KalturaSocialStatus.invalid_access_token;
+                        break;
+                    default:
+                        kns.Status = KalturaSocialStatus.error;
+                        break;
+                }
+                if (kns.Status != KalturaSocialStatus.ok) // only fail statuses 
+                {
+                    result.Add(kns);
+                }
+            }
+
+            return result;
+        }
 
         private static List<ApiObjects.KeyValuePair> ConvertRateParams(int RateValue)
         {
@@ -391,14 +415,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static KalturaSocialComment ConvertToKalturaSocialComment(ResolutionContext context)
+        private static KalturaSocialComment ConvertToKalturaSocialComment(SocialFeedItem comment)
         {
             KalturaSocialComment result = null;
-            var comment = (SocialFeedItem)context.SourceValue;
             switch (comment.SocialPlatform)
             {
                 case eSocialPlatform.InApp:
-                    result = AutoMapper.Mapper.Map<KalturaSocialComment>(comment);
+                    result = new KalturaSocialComment()
+                    {
+                        CreateDate = comment.CreateDate,
+                        Header = comment.Title,
+                        Text = comment.Body,
+                        Writer = comment.CreatorName
+                    };
                     break;
                 case eSocialPlatform.Facebook:
                     result = AutoMapper.Mapper.Map<KalturaFacebookPost>(comment);

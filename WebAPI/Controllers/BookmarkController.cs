@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        [Throws(eResponseStatus.UserNotExistsInHousehold)]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.InvalidAssetType)]
         public KalturaAssetsBookmarksResponse ListOldStandard(KalturaAssetsFilter filter)
@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotExistsInHousehold)]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.InvalidAssetType)]
         public KalturaBookmarkListResponse List(KalturaBookmarkFilter filter)
