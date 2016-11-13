@@ -9926,26 +9926,32 @@ namespace ConditionalAccess
                     {
                         lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
                         if (IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
-                        {
+                        {                                                        
+                            int enableCdvr = 0, enableNonEntitled = 0, enableNonExisting = 0;
+                            TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                            if (accountSettings != null)
+                            // Assuming accountSettings is not null (no errors), all account settings must have values so no need to check .HasValue
+                            {
+                                enableCdvr = accountSettings.IsCdvrEnabled.Value ? 1 : 0;
+                                enableNonEntitled = accountSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value ? 1 : 0;
+                                enableNonExisting = accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value ? 1 : 0;
+                            }
+
                             DataTable dt = ConditionalAccessDAL.GetChannelByMediaFileId(m_nGroupID, nMediaFileID);
                             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                             {
                                 DataRow dr = dt.Rows[0];
-                                int enableCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);
-                                int enableNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
-                                int enableNonExisting = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_EXISTING", 0);
+                                int enableChannelCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);                                
+                                int enableChannelNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
 
-                                if (enableCdvr == 0 || enableNonEntitled == 0 || enableNonExisting == 0)
+                                if (enableCdvr == 1 && enableChannelCdvr == 2)
                                 {
-                                    TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                                    if (accountSettings != null)
-                                    {
-                                        enableCdvr = enableCdvr == 0 ? (accountSettings.IsCdvrEnabled.HasValue && accountSettings.IsCdvrEnabled.Value ? 1 : 2) : enableCdvr;
-                                        enableNonEntitled = enableNonEntitled == 0 ? (accountSettings.IsRecordingPlaybackNonEntitledChannelEnabled.HasValue &&
-                                                                                      accountSettings.IsRecordingPlaybackNonEntitledChannelEnabled.Value ? 1 : 2) : enableNonEntitled;
-                                        enableNonExisting = enableNonExisting == 0 ? (accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue &&
-                                                                                      accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value ? 1 : 2) : enableNonExisting;
-                                    }
+                                    enableCdvr = enableChannelCdvr;
+                                }
+
+                                if (enableNonEntitled == 1 && enableChannelNonEntitled == 2)
+                                {
+                                    enableNonEntitled = enableChannelNonEntitled;
                                 }
 
                                 if (enableCdvr == 1)
