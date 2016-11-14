@@ -2247,6 +2247,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_PaymentGatewayPaymentMethod");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");
                 sp.AddParameter("@payment_method_id", paymentMethodId);
 
                 rowCount = sp.ExecuteReturnValue<int>();
