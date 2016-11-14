@@ -699,5 +699,68 @@ namespace WebAPI.Clients
             string result = string.Join(",", fails);
             return result;
         }
+
+        internal KalturaSocialActionListResponse GetUserSocialActions(int groupId, string userId, List<int> assets, KalturaAssetType assetType, List<KalturaSocialActionType> actionTypes, int pageIndex, int? pageSize, KalturaSocialActionOrderBy orderBy)
+        {
+            KalturaSocialActionListResponse getActionResponse = new KalturaSocialActionListResponse();
+            SocialActivityResponse response = new SocialActivityResponse();
+            UserSocialActionQueryRequest request = new UserSocialActionQueryRequest();
+
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // change status to Status - first in social ws 
+                    request.m_sSiteGuid = userId;
+                    request.m_eAssetType = SocialMappings.ConvertAssetType(assetType);
+                    request.m_lAssetIDs = assets;
+                    request.UserActions = new List<eUserAction>();
+                    if (actionTypes != null && actionTypes.Count > 0)
+                    {
+                        var userActions = new List<eUserAction>();
+                        foreach (var action in actionTypes)
+                        {
+                            request.UserActions.Add(SocialMappings.ConvertSocialAction(action));
+                        }
+                    }
+                    else
+                    {
+                        request.UserActions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.RATES, eUserAction.WATCHES, eUserAction.SHARE };
+                    }
+
+
+                    request.m_nStartIndex = pageIndex;
+                    request.m_nNumOfRecords = pageSize != null ? pageSize.Value : 0;
+
+                    response = Client.GetUserActions(group.SocialCredentials.Username, group.SocialCredentials.Password, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserSocialActions.  groupID: {0}, assets: {1}, exception: {2}", groupId, string.Join(",", assets), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SocialActivity != null)
+            {
+                getActionResponse.Objects = AutoMapper.Mapper.Map<List<KalturaSocialAction>>(response.SocialActivity);
+            }
+            getActionResponse.TotalCount = response.TotalCount;
+
+            return getActionResponse;
+        }
+
+      
     }
 }

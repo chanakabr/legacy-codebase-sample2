@@ -202,9 +202,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
                         
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionResponse, KalturaUserSocialActionResponse>().ConstructUsing(ConvertSocialActionResponse);
+
+            Mapper.CreateMap<KalturaSocialAction, Social.Requests.UserSocialActionQueryRequest>()                
+                 .ForMember(dest => dest.m_eAssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
+                 .ForMember(dest => dest.m_eUserActions, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)));
             
         }
 
+     
         private static KalturaUserSocialActionResponse ConvertSocialActionResponse(UserSocialActionResponse src)
         {
             KalturaUserSocialActionResponse response = new KalturaUserSocialActionResponse();;
