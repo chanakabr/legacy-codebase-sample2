@@ -392,7 +392,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = KalturaSocialActionType.SHARE;
                     break;
                 case eUserAction.WATCHES:
-                    break;
                     result = KalturaSocialActionType.WATCH;
                     break;
                 case eUserAction.RATES:
