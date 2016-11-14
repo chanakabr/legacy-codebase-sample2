@@ -108,7 +108,7 @@ namespace Catalog.Request
 
         private MediaMarkResponse ProcessNpvrEpgMarkRequest(MediaMarkRequest oMediaMarkRequest)
         {
-            MediaMarkResponse oMediaMarkResponse = new MediaMarkResponse();
+            MediaMarkResponse mediaMarkResponse = new MediaMarkResponse();
             eAssetTypes assetType = oMediaMarkRequest.m_oMediaPlayRequestData.m_eAssetType;
 
             int nActionID = 0;
@@ -136,8 +136,8 @@ namespace Catalog.Request
                     fileDuration = Convert.ToInt32((lEpgProg.First().EndDate - lEpgProg.First().StartDate).TotalSeconds);
                 else
                 {
-                    oMediaMarkResponse.status = new Status((int)eResponseStatus.ProgramDoesntExist, "Program doesn't exist");
-                    return oMediaMarkResponse;
+                    mediaMarkResponse.status = new Status((int)eResponseStatus.ProgramDoesntExist, "Program doesn't exist");
+                    return mediaMarkResponse;
                 }
             }
             else if (assetType == eAssetTypes.NPVR)
@@ -147,26 +147,26 @@ namespace Catalog.Request
 
                 if (!result)
                 {
-                    oMediaMarkResponse.status = new Status((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
-                    return oMediaMarkResponse;
+                    mediaMarkResponse.status = new Status((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
+                    return mediaMarkResponse;
                 }
             }
 
             // check action
             if (!Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
-                oMediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
-                return oMediaMarkResponse;
+                mediaMarkResponse.status = new Status((int)eResponseStatus.ActionNotRecognized, "Action not recognized");
+                return mediaMarkResponse;
             }
 
             // check anonymous user
             if (Catalog.IsAnonymousUser(m_oMediaPlayRequestData.m_sSiteGuid))
             {
-                oMediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
-                return oMediaMarkResponse;
+                mediaMarkResponse.status = new Status((int)eResponseStatus.UserNotAllowed, "Anonymous User Can't watch nPVR");
+                return mediaMarkResponse;
             }
 
-            oMediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            mediaMarkResponse.status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             if (this.m_oFilter != null)
             {
@@ -175,11 +175,21 @@ namespace Catalog.Request
             int nCountryID = 0;
 
             bool isError = false;
-            bool isConcurrent = false; // for future use
+            bool isConcurrent = false;
             HandleNpvrEpgPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, ref nExitFull, ref nSendToFriend, ref nLoad,
                                     ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, ref fileDuration, assetType, recordingId);
-
-            return oMediaMarkResponse;
+            if (isConcurrent)
+            {
+                mediaMarkResponse.status = new Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrent play limitation");
+            }
+            else
+            {
+                if (isError)
+                {
+                    mediaMarkResponse.status = new Status((int)eResponseStatus.Error, "Error when handling media mark request");
+                }
+            }
+            return mediaMarkResponse;
         }
 
 
