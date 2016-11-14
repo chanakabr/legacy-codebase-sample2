@@ -1311,7 +1311,10 @@ namespace CouchbaseManager
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
                     if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                     {
-                        log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                        if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                            log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                        else
+                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
 
                         status = item.Value.Status;
 
