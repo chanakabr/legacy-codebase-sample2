@@ -57,7 +57,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaSocialActionListResponse List(KalturaSocialActionFilter filter = null, KalturaFilterPager pager = null)
+        public KalturaSocialActionListResponse List(KalturaSocialActionFilter filter, KalturaFilterPager pager = null)
         {
             KalturaSocialActionListResponse response = null;
 
