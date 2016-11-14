@@ -480,10 +480,9 @@ namespace WebAPI.Clients
             GetFriendsActionsRequest request = new GetFriendsActionsRequest()
             {
                 m_eAssetType = eAssetType.MEDIA,
-                m_eSocialPlatform = SocialPlatform.FACEBOOK,
                 m_lAssetIDs = assetId > 0 ? new List<int> { (int)assetId } : null,
                 m_nNumOfRecords = pageSize,
-                m_nStartIndex = pageIndex, // make sure its right
+                m_nStartIndex = pageIndex * pageSize,
                 m_sSiteGuid = userId,
             };
             eUserAction wsAction;

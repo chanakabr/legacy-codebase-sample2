@@ -593,8 +593,17 @@
             <param name="socialAction">social Action Object</param>
             <remarks>
             Possible status codes:
-            </remarks>
-            <param name="channel">KSQL channel Object</param>
+            </remarks>       
+        </member>
+        <member name="M:WebAPI.Controllers.SocialActionController.List(WebAPI.Models.Social.KalturaSocialActionFilter,WebAPI.Models.General.KalturaFilterPager)">
+             <summary>
+             Get list of user social actions
+             </summary>
+             <param name="filter">social action filter</param>
+            <param name="pager">pager </param>
+             <remarks>
+             Possible status codes:
+             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialFriendActivityController.List(WebAPI.Models.Social.KalturaSocialFriendActivityFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -7987,9 +7996,29 @@
              Is recording playback for non-existing channel enables 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionFilter.AssetIdIn">
+            <summary>
+            Comma separated list of asset identifiers.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionFilter.AssetTypeEqual">
+             <summary>
+            Asset Type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionFilter.ActionTypeIn">
+            <summary>
+            Comma separated list of social actions to filter by
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialUserConfig.PermissionItems">
             <summary>
             List of action permission items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionListResponse.Objects">
+            <summary>
+            The social actions
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaUserSocialActionResponse.SocialAction">
