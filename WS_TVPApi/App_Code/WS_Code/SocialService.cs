@@ -498,7 +498,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Sets User Internal Action Privacy")]
         [PrivateMethod]
-        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime)
+        public SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, TVPPro.SiteManager.TvinciPlatform.Social.eSocialPlatform socialPlatform, int numOfItems, long epochStartTime)
         {
             SocialFeed resSocialFeed = new SocialFeed();
 

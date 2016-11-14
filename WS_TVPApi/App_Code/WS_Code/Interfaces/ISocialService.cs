@@ -68,7 +68,7 @@ namespace TVPApiServices
         bool SetUserInternalActionPrivacy(InitializationObject initObj, eUserAction userAction, SocialPlatform socialPlatform, eSocialActionPrivacy actionPrivacy);
 
         [OperationContract]
-        SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, eSocialPlatform socialPlatform, int numOfItems, long epochStartTime);
+        SocialFeed GetSocialFeed(InitializationObject initObj, int mediaId, TVPPro.SiteManager.TvinciPlatform.Social.eSocialPlatform socialPlatform, int numOfItems, long epochStartTime);
 
         [OperationContract]
         FacebookResponseObject FBUserUnmerge(InitializationObject initObj, string token, string username, string password);
