@@ -27,6 +27,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="moduleSoap", Namespace="http://social.tvinci.com/")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PlatformConfig))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseSocialResponse))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SocialBaseRequestWrapper))]
     public partial class module : System.Web.Services.Protocols.SoapHttpClientProtocol {
@@ -94,6 +95,14 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         private System.Threading.SendOrPostCallback DeleteUserFeedOperationCompleted;
         
         private System.Threading.SendOrPostCallback MergeFriendsActivityFeedOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetUserSocialPrivacySettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetUserSocialPrivacySettingsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback AddUserSocialActionOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetSocialFeedOperationCompleted;
         
         private bool useDefaultCredentialsSetExplicitly;
         
@@ -228,6 +237,18 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         public event MergeFriendsActivityFeedCompletedEventHandler MergeFriendsActivityFeedCompleted;
+        
+        /// <remarks/>
+        public event SetUserSocialPrivacySettingsCompletedEventHandler SetUserSocialPrivacySettingsCompleted;
+        
+        /// <remarks/>
+        public event GetUserSocialPrivacySettingsCompletedEventHandler GetUserSocialPrivacySettingsCompleted;
+        
+        /// <remarks/>
+        public event AddUserSocialActionCompletedEventHandler AddUserSocialActionCompleted;
+        
+        /// <remarks/>
+        public event GetSocialFeedCompletedEventHandler GetSocialFeedCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUsersLikedMedia", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -486,12 +507,12 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUserActions", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public SocialActivityDoc[] GetUserActions(string sWUserName, string sWSPassword, UserSocialActionQueryRequest oUserActionRequest) {
+        public SocialActivityResponse GetUserActions(string sWUserName, string sWSPassword, UserSocialActionQueryRequest oUserActionRequest) {
             object[] results = this.Invoke("GetUserActions", new object[] {
                         sWUserName,
                         sWSPassword,
                         oUserActionRequest});
-            return ((SocialActivityDoc[])(results[0]));
+            return ((SocialActivityResponse)(results[0]));
         }
         
         /// <remarks/>
@@ -1367,6 +1388,154 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/SetUserSocialPrivacySettings", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SocialPrivacySettingsResponse SetUserSocialPrivacySettings(string sWSUserName, string sWSPassword, string siteGUID, SocialPrivacySettings settings) {
+            object[] results = this.Invoke("SetUserSocialPrivacySettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        settings});
+            return ((SocialPrivacySettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetUserSocialPrivacySettingsAsync(string sWSUserName, string sWSPassword, string siteGUID, SocialPrivacySettings settings) {
+            this.SetUserSocialPrivacySettingsAsync(sWSUserName, sWSPassword, siteGUID, settings, null);
+        }
+        
+        /// <remarks/>
+        public void SetUserSocialPrivacySettingsAsync(string sWSUserName, string sWSPassword, string siteGUID, SocialPrivacySettings settings, object userState) {
+            if ((this.SetUserSocialPrivacySettingsOperationCompleted == null)) {
+                this.SetUserSocialPrivacySettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetUserSocialPrivacySettingsOperationCompleted);
+            }
+            this.InvokeAsync("SetUserSocialPrivacySettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID,
+                        settings}, this.SetUserSocialPrivacySettingsOperationCompleted, userState);
+        }
+        
+        private void OnSetUserSocialPrivacySettingsOperationCompleted(object arg) {
+            if ((this.SetUserSocialPrivacySettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetUserSocialPrivacySettingsCompleted(this, new SetUserSocialPrivacySettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetUserSocialPrivacySettings", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SocialPrivacySettingsResponse GetUserSocialPrivacySettings(string sWSUserName, string sWSPassword, string siteGUID) {
+            object[] results = this.Invoke("GetUserSocialPrivacySettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID});
+            return ((SocialPrivacySettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetUserSocialPrivacySettingsAsync(string sWSUserName, string sWSPassword, string siteGUID) {
+            this.GetUserSocialPrivacySettingsAsync(sWSUserName, sWSPassword, siteGUID, null);
+        }
+        
+        /// <remarks/>
+        public void GetUserSocialPrivacySettingsAsync(string sWSUserName, string sWSPassword, string siteGUID, object userState) {
+            if ((this.GetUserSocialPrivacySettingsOperationCompleted == null)) {
+                this.GetUserSocialPrivacySettingsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetUserSocialPrivacySettingsOperationCompleted);
+            }
+            this.InvokeAsync("GetUserSocialPrivacySettings", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        siteGUID}, this.GetUserSocialPrivacySettingsOperationCompleted, userState);
+        }
+        
+        private void OnGetUserSocialPrivacySettingsOperationCompleted(object arg) {
+            if ((this.GetUserSocialPrivacySettingsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetUserSocialPrivacySettingsCompleted(this, new GetUserSocialPrivacySettingsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/AddUserSocialAction", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public UserSocialActionResponse AddUserSocialAction(string sWSUserName, string sWSPassword, UserSocialActionRequest actionRequest) {
+            object[] results = this.Invoke("AddUserSocialAction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        actionRequest});
+            return ((UserSocialActionResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void AddUserSocialActionAsync(string sWSUserName, string sWSPassword, UserSocialActionRequest actionRequest) {
+            this.AddUserSocialActionAsync(sWSUserName, sWSPassword, actionRequest, null);
+        }
+        
+        /// <remarks/>
+        public void AddUserSocialActionAsync(string sWSUserName, string sWSPassword, UserSocialActionRequest actionRequest, object userState) {
+            if ((this.AddUserSocialActionOperationCompleted == null)) {
+                this.AddUserSocialActionOperationCompleted = new System.Threading.SendOrPostCallback(this.OnAddUserSocialActionOperationCompleted);
+            }
+            this.InvokeAsync("AddUserSocialAction", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        actionRequest}, this.AddUserSocialActionOperationCompleted, userState);
+        }
+        
+        private void OnAddUserSocialActionOperationCompleted(object arg) {
+            if ((this.AddUserSocialActionCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.AddUserSocialActionCompleted(this, new AddUserSocialActionCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://social.tvinci.com/GetSocialFeed", RequestNamespace="http://social.tvinci.com/", ResponseNamespace="http://social.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public SocialFeedResponse GetSocialFeed(string sWSUserName, string sWSPassword, string userId, int assetId, eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex, long epochStartTime, SocialFeedOrderBy orderBy) {
+            object[] results = this.Invoke("GetSocialFeed", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        assetId,
+                        assetType,
+                        socialPlatform,
+                        pageSize,
+                        pageIndex,
+                        epochStartTime,
+                        orderBy});
+            return ((SocialFeedResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetSocialFeedAsync(string sWSUserName, string sWSPassword, string userId, int assetId, eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex, long epochStartTime, SocialFeedOrderBy orderBy) {
+            this.GetSocialFeedAsync(sWSUserName, sWSPassword, userId, assetId, assetType, socialPlatform, pageSize, pageIndex, epochStartTime, orderBy, null);
+        }
+        
+        /// <remarks/>
+        public void GetSocialFeedAsync(string sWSUserName, string sWSPassword, string userId, int assetId, eAssetType assetType, eSocialPlatform socialPlatform, int pageSize, int pageIndex, long epochStartTime, SocialFeedOrderBy orderBy, object userState) {
+            if ((this.GetSocialFeedOperationCompleted == null)) {
+                this.GetSocialFeedOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetSocialFeedOperationCompleted);
+            }
+            this.InvokeAsync("GetSocialFeed", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        userId,
+                        assetId,
+                        assetType,
+                        socialPlatform,
+                        pageSize,
+                        pageIndex,
+                        epochStartTime,
+                        orderBy}, this.GetSocialFeedOperationCompleted, userState);
+        }
+        
+        private void OnGetSocialFeedOperationCompleted(object arg) {
+            if ((this.GetSocialFeedCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetSocialFeedCompleted(this, new GetSocialFeedCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -1428,6 +1597,659 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
                 this.updateDateField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SocialFeedItem))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialFeedItemComment {
+        
+        private string titleField;
+        
+        private string bodyField;
+        
+        private string creatorNameField;
+        
+        private long createDateField;
+        
+        private string creatorImageUrlField;
+        
+        private int popularityCounterField;
+        
+        private eSocialPlatform socialPlatformField;
+        
+        /// <remarks/>
+        public string Title {
+            get {
+                return this.titleField;
+            }
+            set {
+                this.titleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Body {
+            get {
+                return this.bodyField;
+            }
+            set {
+                this.bodyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CreatorName {
+            get {
+                return this.creatorNameField;
+            }
+            set {
+                this.creatorNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public long CreateDate {
+            get {
+                return this.createDateField;
+            }
+            set {
+                this.createDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CreatorImageUrl {
+            get {
+                return this.creatorImageUrlField;
+            }
+            set {
+                this.creatorImageUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int PopularityCounter {
+            get {
+                return this.popularityCounterField;
+            }
+            set {
+                this.popularityCounterField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eSocialPlatform SocialPlatform {
+            get {
+                return this.socialPlatformField;
+            }
+            set {
+                this.socialPlatformField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eSocialPlatform {
+        
+        /// <remarks/>
+        Unknown,
+        
+        /// <remarks/>
+        InApp,
+        
+        /// <remarks/>
+        Facebook,
+        
+        /// <remarks/>
+        Twitter,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialFeedItem : SocialFeedItemComment {
+        
+        private SocialFeedItemComment[] commentsField;
+        
+        private string feedItemLinkField;
+        
+        /// <remarks/>
+        public SocialFeedItemComment[] Comments {
+            get {
+                return this.commentsField;
+            }
+            set {
+                this.commentsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string FeedItemLink {
+            get {
+                return this.feedItemLinkField;
+            }
+            set {
+                this.feedItemLinkField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialFeedResponse {
+        
+        private SocialFeedItem[] socialFeedsField;
+        
+        private int totalCountField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public SocialFeedItem[] SocialFeeds {
+            get {
+                return this.socialFeedsField;
+            }
+            set {
+                this.socialFeedsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TotalCount {
+            get {
+                return this.totalCountField;
+            }
+            set {
+                this.totalCountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class Status {
+        
+        private int codeField;
+        
+        private string messageField;
+        
+        /// <remarks/>
+        public int Code {
+            get {
+                return this.codeField;
+            }
+            set {
+                this.codeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Message {
+            get {
+                return this.messageField;
+            }
+            set {
+                this.messageField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class NetworkActionStatus {
+        
+        private Status statusField;
+        
+        private System.Nullable<SocialPlatform> networkField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<SocialPlatform> Network {
+            get {
+                return this.networkField;
+            }
+            set {
+                this.networkField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum SocialPlatform {
+        
+        /// <remarks/>
+        UNKNOWN,
+        
+        /// <remarks/>
+        FACEBOOK,
+        
+        /// <remarks/>
+        GOOGLE,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class UserSocialActionResponse {
+        
+        private NetworkActionStatus[] networksStatusField;
+        
+        private Status statusField;
+        
+        private UserSocialActionRequest userActionField;
+        
+        /// <remarks/>
+        public NetworkActionStatus[] NetworksStatus {
+            get {
+                return this.networksStatusField;
+            }
+            set {
+                this.networksStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public UserSocialActionRequest UserAction {
+            get {
+                return this.userActionField;
+            }
+            set {
+                this.userActionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class UserSocialActionRequest {
+        
+        private eAssetType assetTypeField;
+        
+        private string deviceUDIDField;
+        
+        private string siteGuidField;
+        
+        private int assetIDField;
+        
+        private eUserAction actionField;
+        
+        private KeyValuePair[] extraParamsField;
+        
+        private System.Nullable<long> timeField;
+        
+        /// <remarks/>
+        public eAssetType AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DeviceUDID {
+            get {
+                return this.deviceUDIDField;
+            }
+            set {
+                this.deviceUDIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SiteGuid {
+            get {
+                return this.siteGuidField;
+            }
+            set {
+                this.siteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int AssetID {
+            get {
+                return this.assetIDField;
+            }
+            set {
+                this.assetIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eUserAction Action {
+            get {
+                return this.actionField;
+            }
+            set {
+                this.actionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public KeyValuePair[] ExtraParams {
+            get {
+                return this.extraParamsField;
+            }
+            set {
+                this.extraParamsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<long> Time {
+            get {
+                return this.timeField;
+            }
+            set {
+                this.timeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.FlagsAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eAssetType {
+        
+        /// <remarks/>
+        UNKNOWN = 1,
+        
+        /// <remarks/>
+        MEDIA = 2,
+        
+        /// <remarks/>
+        PROGRAM = 4,
+    }
+    
+    /// <remarks/>
+    [System.FlagsAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eUserAction {
+        
+        /// <remarks/>
+        UNKNOWN = 1,
+        
+        /// <remarks/>
+        LIKE = 2,
+        
+        /// <remarks/>
+        UNLIKE = 4,
+        
+        /// <remarks/>
+        SHARE = 8,
+        
+        /// <remarks/>
+        POST = 16,
+        
+        /// <remarks/>
+        WATCHES = 32,
+        
+        /// <remarks/>
+        WANTS_TO_WATCH = 64,
+        
+        /// <remarks/>
+        RATES = 128,
+        
+        /// <remarks/>
+        FOLLOWS = 256,
+        
+        /// <remarks/>
+        UNFOLLOW = 512,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class KeyValuePair {
+        
+        private string keyField;
+        
+        private string valueField;
+        
+        /// <remarks/>
+        public string key {
+            get {
+                return this.keyField;
+            }
+            set {
+                this.keyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string value {
+            get {
+                return this.valueField;
+            }
+            set {
+                this.valueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialPrivacySettingsResponse {
+        
+        private SocialPrivacySettings settingsField;
+        
+        private Status statusField;
+        
+        /// <remarks/>
+        public SocialPrivacySettings settings {
+            get {
+                return this.settingsField;
+            }
+            set {
+                this.settingsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialPrivacySettings {
+        
+        private SocialNetwork[] socialNetworksField;
+        
+        private eSocialActionPrivacy internalPrivacyField;
+        
+        /// <remarks/>
+        public SocialNetwork[] SocialNetworks {
+            get {
+                return this.socialNetworksField;
+            }
+            set {
+                this.socialNetworksField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eSocialActionPrivacy InternalPrivacy {
+            get {
+                return this.internalPrivacyField;
+            }
+            set {
+                this.internalPrivacyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialNetwork {
+        
+        private SocialPlatform networkField;
+        
+        private eSocialActionPrivacy privacyField;
+        
+        private eSocialPrivacy socialPrivacyField;
+        
+        /// <remarks/>
+        public SocialPlatform Network {
+            get {
+                return this.networkField;
+            }
+            set {
+                this.networkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eSocialActionPrivacy Privacy {
+            get {
+                return this.privacyField;
+            }
+            set {
+                this.privacyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eSocialPrivacy SocialPrivacy {
+            get {
+                return this.socialPrivacyField;
+            }
+            set {
+                this.socialPrivacyField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eSocialActionPrivacy {
+        
+        /// <remarks/>
+        UNKNOWN,
+        
+        /// <remarks/>
+        ALLOW,
+        
+        /// <remarks/>
+        DONT_ALLOW,
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public enum eSocialPrivacy {
+        
+        /// <remarks/>
+        UNKNOWN,
+        
+        /// <remarks/>
+        EVERYONE,
+        
+        /// <remarks/>
+        ALL_FRIENDS,
+        
+        /// <remarks/>
+        FRIENDS_OF_FRIENDS,
+        
+        /// <remarks/>
+        SELF,
+        
+        /// <remarks/>
+        CUSTOM,
     }
     
     /// <remarks/>
@@ -2202,39 +3024,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class Status {
-        
-        private int codeField;
-        
-        private string messageField;
-        
-        /// <remarks/>
-        public int Code {
-            get {
-                return this.codeField;
-            }
-            set {
-                this.codeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Message {
-            get {
-                return this.messageField;
-            }
-            set {
-                this.messageField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
     public partial class FacebookTokenResponse {
         
         private string statusField;
@@ -2665,12 +3454,22 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(FacebookConfig))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class FacebookConfig {
+    public partial class PlatformConfig {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class FacebookConfig : PlatformConfig {
         
         private string sFBKeyField;
         
@@ -2940,41 +3739,236 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivityResponse {
+    public partial class ActionProperties {
         
-        private Status statusField;
+        private string propertyNameField;
         
-        private SocialActivityDoc[] socialActivityField;
-        
-        private int totalCountField;
+        private string propertyValueField;
         
         /// <remarks/>
-        public Status Status {
+        public string PropertyName {
             get {
-                return this.statusField;
+                return this.propertyNameField;
             }
             set {
-                this.statusField = value;
+                this.propertyNameField = value;
             }
         }
         
         /// <remarks/>
-        public SocialActivityDoc[] SocialActivity {
+        public string PropertyValue {
             get {
-                return this.socialActivityField;
+                return this.propertyValueField;
             }
             set {
-                this.socialActivityField = value;
+                this.propertyValueField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialActivityVerb {
+        
+        private string socialActionIDField;
+        
+        private int actionTypeField;
+        
+        private string actionNameField;
+        
+        private int rateValueField;
+        
+        private ActionProperties[] actionPropertiesField;
+        
+        /// <remarks/>
+        public string SocialActionID {
+            get {
+                return this.socialActionIDField;
+            }
+            set {
+                this.socialActionIDField = value;
             }
         }
         
         /// <remarks/>
-        public int TotalCount {
+        public int ActionType {
             get {
-                return this.totalCountField;
+                return this.actionTypeField;
             }
             set {
-                this.totalCountField = value;
+                this.actionTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ActionName {
+            get {
+                return this.actionNameField;
+            }
+            set {
+                this.actionNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int RateValue {
+            get {
+                return this.rateValueField;
+            }
+            set {
+                this.rateValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public ActionProperties[] ActionProperties {
+            get {
+                return this.actionPropertiesField;
+            }
+            set {
+                this.actionPropertiesField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialActivitySubject {
+        
+        private string actorSiteGuidField;
+        
+        private string actorPicUrlField;
+        
+        private string actorTvinciUsernameField;
+        
+        private int groupIDField;
+        
+        private string deviceUdidField;
+        
+        /// <remarks/>
+        public string ActorSiteGuid {
+            get {
+                return this.actorSiteGuidField;
+            }
+            set {
+                this.actorSiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ActorPicUrl {
+            get {
+                return this.actorPicUrlField;
+            }
+            set {
+                this.actorPicUrlField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ActorTvinciUsername {
+            get {
+                return this.actorTvinciUsernameField;
+            }
+            set {
+                this.actorTvinciUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int GroupID {
+            get {
+                return this.groupIDField;
+            }
+            set {
+                this.groupIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DeviceUdid {
+            get {
+                return this.deviceUdidField;
+            }
+            set {
+                this.deviceUdidField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
+    public partial class SocialActivityObject {
+        
+        private int assetIDField;
+        
+        private string objectIDField;
+        
+        private eAssetType assetTypeField;
+        
+        private string assetNameField;
+        
+        private string picUrlField;
+        
+        /// <remarks/>
+        public int AssetID {
+            get {
+                return this.assetIDField;
+            }
+            set {
+                this.assetIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ObjectID {
+            get {
+                return this.objectIDField;
+            }
+            set {
+                this.objectIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public eAssetType AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string AssetName {
+            get {
+                return this.assetNameField;
+            }
+            set {
+                this.assetNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PicUrl {
+            get {
+                return this.picUrlField;
+            }
+            set {
+                this.picUrlField = value;
             }
         }
     }
@@ -3126,286 +4120,41 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivityObject {
+    public partial class SocialActivityResponse {
         
-        private int assetIDField;
+        private Status statusField;
         
-        private string objectIDField;
+        private SocialActivityDoc[] socialActivityField;
         
-        private eAssetType assetTypeField;
-        
-        private string assetNameField;
-        
-        private string picUrlField;
+        private int totalCountField;
         
         /// <remarks/>
-        public int AssetID {
+        public Status Status {
             get {
-                return this.assetIDField;
+                return this.statusField;
             }
             set {
-                this.assetIDField = value;
+                this.statusField = value;
             }
         }
         
         /// <remarks/>
-        public string ObjectID {
+        public SocialActivityDoc[] SocialActivity {
             get {
-                return this.objectIDField;
+                return this.socialActivityField;
             }
             set {
-                this.objectIDField = value;
+                this.socialActivityField = value;
             }
         }
         
         /// <remarks/>
-        public eAssetType AssetType {
+        public int TotalCount {
             get {
-                return this.assetTypeField;
+                return this.totalCountField;
             }
             set {
-                this.assetTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string AssetName {
-            get {
-                return this.assetNameField;
-            }
-            set {
-                this.assetNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PicUrl {
-            get {
-                return this.picUrlField;
-            }
-            set {
-                this.picUrlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.FlagsAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public enum eAssetType {
-        
-        /// <remarks/>
-        UNKNOWN = 1,
-        
-        /// <remarks/>
-        MEDIA = 2,
-        
-        /// <remarks/>
-        PROGRAM = 4,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivitySubject {
-        
-        private string actorSiteGuidField;
-        
-        private string actorPicUrlField;
-        
-        private string actorTvinciUsernameField;
-        
-        private int groupIDField;
-        
-        private string deviceUdidField;
-        
-        /// <remarks/>
-        public string ActorSiteGuid {
-            get {
-                return this.actorSiteGuidField;
-            }
-            set {
-                this.actorSiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActorPicUrl {
-            get {
-                return this.actorPicUrlField;
-            }
-            set {
-                this.actorPicUrlField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActorTvinciUsername {
-            get {
-                return this.actorTvinciUsernameField;
-            }
-            set {
-                this.actorTvinciUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int GroupID {
-            get {
-                return this.groupIDField;
-            }
-            set {
-                this.groupIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string DeviceUdid {
-            get {
-                return this.deviceUdidField;
-            }
-            set {
-                this.deviceUdidField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class SocialActivityVerb {
-        
-        private string socialActionIDField;
-        
-        private int actionTypeField;
-        
-        private string actionNameField;
-        
-        private int rateValueField;
-        
-        private ActionProperties[] actionPropertiesField;
-        
-        /// <remarks/>
-        public string SocialActionID {
-            get {
-                return this.socialActionIDField;
-            }
-            set {
-                this.socialActionIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ActionType {
-            get {
-                return this.actionTypeField;
-            }
-            set {
-                this.actionTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string ActionName {
-            get {
-                return this.actionNameField;
-            }
-            set {
-                this.actionNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int RateValue {
-            get {
-                return this.rateValueField;
-            }
-            set {
-                this.rateValueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public ActionProperties[] ActionProperties {
-            get {
-                return this.actionPropertiesField;
-            }
-            set {
-                this.actionPropertiesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class ActionProperties {
-        
-        private string propertyNameField;
-        
-        private string propertyValueField;
-        
-        /// <remarks/>
-        public string PropertyName {
-            get {
-                return this.propertyNameField;
-            }
-            set {
-                this.propertyNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PropertyValue {
-            get {
-                return this.propertyValueField;
-            }
-            set {
-                this.propertyValueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public partial class KeyValuePair {
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public string key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
+                this.totalCountField = value;
             }
         }
     }
@@ -3457,22 +4206,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
                 this.m_oKeyValueField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public enum SocialPlatform {
-        
-        /// <remarks/>
-        UNKNOWN,
-        
-        /// <remarks/>
-        FACEBOOK,
-        
-        /// <remarks/>
-        GOOGLE,
     }
     
     /// <remarks/>
@@ -3542,44 +4275,6 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
                 this.m_eActionField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.FlagsAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public enum eUserAction {
-        
-        /// <remarks/>
-        UNKNOWN = 1,
-        
-        /// <remarks/>
-        LIKE = 2,
-        
-        /// <remarks/>
-        UNLIKE = 4,
-        
-        /// <remarks/>
-        SHARE = 8,
-        
-        /// <remarks/>
-        POST = 16,
-        
-        /// <remarks/>
-        WATCHES = 32,
-        
-        /// <remarks/>
-        WANTS_TO_WATCH = 64,
-        
-        /// <remarks/>
-        RATES = 128,
-        
-        /// <remarks/>
-        FOLLOWS = 256,
-        
-        /// <remarks/>
-        UNFOLLOW = 512,
     }
     
     /// <remarks/>
@@ -3750,41 +4445,13 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public enum eSocialPrivacy {
+    public enum SocialFeedOrderBy {
         
         /// <remarks/>
-        UNKNOWN,
+        CreateDateAsc,
         
         /// <remarks/>
-        EVERYONE,
-        
-        /// <remarks/>
-        ALL_FRIENDS,
-        
-        /// <remarks/>
-        FRIENDS_OF_FRIENDS,
-        
-        /// <remarks/>
-        SELF,
-        
-        /// <remarks/>
-        CUSTOM,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
-    [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://social.tvinci.com/")]
-    public enum eSocialActionPrivacy {
-        
-        /// <remarks/>
-        UNKNOWN,
-        
-        /// <remarks/>
-        ALLOW,
-        
-        /// <remarks/>
-        DONT_ALLOW,
+        CreateDateDesc,
     }
     
     /// <remarks/>
@@ -3987,10 +4654,10 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
         }
         
         /// <remarks/>
-        public SocialActivityDoc[] Result {
+        public SocialActivityResponse Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((SocialActivityDoc[])(this.results[0]));
+                return ((SocialActivityResponse)(this.results[0]));
             }
         }
     }
@@ -4552,6 +5219,110 @@ namespace TVPPro.SiteManager.TvinciPlatform.Social {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
     public delegate void MergeFriendsActivityFeedCompletedEventHandler(object sender, System.ComponentModel.AsyncCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void SetUserSocialPrivacySettingsCompletedEventHandler(object sender, SetUserSocialPrivacySettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetUserSocialPrivacySettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetUserSocialPrivacySettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SocialPrivacySettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SocialPrivacySettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void GetUserSocialPrivacySettingsCompletedEventHandler(object sender, GetUserSocialPrivacySettingsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetUserSocialPrivacySettingsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetUserSocialPrivacySettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SocialPrivacySettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SocialPrivacySettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void AddUserSocialActionCompletedEventHandler(object sender, AddUserSocialActionCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class AddUserSocialActionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal AddUserSocialActionCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public UserSocialActionResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((UserSocialActionResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    public delegate void GetSocialFeedCompletedEventHandler(object sender, GetSocialFeedCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.6.1590.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetSocialFeedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetSocialFeedCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public SocialFeedResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((SocialFeedResponse)(this.results[0]));
+            }
+        }
+    }
 }
 
 #pragma warning restore 1591

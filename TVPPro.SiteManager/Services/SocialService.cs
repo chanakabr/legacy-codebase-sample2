@@ -123,7 +123,9 @@ namespace TVPPro.SiteManager.Services
                         m_nStartIndex = startIndex,
                         m_sSiteGuid = siteGuid
                     };
-                    res = m_Module.GetUserActions(wsUserName, wsPassword, userActionRequest);
+                    var response = m_Module.GetUserActions(wsUserName, wsPassword, userActionRequest);
+                    if (response != null)
+                        res = response.SocialActivity;
                 }
 
             }
