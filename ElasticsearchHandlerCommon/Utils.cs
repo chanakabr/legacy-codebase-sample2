@@ -165,7 +165,12 @@ namespace ElasticsearchTasksCommon
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+
+            if (channel.m_nMediaType != null)
+            {
+                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+            }
+
             searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID, lSubGroups);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
@@ -1214,7 +1219,16 @@ namespace ElasticsearchTasksCommon
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
 
-            DataSet dataSet = storedProcedure.ExecuteDataSet();
+            DataSet dataSet = null;
+            try
+            {
+                dataSet = storedProcedure.ExecuteDataSet();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Rebase media for group {0} - failed execute data data set GetRebaseMediaInformation. ex = {1}", groupId, ex);
+
+            }
 
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
             {

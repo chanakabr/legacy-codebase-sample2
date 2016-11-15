@@ -246,7 +246,12 @@ namespace ElasticSearchHandler.IndexBuilders
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+
+            if (channel.m_nMediaType != null)
+            {
+                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+            }
+
             searchObject.m_sPermittedWatchRules = ElasticsearchTasksCommon.Utils.GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 

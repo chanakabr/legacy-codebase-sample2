@@ -180,16 +180,16 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 log.Info(string.Format("Start indexing channels. total channels={0}", group.channelIDs.Count));
 
-                
+
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
                 try
                 {
                     List<Channel> allChannels = groupManager.GetChannels(group.channelIDs.ToList(), groupId);
 
                     ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
-                        {
-                            QueryType = eQueryType.EXACT
-                        };
+                    {
+                        QueryType = eQueryType.EXACT
+                    };
                     var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, groupId);
 
                     foreach (Channel currentChannel in allChannels)
@@ -204,31 +204,39 @@ namespace ElasticSearchHandler.IndexBuilders
                             try
                             {
                                 // If there is at least 1 media type, build its definitions
-                                if (currentChannel.m_nMediaType != null &&
-                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
+                                if (currentChannel.m_nMediaType == null || currentChannel.m_nMediaType.Count == 0 ||
+                                    (currentChannel.m_nMediaType != null && currentChannel.m_nMediaType.Count > 0 &&
+                                    currentChannel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0))
                                 {
                                     UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
 
                                     unifiedQueryBuilder.SearchDefinitions = definitions;
-                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString();
+                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
                                 }
                             }
                             catch (KalturaException ex)
                             {
-                                log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                                log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}, st = {2}", currentChannel.m_nChannelID, ex.Message, ex.StackTrace);
                             }
                             catch (Exception ex)
                             {
-                                throw ex;
+                                log.ErrorFormat("Failed indexing KSQL channel. ID = {0}, message = {1}, message = {1}, st = {2}", currentChannel.m_nChannelID, ex.Message, ex.StackTrace);
                             }
                         }
                         else
                         {
-                            mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                            MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
+                            try
+                            {
+                                mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                                MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
 
-                            mediaQueryParser.oSearchObject = mediaSearchObject;
-                            channelQuery = mediaQueryParser.BuildSearchQueryString(true);
+                                mediaQueryParser.oSearchObject = mediaSearchObject;
+                                channelQuery = mediaQueryParser.BuildSearchQueryString(true);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Failed indexing automatic/manual channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                            }
                         }
 
                         if (!string.IsNullOrEmpty(channelQuery))
@@ -237,7 +245,15 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (channelRequests.Count > 50)
                             {
-                                api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                try
+                                {
+                                    api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat("Failed indexing channels in bulk. ex = {0}", ex);
+                                }
+
                                 channelRequests.Clear();
                             }
                         }
@@ -245,7 +261,14 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (channelRequests.Count > 0)
                     {
-                        api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                        try
+                        {
+                            api.CreateBulkIndexRequest("_percolator", newIndexName, channelRequests);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed indexing channels in bulk. ex = {0}", ex);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -332,7 +355,12 @@ namespace ElasticSearchHandler.IndexBuilders
             searchObject.m_nGroupId = channel.m_nGroupID;
             searchObject.m_bExact = true;
             searchObject.m_eCutWith = channel.m_eCutWith;
-            searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+
+            if (channel.m_nMediaType != null)
+            {
+                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
+            }
+            
             searchObject.m_sPermittedWatchRules = ElasticsearchTasksCommon.Utils.GetPermittedWatchRules(channel.m_nGroupID);
             searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
 
