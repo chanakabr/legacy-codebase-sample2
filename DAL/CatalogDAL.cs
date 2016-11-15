@@ -3350,51 +3350,42 @@ namespace Tvinci.Core.DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_RecommendationEngines");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
-                DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count == 2)
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null)
                 {
-                    DataTable dtRecommendationEngines = ds.Tables[0];
-                    DataTable dtRecommendationEnginesSettings = ds.Tables[1];
-                    Dictionary<long, List<RecommendationEngineSettings>> recommendationEngineSettingsMap = new Dictionary<long, List<RecommendationEngineSettings>>();
-                    if (dtRecommendationEnginesSettings != null && dtRecommendationEnginesSettings.Rows != null)
+                    Dictionary<long, RecommendationEngine> recommendationEnginesMap = new Dictionary<long, RecommendationEngine>();
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        foreach (DataRow dr in dtRecommendationEnginesSettings.Rows)
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        RecommendationEngine recommendationEngine;
+                        if (id > 0 && !recommendationEnginesMap.ContainsKey(id))
                         {
-                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "recommendation_engine_id", 0);
-                            if (id > 0)
+                            recommendationEngine = CreateRecommendationEngine(dr);
+                            recommendationEnginesMap.Add(id, recommendationEngine);
+                        }
+                        else if (id > 0)
+                        {
+                            recommendationEngine = recommendationEnginesMap[id];
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
+                        string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        if (!string.IsNullOrEmpty(key))
+                        {
+                            if (recommendationEngine.Settings == null)
                             {
-                                string key = ODBCWrapper.Utils.GetSafeStr(dr, "key");
-                                string value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                                if (recommendationEngineSettingsMap.ContainsKey(id))
-                                {
-                                    recommendationEngineSettingsMap[id].Add(new RecommendationEngineSettings(key, value));
-                                }
-                                else
-                                {
-                                    List<RecommendationEngineSettings> engineSettings = new List<RecommendationEngineSettings>();
-                                    engineSettings.Add(new RecommendationEngineSettings(key, value));
-                                    recommendationEngineSettingsMap.Add(id, engineSettings);
-                                }
+                                recommendationEngine.Settings = new List<RecommendationEngineSettings>();
                             }
+
+                            recommendationEngine.Settings.Add(new RecommendationEngineSettings(key, value));
                         }
                     }
 
-                    if (dtRecommendationEngines != null && dtRecommendationEngines.Rows != null)
-                    {
-                        foreach (DataRow dr in dtRecommendationEngines.Rows)
-                        {
-                            RecommendationEngine recommendationEngine = CreateRecommendationEngine(dr);
-                            if (recommendationEngine != null)
-                            {
-                                if (recommendationEngineSettingsMap.ContainsKey(recommendationEngine.ID))
-                                {
-                                    recommendationEngine.Settings = recommendationEngineSettingsMap[recommendationEngine.ID];
-                                }
-
-                                res.Add(recommendationEngine);
-                            }
-                        }
-                    }
+                    res = recommendationEnginesMap.Values.ToList();
                 }
             }
             catch (Exception ex)
