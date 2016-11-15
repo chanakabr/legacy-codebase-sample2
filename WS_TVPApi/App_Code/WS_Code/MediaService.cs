@@ -1497,7 +1497,7 @@ namespace TVPApiServices
                         {
                             if (requestType == assetBookmark.AssetType && assetRequestID == assetBookmark.AssetID)
                             {
-                                usersBookmark = assetBookmark.Bookmarks.FirstOrDefault(user => user.User.m_sSiteGUIDField == initObj.SiteGuid);
+                                usersBookmark = assetBookmark.Bookmarks.FirstOrDefault(user => user.User.m_sSiteGUID == initObj.SiteGuid);
                                 if (usersBookmark != null)
                                 {
                                     isBookmarkFound = true;

@@ -43,7 +43,7 @@ namespace TVPApiModule.Objects.Responses
 
         public LastPosition(Bookmark bookmark)
         {
-            m_nUserID = int.Parse(bookmark.User.m_sSiteGUIDField);
+            m_nUserID = int.Parse(bookmark.User.m_sSiteGUID);
             m_eUserType = bookmark.UserType;
             m_nLocation = bookmark.Location;
         }

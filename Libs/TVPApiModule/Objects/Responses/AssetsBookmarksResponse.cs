@@ -144,12 +144,12 @@ namespace TVPApiModule.Objects.Responses
 
         public AssetBookmarkUserResponse(User user)
         {
-            if (user != null && user.m_oBasicDataField != null)
+            if (user != null && user.m_oBasicData != null)
             {
-                UserID = user.m_sSiteGUIDField;
-                Username = user.m_oBasicDataField.m_sUserNameField;
-                FirstName = user.m_oBasicDataField.m_sFirstNameField;
-                LastName = user.m_oBasicDataField.m_sLastNameField;
+                UserID = user.m_sSiteGUID;
+                Username = user.m_oBasicData.m_sUserName;
+                FirstName = user.m_oBasicData.m_sFirstName;
+                LastName = user.m_oBasicData.m_sLastName;
             }
         }
     }
