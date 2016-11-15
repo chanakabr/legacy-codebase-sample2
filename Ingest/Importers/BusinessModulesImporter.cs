@@ -1049,7 +1049,7 @@ namespace Ingest.Importers
                 for (int i = 0; i < nodeList.Count; i++)
                 {
                     if (!string.IsNullOrEmpty(nodeList[i].InnerText))
-                        response[i] = nodeList[i].InnerText;
+                        response.Add(nodeList[i].InnerText);
                 }
 
                 response = response.Where(r => r != null).ToList();
