@@ -1722,7 +1722,7 @@ namespace ConditionalAccess
                 mdoule pricingModule = null;
                 try
                 {
-                    int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes.ToArray();
+                    int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes != null ? ppvModule.m_relatedFileTypes.ToArray() : null;
                     List<int> lstFileIDs;
                     // get list of mediaFileIDs
                     if (userEntitlements != null && userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper != null)
