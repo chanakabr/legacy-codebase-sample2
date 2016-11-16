@@ -536,7 +536,7 @@ namespace WebAPI.Clients
             ApiObjects.Social.SocialPrivacySettingsResponse response = new ApiObjects.Social.SocialPrivacySettingsResponse();
             ApiObjects.Social.SocialPrivacySettings settings = new ApiObjects.Social.SocialPrivacySettings();
 
-            settings.SocialNetworks = AutoMapper.Mapper.Map<ApiObjects.Social.SocialNetwork[]>(socialActionConfig).ToList();
+            settings = AutoMapper.Mapper.Map<ApiObjects.Social.SocialPrivacySettings>(socialActionConfig);
 
             Group group = GroupsManager.GetGroup(groupId);
             try
