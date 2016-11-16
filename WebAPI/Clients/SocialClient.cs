@@ -760,6 +760,22 @@ namespace WebAPI.Clients
             return getActionResponse;
         }
 
-      
+
+
+        internal List<KalturaNetworkActionStatus> DeleteSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
+        {
+            KalturaUserSocialActionResponse actionResponse = null;
+            try
+            {
+                actionResponse = AddSocialAction(groupId, userId, udid, socialAction);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while AddSocialAction.  groupID: {0}, socialAction: {1}, exception: {2}", groupId, socialAction.ToString(), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return actionResponse.NetworkStatus;
+        }
     }
 }

@@ -80,6 +80,38 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// delete user social action
+        /// </summary>
+        /// <param name="socialAction">social Action Object</param>
+        /// <remarks>
+        /// Possible status codes:
+        /// </remarks>       
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public List<KalturaNetworkActionStatus> Delete(KalturaSocialAction socialAction)
+        {
+            List<KalturaNetworkActionStatus> response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            try
+            {
+                // call client
+                response = ClientsManager.SocialClient().DeleteSocialAction(groupId, userId, udid, socialAction);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
         
 
     }

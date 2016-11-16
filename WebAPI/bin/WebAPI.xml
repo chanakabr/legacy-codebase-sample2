@@ -605,6 +605,15 @@
              Possible status codes:
              </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.SocialActionController.Delete(WebAPI.Models.Social.KalturaSocialAction)">
+            <summary>
+            delete user social action
+            </summary>
+            <param name="socialAction">social Action Object</param>
+            <remarks>
+            Possible status codes:
+            </remarks>       
+        </member>
         <member name="M:WebAPI.Controllers.SocialFriendActivityController.List(WebAPI.Models.Social.KalturaSocialFriendActivityFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get a list of the social friends activity for a user
@@ -7765,6 +7774,11 @@
         <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Rate">
             <summary>
             The value of the rating
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialActionWatch.Url">
+            <summary>
+            The value of the url
             </summary>
         </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">
