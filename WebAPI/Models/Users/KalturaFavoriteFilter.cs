@@ -29,7 +29,26 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "mediaTypeIn")]
         [JsonProperty(PropertyName = "mediaTypeIn")]
         [XmlElement(ElementName = "mediaTypeIn")]
-        public int? MediaTypeIn { get; set; }
+        [Obsolete]
+        public int? MediaTypeIn
+        {
+            get
+            {
+                return MediaTypeEqual;
+            }
+            set
+            {
+                MediaTypeEqual = value;
+            }
+        }
+
+        /// <summary>
+        /// Media type to filter by the favorite assets
+        /// </summary>
+        [DataMember(Name = "mediaTypeEqual")]
+        [JsonProperty(PropertyName = "mediaTypeEqual")]
+        [XmlElement(ElementName = "mediaTypeEqual")]
+        public int? MediaTypeEqual { get; set; }
 
         /// <summary>
         /// Device UDID to filter by the favorite assets
