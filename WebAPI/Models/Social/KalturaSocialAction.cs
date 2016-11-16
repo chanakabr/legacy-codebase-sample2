@@ -78,13 +78,38 @@ namespace WebAPI.Models.Social
             return res;
         }
     }
+    
+    public class KalturaSocialActionWatch : KalturaSocialAction
+    {
+        /// <summary>
+        /// The value of the url
+        /// </summary>
+        [DataMember(Name = "url")]
+        [JsonProperty("url")]
+        [XmlElement(ElementName = "url")]
+        public string Url { get; set; }
 
+        public KalturaSocialActionWatch(string value)
+        {
+            ActionType = KalturaSocialActionType.WATCH;
+            Url = value;
+        }
+        public KalturaSocialActionWatch()
+        {
+            ActionType = KalturaSocialActionType.WATCH;
+        }
+
+        public override string ToString()
+        {
+            string res = string.Format("{0}, Watch url Value = {1} ", base.ToString(), Url);
+            return res;
+        }
+    }
     public enum KalturaSocialActionType
     {
         LIKE,
         WATCH,
-        RATE,
-        UNLIKE,
+        RATE,        
         SHARE       
     }
 }
