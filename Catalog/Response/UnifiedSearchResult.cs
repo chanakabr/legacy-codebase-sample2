@@ -8,6 +8,7 @@ using ApiObjects;
 namespace Catalog.Response
 {
     [DataContract]
+    [KnownType(typeof(RecordingSearchResult))]
     public class UnifiedSearchResult : BaseObject
     {
         #region Static Methods
