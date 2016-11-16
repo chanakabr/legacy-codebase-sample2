@@ -793,52 +793,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 ksc.PermissionItems.Add(kapi);
 
-                foreach (var item in socialPrivacySettings.SocialNetworks)
+                if (socialPrivacySettings.SocialNetworks != null)
                 {
-                    kapi = new KalturaActionPermissionItem();
-                    switch (item.Network)
+                    foreach (var item in socialPrivacySettings.SocialNetworks)
                     {
-                        case ApiObjects.SocialPlatform.FACEBOOK:
-                            kapi.Network = KalturaSocialNetwork.facebook;
-                            break;
-                    }
-                    switch (item.SocialPrivacy)
-                    {
-                        case ApiObjects.eSocialPrivacy.UNKNOWN:
-                            kapi.Privacy = KalturaSocialPrivacy.UNKNOWN;
-                            break;
-                        case ApiObjects.eSocialPrivacy.EVERYONE:
-                            kapi.Privacy = KalturaSocialPrivacy.EVERYONE;
-                            break;
-                        case ApiObjects.eSocialPrivacy.ALL_FRIENDS:
-                            kapi.Privacy = KalturaSocialPrivacy.ALL_FRIENDS;
-                            break;
-                        case ApiObjects.eSocialPrivacy.FRIENDS_OF_FRIENDS:
-                            kapi.Privacy = KalturaSocialPrivacy.FRIENDS_OF_FRIENDS;
-                            break;
-                        case ApiObjects.eSocialPrivacy.SELF:
-                            kapi.Privacy = KalturaSocialPrivacy.SELF;
-                            break;
-                        case ApiObjects.eSocialPrivacy.CUSTOM:
-                            kapi.Privacy = KalturaSocialPrivacy.CUSTOM;
-                            break;
-                        default:
-                            break;
-                    }
-                    switch (item.Privacy)
-                    {
-                        case ApiObjects.eSocialActionPrivacy.ALLOW:
-                            kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
-                            break;
-                        case ApiObjects.eSocialActionPrivacy.DONT_ALLOW:
-                            kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
-                            break;
-                        default:
-                            kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
-                            break;
-                    }
+                        kapi = new KalturaActionPermissionItem();
+                        switch (item.Network)
+                        {
+                            case ApiObjects.SocialPlatform.FACEBOOK:
+                                kapi.Network = KalturaSocialNetwork.facebook;
+                                break;
+                        }
+                        switch (item.SocialPrivacy)
+                        {
+                            case ApiObjects.eSocialPrivacy.UNKNOWN:
+                                kapi.Privacy = KalturaSocialPrivacy.UNKNOWN;
+                                break;
+                            case ApiObjects.eSocialPrivacy.EVERYONE:
+                                kapi.Privacy = KalturaSocialPrivacy.EVERYONE;
+                                break;
+                            case ApiObjects.eSocialPrivacy.ALL_FRIENDS:
+                                kapi.Privacy = KalturaSocialPrivacy.ALL_FRIENDS;
+                                break;
+                            case ApiObjects.eSocialPrivacy.FRIENDS_OF_FRIENDS:
+                                kapi.Privacy = KalturaSocialPrivacy.FRIENDS_OF_FRIENDS;
+                                break;
+                            case ApiObjects.eSocialPrivacy.SELF:
+                                kapi.Privacy = KalturaSocialPrivacy.SELF;
+                                break;
+                            case ApiObjects.eSocialPrivacy.CUSTOM:
+                                kapi.Privacy = KalturaSocialPrivacy.CUSTOM;
+                                break;
+                            default:
+                                break;
+                        }
+                        switch (item.Privacy)
+                        {
+                            case ApiObjects.eSocialActionPrivacy.ALLOW:
+                                kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
+                                break;
+                            case ApiObjects.eSocialActionPrivacy.DONT_ALLOW:
+                                kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                                break;
+                            default:
+                                kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
+                                break;
+                        }
 
-                    ksc.PermissionItems.Add(kapi);
+                        ksc.PermissionItems.Add(kapi);
+                    }
                 }
             }
             return ksc;
