@@ -1409,6 +1409,41 @@ namespace WebAPI.Clients
             return KalturaOSSAdapterBaseProfileList;
         }
 
+        internal KalturaOSSAdapterProfile GetOSSAdapter(int groupId, int ossAdapterId)
+        {
+            KalturaOSSAdapterProfile ossAdapter = null;
+            OSSAdapterResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Api.GetOSSAdapterProfile(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetOSSAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            ossAdapter = Mapper.Map<Models.API.KalturaOSSAdapterProfile>(response);
+
+            return ossAdapter;
+        }
+
         internal bool DeleteOSSAdapter(int groupId, int ossAdapterId)
         {
             Status response = null;

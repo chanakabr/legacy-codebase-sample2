@@ -2184,6 +2184,13 @@
             <remarks>       
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.OssAdapterProfileController.Get(System.Int32)">
+            <summary>
+            Returns all OSS adapters for partner : id + name
+            </summary>
+            <remarks>       
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.OssAdapterProfileController.ListOldStandard">
             <summary>
             Returns all OSS adapters for partner : id + name

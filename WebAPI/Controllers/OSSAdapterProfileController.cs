@@ -42,12 +42,37 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            KalturaOSSAdapterProfileListResponse response = new KalturaOSSAdapterProfileListResponse() { 
+            KalturaOSSAdapterProfileListResponse response = new KalturaOSSAdapterProfileListResponse()
+            {
                 OSSAdapterProfiles = list,
                 TotalCount = list.Count
             };
 
             return response;
+        }
+
+        /// <summary>
+        /// Returns all OSS adapters for partner : id + name
+        /// </summary>
+        /// <remarks>       
+        /// </remarks>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        public KalturaOSSAdapterProfile Get(int id)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                return ClientsManager.ApiClient().GetOSSAdapter(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return null;
         }
 
         /// <summary>
