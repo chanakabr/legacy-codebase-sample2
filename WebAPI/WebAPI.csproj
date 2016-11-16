@@ -1158,6 +1158,7 @@
     <Compile Include="Utils\JilFormatter.cs" />
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
+    <Compile Include="Handlers\WsModuleHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web References\Social\SocialConfig.datasource">
