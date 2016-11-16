@@ -158,7 +158,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.LikeCounter, opt => opt.MapFrom(src => src.PopularityCounter))
                 .ForMember(dest => dest.AuthorImageUrl, opt => opt.MapFrom(src => src.CreatorImageUrl));
 
-            Mapper.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialNetwork[]>().ConstructUsing(ConvertSocialNetwork);
+            Mapper.CreateMap<KalturaSocialUserConfig, ApiObjects.Social.SocialPrivacySettings>().ConstructUsing(ConvertSocialNetwork);
 
             Mapper.CreateMap<ApiObjects.Social.SocialPrivacySettings, KalturaSocialConfig>().ConstructUsing(ConvertSocialNetwork);
 
@@ -691,7 +691,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static ApiObjects.Social.SocialNetwork[] ConvertSocialNetwork(KalturaSocialUserConfig config)
+        private static ApiObjects.Social.SocialPrivacySettings ConvertSocialNetwork(KalturaSocialUserConfig config)
         {
             List<ApiObjects.Social.SocialNetwork> socialNetworkList = new List<ApiObjects.Social.SocialNetwork>();
             ApiObjects.Social.SocialNetwork socialnetwork;
@@ -699,8 +699,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             ApiObjects.Social.SocialPrivacySettings settings = new ApiObjects.Social.SocialPrivacySettings();
 
             foreach (KalturaActionPermissionItem permissionItem in config.PermissionItems)
-            {
-                socialnetwork = new ApiObjects.Social.SocialNetwork();
+            {                
                 if (permissionItem.Network == null) // internal seetings
                 {
                     switch (permissionItem.ActionPrivacy)
@@ -718,6 +717,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
                 else
                 {
+                    socialnetwork = new ApiObjects.Social.SocialNetwork();
                     switch (permissionItem.Network)
                     {
                         case KalturaSocialNetwork.facebook:
@@ -761,10 +761,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         default:
                             break;
                     }                    
-                }
-                socialNetworkList.Add(socialnetwork);
-            }           
-            return socialNetworkList.ToArray();
+                    socialNetworkList.Add(socialnetwork);
+                }                
+            }
+             
+            settings.SocialNetworks = socialNetworkList;
+
+            return settings;
         }
 
         private static KalturaSocialConfig ConvertSocialNetwork(ApiObjects.Social.SocialPrivacySettings socialPrivacySettings)
