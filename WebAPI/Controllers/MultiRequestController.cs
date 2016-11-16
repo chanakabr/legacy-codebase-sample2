@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         {
             if (parameter.GetType() == typeof(string))
             {
-                Match match = Regex.Match((string)parameter, @"^(\d):result(:.+)?$", RegexOptions.IgnoreCase);
+                Match match = Regex.Match((string)parameter, @"^{(\d):result(:.+)?}$", RegexOptions.IgnoreCase);
                 if (match.Success)
                 {
                     int index = int.Parse(match.Groups[1].Value) - 1;
