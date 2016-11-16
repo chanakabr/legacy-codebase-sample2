@@ -721,9 +721,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         default:
                             break;
                     }
-
-                    socialNetworkList.Add(socialnetwork);
                 }
+                socialNetworkList.Add(socialnetwork);
             }           
             return socialNetworkList.ToArray();
         }
