@@ -8064,6 +8064,11 @@
             Media type to filter by the favorite assets
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Users.KalturaFavoriteFilter.MediaTypeEqual">
+            <summary>
+            Media type to filter by the favorite assets
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Users.KalturaFavoriteFilter.UDID">
             <summary>
             Device UDID to filter by the favorite assets
