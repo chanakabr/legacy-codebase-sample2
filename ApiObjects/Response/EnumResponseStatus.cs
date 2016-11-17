@@ -251,6 +251,7 @@ namespace ApiObjects.Response
         NotAllowed = 7013,
         AssetAlreadyRated = 7014,
         AssetNeverLiked = 7015,
+        SocialActionIdDoseNotExists = 7016,
                    
        /* MEDIA_ALEADY_FOLLOWED = 12,
         MEDIA_ALREADY_RATED = 14,*/
