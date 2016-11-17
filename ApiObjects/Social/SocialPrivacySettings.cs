@@ -41,7 +41,8 @@ namespace ApiObjects.Social
             string res = string.Empty;
 
             res = string.Format("InternalPrivacy : {0}", InternalPrivacy.ToString());
-            res = string.Format("{0}, SocialNetworks: {1}, ", res, string.Join(",", SocialNetworks.SelectMany(o => o.Network + " - " + o.Privacy.ToString()+" -" +o.SocialPrivacy.ToString()).ToList()));
+            res = string.Format("{0}, SocialNetworks: {1}, ", res, SocialNetworks!= null? 
+                string.Join(",", SocialNetworks.SelectMany(o => o.Network + " - " + o.Privacy.ToString()+" -" +o.SocialPrivacy.ToString()).ToList()) : string.Empty);
 
             return res;
         }
