@@ -167,6 +167,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialAction>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
                  .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)));
 
@@ -177,6 +178,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionRate>()
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
                  .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
                   .ForMember(dest => dest.Rate, opt => opt.MapFrom(src => ConvertRateParams(src.ExtraParams)));
@@ -210,9 +212,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionRequest, KalturaSocialActionWatch>()
                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetID))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))            
                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)))
                 .ForMember(dest => dest.ActionType, opt => opt.MapFrom(src => ConvertSocialActionType(src.Action)))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => ConvertWatchParams(src.ExtraParams)));
+                .ForMember(dest => dest.Url, opt => opt.MapFrom(src => ConvertWatchParams(src.ExtraParams)));
+
 
             Mapper.CreateMap<KalturaSocialActionWatch, ApiObjects.Social.UserSocialActionRequest>()
                .ForMember(dest => dest.AssetID, opt => opt.MapFrom(src => src.AssetId))
@@ -246,7 +250,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static KalturaUserSocialActionResponse ConvertSocialActionResponse(UserSocialActionResponse src)
         {
-            KalturaUserSocialActionResponse response = new KalturaUserSocialActionResponse();;
+            KalturaUserSocialActionResponse response = new KalturaUserSocialActionResponse(); ;
 
             response.NetworkStatus = ConvertNetworkActionStatus(src.NetworksStatus);
 
@@ -254,10 +258,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 response.SocialAction = AutoMapper.Mapper.Map<KalturaSocialActionRate>(src.UserAction);
             }
-            else if (src.UserAction != null && src.UserAction.Action == eUserAction.WATCHES)
-                {
-                    response.SocialAction = AutoMapper.Mapper.Map<KalturaSocialActionWatch>(src.UserAction);
-                }
+            //else if (src.UserAction != null && src.UserAction.Action == eUserAction.WATCHES)
+            //{
+            //    response.SocialAction = AutoMapper.Mapper.Map<KalturaSocialActionWatch>(src.UserAction);
+            //}
             else
             {
                 response.SocialAction = AutoMapper.Mapper.Map<KalturaSocialAction>(src.UserAction);
@@ -266,7 +270,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return response;
         }
        
-        private static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
+        internal static List<KalturaNetworkActionStatus> ConvertNetworkActionStatus(List<NetworkActionStatus> src)
         {
             List<KalturaNetworkActionStatus> result = new List<KalturaNetworkActionStatus>();
             KalturaNetworkActionStatus kns;
@@ -359,9 +363,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaSocialActionType.RATE:
                     result = eUserAction.RATES;
                     break;
-                //case KalturaSocialActionType.UNLIKE:
-                //    result = eUserAction.UNLIKE;
-                //    break;
                 case KalturaSocialActionType.SHARE:
                     result = eUserAction.SHARE;
                     break;
@@ -508,6 +509,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             result.Time = action.LastUpdate;
             result.AssetId = action.ActivityObject.AssetID;
             result.AssetType = ConvertToKalturaAssetType(action.ActivityObject.AssetType);
+            result.Id = action.id;
 
             return result;
         }

@@ -13,6 +13,16 @@ namespace WebAPI.Models.Social
 {
     public class KalturaSocialAction : KalturaOTTObject
     {
+
+        /// <summary>
+        /// social action document id
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public string Id { get; set; }
+
         /// <summary>
         /// Action type
         /// </summary>
@@ -87,6 +97,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "url")]
         [JsonProperty("url")]
         [XmlElement(ElementName = "url")]
+        [SchemeProperty(WriteOnly = true)]
         public string Url { get; set; }
 
         public KalturaSocialActionWatch(string value)
@@ -105,6 +116,7 @@ namespace WebAPI.Models.Social
             return res;
         }
     }
+
     public enum KalturaSocialActionType
     {
         LIKE,

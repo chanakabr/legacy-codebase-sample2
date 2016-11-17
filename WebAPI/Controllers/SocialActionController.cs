@@ -36,6 +36,29 @@ namespace WebAPI.Controllers
 
             try
             {
+                if (socialAction.ActionType == KalturaSocialActionType.RATE && socialAction.objectType != "KalturaSocialActionRate")
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "objectType=" + socialAction.objectType, "ActionType=" + KalturaSocialActionType.RATE.ToString());
+                }
+
+                if (socialAction.ActionType == KalturaSocialActionType.WATCH)
+                {
+                    if (socialAction.objectType != "KalturaSocialActionRate")
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "objectType=" + socialAction.objectType, "ActionType=" + KalturaSocialActionType.RATE.ToString());
+                    }
+
+                    if (string.IsNullOrEmpty(((KalturaSocialActionWatch)socialAction).Url))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSocialActionWatch.Url");
+                    }
+                }
+
+                if (!socialAction.AssetId.HasValue || socialAction.AssetId.Value == 0)
+                {                
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "socialAction.AssetId");
+                }
+
                 // call client
                 response = ClientsManager.SocialClient().AddSocialAction(groupId, userId, udid, socialAction);
             }
@@ -69,7 +92,7 @@ namespace WebAPI.Controllers
                 pager = new KalturaFilterPager();
           
             try
-            {          
+            {                
                 // call client
                 response = ClientsManager.SocialClient().GetUserSocialActions(groupId, userId, filter.getAssetIdIn(), filter.AssetTypeEqual, filter.GetActionTypeIn(), pager.getPageIndex(), pager.PageSize, filter.OrderBy);
             }
@@ -84,26 +107,24 @@ namespace WebAPI.Controllers
         /// <summary>
         /// delete user social action
         /// </summary>
-        /// <param name="socialAction">social Action Object</param>
+        /// <param name="Id">social Action Id</param>
         /// <remarks>
         /// Possible status codes:
         /// </remarks>       
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
-        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public List<KalturaNetworkActionStatus> Delete(KalturaSocialAction socialAction)
+        public List<KalturaNetworkActionStatus> Delete(string id)
         {
             List<KalturaNetworkActionStatus> response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
+            string userId = KS.GetFromRequest().UserId;           
 
             try
             {
                 // call client
-                response = ClientsManager.SocialClient().DeleteSocialAction(groupId, userId, udid, socialAction);
+                response = ClientsManager.SocialClient().DeleteSocialAction(groupId, userId, id);
             }
             catch (ClientException ex)
             {

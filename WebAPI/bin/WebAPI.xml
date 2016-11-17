@@ -605,11 +605,11 @@
              Possible status codes:
              </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialActionController.Delete(WebAPI.Models.Social.KalturaSocialAction)">
+        <member name="M:WebAPI.Controllers.SocialActionController.Delete(System.String)">
             <summary>
             delete user social action
             </summary>
-            <param name="socialAction">social Action Object</param>
+            <param name="Id">social Action Id</param>
             <remarks>
             Possible status codes:
             </remarks>       
@@ -7749,6 +7749,11 @@
         <member name="P:WebAPI.Models.Social.KalturaSocial.PictureUrl">
             <summary>
             Profile picture URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Id">
+            <summary>
+            social action document id
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialAction.ActionType">

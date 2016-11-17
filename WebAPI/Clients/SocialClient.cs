@@ -762,20 +762,47 @@ namespace WebAPI.Clients
 
 
 
-        internal List<KalturaNetworkActionStatus> DeleteSocialAction(int groupId, string userId, string udid, KalturaSocialAction socialAction)
+        
+        internal List<KalturaNetworkActionStatus> DeleteSocialAction(int groupId, string userId, string id)
         {
-            KalturaUserSocialActionResponse actionResponse = null;
+            //KalturaRecording recording = null;
+            List<KalturaNetworkActionStatus> deleteResponse = null;
+            UserSocialActionResponse response = new UserSocialActionResponse();
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
             try
             {
-                actionResponse = AddSocialAction(groupId, userId, udid, socialAction);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Client.DeleteUserSocialAction(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, id);
+                }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while AddSocialAction.  groupID: {0}, socialAction: {1}, exception: {2}", groupId, socialAction.ToString(), ex);
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
-            return actionResponse.NetworkStatus;
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            // convert response
+            deleteResponse = SocialMappings.ConvertNetworkActionStatus(response.NetworksStatus);
+
+            return deleteResponse;
         }
+
+        
     }
 }
