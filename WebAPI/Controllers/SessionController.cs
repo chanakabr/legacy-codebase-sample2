@@ -27,6 +27,8 @@ namespace WebAPI.Controllers
         /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
         [Route("get"), HttpPost]
         [ApiAuthorize]
+        [SchemeArgument("session", RequiresPermission = true)]
+        
         public KalturaSession Get(string session = null)
         {
             KS ks;
