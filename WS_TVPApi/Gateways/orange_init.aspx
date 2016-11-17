@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="orange_init.aspx.cs" Inherits="_Default" %>

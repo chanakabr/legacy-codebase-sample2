@@ -1,1 +1,0 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="NetGem.aspx.cs" Inherits="Gateways_NetGem" %>
