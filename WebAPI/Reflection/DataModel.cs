@@ -73,12 +73,12 @@ namespace WebAPI.Reflection
                     {
                        case "GetOldStandard":
                             return new Dictionary<string, string>() { 
-                                {"contentId", "content_id"},
                                 {"assetType", "asset_type"},
+                                {"contentId", "content_id"},
+                                {"baseUrl", "base_url"},
                                 {"assetId", "asset_id"},
                                 {"startDate", "start_date"},
                                 {"streamType", "stream_type"},
-                                {"baseUrl", "base_url"},
                            };
                     }
                     break;
@@ -102,8 +102,8 @@ namespace WebAPI.Reflection
                     {
                        case "UpdateOldStandard":
                             return new Dictionary<string, string>() { 
-                                {"paymentGatewayId", "payment_gateway_id"},
                                 {"paymentMethod", "payment_method"},
+                                {"paymentGatewayId", "payment_gateway_id"},
                            };
                     }
                     break;
@@ -203,8 +203,8 @@ namespace WebAPI.Reflection
                     {
                        case "Cancel":
                             return new Dictionary<string, string>() { 
-                                {"assetId", "asset_id"},
                                 {"transactionType", "transaction_type"},
+                                {"assetId", "asset_id"},
                            };
                        case "ForceCancel":
                             return new Dictionary<string, string>() { 
@@ -217,18 +217,18 @@ namespace WebAPI.Reflection
                            };
                        case "Grant":
                             return new Dictionary<string, string>() { 
-                                {"productId", "product_id"},
                                 {"productType", "product_type"},
                                 {"contentId", "content_id"},
+                                {"productId", "product_id"},
                            };
                        case "Buy":
                             return new Dictionary<string, string>() { 
-                                {"fileId", "file_id"},
-                                {"encryptedCvv", "encrypted_cvv"},
-                                {"itemId", "item_id"},
                                 {"isSubscription", "is_subscription"},
                                 {"couponCode", "coupon_code"},
                                 {"extraParams", "extra_params"},
+                                {"fileId", "file_id"},
+                                {"itemId", "item_id"},
+                                {"encryptedCvv", "encrypted_cvv"},
                            };
                     }
                     break;
@@ -256,8 +256,8 @@ namespace WebAPI.Reflection
                            };
                        case "UpdateOldStandard":
                             return new Dictionary<string, string>() { 
-                                {"paymentGateway", "payment_gateway"},
                                 {"paymentGatewayId", "payment_gateway_id"},
+                                {"paymentGateway", "payment_gateway"},
                            };
                        case "GenerateSharedSecret":
                             return new Dictionary<string, string>() { 
@@ -404,28 +404,28 @@ namespace WebAPI.Reflection
                     
                 case "KalturaCDVRAdapterProfile":
                     return new Dictionary<string, string>() { 
-                        {"isActive", "is_active"},
                         {"dynamicLinksSupport", "dynamic_links_support"},
+                        {"sharedSecret", "shared_secret"},
+                        {"isActive", "is_active"},
                         {"adapterUrl", "adapter_url"},
                         {"externalIdentifier", "external_identifier"},
-                        {"sharedSecret", "shared_secret"},
                     };
                     
                 case "KalturaExportTask":
                     return new Dictionary<string, string>() { 
-                        {"dataType", "data_type"},
+                        {"vodTypes", "vod_types"},
                         {"isActive", "is_active"},
+                        {"dataType", "data_type"},
                         {"exportType", "export_type"},
                         {"notificationUrl", "notification_url"},
-                        {"vodTypes", "vod_types"},
                     };
                     
                 case "KalturaExternalChannelProfile":
                     return new Dictionary<string, string>() { 
+                        {"recommendationEngineId", "recommendation_engine_id"},
                         {"isActive", "is_active"},
                         {"externalIdentifier", "external_identifier"},
                         {"filterExpression", "filter_expression"},
-                        {"recommendationEngineId", "recommendation_engine_id"},
                     };
                     
                 case "KalturaGenericRuleFilter":
@@ -461,8 +461,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPaymentMethod":
                     return new Dictionary<string, string>() { 
-                        {"householdPaymentMethods", "household_payment_methods"},
                         {"allowMultiInstance", "allow_multi_instance"},
+                        {"householdPaymentMethods", "household_payment_methods"},
                     };
                     
                 case "KalturaPaymentGatewayConfiguration":
@@ -477,8 +477,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetBookmark":
                     return new Dictionary<string, string>() { 
-                        {"finishedWatching", "finished_watching"},
                         {"positionOwner", "position_owner"},
+                        {"finishedWatching", "finished_watching"},
                     };
                     
                 case "KalturaAssetsFilter":
@@ -498,8 +498,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaEpgChannelFilter":
                     return new Dictionary<string, string>() { 
-                        {"startTime", "start_time"},
                         {"endTime", "end_time"},
+                        {"startTime", "start_time"},
                     };
                     
                 case "KalturaAssetHistoryFilter":
@@ -523,13 +523,13 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPaymentGatewayProfile":
                     return new Dictionary<string, string>() { 
-                        {"isActive", "is_active"},
-                        {"renewStartMinutes", "renew_start_minutes"},
-                        {"renewIntervalMinutes", "renew_interval_minutes"},
                         {"adapterUrl", "adapter_url"},
                         {"transactUrl", "transact_url"},
-                        {"statusUrl", "status_url"},
+                        {"renewStartMinutes", "renew_start_minutes"},
                         {"renewUrl", "renew_url"},
+                        {"renewIntervalMinutes", "renew_interval_minutes"},
+                        {"isActive", "is_active"},
+                        {"statusUrl", "status_url"},
                         {"paymentGatewayeSettings", "payment_gateway_settings"},
                         {"externalIdentifier", "external_identifier"},
                         {"pendingInterval", "pending_interval"},
@@ -553,20 +553,20 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBillingResponse":
                     return new Dictionary<string, string>() { 
-                        {"externalReceiptCode", "external_receipt_code"},
                         {"receiptCode", "receipt_code"},
+                        {"externalReceiptCode", "external_receipt_code"},
                     };
                     
                 case "KalturaBillingTransaction":
                     return new Dictionary<string, string>() { 
                         {"itemType", "item_type"},
+                        {"billingAction", "billing_action"},
                         {"actionDate", "action_date"},
-                        {"startDate", "start_date"},
                         {"purchaseId", "purchase_id"},
                         {"recieptCode", "reciept_code"},
                         {"purchasedItemName", "purchased_item_name"},
                         {"purchasedItemCode", "purchased_item_code"},
-                        {"billingAction", "billing_action"},
+                        {"startDate", "start_date"},
                         {"endDate", "end_date"},
                         {"paymentMethod", "payment_method"},
                         {"paymentMethodExtraDetails", "payment_method_extra_details"},
@@ -576,16 +576,16 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUserBillingTransaction":
                     return new Dictionary<string, string>() { 
-                        {"userId", "user_id"},
                         {"userFullName", "user_full_name"},
+                        {"userId", "user_id"},
                         {"itemType", "item_type"},
+                        {"billingAction", "billing_action"},
                         {"actionDate", "action_date"},
-                        {"startDate", "start_date"},
                         {"purchaseId", "purchase_id"},
                         {"recieptCode", "reciept_code"},
                         {"purchasedItemName", "purchased_item_name"},
                         {"purchasedItemCode", "purchased_item_code"},
-                        {"billingAction", "billing_action"},
+                        {"startDate", "start_date"},
                         {"endDate", "end_date"},
                         {"paymentMethod", "payment_method"},
                         {"paymentMethodExtraDetails", "payment_method_extra_details"},
@@ -600,22 +600,22 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPricesFilter":
                     return new Dictionary<string, string>() { 
-                        {"filesIds", "files_ids"},
-                        {"shouldGetOnlyLowest", "should_get_only_lowest"},
                         {"subscriptionsIds", "subscriptions_ids"},
+                        {"shouldGetOnlyLowest", "should_get_only_lowest"},
+                        {"filesIds", "files_ids"},
                     };
                     
                 case "KalturaHouseholdLimitations":
                     return new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
-                        {"userFrequency", "user_frequency"},
-                        {"userFrequencyDescription", "user_frequency_description"},
+                        {"usersLimit", "users_limit"},
                         {"deviceFamiliesLimitations", "device_families_limitations"},
+                        {"concurrentLimit", "concurrent_limit"},
+                        {"deviceLimit", "device_limit"},
                         {"deviceFrequency", "device_frequency"},
                         {"deviceFrequencyDescription", "device_frequency_description"},
-                        {"deviceLimit", "device_limit"},
+                        {"userFrequency", "user_frequency"},
+                        {"userFrequencyDescription", "user_frequency_description"},
                         {"npvrQuotaInSeconds", "npvr_quota_in_seconds"},
-                        {"usersLimit", "users_limit"},
                     };
                     
                 case "KalturaTransaction":
@@ -628,14 +628,14 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTransactionsFilter":
                     return new Dictionary<string, string>() { 
-                        {"startDate", "start_date"},
                         {"endDate", "end_date"},
+                        {"startDate", "start_date"},
                     };
                     
                 case "KalturaPlayerAssetData":
                     return new Dictionary<string, string>() { 
-                        {"totalBitrate", "total_bitrate"},
                         {"currentBitrate", "current_bitrate"},
+                        {"totalBitrate", "total_bitrate"},
                         {"averageBitrate", "average_bitrate"},
                     };
                     
@@ -688,18 +688,18 @@ namespace WebAPI.Reflection
                     
                 case "KalturaNotificationsPartnerSettings":
                     return new Dictionary<string, string>() { 
-                        {"pushEndHour", "push_end_hour"},
-                        {"pushNotificationEnabled", "push_notification_enabled"},
                         {"pushSystemAnnouncementsEnabled", "push_system_announcements_enabled"},
+                        {"pushEndHour", "push_end_hour"},
                         {"pushStartHour", "push_start_hour"},
+                        {"pushNotificationEnabled", "push_notification_enabled"},
                     };
                     
                 case "KalturaPartnerNotificationSettings":
                     return new Dictionary<string, string>() { 
-                        {"pushEndHour", "push_end_hour"},
-                        {"pushNotificationEnabled", "push_notification_enabled"},
                         {"pushSystemAnnouncementsEnabled", "push_system_announcements_enabled"},
+                        {"pushEndHour", "push_end_hour"},
                         {"pushStartHour", "push_start_hour"},
+                        {"pushNotificationEnabled", "push_notification_enabled"},
                     };
                     
                 case "KalturaPersonalFollowFeed":
@@ -736,16 +736,16 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPPVItemPriceDetails":
                     return new Dictionary<string, string>() { 
+                        {"isInCancelationPeriod", "is_in_cancelation_period"},
+                        {"ppvProductCode", "ppv_product_code"},
+                        {"ppvModuleId", "ppv_module_id"},
                         {"isSubscriptionOnly", "is_subscription_only"},
+                        {"fullPrice", "full_price"},
                         {"purchaseStatus", "purchase_status"},
                         {"subscriptionId", "subscription_id"},
-                        {"ppvProductCode", "ppv_product_code"},
-                        {"ppvDescriptions", "ppv_descriptions"},
-                        {"isInCancelationPeriod", "is_in_cancelation_period"},
-                        {"ppvModuleId", "ppv_module_id"},
-                        {"fullPrice", "full_price"},
                         {"collectionId", "collection_id"},
                         {"prePaidId", "pre_paid_id"},
+                        {"ppvDescriptions", "ppv_descriptions"},
                         {"purchaseUserId", "purchase_user_id"},
                         {"purchasedMediaFileId", "purchased_media_file_id"},
                         {"relatedMediaFileIds", "related_media_file_ids"},
@@ -758,9 +758,9 @@ namespace WebAPI.Reflection
                 case "KalturaCouponsGroup":
                     return new Dictionary<string, string>() { 
                         {"maxUsesNumberOnRenewableSub", "max_uses_number_on_renewable_sub"},
-                        {"maxUsesNumber", "max_uses_number"},
                         {"startDate", "start_date"},
                         {"endDate", "end_date"},
+                        {"maxUsesNumber", "max_uses_number"},
                     };
                     
                 case "KalturaDiscountModule":
@@ -785,34 +785,34 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUsageModule":
                     return new Dictionary<string, string>() { 
-                        {"maxViewsNumber", "max_views_number"},
                         {"isOfflinePlayback", "is_offline_playback"},
+                        {"isWaiverEnabled", "is_waiver_enabled"},
+                        {"maxViewsNumber", "max_views_number"},
                         {"viewLifeCycle", "view_life_cycle"},
                         {"fullLifeCycle", "full_life_cycle"},
                         {"couponId", "coupon_id"},
                         {"waiverPeriod", "waiver_period"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
                     };
                     
                 case "KalturaPricePlan":
                     return new Dictionary<string, string>() { 
+                        {"priceId", "price_id"},
                         {"discountId", "discount_id"},
                         {"isRenewable", "is_renewable"},
                         {"renewalsNumber", "renewals_number"},
-                        {"priceId", "price_id"},
-                        {"maxViewsNumber", "max_views_number"},
                         {"isOfflinePlayback", "is_offline_playback"},
+                        {"isWaiverEnabled", "is_waiver_enabled"},
+                        {"maxViewsNumber", "max_views_number"},
                         {"viewLifeCycle", "view_life_cycle"},
                         {"fullLifeCycle", "full_life_cycle"},
                         {"couponId", "coupon_id"},
                         {"waiverPeriod", "waiver_period"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
                     };
                     
                 case "KalturaSubscriptionPrice":
                     return new Dictionary<string, string>() { 
-                        {"price", "price"},
                         {"purchaseStatus", "purchase_status"},
+                        {"price", "price"},
                         {"productId", "product_id"},
                         {"productType", "product_type"},
                     };
@@ -831,27 +831,26 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDeviceFamilyBase":
                     return new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                        {"concurrentLimit", "concurrent_limit"},
                     };
                     
                 case "KalturaDeviceFamily":
                     return new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                        {"concurrentLimit", "concurrent_limit"},
                     };
                     
                 case "KalturaHouseholdDeviceFamilyLimitations":
                     return new Dictionary<string, string>() { 
-                        {"concurrentLimit", "concurrent_limit"},
                         {"deviceLimit", "device_limit"},
+                        {"concurrentLimit", "concurrent_limit"},
                     };
                     
                 case "KalturaHousehold":
                     return new Dictionary<string, string>() { 
                         {"frequencyNextUserAction", "frequency_next_user_action"},
                         {"deviceFamilies", "device_families"},
-                        {"frequencyNextDeviceAction", "frequency_next_device_action"},
                         {"externalId", "external_id"},
                         {"householdLimitationsId", "household_limitations_id"},
                         {"devicesLimit", "devices_limit"},
@@ -862,6 +861,7 @@ namespace WebAPI.Reflection
                         {"pendingUsers", "pending_users"},
                         {"regionId", "region_id"},
                         {"isFrequencyEnabled", "is_frequency_enabled"},
+                        {"frequencyNextDeviceAction", "frequency_next_device_action"},
                     };
                     
                 case "KalturaHomeNetwork":
@@ -877,13 +877,6 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSubscription":
                     return new Dictionary<string, string>() { 
-                        {"premiumServices", "premium_services"},
-                        {"gracePeriodMinutes", "grace_period_minutes"},
-                        {"maxViewsNumber", "max_views_number"},
-                        {"viewLifeCycle", "view_life_cycle"},
-                        {"waiverPeriod", "waiver_period"},
-                        {"isWaiverEnabled", "is_waiver_enabled"},
-                        {"userTypes", "user_types"},
                         {"startDate", "start_date"},
                         {"endDate", "end_date"},
                         {"fileTypes", "file_types"},
@@ -898,6 +891,13 @@ namespace WebAPI.Reflection
                         {"pricePlans", "price_plans"},
                         {"previewModule", "preview_module"},
                         {"householdLimitationsId", "household_limitations_id"},
+                        {"gracePeriodMinutes", "grace_period_minutes"},
+                        {"premiumServices", "premium_services"},
+                        {"maxViewsNumber", "max_views_number"},
+                        {"viewLifeCycle", "view_life_cycle"},
+                        {"waiverPeriod", "waiver_period"},
+                        {"isWaiverEnabled", "is_waiver_enabled"},
+                        {"userTypes", "user_types"},
                     };
                     
                 case "KalturaSocialFacebookConfig":
@@ -907,11 +907,11 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSocialResponse":
                     return new Dictionary<string, string>() { 
-                        {"minFriendsLimitation", "min_friends_limitation"},
                         {"socialUser", "social_user"},
                         {"userId", "user_id"},
                         {"kalturaUsername", "kaltura_username"},
                         {"socialUsername", "social_username"},
+                        {"minFriendsLimitation", "min_friends_limitation"},
                     };
                     
                 case "KalturaSocialUser":
@@ -923,14 +923,14 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTimeShiftedTvPartnerSettings":
                     return new Dictionary<string, string>() { 
-                        {"catchUpEnabled", "catch_up_enabled"},
+                        {"recordingScheduleWindowEnabled", "recording_schedule_window_enabled"},
                         {"recordingScheduleWindow", "recording_schedule_window"},
+                        {"catchUpBufferLength", "catch_up_buffer_length"},
+                        {"trickPlayBufferLength", "trick_play_buffer_length"},
+                        {"catchUpEnabled", "catch_up_enabled"},
                         {"cdvrEnabled", "cdvr_enabled"},
                         {"startOverEnabled", "start_over_enabled"},
                         {"trickPlayEnabled", "trick_play_enabled"},
-                        {"recordingScheduleWindowEnabled", "recording_schedule_window_enabled"},
-                        {"catchUpBufferLength", "catch_up_buffer_length"},
-                        {"trickPlayBufferLength", "trick_play_buffer_length"},
                     };
                     
                 case "KalturaFavoriteFilter":
@@ -961,8 +961,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBaseOTTUser":
                     return new Dictionary<string, string>() { 
-                        {"lastName", "last_name"},
                         {"firstName", "first_name"},
+                        {"lastName", "last_name"},
                     };
                     
                 case "KalturaPurchaseSettingsResponse":
@@ -995,14 +995,15 @@ namespace WebAPI.Reflection
                     
                 case "KalturaEntitlement":
                     return new Dictionary<string, string>() { 
+                        {"mediaFileId", "media_file_id"},
                         {"isInGracePeriod", "is_in_grace_period"},
                         {"endDate", "end_date"},
+                        {"currentDate", "current_date"},
+                        {"isRenewable", "is_renewable"},
                         {"mediaId", "media_id"},
-                        {"lastViewDate", "last_view_date"},
-                        {"mediaFileId", "media_file_id"},
                         {"entitlementId", "entitlement_id"},
                         {"currentUses", "current_uses"},
-                        {"currentDate", "current_date"},
+                        {"lastViewDate", "last_view_date"},
                         {"purchaseDate", "purchase_date"},
                         {"purchaseId", "purchase_id"},
                         {"paymentMethod", "payment_method"},
@@ -1012,31 +1013,30 @@ namespace WebAPI.Reflection
                         {"maxUses", "max_uses"},
                         {"nextRenewalDate", "next_renewal_date"},
                         {"isRenewableForPurchase", "is_renewable_for_purchase"},
-                        {"isRenewable", "is_renewable"},
                     };
                     
                 case "KalturaUserLoginPin":
                     return new Dictionary<string, string>() { 
-                        {"userId", "user_id"},
                         {"expirationTime", "expiration_time"},
                         {"pinCode", "pin_code"},
+                        {"userId", "user_id"},
                     };
                     
                 case "KalturaOTTUser":
                     return new Dictionary<string, string>() { 
+                        {"householdId", "household_id"},
                         {"facebookToken", "facebook_token"},
+                        {"affiliateCode", "affiliate_code"},
                         {"externalId", "external_id"},
                         {"userType", "user_type"},
-                        {"facebookImage", "facebook_image"},
-                        {"householdId", "household_id"},
-                        {"affiliateCode", "affiliate_code"},
                         {"dynamicData", "dynamic_data"},
                         {"isHouseholdMaster", "is_household_master"},
                         {"suspentionState", "suspention_state"},
                         {"userState", "user_state"},
                         {"facebookId", "facebook_id"},
-                        {"lastName", "last_name"},
+                        {"facebookImage", "facebook_image"},
                         {"firstName", "first_name"},
+                        {"lastName", "last_name"},
                     };
                     
                 case "KalturaUserAssetsList":
@@ -1046,9 +1046,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaUserAssetsListItem":
                     return new Dictionary<string, string>() { 
-                        {"orderIndex", "order_index"},
                         {"userId", "user_id"},
                         {"listType", "list_type"},
+                        {"orderIndex", "order_index"},
                     };
                     
                 case "KalturaAssetInfoListResponse":
@@ -1058,9 +1058,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaAssetInfo":
                     return new Dictionary<string, string>() { 
+                        {"extraParams", "extra_params"},
                         {"startDate", "start_date"},
                         {"endDate", "end_date"},
-                        {"extraParams", "extra_params"},
                         {"mediaFiles", "media_files"},
                     };
                     
@@ -1073,8 +1073,8 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBuzzScore":
                     return new Dictionary<string, string>() { 
-                        {"avgScore", "avg_score"},
                         {"updateDate", "update_date"},
+                        {"avgScore", "avg_score"},
                         {"normalizedAvgScore", "normalized_avg_score"},
                     };
                     
@@ -1091,16 +1091,16 @@ namespace WebAPI.Reflection
                     
                 case "KalturaWatchHistoryAsset":
                     return new Dictionary<string, string>() { 
-                        {"finishedWatching", "finished_watching"},
                         {"watchedDate", "watched_date"},
+                        {"finishedWatching", "finished_watching"},
                     };
                     
                 case "AnnouncementController":
                     return new Dictionary<string, string>() { 
-                        {"addOldStandard", "add"},
-                        {"enableSystemAnnouncements", "createannouncement"},
                         {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
+                        {"enableSystemAnnouncements", "createannouncement"},
+                        {"addOldStandard", "add"},
                     };
                     
                 case "AssetController":
@@ -1117,8 +1117,8 @@ namespace WebAPI.Reflection
                     
                 case "HouseholdPaymentGatewayController":
                     return new Dictionary<string, string>() { 
-                        {"disable", "delete"},
                         {"enable", "set"},
+                        {"disable", "delete"},
                     };
                     
                 case "FollowTvSeriesController":
@@ -1158,9 +1158,9 @@ namespace WebAPI.Reflection
                 case "PaymentMethodProfileController":
                     return new Dictionary<string, string>() { 
                         {"deleteOldStandard", "delete"},
-                        {"listOldStandard", "list"},
                         {"addOldStandard", "add"},
                         {"updateOldStandard", "update"},
+                        {"listOldStandard", "list"},
                     };
                     
                 case "RegistrySettingsController":
@@ -1192,8 +1192,8 @@ namespace WebAPI.Reflection
                     
                 case "ExternalChannelProfileController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "OssAdapterProfileController":
@@ -1225,8 +1225,8 @@ namespace WebAPI.Reflection
                     
                 case "HouseholdDeviceController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"addOldStandard", "add"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "BookmarkController":
@@ -1270,37 +1270,37 @@ namespace WebAPI.Reflection
                 case "FavoriteController":
                     return new Dictionary<string, string>() { 
                         {"addOldStandard", "add"},
-                        {"listOldStandard", "list"},
                         {"deleteOldStandard", "delete"},
+                        {"listOldStandard", "list"},
                     };
                     
                 case "PaymentGatewayProfileController":
                     return new Dictionary<string, string>() { 
-                        {"updateOldStandard", "update"},
                         {"listOldStandard", "list"},
                         {"addOldStandard", "add"},
+                        {"updateOldStandard", "update"},
                     };
                     
                 case "SocialController":
                     return new Dictionary<string, string>() { 
-                        {"getByTokenOldStandard", "getbytoken"},
                         {"mergeOldStandard", "merge"},
                         {"unmergeOldStandard", "unmerge"},
                         {"registerOldStandard", "register"},
                         {"getConfiguration", "config"},
+                        {"getByTokenOldStandard", "getbytoken"},
                     };
                     
                 case "TransactionController":
                     return new Dictionary<string, string>() { 
                         {"purchaseSessionIdOldStandard", "purchasesessionid"},
-                        {"purchaseOldStandard", "purchase"},
                         {"setWaiver", "waiver"},
+                        {"purchaseOldStandard", "purchase"},
                     };
                     
                 case "PinController":
                     return new Dictionary<string, string>() { 
-                        {"getOldStandard", "get"},
                         {"updateOldStandard", "update"},
+                        {"getOldStandard", "get"},
                     };
                     
                 case "ParentalRuleController":
@@ -1320,18 +1320,18 @@ namespace WebAPI.Reflection
                     
                 case "HouseholdController":
                     return new Dictionary<string, string>() { 
+                        {"updateOldStandard", "update"},
                         {"getOldStandard", "get"},
                         {"addOldStandard", "add"},
-                        {"updateOldStandard", "update"},
                     };
                     
                 case "OttUserController":
                     return new Dictionary<string, string>() { 
-                        {"setPassword", "resetpassword"},
                         {"resetPassword", "sendpassword"},
+                        {"updateLoginData", "changepassword"},
+                        {"setPassword", "resetpassword"},
                         {"getOldStandard", "get"},
                         {"register", "add"},
-                        {"updateLoginData", "changepassword"},
                     };
                     
             }
@@ -4180,6 +4180,8 @@ namespace WebAPI.Reflection
                 case "KalturaSocialAction":
                     switch(property.Name)
                     {
+                        case "Id":
+                            return "id";
                         case "ActionType":
                             return "actionType";
                         case "Time":
