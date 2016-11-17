@@ -518,7 +518,7 @@ namespace Catalog
                         Query = currentQuery
                     };
 
-                    boolQuery.AddChild(currentQuery, CutWith.OR);
+                    boolQuery.AddChild(currentFilteredQuery, CutWith.OR);
                 }
             }
 
