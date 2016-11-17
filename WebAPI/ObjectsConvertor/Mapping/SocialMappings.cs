@@ -646,6 +646,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case 128:
                     result = KalturaSocialActionType.RATE;
                     break;
+                case 8:
+                    result = KalturaSocialActionType.SHARE;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown social action");
             }
