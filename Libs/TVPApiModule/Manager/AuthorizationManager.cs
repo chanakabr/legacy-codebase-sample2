@@ -739,25 +739,58 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            // revoke the old token of the new user
             // save new user-device tokens view for the new user if session revocation is enabled for the group
             if (groupConfig.SessionRevocationEnabled)
             {
                 string sessionInfoString = string.Format("userId = {0}, udid = {1}, IP = {2}, groupId = {3}", siteGuid, udid, SiteHelper.GetClientIP(), groupId);
 
-                // create new view for the new user + device
-                UserDeviceTokensView view = new UserDeviceTokensView()
+                // check if the user already logged in from the same device by getting the user device tokens view
+                string newUserViewId = UserDeviceTokensView.GetViewId(siteGuid, udid);
+                UserDeviceTokensView newUserView = cbManager.Get<UserDeviceTokensView>(newUserViewId, true);
+                if (newUserView != null)
                 {
-                    AccessTokenExpiration = apiToken.AccessTokenExpiration,
-                    AccessTokenId = apiToken.Id,
-                    GroupID = groupId,
-                    RefreshTokenExpiration = apiToken.RefreshTokenExpiration,
-                    RefreshTokenId = refreshToken.Id,
-                    SiteGuid = siteGuid,
-                    UDID = udid
-                };
+                    // delete old access token
+                    if (!cbManager.Remove(newUserView.AccessTokenId))
+                    {
+                        logger.ErrorFormat("UpdateUserInToken: failed to delete old access token for {0}", sessionInfoString);
+                    }
+                    else
+                    {
+                        logger.DebugFormat("UpdateUserInToken: Removed access token with ID = {0} for {1}", newUserView.AccessTokenId, sessionInfoString);
+                    }
 
+                    // delete old refresh token
+                    if (!cbManager.Remove(newUserView.RefreshTokenId))
+                    {
+                        logger.ErrorFormat("UpdateUserInToken: failed to delete old refresh token for {0}", sessionInfoString);
+                    }
+                    else
+                    {
+                        logger.DebugFormat("UpdateUserInToken: Removed refresh token with ID = {0} for {1}", newUserView.RefreshTokenId, sessionInfoString);
+                    }
+
+                    newUserView.AccessTokenExpiration = apiToken.AccessTokenExpiration;
+                    newUserView.AccessTokenId = apiToken.Id;
+                    newUserView.RefreshTokenExpiration = apiToken.RefreshTokenExpiration;
+                    newUserView.RefreshTokenId = refreshToken.Id;
+                }
+                else
+                {
+                    // create new view for the new user + device
+                    newUserView = new UserDeviceTokensView()
+                    {
+                        AccessTokenExpiration = apiToken.AccessTokenExpiration,
+                        AccessTokenId = apiToken.Id,
+                        GroupID = groupId,
+                        RefreshTokenExpiration = apiToken.RefreshTokenExpiration,
+                        RefreshTokenId = refreshToken.Id,
+                        SiteGuid = siteGuid,
+                        UDID = udid
+                    };
+                }
                 // save new view
-                if (!cbManager.Set(view.Id, view, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+                if (!cbManager.Set(newUserView.Id, newUserView, (uint)(apiToken.RefreshTokenExpiration - TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
                 {
                     logger.ErrorFormat("GenerateAccessToken: failed to to save user-device tokens view for {0}", sessionInfoString);
                 }
