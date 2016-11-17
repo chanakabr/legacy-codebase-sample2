@@ -55,9 +55,18 @@ namespace WebAPI.Models.Social
         [XmlElement(ElementName = "assetType")]
         public KalturaAssetType AssetType { get; set; }
 
+        /// <summary>
+        /// The value of the url
+        /// </summary>
+        [DataMember(Name = "url")]
+        [JsonProperty("url")]
+        [XmlElement(ElementName = "url")]
+        [SchemeProperty(WriteOnly = true)]
+        public string Url { get; set; }
+
         public override string ToString()
         {
-            string res = string.Format("actionType : {0}, Time :{1}, AssetId : {2}, AssetID :{3}, AssetType : {4}", ActionType.ToString(), Time, AssetId , AssetType);
+            string res = string.Format("actionType : {0}, Time :{1}, AssetId : {2}, AssetID :{3}, AssetType : {4}, Url : {5}", ActionType.ToString(), Time, AssetId, AssetType, Url);
             return res;  
         }
     }
@@ -88,34 +97,8 @@ namespace WebAPI.Models.Social
             return res;
         }
     }
-    
-    public class KalturaSocialActionWatch : KalturaSocialAction
-    {
-        /// <summary>
-        /// The value of the url
-        /// </summary>
-        [DataMember(Name = "url")]
-        [JsonProperty("url")]
-        [XmlElement(ElementName = "url")]
-        [SchemeProperty(WriteOnly = true)]
-        public string Url { get; set; }
+   
 
-        public KalturaSocialActionWatch(string value)
-        {
-            ActionType = KalturaSocialActionType.WATCH;
-            Url = value;
-        }
-        public KalturaSocialActionWatch()
-        {
-            ActionType = KalturaSocialActionType.WATCH;
-        }
-
-        public override string ToString()
-        {
-            string res = string.Format("{0}, Watch url Value = {1} ", base.ToString(), Url);
-            return res;
-        }
-    }
 
     public enum KalturaSocialActionType
     {

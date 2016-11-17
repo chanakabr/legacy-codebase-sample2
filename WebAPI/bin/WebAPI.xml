@@ -7776,14 +7776,14 @@
             Type of the asset that was acted upon, currently only VOD (media)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaSocialAction.Url">
+            <summary>
+            The value of the url
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialActionRate.Rate">
             <summary>
             The value of the rating
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Social.KalturaSocialActionWatch.Url">
-            <summary>
-            The value of the url
             </summary>
         </member>
         <member name="T:WebAPI.Models.Social.KalturaSocialConfig">

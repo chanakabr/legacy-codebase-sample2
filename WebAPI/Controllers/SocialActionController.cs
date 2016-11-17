@@ -41,20 +41,12 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "objectType=" + socialAction.objectType, "ActionType=" + KalturaSocialActionType.RATE.ToString());
                 }
 
-                if (socialAction.ActionType == KalturaSocialActionType.WATCH)
+                if (socialAction.ActionType != KalturaSocialActionType.RATE && socialAction.objectType == "KalturaSocialActionRate")
                 {
-                    if (socialAction.objectType != "KalturaSocialActionRate")
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "objectType=" + socialAction.objectType, "ActionType=" + KalturaSocialActionType.RATE.ToString());
-                    }
-
-                    if (string.IsNullOrEmpty(((KalturaSocialActionWatch)socialAction).Url))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSocialActionWatch.Url");
-                    }
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "objectType=" + socialAction.objectType, "ActionType=" + socialAction.ActionType.ToString());
                 }
 
-                if (!socialAction.AssetId.HasValue || socialAction.AssetId.Value == 0)
+                if (!socialAction.AssetId.HasValue || socialAction.AssetId.Value <= 0)
                 {                
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "socialAction.AssetId");
                 }
