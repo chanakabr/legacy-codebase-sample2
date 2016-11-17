@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="socialAction">social Action Object</param>
         /// <remarks>
-        /// Possible status codes:
+        /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011
         /// </remarks>       
         [Route("add"), HttpPost]
         [ApiAuthorize]
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">social action filter</param>
         ///<param name="pager">pager </param>
         /// <remarks>
-        /// Possible status codes:
+        /// Possible status codes: OK , Error
         /// </remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="Id">social Action Id</param>
         /// <remarks>
-        /// Possible status codes:
+        /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011, SocialActionIdDoseNotExists = 7016, 
         /// </remarks>       
         [Route("delete"), HttpPost]
         [ApiAuthorize]
