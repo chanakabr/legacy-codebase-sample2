@@ -272,18 +272,10 @@ namespace WebAPI.Controllers
                         (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, 0, 0, mediaIds, with.Select(x => x.type).ToList());
 
                     favoritesFinalList = new List<KalturaFavorite>();
-                    for (int assertIndex = 0, favoriteIndex = 0; favoriteIndex < favorites.Count; favoriteIndex++)
+                    foreach (var favorite in favorites)
                     {
-                        if (favorites[favoriteIndex].AssetId == assetInfoWrapper.Objects[assertIndex].Id)
-                        {
-                            favorites[favoriteIndex].Asset = assetInfoWrapper.Objects[assertIndex];
-                            favoritesFinalList.Add(favorites[favoriteIndex]);
-                            assertIndex++;
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                        favorite.Asset = assetInfoWrapper.Objects.Where(a => a.Id == favorite.AssetId).FirstOrDefault();
+                        favoritesFinalList.Add(favorite);
                     }
                 }
             }
