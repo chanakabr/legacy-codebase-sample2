@@ -480,7 +480,7 @@ namespace Catalog
                     string sFieldName;
                     string sFieldVal;
                     string sName;
-                    for (int i = 1; i < 20; i++)
+                    for (int i = 1; i <= 20; i++)
                     {
                         sFieldName = "META" + i.ToString() + "_STR_NAME";
                         sFieldVal = "META" + i.ToString() + "_STR";
