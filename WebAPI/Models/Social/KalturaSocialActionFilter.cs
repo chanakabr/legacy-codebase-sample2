@@ -73,7 +73,10 @@ namespace WebAPI.Models.Social
 
         internal void validate()
         {
-                  
+            if (string.IsNullOrEmpty(AssetIdIn))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaSocialActionFilter.AssetIdIn");
+            }
         }
 
         public override KalturaSocialActionOrderBy GetDefaultOrderByValue()

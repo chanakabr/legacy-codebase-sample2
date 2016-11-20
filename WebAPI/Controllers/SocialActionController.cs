@@ -82,7 +82,8 @@ namespace WebAPI.Controllers
              // parameters validation
             if (pager == null)
                 pager = new KalturaFilterPager();
-          
+
+            filter.validate();
             try
             {                
                 // call client
