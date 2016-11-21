@@ -38,5 +38,11 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "isOfflinePlayBack")]
         [SchemeProperty(ReadOnly = true)]
         public bool IsOfflinePlayBack { get; set; }
+
+        public enum KalturaContextType
+        {
+            none = 0,
+            recording = 1
+        }
     }
 }

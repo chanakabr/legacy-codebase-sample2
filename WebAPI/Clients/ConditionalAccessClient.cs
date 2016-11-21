@@ -1802,10 +1802,16 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaAssetFileContext GetAssetFileContext(int groupId, string userID, string fileId, string udid, string language, bool isRecording)
+        internal KalturaAssetFileContext GetAssetFileContext(int groupId, string userID, string fileId, string udid, string language,
+                                                                WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType contextType)
         {
             KalturaAssetFileContext kalturaResponse = null;
             EntitlementResponse response = null;
+            bool isRecording = false;
+            if (contextType == KalturaAssetFileContext.KalturaContextType.recording)
+            {
+                isRecording = true;
+            }
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
