@@ -1822,7 +1822,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.GetEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, fileId.ToString(),
-                        userID, false, string.Empty, language, udid, isRecording);
+                        userID, true, string.Empty, language, udid, isRecording);
                 }
             }
             catch (Exception ex)
