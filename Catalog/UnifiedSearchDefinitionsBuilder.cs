@@ -228,7 +228,10 @@ namespace Catalog
 
                 #region Get Recordings
 
-                if (definitions.shouldSearchRecordings && request.domainId > 0)
+                // we should go to CAS if we DON'T have predefined recordings
+                definitions.shouldGetDomainsRecordings = !request.hasPredefinedRecordings;
+
+                if (definitions.shouldGetDomainsRecordings && definitions.shouldSearchRecordings && request.domainId > 0)
                 {
                     List<string> recordings = GetUserRecordings(definitions, request.m_sSiteGuid, request.m_nGroupID, (long)request.domainId);
 

@@ -279,8 +279,9 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-
         public bool shouldReturnExtendedSearchResult;
+
+        /// <summary>
         /// Defines if start/end date KSQL search will be used only for EPG/recordings or for media as well
         /// </summary>
         [JsonProperty()]
@@ -306,6 +307,17 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public Dictionary<string, string> recordingsToEpgMapping
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Defines if this service asks CAS to get the domain/user's recordings or not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldGetDomainsRecordings
         {
             get;
             set;
