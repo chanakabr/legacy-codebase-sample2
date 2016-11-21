@@ -1802,7 +1802,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaAssetFileContext GetAssetFileContext(int groupId, string userID, string fileId, string udid, string language)
+        internal KalturaAssetFileContext GetAssetFileContext(int groupId, string userID, string fileId, string udid, string language, bool isRecording)
         {
             KalturaAssetFileContext kalturaResponse = null;
             EntitlementResponse response = null;
@@ -1816,7 +1816,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.GetEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, fileId.ToString(),
-                        userID, false, string.Empty, language, udid, false);
+                        userID, false, string.Empty, language, udid, isRecording);
                 }
             }
             catch (Exception ex)

@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
          [Route("getContext"), HttpPost]
          [ApiAuthorize]
          [ValidationException(SchemeValidationType.ACTION_NAME)]
-         public KalturaAssetFileContext GetContext(string id)
+         public KalturaAssetFileContext GetContext(string id, bool isRecording)
          {
              KalturaAssetFileContext response = null;
 
@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
                  string udid = KSUtils.ExtractKSPayload().UDID;
                  string language = Utils.Utils.GetLanguageFromRequest();
 
-                 response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language);
+                 response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language, isRecording);
 
                  // if no response - return not found status 
                  if (response == null)
