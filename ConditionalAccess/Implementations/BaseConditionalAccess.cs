@@ -9899,9 +9899,8 @@ namespace ConditionalAccess
             string strViewLifeCycle = TimeSpan.Zero.ToString();
             string strFullLifeCycle = TimeSpan.Zero.ToString();
             bool bIsOfflinePlayback = false;
-            bool shouldCheckEntitlement = false;
-            int domainID = 0;
-            List<int> lstUsersIds = null;
+            bool shouldCheckEntitlement = false;            
+            int domainId = 0;
 
             try
             {
@@ -9924,9 +9923,10 @@ namespace ConditionalAccess
                 {
                     if (isRecording)
                     {
-                        lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
-                        if (IsServiceAllowed(m_nGroupID, (int)domainID, eService.NPVR))
-                        {                                                        
+                        long householdId = 0;
+                        ResponseStatus validateStatus = Utils.ValidateUser(m_nGroupID, p_sSiteGUID, ref householdId);
+                        if (validateStatus == ResponseStatus.OK)
+                        {
                             int enableCdvr = 0, enableNonEntitled = 0, enableNonExisting = 0;
                             TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
                             if (accountSettings != null)
@@ -9937,44 +9937,39 @@ namespace ConditionalAccess
                                 enableNonExisting = accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value ? 1 : 0;
                             }
 
-                            DataTable dt = ConditionalAccessDAL.GetChannelByMediaFileId(m_nGroupID, nMediaFileID);
-                            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                            if (enableCdvr == 1)
                             {
-                                DataRow dr = dt.Rows[0];
-                                int enableChannelCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);                                
-                                int enableChannelNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
-
-                                if (enableCdvr == 1 && enableChannelCdvr == 2)
+                                DataTable dt = ConditionalAccessDAL.GetChannelByMediaFileId(m_nGroupID, nMediaFileID);
+                                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                                 {
-                                    enableCdvr = enableChannelCdvr;
-                                }
+                                    DataRow dr = dt.Rows[0];
+                                    int enableChannelCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);
+                                    int enableChannelNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
 
-                                if (enableNonEntitled == 1 && enableChannelNonEntitled == 2)
-                                {
-                                    enableNonEntitled = enableChannelNonEntitled;
-                                }
-
-                                if (enableCdvr == 1)
-                                {
-                                    switch (enableNonEntitled)
+                                    if (enableCdvr == 1 && enableChannelCdvr == 2)
                                     {
-                                        case 1:
-                                            //shouldCheckEntitlement is already false
-                                            //bIsOfflinePlayback is already false so no need to assign 
-                                            GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
-                                            break;
-                                        case 2:
-                                            shouldCheckEntitlement = true;
-                                            break;
-                                        default:                                            
-                                            break;
+                                        enableCdvr = enableChannelCdvr;
+                                    }
+
+                                    if (enableNonEntitled == 1 && enableChannelNonEntitled == 2)
+                                    {
+                                        enableNonEntitled = enableChannelNonEntitled;
+                                    }
+
+                                    domainId = (int)householdId;
+                                    if (enableNonEntitled == 1 || enableNonExisting == 1)
+                                    {
+                                        //shouldCheckEntitlement is already false
+                                        //bIsOfflinePlayback is already false so no need to assign 
+                                        GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
+                                    }
+                                    // if the user has the NPVR service then check entitlements, otherwise he isn't entitled
+                                    else if (IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
+                                    {
+                                        shouldCheckEntitlement = true;
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-
                         }
                     }
                     else
@@ -10005,11 +10000,7 @@ namespace ConditionalAccess
                                 int nFullLifeCycle = 0;
                                 DateTime dtViewDate = new DateTime();
                                 DateTime dtNow = DateTime.UtcNow;
-                                if (domainID == 0 || lstUsersIds == null)
-                                {
-                                    lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainID);
-                                }
-
+                                List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainId);                                
                                 List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
                                 DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
                                 DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
