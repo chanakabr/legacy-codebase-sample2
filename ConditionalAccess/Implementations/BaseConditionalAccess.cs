@@ -9954,9 +9954,9 @@ namespace ConditionalAccess
                                     enableNonEntitled = enableChannelNonEntitled;
                                 }
 
+                                domainId = (int)householdId;
                                 if (enableCdvr == 1 && IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
-                                {
-                                    domainId = (int)householdId;
+                                {                                    
                                     if (enableNonEntitled == 1 || enableNonExisting == 1)
                                     {
                                         //shouldCheckEntitlement is already false
