@@ -4190,6 +4190,8 @@ namespace ConditionalAccess
                 request.assetTypes = new int[1] { 1 };
                 request.filterQuery = filter;
                 request.order = orderBy;
+                request.hasPredefinedRecordings = true;
+
                 KeyValuePair<eAssetTypes, long>[] recordingAssets = new KeyValuePair<eAssetTypes, long>[recordingIdToDomainRecording.Count];
                 for (int i = 0; i < recordingIdToDomainRecording.Count; i++)
                 {

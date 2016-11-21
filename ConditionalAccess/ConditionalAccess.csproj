@@ -193,6 +193,8 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Properties\DataSources\ApiObjects.IngestResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -221,62 +223,62 @@
     <None Include="Service References\WS_Catalog\ConditionalAccess.WS_Catalog.MediaResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\WS_Catalog\Service.wsdl" />
-    <None Include="Service References\WS_Catalog\Service.xsd">
+    <None Include="Service References\WS_Catalog\Service18.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service1.wsdl" />
-    <None Include="Service References\WS_Catalog\Service1.xsd">
+    <None Include="Service References\WS_Catalog\Service181.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service10.xsd">
+    <None Include="Service References\WS_Catalog\Service1810.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service11.xsd">
+    <None Include="Service References\WS_Catalog\Service1811.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service12.xsd">
+    <None Include="Service References\WS_Catalog\Service1812.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service13.xsd">
+    <None Include="Service References\WS_Catalog\Service1813.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service14.xsd">
+    <None Include="Service References\WS_Catalog\Service1814.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service15.xsd">
+    <None Include="Service References\WS_Catalog\Service1815.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service16.xsd">
+    <None Include="Service References\WS_Catalog\Service1816.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service17.xsd">
+    <None Include="Service References\WS_Catalog\Service1817.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service2.xsd">
+    <None Include="Service References\WS_Catalog\Service182.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service3.xsd">
+    <None Include="Service References\WS_Catalog\Service183.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service4.xsd">
+    <None Include="Service References\WS_Catalog\Service184.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service5.xsd">
+    <None Include="Service References\WS_Catalog\Service185.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service6.xsd">
+    <None Include="Service References\WS_Catalog\Service186.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service7.xsd">
+    <None Include="Service References\WS_Catalog\Service187.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service8.xsd">
+    <None Include="Service References\WS_Catalog\Service188.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WS_Catalog\Service9.xsd">
+    <None Include="Service References\WS_Catalog\Service189.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\WS_Catalog\Service22.wsdl" />
+    <None Include="Service References\WS_Catalog\Service23.wsdl" />
     <None Include="Web References\tikle\Cinema.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -453,9 +455,6 @@
     <WCFMetadataStorage Include="Service References\WS_Catalog\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -466,6 +465,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\WS_Catalog\Service11.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

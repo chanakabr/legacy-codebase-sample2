@@ -74,6 +74,11 @@ namespace Catalog.Request
         [DataMember]
         public bool shouldIgnoreDeviceRuleID;
 
+        /// <summary>
+        /// Defines if this service asks CAS to get the domain/user's recordings or not
+        /// </summary>
+        [DataMember]
+        public bool hasPredefinedRecordings;
 
         #endregion
 
