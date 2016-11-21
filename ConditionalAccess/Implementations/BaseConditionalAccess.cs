@@ -17116,7 +17116,7 @@ namespace ConditionalAccess
                     }
                     else
                     {
-                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, userID, domainID, recordingIdToDomainRecording, filter, pageIndex, pageSize, orderBy, ref totalResults);
+                        searchRecordings = Utils.SearchDomainRecordingIDsByFilter(m_nGroupID, string.Empty, 0, recordingIdToDomainRecording, filter, pageIndex, pageSize, orderBy, ref totalResults);
                     }
                     if (searchRecordings != null)
                     {

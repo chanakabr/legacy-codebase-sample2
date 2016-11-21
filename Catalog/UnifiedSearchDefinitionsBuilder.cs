@@ -261,6 +261,13 @@ namespace Catalog
                         definitions.specificAssets[eAssetTypes.NPVR] = new List<string>() { "0" };
                     }
                 }
+                else
+                {
+                    if (!definitions.extraReturnFields.Contains("epg_id"))
+                    {
+                        definitions.extraReturnFields.Add("epg_id");
+                    }
+                }
 
                 #endregion
 
@@ -286,6 +293,7 @@ namespace Catalog
                             definitions.extraReturnFields.Add(field.ToLower());
                         }
                     }
+
                     definitions.shouldReturnExtendedSearchResult = true;
                 }
 
