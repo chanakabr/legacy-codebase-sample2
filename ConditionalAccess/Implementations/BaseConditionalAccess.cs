@@ -9954,7 +9954,7 @@ namespace ConditionalAccess
                                     enableNonEntitled = enableChannelNonEntitled;
                                 }
 
-                                if (enableCdvr == 1)
+                                if (enableCdvr == 1 && IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
                                 {
                                     domainId = (int)householdId;
                                     if (enableNonEntitled == 1 || enableNonExisting == 1)
@@ -9964,7 +9964,7 @@ namespace ConditionalAccess
                                         GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
                                     }
                                     // if the user has the NPVR service then check entitlements, otherwise he isn't entitled
-                                    else if (IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
+                                    else
                                     {
                                         shouldCheckEntitlement = true;
                                     }
