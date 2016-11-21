@@ -36,6 +36,22 @@ namespace ApiObjects.Social
             return settings;
         }
 
+        public static void SetDefultPrivacySettings(ref SocialPrivacySettings settings)
+        {
+            settings.SocialNetworks = new List<SocialNetwork>();
+            foreach (SocialPlatform platform in Enum.GetValues(typeof(SocialPlatform)))
+            {
+                settings.SocialNetworks.Add(
+                     new SocialNetwork
+                     {
+                         Network = platform,
+                         Privacy = eSocialActionPrivacy.DONT_ALLOW,
+                         SocialPrivacy = eSocialPrivacy.SELF
+                     }
+                     );
+            }
+        }
+
         public override string ToString()
         {
             string res = string.Empty;
