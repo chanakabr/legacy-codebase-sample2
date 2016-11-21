@@ -9937,25 +9937,25 @@ namespace ConditionalAccess
                                 enableNonExisting = accountSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value ? 1 : 0;
                             }
 
-                            if (enableCdvr == 1)
+                            DataTable dt = ConditionalAccessDAL.GetChannelByMediaFileId(m_nGroupID, nMediaFileID);
+                            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                             {
-                                DataTable dt = ConditionalAccessDAL.GetChannelByMediaFileId(m_nGroupID, nMediaFileID);
-                                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                                DataRow dr = dt.Rows[0];
+                                int enableChannelCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);
+                                int enableChannelNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
+
+                                if (enableCdvr == 1 && enableChannelCdvr == 2)
                                 {
-                                    DataRow dr = dt.Rows[0];
-                                    int enableChannelCdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR", 0);
-                                    int enableChannelNonEntitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_RECORDING_PLAYBACK_NON_ENTITLED", 0);
+                                    enableCdvr = enableChannelCdvr;
+                                }
 
-                                    if (enableCdvr == 1 && enableChannelCdvr == 2)
-                                    {
-                                        enableCdvr = enableChannelCdvr;
-                                    }
+                                if (enableNonEntitled == 1 && enableChannelNonEntitled == 2)
+                                {
+                                    enableNonEntitled = enableChannelNonEntitled;
+                                }
 
-                                    if (enableNonEntitled == 1 && enableChannelNonEntitled == 2)
-                                    {
-                                        enableNonEntitled = enableChannelNonEntitled;
-                                    }
-
+                                if (enableCdvr == 1)
+                                {
                                     domainId = (int)householdId;
                                     if (enableNonEntitled == 1 || enableNonExisting == 1)
                                     {
@@ -9969,7 +9969,7 @@ namespace ConditionalAccess
                                         shouldCheckEntitlement = true;
                                     }
                                 }
-                            }
+                            }                            
                         }
                     }
                     else
