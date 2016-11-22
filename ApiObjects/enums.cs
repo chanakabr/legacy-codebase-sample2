@@ -801,4 +801,12 @@ namespace ApiObjects
         UserSuspended = 23,
         UserCreatedWithNoRole = 24
     }
+
+    public enum SubscriptionPurchaseStatus
+    {
+        OK = 0, 
+        Cancel = 1,
+        CancelNow = 2, 
+        Fail = 3
+    }
 }
