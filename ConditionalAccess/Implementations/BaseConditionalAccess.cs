@@ -9925,6 +9925,7 @@ namespace ConditionalAccess
                     {
                         long householdId = 0;
                         ResponseStatus validateStatus = Utils.ValidateUser(m_nGroupID, p_sSiteGUID, ref householdId);
+                        domainId = (int)householdId;
                         if (validateStatus == ResponseStatus.OK)
                         {
                             int enableCdvr = 0, enableNonEntitled = 0, enableNonExisting = 0;
@@ -9953,8 +9954,7 @@ namespace ConditionalAccess
                                 {
                                     enableNonEntitled = enableChannelNonEntitled;
                                 }
-
-                                domainId = (int)householdId;
+                                
                                 if (enableCdvr == 1 && IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
                                 {                                    
                                     if (enableNonEntitled == 1)
