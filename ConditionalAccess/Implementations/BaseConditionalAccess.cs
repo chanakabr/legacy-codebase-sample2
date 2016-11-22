@@ -9957,7 +9957,7 @@ namespace ConditionalAccess
                                 domainId = (int)householdId;
                                 if (enableCdvr == 1 && IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
                                 {                                    
-                                    if (enableNonEntitled == 1 || enableNonExisting == 1)
+                                    if (enableNonEntitled == 1)
                                     {
                                         //shouldCheckEntitlement is already false
                                         //bIsOfflinePlayback is already false so no need to assign 
@@ -9969,7 +9969,13 @@ namespace ConditionalAccess
                                         shouldCheckEntitlement = true;
                                     }
                                 }
-                            }                            
+                            }
+                            else if (enableNonExisting == 1)
+                            {
+                                //shouldCheckEntitlement is already false
+                                //bIsOfflinePlayback is already false so no need to assign 
+                                GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
+                            }
                         }
                     }
                     else
