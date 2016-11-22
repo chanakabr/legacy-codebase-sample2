@@ -9970,7 +9970,7 @@ namespace ConditionalAccess
                                     }
                                 }
                             }
-                            else if (enableNonExisting == 1)
+                            else if (enableNonExisting == 1 && IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
                             {
                                 //shouldCheckEntitlement is already false
                                 //bIsOfflinePlayback is already false so no need to assign 
