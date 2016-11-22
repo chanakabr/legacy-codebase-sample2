@@ -925,7 +925,7 @@ namespace DAL
             return null;
         }
 
-        public static long CancelSubscription(int nSubscriptionsPurchasesID, int nGroupID, string sSiteGUID, string nSubscriptionCode)
+        public static long CancelSubscription(int nSubscriptionsPurchasesID, int nGroupID, string sSiteGUID, string nSubscriptionCode, int subscriptionPurchaseStatus = 1)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscription");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -933,7 +933,8 @@ namespace DAL
             sp.AddParameter("@SiteGUID", sSiteGUID);
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SubscriptionCode", nSubscriptionCode);
-
+            // Thor version : new parameter for the status for cancel (Ok / fail / cancel )
+            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -1037,7 +1038,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0)
+        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0, int subscriptionPurchaseStatus = 2)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1045,6 +1046,7 @@ namespace DAL
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", nAssetID);
             sp.AddParameter("@DomainID", domainID);
+            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
 
             return sp.ExecuteReturnValue<bool>();
         }

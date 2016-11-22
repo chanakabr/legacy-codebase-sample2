@@ -1877,7 +1877,7 @@ namespace ConditionalAccess
                             else
                             {
                                 // Try to cancel subscription
-                                bResult = ConditionalAccessDAL.CancelSubscription(nPurchaseID, m_nGroupID, sPurchasingSiteGuid, p_sSubscriptionCode) > 0;
+                                bResult = ConditionalAccessDAL.CancelSubscription(nPurchaseID, m_nGroupID, sPurchasingSiteGuid, p_sSubscriptionCode, (int)SubscriptionPurchaseStatus.Cancel) > 0;
 
                                 if (bResult)
                                 {
@@ -11264,7 +11264,7 @@ namespace ConditionalAccess
                                         }
                                     case eTransactionType.Subscription:
                                         {
-                                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID, p_nDomainID);
+                                            bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(sPurchasingSiteGuid, p_nAssetID, p_nDomainID, (int)SubscriptionPurchaseStatus.CancelNow);
                                             break;
                                         }
                                     case eTransactionType.Collection:
@@ -11432,7 +11432,7 @@ namespace ConditionalAccess
                             }
                         case eTransactionType.Subscription:
                             {
-                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID, (int)domainid);
+                                bResult = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(p_sSiteGuid, p_nAssetID, (int)domainid, (int)SubscriptionPurchaseStatus.CancelNow);
                                 break;
                             }
                         case eTransactionType.Collection:
@@ -14780,7 +14780,7 @@ namespace ConditionalAccess
             log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
             // Try to cancel subscription
-            if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode) == 0)
+            if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode, (int)SubscriptionPurchaseStatus.Fail) == 0)
             {
                 log.Error("Error while trying to cancel subscription");
                 return false;
