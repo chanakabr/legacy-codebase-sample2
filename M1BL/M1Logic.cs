@@ -1,27 +1,24 @@
-﻿using DAL;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net;
-using System.Text;
+﻿using System;
 using KLogMonitor;
 using System.Reflection;
 
 namespace M1BL
 {
-    public class M1Logic
+    public static class M1Logic
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string M1_LOGIC_LOG_FILE = "M1Logic";
+        
+        //private const string M1_LOGIC_LOG_FILE = "M1Logic";
         private const string M1_LOGIC_LOG_HEADER = "M1 Logic";
 
-        public static M1Response CheckFirstPurchasePermissions(string sAppID, string sSessionToken, string sMsisdn, out int nGroupId, out string sCustomerServiceID, out string sBaseRedirectUrl, out string sFixedMailAddress)
-        {
 
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+        public static M1Response CheckFirstPurchasePermissions(string sAppID, string sSessionId, string sUserId, string sUserType, string sMsisdn, out int nGroupId, out string sCustomerServiceID, out string sBaseRedirectUrl, out string sFixedMailAddress)
+        {
+            M1Response result = new M1Response
+            {
+                is_succeeded = true,
+                reason = string.Empty
+            };
 
             nGroupId = 0;
             sCustomerServiceID = string.Empty;
@@ -31,7 +28,10 @@ namespace M1BL
             try
             {
                 M1AdsWrapper adsWrapper = new M1AdsWrapper(0, sAppID);
-                ADSResponse response = adsWrapper.CheckFirstPurchasePermissions(sSessionToken, sMsisdn, out  nGroupId, out sCustomerServiceID, out sBaseRedirectUrl, out sFixedMailAddress);
+
+                ADSResponse response = adsWrapper.CheckFirstPurchasePermissions(sSessionId, sUserId, sUserType: sUserType, sMsisdn: sMsisdn, 
+                    nGroupId: out  nGroupId, sCustomerServiceID: out sCustomerServiceID, sBaseRedirectUrl: out sBaseRedirectUrl, sFixedMailAddress: out sFixedMailAddress);
+                
                 result.is_succeeded = response.is_succeeded;
                 result.reason = response.reason.ToString();
                 result.description = response.description;
@@ -49,9 +49,11 @@ namespace M1BL
         public static M1Response CheckSubsequencePurchasePermissions(int nGroupID, string sMsisdn, out string sFixedMailAddress)
         {
 
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+            M1Response result = new M1Response
+            {
+                is_succeeded = true,
+                reason = string.Empty
+            };
             sFixedMailAddress = string.Empty;
 
             try
@@ -74,9 +76,11 @@ namespace M1BL
 
         public static M1Response CheckCallBackLoginCode(string sCallBackLoginCode)
         {
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+            M1Response result = new M1Response
+            {
+                is_succeeded = true,
+                reason = string.Empty
+            };
 
             try
             {
@@ -101,9 +105,11 @@ namespace M1BL
 
         public static M1Response CanAccessVas(int nGroupID, string sMsisdn)
         {
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+            M1Response result = new M1Response
+            {
+                is_succeeded = true,
+                reason = string.Empty
+            };
 
             try
             {
@@ -124,9 +130,11 @@ namespace M1BL
 
         public static M1Response CheckBlackList(int nGroupID, string sMsisdn)
         {
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+            M1Response result = new M1Response
+            {
+                is_succeeded = true,
+                reason = string.Empty
+            };
 
             try
             {
@@ -145,63 +153,70 @@ namespace M1BL
         }
 
 
-        public static M1Response CreateDummyVas(int nGroupID, string sMsisdn, int nServiceID)
-        {
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+        //public static M1Response CreateDummyVas(int nGroupID, string sMsisdn, int nServiceID)
+        //{
+        //    M1Response result = new M1Response
+        //    {
+        //        is_succeeded = true,
+        //        reason = string.Empty
+        //    };
 
-            try
-            {
-                M1AdsWrapper adsWrapper = new M1AdsWrapper(nGroupID, null);
-                ADSResponse response = adsWrapper.CreateDummyVas(sMsisdn, nServiceID);
-                result.is_succeeded = response.is_succeeded;
-                result.reason = response.reason.ToString();
-                result.description = response.description;
-            }
-            catch (Exception ex)
-            {
-                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
-                result.is_succeeded = false;
-                result.reason = ex.Message;
-            }
-            return result;
-        }
+        //    try
+        //    {
+        //        M1AdsWrapper adsWrapper = new M1AdsWrapper(nGroupID, null);
+        //        ADSResponse response = adsWrapper.CreateDummyVas(sMsisdn, nServiceID);
+        //        result.is_succeeded = response.is_succeeded;
+        //        result.reason = response.reason.ToString();
+        //        result.description = response.description;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
+        //        result.is_succeeded = false;
+        //        result.reason = ex.Message;
+        //    }
+        //    return result;
+        //}
 
-        public static M1Response RemoveDummyVas(int nGroupID, string sMsisdn, int nServiceID)
-        {
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+        //public static M1Response RemoveDummyVas(int nGroupID, string sMsisdn, int nServiceID)
+        //{
+        //    M1Response result = new M1Response
+        //    {
+        //        is_succeeded = true,
+        //        reason = string.Empty
+        //    };
 
-            try
-            {
-                M1AdsWrapper adsWrapper = new M1AdsWrapper(nGroupID, null);
-                ADSResponse response = adsWrapper.RemoveDummyVas(sMsisdn, nServiceID);
-                result.is_succeeded = response.is_succeeded;
-                result.reason = response.reason.ToString();
-                result.description = response.description;
-            }
-            catch (Exception ex)
-            {
-                log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
-                result.is_succeeded = false;
-                result.reason = ex.Message;
-            }
-            return result;
-        }
+        //    try
+        //    {
+        //        M1AdsWrapper adsWrapper = new M1AdsWrapper(nGroupID, null);
+        //        ADSResponse response = adsWrapper.RemoveDummyVas(sMsisdn, nServiceID);
+        //        result.is_succeeded = response.is_succeeded;
+        //        result.reason = response.reason.ToString();
+        //        result.description = response.description;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(M1_LOGIC_LOG_HEADER + " Msisdn=" + sMsisdn + ",ServiceID=" + nServiceID + ",exception:" + ex.Message + " || " + ex.StackTrace, ex);
+        //        result.is_succeeded = false;
+        //        result.reason = ex.Message;
+        //    }
+        //    return result;
+        //}
 
 
         public static M1Response RemoveDummyVas(int nGroupID, string sMsisdn, string sCustomerServiceID)
         {
-            M1Response result = new M1Response();
-            result.is_succeeded = true;
-            result.reason = string.Empty;
+            M1Response result = new M1Response
+            {
+                is_succeeded = true,
+                reason = string.Empty
+            };
 
             try
             {
                 M1AdsWrapper adsWrapper = new M1AdsWrapper(nGroupID, null);
                 ADSResponse response = adsWrapper.RemoveDummyVas(sMsisdn, sCustomerServiceID);
+
                 result.is_succeeded = response.is_succeeded;
                 result.reason = response.reason.ToString();
                 result.description = response.description;
