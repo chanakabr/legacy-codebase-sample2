@@ -58,11 +58,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid));
 
-            // UserType
-            Mapper.CreateMap<Users.UserType, KalturaOTTUserType>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
-
             // Country
             Mapper.CreateMap<Users.Country, KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
@@ -86,31 +81,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //    .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_sUserName))
             //    .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_UserType))
             //    .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_sZip));
-
-            // User - TODO: Unifiy with UsersMapping
-            Mapper.CreateMap<UserResponseObject, KalturaOTTUser>()
-                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFirstName))
-                .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sLastName))
-                .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sUserName))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sEmail))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sAddress))
-                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sCity))
-                .ForMember(dest => dest.Country, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_Country))
-                .ForMember(dest => dest.Zip, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sZip))
-                .ForMember(dest => dest.Phone, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sPhone))
-                .ForMember(dest => dest.FacebookId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFacebookID))
-                .ForMember(dest => dest.FacebookImage, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFacebookImage))
-                .ForMember(dest => dest.FacebookToken, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sFacebookToken))
-                .ForMember(dest => dest.AffiliateCode, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_sAffiliateCode))
-                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_CoGuid))
-                .ForMember(dest => dest.UserType, opt => opt.MapFrom(src => src.m_user.m_oBasicData.m_UserType))
-                .ForMember(dest => dest.HouseholdID, opt => opt.MapFrom(src => src.m_user.m_domianID))
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => ConvertDynamicData(src.m_user.m_oDynamicData)))
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_user.m_sSiteGUID))
-                .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
-                .ForMember(dest => dest.SuspensionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_user.m_eSuspendState)))
-                .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_user.m_isDomainMaster))
-                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(src.m_RespStatus)));
 
             // FacebookConfig to KalturaFacebookConfig
             Mapper.CreateMap<FacebookConfig, KalturaSocialFacebookConfig>()
@@ -536,59 +506,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return null;
-        }
-
-        public static SerializableDictionary<string, KalturaStringValue> ConvertDynamicData(UserDynamicData userDynamicData)
-        {
-            SerializableDictionary<string, KalturaStringValue> result = null;
-
-            if (userDynamicData != null && userDynamicData.m_sUserData != null)
-            {
-                result = new SerializableDictionary<string, KalturaStringValue>();
-                foreach (var data in userDynamicData.m_sUserData)
-                {
-                    if (!string.IsNullOrEmpty(data.m_sDataType))
-                    {
-                        result.Add(data.m_sDataType, new KalturaStringValue(){ value = data.m_sValue });
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private static KalturaHouseholdSuspentionState ConvertDomainSuspentionStatus(DomainSuspentionStatus type)
-        {
-            KalturaHouseholdSuspentionState result;
-            switch (type)
-            {
-                case DomainSuspentionStatus.OK:
-                    result = KalturaHouseholdSuspentionState.not_suspended;
-                    break;
-                case DomainSuspentionStatus.Suspended:
-                    result = KalturaHouseholdSuspentionState.suspended;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown domain suspention state");
-            }
-            return result;
-        }
-
-        private static KalturaUserState ConvertResponseStatusToUserState(ResponseStatus type)
-        {
-            KalturaUserState result;
-            switch (type)
-            {
-                case ResponseStatus.OK:
-                    result = KalturaUserState.ok;
-                    break;
-                case ResponseStatus.UserWithNoDomain:
-                    result = KalturaUserState.user_with_no_household;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown user state");
-            }
-            return result;
         }
 
         internal static eUserAction ConvertSocialAction(KalturaSocialActionType action)

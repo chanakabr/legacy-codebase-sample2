@@ -103,7 +103,8 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_sSiteGUID))
                 .ForMember(dest => dest.SuspentionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
                 .ForMember(dest => dest.SuspensionState, opt => opt.MapFrom(src => ConvertDomainSuspentionStatus(src.m_eSuspendState)))
-                .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_isDomainMaster));
+                .ForMember(dest => dest.IsHouseholdMaster, opt => opt.MapFrom(src => src.m_isDomainMaster))
+                .ForMember(dest => dest.UserState, opt => opt.MapFrom(src => ConvertResponseStatusToUserState(ResponseStatus.OK, src.IsActivationGracePeriod))); // for activation status
 
             // SlimUser
             Mapper.CreateMap<KalturaOTTUser, KalturaBaseOTTUser>()

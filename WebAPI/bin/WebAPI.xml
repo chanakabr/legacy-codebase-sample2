@@ -280,7 +280,7 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String)">
+        <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
             </summary>
