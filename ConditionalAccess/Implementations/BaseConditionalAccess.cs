@@ -7883,6 +7883,7 @@ namespace ConditionalAccess
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 selectQuery += string.Format("select START_DATE, END_DATE from {0} with (nolock) where ", tableName);
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                 if (selectQuery.Execute("query", true) != null)
