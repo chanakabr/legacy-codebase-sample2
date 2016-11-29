@@ -1003,9 +1003,10 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        object t = null; ;
+        object t = null;
         if (Session["subscription_id"] != null && Session["subscription_id"].ToString() != "" && int.Parse(Session["subscription_id"].ToString()) != 0)
             t = Session["subscription_id"];
+
         string sBack = "adm_multi_pricing_plans.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("subscriptions", "adm_table_pager", sBack, "", "ID", t, string.Empty, "");
         theRecord.SetConnectionKey("pricing_connection");
@@ -1128,16 +1129,18 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
     private string GetMppDlm(object subscriptionID)
     {
         string dlm = string.Empty;
-        if (subscriptionID != null && subscriptionID is int)
+        int subID = 0;
+        if (subscriptionID != null && int.TryParse(subscriptionID.ToString(), out subID))
         {
-            int subID = (int)subscriptionID;
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select gdlm.NAME from groups_device_limitation_modules gdlm inner join on Pricing.subscriptions s on gdlm.id = s.device_limit_id where  ";
+            selectQuery += "select gdlm.NAME from groups_device_limitation_modules gdlm inner join Pricing..subscriptions s on gdlm.id = s.device_limit_id where gdlm.status = 1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("s.id", "=", subID);
             if (selectQuery.Execute("query", true) != null)
             {
                 dlm = selectQuery.Table("query").Rows[0][0].ToString();
             }
+            selectQuery.Finish();
+            selectQuery = null;
         }
         return dlm;
     }
@@ -1146,7 +1149,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
     {
         DataTable dt = null;
         ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select ID, NAME as txt from groups_device_limitation_modules where ";
+        selectQuery += "select ID, NAME as txt from groups_device_limitation_modules where status=1 and is_active=1 and";
         selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
         if (selectQuery.Execute("query", true) != null)
         {
