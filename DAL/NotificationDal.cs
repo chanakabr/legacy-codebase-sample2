@@ -1995,9 +1995,11 @@ namespace DAL
             return result;
         }
 
-        public static string GetEpisodeAssociationTag(int groupId)
+        public static void GetEpisodeAssociationTag(int groupId, out string episodeAssociationTag, out int mediaTypeId)
         {
-            string result = string.Empty;
+            episodeAssociationTag = string.Empty;
+            mediaTypeId = 0;
+
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetEpisodeAssociationTag");
@@ -2006,7 +2008,10 @@ namespace DAL
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                        result = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "ASSOCIATION_TAG");
+                {
+                    episodeAssociationTag = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "ASSOCIATION_TAG");
+                    mediaTypeId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "id");
+                }
                 else
                     log.DebugFormat("GetEpisodeAssociationTag. ASSOCIATION_TAG is missing. groupId: {0}.", groupId);
 
@@ -2015,7 +2020,6 @@ namespace DAL
             {
                 log.ErrorFormat("Error at GetEpisodeAssociationTag. groupId: {0}. Error {1}", groupId, ex);
             }
-            return result;
         }
     }
 }
