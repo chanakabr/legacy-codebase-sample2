@@ -436,11 +436,14 @@ namespace EpgIngest
                     {
                         log.ErrorFormat("epgId is {0} for epg with identifier {1} and coguid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
                     }
-                    bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
-                    if (bInsert)
-                        log.DebugFormat("Succeeded. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
                     else
-                        log.ErrorFormat("Error. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+                    {
+                        bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
+                        if (bInsert)
+                            log.DebugFormat("Succeeded. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+                        else
+                            log.ErrorFormat("Error. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
+                    }
 
                     #endregion
 
