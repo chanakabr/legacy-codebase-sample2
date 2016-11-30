@@ -25,7 +25,7 @@ namespace MessageAnnouncementHandler
 
             try
             {
-                log.DebugFormat("starting pending charge request. data={0}", data);
+                log.DebugFormat("starting announcement request. data={0}", data);
 
                 MessageAnnouncementRequest request = JsonConvert.DeserializeObject<MessageAnnouncementRequest>(data);
 
