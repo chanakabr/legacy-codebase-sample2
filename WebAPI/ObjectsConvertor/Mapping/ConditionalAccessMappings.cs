@@ -59,7 +59,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                .ForMember(dest => dest.billingAction, opt => opt.MapFrom(src => src.m_eBillingAction))
                .ForMember(dest => dest.itemType, opt => opt.MapFrom(src => src.m_eItemType))
-               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.m_ePaymentMethod))
+               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.m_ePaymentMethod)))
                .ForMember(dest => dest.isRecurring, opt => opt.MapFrom(src => src.m_bIsRecurring))
                .ForMember(dest => dest.billingProviderRef, opt => opt.MapFrom(src => src.m_nBillingProviderRef))
                .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.m_nPurchaseID))
@@ -113,7 +113,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                .ForMember(dest => dest.billingAction, opt => opt.MapFrom(src => src.m_eBillingAction))
                .ForMember(dest => dest.itemType, opt => opt.MapFrom(src => src.m_eItemType))
-               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.m_ePaymentMethod))
+               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.m_ePaymentMethod)))
                .ForMember(dest => dest.isRecurring, opt => opt.MapFrom(src => src.m_bIsRecurring))
                .ForMember(dest => dest.billingProviderRef, opt => opt.MapFrom(src => src.m_nBillingProviderRef))
                .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.m_nPurchaseID))
@@ -134,7 +134,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.endDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dtEndDate)))
                .ForMember(dest => dest.billingAction, opt => opt.MapFrom(src => src.m_eBillingAction))
                .ForMember(dest => dest.itemType, opt => opt.MapFrom(src => src.m_eItemType))
-               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => src.m_ePaymentMethod))
+               .ForMember(dest => dest.paymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.m_ePaymentMethod)))
                .ForMember(dest => dest.isRecurring, opt => opt.MapFrom(src => src.m_bIsRecurring))
                .ForMember(dest => dest.billingProviderRef, opt => opt.MapFrom(src => src.m_nBillingProviderRef))
                .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.m_nPurchaseID))
@@ -573,6 +573,60 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown entitlement order by");
+            }
+
+            return result;
+        }
+
+        public static KalturaPaymentMethodType ConvertPaymentMethod(ConditionalAccess.PaymentMethod paymentMethod)
+        {
+            KalturaPaymentMethodType result;
+            switch (paymentMethod)
+            {
+                case ConditionalAccess.PaymentMethod.Unknown:
+                    result = KalturaPaymentMethodType.unknown;
+                    break;
+                case ConditionalAccess.PaymentMethod.CreditCard:
+                    result = KalturaPaymentMethodType.credit_card;
+                    break;
+                case ConditionalAccess.PaymentMethod.SMS:
+                    result = KalturaPaymentMethodType.sms;
+                    break;
+                case ConditionalAccess.PaymentMethod.PayPal:
+                    result = KalturaPaymentMethodType.pay_pal;
+                    break;
+                case ConditionalAccess.PaymentMethod.DebitCard:
+                    result = KalturaPaymentMethodType.debit_card;
+                    break;
+                case ConditionalAccess.PaymentMethod.Ideal:
+                    result = KalturaPaymentMethodType.ideal;
+                    break;
+                case ConditionalAccess.PaymentMethod.Incaso:
+                    result = KalturaPaymentMethodType.incaso;
+                    break;
+                case ConditionalAccess.PaymentMethod.Gift:
+                    result = KalturaPaymentMethodType.gift;
+                    break;
+                case ConditionalAccess.PaymentMethod.Visa:
+                    result = KalturaPaymentMethodType.visa;
+                    break;
+                case ConditionalAccess.PaymentMethod.MasterCard:
+                    result = KalturaPaymentMethodType.master_card;
+                    break;
+                case ConditionalAccess.PaymentMethod.InApp:
+                    result = KalturaPaymentMethodType.in_app;
+                    break;
+                case ConditionalAccess.PaymentMethod.M1:
+                    result = KalturaPaymentMethodType.m1;
+                    break;
+                case ConditionalAccess.PaymentMethod.ChangeSubscription:
+                    result = KalturaPaymentMethodType.change_subscription;
+                    break;
+                case ConditionalAccess.PaymentMethod.Offline:
+                    result = KalturaPaymentMethodType.offline;
+                    break;                
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown ConditionalAccess.PaymentMethod type");
             }
 
             return result;
