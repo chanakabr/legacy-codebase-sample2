@@ -2119,6 +2119,9 @@ namespace WebAPI.Notifications {
         private string FollowReferenceField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int GroupIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -2175,6 +2178,19 @@ namespace WebAPI.Notifications {
                 if ((object.ReferenceEquals(this.FollowReferenceField, value) != true)) {
                     this.FollowReferenceField = value;
                     this.RaisePropertyChanged("FollowReference");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int GroupId {
+            get {
+                return this.GroupIdField;
+            }
+            set {
+                if ((this.GroupIdField.Equals(value) != true)) {
+                    this.GroupIdField = value;
+                    this.RaisePropertyChanged("GroupId");
                 }
             }
         }
@@ -3104,67 +3120,6 @@ namespace WebAPI.Notifications {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="NotificationCleanupResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
-    [System.SerializableAttribute()]
-    public partial class NotificationCleanupResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
-        
-        [System.NonSerializedAttribute()]
-        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private long LastCleanupDateField;
-        
-        [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private WebAPI.Notifications.Status StatusField;
-        
-        [global::System.ComponentModel.BrowsableAttribute(false)]
-        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public long LastCleanupDate {
-            get {
-                return this.LastCleanupDateField;
-            }
-            set {
-                if ((this.LastCleanupDateField.Equals(value) != true)) {
-                    this.LastCleanupDateField = value;
-                    this.RaisePropertyChanged("LastCleanupDate");
-                }
-            }
-        }
-        
-        [System.Runtime.Serialization.DataMemberAttribute()]
-        public WebAPI.Notifications.Status Status {
-            get {
-                return this.StatusField;
-            }
-            set {
-                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
-                    this.StatusField = value;
-                    this.RaisePropertyChanged("Status");
-                }
-            }
-        }
-        
-        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
-        
-        protected void RaisePropertyChanged(string propertyName) {
-            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
-            if ((propertyChanged != null)) {
-                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
-            }
-        }
-    }
-    
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="RegistryResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
     [System.SerializableAttribute()]
     public partial class RegistryResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
@@ -3485,12 +3440,6 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteAnnouncementsOlderThanAsync(string sWSUserName, string sWSPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
-        WebAPI.Notifications.NotificationCleanupResponse GetNotificationLastCleanupDate(string sWSUserName, string sWSPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate", ReplyAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersRespons" +
             "e")]
@@ -3828,14 +3777,6 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteAnnouncementsOlderThanAsync(string sWSUserName, string sWSPassword) {
             return base.Channel.DeleteAnnouncementsOlderThanAsync(sWSUserName, sWSPassword);
-        }
-        
-        public WebAPI.Notifications.NotificationCleanupResponse GetNotificationLastCleanupDate(string sWSUserName, string sWSPassword) {
-            return base.Channel.GetNotificationLastCleanupDate(sWSUserName, sWSPassword);
-        }
-        
-        public System.Threading.Tasks.Task<WebAPI.Notifications.NotificationCleanupResponse> GetNotificationLastCleanupDateAsync(string sWSUserName, string sWSPassword) {
-            return base.Channel.GetNotificationLastCleanupDateAsync(sWSUserName, sWSPassword);
         }
         
         public WebAPI.Notifications.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip) {

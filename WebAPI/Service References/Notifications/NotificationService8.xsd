@@ -635,21 +635,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="GetNotificationLastCleanupDate">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element minOccurs="0" name="sWSUserName" nillable="true" type="xs:string" />
-        <xs:element minOccurs="0" name="sWSPassword" nillable="true" type="xs:string" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="GetNotificationLastCleanupDateResponse">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element xmlns:q53="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="GetNotificationLastCleanupDateResult" nillable="true" type="q53:NotificationCleanupResponse" />
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
   <xs:element name="RegisterPushAnnouncementParameters">
     <xs:complexType>
       <xs:sequence>
@@ -664,7 +649,7 @@
   <xs:element name="RegisterPushAnnouncementParametersResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q54="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="RegisterPushAnnouncementParametersResult" nillable="true" type="q54:RegistryResponse" />
+        <xs:element xmlns:q53="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="RegisterPushAnnouncementParametersResult" nillable="true" type="q53:RegistryResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -681,7 +666,7 @@
   <xs:element name="RegisterPushSystemParametersResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element xmlns:q55="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="RegisterPushSystemParametersResult" nillable="true" type="q55:RegistryResponse" />
+        <xs:element xmlns:q54="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" minOccurs="0" name="RegisterPushSystemParametersResult" nillable="true" type="q54:RegistryResponse" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
