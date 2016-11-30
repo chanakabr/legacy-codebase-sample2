@@ -554,7 +554,7 @@ namespace Validator.Managers.Scheme
             
             writer.WriteStartElement("action");
             writer.WriteAttributeString("name", actionId);
-            writer.WriteAttributeString("enableInMultiRequest", "0");
+            writer.WriteAttributeString("enableInMultiRequest", "1");
             writer.WriteAttributeString("supportedRequestFormats", "json");
             writer.WriteAttributeString("supportedResponseFormats", "json,xml");
             writer.WriteAttributeString("description", getDescription(action));
