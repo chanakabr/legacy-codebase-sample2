@@ -1,25 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace NotificationObj
 {
+    [DataContract]
     public class FollowDataBase
     {
-        public long AnnouncementId;
-        public int Status;
-        public string Title;
-        public long Timestamp;
-        public string FollowReference;
-        public int Type;
-        protected string _followPhrase;
+        [DataMember]
+        public int GroupId;
 
-        public virtual string FollowPhrase
+        [DataMember]
+        public long AnnouncementId;
+
+        [DataMember]
+        public int Status;
+
+        [DataMember]
+        public string Title;
+
+        [DataMember]
+        public long Timestamp;
+
+        [DataMember]
+        public string FollowReference;
+
+        [DataMember]
+        public int Type;
+
+        [DataMember]
+        public string FollowPhrase;
+
+        public FollowDataBase(int groupId, string followPhrase)
         {
-            get { return _followPhrase; }
-            set { _followPhrase = value; }
-        }        
+            this.GroupId = groupId;
+            this.FollowPhrase = followPhrase;
+        }
     }
 }
