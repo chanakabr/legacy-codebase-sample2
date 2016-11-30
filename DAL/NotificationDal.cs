@@ -30,6 +30,8 @@ namespace DAL
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
         private const string CB_DESIGN_DOC_NOTIFICATION = "notification";
         private const string CB_DESIGN_DOC_INBOX = "inbox";
+        private const string TVINCI_CONNECTION = "MAIN_CONNECTION_STRING";
+
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
@@ -1993,5 +1995,27 @@ namespace DAL
             return result;
         }
 
+        public static string GetEpisodeAssociationTag(int groupId)
+        {
+            string result = string.Empty;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetEpisodeAssociationTag");
+                sp.SetConnectionKey(TVINCI_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                        result = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "ASSOCIATION_TAG");
+                else
+                    log.DebugFormat("GetEpisodeAssociationTag. ASSOCIATION_TAG is missing. groupId: {0}.", groupId);
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetEpisodeAssociationTag. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return result;
+        }
     }
 }
