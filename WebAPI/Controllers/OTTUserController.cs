@@ -372,6 +372,33 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+        /// <summary>
+        /// Update the user's existing password.
+        /// </summary>        
+        /// <param name="userId">User Identifier</param>        
+        /// <param name="password">new password</param>
+        /// <remarks>Possible status codes: User does not exist = 2000</remarks>
+        [Route("updatePassword"), HttpPost]                
+        [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
+        public void updatePassword(int userId, string password)
+        {            
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (userId <= 0)
+            {
+                throw new BadRequestException(BadRequestException.INVALID_USER_ID, "userId");
+            }
+            try
+            {
+                // call client
+                ClientsManager.UsersClient().UpdateUserPassword(groupId, userId, password);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }         
+        }
         
         /// <summary>
         /// Returns the user associated with a temporary reset token.

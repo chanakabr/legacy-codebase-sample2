@@ -1179,6 +1179,32 @@ namespace WebAPI.Clients
             return listUser;
         }
 
-        
+        internal void UpdateUserPassword(int groupId, int userId, string password)
+        {
+            ApiObjects.Response.Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.UpdateUserPassword(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateUserPassword. userId: {0}, password : {1}, exception: {2}", userId, password, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }            
+        }
     }
 }

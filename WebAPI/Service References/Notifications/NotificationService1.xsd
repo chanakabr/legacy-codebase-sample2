@@ -121,18 +121,11 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="DbAnnouncement" nillable="true" type="tns:DbAnnouncement" />
-  <xs:complexType name="NotificationCleanupResponse">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="LastCleanupDate" type="xs:long" />
-      <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q10:Status" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="NotificationCleanupResponse" nillable="true" type="tns:NotificationCleanupResponse" />
   <xs:complexType name="RegistryResponse">
     <xs:sequence>
       <xs:element minOccurs="0" name="AnnouncementId" type="xs:long" />
       <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
-      <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q11:Status" />
+      <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q10:Status" />
       <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
     </xs:sequence>
   </xs:complexType>

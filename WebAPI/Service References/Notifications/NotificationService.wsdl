@@ -235,12 +235,6 @@
   <wsdl:message name="INotificationService_DeleteAnnouncementsOlderThan_OutputMessage">
     <wsdl:part name="parameters" element="tns:DeleteAnnouncementsOlderThanResponse" />
   </wsdl:message>
-  <wsdl:message name="INotificationService_GetNotificationLastCleanupDate_InputMessage">
-    <wsdl:part name="parameters" element="tns:GetNotificationLastCleanupDate" />
-  </wsdl:message>
-  <wsdl:message name="INotificationService_GetNotificationLastCleanupDate_OutputMessage">
-    <wsdl:part name="parameters" element="tns:GetNotificationLastCleanupDateResponse" />
-  </wsdl:message>
   <wsdl:message name="INotificationService_RegisterPushAnnouncementParameters_InputMessage">
     <wsdl:part name="parameters" element="tns:RegisterPushAnnouncementParameters" />
   </wsdl:message>
@@ -401,10 +395,6 @@
     <wsdl:operation name="DeleteAnnouncementsOlderThan">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan" message="tns:INotificationService_DeleteAnnouncementsOlderThan_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse" message="tns:INotificationService_DeleteAnnouncementsOlderThan_OutputMessage" />
-    </wsdl:operation>
-    <wsdl:operation name="GetNotificationLastCleanupDate">
-      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate" message="tns:INotificationService_GetNotificationLastCleanupDate_InputMessage" />
-      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetNotificationLastCleanupDateResponse" message="tns:INotificationService_GetNotificationLastCleanupDate_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="RegisterPushAnnouncementParameters">
       <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters" message="tns:INotificationService_RegisterPushAnnouncementParameters_InputMessage" />
@@ -743,15 +733,6 @@
     </wsdl:operation>
     <wsdl:operation name="DeleteAnnouncementsOlderThan">
       <soap:operation soapAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetNotificationLastCleanupDate">
-      <soap:operation soapAction="http://tempuri.org/INotificationService/GetNotificationLastCleanupDate" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

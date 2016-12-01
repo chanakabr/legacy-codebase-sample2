@@ -445,7 +445,7 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <Content Include="Service References\Notifications\NotificationService.wsdl" />
+    <None Include="Service References\Notifications\NotificationService.wsdl" />
     <None Include="Service References\Notifications\NotificationService.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -544,7 +544,7 @@
     </None>
     <None Include="Service References\Notifications\NotificationService1.disco" />
     <None Include="Service References\Notifications\NotificationService12.disco" />
-    <Content Include="Service References\Notifications\NotificationService.disco" />
+    <None Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="Service References\Notifications\WebAPI.Notifications.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -574,9 +574,6 @@
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <Content Include="Service References\Notifications\WebAPI.Notifications.MessageTemplateResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationCleanupResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">

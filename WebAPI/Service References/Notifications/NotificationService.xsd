@@ -243,6 +243,7 @@
       <xs:element minOccurs="0" name="AnnouncementId" type="xs:long" />
       <xs:element minOccurs="0" name="FollowPhrase" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="FollowReference" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
       <xs:element minOccurs="0" name="Status" type="xs:int" />
       <xs:element minOccurs="0" name="Timestamp" type="xs:long" />
       <xs:element minOccurs="0" name="Title" nillable="true" type="xs:string" />
