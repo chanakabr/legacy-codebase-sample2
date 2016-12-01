@@ -333,6 +333,7 @@ namespace Users
         public abstract UserResponseObject SetUserData(string sSiteGUID, UserBasicData oBasicData, UserDynamicData sDynamicData);
         public abstract UserResponseObject SetUserData(string sSiteGUID, string sBasicDataXML, string sDynamicDataXML);
         public abstract UserResponseObject ChangeUserPassword(string sUN, string sOldPass, string sPass, Int32 nGroupID);
+        public abstract ApiObjects.Response.Status UpdateUserPassword(int userId, string password);
         public abstract UserResponseObject ForgotPassword(string sUN);
         public abstract UserResponseObject ChangePassword(string sUN);
         public abstract ResponseStatus SendChangedPinMail(string sSiteGuid, int nRuleID);

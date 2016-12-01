@@ -1235,6 +1235,32 @@ namespace Users
             return ret;
         }
 
+        public override ApiObjects.Response.Status UpdateUserPassword(int userId, string password)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            User user = new User();
+            if (!user.Initialize(userId, m_nGroupID, false))
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get user data");
+                return response;
+            }
+
+            if (!Users.Utils.SetPassword(password, ref user.m_oBasicData, m_nGroupID))
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to set user password");
+                return response;
+            }
+
+            if (user.Save(m_nGroupID, false, true) != userId)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to save user data");
+                return response;
+            }
+
+            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return response;
+        }
+
         public override UserResponseObject RenewPassword(string sUN, string sPass, int nGroupID)
         {
             UserResponseObject ret = new UserResponseObject();
