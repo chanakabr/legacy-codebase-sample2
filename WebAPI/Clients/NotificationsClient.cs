@@ -1349,5 +1349,36 @@ namespace WebAPI.Clients
 
             return ret;
         }
+
+        internal bool RemoveUsersNotificationData(int groupId, List<string> userIds)
+        {
+            Status response = null;
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.RemoveUsersNotificationData(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteAnnouncementsOlderThan.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
