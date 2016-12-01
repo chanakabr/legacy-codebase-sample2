@@ -124,7 +124,8 @@ namespace ApiObjects.Response
         RecordingPlaybackNotAllowedForNonExistingEpgChannel = 3050,
         RecordingPlaybackNotAllowedForNotEntitledEpgChannel = 3051,
         SeasonNumberNotMatch = 3052, 
-
+        FailedToGetEntitlements = 3053,
+        FailedToRemoveEntitlement = 3054,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
@@ -233,6 +234,8 @@ namespace ApiObjects.Response
         PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
         PaymentMethodNameRequired = 6055,
         PaymentGatewayNotSupportPaymentMethod = 6056,
+        FailedToGetPaymentMethods = 6057,
+        FailedToRemovePaymentMethod = 6058,
 
         // social 7000 - 7999
         Conflict = 7000,
@@ -278,6 +281,7 @@ namespace ApiObjects.Response
         InvalidMessageTTL = 8018,
         MessageIdentifierRequired = 8019,
         UserInboxMessagesNotExist = 8020,
+        FailedToRemoveNotificationData = 8021,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

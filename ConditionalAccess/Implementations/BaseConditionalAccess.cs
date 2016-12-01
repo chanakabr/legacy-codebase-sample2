@@ -19395,5 +19395,58 @@ namespace ConditionalAccess
             return string.Format("Found {0} subscriptions to renew, {1} added to queue successfully", totalSubscriptionsToRenew, totalRenewTransactionsAdded);
         }
 
+
+        public ApiObjects.Response.Status RemoveHouseholdEntitlements(int householdId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            var householdPpvs = GetDomainEntitlements(householdId, eTransactionType.PPV);
+
+            if (householdPpvs == null || householdPpvs.status == null || householdPpvs.status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Failed to get PPVs to remove with error for household = {1}", householdId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToGetEntitlements, "Failed to get PPVs for household");
+                return response;
+            }
+
+            if (householdPpvs.entitelments != null && householdPpvs.entitelments.Count > 0)
+            {
+                foreach (var ppv in householdPpvs.entitelments)
+                {
+                    response = CancelServiceNow(householdId, ppv.mediaFileID, eTransactionType.PPV, true);
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed to remove PPV, entitlementId = {0}, mediaFileId = {1}, for household = {2}", ppv.entitlementId, ppv.mediaFileID, householdId);
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToRemoveEntitlement, "Failed to remove PPV");
+                        return response;
+                    }
+                }
+            }
+
+            var householdSubscription = GetDomainEntitlements(householdId, eTransactionType.Subscription);
+
+            if (householdSubscription == null || householdSubscription.status == null || householdSubscription.status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Failed to get subscriptions to remove with error for household = {1}", householdId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToGetEntitlements, "Failed to get Subscriptions for household");
+                return response;
+            }
+
+            if (householdSubscription.entitelments != null && householdSubscription.entitelments.Count > 0)
+            {
+                foreach (var subscruption in householdSubscription.entitelments)
+                {
+                    response = CancelServiceNow(householdId, int.Parse(subscruption.entitlementId), eTransactionType.Subscription, true);
+                    if (response == null || response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Failed to remove Subscription, entitlementId = {0}, for household = {1}", subscruption.entitlementId, householdId);
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToRemoveEntitlement, "Failed to remove subscription");
+                        return response;
+                    }
+                }
+            }
+
+            return response;
+        }
     }
 }
