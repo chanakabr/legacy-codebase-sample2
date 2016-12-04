@@ -14693,8 +14693,8 @@ namespace ConditionalAccess
                     transactionResponse.Status.Code == (int)eResponseStatus.PaymentMethodNotExist ||
                     transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewayNotExist)
                 {
-                    // renew subscription failed!
-                    return HandleRenewSubscriptionFailed(siteguid, purchaseId, logString, productId, subscription);
+                    // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
+                    return HandleRenewSubscriptionFailed(siteguid, purchaseId, logString, productId, subscription, householdId, 0, transactionResponse.Status.Message);
                 }
                 else
                 {
@@ -14720,7 +14720,7 @@ namespace ConditionalAccess
                 case eTransactionState.Failed:
                     {
                         // renew subscription failed!
-                        return HandleRenewSubscriptionFailed(siteguid, purchaseId, logString, productId, subscription);
+                        return HandleRenewSubscriptionFailed(siteguid, purchaseId, logString, productId, subscription, householdId, transactionResponse.FailReasonCode);
                     }
                 default:
                     {
@@ -14782,7 +14782,7 @@ namespace ConditionalAccess
             }
         }
 
-        private bool HandleRenewSubscriptionFailed(string siteguid, long purchaseId, string logString, long productId, Subscription subscription)
+        private bool HandleRenewSubscriptionFailed(string siteguid, long purchaseId, string logString, long productId, Subscription subscription, long domainId, int failReasonCode, string billingSettingError = null)
         {
             log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
@@ -14800,6 +14800,23 @@ namespace ConditionalAccess
             WriteToUserLog(siteguid, string.Format("Transaction renew failed. Product ID: {0}, purchase ID: {1}",
                  productId,                           // {0}
                  purchaseId));                        // {1}
+
+            // PS message 
+            var dicData = new Dictionary<string, object>()
+                                        {                                            
+                                            {"SiteGUID", siteguid},
+                                            {"DomainID", domainId},
+                                            {"FailReasonCode", failReasonCode},
+                                            {"PurchaseID", purchaseId},
+                                            {"SubscriptionCode", subscription.m_SubscriptionCode}
+                                        };
+
+            if (failReasonCode == 0)
+            {
+                dicData.Add("BillingSettingError", billingSettingError);
+            }
+
+            this.EnqueueEventRecord(NotifiedAction.FailedSubscriptionRenewal, dicData);
 
             return true;
         }
