@@ -715,11 +715,11 @@ namespace EpgIngest
             }
         }
 
-        private void InsertEpgsDBBatches(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> FieldEntityMapping, string mainLlanguage,
-          DateTime dPublishDate, int channelID)
+        private void InsertEpgsDBBatches(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> epgDic, int groupID, int nCountPackage, List<FieldTypeEntity> fieldEntityMapping, string mainLlanguage,
+          DateTime publishDate, int channelID)
         {
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
-            Dictionary<int, List<string>> tagsAndValues = new Dictionary<int, List<string>>(); // <tagTypeId, List<tagValues>>
+            Dictionary<int, List<string>> tagsAndValuesOfEPGs = new Dictionary<int, List<string>>(); // <tagTypeId, List<tagValues>>
 
             int nEpgCount = 0;
             try
@@ -733,11 +733,11 @@ namespace EpgIngest
                     nEpgCount++;
 
                     //generate a Dictionary of all tag and values in the epg
-                    Utils.GenerateTagsAndValues(epg.Value, FieldEntityMapping, ref tagsAndValues);
+                    Utils.GenerateTagsAndValues(epg.Value, fieldEntityMapping, ref tagsAndValuesOfEPGs);
 
                     if (nEpgCount >= nCountPackage)
                     {
-                        InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate, channelID, ratios);
+                        InsertEpgs(groupID, ref epgBatch, fieldEntityMapping, tagsAndValuesOfEPGs, publishDate, channelID, ratios);
                         nEpgCount = 0;
                         foreach (string guid in epgBatch.Keys)
                         {
@@ -747,13 +747,13 @@ namespace EpgIngest
                             }
                         }
                         epgBatch.Clear();
-                        tagsAndValues.Clear();
+                        tagsAndValuesOfEPGs.Clear();
                     }
                 }
 
                 if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
                 {
-                    InsertEpgs(groupID, ref epgBatch, FieldEntityMapping, tagsAndValues, dPublishDate, channelID, ratios);
+                    InsertEpgs(groupID, ref epgBatch, fieldEntityMapping, tagsAndValuesOfEPGs, publishDate, channelID, ratios);
                     foreach (string guid in epgBatch.Keys)
                     {
                         if (epgBatch[guid].EpgID > 0)
@@ -770,7 +770,8 @@ namespace EpgIngest
             }
         }
 
-        private void InsertEpgs(int groupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, Dictionary<int, List<string>> tagsAndValues, DateTime dPublishDate, int channelID, Dictionary<int, string> ratios)
+        private void InsertEpgs(int groupID, ref Dictionary<string, EpgCB> epgDic, List<FieldTypeEntity> FieldEntityMapping, 
+            Dictionary<int, List<string>> tagsAndValuesOfEPGs, DateTime publishDate, int channelID, Dictionary<int, string> ratios)
         {
             try
             {
@@ -790,12 +791,12 @@ namespace EpgIngest
 
                 Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
                 //return relevant tag value ID, if they exist in the DB
-                Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue = getTagTypeWithRelevantValues(groupID, FieldEntityMappingTags, tagsAndValues);
+                Dictionary<int, List<KeyValuePair<string, int>>> tagTypeIdWithValueFromDB = getTagTypeWithRelevantValues(groupID, FieldEntityMappingTags, tagsAndValuesOfEPGs);
 
                 //update all values that already exsits in table
-                UpdateEPG_Channels_sched(ref epgDic, dPublishDate, channelID);
+                UpdateEPG_Channels_sched(ref epgDic, publishDate, channelID);
                 // insert all epg to DB (epg_channels_schedule)
-                InsertEPG_Channels_sched(ref epgDic, m_Channels.mainlang, dPublishDate, channelID);
+                InsertEPG_Channels_sched(ref epgDic, m_Channels.mainlang, publishDate, channelID);
 
                 List<int> epgIDs = new List<int>();
 
@@ -809,7 +810,7 @@ namespace EpgIngest
                         //update Metas
                         UpdateMetasPerEPG(ref dtEpgMetas, epg, FieldEntityMappingMetas, nUpdaterID);
                         //update Tags                    
-                        UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, TagTypeIdWithValue, ref newTagValueEpgs, nUpdaterID);
+                        UpdateExistingTagValuesPerEPG(epg, FieldEntityMappingTags, ref dtEpgTags, ref dtEpgTagsValues, tagTypeIdWithValueFromDB, ref newTagValueEpgs, nUpdaterID);
                         // update Pictures
                         InitTables.FillEpgPictureTable(ref dtEpgPictures, epg, ratios);
                     }
@@ -977,7 +978,7 @@ namespace EpgIngest
         }
 
         private void UpdateExistingTagValuesPerEPG(EpgCB epg, List<FieldTypeEntity> FieldEntityMappingTags, ref DataTable dtEpgTags, ref DataTable dtEpgTagsValues,
-          Dictionary<int, List<KeyValuePair<string, int>>> TagTypeIdWithValue, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
+          Dictionary<int, List<KeyValuePair<string, int>>> tagTypeIdWithValueFromDB, ref Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs, int nUpdaterID)
         {
             KeyValuePair<string, int> kvp = new KeyValuePair<string, int>();
 
@@ -996,15 +997,18 @@ namespace EpgIngest
                     continue;//missing tag definition in DB (in FieldEntityMapping)                        
                 }
 
+                // Run on the tags of the EPG
                 foreach (string sTagValue in epg.Tags[sTagName])
                 {
                     if (sTagValue != "")
                     {
                         kvp = new KeyValuePair<string, int>(sTagValue, nTagTypeID);
 
-                        if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
+                        if (tagTypeIdWithValueFromDB.ContainsKey(nTagTypeID))
                         {
-                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key.ToLower() == sTagValue.ToLower()).ToList();
+                            // Search for the EPG tag in the tags in DB
+                            List<KeyValuePair<string, int>> list = tagTypeIdWithValueFromDB[nTagTypeID].Where(x => x.Key.ToLower() == sTagValue.ToLower()).ToList();
+
                             if (list != null && list.Count > 0)
                             {
                                 //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
@@ -1013,7 +1017,7 @@ namespace EpgIngest
                             else//tha tag value does not exist in the DB
                             {
                                 //the newTagValueEpgs has this tag + value: only need to update that this specific EPG is using it
-                                if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count > 0)
+                                if (newTagValueEpgs.Where(x => x.Key.Key.ToLower() == kvp.Key.ToLower() && x.Key.Value == kvp.Value).ToList().Count > 0)
                                 {
                                     newTagValueEpgs[kvp].Add(epg.EpgIdentifier);
                                 }
@@ -1028,7 +1032,7 @@ namespace EpgIngest
                         else //this tag type does not have the relevant values in the DB, need to insert a new tag +value to the newTagValueEpgs and update the relevant table 
                         {
                             //check if it was not already added to the newTagValueEpgs
-                            if (newTagValueEpgs.Where(x => x.Key.Key == kvp.Key && x.Key.Value == kvp.Value).ToList().Count == 0)
+                            if (newTagValueEpgs.Where(x => x.Key.Key.ToLower() == kvp.Key.ToLower() && x.Key.Value == kvp.Value).ToList().Count == 0)
                             {
                                 InitTables.FillEpgTagValueTable(ref dtEpgTagsValues, sTagValue, epg.EpgID, nTagTypeID, epg.GroupID, epg.Status, nUpdaterID, DateTime.UtcNow, DateTime.UtcNow);
                                 List<string> lEpgGUID = new List<string>() { epg.EpgIdentifier };
