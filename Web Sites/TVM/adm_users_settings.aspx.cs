@@ -98,6 +98,12 @@ public partial class adm_users_settings : System.Web.UI.Page
             dr_allowUserDeletion.Initialize("Allow user deletion", "adm_table_header_nbg", "FormInput", "allow_delete_user", false);
             theRecord.AddRecord(dr_allowUserDeletion);
 
+            DataRecordCheckBoxField dr_CloseAccountMail = new DataRecordCheckBoxField(true);
+            dr_CloseAccountMail.Initialize("Send Close account Email", "adm_table_header_nbg", "FormInput", "SEND_CLOSE_ACCOUNT_MAIL", false);
+            dr_CloseAccountMail.SetDefault(1);
+            theRecord.AddRecord(dr_CloseAccountMail);
+
+
             sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
         }
         return sTable;
