@@ -721,7 +721,13 @@ namespace EpgIngest
             Dictionary<string, EpgCB> epgBatch = new Dictionary<string, EpgCB>();
             Dictionary<int, List<string>> tagsAndValuesOfEPGs = new Dictionary<int, List<string>>(); // <tagTypeId, List<tagValues>>
 
-            int nEpgCount = 0;
+            if (fieldEntityMapping == null || fieldEntityMapping.Count == 0)
+            {
+                log.ErrorFormat("Ingest EPG - fieldEntityMapping is empty. group = {0}, channel id = {1}", groupID, channelID);
+            }
+
+            int epgCount = 0;
+
             try
             {
                 foreach (string sGuid in epgDic.Keys)
@@ -730,15 +736,15 @@ namespace EpgIngest
                     KeyValuePair<string, EpgCB> epg = epgDic[sGuid].Where(x => x.Key == mainLlanguage).First();
 
                     epgBatch.Add(sGuid, epg.Value);
-                    nEpgCount++;
+                    epgCount++;
 
-                    //generate a Dictionary of all tag and values in the epg
+                    // generate a Dictionary of all tag and values in the epg
                     Utils.GenerateTagsAndValues(epg.Value, fieldEntityMapping, ref tagsAndValuesOfEPGs);
 
-                    if (nEpgCount >= nCountPackage)
+                    if (epgCount >= nCountPackage)
                     {
                         InsertEpgs(groupID, ref epgBatch, fieldEntityMapping, tagsAndValuesOfEPGs, publishDate, channelID, ratios);
-                        nEpgCount = 0;
+                        epgCount = 0;
                         foreach (string guid in epgBatch.Keys)
                         {
                             if (epgBatch[guid].EpgID > 0)
@@ -751,7 +757,7 @@ namespace EpgIngest
                     }
                 }
 
-                if (nEpgCount > 0 && epgBatch.Keys.Count() > 0)
+                if (epgCount > 0 && epgBatch.Keys.Count() > 0)
                 {
                     InsertEpgs(groupID, ref epgBatch, fieldEntityMapping, tagsAndValuesOfEPGs, publishDate, channelID, ratios);
                     foreach (string guid in epgBatch.Keys)
@@ -835,41 +841,50 @@ namespace EpgIngest
             }
         }
 
-        private Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithRelevantValues(int nGroupID, List<FieldTypeEntity> FieldEntityMappingTags, Dictionary<int, List<string>> tagsAndValues)
+        private Dictionary<int, List<KeyValuePair<string, int>>> getTagTypeWithRelevantValues(int groupID, List<FieldTypeEntity> fieldEntityMappingTags, Dictionary<int, List<string>> tagsAndValues)
         {
-            Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();//per tag type, thier values and IDs
+            //per tag type, thier values and IDs
+            Dictionary<int, List<KeyValuePair<string, int>>> dicTagTypeWithValues = new Dictionary<int, List<KeyValuePair<string, int>>>();
 
-            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(nGroupID, tagsAndValues);
+            DataTable dtTagValueID = EpgDal.Get_EPGTagValueIDs(groupID, tagsAndValues);
 
             if (dtTagValueID != null && dtTagValueID.Rows != null)
             {
                 for (int i = 0; i < dtTagValueID.Rows.Count; i++)
                 {
                     DataRow row = dtTagValueID.Rows[i];
+
                     if (row != null)
                     {
-                        int nTagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
-                        string sValue = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
-                        int nID = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
-                        KeyValuePair<string, int> kvp = new KeyValuePair<string, int>(sValue, nID);
-                        if (dicTagTypeWithValues.ContainsKey(nTagTypeID))
+                        int tagTypeID = ODBCWrapper.Utils.GetIntSafeVal(row, "epg_tag_type_id");
+                        string value = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+                        int id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID");
+                        KeyValuePair<string, int> kvp = new KeyValuePair<string, int>(value, id);
+
+                        if (dicTagTypeWithValues.ContainsKey(tagTypeID))
                         {
                             //check if the value exists already in the dictionary (maybe in UpperCase\LowerCase)
                             List<KeyValuePair<string, int>> resultList = new List<KeyValuePair<string, int>>();
-                            resultList = dicTagTypeWithValues[nTagTypeID].Where(x => x.Key.ToLower() == sValue.ToLower() && x.Value == nID).ToList();
+                            resultList = dicTagTypeWithValues[tagTypeID].Where(x => x.Key.ToLower() == value.ToLower() && x.Value == id).ToList();
+
                             if (resultList.Count == 0)
                             {
-                                dicTagTypeWithValues[nTagTypeID].Add(kvp);
+                                dicTagTypeWithValues[tagTypeID].Add(kvp);
                             }
                         }
                         else
                         {
                             List<KeyValuePair<string, int>> lValues = new List<KeyValuePair<string, int>>() { kvp };
-                            dicTagTypeWithValues.Add(nTagTypeID, lValues);
+                            dicTagTypeWithValues.Add(tagTypeID, lValues);
                         }
                     }
                 }
             }
+            else
+            {
+                log.ErrorFormat("Get_EPGTagValueIDs return empty response. gruop = {0}", groupID);
+            }
+
             return dicTagTypeWithValues;
         }
 

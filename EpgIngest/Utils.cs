@@ -109,11 +109,35 @@ namespace EpgIngest
 
         internal static void GenerateTagsAndValues(ApiObjects.EpgCB epg, List<FieldTypeEntity> FieldEntityMapping, ref Dictionary<int, List<string>> tagsAndValues)
         {
+            if (epg == null)
+            {
+                log.ErrorFormat("GenerateTagsAndValues - epg is null");
+                return;
+            }
+
+            if (epg.Tags == null)
+            {
+                log.ErrorFormat("GenerateTagsAndValues - epg.Tags is null");
+                return;
+            }
+
+            if (FieldEntityMapping == null)
+            {
+                log.ErrorFormat("GenerateTagsAndValues - FieldEntityMapping is null");
+                return;
+            }
+
+            if (tagsAndValues == null)
+            {
+                tagsAndValues = new Dictionary<int, List<string>>();
+            }
+
             foreach (string tagType in epg.Tags.Keys)
             {
                 string tagTypel = tagType.ToLower();
                 int tagTypeID = 0;
                 List<FieldTypeEntity> tagField = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Tag && x.Name.ToLower() == tagTypel).ToList();
+
                 if (tagField != null && tagField.Count > 0)
                 {
                     tagTypeID = tagField[0].ID;
@@ -128,6 +152,7 @@ namespace EpgIngest
                 {
                     tagsAndValues.Add(tagTypeID, new List<string>());
                 }
+
                 foreach (string tagValue in epg.Tags[tagType])
                 {
                     if (!tagsAndValues[tagTypeID].Contains(tagValue.ToLower()))
