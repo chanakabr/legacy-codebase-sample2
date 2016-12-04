@@ -17,6 +17,7 @@ namespace ApiObjects
         ChargedSubscription = 4,
         ChargedCollection = 5,
         ChargedSubscriptionRenewal = 6,
-        ChangedSubscription = 7
+        ChangedSubscription = 7,
+        FailedSubscriptionRenewal = 8
     }
 }
