@@ -98,6 +98,17 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_ossAdapter.SetDefault(0);
             theRecord.AddRecord(dr_ossAdapter);
 
+            
+            DataRecordCheckBoxField dr_SendFirstPurchaseMail = new DataRecordCheckBoxField(true);
+            dr_SendFirstPurchaseMail.Initialize("Send First Purchase Email", "adm_table_header_nbg", "FormInput", "SEND_FIRST_PURCHASE_MAIL", false);
+            dr_SendFirstPurchaseMail.SetDefault(1);
+            theRecord.AddRecord(dr_SendFirstPurchaseMail);
+
+            DataRecordCheckBoxField dr_SendRenewMail = new DataRecordCheckBoxField(true);
+            dr_SendRenewMail.Initialize("Send Renew Email", "adm_table_header_nbg", "FormInput", "SEND_RENEW_MAIL", false);
+            dr_SendRenewMail.SetDefault(1);
+            theRecord.AddRecord(dr_SendRenewMail);
+
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
         return sTable;
