@@ -2417,5 +2417,36 @@ namespace DAL
 
             return pghhpm;
         }
+
+        public static bool GetPurchaseMailTriggerAccountSettings(int groupID)
+        {
+            bool purchaseMail = true;
+            DataRow row = GetMailTriggerAccountSettings(groupID);
+            purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
+            return purchaseMail;
+        }
+
+        public static bool GetRenewMailTriggerAccountSettings(int groupID)
+        {
+            bool renewMail = true;
+            DataRow row = GetMailTriggerAccountSettings(groupID);
+            renewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_RENEW_MAIL") == 1 ? true : false;
+            return renewMail;
+        }
+
+        private static DataRow GetMailTriggerAccountSettings(int groupID)
+        {
+            DataRow row = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MailTriggerAccountSettings");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                row = ds.Tables[0].Rows[0];
+            }
+            return row;
+        }
     }
 }
