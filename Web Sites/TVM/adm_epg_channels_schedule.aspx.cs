@@ -319,8 +319,19 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                         break;
                 }
                 row["Name"] = epg.NAME;
-                row["Pic"] = epg.PIC_URL;
-                row["pic_id"] = epg.PIC_ID;
+                if (epg.PIC_ID == 0)
+                {
+                    //Get pic data
+                    int picId = 0;
+                    string imgUrl = PageUtils.GetEpgChannelsSchedulePicImageUrlByEpgIdentifier(epg.EPG_IDENTIFIER, epg.EPG_CHANNEL_ID, out picId);
+                    row["pic_id"] = picId;
+                    row["Pic"] = imgUrl;  
+                }
+                else
+                {
+                    row["pic_id"] = epg.PIC_ID;
+                    row["Pic"] = epg.PIC_URL;                
+                }
                 row["Description"] = epg.DESCRIPTION;
                 row["Identifier"] = epg.EPG_IDENTIFIER;
                 row["Start Date"] = epg.START_DATE;
