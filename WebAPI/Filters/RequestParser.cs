@@ -330,6 +330,16 @@ namespace WebAPI.Filters
                     }
                 }
             }
+            if (actionContext.Request.Method == HttpMethod.Options)
+            {
+                actionContext.Response = actionContext.Request.CreateResponse();
+                actionContext.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+                actionContext.Response.Headers.Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Range, Cache-Control");
+                actionContext.Response.Headers.Add("Access-Control-Allow-Methods", " POST, GET, HEAD, OPTIONS");
+                actionContext.Response.Headers.Add("Access-Control-Expose-Headers", "Server, Content-Length, Content-Range, Date");
+
+                return;
+            }
             else
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "HTTP Method not supported");
