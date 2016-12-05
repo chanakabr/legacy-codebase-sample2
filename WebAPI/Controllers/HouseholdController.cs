@@ -489,17 +489,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.
+        /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
         /// <param name="id">Household identifier</param>
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [Throws(eResponseStatus.FailedToGetEntitlements)]
-        [Throws(eResponseStatus.FailedToRemoveEntitlement)]
-        [Throws(eResponseStatus.FailedToGetPaymentMethods)]
-        [Throws(eResponseStatus.FailedToRemovePaymentMethod)]
+        [SchemeArgument("id", RequiresPermission = true)]
         public bool Delete(int id)
         {
             var ks = KS.GetFromRequest();
@@ -508,18 +505,25 @@ namespace WebAPI.Controllers
             
             try
             {
+                if (id == 0)
+                {
+                    id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                }
+
                 // remove entitlements
                 ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id);
 
                 //remove payment methods
                 ClientsManager.BillingClient().RemoveHouseholdPaymentMethods(groupId, id);
 
-                // remove push stuff - make sure pending users need this
                 var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id);
+
+
+                // remove push stuff - make sure pending users need this
                 ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds);
 
                 // remove users, devices and household
-                return ClientsManager.DomainsClient().RemoveDomain(groupId, id);
+                ClientsManager.DomainsClient().RemoveDomain(groupId, id);
             }
             catch (ClientException ex)
             {
