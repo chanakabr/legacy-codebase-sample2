@@ -2417,5 +2417,38 @@ namespace DAL
 
             return pghhpm;
         }
+
+        public static DataTable GetHouseholdPaymentMethods(int householdId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetHouseholdPaymentMethods");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@householdId", householdId);
+
+             DataSet ds = sp.ExecuteDataSet();
+
+             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+             {
+                 return ds.Tables[0];
+             }
+
+             return null;
+        }
+
+        public static int DeleteHouseholdPaymentMethods(List<long> PayentMethodsToDelete)
+        {
+            int result;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteHouseholdPaymentMethods");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddIDListParameter("@householdPaymentMethods", PayentMethodsToDelete, "ID");
+
+            if (sp.ExecuteReturnValue<int>(out result))
+            {
+                return result;
+            }
+            else
+            {
+                return -1;
+            }
+        }
     }
 }

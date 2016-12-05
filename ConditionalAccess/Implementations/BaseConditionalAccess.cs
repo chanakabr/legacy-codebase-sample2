@@ -19396,57 +19396,27 @@ namespace ConditionalAccess
         }
 
 
-        public ApiObjects.Response.Status RemoveHouseholdEntitlements(int householdId)
+        public void RemoveHouseholdEntitlements(int householdId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            var householdPpvs = GetDomainEntitlements(householdId, eTransactionType.PPV);
-
-            if (householdPpvs == null || householdPpvs.status == null || householdPpvs.status.Code != (int)eResponseStatus.OK)
+            // this
+            int deleted = DAL.ConditionalAccessDAL.DeleteHouseholdSubscriptions(householdId, (int)SubscriptionPurchaseStatus.HouseholdCancel);
+            if (deleted >= 0)
             {
-                log.ErrorFormat("Failed to get PPVs to remove with error for household = {1}", householdId);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToGetEntitlements, "Failed to get PPVs for household");
-                return response;
+                log.DebugFormat("Deleted {0} subscriptions for householdId = {1}", deleted, householdId);
+            }
+            else
+            {
+                log.DebugFormat("Failed to delete subscriptions for householdId = {0}", householdId);
             }
 
-            if (householdPpvs.entitelments != null && householdPpvs.entitelments.Count > 0)
-            {
-                foreach (var ppv in householdPpvs.entitelments)
-                {
-                    response = CancelServiceNow(householdId, ppv.mediaFileID, eTransactionType.PPV, true);
-                    if (response == null || response.Code != (int)eResponseStatus.OK)
-                    {
-                        log.ErrorFormat("Failed to remove PPV, entitlementId = {0}, mediaFileId = {1}, for household = {2}", ppv.entitlementId, ppv.mediaFileID, householdId);
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToRemoveEntitlement, "Failed to remove PPV");
-                        return response;
-                    }
-                }
-            }
-
-            var householdSubscription = GetDomainEntitlements(householdId, eTransactionType.Subscription);
-
-            if (householdSubscription == null || householdSubscription.status == null || householdSubscription.status.Code != (int)eResponseStatus.OK)
-            {
-                log.ErrorFormat("Failed to get subscriptions to remove with error for household = {1}", householdId);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToGetEntitlements, "Failed to get Subscriptions for household");
-                return response;
-            }
-
-            if (householdSubscription.entitelments != null && householdSubscription.entitelments.Count > 0)
-            {
-                foreach (var subscruption in householdSubscription.entitelments)
-                {
-                    response = CancelServiceNow(householdId, int.Parse(subscruption.entitlementId), eTransactionType.Subscription, true);
-                    if (response == null || response.Code != (int)eResponseStatus.OK)
-                    {
-                        log.ErrorFormat("Failed to remove Subscription, entitlementId = {0}, for household = {1}", subscruption.entitlementId, householdId);
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.FailedToRemoveEntitlement, "Failed to remove subscription");
-                        return response;
-                    }
-                }
-            }
-
-            return response;
+            //deleted = DAL.ConditionalAccessDAL.DeleteHouseholdPPVs(householdId);
+            //{
+            //    log.DebugFormat("Deleted {0} PPVs for householdId = {1}", deleted, householdId);
+            //}
+            //else
+            //{
+            //    log.DebugFormat("Failed to delete PPVs for householdId = {0}", householdId);
+            //}
         }
     }
 }
