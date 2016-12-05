@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
-        [Route("service/{service_name}/action/{action_name}"), HttpGet]
+        [Route("service/{service_name}/action/{action_name}"), HttpGet, HttpOptions]
         public async Task<object> _Action(string service_name, string action_name)
         {
             return await Action(service_name, action_name);

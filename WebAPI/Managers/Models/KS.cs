@@ -26,7 +26,7 @@ namespace WebAPI.Managers.Models
         private string userId;
         private KalturaSessionType sessionType;
         private DateTime expiration;
-        private string privilege;
+        private List<KalturaKeyValue> privileges;
         private string data;
 
         public enum KSVersion
@@ -70,9 +70,9 @@ namespace WebAPI.Managers.Models
             get { return sessionType; }
         }
 
-        public string Privilege
+        public List<KalturaKeyValue> Privileges
         {
-            get { return privilege; }
+            get { return privileges; }
         }
 
         public DateTime Expiration
@@ -132,7 +132,7 @@ namespace WebAPI.Managers.Models
             this.data = data;
             this.expiration = DateTime.UtcNow.AddSeconds(expiration);
             this.groupId = int.Parse(groupID);
-            this.privilege = privilege;
+            this.privileges = privileges;
             this.sessionType = userType;
             this.userId = userID;
         }
@@ -171,21 +171,14 @@ namespace WebAPI.Managers.Models
                 throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
-            if (!fieldsString.StartsWith("&_"))
-            {
-                ks.privilege = fields[0];
-            }
-            else
-            {
-                ks.privilege = string.Empty;
-            }
+            ks.privileges = new List<KalturaKeyValue>();
 
-            for (int i = 1; i < fields.Length; i++)
+            for (int i = 0; i < fields.Length; i++)
             {
                 string[] pair = fields[i].Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                    ks.privileges.Add(new KalturaKeyValue() { key = fields[i], value = null });
                 }
 
                 switch (pair[0])
@@ -210,7 +203,8 @@ namespace WebAPI.Managers.Models
                         }
                         break;
                     default:
-                        throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                        ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
+                        break;
                 }
             }
 

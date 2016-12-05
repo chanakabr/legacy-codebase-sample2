@@ -379,7 +379,8 @@ namespace WebAPI.Controllers
         /// <param name="userId">User Identifier</param>        
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
-        [Route("updatePassword"), HttpPost]                
+        [Route("updatePassword"), HttpPost]
+        [ApiAuthorize(true)]          
         [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
         public void updatePassword(int userId, string password)
         {            
