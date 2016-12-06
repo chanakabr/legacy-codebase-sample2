@@ -497,7 +497,8 @@ namespace WebAPI.Controllers
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [SchemeArgument("id", RequiresPermission = true)]
-        public bool Delete(int id)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
 
@@ -505,25 +506,25 @@ namespace WebAPI.Controllers
             
             try
             {
-                if (id == 0)
+                if (!id.HasValue || id.Value == 0)
                 {
                     id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
                 }
 
                 // remove entitlements
-                ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id);
+                ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id.Value);
 
                 //remove payment methods
-                ClientsManager.BillingClient().RemoveHouseholdPaymentMethods(groupId, id);
+                ClientsManager.BillingClient().RemoveHouseholdPaymentMethods(groupId, id.Value);
 
-                var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id);
+                var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id.Value);
 
 
                 // remove push stuff - make sure pending users need this
                 ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds);
 
                 // remove users, devices and household
-                ClientsManager.DomainsClient().RemoveDomain(groupId, id);
+                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value);
             }
             catch (ClientException ex)
             {
