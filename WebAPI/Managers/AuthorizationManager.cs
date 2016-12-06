@@ -292,11 +292,11 @@ namespace WebAPI.Managers
                         {
                             if (splitedPrivilege.Length == 2)
                             {
-                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivileges[0], value = splitedPrivileges[1] });
+                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivilege[0], value = splitedPrivilege[1] });
                             }
                             else
                             {
-                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivileges[0], value = null });
+                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivilege[0], value = null });
                             }
                         }
                     }
