@@ -395,38 +395,12 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
     private string GetEpgChannelsSchedulePicImageUrl(out int picId)
     {
         string imageUrl = string.Empty;
-        string baseUrl = string.Empty;
-        int version = 0;
         picId = 0;
-        int groupId = LoginManager.GetLoginGroupID();
 
         object epgChannelsScheduleId = Session["epg_channels_schedule_id"];
-        object channelId = Session["epg_channel_id"];     
+        object channelId = Session["epg_channel_id"];
 
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += string.Format("SELECT ep.base_url, ep.ID, ep.version  FROM epg_pics ep (NOLOCK) " +
-             " INNER JOIN epg_multi_pictures emp (NOLOCK)  on emp.pic_id = ep.ID " +
-             " INNER JOIN [epg_channels_schedule] ecs (NOLOCK) on ecs.epg_Identifier =  emp.epg_Identifier and ecs.EPG_CHANNEL_ID = emp.channel_id " +
-             " INNER JOIN groups g (NOLOCK) " +
-             " ON g.Id = ecs.Group_Id " +
-             " WHERE ecs.id  = {0}" +
-             " 	AND  ecs.EPG_CHANNEL_ID  = {1}  " +
-             " 	AND  emp.ratio_id= g.EPG_RATIO_ID " +
-             " 	And ep.status  = 1  " +
-             " 	ORDER BY ep.id DESC ", epgChannelsScheduleId.ToString(), channelId.ToString());
-
-        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
-        {
-
-            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
-            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
-            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
-            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
-
-            imageUrl = PageUtils.BuildEpgUrl(parentGroupID, baseUrl, version);
-        }
-
-        return imageUrl;
+        return PageUtils.GetEpgChannelsSchedulePicImageUrlByScheduleId(epgChannelsScheduleId.ToString(), channelId.ToString(), out picId);        
     }
 
 
