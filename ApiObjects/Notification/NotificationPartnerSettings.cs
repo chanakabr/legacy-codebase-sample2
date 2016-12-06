@@ -13,6 +13,8 @@ namespace ApiObjects.Notification
         public int? MessageTTLDays { get; set; }
         public bool? AutomaticIssueFollowNotifications { get; set; }
         public int? TopicExpirationDurationDays { get; set; }
+        public bool? IsRemindersEnabled { get; set; }
+        public int? RemindersPrePaddingSec { get; set; }
 
         public NotificationPartnerSettings()
         {
@@ -21,8 +23,16 @@ namespace ApiObjects.Notification
                 AutomaticIssueFollowNotifications = true;
 
             // by default - TopicExpirationDurationDays is a year
-            if (TopicExpirationDurationDays == null)
+            if (!TopicExpirationDurationDays.HasValue)
                 TopicExpirationDurationDays = 365;
+
+            // by default - reminders are disabled
+            if (!IsRemindersEnabled.HasValue)
+                AutomaticIssueFollowNotifications = false;
+
+            // by default - reminders pre padding is 300 seconds
+            if (!RemindersPrePaddingSec.HasValue)
+                TopicExpirationDurationDays = 300;
         }
     }
 }
