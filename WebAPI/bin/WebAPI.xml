@@ -8481,7 +8481,7 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Int32)">
              <summary>
-             Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.
+             Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
              <param name="id">Household identifier</param>
              <remarks>Possible status codes: 
@@ -8989,6 +8989,14 @@
             </summary>        
             <param name="partnerId">Partner Identifier</param>
             <param name="username">user name</param>
+            <param name="password">new password</param>
+            <remarks>Possible status codes: User does not exist = 2000</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.updatePassword(System.Int32,System.String)">
+            <summary>
+            Update the user's existing password.
+            </summary>        
+            <param name="userId">User Identifier</param>        
             <param name="password">new password</param>
             <remarks>Possible status codes: User does not exist = 2000</remarks>
         </member>

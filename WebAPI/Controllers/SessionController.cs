@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
                 ks = ks.ToString(),
                 expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
                 partnerId = ks.GroupId,
-                privileges = ks.Privileges,
+                privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty,
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
                 udid = KSUtils.ExtractKSPayload(ks).UDID
@@ -138,7 +138,7 @@ namespace WebAPI.Controllers
                 ks = ks.ToString(),
                 expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
                 partnerId = ks.GroupId,
-                privileges = ks.Privileges,
+                privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty,
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
                 udid = KSUtils.ExtractKSPayload(ks).UDID

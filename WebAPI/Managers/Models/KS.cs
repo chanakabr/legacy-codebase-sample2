@@ -89,7 +89,7 @@ namespace WebAPI.Managers.Models
         {
         }
 
-        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, string privilege, KSVersion ksType)
+        public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, List<KalturaKeyValue> privilegesList, KSVersion ksType)
         {
             
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
@@ -102,7 +102,9 @@ namespace WebAPI.Managers.Models
                 encodedData = HttpUtility.UrlEncode(encodedData);
             }
 
-            string ks = string.Format(KS_FORMAT, privilege, (int)userType, relativeExpiration, userID, encodedData);
+            string ks = string.Format(KS_FORMAT, 
+                privilegesList != null && privilegesList.Count > 0 ? string.Join(",", privilegesList.Select(p => string.Join(":", p.key, p.value))) : string.Empty, 
+                (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
@@ -132,7 +134,7 @@ namespace WebAPI.Managers.Models
             this.data = data;
             this.expiration = DateTime.UtcNow.AddSeconds(expiration);
             this.groupId = int.Parse(groupID);
-            this.privileges = privileges;
+            this.privileges = privilegesList;
             this.sessionType = userType;
             this.userId = userID;
         }

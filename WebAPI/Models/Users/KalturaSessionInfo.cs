@@ -62,7 +62,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "privileges")]
         [JsonProperty(PropertyName = "privileges")]
         [XmlElement("privileges")]
-        public List<KalturaKeyValue> privileges { get; set; }
+        public string privileges { get; set; }
 
         /// <summary>
         /// udid
@@ -81,7 +81,7 @@ namespace WebAPI.Models.Users
             this.ks = ks.ToString();
             this.expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration);
             this.partnerId = ks.GroupId;
-            this.privileges = ks.Privileges;
+            this.privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty;
             this.sessionType = ks.SessionType;
             this.userId = ks.UserId;
             this.udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
