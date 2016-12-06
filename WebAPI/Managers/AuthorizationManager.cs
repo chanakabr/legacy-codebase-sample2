@@ -278,7 +278,30 @@ namespace WebAPI.Managers
             string secret = sessionType == KalturaSessionType.ADMIN ? group.AdminSecret : group.UserSecret;
 
             // 9. privileges - we do not support it so copy from app token
-            string privileges = appToken.SessionPrivileges;
+            var privilagesList = new List<KalturaKeyValue>();
+
+            if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
+            {
+                var splitedPrivileges = appToken.SessionPrivileges.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (splitedPrivileges != null && splitedPrivileges.Length > 0)
+                {
+                    foreach (var privilige in splitedPrivileges)
+                    {
+                        var splitedPrivilege = privilige.Split(':');
+                        if (splitedPrivilege != null && splitedPrivilege.Length > 0)
+                        {
+                            if (splitedPrivilege.Length == 2)
+                            {
+                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivileges[0], value = splitedPrivileges[1] });
+                            }
+                            else
+                            {
+                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivileges[0], value = null });
+                            }
+                        }
+                    }
+                }
+            }
 
             // 10. build the ks:
             KS ks = new KS(
@@ -288,7 +311,7 @@ namespace WebAPI.Managers
                 (int)sessionDuration,
                 sessionType,
                 payload,
-                privileges,
+                privilagesList,
                 Models.KS.KSVersion.V2);
 
             // 11. build the response from the ks:
