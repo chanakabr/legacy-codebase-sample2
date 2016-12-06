@@ -102,7 +102,9 @@ namespace WebAPI.Managers.Models
                 encodedData = HttpUtility.UrlEncode(encodedData);
             }
 
-            string ks = string.Format(KS_FORMAT, privilegesList, (int)userType, relativeExpiration, userID, encodedData);
+            string ks = string.Format(KS_FORMAT, 
+                privilegesList != null && privilegesList.Count > 0 ? string.Join(",", privilegesList.Select(p => string.Join(":", p.key, p.value))) : string.Empty, 
+                (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
