@@ -501,7 +501,7 @@ namespace WebAPI.Clients
             ret = new KalturaMessageAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
             return ret;
         }
-
+         
         internal bool SetPush(int groupId, string userId, string udid, string pushToken)
         {
             Group group = GroupsManager.GetGroup(groupId);
