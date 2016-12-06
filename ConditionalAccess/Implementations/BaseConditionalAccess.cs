@@ -9988,12 +9988,7 @@ namespace ConditionalAccess
                     {
 
                         int[] arrMediaFileIDs = { nMediaFileID };
-                        MediaFileItemPricesContainer[] arrPrices = null;
-                        if (!Utils.GetLicensedLinkResultFromCache(domainId, nMediaFileID, ref arrPrices))
-                        {
-                            arrPrices = GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
-                        }
-
+                        MediaFileItemPricesContainer[] arrPrices = GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
                         if (arrPrices != null && arrPrices.Length > 0)
                         {
                             MediaFileItemPricesContainer objPrice = arrPrices[0];
@@ -11753,11 +11748,6 @@ namespace ConditionalAccess
                         log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), sSiteGuid, nMediaFileID));
                         res = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
                         res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
-                        if (res.Status.Code == (int)eResponseStatus.OK)
-                        {
-                            Utils.SaveLicensedLinkResultInCache(domainID, nMediaFileID, prices);
-                        }
-
                         return res;
                     }
 
@@ -11769,7 +11759,6 @@ namespace ConditionalAccess
                     if (eLinkType == eObjectType.EPG)
                     {
                         res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        Utils.SaveLicensedLinkResultInCache(domainID, nMediaFileID, prices);
                         return res;
                     }
 
@@ -11833,7 +11822,6 @@ namespace ConditionalAccess
                     {
                         res.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         res.status = mediaConcurrencyResponse.ToString();
-                        Utils.SaveLicensedLinkResultInCache(domainID, nMediaFileID, prices);
                     }
 
                     // create PlayCycle

@@ -35,9 +35,8 @@ namespace ConditionalAccess
         private const string EPISODE_NUMBER = "episodeNumber";
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
-        private const string EPISODE_ALIAS = "episode_number";
+        private const string EPISODE_ALIAS = "episode_number";        
 
-        private const double LICENSE_LINK_RESULT_CACHE_IN_SEC = 30;
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
@@ -6251,52 +6250,6 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void SaveLicensedLinkResultInCache(int domainID, int mediaFileID, MediaFileItemPricesContainer[] prices)
-        {
-            string key = string.Format("domainId_{0}_mediaFileId_{1}", domainID, mediaFileID);
-            MediaFileItemPricesContainer[] cachedPrices = null;
-            try
-            {
-                if (!TvinciCache.WSCache.Instance.TryGet(key, out cachedPrices))
-                {
-                    lock (lck)
-                    {
-                        if (!TvinciCache.WSCache.Instance.TryGet(key, out cachedPrices))
-                        {                                                           
-                            TvinciCache.WSCache.Instance.Add(key, prices, LICENSE_LINK_RESULT_CACHE_IN_SEC / 60);
-                        }
-                        else
-                        {
-                            TvinciCache.WSCache.Instance.Set(key, prices, LICENSE_LINK_RESULT_CACHE_IN_SEC / 60);
-                        }
-                    }
-                }
-                else
-                {
-                    TvinciCache.WSCache.Instance.Set(key, prices, LICENSE_LINK_RESULT_CACHE_IN_SEC / 60);
-                }                
-            }
-
-            catch (Exception ex)
-            {
-                log.Error("SaveLicensedLinkResultInCache - " + string.Format("Error in SaveLicensedLinkResultInCache: domainID = {0}, mediaFileID = {1}, ex = {2}", domainID, mediaFileID, ex.Message, ex.StackTrace), ex);
-            }            
-        }
-
-        internal static bool  GetLicensedLinkResultFromCache(int domainID, int mediaFileID, ref MediaFileItemPricesContainer[] cachedPrices)
-        {
-            string key = string.Format("domainId_{0}_mediaFileId_{1}", domainID, mediaFileID);            
-            try
-            {
-                return TvinciCache.WSCache.Instance.TryGet(key, out cachedPrices);             
-            }
-
-            catch (Exception ex)
-            {
-                log.Error("SaveLicensedLinkResultInCache - " + string.Format("Error in SaveLicensedLinkResultInCache: domainID = {0}, mediaFileID = {1}, ex = {2}", domainID, mediaFileID, ex.Message, ex.StackTrace), ex);
-                return false;
-            }
-        }
     }
 }
 

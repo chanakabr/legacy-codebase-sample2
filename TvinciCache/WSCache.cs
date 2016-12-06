@@ -128,17 +128,6 @@ namespace TvinciCache
             return obj != null && cache.Add(key, bModule, nMinuteOffset);
         }
 
-        public bool Set(string key, object obj)
-        {
-            BaseModuleCache bModule = new BaseModuleCache(obj);
-            return obj != null && cache.Set(key, bModule);
-        }
-
-        public bool Set(string key, object obj, double nMinuteOffset)
-        {
-            BaseModuleCache bModule = new BaseModuleCache(obj);
-            return obj != null && cache.Set(key, bModule, nMinuteOffset);
-        }
 
         public IDictionary<string, object> GetValues(List<string> keys)
         {
