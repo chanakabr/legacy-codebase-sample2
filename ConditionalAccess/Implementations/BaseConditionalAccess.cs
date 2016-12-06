@@ -19415,7 +19415,6 @@ namespace ConditionalAccess
 
         public void RemoveHouseholdEntitlements(int householdId)
         {
-            // this
             int deleted = DAL.ConditionalAccessDAL.DeleteHouseholdSubscriptions(householdId, (int)SubscriptionPurchaseStatus.HouseholdCancel);
             if (deleted >= 0)
             {
@@ -19423,7 +19422,7 @@ namespace ConditionalAccess
             }
             else
             {
-                log.DebugFormat("Failed to delete subscriptions for householdId = {0}", householdId);
+                log.ErrorFormat("Failed to delete subscriptions for householdId = {0}", householdId);
             }
 
             //deleted = DAL.ConditionalAccessDAL.DeleteHouseholdPPVs(householdId);
