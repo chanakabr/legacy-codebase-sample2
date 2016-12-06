@@ -1730,5 +1730,73 @@ namespace TVinciShared
 
             return imageUrl;
         }
+
+        public static string GetEpgChannelsSchedulePicImageUrlByScheduleId(string epgChannelsScheduleId, string channelId, out int picId)
+        {
+            string imageUrl = string.Empty;
+            picId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += string.Format("SELECT top 1 ep.base_url, ep.ID, ep.version,g.parent_group_id  FROM epg_pics ep (NOLOCK) " +
+                 " INNER JOIN epg_multi_pictures emp (NOLOCK)  on emp.pic_id = ep.ID " +
+                 " INNER JOIN [epg_channels_schedule] ecs (NOLOCK) on ecs.epg_Identifier =  emp.epg_Identifier and ecs.EPG_CHANNEL_ID = emp.channel_id " +
+                 " INNER JOIN groups g (NOLOCK) " +
+                 " ON g.Id = ecs.Group_Id " +
+                 " WHERE ecs.id  = {0}" +
+                 " 	AND  ecs.EPG_CHANNEL_ID  = {1}  " +
+                 " 	AND  emp.ratio_id= g.EPG_RATIO_ID " +
+                 " 	And ep.status  = 1  " +
+                 " 	ORDER BY ep.id", epgChannelsScheduleId, channelId);
+
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                imageUrl = GetEpgImageUrl(selectQuery, out picId);
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return imageUrl;
+        }
+
+        public static string GetEpgChannelsSchedulePicImageUrlByEpgIdentifier(string epgIdentifier, string channelId, out int picId)
+        {
+            string imageUrl = string.Empty;
+            picId = 0;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += string.Format("SELECT top 1 ep.base_url, ep.ID, ep.version,g.parent_group_id  FROM epg_pics ep (NOLOCK) " +
+                 " INNER JOIN epg_multi_pictures emp (NOLOCK)  on emp.pic_id = ep.ID " +
+                 " INNER JOIN [epg_channels_schedule] ecs (NOLOCK) on ecs.epg_Identifier =  emp.epg_Identifier and ecs.EPG_CHANNEL_ID = emp.channel_id " +
+                 " INNER JOIN groups g (NOLOCK) " +
+                 " ON g.Id = ecs.Group_Id " +
+                 " WHERE ecs.epg_Identifier = '{0}' " +
+                 " 	AND  ecs.EPG_CHANNEL_ID  = {1}  " +
+                 " 	AND  emp.ratio_id= g.EPG_RATIO_ID " +
+                 " 	And ep.status  = 1  " +
+                 " 	ORDER BY ep.id", epgIdentifier, channelId);
+
+            if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
+            {
+                imageUrl= GetEpgImageUrl(selectQuery, out picId);
+            }
+
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return imageUrl;
+        }
+
+        private static string GetEpgImageUrl(ODBCWrapper.DataSetSelectQuery selectQuery, out int picId )
+        {
+            picId = 0;
+
+            string baseUrl = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "BASE_URL", 0);
+            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ID", 0);
+            int version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "version", 0);
+            int parentGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "parent_group_id", 0);
+
+            return PageUtils.BuildEpgUrl(parentGroupID, baseUrl, version);
+        }
     }
 }
