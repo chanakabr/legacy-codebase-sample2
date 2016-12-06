@@ -187,6 +187,7 @@ public partial class adm_pic_popup_uploader : System.Web.UI.Page
             }
         }
 
+        Session["epgIdentifierForScheduleNew"] = Session["epgIdentifier"];
         ClearSession();
         ClientScript.RegisterStartupScript(typeof(Page), "closePage", "window.close();", true);
     }
