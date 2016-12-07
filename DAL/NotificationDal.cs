@@ -677,6 +677,15 @@ namespace DAL
             {
                 sp.AddParameter("@topicCleanupExpirationDays", settings.TopicExpirationDurationDays.Value);
             }
+            if (settings.IsRemindersEnabled.HasValue)
+            {
+                sp.AddParameter("@isRemindersEnabled", settings.IsRemindersEnabled.Value);
+            }
+            if (settings.RemindersPrePaddingSec.HasValue)
+            {
+                sp.AddParameter("@remindersPrePaddingSec", settings.RemindersPrePaddingSec.Value);
+            }
+
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -713,7 +722,9 @@ namespace DAL
                         MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
                         PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id"),
-                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days")
+                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days"),
+                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_reminder_enabled") == 1 ? true : false,
+                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "reminder_offset_sec")
                     });
                 }
             }
@@ -1480,6 +1491,22 @@ namespace DAL
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+            }
+            return result;
+        }
+
+        public static bool RemoveDeviceNotificationData(int groupId, string udid)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(GetDeviceDataKey(groupId, udid));
+                if (!result)
+                    log.ErrorFormat("Error while removing device notification data. GID: {0}, UDID: {1}.", groupId, udid);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing device notification data. GID: {0}, UDID: {1}, ex: {2}", groupId, udid, ex);
             }
             return result;
         }

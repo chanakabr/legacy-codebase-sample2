@@ -255,7 +255,8 @@ namespace ApiObjects
     public enum eOTTAssetTypes
     {
         None = 0,
-        Series = 1
+        Series = 1,
+        Reminder = 2
     }
 
     [XmlType("eAssetTypes", Namespace = "http://api.tvinci.com/schemas/eAssetTypes1")]

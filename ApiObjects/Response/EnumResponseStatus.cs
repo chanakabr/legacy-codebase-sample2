@@ -277,6 +277,7 @@ namespace ApiObjects.Response
         InvalidMessageTTL = 8018,
         MessageIdentifierRequired = 8019,
         UserInboxMessagesNotExist = 8020,
+        InvalidReminderPrePaddingSec = 8021,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
