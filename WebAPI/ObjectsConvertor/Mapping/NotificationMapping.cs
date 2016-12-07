@@ -22,6 +22,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
+                 .ForMember(dest => dest.ReminderOffsetSec, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
                  ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
@@ -34,6 +36,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffsetSec))
                  ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
@@ -46,6 +50,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
+                 .ForMember(dest => dest.ReminderOffsetSec, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -58,6 +64,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
+                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffsetSec))
                  ;
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
@@ -346,6 +354,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eOTTAssetTypes.Series:
                     result = KalturaOTTAssetType.Series;
                     break;
+                case eOTTAssetTypes.Reminder:
+                    result = KalturaOTTAssetType.Reminder;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
             }
@@ -361,6 +372,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaOTTAssetType.Series:
                     result = eOTTAssetTypes.Series;
+                    break;
+                case KalturaOTTAssetType.Reminder:
+                    result = eOTTAssetTypes.Reminder;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");

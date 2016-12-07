@@ -1321,6 +1321,10 @@ namespace WebAPI.Clients
                             else
                                 throw new NotImplementedException();
                             break;
+                        case KalturaNotificationType.Reminder:
+                            //TODO:Anat
+                            //response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);                            
+                            break;
                         default:
                             break;
                     }

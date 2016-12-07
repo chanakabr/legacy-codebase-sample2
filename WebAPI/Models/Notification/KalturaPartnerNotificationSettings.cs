@@ -83,6 +83,22 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "topicExpirationDurationDays", IsNullable = true)]
         public int? TopicExpirationDurationDays { get; set; }
 
+        /// <summary>
+        /// Reminder enabled
+        /// </summary>
+        [DataMember(Name = "reminderEnabled")]
+        [JsonProperty("reminderEnabled")]
+        [XmlElement(ElementName = "reminderEnabled", IsNullable = true)]
+        public bool? ReminderEnabled { get; set; }
+
+        /// <summary>
+        /// Topic expiration duration in days
+        /// </summary>
+        [DataMember(Name = "reminderOffsetSec")]
+        [JsonProperty("reminderOffsetSec")]
+        [XmlElement(ElementName = "reminderOffsetSec", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 3600)]
+        public int? ReminderOffsetSec { get; set; }
     }
 
     [Obsolete]

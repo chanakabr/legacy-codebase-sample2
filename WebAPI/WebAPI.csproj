@@ -155,6 +155,7 @@
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
+    <None Include="Service References\Notifications\NotificationService11.disco" />
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
@@ -445,14 +446,7 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Notifications\NotificationService.wsdl" />
-    <None Include="Service References\Notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService1.wsdl" />
-    <None Include="Service References\Notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService10.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -463,6 +457,7 @@
     <None Include="Service References\Notifications\NotificationService12.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notifications\NotificationService13.wsdl" />
     <None Include="Service References\Notifications\NotificationService13.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -484,31 +479,13 @@
     <None Include="Service References\Notifications\NotificationService19.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService20.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService6.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService7.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService8.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService9.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService91.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\NotificationService910.xsd">
@@ -538,13 +515,36 @@
     <None Include="Service References\Notifications\NotificationService918.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\Notifications\NotificationService92.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService93.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService94.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService95.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService96.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService97.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService98.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService99.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\Notifications\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
     <None Include="Service References\Notifications\NotificationService1.disco" />
     <None Include="Service References\Notifications\NotificationService12.disco" />
-    <None Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="Service References\Notifications\WebAPI.Notifications.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
