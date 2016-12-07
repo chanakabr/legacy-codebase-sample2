@@ -747,5 +747,9 @@ namespace DAL
             return groupFeatures;
         }
 
+        public static string GetCachedEntitlementResultsKey(string version, long domainId, int mediaFileId)
+        {
+            return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
+        }
     }
 }

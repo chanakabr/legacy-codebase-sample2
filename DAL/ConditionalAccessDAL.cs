@@ -16,7 +16,7 @@ namespace DAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private const uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = 10;
+        private const uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = 300;
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
@@ -2527,13 +2527,13 @@ namespace DAL
 
         #region Couchbase
 
-        public static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
+        public static bool InsertOrSetCachedEntitlementResults(string version, long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
             bool result = false;            
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
-            Random r = new Random();            
-            string cachedEntitlementKey = string.Format("domainId_{0}_mediaFileId_{1}", domainId, mediaFileId);
+            Random r = new Random();
+            string cachedEntitlementKey = UtilsDal.GetCachedEntitlementResultsKey(version, domainId, mediaFileId);
             if (string.IsNullOrEmpty(cachedEntitlementKey))
             {
                 log.ErrorFormat("Failed getting cachedEntitlementKey for domainId: {0}, mediaFileId: {1}", domainId, mediaFileId);
@@ -2545,12 +2545,12 @@ namespace DAL
                     int numOfRetries = 0;
                     while (!result && numOfRetries < limitRetries)
                     {
-                        ulong version;
+                        ulong docVersion;
                         Couchbase.IO.ResponseStatus status;
-                        CachedEntitlementResults currentCachedEntitlementResults = cbClient.GetWithVersion<CachedEntitlementResults>(cachedEntitlementKey, out version, out status);
+                        CachedEntitlementResults currentCachedEntitlementResults = cbClient.GetWithVersion<CachedEntitlementResults>(cachedEntitlementKey, out docVersion, out status);
                         if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            result = cbClient.SetWithVersion<CachedEntitlementResults>(cachedEntitlementKey, cachedEntitlementResults, version);
+                            result = cbClient.SetWithVersion<CachedEntitlementResults>(cachedEntitlementKey, cachedEntitlementResults, docVersion, CACHED_ENTITLEMENT_RESULTS_TTL_SEC);
                         }
 
                         if (!result)
@@ -2571,14 +2571,14 @@ namespace DAL
             return result;
         }
 
-        public static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
+        public static CachedEntitlementResults GetCachedEntitlementResults(string version, long domainId, int mediaFileId)
         {
             CachedEntitlementResults response = null;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string cachedEntitlementKey = string.Format("domainId_{0}_mediaFileId_{1}", domainId, mediaFileId);
+            string cachedEntitlementKey = UtilsDal.GetCachedEntitlementResultsKey(version, domainId, mediaFileId);
             if (string.IsNullOrEmpty(cachedEntitlementKey))
             {
                 log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);

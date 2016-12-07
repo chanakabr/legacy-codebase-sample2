@@ -6252,12 +6252,12 @@ namespace ConditionalAccess
 
         internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
-            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults);
+            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId, cachedEntitlementResults);
         }
 
         internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
         {
-            return ConditionalAccessDAL.GetCachedEntitlementResults(domainId, mediaFileId);
+            return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
     }
