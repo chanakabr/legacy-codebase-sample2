@@ -1479,12 +1479,12 @@ namespace DAL
             return result;
         }
 
-        public static bool RemoveUserNotificationData(int groupId, int userId)
+        public static bool RemoveUserNotificationData(int groupId, int userId, ulong cas = 0)
         {
             bool result = false;
             try
             {
-                result = cbManager.Remove(GetUserNotificationKey(groupId, userId));
+                result = cbManager.Remove(GetUserNotificationKey(groupId, userId), cas);
                 if (!result)
                     log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
             }
@@ -1495,12 +1495,12 @@ namespace DAL
             return result;
         }
 
-        public static bool RemoveDeviceNotificationData(int groupId, string udid)
+        public static bool RemoveDeviceNotificationData(int groupId, string udid, ulong cas = 0)
         {
             bool result = false;
             try
             {
-                result = cbManager.Remove(GetDeviceDataKey(groupId, udid));
+                result = cbManager.Remove(GetDeviceDataKey(groupId, udid), cas);
                 if (!result)
                     log.ErrorFormat("Error while removing device notification data. GID: {0}, UDID: {1}.", groupId, udid);
             }
