@@ -180,33 +180,47 @@ namespace WebAPI.Managers.Models
                 string[] pair = fields[i].Split('=');
                 if (pair == null || pair.Length != 2)
                 {
-                    ks.privileges.Add(new KalturaKeyValue() { key = fields[i], value = null });
-                }
-
-                switch (pair[0])
-                {
-                    case "t":
-                        ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
-                        break;
-                    case "e":
-                        long expiration;
-                        long.TryParse(pair[1], out expiration);
-                        ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
-                        break;
-                    case "u":
-                        ks.userId = pair[1];
-                        break;
-                    case "d":
-                        ks.data = string.Empty;
-                        if (!string.IsNullOrEmpty(pair[1]))
+                    var privileges = fields[i].Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var privilege in privileges)
+                    {
+                        pair = privilege.Split(':');
+                        if (pair == null || pair.Length != 2)
                         {
-                            ks.data = HttpUtility.UrlDecode(pair[1]);
-                            ks.data = ks.data.Replace(REPLACE_UNDERSCORE, "_"); 
+                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = null });
                         }
-                        break;
-                    default:
-                        ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
-                        break;
+                        else
+                        {
+                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
+                        }
+                    }
+                }
+                else
+                {
+                    switch (pair[0])
+                    {
+                        case "t":
+                            ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
+                            break;
+                        case "e":
+                            long expiration;
+                            long.TryParse(pair[1], out expiration);
+                            ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
+                            break;
+                        case "u":
+                            ks.userId = pair[1];
+                            break;
+                        case "d":
+                            ks.data = string.Empty;
+                            if (!string.IsNullOrEmpty(pair[1]))
+                            {
+                                ks.data = HttpUtility.UrlDecode(pair[1]);
+                                ks.data = ks.data.Replace(REPLACE_UNDERSCORE, "_");
+                            }
+                            break;
+                        default:
+                            throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                            break;
+                    }
                 }
             }
 
