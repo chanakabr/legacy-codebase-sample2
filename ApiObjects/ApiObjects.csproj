@@ -137,6 +137,7 @@
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\AnnouncementsResponse.cs" />
+    <Compile Include="Notification\DbReminders.cs" />
     <Compile Include="Notification\InboxMessageResponse.cs" />
     <Compile Include="Notification\DbAnnouncement.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
@@ -305,6 +306,7 @@
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngine.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettings.cs" />
+    <Compile Include="RemoveDomainMailRequest.cs" />
     <Compile Include="Response\IdListResponse.cs" />
     <Compile Include="Response\LongIdsResponse.cs" />
     <Compile Include="Response\IdsResponse.cs" />

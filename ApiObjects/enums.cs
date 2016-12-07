@@ -71,7 +71,8 @@ namespace ApiObjects
         ChangePassword = 10,
         PreviewModuleCancelOrRefund = 11,
         PurchaseWithPreviewModule = 12,
-        AddDeviceToDomain = 13
+        AddDeviceToDomain = 13,
+        RemoveDomain = 14
     }
 
     public enum eGroupRuleType
@@ -254,7 +255,8 @@ namespace ApiObjects
     public enum eOTTAssetTypes
     {
         None = 0,
-        Series = 1
+        Series = 1,
+        Reminder = 2
     }
 
     [XmlType("eAssetTypes", Namespace = "http://api.tvinci.com/schemas/eAssetTypes1")]
@@ -603,8 +605,18 @@ namespace ApiObjects
         SeriesName = 1,
         CatalaogStartDate = 2,
         StartDate = 3,
-        MediaId = 4,
+        MediaId = 4
     }
+
+    public enum eReminderPlaceHolders
+    {
+        ProgramName = 0,
+        ChannelName = 1,
+        StartTime = 2,
+        StartDate = 3,
+        ProgramId = 4
+    }
+
     public enum TstvRecordingStatus
     {
         OK = 0,
