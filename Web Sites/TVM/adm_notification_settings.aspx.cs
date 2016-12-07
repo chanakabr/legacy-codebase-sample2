@@ -134,6 +134,16 @@ public partial class adm_notification_settings : System.Web.UI.Page
             drTopicCeanup.SetDefault(365);
             theRecord.AddRecord(drTopicCeanup);
 
+            DataRecordCheckBoxField isReminderEnable = new DataRecordCheckBoxField(true);
+            isReminderEnable.Initialize("Reminder enabled", "adm_table_header_nbg", "FormInput", "is_reminder_enabled", false);
+            isReminderEnable.SetDefault(0);
+            theRecord.AddRecord(isReminderEnable);
+
+            DataRecordShortIntField drReminderOffset = new DataRecordShortIntField(true,6, 6, 0, 3600);
+            drReminderOffset.Initialize("Reminder offset(sec)", "adm_table_header_nbg", "FormInput", "reminder_offset_sec", false);
+            drReminderOffset.SetDefault(300);
+            theRecord.AddRecord(drReminderOffset);
+
             DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
             dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
             dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
