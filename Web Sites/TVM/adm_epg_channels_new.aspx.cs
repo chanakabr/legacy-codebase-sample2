@@ -239,8 +239,8 @@ public partial class adm_epg_channels_new : System.Web.UI.Page
         dr_edit_data.Initialize("Editor remarks", "adm_table_header_nbg", "FormInput", "EDITOR_REMARKS", false);
         theRecord.AddRecord(dr_edit_data);
 
-        DataRecordShortIntField dr_media_id = new DataRecordShortIntField(true, 9, 9);
-        dr_media_id.Initialize("Linear Media ID", "adm_table_header_nbg", "FormInput", "MEDIA_ID", false);
+        DataRecordShortIntField dr_media_id = new DataRecordShortIntField(true, 9, 9, 1);
+        dr_media_id.Initialize("Linear Media ID", "adm_table_header_nbg", "FormInput", "MEDIA_ID", true);
         theRecord.AddRecord(dr_media_id);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
