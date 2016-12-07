@@ -2071,5 +2071,28 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
+        public static bool GetCloseAccountMailTrigger(int groupID)
+        {
+            bool removeHHMail = true;
+            DataRow row = GetMailTriggerAccountSettings(groupID);
+            removeHHMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_CLOSE_ACCOUNT_MAIL") == 1 ? true : false;
+            return removeHHMail;
+        }
+
+        private static DataRow GetMailTriggerAccountSettings(int groupID)
+        {
+            DataRow row = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MailTriggerAccountSettings");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupID);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                row = ds.Tables[0].Rows[0];
+            }
+            return row;
+        }
+
     }
 }

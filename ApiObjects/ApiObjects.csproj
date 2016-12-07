@@ -304,6 +304,7 @@
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngine.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettings.cs" />
+    <Compile Include="RemoveDomainMailRequest.cs" />
     <Compile Include="Response\IdListResponse.cs" />
     <Compile Include="Response\LongIdsResponse.cs" />
     <Compile Include="Response\IdsResponse.cs" />
