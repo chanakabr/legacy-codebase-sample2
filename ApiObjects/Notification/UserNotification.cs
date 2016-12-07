@@ -14,6 +14,8 @@ namespace ApiObjects.Notification
 
         public List<Announcement> Announcements { get; set; }
 
+        public List<Announcement> Reminders { get; set; }
+
         public UserNotificationSettings Settings { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -24,6 +26,7 @@ namespace ApiObjects.Notification
             this.UserId = userId;
             this.devices = new List<UserDevice>();
             this.Announcements = new List<Announcement>();
+            this.Reminders = new List<Announcement>();
             this.Settings = new UserNotificationSettings();
         }
     }
