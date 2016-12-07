@@ -117,5 +117,41 @@ namespace Users
 
             return retVal;
         }
+
+        internal static RemoveDomianMailRequest GetRemoveDomainMailRequest(User masterUser, int groupId)
+        {
+            RemoveDomianMailRequest retVal = null;
+            string key = string.Format("users_GetRemoveHHMailRequest_{0}", groupId);
+            bool bRes = UsersCache.GetItem<RemoveDomianMailRequest>(key, out retVal);
+            if (!bRes)
+            {
+                DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(groupId);
+
+                if (dvMailParameters != null)
+                {
+                    retVal = new RemoveDomianMailRequest();
+
+                    // add filed to table - TODO 
+                    retVal.m_sTemplateName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CLOSE_ACCOUNT_MAIL");
+                    retVal.m_sSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CLOSE_ACCOUNT_MAIL_SUBJECT");
+                    retVal.m_sSenderFrom = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
+                    retVal.m_sSenderName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
+                    retVal.m_eMailType = eMailTemplateType.RemoveDomain;
+
+                    UsersCache.AddItem(key, retVal);
+                }
+            }
+           // fill specific details for domain
+            if (retVal != null)
+            {
+                retVal.m_sFirstName = masterUser.m_oBasicData.m_sFirstName;
+                retVal.m_sLastName = masterUser.m_oBasicData.m_sLastName;
+                retVal.userName = masterUser.m_oBasicData.m_sUserName;
+                retVal.useEmail = masterUser.m_oBasicData.m_sEmail;
+                retVal.m_sSenderTo = masterUser.m_oBasicData.m_sEmail;
+
+            }
+            return retVal;
+        }
     }
 }

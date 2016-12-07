@@ -189,9 +189,34 @@ namespace Users
 
                 if (domain == null)
                     return DomainResponseStatus.DomainNotExists;
+ 
+                //cjeck if  send mail = true
+                bool sendMail = DomainDal.GetCloseAccountMailTrigger(m_nGroupID);
+                User masterUser = new User();
+                bool isUserValid = false;
+                if (sendMail)
+                {
+                    // get domain master user details                    
+                    int userGuid = domain.m_masterGUIDs.FirstOrDefault();
+                    isUserValid = User.IsUserValid(m_nGroupID, userGuid, ref masterUser);
+                }
 
                 res = domain.Remove();
+
+                if (res == DomainResponseStatus.OK && isUserValid)
+                {
+                    RemoveDomianMailRequest mailRequest = MailFactory.GetRemoveDomainMailRequest(masterUser, m_nGroupID);
+                    if (mailRequest != null)
+                    {
+                        bool sendingMailResult = Utils.SendMail(m_nGroupID, mailRequest);
+                    }
+                }
+                else if (!isUserValid)
+                {
+                    log.DebugFormat("can't send mail to DomainID = {0} due to master user is not valid", nDomainID);
+                }
             }
+
             catch (Exception ex)
             {
                 res = DomainResponseStatus.Error;

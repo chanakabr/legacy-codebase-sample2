@@ -71,7 +71,8 @@ namespace ApiObjects
         ChangePassword = 10,
         PreviewModuleCancelOrRefund = 11,
         PurchaseWithPreviewModule = 12,
-        AddDeviceToDomain = 13
+        AddDeviceToDomain = 13,
+        RemoveDomain = 14
     }
 
     public enum eGroupRuleType
