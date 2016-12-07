@@ -50,6 +50,8 @@ namespace ApiObjects
 
         public string media_id;
 
+        // the linear media of the epg_channel
+        public long LINEAR_MEDIA_ID;
         public int ENABLE_CDVR;
         public int ENABLE_CATCH_UP;
         public long CHANNEL_CATCH_UP_BUFFER;
