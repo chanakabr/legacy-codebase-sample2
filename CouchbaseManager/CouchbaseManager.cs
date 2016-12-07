@@ -33,7 +33,8 @@ namespace CouchbaseManager
         RECORDINGS = 11,
         DOMAIN_CONCURRENCY = 12,
         EPG_MARKS = 13,
-        MEDIA_HITS = 14
+        MEDIA_HITS = 14,
+        MEMCACHED = 15
     }
 
     public class CouchbaseManager
