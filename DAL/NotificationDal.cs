@@ -1495,6 +1495,22 @@ namespace DAL
             return result;
         }
 
+        public static bool RemoveDeviceNotificationData(int groupId, string udid)
+        {
+            bool result = false;
+            try
+            {
+                result = cbManager.Remove(GetDeviceDataKey(groupId, udid));
+                if (!result)
+                    log.ErrorFormat("Error while removing device notification data. GID: {0}, UDID: {1}.", groupId, udid);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing device notification data. GID: {0}, UDID: {1}, ex: {2}", groupId, udid, ex);
+            }
+            return result;
+        }
+
         public static UserNotificationSettings UpdateUserNotificationSettings(int groupID, int userId, UserNotificationSettings settings, ref bool isDocumentExist)
         {
             bool result = false;

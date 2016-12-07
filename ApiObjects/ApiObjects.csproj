@@ -136,6 +136,7 @@
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\AnnouncementSubscription.cs" />
     <Compile Include="Notification\AnnouncementsResponse.cs" />
+    <Compile Include="Notification\DbReminders.cs" />
     <Compile Include="Notification\InboxMessageResponse.cs" />
     <Compile Include="Notification\DbAnnouncement.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
