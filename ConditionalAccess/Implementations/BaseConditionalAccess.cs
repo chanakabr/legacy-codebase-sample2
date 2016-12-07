@@ -3685,7 +3685,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Handle Play Uses
         /// </summary>
-        protected void HandlePlayUses(MediaFileItemPricesContainer price, string sSiteGUID, Int32 nMediaFileID, string sUserIP, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string couponCode)
+        protected void HandlePlayUses(MediaFileItemPricesContainer price, string sSiteGUID, Int32 nMediaFileID, string sUserIP, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                        string couponCode, long domainId)
         {
             sCOUNTRY_CODE = GetCountryCodeForHandlePlayUses(sUserIP, sCOUNTRY_CODE);
 
@@ -3705,7 +3706,7 @@ namespace ConditionalAccess
             {
                 string sPPVMCd = price.m_oItemPrices[0].m_sPPVModuleCode;
 
-                Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID));
+                Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
 
                 if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode,
                     sSiteGUID, nIsCreditDownloaded > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
@@ -3772,7 +3773,7 @@ namespace ConditionalAccess
 
                     string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, eTransactionType.Subscription);
 
-                    Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, price.m_oItemPrices[0].m_relevantSub, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID));
+                    Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, price.m_oItemPrices[0].m_relevantSub, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
                     if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, modifiedPPVModuleCode,
                         sSiteGUID, nIsCreditDownloaded1 > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
                     {
@@ -3832,7 +3833,7 @@ namespace ConditionalAccess
 
                     string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, eTransactionType.Collection);
 
-                    Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID));
+                    Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
 
                     if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, modifiedPPVModuleCode, sSiteGUID, nIsCreditDownloaded1 > 0,
                         sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
@@ -4145,14 +4146,16 @@ namespace ConditionalAccess
         }
         protected int PPV_DoesCreditNeedToDownloaded(string sPPVMCd, Subscription theSub,
             Collection theCol, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME,
-            List<int> lUsersIds, List<int> mediaFileIDs)
+            List<int> lUsersIds, List<int> mediaFileIDs, long domainId, int mediaFileId)
         {
             Int32 nIsCreditDownloaded = 1;
             Int32 nViewLifeCycle = 0;
+            int fullLifeCycle = 0;
+            bool isOfflinePlayback = false;
             int OfflineStatus = 0;
             mdoule m = null;
             try
-            {
+            {                
                 if (OfflineStatus == 1)
                 {
                     string sWSUserName = string.Empty;
@@ -4162,6 +4165,7 @@ namespace ConditionalAccess
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
                     UsageModule OfflineUsageModule = m.GetOfflineUsageModule(sWSUserName, sWSPass, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
                     nViewLifeCycle = OfflineUsageModule.m_tsViewLifeCycle;
+                    fullLifeCycle = OfflineUsageModule.m_tsMaxUsageModuleLifeCycle;
                 }
                 else if (theSub == null && theCol == null)
                 {
@@ -4170,16 +4174,22 @@ namespace ConditionalAccess
                     {
                         throw new Exception(String.Concat("PPV_DoesCreditNeedToDownloaded. PPV Module was returned null by WS_Pricing. PPV Code: ", sPPVMCd));
                     }
-
+                    
                     nViewLifeCycle = ppvModule.m_oUsageModule.m_tsViewLifeCycle;
+                    fullLifeCycle = ppvModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
+                    isOfflinePlayback = ppvModule.m_oUsageModule.m_bIsOfflinePlayBack;
                 }
                 else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
-                {
+                {                    
                     nViewLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsViewLifeCycle;
+                    fullLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                    isOfflinePlayback = theSub.m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
                 }
                 else if (theCol != null && theCol.m_oCollectionUsageModule != null)
-                {
+                {                    
                     nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
+                    fullLifeCycle = theCol.m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
+                    isOfflinePlayback = theCol.m_oCollectionUsageModule.m_bIsOfflinePlayBack;
                 }
 
                 DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs, sPPVMCd);
@@ -4188,12 +4198,19 @@ namespace ConditionalAccess
                 {
                     DateTime dNow = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["dNow"]);
                     DateTime dUsed = ODBCWrapper.Utils.GetDateSafeVal(dtPPVUses.Rows[0]["CREATE_DATE"]);
-
                     DateTime dEndDate = Utils.GetEndDateTime(dUsed, nViewLifeCycle);
+
+                    if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && domainId > 0)
+                    {
+                        CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, dUsed, false, isOfflinePlayback);
+                        if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
+                        {
+                            log.DebugFormat("Failed to insert CachedEntitlementResults: {0}, domainId: {1}, mediaFileId: {2}", cachedEntitlementResults.ToString(), domainId, mediaFileId);
+                        }
+                    }
 
                     if (dNow < dEndDate)
                         nIsCreditDownloaded = 0;
-
                 }
             }
             finally
@@ -9894,7 +9911,7 @@ namespace ConditionalAccess
         /// <returns></returns>
         public EntitlementResponse GetEntitlement(string p_sMediaFileID, string p_sSiteGUID, bool p_bIsCoGuid, string p_sCOUNTRY_CODE, string p_sLANGUAGE_CODE, string p_sDEVICE_NAME, bool isRecording = false)
         {
-            EntitlementResponse objResponse = new EntitlementResponse();
+            EntitlementResponse response = new EntitlementResponse();
 
             int nMediaFileID = 0;
             string strViewLifeCycle = TimeSpan.Zero.ToString();
@@ -9986,6 +10003,43 @@ namespace ConditionalAccess
 
                     if (shouldCheckEntitlement)
                     {
+                        List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainId);
+
+                        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
+                        {
+                            CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, nMediaFileID);
+                            if (cachedEntitlementResults != null)
+                            {
+                                if (cachedEntitlementResults.IsFree)
+                                {
+                                    GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
+                                    response.ViewLifeCycle = strViewLifeCycle;
+                                    response.FullLifeCycle = strFullLifeCycle;
+                                }
+                                else
+                                {
+                                    DateTime now = DateTime.UtcNow;
+                                    response.IsOfflinePlayBack = cachedEntitlementResults.IsOfflinePlayback;
+                                    DateTime viewEndDate = Utils.GetEndDateTime(cachedEntitlementResults.CreditDownloadedDate, cachedEntitlementResults.ViewLifeCycle);
+                                    TimeSpan viewLifeCycleLeft = viewEndDate.Subtract(now);
+                                    if (viewLifeCycleLeft.TotalSeconds < 0)
+                                    {
+                                        viewLifeCycleLeft = new TimeSpan();
+                                    }
+
+                                    TimeSpan tsFullLeftSpan = cachedEntitlementResults.CreditDownloadedDate.Subtract(now);
+                                    if (tsFullLeftSpan.TotalSeconds < 0)
+                                    {
+                                        tsFullLeftSpan = new TimeSpan();
+                                    }
+
+                                    response.ViewLifeCycle = viewLifeCycleLeft.ToString();
+                                    response.FullLifeCycle = tsFullLeftSpan.ToString();
+                                }
+
+                                return response;
+                            }
+                        }
 
                         int[] arrMediaFileIDs = { nMediaFileID };
                         MediaFileItemPricesContainer[] arrPrices = GetItemsPrices(arrMediaFileIDs, p_sSiteGUID, string.Empty, true, p_sCOUNTRY_CODE, p_sLANGUAGE_CODE, p_sDEVICE_NAME);
@@ -10006,8 +10060,7 @@ namespace ConditionalAccess
                                 int nViewLifeCycle = 0;
                                 int nFullLifeCycle = 0;
                                 DateTime dtViewDate = new DateTime();
-                                DateTime dtNow = DateTime.UtcNow;
-                                List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainId);                                
+                                DateTime dtNow = DateTime.UtcNow;                                
                                 List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
                                 DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
                                 DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
@@ -10114,11 +10167,11 @@ namespace ConditionalAccess
                 #endregion
             }
 
-            objResponse.ViewLifeCycle = strViewLifeCycle;
-            objResponse.FullLifeCycle = strFullLifeCycle;
-            objResponse.IsOfflinePlayBack = bIsOfflinePlayback;
+            response.ViewLifeCycle = strViewLifeCycle;
+            response.FullLifeCycle = strFullLifeCycle;
+            response.IsOfflinePlayBack = bIsOfflinePlayback;
 
-            return (objResponse);
+            return (response);
         }
 
         /// <summary>
@@ -11753,7 +11806,13 @@ namespace ConditionalAccess
 
                     if (IsItemPurchased(prices[0]))
                     {
-                        HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
+                        HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, domainID);
+                    }
+                    // item must be free otherwise we wouldn't get this far
+                    else if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache")
+                            && !Utils.InsertOrSetCachedEntitlementResults(domainID, nMediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false)))
+                    {
+                        log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
                     }
 
                     if (eLinkType == eObjectType.EPG)
@@ -19253,7 +19312,7 @@ namespace ConditionalAccess
 
                 if (isItemPurchased)
                 {
-                    HandlePlayUses(price, userId, mediaFileId, userIp, string.Empty, string.Empty, udid, string.Empty);
+                    HandlePlayUses(price, userId, mediaFileId, userIp, string.Empty, string.Empty, udid, string.Empty, domainId);
                 }
 
                 response.mainUrl = link.Url;

@@ -69,12 +69,12 @@ namespace ScheduledTasks
                     response = cbClient.Get<BaseScheduledTaskLastRunDetails>(scheduledTaksKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        log.ErrorFormat("Error while trying to get last scheduled task run details, KeyNotFound. scheduleTaskName: {0}, key: {1}", scheduledTaksKey, scheduledTaksKey);
+                        log.ErrorFormat("Error while trying to get last scheduled task run details, KeyNotFound. scheduleTaskName: {0}, key: {1}", ScheduledTaskType.ToString(), scheduledTaksKey);
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
                     {
-                        log.DebugFormat("BaseScheduledTaskLastRunDetails with scheduleTaskName: {0} and key {1} was found", scheduledTaksKey, scheduledTaksKey);
+                        log.DebugFormat("BaseScheduledTaskLastRunDetails with scheduleTaskName: {0} and key {1} was found", ScheduledTaskType.ToString(), scheduledTaksKey);
                         break;
                     }
                     else

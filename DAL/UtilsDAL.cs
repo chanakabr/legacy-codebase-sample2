@@ -569,7 +569,6 @@ namespace DAL
             return lGroupIDs;
         }
 
-
         public static int GetOperatorGroupID(int nGroupID, string sOperatorCoGuid, ref int nOperatorID)
         {
             int nOperatorGroupID = 0;

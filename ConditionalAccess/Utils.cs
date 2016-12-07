@@ -35,7 +35,7 @@ namespace ConditionalAccess
         private const string EPISODE_NUMBER = "episodeNumber";
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
-        private const string EPISODE_ALIAS = "episode_number";        
+        private const string EPISODE_ALIAS = "episode_number";
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -6248,6 +6248,16 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        internal static bool InsertOrSetCachedEntitlementResults(long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
+        {
+            return ConditionalAccessDAL.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults);
+        }
+
+        internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
+        {
+            return ConditionalAccessDAL.GetCachedEntitlementResults(domainId, mediaFileId);
         }
 
     }
