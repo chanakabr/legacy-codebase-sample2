@@ -604,8 +604,18 @@ namespace ApiObjects
         SeriesName = 1,
         CatalaogStartDate = 2,
         StartDate = 3,
-        MediaId = 4,
+        MediaId = 4
     }
+
+    public enum eReminderPlaceHolders
+    {
+        ProgramName = 0,
+        ChannelName = 1,
+        StartTime = 2,
+        StartDate = 3,
+        ProgramId = 4
+    }
+
     public enum TstvRecordingStatus
     {
         OK = 0,
