@@ -133,6 +133,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tokenizers", "Tokenizers", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DALs", "DALs", "{3525F102-000F-42CC-A5D7-45A817294093}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventManager", "..\tvmcore\EventManager\EventManager.csproj", "{1168121B-FB3F-48D8-89B9-7E0BE7E9C901}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
