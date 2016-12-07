@@ -1330,11 +1330,12 @@ namespace DAL
             bool result = false;
             try
             {
+                ulong outCas = 0;
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
                     if (unlock)
-                        result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData, true, 0, newDeviceNotificationData.cas);
+                        result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData, true, out outCas, 0, newDeviceNotificationData.cas);
                     else
                         result = cbManager.Set(GetDeviceDataKey(groupId, udid), newDeviceNotificationData);
 
@@ -1351,6 +1352,8 @@ namespace DAL
                     }
                     else
                     {
+                        newDeviceNotificationData.cas = 0;
+
                         // log success on retry
                         if (numOfTries > 0)
                         {
@@ -1439,10 +1442,11 @@ namespace DAL
             try
             {
                 int numOfTries = 0;
+                ulong outCas = 0;
                 while (!result && numOfTries < NUM_OF_INSERT_TRIES)
                 {
                     if (unlock)
-                        result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification, true, 0, userNotification.cas);
+                        result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification, true, out outCas, 0, userNotification.cas);
                     else
                         result = cbManager.Set(GetUserNotificationKey(groupId, userId), userNotification);
 
@@ -1459,6 +1463,8 @@ namespace DAL
                     }
                     else
                     {
+                        userNotification.cas = 0;
+
                         // log success on retry
                         if (numOfTries > 0)
                         {
@@ -2048,5 +2054,28 @@ namespace DAL
                 log.ErrorFormat("Error at GetEpisodeAssociationTag. groupId: {0}. Error {1}", groupId, ex);
             }
         }
+
+        //public static bool test(string key, string data, out ulong  outCas,ulong cas = 0)
+        //{
+        //    bool result = false;
+        //    try
+        //    {
+        //        result = cbManager.e(GetUserNotificationKey(groupId, userId), cas);
+        //        if (!result)
+        //            log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
+        //    }
+        //    return result;
+        //}
+
     }
 }
+
+
+
+
+
+

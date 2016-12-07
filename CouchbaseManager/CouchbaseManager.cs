@@ -663,15 +663,15 @@ namespace CouchbaseManager
                         result = insertResult.Success;
                         outCas = insertResult.Cas;
 
-                        log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
-                        if (unlock && cas > 0)
-                        {
-                            var unlockResult = bucket.Unlock(key, cas);
-                            if (unlockResult.Success)
-                                log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                            else
-                                log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-                        }
+                        // log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                        //if (unlock && cas > 0)
+                        //{
+                        //    var unlockResult = bucket.Unlock(key, cas);
+                        //    if (unlockResult.Success)
+                        //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                        //    else
+                        //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                        //}
                     }
                     else
                     {
@@ -689,14 +689,14 @@ namespace CouchbaseManager
                                 result = insertResult.Success;
                                 outCas = insertResult.Cas;
 
-                                if (unlock && cas > 0)
-                                {
-                                    var unlockResult = bucket.Unlock(key, cas);
-                                    if (unlockResult.Success)
-                                        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                                    else
-                                        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-                                }
+                                //if (unlock && cas > 0)
+                                //{
+                                //    var unlockResult = bucket.Unlock(key, cas);
+                                //    if (unlockResult.Success)
+                                //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                                //    else
+                                //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                                //}
                             }
                         }
                     }
@@ -744,15 +744,15 @@ namespace CouchbaseManager
                     {
                         result = insertResult.Success;
 
-                        log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
-                        if (unlock && cas > 0)
-                        {
-                            var unlockResult = bucket.Unlock(key, cas);
-                            if (unlockResult.Success)
-                                log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                            else
-                                log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-                        }
+                        //log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                        //if (unlock && cas > 0)
+                        //{
+                        //    var unlockResult = bucket.Unlock(key, cas);
+                        //    if (unlockResult.Success)
+                        //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                        //    else
+                        //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                        //}
                     }
                     else
                     {
@@ -769,18 +769,18 @@ namespace CouchbaseManager
                             {
                                 result = insertResult.Success;
 
-                                log.Debug("before lock2");
-                                if (unlock && cas > 0)
-                                {
-                                    var unlockResult = bucket.Unlock(key, cas);
-                                    if (unlockResult.Success)
-                                        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                                    else
-                                        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                                //log.Debug("before lock2");
+                                //if (unlock && cas > 0)
+                                //{
+                                //    var unlockResult = bucket.Unlock(key, cas);
+                                //    if (unlockResult.Success)
+                                //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                                //    else
+                                //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
 
 
-                                    log.Debug("after lock2");
-                                }
+                                //    log.Debug("after lock2");
+                                //}
                             }
                         }
                     }
