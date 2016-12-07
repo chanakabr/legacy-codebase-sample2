@@ -570,5 +570,59 @@ namespace ODBCWrapper
         {
             m_Parameters.Add(sKey, dt);
         }
+
+        /// <summary>
+        /// Execute stored procedure that return value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public bool ExecuteReturnValue<T>(out T result)
+        {
+            result = default(T);
+
+            SqlCommand command = new SqlCommand();
+            command.CommandType = System.Data.CommandType.StoredProcedure;
+            command.CommandText = procedureNameWithDbVersionPrefix;
+
+            foreach (string item in m_Parameters.Keys)
+            {
+                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+            }
+
+            SqlParameter sqlReturnedValueParam = new SqlParameter();
+            sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
+            command.Parameters.Add(sqlReturnedValueParam);
+
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            if (sConn == "")
+            {
+                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
+                return false;
+            }
+            using (SqlConnection con = new SqlConnection(sConn))
+            {
+                try
+                {
+                    SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    {
+                        con.Open();
+                        SetLockTimeOut(con);
+                        command.Connection = con;
+                        object dbRes = command.ExecuteScalar();
+                        result = (T)Convert.ChangeType(sqlReturnedValueParam.Value, typeof(T));
+                        con.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    con.Close();
+                    string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
+                    log.Error(sMes, ex);
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

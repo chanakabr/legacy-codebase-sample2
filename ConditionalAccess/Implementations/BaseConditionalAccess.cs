@@ -19471,5 +19471,27 @@ namespace ConditionalAccess
             return string.Format("Found {0} subscriptions to renew, {1} added to queue successfully", totalSubscriptionsToRenew, totalRenewTransactionsAdded);
         }
 
+
+        public void RemoveHouseholdEntitlements(int householdId)
+        {
+            int deleted = DAL.ConditionalAccessDAL.DeleteHouseholdSubscriptions(householdId, (int)SubscriptionPurchaseStatus.HouseholdCancel);
+            if (deleted >= 0)
+            {
+                log.DebugFormat("Deleted {0} subscriptions for householdId = {1}", deleted, householdId);
+            }
+            else
+            {
+                log.ErrorFormat("Failed to delete subscriptions for householdId = {0}", householdId);
+            }
+
+            //deleted = DAL.ConditionalAccessDAL.DeleteHouseholdPPVs(householdId);
+            //{
+            //    log.DebugFormat("Deleted {0} PPVs for householdId = {1}", deleted, householdId);
+            //}
+            //else
+            //{
+            //    log.DebugFormat("Failed to delete PPVs for householdId = {0}", householdId);
+            //}
+        }
     }
 }

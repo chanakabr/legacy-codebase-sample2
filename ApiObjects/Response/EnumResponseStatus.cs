@@ -125,7 +125,6 @@ namespace ApiObjects.Response
         RecordingPlaybackNotAllowedForNotEntitledEpgChannel = 3051,
         SeasonNumberNotMatch = 3052, 
 
-
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,

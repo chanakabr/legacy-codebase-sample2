@@ -2618,5 +2618,38 @@ namespace DAL
 
         #endregion
 
+        public static int DeleteHouseholdSubscriptions(int householdId, int subscriptionPurchaseStatus)
+        {
+            int result;
+            StoredProcedure sp = new StoredProcedure("DeleteHouseholdSubscriptions");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@householdId", householdId);
+            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
+            if (sp.ExecuteReturnValue<int>(out result))
+            {
+                return result;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
+        public static int DeleteHouseholdPPVs(int householdId)
+        {
+            int result;
+            StoredProcedure sp = new StoredProcedure("DeleteHouseholdPPVs");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@householdId", householdId);
+            if (sp.ExecuteReturnValue<int>(out result))
+            {
+                return result;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
     }
 }
