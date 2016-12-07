@@ -896,7 +896,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool Remove(string key)
+        public bool Remove(string key, ulong cas = 0)
         {
             bool result = false;
 
@@ -908,7 +908,10 @@ namespace CouchbaseManager
                 string action = string.Format("Action: Remove; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    removeResult = bucket.Remove(key);
+                    if (cas == 0)
+                        removeResult = bucket.Remove(key);
+                    else
+                        removeResult = bucket.Remove(key, cas);
                 }
 
                 if (removeResult.Exception != null)
@@ -916,6 +919,8 @@ namespace CouchbaseManager
 
                 if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     result = removeResult.Success;
+                else
+                    log.ErrorFormat("Error while trying to delete document. key: {0}, CAS: {1}. CB response: {2}", key, cas, JsonConvert.SerializeObject(removeResult));
             }
             catch (Exception ex)
             {
