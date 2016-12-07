@@ -2530,7 +2530,7 @@ namespace DAL
         public static bool InsertOrSetCachedEntitlementResults(string version, long domainId, int mediaFileId, CachedEntitlementResults cachedEntitlementResults)
         {
             bool result = false;            
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEMCACHED);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             string cachedEntitlementKey = UtilsDal.GetCachedEntitlementResultsKey(version, domainId, mediaFileId);
@@ -2574,7 +2574,7 @@ namespace DAL
         public static CachedEntitlementResults GetCachedEntitlementResults(string version, long domainId, int mediaFileId)
         {
             CachedEntitlementResults response = null;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.MEMCACHED);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
