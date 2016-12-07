@@ -4427,5 +4427,10 @@ namespace Tvinci.Core.DAL
             }
             return aliasMapping;
         }
+
+        public static DataTable GetEpgChannelIdToLinearMediaIdMap(int groupId, List<string> epgChannelIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

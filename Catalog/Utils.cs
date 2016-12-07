@@ -1134,5 +1134,25 @@ namespace Catalog
             return result;
         }
 
+        internal static Dictionary<string, long> GetEpgChannelIdToLinearMediaIdMap(int groupId, List<string> epgChannelIds)
+        {
+            Dictionary<string, long> epgChannelIdToLinearMediaIdMap = new Dictionary<string, long>();
+            DataTable dt = CatalogDAL.GetEpgChannelIdToLinearMediaIdMap(groupId, epgChannelIds);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long channelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "id", 0);
+                    long linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "media_id", 0);
+                    if (channelId > 0 && linearMediaId > 0 && !epgChannelIdToLinearMediaIdMap.ContainsKey(channelId.ToString()))
+                    {
+                        epgChannelIdToLinearMediaIdMap.Add(channelId.ToString(), linearMediaId);
+                    }
+                }
+            }
+
+            return epgChannelIdToLinearMediaIdMap;
+        }
+
     }
 }
