@@ -2450,20 +2450,12 @@ namespace DAL
                 return -1;
             }
         }
-        public static bool GetPurchaseMailTriggerAccountSettings(int groupID)
-        {
-            bool purchaseMail = true;
-            DataRow row = GetMailTriggerAccountSettings(groupID);
-            purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
-            return purchaseMail;
-        }
 
-        public static bool GetRenewMailTriggerAccountSettings(int groupID)
+        public static void GetRenewMailTriggerAccountSettings(int groupID, ref bool renewMail, ref bool failRenewMail)
         {
-            bool renewMail = true;
             DataRow row = GetMailTriggerAccountSettings(groupID);
             renewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_RENEW_MAIL") == 1 ? true : false;
-            return renewMail;
+            failRenewMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_RENEW_MAIL") == 1 ? true : false;   
         }
 
         private static DataRow GetMailTriggerAccountSettings(int groupID)
@@ -2479,6 +2471,13 @@ namespace DAL
                 row = ds.Tables[0].Rows[0];
             }
             return row;
+        }
+
+        public static void GetPurchaseMailTriggerAccountSettings(int groupID, ref bool purchaseMail, ref bool failPurchaseMail)
+        {            
+            DataRow row = GetMailTriggerAccountSettings(groupID);
+            purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
+            failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
     }
 }

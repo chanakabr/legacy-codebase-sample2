@@ -131,7 +131,6 @@ namespace Users
                 {
                     retVal = new RemoveDomianMailRequest();
 
-                    // add filed to table - TODO 
                     retVal.m_sTemplateName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CLOSE_ACCOUNT_MAIL");
                     retVal.m_sSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CLOSE_ACCOUNT_MAIL_SUBJECT");
                     retVal.m_sSenderFrom = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
