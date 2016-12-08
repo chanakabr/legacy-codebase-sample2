@@ -428,7 +428,7 @@ namespace Catalog.Cache
 
         internal Dictionary<string, long> GetEpgChannelIdToLinearMediaIdMap(int groupId, List<string> epgChannelIds)
         {            
-            Dictionary<string, long> epgChannelIdToLinearMediaIdMap = null;
+            Dictionary<string, long> epgChannelIdToLinearMediaIdMap =new Dictionary<string,long>();
             try
             {
                 epgChannelIds = epgChannelIds.Distinct().ToList();
@@ -447,11 +447,10 @@ namespace Catalog.Cache
                                 epgChannelIdToLinearMediaIdMap.Add(epgChannelLinearMediaPair.Key, epgChannelLinearMediaPair.Value);
                             }
                         }
-                    }
-
-                    missingEpgChannelIds = epgChannelIds.Except(epgChannelIdToLinearMediaIdMap.Keys).ToList();
+                    }                    
                 }
 
+                missingEpgChannelIds = epgChannelIds.Except(epgChannelIdToLinearMediaIdMap.Keys).ToList();
                 if (missingEpgChannelIds != null && missingEpgChannelIds.Count > 0)
                 {
                     Dictionary<string, long> missingEpgChannelIdsMap = Utils.GetEpgChannelIdToLinearMediaIdMap(groupId, epgChannelIds);

@@ -3003,6 +3003,9 @@ namespace Catalog
                 // get all linear settings about channel + group
                 GetLinearChannelSettings(parentGroupID, epgs);
 
+                // get all linear media Ids
+                SetProgramsLinearMediaIds(parentGroupID, epgs);
+
                 Dictionary<int, ICollection<EPGChannelProgrammeObject>> channelIdsToProgrammesMapping = new Dictionary<int, ICollection<EPGChannelProgrammeObject>>(epgChannelIDs.Count);
 
                 for (int i = 0; i < epgs.Count; i++)
@@ -3095,6 +3098,9 @@ namespace Catalog
             {
                 // get all linear settings about channel + group
                 GetLinearChannelSettings(groupId, basicEpgObjects);
+
+                // get all linear media Ids
+                SetProgramsLinearMediaIds(groupId, basicEpgObjects);
 
                 for (int i = 0; i < basicEpgObjects.Count; i++)
                 {
@@ -4908,6 +4914,9 @@ namespace Catalog
                             {
                                 // get all linear settings about channel + group
                                 GetLinearChannelSettings(groupID, epgs);
+
+                                // get all linear media Ids
+                                SetProgramsLinearMediaIds(groupID, epgs);
 
                                 args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
                                 args.SearchBy.Add(SearchByField.byProgramId);
