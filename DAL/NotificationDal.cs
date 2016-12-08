@@ -2071,6 +2071,52 @@ namespace DAL
         //    return result;
         //}
 
+        public static List<DbReminder> GetReminders(int groupId)
+        {
+            List<DbReminder> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRemindersByGroupId");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbReminder>();
+                    DbReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        DateTime? sentDate = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "send_time");
+                        long sentDateSec = 0;
+                        if (sentDate != null)
+                            sentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp((DateTime)sentDate);
+
+                        dbReminder = new DbReminder()
+                        {
+                            GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                            ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                            IsSent = ODBCWrapper.Utils.GetIntSafeVal(row, "is_sent") == 1 ? true : false,
+                            Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                            Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
+                            QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
+                            QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
+                            Reference = ODBCWrapper.Utils.GetSafeStr(row, "reference"),
+                            SendTime = sentDateSec
+                        };
+
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetRemindersByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
     }
 }
 
