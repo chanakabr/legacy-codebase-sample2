@@ -515,13 +515,15 @@ namespace WebAPI.Controllers
                 ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id.Value);
 
                 //remove payment methods
-                ClientsManager.BillingClient().RemoveHouseholdPaymentMethods(groupId, id.Value);
+                ClientsManager.BillingClient().RemoveAccount(groupId, id.Value);
 
                 var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id.Value);
 
-
-                // remove push stuff - make sure pending users need this
-                ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds);
+                if (householdUserIds != null && householdUserIds.Count > 0)
+                {
+                    // remove push stuff - make sure pending users need this
+                    ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds.Distinct().ToList());
+                }
 
                 // remove users, devices and household
                 ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value);
