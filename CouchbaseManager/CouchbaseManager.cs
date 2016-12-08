@@ -626,6 +626,88 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool Set<T>(string key, T value, bool unlock, out ulong outCas, uint expiration = 0, ulong cas = 0)
+        {
+            bool result = false;
+            outCas = 0;
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+
+                IOperationResult insertResult = null;
+                expiration = FixExpirationTime(expiration);
+
+                string action = string.Format("Action: Upsert; bucket: {0}; key: {1}; expiration: {2} seconds", bucketName, key, expiration);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                {
+                    if (cas > 0)
+                    {
+                        log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
+                        insertResult = bucket.Upsert<T>(key, value, cas, expiration);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Upsert cas. key: {0}, cas: {1}", key, cas);
+                        insertResult = bucket.Upsert<T>(key, value, expiration);
+                    }
+                }
+
+                if (insertResult != null)
+                {
+                    if (insertResult.Exception != null)
+                        throw insertResult.Exception;
+
+                    if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        result = insertResult.Success;
+                        outCas = insertResult.Cas;
+
+                        // log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                        //if (unlock && cas > 0)
+                        //{
+                        //    var unlockResult = bucket.Unlock(key, cas);
+                        //    if (unlockResult.Success)
+                        //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                        //    else
+                        //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                        //}
+                    }
+                    else
+                    {
+                        HandleStatusCode(insertResult, key);
+
+                        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+                        {
+                            if (cas > 0)
+                                insertResult = bucket.Upsert<T>(key, value, cas, expiration);
+                            else
+                                insertResult = bucket.Upsert<T>(key, value, expiration);
+
+                            if (insertResult.Status == Couchbase.IO.ResponseStatus.Success)
+                            {
+                                result = insertResult.Success;
+                                outCas = insertResult.Cas;
+
+                                //if (unlock && cas > 0)
+                                //{
+                                //    var unlockResult = bucket.Unlock(key, cas);
+                                //    if (unlockResult.Success)
+                                //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                                //    else
+                                //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                                //}
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Set<T> with key = {0}, error = {1}", key, ex);
+            }
+            return result;
+        }
+
         public bool Set<T>(string key, T value, bool unlock, uint expiration = 0, ulong cas = 0)
         {
             bool result = false;
@@ -661,15 +743,15 @@ namespace CouchbaseManager
                     {
                         result = insertResult.Success;
 
-                        log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
-                        if (unlock && cas > 0)
-                        {
-                            var unlockResult = bucket.Unlock(key, cas);
-                            if (unlockResult.Success)
-                                log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                            else
-                                log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
-                        }
+                        //log.DebugFormat("SET before unlocking {0}, cas: {1}", key, cas);
+                        //if (unlock && cas > 0)
+                        //{
+                        //    var unlockResult = bucket.Unlock(key, cas);
+                        //    if (unlockResult.Success)
+                        //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                        //    else
+                        //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                        //}
                     }
                     else
                     {
@@ -686,18 +768,18 @@ namespace CouchbaseManager
                             {
                                 result = insertResult.Success;
 
-                                log.Debug("before lock2");
-                                if (unlock && cas > 0)
-                                {
-                                    var unlockResult = bucket.Unlock(key, cas);
-                                    if (unlockResult.Success)
-                                        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
-                                    else
-                                        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
+                                //log.Debug("before lock2");
+                                //if (unlock && cas > 0)
+                                //{
+                                //    var unlockResult = bucket.Unlock(key, cas);
+                                //    if (unlockResult.Success)
+                                //        log.DebugFormat("SET after unlocking {0}, cas: {1}", key, cas);
+                                //    else
+                                //        log.DebugFormat("failed to unlock - key: {0}, cas: {1}, error = {2}", key, cas, unlockResult.Status.ToString());
 
 
-                                    log.Debug("after lock2");
-                                }
+                                //    log.Debug("after lock2");
+                                //}
                             }
                         }
                     }
@@ -895,7 +977,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public bool Remove(string key)
+        public bool Remove(string key, ulong cas = 0)
         {
             bool result = false;
 
@@ -907,7 +989,10 @@ namespace CouchbaseManager
                 string action = string.Format("Action: Remove; bucket: {0}; key: {1}", bucketName, key);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
                 {
-                    removeResult = bucket.Remove(key);
+                    if (cas == 0)
+                        removeResult = bucket.Remove(key);
+                    else
+                        removeResult = bucket.Remove(key, cas);
                 }
 
                 if (removeResult.Exception != null)
@@ -915,6 +1000,8 @@ namespace CouchbaseManager
 
                 if (removeResult.Status == Couchbase.IO.ResponseStatus.Success || removeResult.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     result = removeResult.Success;
+                else
+                    log.ErrorFormat("Error while trying to delete document. key: {0}, CAS: {1}. CB response: {2}", key, cas, JsonConvert.SerializeObject(removeResult));
             }
             catch (Exception ex)
             {
