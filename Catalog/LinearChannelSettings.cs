@@ -25,5 +25,7 @@ namespace Catalog
         public bool EnableRecordingPlaybackNonEntitledChannel;
 
         public bool EnableRecordingPlaybackNonExistingChannel;
+
+        public long linearMediaId;
     }
 }
