@@ -2117,6 +2117,55 @@ namespace DAL
 
             return result;
         }
+
+        public static MessageTemplate SetReminder(DbReminder dbReminder)
+        {
+            MessageTemplate result = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetReminder");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", dbReminder.GroupId);
+                sp.AddParameter("@id", dbReminder.ID);
+                sp.AddParameter("@isSent", dbReminder.IsSent);
+                sp.AddParameter("@name", dbReminder.Name);
+                sp.AddParameter("@phrase", dbReminder.Phrase);
+                sp.AddParameter("@@ueueId", dbReminder.QueueId);
+                sp.AddParameter("@queueName", dbReminder.QueueName);
+                sp.AddParameter("@reference", dbReminder.Reference);
+                sp.AddParameter("@sendTime", dbReminder.SendTime);
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetReminder. groupId: {0}, Reminder: {1} . Error {2}", dbReminder.GroupId, JsonConvert.SerializeObject(dbReminder), ex);
+            }
+
+            return result;
+
+        }
+
+        public static bool DeleteReminder(int groupId, long reminderId)
+        {
+            int affectedRows = 0;
+
+            ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("Delete_Reminder");
+            spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsertUserNotification.AddParameter("@reminderId", reminderId);
+            spInsertUserNotification.AddParameter("@groupId", groupId);
+            affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
+
+            return affectedRows > 0;
+        }
     }
 }
 
