@@ -614,6 +614,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
     <Compile Include="Controllers\SocialFriendActivityController.cs" />
@@ -930,6 +931,11 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
+    <Compile Include="Models\Notification\KalturaAssetReminder.cs" />
+    <Compile Include="Models\Notification\KalturaReminderFilter.cs" />
+    <Compile Include="Models\Notification\KalturaReminderListResponse.cs" />
+    <Compile Include="Models\Notification\KalturaReminderType.cs" />
+    <Compile Include="Models\Notification\KalturaReminder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageTypeHolder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageResponse.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
@@ -1166,6 +1172,9 @@
     </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.RemindersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

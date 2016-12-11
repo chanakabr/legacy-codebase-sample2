@@ -92,13 +92,13 @@ namespace WebAPI.Models.Notification
         public bool? ReminderEnabled { get; set; }
 
         /// <summary>
-        /// Topic expiration duration in days
+        /// Offset time (UTC) in seconds for send reminder
         /// </summary>
         [DataMember(Name = "reminderOffsetSec")]
         [JsonProperty("reminderOffsetSec")]
         [XmlElement(ElementName = "reminderOffsetSec", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, MaxInteger = 3600)]
-        public int? ReminderOffsetSec { get; set; }
+        public int? ReminderOffset { get; set; }
     }
 
     [Obsolete]

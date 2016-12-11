@@ -3246,6 +3246,288 @@ namespace WebAPI.Notifications {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="DbReminder", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class DbReminder : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ExternalPushIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ExternalResultField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int GroupIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IDField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private bool IsSentField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string NameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string PhraseField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string QueueIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string QueueNameField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ReferenceField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private long SendTimeField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ExternalPushId {
+            get {
+                return this.ExternalPushIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExternalPushIdField, value) != true)) {
+                    this.ExternalPushIdField = value;
+                    this.RaisePropertyChanged("ExternalPushId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ExternalResult {
+            get {
+                return this.ExternalResultField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExternalResultField, value) != true)) {
+                    this.ExternalResultField = value;
+                    this.RaisePropertyChanged("ExternalResult");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int GroupId {
+            get {
+                return this.GroupIdField;
+            }
+            set {
+                if ((this.GroupIdField.Equals(value) != true)) {
+                    this.GroupIdField = value;
+                    this.RaisePropertyChanged("GroupId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int ID {
+            get {
+                return this.IDField;
+            }
+            set {
+                if ((this.IDField.Equals(value) != true)) {
+                    this.IDField = value;
+                    this.RaisePropertyChanged("ID");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public bool IsSent {
+            get {
+                return this.IsSentField;
+            }
+            set {
+                if ((this.IsSentField.Equals(value) != true)) {
+                    this.IsSentField = value;
+                    this.RaisePropertyChanged("IsSent");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Name {
+            get {
+                return this.NameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.NameField, value) != true)) {
+                    this.NameField = value;
+                    this.RaisePropertyChanged("Name");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Phrase {
+            get {
+                return this.PhraseField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.PhraseField, value) != true)) {
+                    this.PhraseField = value;
+                    this.RaisePropertyChanged("Phrase");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string QueueId {
+            get {
+                return this.QueueIdField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.QueueIdField, value) != true)) {
+                    this.QueueIdField = value;
+                    this.RaisePropertyChanged("QueueId");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string QueueName {
+            get {
+                return this.QueueNameField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.QueueNameField, value) != true)) {
+                    this.QueueNameField = value;
+                    this.RaisePropertyChanged("QueueName");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string Reference {
+            get {
+                return this.ReferenceField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ReferenceField, value) != true)) {
+                    this.ReferenceField = value;
+                    this.RaisePropertyChanged("Reference");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public long SendTime {
+            get {
+                return this.SendTimeField;
+            }
+            set {
+                if ((this.SendTimeField.Equals(value) != true)) {
+                    this.SendTimeField = value;
+                    this.RaisePropertyChanged("SendTime");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="RemindersResponse", Namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification")]
+    [System.SerializableAttribute()]
+    public partial class RemindersResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private System.Collections.Generic.List<WebAPI.Notifications.DbReminder> RemindersField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private WebAPI.Notifications.Status StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int TotalCountField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.List<WebAPI.Notifications.DbReminder> Reminders {
+            get {
+                return this.RemindersField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.RemindersField, value) != true)) {
+                    this.RemindersField = value;
+                    this.RaisePropertyChanged("Reminders");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public WebAPI.Notifications.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int TotalCount {
+            get {
+                return this.TotalCountField;
+            }
+            set {
+                if ((this.TotalCountField.Equals(value) != true)) {
+                    this.TotalCountField = value;
+                    this.RaisePropertyChanged("TotalCount");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notifications.INotificationService")]
     public interface INotificationService {
@@ -3490,23 +3772,35 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushSystemParametersAsync(string sWSUserName, string sWSPassword, string hash, string ip);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/EpgEvent", ReplyAction="http://tempuri.org/INotificationService/EpgEventResponse")]
-        bool EpgEvent(string sWSUserName, string sWSPassword, string programId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RemoveUsersNotificationData", ReplyAction="http://tempuri.org/INotificationService/RemoveUsersNotificationDataResponse")]
+        WebAPI.Notifications.Status RemoveUsersNotificationData(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/EpgEvent", ReplyAction="http://tempuri.org/INotificationService/EpgEventResponse")]
-        System.Threading.Tasks.Task<bool> EpgEventAsync(string sWSUserName, string sWSPassword, string programId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
-        WebAPI.Notifications.Status DeleteReminder(string sWSUserName, string sWSPassword, long reminderId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, long reminderId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RemoveUsersNotificationData", ReplyAction="http://tempuri.org/INotificationService/RemoveUsersNotificationDataResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> RemoveUsersNotificationDataAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushReminderParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushReminderParametersResponse")]
         WebAPI.Notifications.RegistryResponse RegisterPushReminderParameters(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushReminderParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushReminderParametersResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushReminderParametersAsync(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CleanReminders", ReplyAction="http://tempuri.org/INotificationService/CleanRemindersResponse")]
+        WebAPI.Notifications.Status CleanReminders(string sWSUserName, string sWSPassword, long reminderId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/CleanReminders", ReplyAction="http://tempuri.org/INotificationService/CleanRemindersResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> CleanRemindersAsync(string sWSUserName, string sWSPassword, long reminderId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddReminder", ReplyAction="http://tempuri.org/INotificationService/AddReminderResponse")]
+        WebAPI.Notifications.RemindersResponse AddReminder(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddReminder", ReplyAction="http://tempuri.org/INotificationService/AddReminderResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> AddReminderAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
+        WebAPI.Notifications.Status DeleteReminder(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -3848,20 +4142,12 @@ namespace WebAPI.Notifications {
             return base.Channel.RegisterPushSystemParametersAsync(sWSUserName, sWSPassword, hash, ip);
         }
         
-        public bool EpgEvent(string sWSUserName, string sWSPassword, string programId) {
-            return base.Channel.EpgEvent(sWSUserName, sWSPassword, programId);
+        public WebAPI.Notifications.Status RemoveUsersNotificationData(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds) {
+            return base.Channel.RemoveUsersNotificationData(sWSUserName, sWSPassword, userIds);
         }
         
-        public System.Threading.Tasks.Task<bool> EpgEventAsync(string sWSUserName, string sWSPassword, string programId) {
-            return base.Channel.EpgEventAsync(sWSUserName, sWSPassword, programId);
-        }
-        
-        public WebAPI.Notifications.Status DeleteReminder(string sWSUserName, string sWSPassword, long reminderId) {
-            return base.Channel.DeleteReminder(sWSUserName, sWSPassword, reminderId);
-        }
-        
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, long reminderId) {
-            return base.Channel.DeleteReminderAsync(sWSUserName, sWSPassword, reminderId);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> RemoveUsersNotificationDataAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds) {
+            return base.Channel.RemoveUsersNotificationDataAsync(sWSUserName, sWSPassword, userIds);
         }
         
         public WebAPI.Notifications.RegistryResponse RegisterPushReminderParameters(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip) {
@@ -3870,6 +4156,30 @@ namespace WebAPI.Notifications {
         
         public System.Threading.Tasks.Task<WebAPI.Notifications.RegistryResponse> RegisterPushReminderParametersAsync(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip) {
             return base.Channel.RegisterPushReminderParametersAsync(sWSUserName, sWSPassword, reminderId, hash, ip);
+        }
+        
+        public WebAPI.Notifications.Status CleanReminders(string sWSUserName, string sWSPassword, long reminderId) {
+            return base.Channel.CleanReminders(sWSUserName, sWSPassword, reminderId);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> CleanRemindersAsync(string sWSUserName, string sWSPassword, long reminderId) {
+            return base.Channel.CleanRemindersAsync(sWSUserName, sWSPassword, reminderId);
+        }
+        
+        public WebAPI.Notifications.RemindersResponse AddReminder(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder) {
+            return base.Channel.AddReminder(sWSUserName, sWSPassword, userId, dbReminder);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> AddReminderAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder) {
+            return base.Channel.AddReminderAsync(sWSUserName, sWSPassword, userId, dbReminder);
+        }
+        
+        public WebAPI.Notifications.Status DeleteReminder(string sWSUserName, string sWSPassword, int userId, long reminderId) {
+            return base.Channel.DeleteReminder(sWSUserName, sWSPassword, userId, reminderId);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId) {
+            return base.Channel.DeleteReminderAsync(sWSUserName, sWSPassword, userId, reminderId);
         }
     }
 }

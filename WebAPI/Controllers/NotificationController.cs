@@ -114,6 +114,11 @@ namespace WebAPI.Controllers
                         if (identifier.ToLower() != "login")
                             throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "identifier");
                         break;
+                    case KalturaNotificationType.Reminder:
+                        long reminderId = 0;
+                        if (!long.TryParse(identifier, out reminderId))
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
+                        break;
                     default:
                         break;
                 }

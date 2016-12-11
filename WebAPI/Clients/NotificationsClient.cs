@@ -501,7 +501,7 @@ namespace WebAPI.Clients
             ret = new KalturaMessageAnnouncementListResponse() { Announcements = result, TotalCount = response.totalCount };
             return ret;
         }
-         
+
         internal bool SetPush(int groupId, string userId, string udid, string pushToken)
         {
             Group group = GroupsManager.GetGroup(groupId);
@@ -1297,7 +1297,7 @@ namespace WebAPI.Clients
             }
 
             return true;
-        }        
+        }
 
         internal KalturaRegistryResponse Register(int groupId, KalturaNotificationType type, string id, string hash, string ip)
         {
@@ -1352,6 +1352,66 @@ namespace WebAPI.Clients
                 ret = new KalturaRegistryResponse();
 
             return ret;
+        }    
+        
+        internal KalturaReminder AddAssetReminder(int groupId, string userID, KalturaAssetReminder reminder)
+        {
+            Notifications.RemindersResponse response = null;
+            KalturaReminder kalturaReminder = null;
+            DbReminder dbReminder = null;
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+            }
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    dbReminder = Mapper.Map<DbReminder>(reminder);
+                    dbReminder.Reference = reminder.AssetId.ToString();
+                    response = Notification.AddReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, dbReminder);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Reminders != null && response.Reminders.Count > 0)
+            {
+                kalturaReminder = Mapper.Map<KalturaReminder>(response.Reminders[0]);
+            }
+
+            return kalturaReminder;
+        }
+
+        internal KalturaReminderListResponse GetReminders(int groupId, int p1, int p2)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal bool DeleteReminder(string userId, int groupId, long id)
+        {
+            throw new NotImplementedException();
         }
     }
 }
