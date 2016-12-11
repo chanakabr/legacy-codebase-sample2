@@ -13,6 +13,7 @@ namespace ApiObjects.Notification
         public DeviceNotificationData()
         {
             this.SubscribedAnnouncements = new List<AnnouncementSubscription>();
+            this.SubscribedReminders = new List<AnnouncementSubscription>();
         }
 
         public int UserId { get; set; }
@@ -22,6 +23,8 @@ namespace ApiObjects.Notification
         public string SubscriptionExternalIdentifier { get; set; }
 
         public List<AnnouncementSubscription> SubscribedAnnouncements { get; set; }
+
+        public List<AnnouncementSubscription> SubscribedReminders { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
