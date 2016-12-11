@@ -131,6 +131,8 @@
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationCleanupResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.RegistryResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.RemindersResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.IdListResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.IdsResponse.datasource" />
     <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
@@ -169,10 +171,16 @@
     <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
+    <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.FollowResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.GetAllMessageAnnouncementsResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.GetUserFollowsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.MessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
     <None Include="Service References\ws_notifications\SetupTaskHandler.ws_notifications.NotificationMessage.datasource">

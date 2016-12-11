@@ -35,6 +35,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="None" />
       <xs:enumeration value="Series" />
+      <xs:enumeration value="Reminder" />
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eOTTAssetTypes" nillable="true" type="tns:eOTTAssetTypes" />

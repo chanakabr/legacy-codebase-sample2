@@ -72,7 +72,7 @@ namespace SetupTaskHandler
 
                         #endregion
                     }
-                    case ApiObjects.eSetupTask.NotificationCleanupIteration:
+                    case ApiObjects.eSetupTask.NotificationSeriesCleanupIteration:
                     {
                         #region Notification Clean Iteration
 
@@ -229,6 +229,29 @@ namespace SetupTaskHandler
                             }
                         }
                         break;
+                        #endregion
+                    }
+                    case ApiObjects.eSetupTask.ReminderCleanupIteration:
+                    {
+                        #region Reminder Clean Iteration
+
+                        //Call Notifications WCF service
+                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
+                        using (ws_notifications.NotificationServiceClient service = new ws_notifications.NotificationServiceClient())
+                        {
+                            if (!string.IsNullOrEmpty(sWSURL))
+                                service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+                            else
+                                log.ErrorFormat("ReminderCleanupIteration: Couldn't find WS_Notifications URL");
+
+                            var status = service.DeleteOldReminders(string.Empty, string.Empty);
+                            if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                                log.Debug("ReminderCleanupIteration: Successfully run cleanup reminders");
+                            else
+                                log.Error("ReminderCleanupIteration: Error received when trying to run cleanup reminders");
+                        }
+                        break;
+
                         #endregion
                     }
                     default:
