@@ -2130,13 +2130,13 @@ namespace DAL
                 sp.AddParameter("@isSent", dbReminder.IsSent);
                 sp.AddParameter("@name", dbReminder.Name);
                 sp.AddParameter("@phrase", dbReminder.Phrase);
-                sp.AddParameter("@@ueueId", dbReminder.QueueId);
+                sp.AddParameter("@queueId", dbReminder.QueueId);
                 sp.AddParameter("@queueName", dbReminder.QueueName);
                 sp.AddParameter("@reference", dbReminder.Reference);
                 sp.AddParameter("@sendTime", dbReminder.SendTime);
+                sp.AddParameter("@external_id", dbReminder.ExternalPushId);
 
                 reminderId = sp.ExecuteReturnValue<int>();
-
             }
             catch (Exception ex)
             {

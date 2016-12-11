@@ -12,5 +12,6 @@ namespace ApiObjects.Notification
         public string QueueId { get; set; }
         public string QueueName { get; set; }
         public bool IsSent { get; set; }
+        public string ExternalPushId { get; set; }
     }
 }
