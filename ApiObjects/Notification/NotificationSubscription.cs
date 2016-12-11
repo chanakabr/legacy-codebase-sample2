@@ -5,10 +5,10 @@ using System.Text;
 
 namespace ApiObjects.Notification
 {
-    public class AnnouncementSubscription
+    public class NotificationSubscription
     {
-        public long AnnouncementId { get; set; }
-        public string SubscriptionExternalId { get; set; }
+        public long Id { get; set; }
+        public string ExternalId { get; set; }
         public long SubscribedAtSec { get; set; }
     }
 }

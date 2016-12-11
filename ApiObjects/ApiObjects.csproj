@@ -135,7 +135,7 @@
     <Compile Include="IngestBusinessModules\IngestPriceCode.cs" />
     <Compile Include="IngestResponse.cs" />
     <Compile Include="Notification\Announcement.cs" />
-    <Compile Include="Notification\AnnouncementSubscription.cs" />
+    <Compile Include="Notification\NotificationSubscription.cs" />
     <Compile Include="Notification\AnnouncementsResponse.cs" />
     <Compile Include="Notification\RemindersResponse.cs" />
     <Compile Include="Notification\DbReminder.cs" />
