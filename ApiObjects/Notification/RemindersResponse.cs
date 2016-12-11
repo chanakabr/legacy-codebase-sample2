@@ -6,7 +6,7 @@ namespace ApiObjects.Notification
     {
         public ApiObjects.Response.Status Status { get; set; }
 
-        public List<DbReminder> Announcements { get; set; }
+        public List<DbReminder> Reminders { get; set; }
 
         public int TotalCount { get; set; }
     }
