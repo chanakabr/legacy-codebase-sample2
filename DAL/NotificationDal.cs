@@ -2118,9 +2118,9 @@ namespace DAL
             return result;
         }
 
-        public static MessageTemplate SetReminder(DbReminder dbReminder)
+        public static int SetReminder(DbReminder dbReminder)
         {
-            MessageTemplate result = null;
+            int reminderId = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetReminder");
@@ -2135,22 +2135,15 @@ namespace DAL
                 sp.AddParameter("@reference", dbReminder.Reference);
                 sp.AddParameter("@sendTime", dbReminder.SendTime);
 
-                DataSet ds = sp.ExecuteDataSet();
+                reminderId = sp.ExecuteReturnValue<int>();
 
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                {
-                    if (ds.Tables[0].Rows.Count > 0)
-                    {
-                        result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
-                    }
-                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error at SetReminder. groupId: {0}, Reminder: {1} . Error {2}", dbReminder.GroupId, JsonConvert.SerializeObject(dbReminder), ex);
             }
 
-            return result;
+            return reminderId;
 
         }
 
