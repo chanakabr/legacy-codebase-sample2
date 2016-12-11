@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ScheduledTasks
 {
-    public class BaseScheduledTaskLastRunDetails: ScheduledTaskLastRunDetails
+    public class BaseScheduledTaskLastRunDetails : ScheduledTaskLastRunDetails
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -40,6 +40,9 @@ namespace ScheduledTasks
                     break;
                 case ApiObjects.ScheduledTaskType.notificationCleanup:
                     key = "notification_cleanup";
+                    break;
+                case ApiObjects.ScheduledTaskType.reminderCleanup:
+                    key = "reminder_cleanup";
                     break;
                 default:
                     break;
@@ -182,7 +185,7 @@ namespace ScheduledTasks
             }
 
             return result;
-        }        
+        }
 
     }
 }

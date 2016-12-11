@@ -467,11 +467,12 @@ namespace ApiObjects
     {
         BuildIPToCountry,
         InitializeFreeItemUpdateQueue,
-        NotificationCleanupIteration,
+        NotificationSeriesCleanupIteration,
         RecordingsCleanup,
         MigrateStatistics,
         InsertExpiredRecordingsTasks,
-        RecordingScheduledTasks
+        RecordingScheduledTasks,
+        ReminderCleanupIteration
     }
 
 
@@ -632,10 +633,10 @@ namespace ApiObjects
     }
 
     public enum DomainRecordingStatus
-    {        
+    {
         None = 0,
         OK = 1,
-        Canceled = 2,        
+        Canceled = 2,
         Deleted = 3,
         DeletedBySystem = 4,
         SeriesCancel = 5,
@@ -732,7 +733,8 @@ namespace ApiObjects
         recordingsLifetime = 0,
         recordingsScheduledTasks = 1,
         recordingsCleanup = 2,
-        notificationCleanup = 3
+        notificationCleanup = 3,
+        reminderCleanup = 4
     }
 
     public enum SearchSeriesRecordingsTimeOptions
@@ -779,7 +781,7 @@ namespace ApiObjects
     }
 
     public enum GroupFeature
-    { 
+    {
         CROWDSOURCE = 0,
         BUZZFEED = 1
     }
@@ -816,9 +818,9 @@ namespace ApiObjects
 
     public enum SubscriptionPurchaseStatus
     {
-        OK = 0, 
+        OK = 0,
         Cancel = 1,
-        CancelNow = 2, 
+        CancelNow = 2,
         Fail = 3,
         HouseholdCancel = 4
     }
