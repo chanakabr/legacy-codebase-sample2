@@ -2103,7 +2103,8 @@ namespace DAL
                             QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
                             QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
                             Reference = ODBCWrapper.Utils.GetSafeStr(row, "reference"),
-                            SendTime = sentDateSec
+                            ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                            SendTime = sentDateSec                            
                         };
 
                         result.Add(dbReminder);
@@ -2134,7 +2135,8 @@ namespace DAL
                 sp.AddParameter("@queueName", dbReminder.QueueName);
                 sp.AddParameter("@reference", dbReminder.Reference);
                 sp.AddParameter("@sendTime", dbReminder.SendTime);
-                sp.AddParameter("@external_id", dbReminder.ExternalPushId);
+                sp.AddParameter("@externalId", dbReminder.ExternalPushId);
+                sp.AddParameter("@externalResult", dbReminder.ExternalResult);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
