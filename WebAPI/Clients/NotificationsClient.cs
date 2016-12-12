@@ -1322,8 +1322,7 @@ namespace WebAPI.Clients
                                 throw new NotImplementedException();
                             break;
                         case KalturaNotificationType.Reminder:
-                            //TODO:Anat
-                            //response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);                            
+                            response = Notification.RegisterPushReminderParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);                            
                             break;
                         default:
                             break;
@@ -1332,7 +1331,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while RegisterPushAnnouncementParameters.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while RegisterPushAnnouncementParameters.  groupID: {0}, notification type: {1}, exception: {2}", groupId, type, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1346,7 +1345,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            if (response.AnnouncementId != 0)
+            if (response.NotificationId != 0)
                 ret = Mapper.Map<KalturaRegistryResponse>(response);
             else
                 ret = new KalturaRegistryResponse();
