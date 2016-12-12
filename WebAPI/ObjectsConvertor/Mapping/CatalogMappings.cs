@@ -218,7 +218,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.ENABLE_START_OVER == 1))
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.ENABLE_TRICK_PLAY == 1))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.CRID))
-                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LINEAR_MEDIA_ID));
+                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.LINEAR_MEDIA_ID > 0 ? (long?) src.LINEAR_MEDIA_ID : null));
 
             //EPG to KalturaProgramAsset
             Mapper.CreateMap<ProgramObj, KalturaProgramAsset>()
@@ -239,7 +239,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_START_OVER == 1))
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.m_oProgram.ENABLE_TRICK_PLAY == 1))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.m_oProgram.CRID))
-                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.m_oProgram.LINEAR_MEDIA_ID));
+                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.m_oProgram.LINEAR_MEDIA_ID : null));
 
             //EPG to KalturaProgramAsset
             Mapper.CreateMap<RecordingObj, KalturaRecordingAsset>()
@@ -260,7 +260,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableStartOver, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_START_OVER == 1))
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.program.m_oProgram.ENABLE_TRICK_PLAY == 1))
                 .ForMember(dest => dest.Crid, opt => opt.MapFrom(src => src.program.m_oProgram.CRID))
-                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.program.m_oProgram.LINEAR_MEDIA_ID))
+                .ForMember(dest => dest.LinearAssetId, opt => opt.MapFrom(src => src.program.m_oProgram.LINEAR_MEDIA_ID > 0 ? (long?)src.program.m_oProgram.LINEAR_MEDIA_ID : null))
                 .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.recordingId))
                 ;
 
