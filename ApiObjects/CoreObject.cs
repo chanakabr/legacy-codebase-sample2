@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TVinciShared
+namespace ApiObjects
 {
     public class CoreObject
     {

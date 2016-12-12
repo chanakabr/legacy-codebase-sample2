@@ -121,7 +121,6 @@
     <Compile Include="Channel.cs" />
     <Compile Include="ConcurrentUtils.cs" />
     <Compile Include="CookieUtils.cs" />
-    <Compile Include="CoreObject.cs" />
     <Compile Include="CouchBaseManipulator.cs" />
     <Compile Include="CSVReader.cs" />
     <Compile Include="DateUtils.cs" />

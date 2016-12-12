@@ -8,11 +8,14 @@ namespace EventManager
 {
     public abstract class KalturaEvent
     {
-        public TVinciShared.CoreObject Object;
+        public ApiObjects.CoreObject Object;
+        public int GroupId;
+        public bool IsSynchronized;
 
-        public KalturaEvent(TVinciShared.CoreObject coreObject)
+        public KalturaEvent(ApiObjects.CoreObject coreObject = null, int groupId = 0)
         {
             this.Object = coreObject;
+            this.GroupId = groupId;
         }
     }
 }

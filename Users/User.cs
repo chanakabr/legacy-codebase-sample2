@@ -16,7 +16,7 @@ namespace Users
     /// </summary>
     [Serializable]
     [JsonObject(Id = "User")]
-    public class User : TVinciShared.CoreObject
+    public class User : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -672,7 +672,10 @@ namespace Users
 
             if (userID > 0)
             {
-                EventManager.EventManager.HandleEvent(new EventManager.Events.NotifyObjectCreatedEvent(this));
+                EventManager.EventManager.HandleEvent(new EventManager.Events.NotifyObjectCreatedEvent(this)
+                {
+                    GroupId = nGroupID
+                });
             }
 
             return userID;            
