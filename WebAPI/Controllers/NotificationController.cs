@@ -50,35 +50,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
-        /// </summary>        
-        /// <remarks>
-        /// 
-        /// </remarks>
-        /// <returns></returns>
-        [Route("initiateCleanup"), HttpPost]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool InitiateCleanup()
-        {
-            bool response = false;
-
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-
-                response = ClientsManager.NotificationClient().DeleteAnnouncementsOlderThan(groupId);
-            }
-
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
         /// TBD 
         /// </summary>
         /// <remarks>
