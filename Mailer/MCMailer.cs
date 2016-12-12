@@ -18,7 +18,7 @@ namespace Mailer
         {
             try
             {
-                log.Debug("Mail Responses - Start Send " + request.m_sSenderTo);
+                log.DebugFormat("SendMailTemplate: SenderTo={0}, Subject={1}, TemplateName={2} ", request.m_sSenderTo, request.m_sSubject, request.m_sTemplateName);
                 bool retVal = false;
                 JavaScriptSerializer jsSer = new JavaScriptSerializer();
                 MCObjByTemplate mcObj = request.parseRequestToTemplate();
@@ -26,18 +26,14 @@ namespace Mailer
                 if (!string.IsNullOrEmpty(request.m_emailKey))// specific key to group
                     mcObj.key = request.m_emailKey;
 
-                //Patch until going live!!
-                log.Debug("Mail Responses - " + mcObj.template_name);
+                //Patch until going live!!              
                 if (mcObj.template_name.Contains("."))
                 {
                     mcObj.template_name = mcObj.template_name.Remove(mcObj.template_name.IndexOf('.'));
-                    log.Debug("Mail Responses - " + mcObj.template_name);
                 }
-                log.Debug("Mail Responses - " + mcObj.template_name);
                 string json = jsSer.Serialize(mcObj);
                 string sResp = Utils.SendXMLHttpReq(Utils.GetTcmConfigValue("MCURL"), json, null);
-                log.Debug("Mail Responses - Start Send to url" + Utils.GetTcmConfigValue("MCURL") + " key:" + Utils.GetTcmConfigValue("MCKey"));
-                log.Debug("Mail Responses - " + sResp);
+                log.DebugFormat("mailurl={0} response={1} ", Utils.GetTcmConfigValue("MCURL") + " key:" + Utils.GetTcmConfigValue("MCKey"), sResp);
                 if (sResp.Contains("sent"))
                 {
                     retVal = true;
@@ -62,10 +58,9 @@ namespace Mailer
             }
             catch (Exception ex)
             {
-                log.Error("Mail Responses - Exception " + request.m_sSenderTo + " : " + ex.Message);
+                log.ErrorFormat("m_sSenderTo={0}, ex={1}", request.m_sSenderTo, ex.Message);
                 return false;
             }
         }
-
     }
 }
