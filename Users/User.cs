@@ -16,7 +16,7 @@ namespace Users
     /// </summary>
     [Serializable]
     [JsonObject(Id = "User")]
-    public class User
+    public class User : TVinciShared.CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -625,10 +625,8 @@ namespace Users
                     {
                         return (-1);
                     }
-
-                    return userID;
                 }
-
+                else
                 // Existing user - Remove & Update from cache
                 if (int.TryParse(m_sSiteGUID, out userID))
                 {
@@ -663,18 +661,21 @@ namespace Users
                     catch (Exception ex)
                     {
                         log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
-
                     }
                 }
-
-                return userID;
 
             }
             catch
             {
-                return (-1);
+                userID = -1;
             }
-            
+
+            if (userID > 0)
+            {
+                EventManager.EventManager.HandleEvent(new EventManager.Events.NotifyObjectCreatedEvent(this));
+            }
+
+            return userID;            
         }
 
         public bool SaveDynamicData(int nGroupID)

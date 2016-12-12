@@ -13,11 +13,16 @@ namespace EventManager
         static EventManager()
         {
             eventConsumers = new List<BaseEventConsumer>();
+            eventConsumers.Add(new NotificationEventConsumer());
         }
 
         public static void Init()
         {
-            //eventConsumers.Add(
+        }
+
+        public static void Subscribe(BaseEventConsumer consumer)
+        {
+            eventConsumers.Add(consumer);
         }
 
         public static void HandleEvent(KalturaEvent kalturaEvent)

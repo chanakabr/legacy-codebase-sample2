@@ -10,14 +10,14 @@ namespace EventManager
     {
         public override bool ShouldConsume(KalturaEvent kalturaEvent)
         {
+            bool shouldConsume = false;
+
             if (kalturaEvent is NotificationEvent)
             {
-                return true;
+                shouldConsume = true;
             }
-            else
-            {
-                return false;
-            }
+
+            return shouldConsume;
         }
 
         protected override bool Consume(KalturaEvent kalturaEvent)
