@@ -1219,9 +1219,9 @@ namespace DAL
 
         }
 
-        public static MessageTemplate GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
+        public static List<MessageTemplate> GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            MessageTemplate result = null;
+            List<MessageTemplate> result = new List<MessageTemplate>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
@@ -1233,7 +1233,10 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 0)
-                        result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                            result.Add(CreateMessageTemplate(row));
+                    }
                 }
             }
             catch (Exception ex)
@@ -2104,7 +2107,7 @@ namespace DAL
                             QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
                             Reference = ODBCWrapper.Utils.GetSafeStr(row, "reference"),
                             ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                            SendTime = sentDateSec                            
+                            SendTime = sentDateSec
                         };
 
                         result.Add(dbReminder);
