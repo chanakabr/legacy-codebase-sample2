@@ -2657,10 +2657,6 @@ namespace Catalog
             // get all linear settings about channel + group
             GetLinearChannelSettings(pRequest.m_nGroupID, programs);
 
-            // get all linear media Ids
-            SetProgramsLinearMediaIds(pRequest.m_nGroupID, programs);
-
-
             EPGChannelProgrammeObject epgProg = null;
 
             //keeping the original order and amount of items (some of the items might return as null)
@@ -2686,27 +2682,6 @@ namespace Catalog
             pResponse.m_lObj = lProgramObj;
 
             return true;
-        }
-
-        private static void SetProgramsLinearMediaIds(int groupID, List<EPGChannelProgrammeObject> programs)
-        {
-            try
-            {
-                List<string> epgChannelIds = programs.Where(item => item != null && !string.IsNullOrEmpty(item.EPG_CHANNEL_ID)).Select(item => item.EPG_CHANNEL_ID).ToList<string>();// get all epg channel ids
-                Dictionary<string, long> epgChannelToLinearMediaMap = CatalogCache.Instance().GetEpgChannelIdToLinearMediaIdMap(groupID, epgChannelIds);                
-                foreach (EPGChannelProgrammeObject epg in programs)
-                {
-                    if (epgChannelToLinearMediaMap.ContainsKey(epg.EPG_CHANNEL_ID))
-                    {
-                        epg.LINEAR_MEDIA_ID = epgChannelToLinearMediaMap[epg.EPG_CHANNEL_ID];
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("failed Catalog.SetProgramsLinearMediaIds for groupId: {0}, programs: {1}", groupID, programs != null ? string.Join(", ", programs.Select(x => x.EPG_ID).ToList()) : string.Empty), ex);
-            }
         }
 
         public static void GetLinearChannelSettings(int groupID, List<EPGChannelProgrammeObject> lEpgProg)

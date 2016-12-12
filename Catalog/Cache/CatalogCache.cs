@@ -381,7 +381,8 @@ namespace Catalog.Cache
                  enable = enableChannel;
              }
              linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
-            
+
+             linearChannelSettings.linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drChannel, "media_id", 0);
              linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID"); 
              return linearChannelSettings;
          }
@@ -424,86 +425,6 @@ namespace Catalog.Cache
                 return false;
             }
             return isTstvSettingsExists;
-        }
-
-        internal Dictionary<string, long> GetEpgChannelIdToLinearMediaIdMap(int groupId, List<string> epgChannelIds)
-        {            
-            Dictionary<string, long> epgChannelIdToLinearMediaIdMap = null;
-            try
-            {
-                epgChannelIds = epgChannelIds.Distinct().ToList();
-                List<string> epgChannelKeys = GetEpgChannelKeys(groupId, epgChannelIds);
-                IDictionary<string, Object> cachedEpgChannels = TvinciCache.WSCache.Instance.GetValues(epgChannelKeys);
-                List<string> missingEpgChannelIds = new List<string>();
-                if (cachedEpgChannels != null && cachedEpgChannels.Count > 0)
-                {
-                    foreach (KeyValuePair<string, object> pair in cachedEpgChannels)
-                    {
-                        if (!string.IsNullOrEmpty(pair.Key) && pair.Value != null && pair.Value is KeyValuePair<string, long>)
-                        {
-                            KeyValuePair<string, long> epgChannelLinearMediaPair = (KeyValuePair<string, long>) pair.Value;
-                            if (!string.IsNullOrEmpty(epgChannelLinearMediaPair.Key) && epgChannelLinearMediaPair.Value > 0)
-                            {
-                                epgChannelIdToLinearMediaIdMap.Add(epgChannelLinearMediaPair.Key, epgChannelLinearMediaPair.Value);
-                            }
-                        }
-                    }
-
-                    missingEpgChannelIds = epgChannelIds.Except(epgChannelIdToLinearMediaIdMap.Keys).ToList();
-                }
-
-                if (missingEpgChannelIds != null && missingEpgChannelIds.Count > 0)
-                {
-                    Dictionary<string, long> missingEpgChannelIdsMap = Utils.GetEpgChannelIdToLinearMediaIdMap(groupId, epgChannelIds);
-                    foreach (string epgChannelId in missingEpgChannelIds)
-                    {
-                        string channelKey = GetEpgChannelKey(groupId, epgChannelId);
-                        KeyValuePair<string, long> epgChannelLinearMediaPair;
-                        if (!TvinciCache.WSCache.Instance.TryGet(channelKey, out epgChannelLinearMediaPair))
-                        {
-                            lock (lck)
-                            {
-                                if (!TvinciCache.WSCache.Instance.TryGet(channelKey, out epgChannelLinearMediaPair))
-                                {
-                                    epgChannelIdToLinearMediaIdMap.Add(epgChannelId, missingEpgChannelIdsMap[epgChannelId]);
-                                    TvinciCache.WSCache.Instance.Add(channelKey, new KeyValuePair<string, long>(epgChannelId, missingEpgChannelIdsMap[epgChannelId]));
-                                }
-                                else
-                                {
-                                    epgChannelIdToLinearMediaIdMap.Add(epgChannelLinearMediaPair.Key, epgChannelLinearMediaPair.Value);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            epgChannelIdToLinearMediaIdMap.Add(epgChannelLinearMediaPair.Key, epgChannelLinearMediaPair.Value);
-                        }
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error("GetEpgChannelIdToLinearMediaIdMap - " + string.Format("Error in GetEpgChannelIdToLinearMediaIdMap: groupID = {0}, epgChannelIds: {1}", groupId, string.Join(",", epgChannelIds)), ex);
-            }
-
-            return epgChannelIdToLinearMediaIdMap;
-        }
-
-        private string GetEpgChannelKey(int groupId, string epgChannelId)
-        {
-            return string.Format("group_{0}_epgChannelId_{1}", groupId, epgChannelId);
-        }
-
-        private List<string> GetEpgChannelKeys(int groupId, List<string> epgChannelIds)
-        {
-            List<string> keys = new List<string>();
-            foreach (string epgChannelId in epgChannelIds)
-            {
-                keys.Add(string.Format("group_{0}_epgChannelId_{1}", groupId, epgChannelId));
-            }
-
-            return keys;
         }
 
     }

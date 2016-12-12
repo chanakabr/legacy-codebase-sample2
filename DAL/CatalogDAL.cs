@@ -4430,7 +4430,14 @@ namespace Tvinci.Core.DAL
 
         public static DataTable GetEpgChannelIdToLinearMediaIdMap(int groupId, List<string> epgChannelIds)
         {
-            throw new NotImplementedException();
+            DataTable dt = null;
+            StoredProcedure spGetEpgChannelIdToLinearMediaIdMap = new StoredProcedure("GetEpgChannelIdToLinearMediaIdMap");
+            spGetEpgChannelIdToLinearMediaIdMap.SetConnectionKey("MAIN_CONNECTION_STRING");
+            spGetEpgChannelIdToLinearMediaIdMap.AddParameter("@GroupId", groupId);
+            spGetEpgChannelIdToLinearMediaIdMap.AddIDListParameter<string>("@EpgChannelIds", epgChannelIds, "Id");            
+            dt = spGetEpgChannelIdToLinearMediaIdMap.Execute();
+
+            return dt;
         }
     }
 }
