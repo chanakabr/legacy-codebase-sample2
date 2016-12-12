@@ -498,6 +498,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DomainNotExists)]
         public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
@@ -506,9 +507,21 @@ namespace WebAPI.Controllers
             
             try
             {
+                KalturaHousehold household = null;
+                
                 if (!id.HasValue || id.Value == 0)
                 {
-                    id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    household = HouseholdUtils.GetHouseholdFromRequest();
+                    id = (int)household.Id;
+                }
+                else
+                {
+                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, id.Value);
+                }
+
+                if (id == 0 || household == null)
+                {
+                    throw new ClientException((int)eResponseStatus.DomainNotExists, "Household Not Exists");
                 }
 
                 // remove entitlements
