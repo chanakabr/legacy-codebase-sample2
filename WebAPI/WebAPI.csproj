@@ -624,6 +624,12 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EventNotifications\NotificationActionFactory.cs" />
+    <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
+    <Compile Include="Filters\EventNotificationsConfig.cs" />
+    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationActionDefinitions.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
@@ -1201,9 +1207,17 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\Users\Users.csproj">
       <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
