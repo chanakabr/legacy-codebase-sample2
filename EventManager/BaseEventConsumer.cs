@@ -14,26 +14,9 @@ namespace EventManager
         {
             bool result = false;
 
-            // If synchronized, do this reuglarly 
-            if (kalturaEvent.IsSynchronized)
+            if (ShouldConsume(kalturaEvent))
             {
-                if (ShouldConsume(kalturaEvent))
-                {
-                    result = Consume(kalturaEvent);
-                }
-            }
-            else
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    if (ShouldConsume(kalturaEvent))
-                    {
-                        Consume(kalturaEvent);
-                    }
-                });
-
-                // async - result will always be true
-                result = true;
+                result = Consume(kalturaEvent);
             }
 
             return result;

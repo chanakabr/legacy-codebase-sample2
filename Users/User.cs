@@ -672,9 +672,9 @@ namespace Users
 
             if (userID > 0)
             {
-                EventManager.EventManager.HandleEvent(new EventManager.Events.NotifyObjectCreatedEvent(this)
+                EventManager.EventManager.HandleEvent(new EventManager.Events.ObjectCreatedEvent(this)
                 {
-                    GroupId = nGroupID
+                    PartnerId = nGroupID
                 });
             }
 

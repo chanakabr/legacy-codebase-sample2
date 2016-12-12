@@ -7,9 +7,9 @@ using ApiObjects;
 
 namespace EventManager.Events
 {
-    public class NotifyObjectCreatedEvent : NotificationEvent
+    public class ObjectCreatedEvent : NotificationEvent
     {
-        public NotifyObjectCreatedEvent(CoreObject coreObject) : base(coreObject)
+        public ObjectCreatedEvent(CoreObject coreObject) : base(coreObject)
         {
 
         }
