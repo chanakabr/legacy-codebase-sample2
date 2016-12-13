@@ -5268,8 +5268,8 @@ namespace TvinciImporter
                 announcement.Timezone = timezone;
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
-                ApiObjects.Response.Status response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, announcement);
-                return response;
+                MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
+                return response.Status;
             }
             catch (Exception)
             {
