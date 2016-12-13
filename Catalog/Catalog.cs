@@ -2735,6 +2735,8 @@ namespace Catalog
             {
                 epg.ENABLE_TRICK_PLAY = linearSettings.EnableTrickPlay == true ? 1 : 0;
             }
+
+            epg.LINEAR_MEDIA_ID = linearSettings.linearMediaId;
         }
 
         private static EPGChannelProgrammeObject GetLinearEpgProgramSettings(DataRow[] dr, DataRow drAccount)
