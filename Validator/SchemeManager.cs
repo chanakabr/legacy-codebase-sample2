@@ -20,6 +20,16 @@ namespace Validator.Managers.Scheme
 {
     public class SchemeManager
     {
+        private static Scheme scheme;
+        private static Scheme getScheme()
+        {
+            if (scheme != null)
+                return scheme;
+
+            scheme = new Scheme(true);
+            return scheme;
+        }
+
         private static string GetProjectDir()
         {
             string filename = Assembly.GetExecutingAssembly().CodeBase;
@@ -98,8 +108,7 @@ namespace Validator.Managers.Scheme
 
         public static bool Validate()
         {
-            Scheme validator = new Scheme(true);
-            return validator.validate();
+            return getScheme().validate();
         }
 
         public static bool ValidateErrors(IEnumerable<Type> exceptions, bool strict)
@@ -212,8 +221,16 @@ namespace Validator.Managers.Scheme
                 }
             }
 
-            string description = string.Format("Property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name);
-            valid = ValidateAttribute(property.DeclaringType, property.PropertyType, description, strict) && valid;
+            // description
+            string description = getScheme().getDescription(property);
+            description = description.Trim();
+            if (string.IsNullOrEmpty(description))
+            {
+                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) has no description", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
+            }
+
+            string errorDescription = string.Format("Property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name);
+            valid = ValidateAttribute(property.DeclaringType, property.PropertyType, errorDescription, strict) && valid;
 
             return valid;
         }
@@ -463,8 +480,16 @@ namespace Validator.Managers.Scheme
                 valid = false;
             }
 
-            string description = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
-            valid = ValidateAttribute(controller, param.ParameterType, description, strict) && valid;
+            // description
+            string description = getScheme().getDescription(action, param);
+            description = description.Trim();
+            if (string.IsNullOrEmpty(description))
+            {
+                logError("Warning", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) has no description", param.Name, serviceId, actionId, controller.Name));
+            }
+
+            string errorDescription = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
+            valid = ValidateAttribute(controller, param.ParameterType, errorDescription, strict) && valid;
 
             return valid;
         }
@@ -639,6 +664,14 @@ namespace Validator.Managers.Scheme
                         valid = false;
                     }
                 }
+            }
+
+            // description
+            string description = getScheme().getDescription(action);
+            description = description.Trim();
+            if (string.IsNullOrEmpty(description))
+            {
+                logError("Warning", controller, string.Format("Action {0}.{1} ({2}) has no description", serviceId, actionId, controller.Name));
             }
 
             foreach (var param in parameters)
