@@ -8,10 +8,11 @@ namespace WebAPI.EventNotifications.Handlers
 {
     public class EmailNotificationHandler : NotificationEventHandler
     {
-        public EmailNotificationHandler(string definitions)
+        public EmailNotificationHandler(string definitions) : base (definitions)
         {
-            JObject.Parse(
+            
         }
+
         internal override void HandleEvent(EventManager.KalturaEvent kalturaEvent, object t)
         {
             throw new NotImplementedException();
