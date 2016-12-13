@@ -2657,7 +2657,6 @@ namespace Catalog
             // get all linear settings about channel + group
             GetLinearChannelSettings(pRequest.m_nGroupID, programs);
 
-
             EPGChannelProgrammeObject epgProg = null;
 
             //keeping the original order and amount of items (some of the items might return as null)
@@ -2736,6 +2735,8 @@ namespace Catalog
             {
                 epg.ENABLE_TRICK_PLAY = linearSettings.EnableTrickPlay == true ? 1 : 0;
             }
+
+            epg.LINEAR_MEDIA_ID = linearSettings.linearMediaId;
         }
 
         private static EPGChannelProgrammeObject GetLinearEpgProgramSettings(DataRow[] dr, DataRow drAccount)

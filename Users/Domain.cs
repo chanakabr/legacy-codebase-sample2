@@ -351,6 +351,14 @@ namespace Users
             int isActive = 2;   // Inactive
             int status = 2;     // Removed
 
+            // get household users
+            List<int> domainUserIds = new List<int>();
+            domainUserIds.AddRange(m_DefaultUsersIDs);
+            domainUserIds.AddRange(m_masterGUIDs);
+            domainUserIds.AddRange(m_PendingUsersIDs);
+            domainUserIds.AddRange(m_UsersIDs);
+            domainUserIds = domainUserIds.Distinct().ToList(); 
+
             int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
 
             //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
@@ -372,6 +380,12 @@ namespace Users
                             if (response.isOK)
                             {
                                 res = DomainResponseStatus.OK;
+                                // delete users from cache
+                                foreach (var userId in domainUserIds)
+                                {
+                                    UsersCache usersCache = UsersCache.Instance();
+                                    usersCache.RemoveUser(userId, m_nGroupID);
+                                }
                             }
                             else
                             {

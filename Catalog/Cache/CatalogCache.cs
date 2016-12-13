@@ -25,6 +25,7 @@ namespace Catalog.Cache
         #endregion
 
         #region InnerCache properties
+        private static object lck = new object();
         private static object locker = new object();
         private ICachingService CacheService = null;
         private readonly double dCacheTT;
@@ -240,9 +241,7 @@ namespace Catalog.Cache
             BaseModuleCache bModule = new BaseModuleCache(oValue);
             return CacheService.Set(sKey, bModule, dCacheTime);
         }
-            
-        
-
+                   
         public Dictionary<string,LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys)
         {
             Dictionary<string, LinearChannelSettings> linearChannelSettings = new Dictionary<string,LinearChannelSettings>();
@@ -382,7 +381,8 @@ namespace Catalog.Cache
                  enable = enableChannel;
              }
              linearChannelSettings.EnableRecordingPlaybackNonExistingChannel = enable == 1 ? true : false;
-            
+
+             linearChannelSettings.linearMediaId = ODBCWrapper.Utils.GetLongSafeVal(drChannel, "media_id", 0);
              linearChannelSettings.ChannelID = ODBCWrapper.Utils.GetSafeStr(drChannel, "ID"); 
              return linearChannelSettings;
          }
@@ -426,5 +426,6 @@ namespace Catalog.Cache
             }
             return isTstvSettingsExists;
         }
+
     }
 }

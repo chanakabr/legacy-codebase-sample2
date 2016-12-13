@@ -192,6 +192,7 @@ namespace Users
  
                 //cjeck if  send mail = true
                 bool sendMail = DomainDal.GetCloseAccountMailTrigger(m_nGroupID);
+                log.DebugFormat("Close Account mail settings m_nGroupID = {0}, sendMail = {1}", m_nGroupID, sendMail);
                 User masterUser = new User();
                 bool isUserValid = false;
                 if (sendMail)

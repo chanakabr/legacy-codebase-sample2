@@ -3707,7 +3707,19 @@ namespace ConditionalAccess
                 string sPPVMCd = price.m_oItemPrices[0].m_sPPVModuleCode;
 
                 Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
-
+                if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && domainId > 0)
+                {
+                    CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, nMediaFileID);
+                    if (cachedEntitlementResults != null)
+                    {
+                        cachedEntitlementResults.EntitlementStartDate = GetStartDate(price);
+                        cachedEntitlementResults.EntitlementEndDate = GetEndDate(price);
+                        if (!Utils.InsertOrSetCachedEntitlementResults(domainId, nMediaFileID, cachedEntitlementResults))
+                        {
+                            log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
+                        }
+                    }
+                }
                 if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode,
                     sSiteGUID, nIsCreditDownloaded > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
                 {
@@ -4152,6 +4164,7 @@ namespace ConditionalAccess
             Int32 nViewLifeCycle = 0;
             int fullLifeCycle = 0;
             bool isOfflinePlayback = false;
+            eTransactionType transactionType = eTransactionType.PPV;
             int OfflineStatus = 0;
             mdoule m = null;
             try
@@ -4178,18 +4191,21 @@ namespace ConditionalAccess
                     nViewLifeCycle = ppvModule.m_oUsageModule.m_tsViewLifeCycle;
                     fullLifeCycle = ppvModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
                     isOfflinePlayback = ppvModule.m_oUsageModule.m_bIsOfflinePlayBack;
+                    transactionType = eTransactionType.PPV;
                 }
                 else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
                 {                    
                     nViewLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsViewLifeCycle;
                     fullLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
                     isOfflinePlayback = theSub.m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
+                    transactionType = eTransactionType.Subscription;
                 }
                 else if (theCol != null && theCol.m_oCollectionUsageModule != null)
                 {                    
                     nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
                     fullLifeCycle = theCol.m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
                     isOfflinePlayback = theCol.m_oCollectionUsageModule.m_bIsOfflinePlayBack;
+                    transactionType = eTransactionType.Collection;
                 }
 
                 DataTable dtPPVUses = ConditionalAccessDAL.Get_AllDomainPPVUsesByMediaFiles(m_nGroupID, lUsersIds, mediaFileIDs, sPPVMCd);
@@ -4202,7 +4218,7 @@ namespace ConditionalAccess
 
                     if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && domainId > 0)
                     {
-                        CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, dUsed, false, isOfflinePlayback);
+                        CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, dUsed, false, isOfflinePlayback, transactionType);
                         if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
                         {
                             log.DebugFormat("Failed to insert CachedEntitlementResults: {0}, domainId: {1}, mediaFileId: {2}", cachedEntitlementResults.ToString(), domainId, mediaFileId);
@@ -10027,14 +10043,24 @@ namespace ConditionalAccess
                                         viewLifeCycleLeft = new TimeSpan();
                                     }
 
-                                    TimeSpan tsFullLeftSpan = cachedEntitlementResults.CreditDownloadedDate.Subtract(now);
-                                    if (tsFullLeftSpan.TotalSeconds < 0)
+                                    TimeSpan fullLifeCycleLeft = new TimeSpan();
+                                    if (cachedEntitlementResults.TransactionType != eTransactionType.PPV && cachedEntitlementResults.EntitlementEndDate.HasValue)
                                     {
-                                        tsFullLeftSpan = new TimeSpan();
+                                        fullLifeCycleLeft = cachedEntitlementResults.EntitlementEndDate.Value.Subtract(now);
+                                    }
+                                    else if (cachedEntitlementResults.TransactionType == eTransactionType.PPV && cachedEntitlementResults.FullLifeCycle > 0 && cachedEntitlementResults.EntitlementStartDate.HasValue)
+                                    {
+                                        DateTime endDate = Utils.GetEndDateTime(cachedEntitlementResults.EntitlementStartDate.Value, cachedEntitlementResults.FullLifeCycle);
+                                        fullLifeCycleLeft = endDate.Subtract(now);
+                                    }
+
+                                    if (fullLifeCycleLeft.TotalMilliseconds < 0)
+                                    {
+                                        fullLifeCycleLeft = new TimeSpan();
                                     }
 
                                     response.ViewLifeCycle = viewLifeCycleLeft.ToString();
-                                    response.FullLifeCycle = tsFullLeftSpan.ToString();
+                                    response.FullLifeCycle = fullLifeCycleLeft.ToString();
                                 }
 
                                 return response;
@@ -11810,7 +11836,8 @@ namespace ConditionalAccess
                     }
                     // item must be free otherwise we wouldn't get this far
                     else if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache")
-                            && !Utils.InsertOrSetCachedEntitlementResults(domainID, nMediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false)))
+                            && !Utils.InsertOrSetCachedEntitlementResults(domainID, nMediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
+                                // transaction type doesn't matter when item is free so just pass PPV
                     {
                         log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
                     }

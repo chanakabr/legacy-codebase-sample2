@@ -1062,15 +1062,16 @@ namespace TvinciImporter.Notification_WCF {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="AddMessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="MessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
     [System.SerializableAttribute()]
-    public partial class AddMessageAnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    [System.Runtime.Serialization.KnownTypeAttribute(typeof(TvinciImporter.Notification_WCF.AddMessageAnnouncementResponse))]
+    public partial class MessageAnnouncementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private int IdField;
+        private TvinciImporter.Notification_WCF.MessageAnnouncement AnnouncementField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private ApiObjects.Response.Status StatusField;
@@ -1086,14 +1087,14 @@ namespace TvinciImporter.Notification_WCF {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public int Id {
+        public TvinciImporter.Notification_WCF.MessageAnnouncement Announcement {
             get {
-                return this.IdField;
+                return this.AnnouncementField;
             }
             set {
-                if ((this.IdField.Equals(value) != true)) {
-                    this.IdField = value;
-                    this.RaisePropertyChanged("Id");
+                if ((object.ReferenceEquals(this.AnnouncementField, value) != true)) {
+                    this.AnnouncementField = value;
+                    this.RaisePropertyChanged("Announcement");
                 }
             }
         }
@@ -1117,6 +1118,29 @@ namespace TvinciImporter.Notification_WCF {
             System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
             if ((propertyChanged != null)) {
                 propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AddMessageAnnouncementResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class AddMessageAnnouncementResponse : TvinciImporter.Notification_WCF.MessageAnnouncementResponse {
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int IdField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int Id {
+            get {
+                return this.IdField;
+            }
+            set {
+                if ((this.IdField.Equals(value) != true)) {
+                    this.IdField = value;
+                    this.RaisePropertyChanged("Id");
+                }
             }
         }
     }
@@ -1295,6 +1319,9 @@ namespace TvinciImporter.Notification_WCF {
         private string FollowReferenceField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int GroupIdField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private int StatusField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -1351,6 +1378,19 @@ namespace TvinciImporter.Notification_WCF {
                 if ((object.ReferenceEquals(this.FollowReferenceField, value) != true)) {
                     this.FollowReferenceField = value;
                     this.RaisePropertyChanged("FollowReference");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int GroupId {
+            get {
+                return this.GroupIdField;
+            }
+            set {
+                if ((this.GroupIdField.Equals(value) != true)) {
+                    this.GroupIdField = value;
+                    this.RaisePropertyChanged("GroupId");
                 }
             }
         }
@@ -1440,6 +1480,67 @@ namespace TvinciImporter.Notification_WCF {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="FollowResponse", Namespace="http://schemas.datacontract.org/2004/07/NotificationObj")]
+    [System.SerializableAttribute()]
+    public partial class FollowResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private TvinciImporter.Notification_WCF.FollowDataBase FollowField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private ApiObjects.Response.Status StatusField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public TvinciImporter.Notification_WCF.FollowDataBase Follow {
+            get {
+                return this.FollowField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.FollowField, value) != true)) {
+                    this.FollowField = value;
+                    this.RaisePropertyChanged("Follow");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public ApiObjects.Response.Status Status {
+            get {
+                return this.StatusField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StatusField, value) != true)) {
+                    this.StatusField = value;
+                    this.RaisePropertyChanged("Status");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="Notification_WCF.INotificationService")]
     public interface INotificationService {
@@ -1491,7 +1592,7 @@ namespace TvinciImporter.Notification_WCF {
         bool SendMessageAnnouncement(string sWSUserName, string sWSPassword, long startTime, int id);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse")]
-        ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageAnnouncement announcement);
+        TvinciImporter.Notification_WCF.MessageAnnouncementResponse UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int announcementId, TvinciImporter.Notification_WCF.MessageAnnouncement announcement);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus", ReplyAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse")]
         ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, long id, bool status);
@@ -1521,7 +1622,7 @@ namespace TvinciImporter.Notification_WCF {
         ApiObjects.Response.Status Unfollow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Follow", ReplyAction="http://tempuri.org/INotificationService/FollowResponse")]
-        ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData);
+        TvinciImporter.Notification_WCF.FollowResponse Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssets", ReplyAction="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssetsResponse")]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(ApiObjects.Response.IdListResponse))]
@@ -1554,6 +1655,16 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetAnnouncements", ReplyAction="http://tempuri.org/INotificationService/GetAnnouncementsResponse")]
         ApiObjects.Notification.AnnouncementsResponse GetAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan", ReplyAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse")]
+        ApiObjects.Response.Status DeleteAnnouncementsOlderThan(string sWSUserName, string sWSPassword);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersRespons" +
+            "e")]
+        ApiObjects.Notification.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse")]
+        ApiObjects.Notification.RegistryResponse RegisterPushSystemParameters(string sWSUserName, string sWSPassword, string hash, string ip);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -1643,8 +1754,8 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.SendMessageAnnouncement(sWSUserName, sWSPassword, startTime, id);
         }
         
-        public ApiObjects.Response.Status UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, TvinciImporter.Notification_WCF.MessageAnnouncement announcement) {
-            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcement);
+        public TvinciImporter.Notification_WCF.MessageAnnouncementResponse UpdateMessageAnnouncement(string sWSUserName, string sWSPassword, int announcementId, TvinciImporter.Notification_WCF.MessageAnnouncement announcement) {
+            return base.Channel.UpdateMessageAnnouncement(sWSUserName, sWSPassword, announcementId, announcement);
         }
         
         public ApiObjects.Response.Status UpdateMessageAnnouncementStatus(string sWSUserName, string sWSPassword, long id, bool status) {
@@ -1683,7 +1794,7 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.Unfollow(sWSUserName, sWSPassword, userId, followData);
         }
         
-        public ApiObjects.Response.Status Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData) {
+        public TvinciImporter.Notification_WCF.FollowResponse Follow(string sWSUserName, string sWSPassword, int userId, TvinciImporter.Notification_WCF.FollowDataBase followData) {
             return base.Channel.Follow(sWSUserName, sWSPassword, userId, followData);
         }
         
@@ -1725,6 +1836,18 @@ namespace TvinciImporter.Notification_WCF {
         
         public ApiObjects.Notification.AnnouncementsResponse GetAnnouncements(string sWSUserName, string sWSPassword, int pageSize, int pageIndex) {
             return base.Channel.GetAnnouncements(sWSUserName, sWSPassword, pageSize, pageIndex);
+        }
+        
+        public ApiObjects.Response.Status DeleteAnnouncementsOlderThan(string sWSUserName, string sWSPassword) {
+            return base.Channel.DeleteAnnouncementsOlderThan(sWSUserName, sWSPassword);
+        }
+        
+        public ApiObjects.Notification.RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip) {
+            return base.Channel.RegisterPushAnnouncementParameters(sWSUserName, sWSPassword, announcementId, hash, ip);
+        }
+        
+        public ApiObjects.Notification.RegistryResponse RegisterPushSystemParameters(string sWSUserName, string sWSPassword, string hash, string ip) {
+            return base.Channel.RegisterPushSystemParameters(sWSUserName, sWSPassword, hash, ip);
         }
     }
 }

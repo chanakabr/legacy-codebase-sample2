@@ -601,6 +601,7 @@ namespace Users
             {
                 WelcomeMailRequest sMailReq = GetWelcomeMailRequest(GetUniqueTitle(oBasicData, sDynamicData), oBasicData.m_sUserName, sPassword, oBasicData.m_sEmail, oBasicData.m_sFacebookID);
 
+                log.DebugFormat("params for welcom mail ws_users sMailReq.m_sSubject={0}, oBasicData.m_sUserName={1}, sMailReq.m_sTemplateName={2}", sMailReq.m_sSubject, oBasicData.m_sUserName, sMailReq.m_sTemplateName);
                 bool sendingMailResult = Utils.SendMail(m_nGroupID, sMailReq);
             }
 
