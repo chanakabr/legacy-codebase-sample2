@@ -90,6 +90,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("app_token_max_expiry_seconds")]
         public int AppTokenMaxExpirySeconds { get; set; }
 
+        [JsonProperty("users_sessions_key_format")]
+        public string UserSessionsKeyFormat { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 

@@ -40,10 +40,10 @@ namespace WebAPI.Managers
             }
 
             // get group configurations
-            Group groupConfig = GetGroupConfiguration(groupId);
+            Group group = GetGroupConfiguration(groupId);
 
             // get token from CB
-            string tokenKey = string.Format(groupConfig.TokenKeyFormat, refreshToken);
+            string tokenKey = string.Format(group.TokenKeyFormat, refreshToken);
             ulong version;
             ApiToken token = cbManager.GetWithVersion<ApiToken>(tokenKey, out version, true);
             if (token == null)
@@ -61,13 +61,13 @@ namespace WebAPI.Managers
 
             string userId = token.UserId;
 
-
             // get user
             ValidateUser(groupId, userId);
 
 
+
             // generate new access token with the old refresh token
-            token = new ApiToken(token, groupConfig, udid);
+            token = new ApiToken(token, group, udid);
 
             // Store new access + refresh tokens pair
             if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
@@ -75,6 +75,10 @@ namespace WebAPI.Managers
                 log.ErrorFormat("RefreshSession: Failed to store refreshed token");
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
+
+            // update the sessions data
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration);
 
             return new KalturaLoginSession()
             {
@@ -92,12 +96,11 @@ namespace WebAPI.Managers
             }
 
             // get group configurations
-            Group groupConfig = GetGroupConfiguration(groupId);
+            Group group = GetGroupConfiguration(groupId);
 
             // generate access token and refresh token pair
-            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, groupConfig, isLoginWithPin);
-
-            string tokenKey = string.Format(groupConfig.TokenKeyFormat, token.RefreshToken);
+            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin);
+            string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
             // try store in CB, will return false if the same token already exists
             if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
@@ -105,6 +108,10 @@ namespace WebAPI.Managers
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException();
             }
+
+            // update the sessions data
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration);
 
             return new KalturaLoginSession()
             {
@@ -426,6 +433,93 @@ namespace WebAPI.Managers
             }
 
             return response;
+        }
+
+        //TODO: cas?
+        internal static bool LogOut(KS ks)
+        {
+            Group group = GroupsManager.GetGroup(ks.GroupId);
+
+            // get user sessions from CB
+            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, ks.UserId);
+            UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+
+            return true;
+        }
+
+        // TODO: handle errors
+        internal static bool IsKsValid(KS ks)
+        {
+            if (ks.Expiration < DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            Group group = GroupsManager.GetGroup(ks.GroupId);
+
+            // get user sessions from CB
+            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, ks.UserId);
+            UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+
+            if (usersSessions != null)
+            {
+                var ksData = KSUtils.ExtractKSPayload(ks);
+
+                if (usersSessions.UserRevocation > 0)
+                {
+                    return ksData.CreateDate > usersSessions.UserRevocation;
+                }
+
+                if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
+                {
+                    return ksData.CreateDate > usersSessions.UserWithUdidRevocations[ksData.UDID];
+                }
+            }
+
+            return true;
+        }
+
+        private static void UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration)
+        {
+            // get user sessions from CB
+            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
+            UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+
+            // if not found create one
+            if (usersSessions == null)
+            {
+                usersSessions = new UserSessions()
+                {
+                    UserId = userId,
+                };
+            }
+
+            if (!string.IsNullOrEmpty(udid))
+            {
+                if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
+                {
+                    usersSessions.UserWithUdidRevocations[udid] = revocationTime;
+                }
+                else
+                {
+                    usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
+                }
+            }
+
+            // calculate new expiration
+            if (expiration > usersSessions.expiration)
+            {
+                usersSessions.expiration = expiration;
+            }
+
+            // store
+            if (!cbManager.Set<UserSessions>(userSessionsCbKey, usersSessions, (uint)usersSessions.expiration, true))
+            {
+                log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
+
+                //TODO: make sure how to handle the error
+                throw new InternalServerErrorException();
+            }
         }
     }
 }
