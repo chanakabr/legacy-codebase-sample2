@@ -997,7 +997,7 @@ namespace WebAPI.Clients
             return householdPaymentMethodResponse;
         }
 
-        internal bool RemoveHouseholdPaymentMethods(int groupId, int householdId)
+        internal bool RemoveAccount(int groupId, int householdId)
         {
             Status status = null;
 
@@ -1008,7 +1008,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    status = Billing.RemoveHouseholdPaymentMethods(group.BillingCredentials.Username, group.BillingCredentials.Password, householdId);
+                    status = Billing.RemoveAccount(group.BillingCredentials.Username, group.BillingCredentials.Password, householdId);
                 }
             }
             catch (Exception ex)

@@ -498,6 +498,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", RequiresPermission = true)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DomainNotExists)]
         public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
@@ -506,22 +507,36 @@ namespace WebAPI.Controllers
             
             try
             {
+                KalturaHousehold household = null;
+                
                 if (!id.HasValue || id.Value == 0)
                 {
-                    id = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+                    household = HouseholdUtils.GetHouseholdFromRequest();
+                    id = (int)household.Id;
+                }
+                else
+                {
+                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, id.Value);
+                }
+
+                if (id == 0 || household == null)
+                {
+                    throw new ClientException((int)eResponseStatus.DomainNotExists, "Household Not Exists");
                 }
 
                 // remove entitlements
                 ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id.Value);
 
                 //remove payment methods
-                ClientsManager.BillingClient().RemoveHouseholdPaymentMethods(groupId, id.Value);
+                ClientsManager.BillingClient().RemoveAccount(groupId, id.Value);
 
                 var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id.Value);
 
-
-                // remove push stuff - make sure pending users need this
-                ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds);
+                if (householdUserIds != null && householdUserIds.Count > 0)
+                {
+                    // remove push stuff - make sure pending users need this
+                    ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds.Distinct().ToList());
+                }
 
                 // remove users, devices and household
                 ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value);

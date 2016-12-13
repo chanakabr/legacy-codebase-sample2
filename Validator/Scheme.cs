@@ -601,17 +601,17 @@ namespace Validator.Managers.Scheme
             writer.WriteEndElement(); // action
         }
 
-        private string getDescription(PropertyInfo property)
+        internal string getDescription(PropertyInfo property)
         {
             return getDescription(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name));
         }
 
-        private string getDescription(Type type)
+        internal string getDescription(Type type)
         {
             return getDescription(string.Format("//member[@name='T:{0}']", type.FullName));
         }
 
-        private string getDescription(MethodInfo method)
+        internal string getDescription(MethodInfo method)
         {
             if (method.GetParameters().Length > 0)
             {
@@ -623,7 +623,7 @@ namespace Validator.Managers.Scheme
             }
         }
 
-        private string getDescription(MethodInfo method, ParameterInfo param)
+        internal string getDescription(MethodInfo method, ParameterInfo param)
         {
             return getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}')]/param[@name='{2}']", method.ReflectedType.FullName, method.Name, param.Name));
         }

@@ -38,6 +38,7 @@ namespace WebAPI.Managers.Models
         public class KSData
         {
             public string UDID { get; set; }
+            public DateTime CreateDate { get; set; }
         }
 
         public KSVersion ksVersion { get; private set; }
@@ -91,7 +92,6 @@ namespace WebAPI.Managers.Models
 
         public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, List<KalturaKeyValue> privilegesList, KSVersion ksType)
         {
-            
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
             //prepare data - url encode + replace '_'
@@ -103,7 +103,7 @@ namespace WebAPI.Managers.Models
             }
 
             string ks = string.Format(KS_FORMAT, 
-                privilegesList != null && privilegesList.Count > 0 ? string.Join(",", privilegesList.Select(p => string.Join(":", p.key, p.value))) : string.Empty, 
+                privilegesList != null && privilegesList.Count > 0 ? string.Join("&_", privilegesList.Select(p => string.Join("=", p.key, p.value))) : string.Empty, 
                 (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
@@ -178,21 +178,9 @@ namespace WebAPI.Managers.Models
             for (int i = 0; i < fields.Length; i++)
             {
                 string[] pair = fields[i].Split('=');
-                if (pair == null || pair.Length != 2)
+                if (pair.Length != 2)
                 {
-                    var privileges = fields[i].Split(new char[] {','},StringSplitOptions.RemoveEmptyEntries);
-                    foreach (var privilege in privileges)
-                    {
-                        pair = privilege.Split(':');
-                        if (pair == null || pair.Length != 2)
-                        {
-                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = null });
-                        }
-                        else
-                        {
-                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
-                        }
-                    }
+                    ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = null });
                 }
                 else
                 {
@@ -218,7 +206,7 @@ namespace WebAPI.Managers.Models
                             }
                             break;
                         default:
-                            throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
                             break;
                     }
                 }

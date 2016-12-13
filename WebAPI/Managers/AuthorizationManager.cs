@@ -280,6 +280,9 @@ namespace WebAPI.Managers
             // 9. privileges - we do not support it so copy from app token
             var privilagesList = new List<KalturaKeyValue>();
 
+            privilagesList.Add(new KalturaKeyValue() { key = APP_TOKEN_PRIVILEGE_APP_TOKEN, value = appToken.Token });
+            privilagesList.Add(new KalturaKeyValue() { key = APP_TOKEN_PRIVILEGE_SESSION_ID, value = appToken.Token });
+
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
             {
                 var splitedPrivileges = appToken.SessionPrivileges.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -362,9 +365,6 @@ namespace WebAPI.Managers
 
             // session type - currently can be only USER
             appToken.SessionType = KalturaSessionType.USER;
-
-            // privileges - we currently not support privileges - but for future OVP aligning...
-            appToken.SessionPrivileges = string.Format("{0}:{1},{2}:{3}", APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token, APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
 
             // status - status deleted id not supported (when a token is deleted its deleted from CB) and is default value if status is omitted in request while default value should be active
             if (appToken.Status == KalturaAppTokenStatus.DELETED)
