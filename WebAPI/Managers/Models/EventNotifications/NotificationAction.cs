@@ -6,28 +6,30 @@ using System.Web;
 
 namespace WebAPI.Managers.Models
 {
+    public enum eNotificationActionTypes
+    {
+        Http = 0,
+        Email = 1,
+        Rabbit = 2,
+        // to be continued
+    }
+
     [Serializable]
     public class NotificationAction
     {
         [JsonProperty("type")]
-        public string Type
+        public eNotificationActionTypes ActionType
         {
             get;
             set;
         }
 
         [JsonProperty("body")]
-        public NotificationActionDefinitions Body
+        public string Body
         {
             get;
             set;
         }
 
-        public virtual bool Consume(EventManager.KalturaEvent kalturaEvent, object eventObject)
-        {
-            bool result = false;
-
-            return result;
-        }
     }
 }

@@ -624,12 +624,13 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
     <Compile Include="EventNotifications\NotificationActionFactory.cs" />
+    <Compile Include="EventNotifications\NotificationEventHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
-    <Compile Include="Managers\Models\EventNotifications\NotificationActionDefinitions.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />

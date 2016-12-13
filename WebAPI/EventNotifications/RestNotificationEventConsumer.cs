@@ -59,11 +59,11 @@ namespace WebAPI
             Type destination = notification.PhoenixType;
 
             object t = AutoMapper.Mapper.Map(kalturaEvent.Object, source, destination);
-
             
             foreach (var action in notification.Actions)
             {
-                action.Consume(kalturaEvent, t);
+                var handler = NotificationActionFactory.CreateEventHandler(action.ActionType, action.Body);
+                handler.HandleEvent(kalturaEvent, t);
             }
 
             return false;
