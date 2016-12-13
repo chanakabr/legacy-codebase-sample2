@@ -22,13 +22,19 @@ namespace EventManager
             set;
         }
 
+        private string type;
+
         public virtual string Type
         {
             get
             {
                 string result = string.Empty;
 
-                if (this.Object != null)
+                if (!string.IsNullOrEmpty(type))
+                {
+                    result = type;
+                } 
+                else if (this.Object != null)
                 {
                     result = this.Object.GetType().Name;
                 }
@@ -37,11 +43,13 @@ namespace EventManager
             }
         }
 
+        private string action;
+
         public virtual string Action
         {
             get
             {
-                return string.Empty;
+                return action;
             }
         }
 
@@ -49,10 +57,12 @@ namespace EventManager
 
         #region Ctor
 
-        public KalturaEvent(ApiObjects.CoreObject coreObject = null, int groupId = 0)
+        public KalturaEvent(ApiObjects.CoreObject coreObject = null, int groupId = 0, string type = null, string action = null)
         {
             this.Object = coreObject;
             this.PartnerId = groupId;
+            this.type = type;
+            this.action = action;
         } 
 
         #endregion
