@@ -2106,7 +2106,7 @@ namespace DAL
                             Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
                             QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
                             QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
-                            Reference = ODBCWrapper.Utils.GetSafeStr(row, "reference"),
+                            Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
                             ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                             SendTime = sentDateSec
                         };

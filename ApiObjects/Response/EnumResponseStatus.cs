@@ -279,7 +279,7 @@ namespace ApiObjects.Response
         UserInboxMessagesNotExist = 8020,
         InvalidReminderPrePaddingSec = 8021,
         ReminderNotFound = 8022,
-        UserAlreadySerReminder = 8023,
+        UserAlreadySetReminder = 8023,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
