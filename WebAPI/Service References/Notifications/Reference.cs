@@ -3283,7 +3283,7 @@ namespace WebAPI.Notifications {
         private string QueueNameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private string ReferenceField;
+        private long ReferenceField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private long SendTimeField;
@@ -3416,12 +3416,12 @@ namespace WebAPI.Notifications {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public string Reference {
+        public long Reference {
             get {
                 return this.ReferenceField;
             }
             set {
-                if ((object.ReferenceEquals(this.ReferenceField, value) != true)) {
+                if ((this.ReferenceField.Equals(value) != true)) {
                     this.ReferenceField = value;
                     this.RaisePropertyChanged("Reference");
                 }
@@ -3777,13 +3777,12 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RemoveUsersNotificationData", ReplyAction="http://tempuri.org/INotificationService/RemoveUsersNotificationDataResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> RemoveUsersNotificationDataAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds);
-<<<<<<< HEAD
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/EpgEvent", ReplyAction="http://tempuri.org/INotificationService/EpgEventResponse")]
-        bool EpgEvent(string sWSUserName, string sWSPassword, string programId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/HandleEpgEvent", ReplyAction="http://tempuri.org/INotificationService/HandleEpgEventResponse")]
+        bool HandleEpgEvent(int partnerId, System.Collections.Generic.List<ulong> programIds);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/EpgEvent", ReplyAction="http://tempuri.org/INotificationService/EpgEventResponse")]
-        System.Threading.Tasks.Task<bool> EpgEventAsync(string sWSUserName, string sWSPassword, string programId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/HandleEpgEvent", ReplyAction="http://tempuri.org/INotificationService/HandleEpgEventResponse")]
+        System.Threading.Tasks.Task<bool> HandleEpgEventAsync(int partnerId, System.Collections.Generic.List<ulong> programIds);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RegisterPushReminderParameters", ReplyAction="http://tempuri.org/INotificationService/RegisterPushReminderParametersResponse")]
         WebAPI.Notifications.RegistryResponse RegisterPushReminderParameters(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip);
@@ -3797,11 +3796,11 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeletePartnerReminder", ReplyAction="http://tempuri.org/INotificationService/DeletePartnerReminderResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeletePartnerReminderAsync(string sWSUserName, string sWSPassword, long reminderId);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddReminder", ReplyAction="http://tempuri.org/INotificationService/AddReminderResponse")]
-        WebAPI.Notifications.RemindersResponse AddReminder(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddUserReminder", ReplyAction="http://tempuri.org/INotificationService/AddUserReminderResponse")]
+        WebAPI.Notifications.RemindersResponse AddUserReminder(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddReminder", ReplyAction="http://tempuri.org/INotificationService/AddReminderResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> AddReminderAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddUserReminder", ReplyAction="http://tempuri.org/INotificationService/AddUserReminderResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> AddUserReminderAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteOldReminders", ReplyAction="http://tempuri.org/INotificationService/DeleteOldRemindersResponse")]
         WebAPI.Notifications.Status DeleteOldReminders(string sWSUserName, string sWSPassword);
@@ -3809,13 +3808,23 @@ namespace WebAPI.Notifications {
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteOldReminders", ReplyAction="http://tempuri.org/INotificationService/DeleteOldRemindersResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteOldRemindersAsync(string sWSUserName, string sWSPassword);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
-        WebAPI.Notifications.Status DeleteReminder(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteUserReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteUserReminderResponse")]
+        WebAPI.Notifications.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
-        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId);
-=======
->>>>>>> Refactoring
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteUserReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteUserReminderResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteUserReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageReminder", ReplyAction="http://tempuri.org/INotificationService/SendMessageReminderResponse")]
+        bool SendMessageReminder(string sWSUserName, string sWSPassword, long startTime, int reminderId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SendMessageReminder", ReplyAction="http://tempuri.org/INotificationService/SendMessageReminderResponse")]
+        System.Threading.Tasks.Task<bool> SendMessageReminderAsync(string sWSUserName, string sWSPassword, long startTime, int reminderId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserReminders", ReplyAction="http://tempuri.org/INotificationService/GetUserRemindersResponse")]
+        WebAPI.Notifications.RemindersResponse GetUserReminders(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, WebAPI.Notifications.OrderObj orderObj);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserReminders", ReplyAction="http://tempuri.org/INotificationService/GetUserRemindersResponse")]
+        System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> GetUserRemindersAsync(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, WebAPI.Notifications.OrderObj orderObj);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4164,14 +4173,13 @@ namespace WebAPI.Notifications {
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> RemoveUsersNotificationDataAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds) {
             return base.Channel.RemoveUsersNotificationDataAsync(sWSUserName, sWSPassword, userIds);
         }
-<<<<<<< HEAD
         
-        public bool EpgEvent(string sWSUserName, string sWSPassword, string programId) {
-            return base.Channel.EpgEvent(sWSUserName, sWSPassword, programId);
+        public bool HandleEpgEvent(int partnerId, System.Collections.Generic.List<ulong> programIds) {
+            return base.Channel.HandleEpgEvent(partnerId, programIds);
         }
         
-        public System.Threading.Tasks.Task<bool> EpgEventAsync(string sWSUserName, string sWSPassword, string programId) {
-            return base.Channel.EpgEventAsync(sWSUserName, sWSPassword, programId);
+        public System.Threading.Tasks.Task<bool> HandleEpgEventAsync(int partnerId, System.Collections.Generic.List<ulong> programIds) {
+            return base.Channel.HandleEpgEventAsync(partnerId, programIds);
         }
         
         public WebAPI.Notifications.RegistryResponse RegisterPushReminderParameters(string sWSUserName, string sWSPassword, long reminderId, string hash, string ip) {
@@ -4190,12 +4198,12 @@ namespace WebAPI.Notifications {
             return base.Channel.DeletePartnerReminderAsync(sWSUserName, sWSPassword, reminderId);
         }
         
-        public WebAPI.Notifications.RemindersResponse AddReminder(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder) {
-            return base.Channel.AddReminder(sWSUserName, sWSPassword, userId, dbReminder);
+        public WebAPI.Notifications.RemindersResponse AddUserReminder(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder) {
+            return base.Channel.AddUserReminder(sWSUserName, sWSPassword, userId, dbReminder);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> AddReminderAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder) {
-            return base.Channel.AddReminderAsync(sWSUserName, sWSPassword, userId, dbReminder);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> AddUserReminderAsync(string sWSUserName, string sWSPassword, int userId, WebAPI.Notifications.DbReminder dbReminder) {
+            return base.Channel.AddUserReminderAsync(sWSUserName, sWSPassword, userId, dbReminder);
         }
         
         public WebAPI.Notifications.Status DeleteOldReminders(string sWSUserName, string sWSPassword) {
@@ -4206,14 +4214,28 @@ namespace WebAPI.Notifications {
             return base.Channel.DeleteOldRemindersAsync(sWSUserName, sWSPassword);
         }
         
-        public WebAPI.Notifications.Status DeleteReminder(string sWSUserName, string sWSPassword, int userId, long reminderId) {
-            return base.Channel.DeleteReminder(sWSUserName, sWSPassword, userId, reminderId);
+        public WebAPI.Notifications.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId) {
+            return base.Channel.DeleteUserReminder(sWSUserName, sWSPassword, userId, reminderId);
         }
         
-        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId) {
-            return base.Channel.DeleteReminderAsync(sWSUserName, sWSPassword, userId, reminderId);
+        public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteUserReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId) {
+            return base.Channel.DeleteUserReminderAsync(sWSUserName, sWSPassword, userId, reminderId);
         }
-=======
->>>>>>> Refactoring
+        
+        public bool SendMessageReminder(string sWSUserName, string sWSPassword, long startTime, int reminderId) {
+            return base.Channel.SendMessageReminder(sWSUserName, sWSPassword, startTime, reminderId);
+        }
+        
+        public System.Threading.Tasks.Task<bool> SendMessageReminderAsync(string sWSUserName, string sWSPassword, long startTime, int reminderId) {
+            return base.Channel.SendMessageReminderAsync(sWSUserName, sWSPassword, startTime, reminderId);
+        }
+        
+        public WebAPI.Notifications.RemindersResponse GetUserReminders(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, WebAPI.Notifications.OrderObj orderObj) {
+            return base.Channel.GetUserReminders(sWSUserName, sWSPassword, userId, filter, pageSize, pageIndex, orderObj);
+        }
+        
+        public System.Threading.Tasks.Task<WebAPI.Notifications.RemindersResponse> GetUserRemindersAsync(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, WebAPI.Notifications.OrderObj orderObj) {
+            return base.Channel.GetUserRemindersAsync(sWSUserName, sWSPassword, userId, filter, pageSize, pageIndex, orderObj);
+        }
     }
 }

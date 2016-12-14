@@ -11,6 +11,6 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
-        public int AssetId { get; set; }
+        public long AssetId { get; set; }
     }
 }

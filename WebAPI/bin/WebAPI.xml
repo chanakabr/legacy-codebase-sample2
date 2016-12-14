@@ -6336,6 +6336,21 @@
             Current Bitrate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaReminderListResponse">
             <summary>
             List of reminders from DB.
@@ -8528,7 +8543,7 @@
         </member>
         <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Nullable{System.Int32})">
              <summary>
-             Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.
+             Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
              </summary>
              <param name="id">Household identifier</param>
              <remarks>Possible status codes: 

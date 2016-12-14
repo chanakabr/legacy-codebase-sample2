@@ -1372,8 +1372,8 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     dbReminder = Mapper.Map<DbReminder>(reminder);
-                    dbReminder.Reference = reminder.AssetId.ToString();
-                    response = Notification.AddReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, dbReminder);
+                    dbReminder.Reference = reminder.AssetId;
+                    response = Notification.AddUserReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, dbReminder);
                 }
             }
             catch (Exception ex)
@@ -1402,11 +1402,6 @@ namespace WebAPI.Clients
             return kalturaReminder;
         }
 
-        internal KalturaReminderListResponse GetReminders(int groupId, int p1, int p2)
-        {
-            throw new NotImplementedException();
-        }
-
         internal bool DeleteReminder(string userID, int groupId, long reminderId)
         {
             Status response = null;
@@ -1424,7 +1419,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.DeleteReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, reminderId);
+                    response = Notification.DeleteUserReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, reminderId);
                 }
             }
             catch (Exception ex)
@@ -1470,6 +1465,11 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        internal KalturaReminderListResponse GetReminders(int groupId, string p1, int p2, int p3, KalturaAssetOrderBy kalturaAssetOrderBy)
+        {
+            throw new NotImplementedException();
         }
     }
 }
