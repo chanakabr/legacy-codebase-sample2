@@ -45,7 +45,7 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
         {
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
             RefreshToken = Utils.Utils.Generate32LengthGuid();
             GroupID = groupId;
             UserId = userId;
@@ -89,13 +89,13 @@ namespace WebAPI.Managers.Models
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
             RefreshToken = token.RefreshToken;
             GroupID = token.GroupID;
             UserId = token.UserId;
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
-
+            Udid = udid;
             // set refresh token expiration
             if (groupConfig.IsRefreshTokenExtendable)
             {

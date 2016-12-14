@@ -63,7 +63,13 @@ namespace WebAPI.Managers
             if (ks.ToString() != token.KS)
             {
                 log.ErrorFormat("RefreshSession: invalid ks");
-                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
+            }
+
+            if (udid != token.Udid)
+            {
+                log.ErrorFormat("RefreshSession: UDID does not match the KS's UDID, UDID = {0}, KS.UDID = {1}", udid, token.Udid);
+                throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
             }
 
             string userId = token.UserId;
@@ -519,12 +525,12 @@ namespace WebAPI.Managers
 
                 if (usersSessions.UserRevocation > 0)
                 {
-                    return ksData.CreateDate > usersSessions.UserRevocation;
+                    return ksData.CreateDate >= usersSessions.UserRevocation;
                 }
 
                 if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
                 {
-                    return ksData.CreateDate > usersSessions.UserWithUdidRevocations[ksData.UDID];
+                    return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
                 }
             }
 
