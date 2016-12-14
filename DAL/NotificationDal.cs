@@ -2074,7 +2074,7 @@ namespace DAL
         //    return result;
         //}
 
-        public static List<DbReminder> GetReminders(int groupId)
+        public static List<DbReminder> GetReminders(int groupId, long reminderId = 0)
         {
             List<DbReminder> result = null;
 
@@ -2083,6 +2083,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRemindersByGroupId");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@reminderId", reminderId);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
