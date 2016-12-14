@@ -996,6 +996,41 @@ namespace WebAPI.Clients
 
             return householdPaymentMethodResponse;
         }
+
+        internal bool RemoveAccount(int groupId, int householdId)
+        {
+            Status status = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    status = Billing.RemoveAccount(group.BillingCredentials.Username, group.BillingCredentials.Password, householdId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (status == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(status.Code, status.Message);
+            }
+
+            return true;
+        }
     }
 }
 

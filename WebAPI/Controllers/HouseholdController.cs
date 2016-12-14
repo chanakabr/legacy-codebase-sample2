@@ -489,14 +489,17 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.
+        /// Fully delete a household. Delete all of the household information, including users, devices, entitlements, payment methods and notification date.
         /// </summary>
         /// <param name="id">Household identifier</param>
         /// <remarks>Possible status codes: 
         ///</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(int id)
+        [SchemeArgument("id", RequiresPermission = true)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        public bool Delete(int? id = null)
         {
             var ks = KS.GetFromRequest();
 
@@ -504,7 +507,39 @@ namespace WebAPI.Controllers
             
             try
             {
-                return ClientsManager.DomainsClient().RemoveDomain(groupId, id);
+                KalturaHousehold household = null;
+                
+                if (!id.HasValue || id.Value == 0)
+                {
+                    household = HouseholdUtils.GetHouseholdFromRequest();
+                    id = (int)household.Id;
+                }
+                else
+                {
+                    household = ClientsManager.DomainsClient().GetDomainInfo(groupId, id.Value);
+                }
+
+                if (id == 0 || household == null)
+                {
+                    throw new ClientException((int)eResponseStatus.DomainNotExists, "Household Not Exists");
+                }
+
+                // remove entitlements
+                ClientsManager.ConditionalAccessClient().RemoveHouseholdEntitlements(groupId, id.Value);
+
+                //remove payment methods
+                ClientsManager.BillingClient().RemoveAccount(groupId, id.Value);
+
+                var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true, id.Value);
+
+                if (householdUserIds != null && householdUserIds.Count > 0)
+                {
+                    // remove push stuff - make sure pending users need this
+                    ClientsManager.NotificationClient().RemoveUsersNotificationData(groupId, householdUserIds.Distinct().ToList());
+                }
+
+                // remove users, devices and household
+                ClientsManager.DomainsClient().RemoveDomain(groupId, id.Value);
             }
             catch (ClientException ex)
             {

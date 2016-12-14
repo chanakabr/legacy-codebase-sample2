@@ -38,13 +38,14 @@ namespace WebAPI.Managers.Models
         public class KSData
         {
             public string UDID { get; set; }
+            public int CreateDate { get; set; }
         }
 
         public KSVersion ksVersion { get; private set; }
 
         public bool IsValid
         {
-            get { return expiration > DateTime.UtcNow; }
+            get { return AuthorizationManager.IsKsValid(this); }
         }
 
         public int GroupId
@@ -91,7 +92,6 @@ namespace WebAPI.Managers.Models
 
         public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, string data, List<KalturaKeyValue> privilegesList, KSVersion ksType)
         {
-            
             int relativeExpiration = (int)SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) + expiration;
 
             //prepare data - url encode + replace '_'
@@ -102,7 +102,9 @@ namespace WebAPI.Managers.Models
                 encodedData = HttpUtility.UrlEncode(encodedData);
             }
 
-            string ks = string.Format(KS_FORMAT, privilegesList, (int)userType, relativeExpiration, userID, encodedData);
+            string ks = string.Format(KS_FORMAT, 
+                privilegesList != null && privilegesList.Count > 0 ? string.Join("&_", privilegesList.Select(p => string.Join("=", p.key, p.value))) : string.Empty, 
+                (int)userType, relativeExpiration, userID, encodedData);
             byte[] ksBytes = Encoding.ASCII.GetBytes(ks);
             byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             byte[] randWithFields = new byte[ksBytes.Length + randomBytes.Length];
@@ -176,35 +178,37 @@ namespace WebAPI.Managers.Models
             for (int i = 0; i < fields.Length; i++)
             {
                 string[] pair = fields[i].Split('=');
-                if (pair == null || pair.Length != 2)
+                if (pair.Length != 2)
                 {
-                    ks.privileges.Add(new KalturaKeyValue() { key = fields[i], value = null });
+                    ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = null });
                 }
-
-                switch (pair[0])
+                else
                 {
-                    case "t":
-                        ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
-                        break;
-                    case "e":
-                        long expiration;
-                        long.TryParse(pair[1], out expiration);
-                        ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
-                        break;
-                    case "u":
-                        ks.userId = pair[1];
-                        break;
-                    case "d":
-                        ks.data = string.Empty;
-                        if (!string.IsNullOrEmpty(pair[1]))
-                        {
-                            ks.data = HttpUtility.UrlDecode(pair[1]);
-                            ks.data = ks.data.Replace(REPLACE_UNDERSCORE, "_"); 
-                        }
-                        break;
-                    default:
-                        ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
-                        break;
+                    switch (pair[0])
+                    {
+                        case "t":
+                            ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
+                            break;
+                        case "e":
+                            long expiration;
+                            long.TryParse(pair[1], out expiration);
+                            ks.expiration = SerializationUtils.ConvertFromUnixTimestamp(expiration);
+                            break;
+                        case "u":
+                            ks.userId = pair[1];
+                            break;
+                        case "d":
+                            ks.data = string.Empty;
+                            if (!string.IsNullOrEmpty(pair[1]))
+                            {
+                                ks.data = HttpUtility.UrlDecode(pair[1]);
+                                ks.data = ks.data.Replace(REPLACE_UNDERSCORE, "_");
+                            }
+                            break;
+                        default:
+                            ks.privileges.Add(new KalturaKeyValue() { key = pair[0], value = pair[1] });
+                            break;
+                    }
                 }
             }
 

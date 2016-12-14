@@ -39,11 +39,17 @@ namespace WebAPI.Managers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "refreshToken");
             }
 
+            if (!IsKsValid(ks, false))
+            {
+                log.ErrorFormat("RefreshSession: KS already revoked or overwritten");
+                throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
+            }
+
             // get group configurations
-            Group groupConfig = GetGroupConfiguration(groupId);
+            Group group = GetGroupConfiguration(groupId);
 
             // get token from CB
-            string tokenKey = string.Format(groupConfig.TokenKeyFormat, refreshToken);
+            string tokenKey = string.Format(group.TokenKeyFormat, refreshToken);
             ulong version;
             ApiToken token = cbManager.GetWithVersion<ApiToken>(tokenKey, out version, true);
             if (token == null)
@@ -56,18 +62,30 @@ namespace WebAPI.Managers
             if (ks.ToString() != token.KS)
             {
                 log.ErrorFormat("RefreshSession: invalid ks");
-                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+                throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
+            }
+
+            if (udid != token.Udid)
+            {
+                log.ErrorFormat("RefreshSession: UDID does not match the KS's UDID, UDID = {0}, KS.UDID = {1}", udid, token.Udid);
+                throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
             }
 
             string userId = token.UserId;
 
-
             // get user
             ValidateUser(groupId, userId);
 
-
             // generate new access token with the old refresh token
-            token = new ApiToken(token, groupConfig, udid);
+            token = new ApiToken(token, group, udid);
+
+            // update the sessions data
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            {
+                log.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);
+                throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
+            }
 
             // Store new access + refresh tokens pair
             if (!cbManager.SetWithVersion(tokenKey, token, version, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
@@ -92,12 +110,19 @@ namespace WebAPI.Managers
             }
 
             // get group configurations
-            Group groupConfig = GetGroupConfiguration(groupId);
+            Group group = GetGroupConfiguration(groupId);
 
             // generate access token and refresh token pair
-            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, groupConfig, isLoginWithPin);
+            ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin);
+            string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
 
-            string tokenKey = string.Format(groupConfig.TokenKeyFormat, token.RefreshToken);
+            // update the sessions data
+            var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            {
+                log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
+                throw new InternalServerErrorException();
+            }
 
             // try store in CB, will return false if the same token already exists
             if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
@@ -260,10 +285,12 @@ namespace WebAPI.Managers
             }
 
             // set udid in payload
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData()
+            WebAPI.Managers.Models.KS.KSData ksData = new WebAPI.Managers.Models.KS.KSData()
             {
-                UDID = udid
-            });
+                UDID = udid, 
+                CreateDate = (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()
+            };
+            string payload = KSUtils.PrepareKSPayload(ksData);
 
             // 6. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
@@ -280,6 +307,9 @@ namespace WebAPI.Managers
             // 9. privileges - we do not support it so copy from app token
             var privilagesList = new List<KalturaKeyValue>();
 
+            privilagesList.Add(new KalturaKeyValue() { key = APP_TOKEN_PRIVILEGE_APP_TOKEN, value = appToken.Token });
+            privilagesList.Add(new KalturaKeyValue() { key = APP_TOKEN_PRIVILEGE_SESSION_ID, value = appToken.Token });
+
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
             {
                 var splitedPrivileges = appToken.SessionPrivileges.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -292,15 +322,21 @@ namespace WebAPI.Managers
                         {
                             if (splitedPrivilege.Length == 2)
                             {
-                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivileges[0], value = splitedPrivileges[1] });
+                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivilege[0], value = splitedPrivilege[1] });
                             }
                             else
                             {
-                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivileges[0], value = null });
+                                privilagesList.Add(new KalturaKeyValue() { key = splitedPrivilege[0], value = null });
                             }
                         }
                     }
                 }
+            }
+
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
+            {
+                log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
+                throw new InternalServerErrorException();
             }
 
             // 10. build the ks:
@@ -353,18 +389,8 @@ namespace WebAPI.Managers
                 appToken.SessionDuration = group.AppTokenSessionMaxDurationSeconds;
             }
 
-            // expiry
-            long maxExpiry = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(group.AppTokenMaxExpirySeconds));
-            if (appToken.Expiry == null || appToken.Expiry <= 0 || appToken.Expiry > maxExpiry)
-            {
-                appToken.Expiry = (int)maxExpiry;
-            }
-
             // session type - currently can be only USER
             appToken.SessionType = KalturaSessionType.USER;
-
-            // privileges - we currently not support privileges - but for future OVP aligning...
-            appToken.SessionPrivileges = string.Format("{0}:{1},{2}:{3}", APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token, APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
 
             // status - status deleted id not supported (when a token is deleted its deleted from CB) and is default value if status is omitted in request while default value should be active
             if (appToken.Status == KalturaAppTokenStatus.DELETED)
@@ -374,8 +400,7 @@ namespace WebAPI.Managers
 
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken);
-
-            int appTokenExpiryInSeconds = appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
+            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) : 0;
             if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
@@ -426,6 +451,132 @@ namespace WebAPI.Managers
             }
 
             return response;
+        }
+
+        internal static bool LogOut(KS ks)
+        {
+            Group group = GroupsManager.GetGroup(ks.GroupId);
+
+            ApiToken revokedToken = new ApiToken()
+            {
+                GroupID = ks.GroupId,
+                AccessTokenExpiration = SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
+                KS = ks.ToString(),
+                Udid = KSUtils.ExtractKSPayload().UDID,
+                UserId = ks.UserId
+            };
+
+            string revokedKsCbKey = string.Format(group.RevokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+
+            if (!cbManager.Add(revokedKsCbKey, revokedToken, (uint)(revokedToken.RefreshTokenExpiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))
+            {
+                log.ErrorFormat("LogOut: Failed to store revoked KS");
+                throw new InternalServerErrorException();
+            }
+
+            return true;
+        }
+
+        internal static bool RevokeSessions(int groupId, string userId)
+        {
+            Group group = GroupsManager.GetGroup(groupId);
+
+            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp(), 0, true))
+            {
+                log.ErrorFormat("RevokeKs: Failed to store users sessions");
+                throw new InternalServerErrorException();
+            }
+
+            return true;
+        }
+
+        internal static bool IsKsValid(KS ks, bool validateExpiration = true)
+        {
+            if (validateExpiration && ks.Expiration < DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            Group group = GroupsManager.GetGroup(ks.GroupId);
+
+            string revokedKsCbKey = string.Format(group.RevokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+            ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
+            if (revokedToken != null)
+            {
+                return false;
+            }
+            
+            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, ks.UserId);
+            UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
+
+            if (usersSessions != null)
+            {
+                var ksData = KSUtils.ExtractKSPayload(ks);
+
+                if (usersSessions.UserRevocation > 0)
+                {
+                    return ksData.CreateDate >= usersSessions.UserRevocation;
+                }
+
+                if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
+                {
+                    return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+                }
+            }
+
+            return true;
+        }
+
+        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
+        {
+            // get user sessions from CB
+            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
+            
+            ulong version;
+            UserSessions usersSessions = cbManager.GetWithVersion<UserSessions>(userSessionsCbKey, out version, true);
+
+            // if not found create one
+            if (usersSessions == null)
+            {
+                usersSessions = new UserSessions()
+                {
+                    UserId = userId,
+                };
+            }
+
+            // calculate new expiration
+            usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
+
+            if (revokeAll)
+            {
+                usersSessions.UserRevocation = revocationTime;
+
+                long now = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
+                usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
+                    {
+                        usersSessions.UserWithUdidRevocations[udid] = revocationTime;
+                    }
+                    else
+                    {
+                        usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
+                    }
+                }
+            }
+
+            // store
+            if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))
+            {
+                log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
+                return false;
+            }
+
+            return true;
         }
     }
 }

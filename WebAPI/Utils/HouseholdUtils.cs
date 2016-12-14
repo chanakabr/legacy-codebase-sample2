@@ -36,21 +36,37 @@ namespace WebAPI.Utils
             return domain.getId();
         }
 
-        public static List<string> GetHouseholdUserIds(int groupID, bool withPending = false)
+        public static List<string> GetHouseholdUserIds(int groupID, bool withPending = false, int householdId = 0)
         {
-            var ks = KS.GetFromRequest();
+            KalturaHousehold domain = null;
 
-            if (ks == null)
-                return null;
+            if (householdId == 0)
+            {
+                var ks = KS.GetFromRequest();
+                if (ks == null)
+                    return null;
 
-            string userID = ks.UserId;
+                string userID = ks.UserId;
 
-            if (userID == "0")
-                return null;
+                if (userID == "0")
+                    return null;
 
-            KalturaHousehold domain = GetHouseholdFromRequest();
-            if (domain == null)
-                return null;
+                domain = GetHouseholdFromRequest();
+                if (domain == null)
+                    return null;
+            }
+            else
+            {
+                try
+                {
+                    domain = ClientsManager.DomainsClient().GetDomainInfo(groupID, householdId);
+                }
+                catch (ClientException ex)
+                {
+                    log.Error("GetHouseholdIDByKS: got ClientException for GetDomainInfo", ex);
+                    return null;
+                }
+            }
 
             List<string> userIds = new List<string>();
             

@@ -2372,6 +2372,12 @@
             </summary>
             <param name="userIdToSwitch">The identifier of the user to change</param>
         </member>
+        <member name="M:WebAPI.Controllers.SessionController.Revoke">
+            <summary>
+            Revokes all the sessions (KS) of a given user 
+            </summary>
+            <param name="userId">The identifier of the user to change</param>
+        </member>
         <member name="M:WebAPI.Controllers.UserAssetRuleController.ListOldStandard(WebAPI.Models.API.KalturaGenericRuleFilter)">
             <summary>
             Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
@@ -4145,6 +4151,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Crid">
             <summary>
             Unique identifier for the program
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.LinearAssetId">
+            <summary>
+            Id of linear media asset
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
@@ -8515,7 +8526,7 @@
             <param name="description">Description for the household</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Int32)">
+        <member name="M:WebAPI.Controllers.HouseholdController.Delete(System.Nullable{System.Int32})">
              <summary>
              Fully delete a household. Delete all of the household information, including users, devices, transactions and assets.
              </summary>

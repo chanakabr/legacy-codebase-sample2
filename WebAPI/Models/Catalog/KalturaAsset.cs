@@ -136,6 +136,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "crid")]
         [XmlElement(ElementName = "crid")]
         public string Crid { get; set; }
+
+        /// <summary>
+        /// Id of linear media asset
+        /// </summary>
+        [DataMember(Name = "linearAssetId")]
+        [JsonProperty(PropertyName = "linearAssetId")]
+        [XmlElement(ElementName = "linearAssetId")]
+        public long? LinearAssetId { get; set; }
+
     }
 
     /// <summary>

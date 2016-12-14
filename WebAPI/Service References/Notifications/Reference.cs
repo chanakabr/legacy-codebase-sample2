@@ -3777,6 +3777,7 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/RemoveUsersNotificationData", ReplyAction="http://tempuri.org/INotificationService/RemoveUsersNotificationDataResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> RemoveUsersNotificationDataAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds);
+<<<<<<< HEAD
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/EpgEvent", ReplyAction="http://tempuri.org/INotificationService/EpgEventResponse")]
         bool EpgEvent(string sWSUserName, string sWSPassword, string programId);
@@ -3813,6 +3814,8 @@ namespace WebAPI.Notifications {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/DeleteReminder", ReplyAction="http://tempuri.org/INotificationService/DeleteReminderResponse")]
         System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId);
+=======
+>>>>>>> Refactoring
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -4161,6 +4164,7 @@ namespace WebAPI.Notifications {
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> RemoveUsersNotificationDataAsync(string sWSUserName, string sWSPassword, System.Collections.Generic.List<string> userIds) {
             return base.Channel.RemoveUsersNotificationDataAsync(sWSUserName, sWSPassword, userIds);
         }
+<<<<<<< HEAD
         
         public bool EpgEvent(string sWSUserName, string sWSPassword, string programId) {
             return base.Channel.EpgEvent(sWSUserName, sWSPassword, programId);
@@ -4209,5 +4213,7 @@ namespace WebAPI.Notifications {
         public System.Threading.Tasks.Task<WebAPI.Notifications.Status> DeleteReminderAsync(string sWSUserName, string sWSPassword, int userId, long reminderId) {
             return base.Channel.DeleteReminderAsync(sWSUserName, sWSPassword, userId, reminderId);
         }
+=======
+>>>>>>> Refactoring
     }
 }
