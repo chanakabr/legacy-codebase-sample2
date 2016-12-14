@@ -10,18 +10,24 @@ namespace WebAPI
     {
         internal static NotificationEventHandler CreateEventHandler(Managers.Models.eNotificationActionTypes type, string body)
         {
+            NotificationEventHandler handler = null;
+
             switch (type)
             {
                 case WebAPI.Managers.Models.eNotificationActionTypes.Http:
                 break;
                 case WebAPI.Managers.Models.eNotificationActionTypes.Email:
-                break;
+                {
+                    handler = new EmailNotificationHandler(body);
+                    break;
+                }
                 case WebAPI.Managers.Models.eNotificationActionTypes.Rabbit:
                 break;
                 default:
                 break;
             }
-            return null;
+
+            return handler;
         }
     }
 }

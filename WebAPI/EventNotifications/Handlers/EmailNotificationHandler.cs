@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebAPI.EventNotifications.Handlers
+namespace WebAPI.EventNotifications
 {
     public class EmailNotificationHandler : NotificationEventHandler
     {
-        public EmailNotificationHandler(string definitions) : base (definitions)
+        public EmailNotificationHandler(string definitions) : base(definitions)
         {
             
         }
