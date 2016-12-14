@@ -14,7 +14,6 @@ namespace WebAPI.Models.Notification
 
     public class KalturaReminderFilter : KalturaAssetFilter
     {
-
         /// <summary>
         /// <![CDATA[
         /// Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
