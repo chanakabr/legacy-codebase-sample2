@@ -2165,6 +2165,63 @@ namespace DAL
 
             return affectedRows > 0;
         }
+
+        public static List<DbReminder> GetReminders(int groupId, List<long> remindersIds)
+        {
+            List<DbReminder> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRemindersByIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@remindersIds", remindersIds, "id");
+                
+                //SP_UPDATE_NOTIFICATION_REQUEST_STATUS
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbReminder>();
+                    DbReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        dbReminder = CreateDbReminder(row);
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetRemindersByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        private static DbReminder CreateDbReminder(DataRow row)
+        {
+            DateTime? sentDate = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "send_time");
+            long sentDateSec = 0;
+            if (sentDate != null)
+                sentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp((DateTime)sentDate);
+
+            DbReminder result = new DbReminder()
+            {
+                GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                IsSent = ODBCWrapper.Utils.GetIntSafeVal(row, "is_sent") == 1 ? true : false,
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
+                QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
+                QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
+                Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
+                ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                SendTime = sentDateSec
+            };
+
+            return result;
+        }
     }
 }
 
