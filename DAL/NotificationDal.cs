@@ -2058,22 +2058,6 @@ namespace DAL
             }
         }
 
-        //public static bool test(string key, string data, out ulong  outCas,ulong cas = 0)
-        //{
-        //    bool result = false;
-        //    try
-        //    {
-        //        result = cbManager.e(GetUserNotificationKey(groupId, userId), cas);
-        //        if (!result)
-        //            log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
-        //    }
-        //    return result;
-        //}
-
         public static List<DbReminder> GetReminders(int groupId, long reminderId = 0)
         {
             List<DbReminder> result = null;
@@ -2158,7 +2142,7 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddIDListParameter<long>("@remindersIds", remindersIds, "id");
-                
+
                 //SP_UPDATE_NOTIFICATION_REQUEST_STATUS
                 DataSet ds = sp.ExecuteDataSet();
 
