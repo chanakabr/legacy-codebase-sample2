@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.Http;
+﻿using ApiObjects.Response;
 using KLogMonitor;
+using System.Reflection;
+using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -13,7 +10,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.Utils;
-using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -39,7 +35,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;
+                string userId = KS.GetFromRequest().UserId;               
 
                 switch (reminder.Type)
                 {
@@ -56,15 +52,13 @@ namespace WebAPI.Controllers
                             throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "AssetId");
                         }
 
-
                         // call client
                         return ClientsManager.NotificationClient().AddAssetReminder(groupId, userId, kalturaAssetReminder);
                         break;
                     default:
                         break;
-                }               
+                }
             }
-
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
@@ -73,7 +67,7 @@ namespace WebAPI.Controllers
             return null;
         }
 
-              
+
         /// <summary>
         /// Delete a reminder. Reminder cannot be delete while being sent.
         /// </summary>
@@ -101,7 +95,6 @@ namespace WebAPI.Controllers
 
             return response;
         }
-             
 
         /// <summary>
         /// Lists all reminders.

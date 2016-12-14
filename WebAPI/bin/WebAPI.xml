@@ -1634,15 +1634,6 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.NotificationController.InitiateCleanup">
-            <summary>
-            TBD
-            </summary>        
-            <remarks>
-            
-            </remarks>
-            <returns></returns>
-        </member>
         <member name="M:WebAPI.Controllers.NotificationController.Register(System.String,WebAPI.Models.Notification.KalturaNotificationType)">
             <summary>
             TBD 

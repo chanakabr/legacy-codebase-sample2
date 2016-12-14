@@ -15,14 +15,13 @@ using WebAPI.Models.Notifications;
 using WebAPI.Notifications;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using System.Net;
-using System.Web;
 
 namespace WebAPI.Clients
 {
     public class NotificationsClient : BaseClient
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+
         public NotificationsClient()
         {
 
@@ -1366,7 +1365,7 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.GetGroup(groupId);            
 
             try
             {
@@ -1408,9 +1407,38 @@ namespace WebAPI.Clients
             throw new NotImplementedException();
         }
 
-        internal bool DeleteReminder(string userId, int groupId, long id)
+        internal bool DeleteReminder(string userID, int groupId, long reminderId)
         {
-            throw new NotImplementedException();
+            Status response = null;
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+            }
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.DeleteReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, reminderId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteReminder.  groupID: {0}, userId: {1}, reminderId: {2}, exception: {3}", groupId, userID, reminderId,ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
         }
     }
 }
