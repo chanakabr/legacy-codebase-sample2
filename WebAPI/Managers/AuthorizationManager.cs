@@ -39,7 +39,6 @@ namespace WebAPI.Managers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "refreshToken");
             }
 
-            // validate ks is not revoked- TODO: make sure this is the right exception
             if (!IsKsValid(ks, false))
             {
                 log.ErrorFormat("RefreshSession: KS already revoked or overwritten");
@@ -390,13 +389,6 @@ namespace WebAPI.Managers
                 appToken.SessionDuration = group.AppTokenSessionMaxDurationSeconds;
             }
 
-            // expiry
-            long maxExpiry = Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(group.AppTokenMaxExpirySeconds));
-            if (appToken.Expiry == null || appToken.Expiry <= 0 || appToken.Expiry > maxExpiry)
-            {
-                appToken.Expiry = (int)maxExpiry;
-            }
-
             // session type - currently can be only USER
             appToken.SessionType = KalturaSessionType.USER;
 
@@ -408,8 +400,7 @@ namespace WebAPI.Managers
 
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken);
-
-            int appTokenExpiryInSeconds = appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow);
+            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) : 0;
             if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
@@ -466,7 +457,6 @@ namespace WebAPI.Managers
         {
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
-            // TODO: - talk to tantan about what to save here
             ApiToken revokedToken = new ApiToken()
             {
                 GroupID = ks.GroupId,
@@ -561,8 +551,8 @@ namespace WebAPI.Managers
             {
                 usersSessions.UserRevocation = revocationTime;
 
-                // TODO: talk to tantan about the expiration issue.
-                usersSessions.expiration = Math.Max(usersSessions.expiration, (int)(SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() + group.KSExpirationSeconds));
+                long now = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
+                usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
             }
             else
             {
