@@ -625,6 +625,14 @@ namespace Users
                     {
                         return (-1);
                     }
+
+                    if (userID > 0)
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.ObjectCreatedEvent(this)
+                        {
+                            PartnerId = nGroupID
+                        });
+                    }
                 }
                 else
                 // Existing user - Remove & Update from cache
@@ -662,20 +670,19 @@ namespace Users
                     {
                         log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
                     }
-                }
 
+                    if (userID > 0)
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.ObjectUpdatedEvent(this)
+                        {
+                            PartnerId = nGroupID
+                        });
+                    }
+                }
             }
             catch
             {
                 userID = -1;
-            }
-
-            if (userID > 0)
-            {
-                EventManager.EventManager.HandleEvent(new EventManager.Events.ObjectCreatedEvent(this)
-                {
-                    PartnerId = nGroupID
-                });
             }
 
             return userID;            

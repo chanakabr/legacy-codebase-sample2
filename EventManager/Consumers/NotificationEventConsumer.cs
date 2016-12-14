@@ -22,7 +22,8 @@ namespace EventManager
 
         protected override bool Consume(KalturaEvent kalturaEvent)
         {
-            throw new NotImplementedException();
+            // dummy consumer
+            return false;
         }
     }
 }

@@ -7,17 +7,18 @@ using ApiObjects;
 
 namespace EventManager.Events
 {
-    public class ObjectCreatedEvent : NotificationEvent
+    public class ObjectUpdatedEvent : NotificationEvent
     {
         public override string Action
         {
             get
             {
-                return "create";
+                return "update";
             }
         }
 
-        public ObjectCreatedEvent(CoreObject coreObject) : base(coreObject)
+        public ObjectUpdatedEvent(CoreObject coreObject)
+            : base(coreObject)
         {
 
         }
