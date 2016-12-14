@@ -17,7 +17,7 @@ namespace WebAPI.Managers.Models
         }
 
         [JsonProperty("phoenix_type")]
-        public Type PhoenixType
+        public string PhoenixType
         {
             get;
             set;

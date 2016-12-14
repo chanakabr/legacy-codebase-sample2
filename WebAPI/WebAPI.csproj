@@ -625,6 +625,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
+    <Compile Include="EventNotifications\Handlers\JsonPropery.cs" />
     <Compile Include="EventNotifications\NotificationActionFactory.cs" />
     <Compile Include="EventNotifications\NotificationEventHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />

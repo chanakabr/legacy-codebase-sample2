@@ -26,6 +26,8 @@ namespace WebAPI
 
         public override bool ShouldConsume(KalturaEvent kalturaEvent)
         {
+            string s = Newtonsoft.Json.JsonConvert.SerializeObject(typeof(object));
+
             WebAPI.Managers.Models.PartnerEventNotification specificNotification = null;
             WebAPI.Managers.Models.GeneralEventNotification generalNotification = null;
 
@@ -42,9 +44,9 @@ namespace WebAPI
             })
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
-                specificNotification = cbManager.Get<PartnerEventNotification>(string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT,
-                    kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action), true);
 
+                string cbKey = string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+                specificNotification = cbManager.Get<PartnerEventNotification>(cbKey, true);
             }
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE)
@@ -53,8 +55,8 @@ namespace WebAPI
                 QueryType = KLogEnums.eDBQueryType.SELECT
             })
             {
-                generalNotification = cbManager.Get<GeneralEventNotification>(string.Format(CB_GENERAL_KEY_FORMAT,
-                    kalturaEvent.Type, kalturaEvent.Action), true);
+                string cbKey = string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+                generalNotification = cbManager.Get<GeneralEventNotification>(cbKey, true);
             }
 
             // chek if we have the metadata at all. if we don't we don't continue
@@ -68,12 +70,13 @@ namespace WebAPI
                 partnerSpecificNotifications[kalturaEvent] = specificNotification;
 
                 // check if this feature is enabled/disabled for a specific group
-                if (generalNotification.Status != 1 || specificNotification.Status != 1)
+                if ((generalNotification != null && generalNotification.Status != 1) || 
+                    (specificNotification != null && specificNotification.Status != 1))
                 {
                     shouldConsume = false;
                 }
                 // check if this event has any actions defined at all
-                else if (specificNotification.Actions == null && generalNotification.Actions == null)
+                else if ((specificNotification == null || specificNotification.Actions == null) && generalNotification.Actions == null)
                 {
                     shouldConsume = false;
                 }
@@ -101,7 +104,8 @@ namespace WebAPI
             if (generalNotification != null)
             {
                 Type source = kalturaEvent.Object.GetType();
-                Type destination = generalNotification.PhoenixType;
+                // Get the type from the general definition
+                Type destination = Type.GetType(generalNotification.PhoenixType);
 
                 object t = AutoMapper.Mapper.Map(kalturaEvent.Object, source, destination);
 
@@ -130,7 +134,6 @@ namespace WebAPI
             }
 
             return result;
-            ;
         }
     }
 }
