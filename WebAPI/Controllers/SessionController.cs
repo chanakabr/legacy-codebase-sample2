@@ -176,5 +176,22 @@ namespace WebAPI.Controllers
 
             return AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
         }
+
+        /// <summary>
+        /// Revokes all the sessions (KS) of a given user 
+        /// </summary>
+        /// <param name="userId">The identifier of the user to change</param>
+        [Route("revoke"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool Revoke()
+        {
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
+
+            return AuthorizationManager.RevokeSessions(groupId, userId);
+        }
+
     }
 }

@@ -481,14 +481,11 @@ namespace WebAPI.Managers
             return true;
         }
 
-       
-
-        internal static bool RevokeKs(KS ks)
+        internal static bool RevokeSessions(int groupId, string userId)
         {
-            Group group = GroupsManager.GetGroup(ks.GroupId);
+            Group group = GroupsManager.GetGroup(groupId);
 
-            if (!UpdateUsersSessionsRevocationTime(group, ks.UserId, KSUtils.ExtractKSPayload(ks).UDID, 
-                (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp(), (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration), true))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, (int)SerializationUtils.GetCurrentUtcTimeInUnixTimestamp(), 0, true))
             {
                 log.ErrorFormat("RevokeKs: Failed to store users sessions");
                 throw new InternalServerErrorException();
@@ -534,7 +531,7 @@ namespace WebAPI.Managers
             return true;
         }
 
-        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revoke = false)
+        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
         {
             // get user sessions from CB
             string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
@@ -552,12 +549,9 @@ namespace WebAPI.Managers
             }
 
             // calculate new expiration
-            if (expiration > usersSessions.expiration)
-            {
-                usersSessions.expiration = expiration;
-            }
+            usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
 
-            if (revoke)
+            if (revokeAll)
             {
                 usersSessions.UserRevocation = revocationTime;
 
@@ -578,8 +572,6 @@ namespace WebAPI.Managers
                     }
                 }
             }
-
-
 
             // store
             if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))

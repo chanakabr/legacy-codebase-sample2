@@ -2356,6 +2356,12 @@
             </summary>
             <param name="userIdToSwitch">The identifier of the user to change</param>
         </member>
+        <member name="M:WebAPI.Controllers.SessionController.Revoke">
+            <summary>
+            Revokes all the sessions (KS) of a given user 
+            </summary>
+            <param name="userId">The identifier of the user to change</param>
+        </member>
         <member name="M:WebAPI.Controllers.UserAssetRuleController.ListOldStandard(WebAPI.Models.API.KalturaGenericRuleFilter)">
             <summary>
             Retrieve all the rules (parental, geo, device or user-type) that applies for this user and asset.        
