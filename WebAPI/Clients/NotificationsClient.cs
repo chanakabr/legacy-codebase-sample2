@@ -1467,9 +1467,53 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaReminderListResponse GetReminders(int groupId, string p1, int p2, int p3, KalturaAssetOrderBy kalturaAssetOrderBy)
+        internal KalturaReminderListResponse GetReminders(int groupId, string userID, string filter, int pageSize, int pageIndex, KalturaAssetOrderBy orderBy)
         {
-            throw new NotImplementedException();
+            RemindersResponse response = null;
+            List<KalturaReminder> result = null;
+            KalturaReminderListResponse ret = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            int userId = 0;
+            if (!int.TryParse(userID, out userId))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid UID");
+            }
+
+            // Create notifications order object
+            OrderObj order = NotificationMapping.ConvertOrderToOrderObj(orderBy);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Notification.GetUserReminders(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, filter, pageSize, pageIndex, order);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetReminders. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Reminders != null && response.Reminders.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaReminder>>(response.Reminders);
+            }
+            ret = new KalturaReminderListResponse() { Reminders = result, TotalCount = response.TotalCount };
+
+            return ret;
         }
     }
 }

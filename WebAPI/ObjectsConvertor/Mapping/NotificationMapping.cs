@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
@@ -531,6 +532,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             else
                 return eTopicAutomaticIssueNotification.Default;
+        }
+
+        internal static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy orderBy)
+        {
+
+            OrderObj result = new OrderObj();
+
+            switch (orderBy)
+            {
+                case KalturaAssetOrderBy.NAME_ASC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetOrderBy.NAME_DESC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.VIEWS_DESC:
+                    result.m_eOrderBy = OrderBy.VIEWS;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.RATINGS_DESC:
+                    result.m_eOrderBy = OrderBy.RATING;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.VOTES_DESC:
+                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.START_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.RELEVANCY_DESC:
+                    result.m_eOrderBy = OrderBy.RELATED;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.START_DATE_ASC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetOrderBy.LIKES_DESC:
+                    result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+            }
+            return result;
         }
     }
 }

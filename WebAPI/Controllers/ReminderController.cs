@@ -116,7 +116,9 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                response = ClientsManager.NotificationClient().GetReminders(groupId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                string userId = KS.GetFromRequest().UserId;
+
+                response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
             }
 
             catch (ClientException ex)
