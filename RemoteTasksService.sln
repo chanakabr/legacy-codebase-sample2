@@ -100,6 +100,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{111B7A
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageReminderHandler", "MessageReminderHandler\MessageReminderHandler.csproj", "{B4202CB4-A68E-4265-B17A-5C24860F3A28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -656,6 +658,18 @@ Global
 		{A1D8F832-293A-4A0C-944A-A5419896A0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1D8F832-293A-4A0C-944A-A5419896A0CB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1D8F832-293A-4A0C-944A-A5419896A0CB}.Release|x86.ActiveCfg = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Basic|x86.ActiveCfg = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Local|Any CPU.Build.0 = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Local|x86.ActiveCfg = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4202CB4-A68E-4265-B17A-5C24860F3A28}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
