@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B4202CB4-A68E-4265-B17A-5C24860F3A28}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MessageReminderHandler</RootNamespace>
+    <AssemblyName>MessageReminderHandler</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Jil">
+      <HintPath>..\..\TVinciCommon\External\Jil.dll</HintPath>
+    </Reference>
+    <Reference Include="KLogMonitor">
+      <HintPath>..\..\TVinciCommon\External\4.5\KLogMonitor.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MessageReminderRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Service References\ws_notifications\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="TaskHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TvmCore\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
+      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TVMCore\KlogMonitorHelper\KlogMonitorHelper.csproj">
+      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
+      <Name>KlogMonitorHelper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
+      <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
+      <Name>RemoteTasksCommon</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.AnnouncementsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.InboxMessageResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.MessageTemplateResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.NotificationPartnerSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.NotificationSettingsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.RegistryResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Notification.RemindersResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.IdListResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.IdsResponse.datasource" />
+    <None Include="Properties\DataSources\ApiObjects.Response.Status.datasource" />
+    <None Include="Service References\ws_notifications\MessageReminderHandler.ws_notifications.AddMessageAnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\MessageReminderHandler.ws_notifications.FollowResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\MessageReminderHandler.ws_notifications.GetAllMessageAnnouncementsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\MessageReminderHandler.ws_notifications.GetUserFollowsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\MessageReminderHandler.ws_notifications.MessageAnnouncementResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\MessageReminderHandler.ws_notifications.NotificationMessage.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService.wsdl" />
+    <None Include="Service References\ws_notifications\NotificationService.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService5.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService6.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService7.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\ws_notifications\NotificationService8.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\ws_notifications\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ws_notifications\NotificationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ws_notifications\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ws_notifications\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\ws_notifications\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

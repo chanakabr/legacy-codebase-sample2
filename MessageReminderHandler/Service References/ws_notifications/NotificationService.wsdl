@@ -1,0 +1,919 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="NotificationService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/NotificationObj" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/NotificationInterface" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd5" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+      <xsd:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.SearchObjects" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="INotificationService_AddNotificationRequest_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddNotificationRequest" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_AddNotificationRequest_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddNotificationRequestResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetDeviceNotifications_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetDeviceNotifications" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetDeviceNotifications_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetDeviceNotificationsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SetNotificationMessageViewStatus_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetNotificationMessageViewStatus" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SetNotificationMessageViewStatus_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetNotificationMessageViewStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAllNotifications_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllNotifications" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAllNotifications_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllNotificationsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SubscribeByTag_InputMessage">
+    <wsdl:part name="parameters" element="tns:SubscribeByTag" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SubscribeByTag_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SubscribeByTagResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UserSettings_InputMessage">
+    <wsdl:part name="parameters" element="tns:UserSettings" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UserSettings_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UserSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UnsubscribeFollowUpByTag_InputMessage">
+    <wsdl:part name="parameters" element="tns:UnsubscribeFollowUpByTag" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UnsubscribeFollowUpByTag_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UnsubscribeFollowUpByTagResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetUserStatusSubscriptions_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserStatusSubscriptions" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetUserStatusSubscriptions_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserStatusSubscriptionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_IsTagNotificationExists_InputMessage">
+    <wsdl:part name="parameters" element="tns:IsTagNotificationExists" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_IsTagNotificationExists_OutputMessage">
+    <wsdl:part name="parameters" element="tns:IsTagNotificationExistsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateNotificationPartnerSettings_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateNotificationPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateNotificationPartnerSettings_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateNotificationPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetNotificationPartnerSettings_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetNotificationPartnerSettings" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetNotificationPartnerSettings_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetNotificationPartnerSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateNotificationSettings_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateNotificationSettings" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateNotificationSettings_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateNotificationSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetNotificationSettings_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetNotificationSettings" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetNotificationSettings_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetNotificationSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_AddMessageAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddMessageAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_AddMessageAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddMessageAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SendMessageAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:SendMessageAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SendMessageAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SendMessageAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateMessageAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateMessageAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateMessageAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateMessageAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateMessageAnnouncementStatus_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateMessageAnnouncementStatus" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateMessageAnnouncementStatus_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateMessageAnnouncementStatusResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteMessageAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteMessageAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteMessageAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteMessageAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_InitiateNotificationAction_InputMessage">
+    <wsdl:part name="parameters" element="tns:InitiateNotificationAction" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_InitiateNotificationAction_OutputMessage">
+    <wsdl:part name="parameters" element="tns:InitiateNotificationActionResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_CreateSystemAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateSystemAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_CreateSystemAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateSystemAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAllMessageAnnouncements_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllMessageAnnouncements" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAllMessageAnnouncements_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllMessageAnnouncementsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SetMessageTemplate_InputMessage">
+    <wsdl:part name="parameters" element="tns:SetMessageTemplate" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SetMessageTemplate_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SetMessageTemplateResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetMessageTemplate_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageTemplate" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetMessageTemplate_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMessageTemplateResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetUserFollows_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserFollows" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetUserFollows_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserFollowsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_Unfollow_InputMessage">
+    <wsdl:part name="parameters" element="tns:Unfollow" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_Unfollow_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UnfollowResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_Follow_InputMessage">
+    <wsdl:part name="parameters" element="tns:Follow" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_Follow_OutputMessage">
+    <wsdl:part name="parameters" element="tns:FollowResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_Get_FollowedAssetIdsFromAssets_InputMessage">
+    <wsdl:part name="parameters" element="tns:Get_FollowedAssetIdsFromAssets" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_Get_FollowedAssetIdsFromAssets_OutputMessage">
+    <wsdl:part name="parameters" element="tns:Get_FollowedAssetIdsFromAssetsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetUserFeeder_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserFeeder" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetUserFeeder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetUserFeederResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateInboxMessage_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateInboxMessage" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateInboxMessage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateInboxMessageResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessage_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessage" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessage_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessageResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessages_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessages" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetInboxMessages_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetInboxMessagesResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAmountOfSubscribersPerAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAmountOfSubscribersPerAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAmountOfSubscribersPerAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAmountOfSubscribersPerAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_UpdateAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UpdateAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncement_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncement" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncement_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncementResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncements_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncements" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_GetAnnouncements_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAnnouncementsResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteAnnouncementsOlderThan_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteAnnouncementsOlderThan" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteAnnouncementsOlderThan_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteAnnouncementsOlderThanResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RegisterPushAnnouncementParameters_InputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPushAnnouncementParameters" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RegisterPushAnnouncementParameters_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPushAnnouncementParametersResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RegisterPushSystemParameters_InputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPushSystemParameters" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RegisterPushSystemParameters_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPushSystemParametersResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RemoveUsersNotificationData_InputMessage">
+    <wsdl:part name="parameters" element="tns:RemoveUsersNotificationData" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RemoveUsersNotificationData_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RemoveUsersNotificationDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_HandleEpgEvent_InputMessage">
+    <wsdl:part name="parameters" element="tns:HandleEpgEvent" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_HandleEpgEvent_OutputMessage">
+    <wsdl:part name="parameters" element="tns:HandleEpgEventResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RegisterPushReminderParameters_InputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPushReminderParameters" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_RegisterPushReminderParameters_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterPushReminderParametersResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeletePartnerReminder_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeletePartnerReminder" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeletePartnerReminder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeletePartnerReminderResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_AddReminder_InputMessage">
+    <wsdl:part name="parameters" element="tns:AddReminder" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_AddReminder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:AddReminderResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteOldReminders_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteOldReminders" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteOldReminders_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteOldRemindersResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteReminder_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteReminder" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_DeleteReminder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteReminderResponse" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SendMessageReminder_InputMessage">
+    <wsdl:part name="parameters" element="tns:SendMessageReminder" />
+  </wsdl:message>
+  <wsdl:message name="INotificationService_SendMessageReminder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SendMessageReminderResponse" />
+  </wsdl:message>
+  <wsdl:portType name="INotificationService">
+    <wsdl:operation name="AddNotificationRequest">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/AddNotificationRequest" message="tns:INotificationService_AddNotificationRequest_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/AddNotificationRequestResponse" message="tns:INotificationService_AddNotificationRequest_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceNotifications">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetDeviceNotifications" message="tns:INotificationService_GetDeviceNotifications_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetDeviceNotificationsResponse" message="tns:INotificationService_GetDeviceNotifications_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetNotificationMessageViewStatus">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SetNotificationMessageViewStatus" message="tns:INotificationService_SetNotificationMessageViewStatus_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SetNotificationMessageViewStatusResponse" message="tns:INotificationService_SetNotificationMessageViewStatus_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllNotifications">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAllNotifications" message="tns:INotificationService_GetAllNotifications_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAllNotificationsResponse" message="tns:INotificationService_GetAllNotifications_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SubscribeByTag">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SubscribeByTag" message="tns:INotificationService_SubscribeByTag_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SubscribeByTagResponse" message="tns:INotificationService_SubscribeByTag_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UserSettings">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UserSettings" message="tns:INotificationService_UserSettings_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UserSettingsResponse" message="tns:INotificationService_UserSettings_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UnsubscribeFollowUpByTag">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTag" message="tns:INotificationService_UnsubscribeFollowUpByTag_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTagResponse" message="tns:INotificationService_UnsubscribeFollowUpByTag_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserStatusSubscriptions">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetUserStatusSubscriptions" message="tns:INotificationService_GetUserStatusSubscriptions_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetUserStatusSubscriptionsResponse" message="tns:INotificationService_GetUserStatusSubscriptions_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="IsTagNotificationExists">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/IsTagNotificationExists" message="tns:INotificationService_IsTagNotificationExists_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/IsTagNotificationExistsResponse" message="tns:INotificationService_IsTagNotificationExists_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNotificationPartnerSettings">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettings" message="tns:INotificationService_UpdateNotificationPartnerSettings_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettingsResponse" message="tns:INotificationService_UpdateNotificationPartnerSettings_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNotificationPartnerSettings">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetNotificationPartnerSettings" message="tns:INotificationService_GetNotificationPartnerSettings_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetNotificationPartnerSettingsResponse" message="tns:INotificationService_GetNotificationPartnerSettings_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNotificationSettings">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateNotificationSettings" message="tns:INotificationService_UpdateNotificationSettings_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateNotificationSettingsResponse" message="tns:INotificationService_UpdateNotificationSettings_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNotificationSettings">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetNotificationSettings" message="tns:INotificationService_GetNotificationSettings_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetNotificationSettingsResponse" message="tns:INotificationService_GetNotificationSettings_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AddMessageAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/AddMessageAnnouncement" message="tns:INotificationService_AddMessageAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/AddMessageAnnouncementResponse" message="tns:INotificationService_AddMessageAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SendMessageAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SendMessageAnnouncement" message="tns:INotificationService_SendMessageAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SendMessageAnnouncementResponse" message="tns:INotificationService_SendMessageAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMessageAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncement" message="tns:INotificationService_UpdateMessageAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementResponse" message="tns:INotificationService_UpdateMessageAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMessageAnnouncementStatus">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus" message="tns:INotificationService_UpdateMessageAnnouncementStatus_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatusResponse" message="tns:INotificationService_UpdateMessageAnnouncementStatus_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMessageAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncement" message="tns:INotificationService_DeleteMessageAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteMessageAnnouncementResponse" message="tns:INotificationService_DeleteMessageAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="InitiateNotificationAction">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/InitiateNotificationAction" message="tns:INotificationService_InitiateNotificationAction_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/InitiateNotificationActionResponse" message="tns:INotificationService_InitiateNotificationAction_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateSystemAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/CreateSystemAnnouncement" message="tns:INotificationService_CreateSystemAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/CreateSystemAnnouncementResponse" message="tns:INotificationService_CreateSystemAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMessageAnnouncements">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncements" message="tns:INotificationService_GetAllMessageAnnouncements_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAllMessageAnnouncementsResponse" message="tns:INotificationService_GetAllMessageAnnouncements_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SetMessageTemplate">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SetMessageTemplate" message="tns:INotificationService_SetMessageTemplate_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SetMessageTemplateResponse" message="tns:INotificationService_SetMessageTemplate_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMessageTemplate">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetMessageTemplate" message="tns:INotificationService_GetMessageTemplate_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetMessageTemplateResponse" message="tns:INotificationService_GetMessageTemplate_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFollows">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetUserFollows" message="tns:INotificationService_GetUserFollows_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetUserFollowsResponse" message="tns:INotificationService_GetUserFollows_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Unfollow">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/Unfollow" message="tns:INotificationService_Unfollow_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UnfollowResponse" message="tns:INotificationService_Unfollow_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Follow">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/Follow" message="tns:INotificationService_Follow_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/FollowResponse" message="tns:INotificationService_Follow_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Get_FollowedAssetIdsFromAssets">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssets" message="tns:INotificationService_Get_FollowedAssetIdsFromAssets_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssetsResponse" message="tns:INotificationService_Get_FollowedAssetIdsFromAssets_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFeeder">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetUserFeeder" message="tns:INotificationService_GetUserFeeder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetUserFeederResponse" message="tns:INotificationService_GetUserFeeder_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInboxMessage">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateInboxMessage" message="tns:INotificationService_UpdateInboxMessage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateInboxMessageResponse" message="tns:INotificationService_UpdateInboxMessage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessage">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessage" message="tns:INotificationService_GetInboxMessage_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessageResponse" message="tns:INotificationService_GetInboxMessage_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessages">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessages" message="tns:INotificationService_GetInboxMessages_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetInboxMessagesResponse" message="tns:INotificationService_GetInboxMessages_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteAnnouncement" message="tns:INotificationService_DeleteAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteAnnouncementResponse" message="tns:INotificationService_DeleteAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAmountOfSubscribersPerAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncement" message="tns:INotificationService_GetAmountOfSubscribersPerAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncementResponse" message="tns:INotificationService_GetAmountOfSubscribersPerAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/UpdateAnnouncement" message="tns:INotificationService_UpdateAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/UpdateAnnouncementResponse" message="tns:INotificationService_UpdateAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncement">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncement" message="tns:INotificationService_GetAnnouncement_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncementResponse" message="tns:INotificationService_GetAnnouncement_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncements">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncements" message="tns:INotificationService_GetAnnouncements_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/GetAnnouncementsResponse" message="tns:INotificationService_GetAnnouncements_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteAnnouncementsOlderThan">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan" message="tns:INotificationService_DeleteAnnouncementsOlderThan_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThanResponse" message="tns:INotificationService_DeleteAnnouncementsOlderThan_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPushAnnouncementParameters">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters" message="tns:INotificationService_RegisterPushAnnouncementParameters_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/RegisterPushAnnouncementParametersResponse" message="tns:INotificationService_RegisterPushAnnouncementParameters_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPushSystemParameters">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/RegisterPushSystemParameters" message="tns:INotificationService_RegisterPushSystemParameters_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/RegisterPushSystemParametersResponse" message="tns:INotificationService_RegisterPushSystemParameters_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUsersNotificationData">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/RemoveUsersNotificationData" message="tns:INotificationService_RemoveUsersNotificationData_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/RemoveUsersNotificationDataResponse" message="tns:INotificationService_RemoveUsersNotificationData_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="HandleEpgEvent">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/HandleEpgEvent" message="tns:INotificationService_HandleEpgEvent_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/HandleEpgEventResponse" message="tns:INotificationService_HandleEpgEvent_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPushReminderParameters">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/RegisterPushReminderParameters" message="tns:INotificationService_RegisterPushReminderParameters_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/RegisterPushReminderParametersResponse" message="tns:INotificationService_RegisterPushReminderParameters_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePartnerReminder">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeletePartnerReminder" message="tns:INotificationService_DeletePartnerReminder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeletePartnerReminderResponse" message="tns:INotificationService_DeletePartnerReminder_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="AddReminder">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/AddReminder" message="tns:INotificationService_AddReminder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/AddReminderResponse" message="tns:INotificationService_AddReminder_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOldReminders">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteOldReminders" message="tns:INotificationService_DeleteOldReminders_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteOldRemindersResponse" message="tns:INotificationService_DeleteOldReminders_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteReminder">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/DeleteReminder" message="tns:INotificationService_DeleteReminder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/DeleteReminderResponse" message="tns:INotificationService_DeleteReminder_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SendMessageReminder">
+      <wsdl:input wsaw:Action="http://tempuri.org/INotificationService/SendMessageReminder" message="tns:INotificationService_SendMessageReminder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/INotificationService/SendMessageReminderResponse" message="tns:INotificationService_SendMessageReminder_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_INotificationService" type="tns:INotificationService">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AddNotificationRequest">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/AddNotificationRequest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceNotifications">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetDeviceNotifications" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetNotificationMessageViewStatus">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/SetNotificationMessageViewStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllNotifications">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAllNotifications" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubscribeByTag">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/SubscribeByTag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UserSettings">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UserSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnsubscribeFollowUpByTag">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UnsubscribeFollowUpByTag" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserStatusSubscriptions">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetUserStatusSubscriptions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="IsTagNotificationExists">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/IsTagNotificationExists" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNotificationPartnerSettings">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateNotificationPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNotificationPartnerSettings">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetNotificationPartnerSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateNotificationSettings">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateNotificationSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNotificationSettings">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetNotificationSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddMessageAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/AddMessageAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendMessageAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/SendMessageAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMessageAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMessageAnnouncementStatus">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateMessageAnnouncementStatus" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMessageAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/DeleteMessageAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InitiateNotificationAction">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/InitiateNotificationAction" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateSystemAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/CreateSystemAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllMessageAnnouncements">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAllMessageAnnouncements" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetMessageTemplate">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/SetMessageTemplate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetMessageTemplate">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetMessageTemplate" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFollows">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetUserFollows" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Unfollow">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/Unfollow" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Follow">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/Follow" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Get_FollowedAssetIdsFromAssets">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/Get_FollowedAssetIdsFromAssets" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserFeeder">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetUserFeeder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateInboxMessage">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateInboxMessage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessage">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetInboxMessage" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetInboxMessages">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetInboxMessages" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/DeleteAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAmountOfSubscribersPerAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAmountOfSubscribersPerAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/UpdateAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncement">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAnnouncement" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAnnouncements">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/GetAnnouncements" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteAnnouncementsOlderThan">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/DeleteAnnouncementsOlderThan" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPushAnnouncementParameters">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/RegisterPushAnnouncementParameters" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPushSystemParameters">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/RegisterPushSystemParameters" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RemoveUsersNotificationData">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/RemoveUsersNotificationData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="HandleEpgEvent">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/HandleEpgEvent" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterPushReminderParameters">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/RegisterPushReminderParameters" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePartnerReminder">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/DeletePartnerReminder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddReminder">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/AddReminder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteOldReminders">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/DeleteOldReminders" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteReminder">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/DeleteReminder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendMessageReminder">
+      <soap:operation soapAction="http://tempuri.org/INotificationService/SendMessageReminder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="NotificationService">
+    <wsdl:port name="BasicHttpBinding_INotificationService" binding="tns:BasicHttpBinding_INotificationService">
+      <soap:address location="http://localhost/Notifications_V4_0/NotificationService.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

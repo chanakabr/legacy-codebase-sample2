@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.Notification" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd6" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
+  <xs:import schemaLocation="http://localhost/Notifications_V4_0/NotificationService.svc?xsd=xsd7" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:complexType name="NotificationPartnerSettings">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AutomaticIssueFollowNotifications" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsInboxEnabled" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsPushNotificationEnabled" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsPushSystemAnnouncementsEnabled" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="IsRemindersEnabled" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="MessageTTLDays" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="PartnerId" type="xs:int" />
+      <xs:element minOccurs="0" name="PushEndHour" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="PushStartHour" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="RemindersPrePaddingSec" nillable="true" type="xs:int" />
+      <xs:element minOccurs="0" name="TopicExpirationDurationDays" nillable="true" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="NotificationPartnerSettings" nillable="true" type="tns:NotificationPartnerSettings" />
+  <xs:complexType name="NotificationPartnerSettingsResponse">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q1:Status" />
+      <xs:element minOccurs="0" name="settings" nillable="true" type="tns:NotificationPartnerSettings" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="NotificationPartnerSettingsResponse" nillable="true" type="tns:NotificationPartnerSettingsResponse" />
+  <xs:complexType name="UserNotificationSettings">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EnableInbox" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EnableMail" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EnablePush" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="FollowSettings" nillable="true" type="tns:UserFollowSettings" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserNotificationSettings" nillable="true" type="tns:UserNotificationSettings" />
+  <xs:complexType name="UserFollowSettings">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EnableMail" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="EnablePush" nillable="true" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UserFollowSettings" nillable="true" type="tns:UserFollowSettings" />
+  <xs:complexType name="NotificationSettingsResponse">
+    <xs:sequence>
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q2:Status" />
+      <xs:element minOccurs="0" name="settings" nillable="true" type="tns:UserNotificationSettings" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="NotificationSettingsResponse" nillable="true" type="tns:NotificationSettingsResponse" />
+  <xs:complexType name="MessageTemplate">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Action" nillable="true" type="xs:string" />
+      <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="AssetType" type="q3:eOTTAssetTypes" />
+      <xs:element minOccurs="0" name="DateFormat" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Id" type="xs:int" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Sound" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="URL" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MessageTemplate" nillable="true" type="tns:MessageTemplate" />
+  <xs:complexType name="MessageTemplateResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MessageTemplate" nillable="true" type="tns:MessageTemplate" />
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q4:Status" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MessageTemplateResponse" nillable="true" type="tns:MessageTemplateResponse" />
+  <xs:complexType name="InboxMessageResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="InboxMessages" nillable="true" type="tns:ArrayOfInboxMessage" />
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q5:Status" />
+      <xs:element minOccurs="0" name="TotalCount" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="InboxMessageResponse" nillable="true" type="tns:InboxMessageResponse" />
+  <xs:complexType name="ArrayOfInboxMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="InboxMessage" nillable="true" type="tns:InboxMessage" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfInboxMessage" nillable="true" type="tns:ArrayOfInboxMessage" />
+  <xs:complexType name="InboxMessage">
+    <xs:sequence>
+      <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="Category" type="q6:eMessageCategory" />
+      <xs:element minOccurs="0" name="CreatedAtSec" type="xs:long" />
+      <xs:element minOccurs="0" name="Id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="State" type="q7:eMessageState" />
+      <xs:element minOccurs="0" name="UpdatedAtSec" type="xs:long" />
+      <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="UserId" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="InboxMessage" nillable="true" type="tns:InboxMessage" />
+  <xs:complexType name="AnnouncementsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Announcements" nillable="true" type="tns:ArrayOfDbAnnouncement" />
+      <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q8:Status" />
+      <xs:element minOccurs="0" name="TotalCount" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AnnouncementsResponse" nillable="true" type="tns:AnnouncementsResponse" />
+  <xs:complexType name="ArrayOfDbAnnouncement">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DbAnnouncement" nillable="true" type="tns:DbAnnouncement" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDbAnnouncement" nillable="true" type="tns:ArrayOfDbAnnouncement" />
+  <xs:complexType name="DbAnnouncement">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AutomaticIssueFollowNotification" nillable="true" type="xs:boolean" />
+      <xs:element minOccurs="0" name="ExternalId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FollowPhrase" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="FollowReference" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="LastMessageSentDateSec" type="xs:long" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="QueueName" nillable="true" type="xs:string" />
+      <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="RecipientsType" type="q9:eAnnouncementRecipientsType" />
+      <xs:element minOccurs="0" name="SubscribersAmount" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DbAnnouncement" nillable="true" type="tns:DbAnnouncement" />
+  <xs:complexType name="RegistryResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="NotificationId" type="xs:long" />
+      <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q10:Status" />
+      <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RegistryResponse" nillable="true" type="tns:RegistryResponse" />
+  <xs:complexType name="DbReminder">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ExternalPushId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ExternalResult" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="GroupId" type="xs:int" />
+      <xs:element minOccurs="0" name="ID" type="xs:int" />
+      <xs:element minOccurs="0" name="IsSent" type="xs:boolean" />
+      <xs:element minOccurs="0" name="Name" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Phrase" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="QueueId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="QueueName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Reference" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="SendTime" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DbReminder" nillable="true" type="tns:DbReminder" />
+  <xs:complexType name="RemindersResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Reminders" nillable="true" type="tns:ArrayOfDbReminder" />
+      <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ApiObjects.Response" minOccurs="0" name="Status" nillable="true" type="q11:Status" />
+      <xs:element minOccurs="0" name="TotalCount" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RemindersResponse" nillable="true" type="tns:RemindersResponse" />
+  <xs:complexType name="ArrayOfDbReminder">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="DbReminder" nillable="true" type="tns:DbReminder" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfDbReminder" nillable="true" type="tns:ArrayOfDbReminder" />
+</xs:schema>
