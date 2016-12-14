@@ -2143,7 +2143,6 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddIDListParameter<long>("@remindersIds", remindersIds, "id");
 
-                //SP_UPDATE_NOTIFICATION_REQUEST_STATUS
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
