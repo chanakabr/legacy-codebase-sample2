@@ -5793,6 +5793,12 @@ namespace TvinciImporter
                 }
 
                 #endregion
+
+                // Update recordings only if we know that the dates have changed
+                if (datesUpdates)
+                {
+                    UpdateRemindersfEPGs(epgIds, groupId);
+                }
             }
             catch (Exception ex)
             {
@@ -5800,6 +5806,26 @@ namespace TvinciImporter
             }
 
             return isUpdateIndexSucceeded;
+        }
+
+        private static void UpdateRemindersfEPGs(List<ulong> epgIds, int groupId)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                log.DebugFormat("Start notifiction.HandleEpgEventAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
+                service.HandleEpgEventAsync(groupId, epgIds.ToArray());
+                log.DebugFormat("Finish notifiction.HandleEpgEventAsync has been called for epgIds {0}", string.Join(", ", epgIds.Select(x => x.ToString()).ToArray()));
+            }
+            catch (Exception ex)
+            {
+                log.Error("ImporterImpl - Update reminder failed on Notification, ex = {0}", ex);
+            }
         }
 
         public static bool UpdateEPGIndex(List<ulong> epgIds, int groupId, ApiObjects.eAction action)

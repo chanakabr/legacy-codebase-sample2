@@ -278,6 +278,9 @@ namespace ApiObjects.Response
         MessageIdentifierRequired = 8019,
         UserInboxMessagesNotExist = 8020,
         InvalidReminderPrePaddingSec = 8021,
+        ReminderNotFound = 8022,
+        UserAlreadySetReminder = 8023,
+        PassedAsset = 8024,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
