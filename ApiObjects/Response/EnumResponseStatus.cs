@@ -280,6 +280,7 @@ namespace ApiObjects.Response
         InvalidReminderPrePaddingSec = 8021,
         ReminderNotFound = 8022,
         UserAlreadySetReminder = 8023,
+        PassedAsset = 8024,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
