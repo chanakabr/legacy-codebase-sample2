@@ -71,6 +71,8 @@ namespace WebAPI.Controllers
                 ks = KS.GetFromRequest();
             }
 
+            var payload = KSUtils.ExtractKSPayload(ks);
+
             return new KalturaSession()
             {
                 ks = ks.ToString(),
@@ -79,7 +81,8 @@ namespace WebAPI.Controllers
                 privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty,
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
-                udid = KSUtils.ExtractKSPayload(ks).UDID
+                udid = payload.UDID,
+                createDate = payload.CreateDate,
             };
         }
 

@@ -455,25 +455,34 @@ namespace WebAPI.Managers
 
         internal static bool LogOut(KS ks)
         {
-            Group group = GroupsManager.GetGroup(ks.GroupId);
-
-            ApiToken revokedToken = new ApiToken()
+            if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
-                GroupID = ks.GroupId,
-                AccessTokenExpiration = SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
-                KS = ks.ToString(),
-                Udid = KSUtils.ExtractKSPayload().UDID,
-                UserId = ks.UserId
-            };
+                Group group = GroupsManager.GetGroup(ks.GroupId);
 
-            string revokedKsCbKey = string.Format(group.RevokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+                ApiToken revokedToken = new ApiToken()
+                {
+                    GroupID = ks.GroupId,
+                    AccessTokenExpiration = SerializationUtils.ConvertToUnixTimestamp(ks.Expiration),
+                    KS = ks.ToString(),
+                    Udid = KSUtils.ExtractKSPayload().UDID,
+                    UserId = ks.UserId
+                };
 
-            if (!cbManager.Add(revokedKsCbKey, revokedToken, (uint)(revokedToken.RefreshTokenExpiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))
-            {
-                log.ErrorFormat("LogOut: Failed to store revoked KS");
-                throw new InternalServerErrorException();
+                string revokedKsCbKey = string.Format(group.RevokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+
+                uint expiration = (uint)(revokedToken.RefreshTokenExpiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
+                if (group.RevokedKsMaxTtlSeconds > 0 && group.RevokedKsMaxTtlSeconds < expiration)
+                {
+                    expiration = (uint)group.RevokedKsMaxTtlSeconds;
+                }
+
+                if (!cbManager.Add(revokedKsCbKey, revokedToken, expiration, true))
+                {
+                    log.ErrorFormat("LogOut: Failed to store revoked KS");
+                    throw new InternalServerErrorException();
+                }
+
             }
-
             return true;
         }
 
@@ -529,54 +538,66 @@ namespace WebAPI.Managers
 
         private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
         {
-            // get user sessions from CB
-            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
-            
-            ulong version;
-            UserSessions usersSessions = cbManager.GetWithVersion<UserSessions>(userSessionsCbKey, out version, true);
-
-            // if not found create one
-            if (usersSessions == null)
+            if (!string.IsNullOrEmpty(userId) && userId != "0")
             {
-                usersSessions = new UserSessions()
+                // get user sessions from CB
+                string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
+
+                ulong version;
+                UserSessions usersSessions = cbManager.GetWithVersion<UserSessions>(userSessionsCbKey, out version, true);
+
+                // if not found create one
+                if (usersSessions == null)
                 {
-                    UserId = userId,
-                };
-            }
+                    usersSessions = new UserSessions()
+                    {
+                        UserId = userId,
+                    };
+                }
 
-            // calculate new expiration
-            usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
+                // calculate new expiration
+                usersSessions.expiration = Math.Max(usersSessions.expiration, expiration);
 
-            if (revokeAll)
-            {
-                usersSessions.UserRevocation = revocationTime;
-
-                long now = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
-                usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(udid))
+                if (revokeAll)
                 {
-                    if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
+                    usersSessions.UserRevocation = revocationTime;
+
+                    long now = SerializationUtils.GetCurrentUtcTimeInUnixTimestamp();
+                    usersSessions.expiration = Math.Max(Math.Max(usersSessions.expiration, (int)(now + group.KSExpirationSeconds)), (int)now + group.AppTokenSessionMaxDurationSeconds);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(udid))
                     {
-                        usersSessions.UserWithUdidRevocations[udid] = revocationTime;
-                    }
-                    else
-                    {
-                        usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
+                        if (usersSessions.UserWithUdidRevocations.ContainsKey(udid))
+                        {
+                            usersSessions.UserWithUdidRevocations[udid] = revocationTime;
+                        }
+                        else
+                        {
+                            usersSessions.UserWithUdidRevocations.Add(udid, revocationTime);
+                        }
                     }
                 }
-            }
 
-            // store
-            if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))
-            {
-                log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
-                return false;
+                // store
+                if (!cbManager.SetWithVersion<UserSessions>(userSessionsCbKey, usersSessions, version, (uint)(usersSessions.expiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp()), true))
+                {
+                    log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
+                    return false;
+                }
             }
-
             return true;
+        }
+
+        internal static void RemoveUserSessions(Group group, string userId)
+        {
+            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
+
+            if (!cbManager.Remove(userSessionsCbKey))
+            {
+                log.ErrorFormat("RemoveUserSessions: failed to remove UserSessions from CB, key = {0}, uderId = {1}", userSessionsCbKey, userId);
+            }
         }
     }
 }

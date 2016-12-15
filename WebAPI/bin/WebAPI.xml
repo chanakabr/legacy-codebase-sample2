@@ -8294,7 +8294,12 @@
         </member>
         <member name="P:WebAPI.Models.Users.KalturaSession.udid">
             <summary>
-            udid
+            UDID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaSession.createDate">
+            <summary>
+            Create date
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSessionInfo">

@@ -96,6 +96,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("revoked_ks_key_format")]
         public string RevokedKsKeyFormat { get; set; }
 
+        [JsonProperty("revoked_ks_max_ttl_seconds")]
+        public int RevokedKsMaxTtlSeconds { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 
