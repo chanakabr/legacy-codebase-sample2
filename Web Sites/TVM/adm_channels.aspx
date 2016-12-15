@@ -145,7 +145,7 @@
 								<tr>
 									<!-- empty area -->
 									<td>
-										<table>
+										<table cellspacing="20px">
 											<tr>
 												<td nowrap="nowrap" class="selectorList1"><ul><% GetSubSubMenu(); %></ul></td>
 											</tr>

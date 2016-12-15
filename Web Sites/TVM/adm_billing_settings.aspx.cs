@@ -109,6 +109,16 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_SendRenewMail.SetDefault(1);
             theRecord.AddRecord(dr_SendRenewMail);
 
+            DataRecordCheckBoxField dr_SendFailPurchaseMail = new DataRecordCheckBoxField(true);
+            dr_SendFailPurchaseMail.Initialize("Send Fail Purchase Email", "adm_table_header_nbg", "FormInput", "SEND_FAIL_PURCHASE_MAIL", false);
+            dr_SendFailPurchaseMail.SetDefault(1);
+            theRecord.AddRecord(dr_SendFailPurchaseMail);
+
+            DataRecordCheckBoxField dr_SendFailRenewMail = new DataRecordCheckBoxField(true);
+            dr_SendFailRenewMail.Initialize("Send Fail Renew Email", "adm_table_header_nbg", "FormInput", "SEND_FAIL_RENEW_MAIL", false);
+            dr_SendFailRenewMail.SetDefault(1);
+            theRecord.AddRecord(dr_SendFailRenewMail);
+
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
         return sTable;
