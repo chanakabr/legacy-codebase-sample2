@@ -7,7 +7,7 @@ using ApiObjects;
 
 namespace EventManager.Events
 {
-    public class ObjectCreatedEvent : NotificationEvent
+    public class ObjectCreatedEvent : KalturaEvent
     {
         public override string Action
         {
@@ -17,7 +17,8 @@ namespace EventManager.Events
             }
         }
 
-        public ObjectCreatedEvent(CoreObject coreObject) : base(coreObject)
+        public ObjectCreatedEvent(CoreObject coreObject, int partnerId)
+            : base(coreObject, partnerId)
         {
 
         }

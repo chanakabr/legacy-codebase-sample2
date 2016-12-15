@@ -12,10 +12,6 @@ namespace EventManager
         {
             bool shouldConsume = false;
 
-            if (kalturaEvent is NotificationEvent)
-            {
-                shouldConsume = true;
-            }
 
             return shouldConsume;
         }
