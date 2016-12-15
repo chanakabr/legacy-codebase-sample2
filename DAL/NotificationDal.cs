@@ -2123,7 +2123,7 @@ namespace DAL
         {
             int affectedRows = 0;
 
-            ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("Delete_Reminder");
+            ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("DeleteReminder");
             spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsertUserNotification.AddParameter("@reminderId", reminderId);
             spInsertUserNotification.AddParameter("@groupId", groupId);
