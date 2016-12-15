@@ -2104,9 +2104,9 @@ namespace DAL
                 sp.AddParameter("@queueId", dbReminder.QueueId);
                 sp.AddParameter("@queueName", dbReminder.QueueName);
                 sp.AddParameter("@reference", dbReminder.Reference);
-                sp.AddParameter("@sendTime", dbReminder.SendTime);
+                sp.AddParameter("@sendTime", ODBCWrapper.Utils.UnixTimestampToDateTime(dbReminder.SendTime));
                 sp.AddParameter("@externalId", dbReminder.ExternalPushId);
-                sp.AddParameter("@externalResult", dbReminder.ExternalResult);
+                sp.AddParameter("@externalResult", dbReminder.ExternalResult);                
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
