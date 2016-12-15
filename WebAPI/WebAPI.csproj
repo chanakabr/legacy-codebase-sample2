@@ -630,8 +630,7 @@
     <Compile Include="EventNotifications\NotificationEventHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
-    <Compile Include="Managers\Models\EventNotifications\GeneralEventNotification.cs" />
-    <Compile Include="Managers\Models\EventNotifications\PartnerEventNotification.cs" />
+    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
@@ -1213,6 +1212,10 @@
     <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
       <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
       <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>

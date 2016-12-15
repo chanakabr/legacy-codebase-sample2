@@ -20,21 +20,23 @@ namespace WebAPI
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        ConcurrentDictionary<KalturaEvent, PartnerEventNotification> partnerSpecificNotifications = null;
-        ConcurrentDictionary<KalturaEvent, GeneralEventNotification> generalNotifications = null;
 
         public RestNotificationEventConsumer()
         {
-            generalNotifications = new ConcurrentDictionary<KalturaEvent, GeneralEventNotification>();
-            partnerSpecificNotifications = new ConcurrentDictionary<KalturaEvent, PartnerEventNotification>();
         }
 
         public override bool ShouldConsume(KalturaEvent kalturaEvent)
         {
-            string s = Newtonsoft.Json.JsonConvert.SerializeObject(typeof(object));
+            return true;
+        }
 
-            WebAPI.Managers.Models.PartnerEventNotification specificNotification = null;
-            WebAPI.Managers.Models.GeneralEventNotification generalNotification = null;
+        protected override bool Consume(KalturaEvent kalturaEvent)
+        {
+            bool result = false;
+            WebAPI.Managers.Models.EventNotification specificNotification = null;
+            WebAPI.Managers.Models.EventNotification generalNotification = null;
+
+            Dictionary<string, NotificationAction> actions = new Dictionary<string,NotificationAction>();
 
             bool shouldConsume = true;
 
@@ -50,8 +52,8 @@ namespace WebAPI
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
-                string cbKey = string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action).ToLower();
-                specificNotification = cbManager.Get<PartnerEventNotification>(cbKey, true);
+                string cbKey = GetCBSpecificKey(kalturaEvent);
+                specificNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE)
@@ -60,8 +62,8 @@ namespace WebAPI
                 QueryType = KLogEnums.eDBQueryType.SELECT
             })
             {
-                string cbKey = string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Type, kalturaEvent.Action).ToLower();
-                generalNotification = cbManager.Get<GeneralEventNotification>(cbKey, true);
+                string cbKey = GetCBGeneralKey(kalturaEvent);
+                generalNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
             // chek if we have the metadata at all. if we don't we don't continue
@@ -71,66 +73,63 @@ namespace WebAPI
             }
             else
             {
-                generalNotifications[kalturaEvent] = generalNotification;
-                partnerSpecificNotifications[kalturaEvent] = specificNotification;
-
                 // check if this feature is enabled/disabled for a specific group
-                if ((generalNotification != null && generalNotification.Status != 1) || 
+                if ((generalNotification != null && generalNotification.Status != 1) ||
                     (specificNotification != null && specificNotification.Status != 1))
                 {
                     shouldConsume = false;
                 }
                 // check if this event has any actions defined at all
-                else if ((specificNotification == null || specificNotification.Actions == null) && generalNotification.Actions == null)
+                else 
                 {
-                    shouldConsume = false;
+                    if (generalNotification != null && generalNotification.Actions != null)
+                    {
+                        foreach (var action in generalNotification.Actions)
+                        {
+                            actions[action.SystemName] = action;
+                        }
+                    }
+
+                    if (specificNotification != null && specificNotification.Actions != null)
+                    {
+                        foreach (var action in specificNotification.Actions)
+                        {
+                            actions[action.SystemName] = action;
+                        }
+                    }
+
+                    if (actions.Count == 0)
+                    {
+                        shouldConsume = false;
+                    }
                 }
             }
 
             if (!shouldConsume)
             {
-                generalNotifications.TryRemove(kalturaEvent, out generalNotification);
-                partnerSpecificNotifications.TryRemove(kalturaEvent, out specificNotification);
+                return false;
             }
-
-            return shouldConsume;
-        }
-
-        protected override bool Consume(KalturaEvent kalturaEvent)
-        {
-            bool result = false;
-
-            WebAPI.Managers.Models.PartnerEventNotification partnerSpecificNotification = null;
-            WebAPI.Managers.Models.GeneralEventNotification generalNotification = null;
-
-            bool getResult = partnerSpecificNotifications.TryGetValue(kalturaEvent, out partnerSpecificNotification);
-            getResult = generalNotifications.TryGetValue(kalturaEvent, out generalNotification);
 
             if (generalNotification != null)
             {
                 Type source = kalturaEvent.Object.GetType();
-                // Get the type from the general definition
-                Type destination = Type.GetType(generalNotification.PhoenixType);
-
-                object t = AutoMapper.Mapper.Map(kalturaEvent.Object, source, destination);
-
-                List<NotificationAction> actions = new List<NotificationAction>();
-
-                if (generalNotification.Actions != null)
-                {
-                    actions.AddRange(generalNotification.Actions);
-                }
-
-                if (partnerSpecificNotification != null && partnerSpecificNotification.Actions != null)
-                {
-                    actions.AddRange(partnerSpecificNotification.Actions);
-                }
-
-                foreach (var action in actions)
+            
+                foreach (var action in actions.Values)
                 {
                     try
                     {
-                        object actionBody = action.Body;
+                        // first check action's status
+                        if (action.Status != 1)
+                        {
+                            continue;
+                        }
+
+                        // Get the type from the general definition
+                        Type destination = Type.GetType(specificNotification.PhoenixType);
+
+                        object t = AutoMapper.Mapper.Map(kalturaEvent.Object, source, destination);
+
+                        object actionBody = action.Handler;
                         JObject jsonObject = actionBody as JObject;
                         NotificationEventHandler handler = null;
 
@@ -145,7 +144,7 @@ namespace WebAPI
 
                         if (handler != null)
                         {
-                            handler.HandleEvent(kalturaEvent, t);
+                            handler.Handle(kalturaEvent, t);
                         }
                     }
                     catch (Exception ex)
@@ -156,13 +155,21 @@ namespace WebAPI
                     }
                 }
 
-                generalNotifications.TryRemove(kalturaEvent, out generalNotification);
-                partnerSpecificNotifications.TryRemove(kalturaEvent, out partnerSpecificNotification);
-
                 result = true;
             }
 
             return result;
+        }
+
+        protected string GetCBGeneralKey(KalturaEvent kalturaEvent)
+        {
+            return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+        }
+
+
+        protected string GetCBSpecificKey(KalturaEvent kalturaEvent)
+        {
+            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }
     }
 }

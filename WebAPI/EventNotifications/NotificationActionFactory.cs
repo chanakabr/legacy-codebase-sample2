@@ -18,7 +18,7 @@ namespace WebAPI
             return CreateEventHandler(type, json);
         }
 
-        internal static NotificationEventHandler CreateEventHandler(Managers.Models.eNotificationActionTypes type, JObject body)
+        internal static NotificationEventHandler CreateEventHandler(Managers.Models.eNotificationActionTypes type, JObject jsonHandler)
         {
             NotificationEventHandler handler = null;
 
@@ -28,12 +28,12 @@ namespace WebAPI
                 break;
                 case WebAPI.Managers.Models.eNotificationActionTypes.Email:
                 {
-                    handler = new EmailNotificationHandler(body);
+                    handler = jsonHandler.ToObject<EmailNotificationHandler>();
                     break;
                 }
                 case WebAPI.Managers.Models.eNotificationActionTypes.RabbitQueue:
                 {
-                    handler = new RabbitQueueHandler(body);
+                    handler = jsonHandler.ToObject<RabbitQueueHandler>();
                     break;
                 }
                 default:

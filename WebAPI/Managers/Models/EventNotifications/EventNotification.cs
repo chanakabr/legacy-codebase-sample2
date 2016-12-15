@@ -16,15 +16,15 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        [JsonProperty("phoenix_type")]
-        public Type PhoenixType
+        [JsonProperty("partner_id")]
+        public int PartnerId
         {
             get;
             set;
         }
 
-        [JsonProperty("partner_id")]
-        public int PartnerId
+        [JsonProperty("phoenix_type")]
+        public string PhoenixType
         {
             get;
             set;

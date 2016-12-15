@@ -7,24 +7,19 @@ using System.Web;
 
 namespace WebAPI.EventNotifications
 {
+    [Serializable]
     public class EmailNotificationHandler : NotificationEventHandler
     {
-        EmailNotificationDefinitions definitions = null;
 
-        public EmailNotificationHandler(JObject definitionsJson) : base(definitionsJson)
+        public EmailNotificationHandler() : base()
         {
-            definitions = definitionsJson.ToObject<EmailNotificationDefinitions>();
         }
 
-        internal override void HandleEvent(EventManager.KalturaEvent kalturaEvent, object t)
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, object t)
         {
             // to do
         }
-    }
 
-    [Serializable]
-    public class EmailNotificationDefinitions
-    {
         [JsonProperty("subject")]
         public string Subject
         {
@@ -87,7 +82,5 @@ namespace WebAPI.EventNotifications
             get;
             set;
         }
-
-
     }
 }

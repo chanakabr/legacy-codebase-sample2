@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,27 +8,47 @@ using System.Web;
 
 namespace WebAPI.EventNotifications
 {
+    [Serializable]
     public class RabbitQueueHandler : NotificationEventHandler
     {
-        RabbitQueueDefinitions definitions = null;
-
-        public RabbitQueueHandler(JObject definitionsJson)
-            : base(definitionsJson)
+        public RabbitQueueHandler()
+            : base()
         {
-            definitions = definitionsJson.ToObject<RabbitQueueDefinitions>();
         }
 
-        internal override void HandleEvent(EventManager.KalturaEvent kalturaEvent, object t)
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, object theObject)
         {
             //
-        }
-    }
+            QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
+            BaseCeleryData data = new BaseCeleryData()
+            {
+                id = Guid.NewGuid().ToString(),
+                task = this.Task,
+                args = new List<object>()
+                {
+                    theObject
+                }
+            };
 
-    [Serializable]
-    public class RabbitQueueDefinitions
-    {
+            queue.Enqueue(data, this.RoutingKey, this.Expiration);
+        }
+
         [JsonProperty("routing_key")]
         public string RoutingKey
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("expiration")]
+        public long Expiration
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("task")]
+        public string Task
         {
             get;
             set;

@@ -6,8 +6,14 @@ using System.Text;
 
 namespace WebAPI.EventNotifications
 {
+    [Serializable]
     public abstract class NotificationEventHandler
     {
+        public NotificationEventHandler()
+        {
+
+        }
+
         public NotificationEventHandler(JObject definitions)
         {
 
@@ -18,6 +24,8 @@ namespace WebAPI.EventNotifications
 
         }
 
-        internal abstract void HandleEvent(EventManager.KalturaEvent kalturaEvent, object t);
+        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, object t);
+
+        // props
     }
 }

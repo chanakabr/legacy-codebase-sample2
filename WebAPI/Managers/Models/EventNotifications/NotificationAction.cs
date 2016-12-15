@@ -25,8 +25,22 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        [JsonProperty("body")]
-        public object Body
+        [JsonProperty("status")]
+        public int Status
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("system_name")]
+        public string SystemName
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("handler")]
+        public object Handler
         {
             get;
             set;
