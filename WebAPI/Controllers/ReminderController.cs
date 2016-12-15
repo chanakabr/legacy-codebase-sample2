@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
                         }
 
                         // validate referenceId
-                        if (kalturaAssetReminder.AssetId > 0)
+                        if (kalturaAssetReminder.AssetId <= 0)
                         {
                             throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "AssetId");
                         }
