@@ -20,7 +20,7 @@ namespace WebAPI.Clients
 {
     public class NotificationsClient : BaseClient
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public NotificationsClient()
         {
@@ -1321,7 +1321,7 @@ namespace WebAPI.Clients
                                 throw new NotImplementedException();
                             break;
                         case KalturaNotificationType.Reminder:
-                            response = Notification.RegisterPushReminderParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);                            
+                            response = Notification.RegisterPushReminderParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);
                             break;
                         default:
                             break;
@@ -1350,8 +1350,8 @@ namespace WebAPI.Clients
                 ret = new KalturaRegistryResponse();
 
             return ret;
-        }    
-        
+        }
+
         internal KalturaReminder AddAssetReminder(int groupId, string userID, KalturaAssetReminder reminder)
         {
             Notifications.RemindersResponse response = null;
@@ -1365,7 +1365,7 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);            
+            Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
@@ -1373,6 +1373,7 @@ namespace WebAPI.Clients
                 {
                     dbReminder = Mapper.Map<DbReminder>(reminder);
                     dbReminder.Reference = reminder.AssetId;
+                    dbReminder.GroupId = groupId;
                     response = Notification.AddUserReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, dbReminder);
                 }
             }
@@ -1424,7 +1425,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteReminder.  groupID: {0}, userId: {1}, reminderId: {2}, exception: {3}", groupId, userID, reminderId,ex);
+                log.ErrorFormat("Error while DeleteReminder.  groupID: {0}, userId: {1}, reminderId: {2}, exception: {3}", groupId, userID, reminderId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
             if (response.Code != (int)StatusCode.OK)

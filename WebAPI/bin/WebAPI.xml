@@ -6336,6 +6336,27 @@
             Current Bitrate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Name">
+            <summary>
+            Reminder name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Type">
+            <summary>
+            Identifies the reminder type (Series, etc). 
+            Possible values: 0 – Series.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
+            <summary>
+            Reminder id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
+            <summary>
+            Asset id
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">
             <summary>
             <![CDATA[
@@ -6361,6 +6382,11 @@
             Reminders
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Notifications.KalturaReminderType">
+            <summary>
+            Reminder types
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
             <summary>
             Holder object for inbox message type enum
@@ -6384,6 +6410,56 @@
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessageListResponse.InboxMessages">
             <summary>
             Follow data list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Name">
+            <summary>
+            Announcement name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Message">
+            <summary>
+            Announcement message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Enabled">
+            <summary>
+            Announcement enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.StartTime">
+            <summary>
+            Announcement start time
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Timezone">
+            <summary>
+            Announcement time zone
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Status">
+            <summary>
+            Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Recipients">
+            <summary>
+            Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Id">
+            <summary>
+            Announcement id
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
+            <summary>
+            Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
+            <summary>
+            Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
