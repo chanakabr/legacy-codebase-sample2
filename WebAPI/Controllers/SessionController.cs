@@ -154,7 +154,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             Group group = GroupsManager.GetGroup(groupId);
             if (!group.IsSwitchingUsersAllowed)
@@ -174,6 +175,7 @@ namespace WebAPI.Controllers
 
             string udid = KSUtils.ExtractKSPayload().UDID;
 
+            AuthorizationManager.LogOut(ks);
             return AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
         }
 
