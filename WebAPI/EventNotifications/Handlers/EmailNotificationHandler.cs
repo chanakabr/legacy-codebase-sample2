@@ -11,11 +11,9 @@ namespace WebAPI.EventNotifications
     {
         EmailNotificationDefinitions definitions = null;
 
-        public EmailNotificationHandler(string definitionsJson) : base(definitionsJson)
+        public EmailNotificationHandler(JObject definitionsJson) : base(definitionsJson)
         {
-            JObject json = JObject.Parse(definitionsJson);
-
-            definitions = json.ToObject<EmailNotificationDefinitions>();
+            definitions = definitionsJson.ToObject<EmailNotificationDefinitions>();
         }
 
         internal override void HandleEvent(EventManager.KalturaEvent kalturaEvent, object t)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +8,11 @@ namespace WebAPI.EventNotifications
 {
     public abstract class NotificationEventHandler
     {
+        public NotificationEventHandler(JObject definitions)
+        {
+
+        }
+
         public NotificationEventHandler(string definitions)
         {
 

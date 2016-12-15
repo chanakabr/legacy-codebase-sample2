@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace WebAPI.Managers.Models
     {
         Http = 0,
         Email = 1,
-        Rabbit = 2,
+        RabbitQueue = 2,
         // to be continued
     }
 
@@ -25,7 +26,7 @@ namespace WebAPI.Managers.Models
         }
 
         [JsonProperty("body")]
-        public string Body
+        public object Body
         {
             get;
             set;

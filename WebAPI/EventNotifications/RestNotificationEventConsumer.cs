@@ -6,6 +6,9 @@ using System.Linq;
 using System.Web;
 using WebAPI.Managers.Models;
 using System.Collections.Concurrent;
+using Newtonsoft.Json.Linq;
+using WebAPI.EventNotifications;
+using System.Reflection;
 
 namespace WebAPI
 {
@@ -14,6 +17,8 @@ namespace WebAPI
         private const string CB_SECTION_NAME = "groups";
         private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}_{2}";
         private const string CB_GENERAL_KEY_FORMAT = "notification_{0}_{1}";
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         ConcurrentDictionary<KalturaEvent, PartnerEventNotification> partnerSpecificNotifications = null;
         ConcurrentDictionary<KalturaEvent, GeneralEventNotification> generalNotifications = null;
@@ -123,8 +128,32 @@ namespace WebAPI
 
                 foreach (var action in actions)
                 {
-                    var handler = NotificationActionFactory.CreateEventHandler(action.ActionType, action.Body);
-                    handler.HandleEvent(kalturaEvent, t);
+                    try
+                    {
+                        object actionBody = action.Body;
+                        JObject jsonObject = actionBody as JObject;
+                        NotificationEventHandler handler = null;
+
+                        if (jsonObject != null)
+                        {
+                            handler = NotificationActionFactory.CreateEventHandler(action.ActionType, jsonObject);
+                        }
+                        else
+                        {
+                            handler = NotificationActionFactory.CreateEventHandler(action.ActionType, actionBody.ToString());
+                        }
+
+                        if (handler != null)
+                        {
+                            handler.HandleEvent(kalturaEvent, t);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorFormat(
+                            "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
+                            kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action, action.ActionType, ex);
+                    }
                 }
 
                 generalNotifications.TryRemove(kalturaEvent, out generalNotification);
