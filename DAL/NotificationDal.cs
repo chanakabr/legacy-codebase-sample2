@@ -2089,6 +2089,29 @@ namespace DAL
             return result;
         }
 
+        public static DbReminder GetReminderByReferenceId(int groupId, long referenceId)
+        {
+            DbReminder result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetReminderByReferenceId");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@referenceId", referenceId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    result = CreateDbReminder(ds.Tables[0].Rows[0]);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetRemindersByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
         public static int SetReminder(DbReminder dbReminder)
         {
             int reminderId = 0;
