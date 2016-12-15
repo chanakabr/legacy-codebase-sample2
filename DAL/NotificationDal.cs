@@ -2116,7 +2116,6 @@ namespace DAL
             }
 
             return reminderId;
-
         }
 
         public static bool DeleteReminder(int groupId, long reminderId)
