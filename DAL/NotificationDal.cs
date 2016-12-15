@@ -705,26 +705,26 @@ namespace DAL
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                foreach (var row in dt.Rows)
+                foreach (DataRow row in dt.Rows)
                 {
-                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "automatic_sending");
+                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(row, "automatic_sending");
 
                     if (!string.IsNullOrEmpty(automaticSending))
                         automaticIssueFollowNotification = automaticSending.Equals("1");
 
                     settings.Add(new NotificationPartnerSettings()
                     {
-                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
-                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
-                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
-                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
-                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
-                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
+                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_notification_enabled") == 1 ? true : false,
+                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_system_announcements_enabled") == 1 ? true : false,
+                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_start_hour"),
+                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_end_hour"),
+                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_inbox_enable") == 1 ? true : false,
+                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(row, "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
-                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id"),
-                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days"),
-                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_reminder_enabled") == 1 ? true : false,
-                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "reminder_offset_sec")
+                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_cleanup_expiration_days"),
+                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
+                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec")
                     });
                 }
             }
