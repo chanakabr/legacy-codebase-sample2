@@ -50,35 +50,6 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
-        /// </summary>        
-        /// <remarks>
-        /// 
-        /// </remarks>
-        /// <returns></returns>
-        [Route("initiateCleanup"), HttpPost]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool InitiateCleanup()
-        {
-            bool response = false;
-
-            try
-            {
-                int groupId = KS.GetFromRequest().GroupId;
-
-                response = ClientsManager.NotificationClient().DeleteAnnouncementsOlderThan(groupId);
-            }
-
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
-
-        /// <summary>
         /// TBD 
         /// </summary>
         /// <remarks>
@@ -113,6 +84,11 @@ namespace WebAPI.Controllers
                     case KalturaNotificationType.system:
                         if (identifier.ToLower() != "login")
                             throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "identifier");
+                        break;
+                    case KalturaNotificationType.Reminder:
+                        long reminderId = 0;
+                        if (!long.TryParse(identifier, out reminderId))
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
                         break;
                     default:
                         break;

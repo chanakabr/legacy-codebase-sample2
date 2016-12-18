@@ -65,12 +65,20 @@ namespace WebAPI.Models.Users
         public string privileges { get; set; }
 
         /// <summary>
-        /// udid
+        /// UDID
         /// </summary>
         [DataMember(Name = "udid")]
         [JsonProperty(PropertyName = "udid")]
         [XmlElement("udid")]
         public string udid { get; set; }
+
+        /// <summary>
+        /// Create date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement("createDate")]
+        public int createDate { get; set; }
 
         public KalturaSession()
         {
@@ -78,13 +86,15 @@ namespace WebAPI.Models.Users
 
         public KalturaSession(KS ks)
         {
+            var payload = KSUtils.ExtractKSPayload(ks);
             this.ks = ks.ToString();
             this.expiry = (int)SerializationUtils.ConvertToUnixTimestamp(ks.Expiration);
             this.partnerId = ks.GroupId;
             this.privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty;
             this.sessionType = ks.SessionType;
             this.userId = ks.UserId;
-            this.udid = KSUtils.ExtractKSPayload(KS.GetFromRequest()).UDID;
+            this.udid = payload.UDID;
+            this.createDate = payload.CreateDate;
         }
     }
 

@@ -22,6 +22,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType INVALID_REFRESH_TOKEN = new ApiExceptionType(StatusCode.InvalidRefreshToken, "Invalid refresh token");
         public static ApiExceptionType REFRESH_TOKEN_FAILED = new ApiExceptionType(StatusCode.RefreshTokenFailed, StatusCode.Error, "Refresh token failed");
         public static ApiExceptionType INVALID_USER_ID = new ApiExceptionType(StatusCode.InvalidUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");
+        public static ApiExceptionType INVALID_UDID = new ApiExceptionType(StatusCode.InvalidUdid, StatusCode.Unauthorized, "Invalid UDID [@id@]", "id");
 
         public static ApiExceptionType INVALID_SERVICE = new ApiExceptionType(StatusCode.InvalidService, "Service [@service@] not found", "service");
         public static ApiExceptionType INVALID_ACTION = new ApiExceptionType(StatusCode.InvalidAction, "Action [@service@.@action@] not found", "service", "action");

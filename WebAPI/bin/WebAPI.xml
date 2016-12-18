@@ -579,6 +579,32 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.ReminderController.Add(WebAPI.Models.Notifications.KalturaReminder)">
+            <summary>
+            Add a new future reminder
+            </summary>
+            <param name="announcement">The announcement to be added.
+            Reminder type values: Series</param>
+            <returns></returns>
+            <remarks>Possible status codes: </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64)">
+            <summary>
+            Delete a reminder. Reminder cannot be delete while being sent.
+            </summary>
+            <param name="id">Id of the reminder.</param>
+            <returns></returns>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.ReminderController.List(WebAPI.Models.Notification.KalturaReminderFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Lists all reminders.
+            </summary>
+            <param name="filter">Filter object</param>
+            <param name="pager">Paging the request</param>
+            <returns></returns>
+            <remarks>FeatureDisabled = 8009</remarks>
+        </member>
         <member name="M:WebAPI.Controllers.SocialCommentController.List(WebAPI.Models.Social.KalturaSocialCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get a list of all social comments filtered by asset ID and social platform
@@ -1608,15 +1634,6 @@
             </remarks>
             <returns></returns>
         </member>
-        <member name="M:WebAPI.Controllers.NotificationController.InitiateCleanup">
-            <summary>
-            TBD
-            </summary>        
-            <remarks>
-            
-            </remarks>
-            <returns></returns>
-        </member>
         <member name="M:WebAPI.Controllers.NotificationController.Register(System.String,WebAPI.Models.Notification.KalturaNotificationType)">
             <summary>
             TBD 
@@ -1644,8 +1661,7 @@
             
             <remarks>        
             </remarks>
-            <returns>The notification settings that apply for the partner</returns>
-            
+            <returns>The notification settings that apply for the partner</returns>        
         </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Update(WebAPI.Models.Notification.KalturaNotificationsPartnerSettings)">
             <summary>
@@ -2355,6 +2371,12 @@
             Switching the user in the session by generating a new session for a new user within the same household
             </summary>
             <param name="userIdToSwitch">The identifier of the user to change</param>
+        </member>
+        <member name="M:WebAPI.Controllers.SessionController.Revoke">
+            <summary>
+            Revokes all the sessions (KS) of a given user 
+            </summary>
+            <param name="userId">The identifier of the user to change</param>
         </member>
         <member name="M:WebAPI.Controllers.UserAssetRuleController.ListOldStandard(WebAPI.Models.API.KalturaGenericRuleFilter)">
             <summary>
@@ -6314,6 +6336,57 @@
             Current Bitrate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Name">
+            <summary>
+            Reminder name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Type">
+            <summary>
+            Identifies the reminder type (Series, etc). 
+            Possible values: 0 – Series.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
+            <summary>
+            Reminder id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
+            <summary>
+            Asset id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each.
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaReminderListResponse">
+            <summary>
+            List of reminders from DB.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaReminderListResponse.Reminders">
+            <summary>
+            Reminders
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notifications.KalturaReminderType">
+            <summary>
+            Reminder types
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
             <summary>
             Holder object for inbox message type enum
@@ -6337,6 +6410,56 @@
         <member name="P:WebAPI.Models.Notification.KalturaInboxMessageListResponse.InboxMessages">
             <summary>
             Follow data list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Name">
+            <summary>
+            Announcement name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Message">
+            <summary>
+            Announcement message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Enabled">
+            <summary>
+            Announcement enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.StartTime">
+            <summary>
+            Announcement start time
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Timezone">
+            <summary>
+            Announcement time zone
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Status">
+            <summary>
+            Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Recipients">
+            <summary>
+            Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaAnnouncement.Id">
+            <summary>
+            Announcement id
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementRecipientsType">
+            <summary>
+            Announcement recipients: All=0/LoggedIn=1/Guests=2/Other=3
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
+            <summary>
+            Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
@@ -6537,6 +6660,16 @@
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.TopicExpirationDurationDays">
             <summary>
             Topic expiration duration in days
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ReminderEnabled">
+            <summary>
+            Reminder enabled
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ReminderOffset">
+            <summary>
+            Offset time (UTC) in seconds for send reminder
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
@@ -8161,7 +8294,12 @@
         </member>
         <member name="P:WebAPI.Models.Users.KalturaSession.udid">
             <summary>
-            udid
+            UDID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaSession.createDate">
+            <summary>
+            Create date
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaSessionInfo">

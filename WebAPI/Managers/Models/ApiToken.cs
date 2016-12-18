@@ -36,13 +36,16 @@ namespace WebAPI.Managers.Models
         [JsonProperty("udid")]
         public string Udid { get; set; }
 
+        [JsonIgnore]
+        public KS KsObject { get; set; }
+
         public ApiToken()
         {
         }
 
         public ApiToken(string userId, int groupId, string udid, bool isAdmin, Group groupConfig, bool isLongRefreshExpiration)
         {
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
             RefreshToken = Utils.Utils.Generate32LengthGuid();
             GroupID = groupId;
             UserId = userId;
@@ -72,7 +75,7 @@ namespace WebAPI.Managers.Models
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
 
-            KS ks = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+            KsObject = new KS(isAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                 groupId.ToString(),
                 userId,
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), // relative
@@ -81,18 +84,18 @@ namespace WebAPI.Managers.Models
                 new List<KalturaKeyValue>(), 
                 Models.KS.KSVersion.V2);
 
-            KS = ks.ToString();
+            KS = KsObject.ToString();
         }
 
         public ApiToken(ApiToken token, Group groupConfig, string udid)
         {
-            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid });
+            string payload = KSUtils.PrepareKSPayload(new WebAPI.Managers.Models.KS.KSData() { UDID = udid, CreateDate = (int)Utils.SerializationUtils.GetCurrentUtcTimeInUnixTimestamp() });
             RefreshToken = token.RefreshToken;
             GroupID = token.GroupID;
             UserId = token.UserId;
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
-
+            Udid = udid;
             // set refresh token expiration
             if (groupConfig.IsRefreshTokenExtendable)
             {
@@ -119,7 +122,7 @@ namespace WebAPI.Managers.Models
 
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
 
-            KS ks = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
+            KsObject = new KS(token.IsAdmin ? groupConfig.AdminSecret : groupConfig.UserSecret,
                 token.GroupID.ToString(),
                 token.UserId,
                 (int)(AccessTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)),
@@ -127,7 +130,7 @@ namespace WebAPI.Managers.Models
                 payload,
                 new List<KalturaKeyValue>(), 
                 Models.KS.KSVersion.V2);
-            KS = ks.ToString();
+            KS = KsObject.ToString();
         }
     }
 }
