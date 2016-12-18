@@ -6391,12 +6391,6 @@
             Reminder name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Type">
-            <summary>
-            Identifies the reminder type (Series, etc). 
-            Possible values: 0 – Series.
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
             <summary>
             Reminder id
@@ -6430,11 +6424,6 @@
         <member name="P:WebAPI.Models.Notification.KalturaReminderListResponse.Reminders">
             <summary>
             Reminders
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notifications.KalturaReminderType">
-            <summary>
-            Reminder types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
