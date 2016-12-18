@@ -2121,7 +2121,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetReminderByReferenceIds");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@referenceIds", referenceIds);
+                sp.AddIDListParameter<long>("@referenceIds", referenceIds, "id");
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
