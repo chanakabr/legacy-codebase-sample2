@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
 
                 switch (reminder.Type)
                 {
-                    case KalturaReminderType.Series:
+                    case KalturaReminderType.EPG:
                         KalturaAssetReminder kalturaAssetReminder = reminder as KalturaAssetReminder;
                         if (kalturaAssetReminder == null)
                         {

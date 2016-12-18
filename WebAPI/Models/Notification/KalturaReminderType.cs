@@ -6,6 +6,6 @@ namespace WebAPI.Models.Notifications
     /// </summary>
     public enum KalturaReminderType
     {
-        Series = 0
+        EPG = 0
     }
 }
