@@ -613,9 +613,8 @@ namespace ApiObjects
     {
         ProgramName = 0,
         ChannelName = 1,
-        StartTime = 2,
-        StartDate = 3,
-        ProgramId = 4
+        StartDate = 2,
+        ProgramId = 3
     }
 
     public enum TstvRecordingStatus
