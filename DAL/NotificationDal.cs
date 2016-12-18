@@ -2112,6 +2112,37 @@ namespace DAL
             return result;
         }
 
+        public static List<DbReminder> GetReminderByReferenceId(int groupId, List<long> referenceIds)
+        {
+            List<DbReminder> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetReminderByReferenceIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@referenceIds", referenceIds, "id");
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbReminder>();
+                    DbReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        dbReminder = CreateDbReminder(row);
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetReminderByReferenceId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
         public static int SetReminder(DbReminder dbReminder)
         {
             int reminderId = 0;
@@ -2129,7 +2160,7 @@ namespace DAL
                 sp.AddParameter("@reference", dbReminder.Reference);
                 sp.AddParameter("@sendTime", ODBCWrapper.Utils.UnixTimestampToDateTime(dbReminder.SendTime));
                 sp.AddParameter("@externalId", dbReminder.ExternalPushId);
-                sp.AddParameter("@externalResult", dbReminder.ExternalResult);                
+                sp.AddParameter("@externalResult", dbReminder.ExternalResult);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
