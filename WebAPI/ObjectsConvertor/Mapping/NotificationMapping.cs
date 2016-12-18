@@ -213,6 +213,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<DbReminder, KalturaReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.Series))
                  ;
 
             // KalturaReminder to DbReminder
@@ -221,6 +222,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  ;
         }
+
 
 
 
