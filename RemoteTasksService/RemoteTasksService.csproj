@@ -176,6 +176,10 @@
       <Project>{665fc35c-073a-4099-8abf-296d1f3d1d24}</Project>
       <Name>MessageAnnouncementHandler</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MessageReminderHandler\MessageReminderHandler.csproj">
+      <Project>{b4202cb4-a68e-4265-b17a-5c24860f3a28}</Project>
+      <Name>MessageReminderHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ModifiedRecordingsHandler\ModifiedRecordingsHandler.csproj">
       <Project>{3bedba4c-502e-49a4-901f-f7d61365fba9}</Project>
       <Name>ModifiedRecordingsHandler</Name>
