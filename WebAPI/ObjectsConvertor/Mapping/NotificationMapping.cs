@@ -210,10 +210,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<KalturaReminder, DbReminder>()
                  .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            //DbReminder to KalturaAssetReminder
+            Mapper.CreateMap<DbReminder, KalturaAssetReminder>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
         }
-
-
-
 
         public static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)
         {
