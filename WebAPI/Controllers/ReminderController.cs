@@ -35,28 +35,24 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;               
+                string userId = KS.GetFromRequest().UserId;
 
-                switch (reminder.Type)
+                if (reminder.GetType() == typeof(KalturaAssetReminder))
                 {
-                    case KalturaReminderType.EPG:
-                        KalturaAssetReminder kalturaAssetReminder = reminder as KalturaAssetReminder;
-                        if (kalturaAssetReminder == null)
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Type");
-                        }
+                    KalturaAssetReminder kalturaAssetReminder = reminder as KalturaAssetReminder;
+                    if (kalturaAssetReminder == null)
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Type");
+                    }
 
-                        // validate referenceId
-                        if (kalturaAssetReminder.AssetId <= 0)
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "AssetId");
-                        }
+                    // validate referenceId
+                    if (kalturaAssetReminder.AssetId <= 0)
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "AssetId");
+                    }
 
-                        // call client
-                        return ClientsManager.NotificationClient().AddAssetReminder(groupId, userId, kalturaAssetReminder);
-                        break;
-                    default:
-                        break;
+                    // call client
+                    return ClientsManager.NotificationClient().AddAssetReminder(groupId, userId, kalturaAssetReminder);
                 }
             }
             catch (ClientException ex)
