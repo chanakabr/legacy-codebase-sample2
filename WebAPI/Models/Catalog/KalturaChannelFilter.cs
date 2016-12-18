@@ -24,6 +24,9 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(MinInteger = 1)]
         public int IdEqual { get; set; }
 
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]

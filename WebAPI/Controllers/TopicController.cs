@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
     {
 
         /// <summary>
-        /// TBD
+        /// 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -76,7 +76,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// 
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
@@ -137,7 +137,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// 
         /// </summary>
         /// <remarks>
         /// Possible status codes:       

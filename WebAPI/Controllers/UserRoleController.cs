@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieving user roles by identifiers, if filter is empty, returns all partner roles
         /// </summary>
+        /// <param name="filter">User roles filter</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
