@@ -32,6 +32,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("session_revocation_enabled")]
         public bool SessionRevocationEnabled { get; set; }
 
+        [JsonProperty("refresh_token_expiration_for_platforms")]
+        public Dictionary<string, long> RefreshTokenExpirationForPlatforms { get; set; }
+
         [JsonIgnore]
         public override string Id
         {
