@@ -83,35 +83,28 @@ namespace WebAPI
             }
             else
             {
-                // check if this feature is enabled/disabled for a specific group
-                if ((generalNotification != null && generalNotification.Status != 1) ||
-                    (specificNotification != null && specificNotification.Status != 1))
+                // first we take the general definition of the action, according to system's name
+                if (generalNotification != null && generalNotification.Actions != null)
+                {
+                    foreach (var action in generalNotification.Actions)
+                    {
+                        actions[action.SystemName] = action;
+                    }
+                }
+
+                // Then we override the general definition with the partner-specific definition
+                if (specificNotification != null && specificNotification.Actions != null)
+                {
+                    foreach (var action in specificNotification.Actions)
+                    {
+                        actions[action.SystemName] = action;
+                    }
+                }
+
+                // Check acount of actions
+                if (actions.Count == 0)
                 {
                     shouldConsume = false;
-                }
-                // check if this event has any actions defined at all
-                else 
-                {
-                    if (generalNotification != null && generalNotification.Actions != null)
-                    {
-                        foreach (var action in generalNotification.Actions)
-                        {
-                            actions[action.SystemName] = action;
-                        }
-                    }
-
-                    if (specificNotification != null && specificNotification.Actions != null)
-                    {
-                        foreach (var action in specificNotification.Actions)
-                        {
-                            actions[action.SystemName] = action;
-                        }
-                    }
-
-                    if (actions.Count == 0)
-                    {
-                        shouldConsume = false;
-                    }
                 }
             }
 
@@ -120,53 +113,65 @@ namespace WebAPI
                 return false;
             }
 
-            if (generalNotification != null)
+            Type source = actionEvent.Object.GetType();
+
+            string phoenixType = string.Empty;
+
+            // by default - phoenix type is from general defintiion
+            if (generalNotification != null && !string.IsNullOrEmpty(generalNotification.PhoenixType))
             {
-                Type source = actionEvent.Object.GetType();
-            
-                foreach (var action in actions.Values)
+                phoenixType = generalNotification.PhoenixType;
+            }
+
+            // partner-specific definition overrides it (if needed)
+            if (specificNotification != null && !string.IsNullOrEmpty(specificNotification.PhoenixType))
+            {
+                phoenixType = specificNotification.PhoenixType;
+            }
+
+            foreach (var action in actions.Values)
+            {
+                try
                 {
-                    try
+                    // first check action's status - if it isn't good,
+                    if (action.Status != 1)
                     {
-                        // first check action's status
-                        if (action.Status != 1)
-                        {
-                            continue;
-                        }
-
-                        // Get the type from the general definition
-                        Type destination = Type.GetType(specificNotification.PhoenixType);
-
-                        object t = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
-
-                        object actionBody = action.Handler;
-                        JObject jsonObject = actionBody as JObject;
-                        NotificationEventHandler handler = null;
-
-                        if (jsonObject != null)
-                        {
-                            handler = NotificationActionFactory.CreateEventHandler(action.ActionType, jsonObject);
-                        }
-                        else
-                        {
-                            handler = NotificationActionFactory.CreateEventHandler(action.ActionType, actionBody.ToString());
-                        }
-
-                        if (handler != null)
-                        {
-                            handler.Handle(kalturaEvent, t);
-                        }
+                        continue;
                     }
-                    catch (Exception ex)
+
+                    // Get the phoenix type Type
+                    Type destination = Type.GetType(phoenixType);
+
+                    // convert the WS object to an API/rest/phoenixObject
+                    object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
+
+                    object actionBody = action.Handler;
+                    JObject jsonObject = actionBody as JObject;
+                    NotificationEventHandler handler = null;
+
+                    if (jsonObject != null)
                     {
-                        log.ErrorFormat(
-                            "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
-                            kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.ActionType, ex);
+                        handler = NotificationActionFactory.CreateEventHandler(action.ActionType, jsonObject);
+                    }
+                    else
+                    {
+                        handler = NotificationActionFactory.CreateEventHandler(action.ActionType, actionBody.ToString());
+                    }
+
+                    if (handler != null)
+                    {
+                        handler.Handle(kalturaEvent, phoenixObject);
                     }
                 }
-
-                result = true;
+                catch (Exception ex)
+                {
+                    log.ErrorFormat(
+                        "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
+                        kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.ActionType, ex);
+                }
             }
+
+            result = true;
 
             return result;
         }

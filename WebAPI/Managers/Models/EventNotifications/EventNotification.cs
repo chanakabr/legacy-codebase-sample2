@@ -30,13 +30,6 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        [JsonProperty("status")]
-        public int Status
-        {
-            get;
-            set;
-        }
-
         [JsonProperty("actions")]
         public List<NotificationAction> Actions
         {
