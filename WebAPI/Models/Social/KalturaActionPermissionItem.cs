@@ -13,8 +13,8 @@ namespace WebAPI.Models.Social
     public class KalturaActionPermissionItem : KalturaOTTObject
     {
         /// <summary>
-        /// SocialNetwork 
-        /// </summary
+        /// Social network 
+        /// </summary>
         [DataMember(Name = "network")]
         [JsonProperty("network")]
         [XmlElement(ElementName = "network", IsNullable = true)]
@@ -22,7 +22,7 @@ namespace WebAPI.Models.Social
         public KalturaSocialNetwork? Network { get; set; }
 
         /// <summary>
-        /// ActionPrivacy 
+        /// Action privacy 
         /// </summary>
         [DataMember(Name = "actionPrivacy")]
         [JsonProperty("actionPrivacy")]
@@ -31,7 +31,7 @@ namespace WebAPI.Models.Social
         public KalturaSocialActionPrivacy ActionPrivacy { get; set; }
 
         /// <summary>
-        /// Privacy
+        /// Social privacy
         /// </summary>
         [DataMember(Name = "privacy")]
         [JsonProperty("privacy")]

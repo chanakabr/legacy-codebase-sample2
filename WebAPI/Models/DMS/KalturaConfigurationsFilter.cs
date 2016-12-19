@@ -14,6 +14,9 @@ namespace WebAPI.Models.DMS
     /// </summary>
     public class KalturaConfigurationsFilter : KalturaFilter<KalturaConfigurationsOrderBy>
     {
+        /// <summary>
+        /// the ID of the configuration group for which to return related configurations
+        /// </summary>
         [DataMember(Name = "configurationGroupIdEqual")]
         [JsonProperty("configurationGroupIdEqual")]
         [XmlElement(ElementName = "configurationGroupIdEqual")]

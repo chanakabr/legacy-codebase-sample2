@@ -11,6 +11,9 @@ namespace WebAPI.Models.Notification
     [OldStandard("assetId", "asset_id")]
     public class KalturaFeed : KalturaOTTObject
     {
+        /// <summary>
+        /// Asset identifier
+        /// </summary>
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]

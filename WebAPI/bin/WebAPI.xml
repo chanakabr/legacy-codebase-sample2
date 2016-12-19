@@ -126,7 +126,7 @@
             <param name="userId">session user id, will be ignored if a different user id already defined on the application token</param>
             <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
             <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
-            <param name="udid"></param>
+            <param name="udid">Device UDID</param>
             <remarks>
             Possible status codes: 50022 = Invalid application token hash, 50023 = Not active application token
             </remarks>
@@ -418,6 +418,7 @@
             <summary>
             Configure the partner’s CDN settings (default adapters)
             </summary>
+            <param name="settings">CDN partner settings</param>
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
@@ -583,10 +584,9 @@
             <summary>
             Add a new future reminder
             </summary>
-            <param name="announcement">The announcement to be added.
-            Reminder type values: Series</param>
+            <param name="reminder">The reminder to be added.</param>
             <returns></returns>
-            <remarks>Possible status codes: </remarks>
+            <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
         </member>
         <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64)">
             <summary>
@@ -610,6 +610,7 @@
             Get a list of all social comments filtered by asset ID and social platform
             </summary>
             <param name="filter">Country filter</param>
+            <param name="pager">Pager</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialActionController.Add(WebAPI.Models.Social.KalturaSocialAction)">
@@ -635,7 +636,7 @@
             <summary>
             delete user social action
             </summary>
-            <param name="Id">social Action Id</param>
+            <param name="id">social Action Id</param>
             <remarks>
             Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011, SocialActionIdDoseNotExists = 7016, 
             </remarks>       
@@ -645,6 +646,7 @@
             Get a list of the social friends activity for a user
             </summary>
             <param name="filter">Social friend activity filter</param>
+            <param name="pager">Pager</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.MetaController.List(WebAPI.Models.API.KalturaMetaFilter)">
@@ -775,7 +777,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
             <summary>
-            
+            Device brands
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaCountryFilter">
@@ -790,7 +792,7 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaCountryListResponse.Objects">
             <summary>
-            
+            Countries
             </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaOSSAdapterProfileListResponse">
@@ -853,6 +855,11 @@
             Configuration filter
             </summary>
         </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationsFilter.ConfigurationGroupIdEqual">
+            <summary>
+            the ID of the configuration group for which to return related configurations
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationsListResponse">
             <summary>
             Configurations info wrapper
@@ -872,6 +879,11 @@
             <summary>
             Report filter
             </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaDeviceReportFilter.LastAccessDateGreaterThanOrEqual">
+             <summary>
+            Filter device configuration later than specific date        
+             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaDeviceReport.PartnerId">
             <summary>
@@ -933,9 +945,19 @@
             Configuration group tag filter
             </summary>
         </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupTagFilter.ConfigurationGroupIdEqual">
+            <summary>
+            the ID of the configuration group for which to return related configurations group tags
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceFilter">
             <summary>
             Configuration group device filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationGroupDeviceFilter.ConfigurationGroupIdEqual">
+            <summary>
+            the ID of the configuration group for which to return related configurations group devices
             </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaPushParams.Token">
@@ -1043,6 +1065,16 @@
             Configuration groups
             </summary>
         </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationIdentifier.Id">
+            <summary>
+            Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.DMS.KalturaConfigurationIdentifier.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaScheduledRecordingProgramFilter.RecordingTypeEqual">
              <summary>
             The type of recordings to return
@@ -1095,13 +1127,14 @@
         </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceFamilyListResponse.Objects">
             <summary>
-            
+            Device families
             </summary>
         </member>
         <member name="M:WebAPI.Controllers.RegionController.List(WebAPI.Models.API.KalturaRegionFilter)">
             <summary>
             Returns all regions for the partner
             </summary>
+            <param name="filter">Regions filter</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetCommentController.List(WebAPI.Models.Catalog.KalturaAssetCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
@@ -1425,8 +1458,8 @@
             List user's tv series follows.
             <remarks>Possible status codes:</remarks>
             </summary>
-            <param name="filter"></param>
-            <param name="pager"></param>
+            <param name="filter">Follow TV series filter</param>
+            <param name="pager">pager</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.ListOldStandard(System.Nullable{WebAPI.Models.Catalog.KalturaOrder},WebAPI.Models.General.KalturaFilterPager)">
@@ -1443,7 +1476,7 @@
             Delete a user's tv series follow.
             <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
             </summary>
-            <param name="assetId"></param>
+            <param name="assetId">Asset identifier</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.Add(WebAPI.Models.Notification.KalturaFollowTvSeries)">
@@ -1451,7 +1484,7 @@
             Add a user's tv series follow.
             <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
             </summary>
-            <param name="followTvSeries"></param>
+            <param name="followTvSeries">Follow series request parameters</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FollowTvSeriesController.AddOldStandard(System.Int32)">
@@ -1562,6 +1595,7 @@
             <summary>
             Get the URL for playing an asset - program, media or recording
             </summary>
+            <param name="request">Licensed URL request parameters</param>
         </member>
         <member name="M:WebAPI.Controllers.HomeNetworkController.Add(WebAPI.Models.Domains.KalturaHomeNetwork)">
             <summary>
@@ -1689,7 +1723,6 @@
             <summary>
             Retrieve the user’s notification settings.    
             </summary>    
-            
             <remarks>        
             </remarks>
             <returns>The notification settings that apply</returns>
@@ -1699,7 +1732,6 @@
             <summary>
             Retrieve the user’s notification settings.    
             </summary>    
-            
             <remarks>        
             </remarks>
             <returns>The notification settings that apply</returns>
@@ -1709,7 +1741,7 @@
             <summary>
             Update the user’s notification settings.      
             </summary>    
-            
+            <param name="settings">Notifications settings</param>
             <remarks>        
             </remarks>
             <returns>The notification settings that apply for the user</returns>
@@ -1838,12 +1870,13 @@
             <summary>
             Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
             </summary>
+            <param name="settings">Time shifted TV settings</param>
             <returns></returns>
             <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>  
         </member>
         <member name="M:WebAPI.Controllers.TopicController.Get(System.Int32)">
             <summary>
-            TBD
+            
             </summary>
             <remarks>
             Possible status codes:       
@@ -1853,7 +1886,7 @@
         </member>
         <member name="M:WebAPI.Controllers.TopicController.List(WebAPI.Models.Notification.KalturaTopicFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            TBD
+            
             </summary>
             <remarks>
             Possible status codes:       
@@ -1863,7 +1896,7 @@
         </member>
         <member name="M:WebAPI.Controllers.TopicController.ListOldStandard(WebAPI.Models.General.KalturaFilterPager)">
             <summary>
-            TBD
+            
             </summary>
             <remarks>
             Possible status codes:       
@@ -1872,7 +1905,7 @@
         </member>
         <member name="M:WebAPI.Controllers.TopicController.Delete(System.Int32)">
             <summary>
-            TBD
+            
             </summary>
             <remarks>
             Possible status codes:  
@@ -1882,7 +1915,7 @@
         </member>
         <member name="M:WebAPI.Controllers.TopicController.UpdateStatus(System.Int32,WebAPI.Models.Notification.KalturaTopicAutomaticIssueNotification)">
             <summary>
-            TBD
+            
             </summary>
             <remarks>
             Possible status codes:       
@@ -1946,9 +1979,7 @@
             <summary>
             Get the limitation module by id
             </summary>
-            <remarks>
-            
-            </remarks>
+            <param name="id">Household limitations module identifier</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.HouseholdPremiumServiceController.ListOldStandard">
@@ -2213,6 +2244,7 @@
             <summary>
             Returns all OSS adapters for partner : id + name
             </summary>
+            <param name="id">OSS adapter identifier</param>
             <remarks>       
             </remarks>
         </member>
@@ -2508,6 +2540,7 @@
             <summary>
             Returns the devices within the household
             </summary>
+            <param name="filter">Household devices filter</param>
             <returns></returns><remarks>Possible status codes:
             Household does not exist = 1006, Household user failed = 1007
             </remarks>
@@ -3540,6 +3573,7 @@
             <summary>
             Retrieving user roles by identifiers, if filter is empty, returns all partner roles
             </summary>
+            <param name="filter">User roles filter</param>
             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.UserRoleController.ListOldStandard(WebAPI.Models.API.KalturaUserRoleFilter)">
@@ -4229,6 +4263,11 @@
              <summary>
             Channel Id
              </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannelFilter.KSql">
+            <summary>
+            KSQL expression
+            </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannelFilter.OrderBy">
             <summary>
@@ -6111,6 +6150,16 @@
             A representation to return an array of values
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaValue.description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaLongValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaBaseResponseProfile">
             <summary>
             Currently not in used in OTT
@@ -6201,6 +6250,11 @@
             A string representation to return an array of doubles
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaDoubleValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaRuleFilter.By">
              <summary>
             Reference type to filter by
@@ -6209,6 +6263,11 @@
         <member name="T:WebAPI.Models.General.KalturaBooleanValue">
             <summary>
             A string representation to return an array of booleans
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaBooleanValue.value">
+            <summary>
+            Value
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaClientConfiguration">
@@ -6271,9 +6330,19 @@
             A string representation to return an array of ints
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaIntegerValue.value">
+            <summary>
+            Value
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaStringValue">
             <summary>
             A string representation to return an array of strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaStringValue.value">
+            <summary>
+            Value
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaStringValueArray.Objects">
@@ -6341,12 +6410,6 @@
             Reminder name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Type">
-            <summary>
-            Identifies the reminder type (Series, etc). 
-            Possible values: 0 – Series.
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
             <summary>
             Reminder id
@@ -6380,11 +6443,6 @@
         <member name="P:WebAPI.Models.Notification.KalturaReminderListResponse.Reminders">
             <summary>
             Reminders
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Notifications.KalturaReminderType">
-            <summary>
-            Reminder types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaInboxMessageTypeHolder">
@@ -6460,6 +6518,11 @@
         <member name="T:WebAPI.Models.Notifications.KalturaAnnouncementStatus">
             <summary>
             Announcement status: NotSent=0/Sending=1/Sent=2/Aborted=3
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaFeed.AssetId">
+            <summary>
+            Asset identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaFollowDataBase.AnnouncementId">
@@ -7827,15 +7890,19 @@
             Social comments list
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaActionPermissionItem.Network" -->
+        <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.Network">
+            <summary>
+            Social network 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.ActionPrivacy">
             <summary>
-            ActionPrivacy 
+            Action privacy 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.Privacy">
             <summary>
-            Privacy
+            Social privacy
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
@@ -8360,6 +8427,16 @@
         <member name="P:WebAPI.Models.Users.KalturaFavoriteListResponse.Favorites">
             <summary> 
             A list of favorites
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaKeyValue.key">
+            <summary>
+            Key
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaKeyValue.value">
+            <summary>
+            Value
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaLoginSession">

@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         /// <param name="userId">session user id, will be ignored if a different user id already defined on the application token</param>
         /// <param name="type">session type, will be ignored if a different session type already defined on the application token</param>
         /// <param name="expiry">session expiry (in seconds), could be overwritten by shorter expiry of the application token and the session-expiry that defined on the application token</param>
-        /// <param name="udid"></param>
+        /// <param name="udid">Device UDID</param>
         /// <remarks>
         /// Possible status codes: 50022 = Invalid application token hash, 50023 = Not active application token
         /// </remarks>

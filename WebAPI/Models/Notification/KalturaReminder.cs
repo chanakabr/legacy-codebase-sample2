@@ -20,16 +20,6 @@ namespace WebAPI.Models.Notifications
         public string Name { get; set; }
 
         /// <summary>
-        /// Identifies the reminder type (Series, etc). 
-        /// Possible values: 0 – Series.
-        /// </summary>
-        [DataMember(Name = "type")]
-        [JsonProperty(PropertyName = "type")]
-        [XmlElement(ElementName = "type")]
-        [SchemeProperty(ReadOnly = true)]
-        public KalturaReminderType Type { get; set; }
-
-        /// <summary>
         /// Reminder id
         /// </summary>
         [DataMember(Name = "id")]

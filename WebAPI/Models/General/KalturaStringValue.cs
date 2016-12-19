@@ -13,6 +13,9 @@ namespace WebAPI.Models.General
     /// </summary>
     public class KalturaStringValue : KalturaValue
     {
+        /// <summary>
+        /// Value
+        /// </summary>
         [DataMember(Name = "value")]
         [XmlElement("value", IsNullable = true)]
         [JsonProperty("value")]

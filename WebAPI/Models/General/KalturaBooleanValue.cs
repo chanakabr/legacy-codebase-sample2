@@ -14,6 +14,9 @@ namespace WebAPI.Models.General
     /// </summary>
     public class KalturaBooleanValue : KalturaValue
     {
+        /// <summary>
+        /// Value
+        /// </summary>
         [DataMember(Name = "value")]
         [XmlElement("value")]
         [JsonProperty("value")]

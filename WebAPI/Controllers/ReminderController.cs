@@ -21,13 +21,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Add a new future reminder
         /// </summary>
-        /// <param name="announcement">The announcement to be added.
-        /// Reminder type values: Series</param>
+        /// <param name="reminder">The reminder to be added.</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: </remarks>
+        /// <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
         [Route("add"), HttpPost]
         [ApiAuthorize]
         [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
+        [Throws(eResponseStatus.UserAlreadySetReminder)]
+        [Throws(eResponseStatus.FailCreateAnnouncement)]
+        [Throws(eResponseStatus.PassedAsset)]
+        [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         public KalturaReminder Add(KalturaReminder reminder)
         {
             KalturaReminder response = null;
@@ -35,28 +39,24 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                string userId = KS.GetFromRequest().UserId;               
+                string userId = KS.GetFromRequest().UserId;
 
-                switch (reminder.Type)
+                if (reminder.GetType() == typeof(KalturaAssetReminder))
                 {
-                    case KalturaReminderType.Series:
-                        KalturaAssetReminder kalturaAssetReminder = reminder as KalturaAssetReminder;
-                        if (kalturaAssetReminder == null)
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Type");
-                        }
+                    KalturaAssetReminder kalturaAssetReminder = reminder as KalturaAssetReminder;
+                    if (kalturaAssetReminder == null)
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "Type");
+                    }
 
-                        // validate referenceId
-                        if (kalturaAssetReminder.AssetId <= 0)
-                        {
-                            throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "AssetId");
-                        }
+                    // validate referenceId
+                    if (kalturaAssetReminder.AssetId <= 0)
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "AssetId");
+                    }
 
-                        // call client
-                        return ClientsManager.NotificationClient().AddAssetReminder(groupId, userId, kalturaAssetReminder);
-                        break;
-                    default:
-                        break;
+                    // call client
+                    return ClientsManager.NotificationClient().AddAssetReminder(groupId, userId, kalturaAssetReminder);
                 }
             }
             catch (ClientException ex)
@@ -66,7 +66,6 @@ namespace WebAPI.Controllers
 
             return null;
         }
-
 
         /// <summary>
         /// Delete a reminder. Reminder cannot be delete while being sent.
@@ -87,7 +86,6 @@ namespace WebAPI.Controllers
 
                 response = ClientsManager.NotificationClient().DeleteReminder(userId, groupId, id);
             }
-
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
@@ -96,15 +94,16 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        /// <summary>
-        /// Lists all reminders.
+        /// <summary>        
+        /// Return a list of reminders with optional filter by KSQL.
         /// </summary>
         /// <param name="filter">Filter object</param>
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
-        /// <remarks>FeatureDisabled = 8009</remarks>
+        /// <remarks>Possible status codes: SyntaxError = 4004, FeatureDisabled = 8009</remarks>        
         [Route("list"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.FeatureDisabled)]
         public KalturaReminderListResponse List(KalturaReminderFilter filter, KalturaFilterPager pager = null)
         {

@@ -100,7 +100,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// delete user social action
         /// </summary>
-        /// <param name="Id">social Action Id</param>
+        /// <param name="id">social Action Id</param>
         /// <remarks>
         /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011, SocialActionIdDoseNotExists = 7016, 
         /// </remarks>       

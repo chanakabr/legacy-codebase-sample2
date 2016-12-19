@@ -943,7 +943,6 @@
     <Compile Include="Models\Notification\KalturaAssetReminder.cs" />
     <Compile Include="Models\Notification\KalturaReminderFilter.cs" />
     <Compile Include="Models\Notification\KalturaReminderListResponse.cs" />
-    <Compile Include="Models\Notification\KalturaReminderType.cs" />
     <Compile Include="Models\Notification\KalturaReminder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageTypeHolder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageResponse.cs" />

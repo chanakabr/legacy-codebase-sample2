@@ -400,7 +400,7 @@ namespace WebAPI.Managers
 
             // 4. save in CB
             AppToken cbAppToken = new AppToken(appToken);
-            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow) : 0;
+            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() : 0;
             if (!cbManager.Add(appTokenCbKey, cbAppToken, (uint)appTokenExpiryInSeconds, true))
             {
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");

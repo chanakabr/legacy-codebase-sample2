@@ -20,7 +20,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieve the user’s notification settings.    
         /// </summary>    
-        /// 
         /// <remarks>        
         /// </remarks>
         /// <returns>The notification settings that apply</returns>
@@ -49,7 +48,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieve the user’s notification settings.    
         /// </summary>    
-        /// 
         /// <remarks>        
         /// </remarks>
         /// <returns>The notification settings that apply</returns>
@@ -78,7 +76,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update the user’s notification settings.      
         /// </summary>    
-        /// 
+        /// <param name="settings">Notifications settings</param>
         /// <remarks>        
         /// </remarks>
         /// <returns>The notification settings that apply for the user</returns>
