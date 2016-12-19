@@ -2479,5 +2479,25 @@ namespace DAL
             purchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FIRST_PURCHASE_MAIL") == 1 ? true : false;
             failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
+
+        public static DataTable GetPaymentDetailsTransaction(List<string> billingGuids)
+        {
+            DataTable dt = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentDetailsTransaction");//Get_LatestPaymentGatewayTransaction");
+                sp.SetConnectionKey("BILLING_CONNECTION_STRING");                
+                sp.AddIDListParameter<string>("@billing_guids", billingGuids, "ID");
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                    return ds.Tables[0];
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+            return dt;
+        }
     }
 }

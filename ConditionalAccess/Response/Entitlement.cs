@@ -38,10 +38,14 @@ namespace ConditionalAccess.Response
         public string deviceName { get; set; }
         public bool cancelWindow { get; set; }
         public Int32 maxUses { get; set; } // subscription + ppv
+
         public DateTime nextRenewalDate { get; set; } // subscription only
         public bool recurringStatus { get; set; } // subscription only
         public bool isRenewable { get; set; } // subscription only
+        public int paymentGatewayId { get; set; } // subscription only
+        public int paymentMethodId { get; set; } // subscription only
         public bool IsInGracePeriod { get; set; } // subscription only
+        
         public Int32 mediaFileID; // ppv only
         public int mediaID { get; set; } // ppv only
 

@@ -26,6 +26,9 @@ namespace ConditionalAccess
 
         public bool m_bIsInGracePeriod;
 
+        public int paymentGatewayId;
+        public int paymentMethodId;
+
 
         public PermittedSubscriptionContainer()
         {
@@ -43,11 +46,15 @@ namespace ConditionalAccess
 
             m_bCancelWindow = false;
             m_bIsInGracePeriod = false;
+
+            paymentGatewayId = 0;
+            paymentMethodId = 0;
         }
 
         public void Initialize(string sSubscriptionCode, Int32 nMaxUses, Int32 nCurrentUses,
             DateTime dEndTime, DateTime dCurrentDate, DateTime dLastViewDate, DateTime dPurchaseDate, DateTime dNextRenewalDate,
-            bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, PaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false, bool isInGracePeriod = false)
+            bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, PaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false, bool isInGracePeriod = false,
+            int paymentGatewayId = 0, int paymentMethodId = 0)
         {
             m_nSubscriptionPurchaseID = nSubscriptionPurchaseID;
             m_sSubscriptionCode = sSubscriptionCode;
@@ -64,6 +71,9 @@ namespace ConditionalAccess
             m_paymentMethod = payMethod;
             m_bCancelWindow = bCancelWindow;
             this.m_bIsInGracePeriod = isInGracePeriod;
+
+            this.paymentGatewayId = paymentGatewayId;
+            this.paymentMethodId = paymentMethodId;
 
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {
