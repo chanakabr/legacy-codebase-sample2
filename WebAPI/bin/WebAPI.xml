@@ -777,6 +777,121 @@
             A list of OSS adapter-profiles
             </summary>
         </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
+            <summary>
+            Entitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Id">
+             <summary>
+            Purchase identifier (for subscriptions and collections only)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Type">
+             <summary>
+            Entitlement type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EntitlementId">
+             <summary>
+            Entitlement identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentUses">
+             <summary>
+            The current number of uses 
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EndDate">
+             <summary>
+            The end date of the entitlement
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentDate">
+             <summary>
+            Current date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.LastViewDate">
+             <summary>
+            The last date the item was viewed
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseDate">
+             <summary>
+            Purchase date
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseId">
+             <summary>
+            Purchase identifier (for subscriptions and collections only)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PaymentMethod">
+             <summary>
+            Payment Method
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceUDID">
+             <summary>
+            The UDID of the device from which the purchase was made
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceName">
+             <summary>
+            The name of the device from which the purchase was made
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsCancelationWindowEnabled">
+             <summary>
+            Indicates whether a cancelation window period is enabled
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MaxUses">
+             <summary>
+            The maximum number of uses available for this item (only for subscription and PPV)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.NextRenewalDate">
+             <summary>
+            The date of the next renewal (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewableForPurchase">
+             <summary>
+            Indicates whether the subscription is renewable in this purchase (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewable">
+             <summary>
+            Indicates whether a subscription is renewable (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaFileId">
+             <summary>
+            Media file identifier (only for PPV)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaId">
+             <summary>
+            Media identifier (only for PPV)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
+            <summary>
+            Indicates whether the user is currently in his grace period entitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentGatewayId">
+             <summary>
+            Payment Gateway identifier (only for Subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentMethodId">
+             <summary>
+            Payment Method identifier (only for Subscription)
+             </summary>
+        </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Id">
             <summary>
             Configuration id
@@ -8588,106 +8703,6 @@
         <member name="T:WebAPI.Models.API.KalturaRuleLevel">
             <summary>
             Distinction if rule was defined at account, household or user level
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
-            <summary>
-            Entitlement
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.Type">
-             <summary>
-            Entitlement type
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EntitlementId">
-             <summary>
-            Entitlement identifier
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentUses">
-             <summary>
-            The current number of uses 
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.EndDate">
-             <summary>
-            The end date of the entitlement
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.CurrentDate">
-             <summary>
-            Current date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.LastViewDate">
-             <summary>
-            The last date the item was viewed
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseDate">
-             <summary>
-            Purchase date
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PurchaseId">
-             <summary>
-            Purchase identifier (for subscriptions and collections only)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.PaymentMethod">
-             <summary>
-            Payment Method
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceUDID">
-             <summary>
-            The UDID of the device from which the purchase was made
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.DeviceName">
-             <summary>
-            The name of the device from which the purchase was made
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsCancelationWindowEnabled">
-             <summary>
-            Indicates whether a cancelation window period is enabled
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MaxUses">
-             <summary>
-            The maximum number of uses available for this item (only for subscription and PPV)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.NextRenewalDate">
-             <summary>
-            The date of the next renewal (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewableForPurchase">
-             <summary>
-            Indicates whether the subscription is renewable in this purchase (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsRenewable">
-             <summary>
-            Indicates whether a subscription is renewable (only for subscription)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaFileId">
-             <summary>
-            Media file identifier (only for PPV)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.MediaId">
-             <summary>
-            Media identifier (only for PPV)
-             </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
-            <summary>
-            Indicates whether the user is currently in his grace period entitlement
             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaCountry">

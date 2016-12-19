@@ -629,7 +629,7 @@ namespace WebAPI.Clients
                 throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
             }
 
-            // convert response
+            // convert response    
             entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
 
             return entitlements;
@@ -1880,6 +1880,43 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        internal KalturaEntitlement UpdateEntitlement(int groupId, KalturaEntitlement kEntitlement)
+        {
+            KalturaEntitlement kalturaEntitlement = null;
+            Entitlements entitlements = null;
+
+            // get group 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                Entitlement entitlement = Mapper.Map<Entitlement>(kEntitlement);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    entitlements = ConditionalAccess.UpdateEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, entitlement);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Code, wsResponse.Message);
+            }
         }
     }
 }

@@ -114,5 +114,10 @@ namespace WebAPI.ClientManagers.Client
         }
 
         #endregion
+
+        internal static object ConditionalAccessClientClient()
+        {
+            
+        }
     }
 }

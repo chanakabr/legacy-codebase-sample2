@@ -427,7 +427,30 @@ namespace WebAPI.Controllers
 
             return response;
         }
+        
+        /// <summary>
+        /// Update Kaltura Entitelment by Purchase id
+        /// </summary>                
+        /// <param name="entitlement">KalturaEntitlement object</param>
+        /// <remarks>Possible status codes: 
+        /// </remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaEntitlement Update(KalturaEntitlement entitlement)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            //string userID = KS.GetFromRequest().UserId;
 
-
+            try
+            {
+                // call client
+                return ClientsManager.ConditionalAccessClient().UpdateEntitlement(groupId, entitlement);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return null;
+        }
     }
 }

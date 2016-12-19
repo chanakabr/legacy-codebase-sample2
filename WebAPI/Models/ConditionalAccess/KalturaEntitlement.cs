@@ -35,12 +35,21 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaEntitlement : KalturaOTTObject
     {
         /// <summary>
+        ///Purchase identifier (for subscriptions and collections only)
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]        
+        public int? Id { get; set; }
+
+        /// <summary>
         ///Entitlement type
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public KalturaTransactionType Type { get; set; }
 
         /// <summary>
@@ -104,6 +113,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public int? PurchaseId { get; set; }
 
         /// <summary>
