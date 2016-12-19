@@ -555,7 +555,7 @@ namespace TVPApiServices
                     response = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SSOSignIn(userName, password, providerID, string.Empty, SiteHelper.GetClientIP(), initObj.UDID, false);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
-                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(response, groupID, initObj.UDID);
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(response, groupID, initObj.UDID, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -702,7 +702,7 @@ namespace TVPApiServices
                     responseData = impl.SignIn(userName, password, System.Web.HttpContext.Current.Request.Headers);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
-                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID);
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID,initObj.UDID, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -734,7 +734,7 @@ namespace TVPApiServices
                     responseData = new TVPApiModule.Services.ApiUsersService(groupID, initObj.Platform).SignInWithToken(token, HttpContext.Current.Session.SessionID, SiteHelper.GetClientIP(), initObj.UDID, isSingleLogin);
 
                     // if sign in successful and tokenization enabled - generate access token and add it to headers
-                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID);
+                    AuthorizationManager.Instance.AddTokenToHeadersForValidNotAdminUser(responseData, groupID, initObj.UDID, initObj.Platform);
                 }
                 catch (Exception ex)
                 {
@@ -1595,7 +1595,7 @@ namespace TVPApiServices
                     // if sign in successful - generate access token
                     if (response.Status.Code == (int)eStatus.OK && response.AdminUser != null)
                     {
-                        var accessToken = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true, false, initObj.UDID);
+                        var accessToken = AuthorizationManager.Instance.GenerateAccessToken(response.AdminUser.Id.ToString(), groupID, true, false, initObj.UDID, initObj.Platform);
                         HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", accessToken.AccessToken, accessToken.AccessTokenExpiration));
                         HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", accessToken.RefreshToken, accessToken.RefreshTokenExpiration));
                     }
