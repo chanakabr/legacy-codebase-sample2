@@ -677,7 +677,7 @@ namespace TVPApiServices
                        response.Result.user.m_RespStatus != ResponseStatus.UserNotIndDomain || response.Result.user.m_RespStatus != ResponseStatus.UserWithNoDomain ||
                        response.Result.user.m_RespStatus != ResponseStatus.UserSuspended))
                     {
-                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false, true, initObj.UDID);
+                        var token = AuthorizationManager.Instance.GenerateAccessToken(response.Result.user.m_user.m_sSiteGUID, groupID, false, true, initObj.UDID, initObj.Platform);
 
                         HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
                         HttpContext.Current.Response.Headers.Add("refresh_token", string.Format("{0}|{1}", token.RefreshToken, token.RefreshTokenExpiration));
