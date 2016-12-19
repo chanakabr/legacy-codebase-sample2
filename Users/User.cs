@@ -628,7 +628,10 @@ namespace Users
 
                     if (userID > 0)
                     {
-                        EventManager.EventManager.HandleEvent(new EventManager.Events.ObjectCreatedEvent(this, nGroupID));
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+                            nGroupID,
+                            this,
+                            EventManager.Events.eKalturaEventActions.Created));
                     }
                 }
                 else
@@ -670,10 +673,10 @@ namespace Users
 
                     if (userID > 0)
                     {
-                        EventManager.EventManager.HandleEvent(new EventManager.Events.ObjectUpdatedEvent(this)
-                        {
-                            PartnerId = nGroupID
-                        });
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+                            nGroupID,
+                            this,
+                            EventManager.Events.eKalturaEventActions.Changed));
                     }
                 }
             }
