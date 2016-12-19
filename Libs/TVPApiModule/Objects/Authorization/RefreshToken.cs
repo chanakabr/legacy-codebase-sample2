@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using ApiObjects.CouchbaseWrapperObjects;
 using TVPApiModule.Helper;
+using TVPApi;
 
 
 namespace TVPApiModule.Objects.Authorization
@@ -35,6 +36,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("udid")]
         public string UDID{ get; set; }
 
+        [JsonProperty("platform")]
+        public PlatformType Platform { get; set; }
+
         [JsonIgnore]
         public override string Id
         {
@@ -55,9 +59,10 @@ namespace TVPApiModule.Objects.Authorization
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
             UDID = token.UDID;
+            Platform = token.Platform;
         }
 
-        public RefreshToken(string siteGuid, int groupId, string accessTokenId, string refreshToken, long refreshTokenExpiration, bool isAdmin, bool isLongRefreshExpiration, string udid)
+        public RefreshToken(string siteGuid, int groupId, string accessTokenId, string refreshToken, long refreshTokenExpiration, bool isAdmin, bool isLongRefreshExpiration, string udid, PlatformType platform)
         {
             AccessTokenId = accessTokenId;
             RefreshTokenValue = refreshToken;
@@ -67,6 +72,7 @@ namespace TVPApiModule.Objects.Authorization
             IsAdmin = isAdmin;
             IsLongRefreshExpiration = isLongRefreshExpiration;
             UDID = udid;
+            Platform = platform;
         }
 
         public static string GetRefreshTokenId(string refreshToken)

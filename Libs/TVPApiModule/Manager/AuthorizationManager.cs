@@ -115,7 +115,7 @@ namespace TVPApiModule.Manager
             return groupConfig;
         }
 
-        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB, string udid)
+        public APIToken GenerateAccessToken(string siteGuid, int groupId, bool isAdmin, bool isSTB, string udid, PlatformType platform)
         {
             if (string.IsNullOrEmpty(siteGuid))
             {
@@ -142,7 +142,7 @@ namespace TVPApiModule.Manager
             }
 
             // generate access token and refresh token pair
-            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB, udid);
+            APIToken apiToken = new APIToken(siteGuid, groupId, isAdmin, groupConfig, isSTB, udid, platform);
             RefreshToken refreshToken = new RefreshToken(apiToken);
 
             // try store access token doc in CB, will return false if the same token already exists
@@ -217,14 +217,14 @@ namespace TVPApiModule.Manager
             return apiToken;
         }
 
-        public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid)
+        public void AddTokenToHeadersForValidNotAdminUser(TVPApiModule.Services.ApiUsersService.LogInResponseData signInResponse, int groupId, string udid, PlatformType platform)
         {
             if (HttpContext.Current.Items.Contains("tokenization") && signInResponse.UserData != null &&
                 (signInResponse.LoginStatus == ResponseStatus.OK || signInResponse.LoginStatus == ResponseStatus.UserNotActivated || signInResponse.LoginStatus == ResponseStatus.DeviceNotRegistered ||
                 signInResponse.LoginStatus == ResponseStatus.UserNotMasterApproved || signInResponse.LoginStatus == ResponseStatus.UserNotIndDomain || signInResponse.LoginStatus == ResponseStatus.UserWithNoDomain ||
                 signInResponse.LoginStatus == ResponseStatus.UserSuspended))
             {
-                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false, udid);
+                var token = AuthorizationManager.Instance.GenerateAccessToken(signInResponse.SiteGuid, groupId, false, false, udid, platform);
                 if (token != null)
                 {
                     HttpContext.Current.Response.Headers.Add("access_token", string.Format("{0}|{1}", token.AccessToken, token.AccessTokenExpiration));
@@ -403,7 +403,7 @@ namespace TVPApiModule.Manager
             return GetTokenResponseObject(accessTokenDoc);
         }
 
-        public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, out string siteGuid, out bool isAdmin)
+        public bool IsAccessTokenValid(string accessToken, int? domainId, int groupId, PlatformType platform, string udid, out string siteGuid, out bool isAdmin)
         {
             siteGuid = string.Empty;
             isAdmin = false;
@@ -429,6 +429,13 @@ namespace TVPApiModule.Manager
             if (apiToken == null)
             {
                 logger.ErrorFormat("ValidateAccessToken: access token not found.");
+                returnError(401);
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(apiToken.UDID) && apiToken.UDID != udid)
+            {
+                logger.ErrorFormat("ValidateAccessToken: access token UDID does not match initObj.UDID.");
                 returnError(401);
                 return false;
             }
@@ -814,6 +821,26 @@ namespace TVPApiModule.Manager
                 }
             }
             return siteGuidsDomain;
+        }
+
+        internal static long GetPlatformExpiration(GroupConfiguration group, PlatformType platform, DateTime? now = null)
+        {
+            long expiration;
+            if (group.RefreshTokenExpirationForPlatforms.ContainsKey(platform.ToString()))
+            {
+                expiration = group.RefreshTokenExpirationForPlatforms[platform.ToString()];
+            }
+            else
+            {
+                expiration = group.RefreshTokenExpirationSeconds;
+            }
+
+            if (now.HasValue)
+            {
+                return (long)TimeHelper.ConvertToUnixTimestamp(now.Value.AddSeconds(expiration));
+            }
+            else
+                return expiration;
         }
     }
 }

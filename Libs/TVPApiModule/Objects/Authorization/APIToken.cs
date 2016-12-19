@@ -5,6 +5,8 @@ using System.Text;
 using Newtonsoft.Json;
 using ApiObjects.CouchbaseWrapperObjects;
 using TVPApiModule.Helper;
+using TVPApi;
+using TVPApiModule.Manager;
 
 
 namespace TVPApiModule.Objects.Authorization
@@ -37,6 +39,9 @@ namespace TVPApiModule.Objects.Authorization
 
         [JsonProperty("udid")]
         public string UDID{ get; set; }
+
+        [JsonProperty("platform")]
+        public PlatformType Platform { get; set; }
         
         [JsonIgnore]
         public override string Id
@@ -48,19 +53,20 @@ namespace TVPApiModule.Objects.Authorization
         {
         }
 
-        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isLongRefreshExpiration, string udid)
+        public APIToken(string siteGuid, int groupId, bool isAdmin, GroupConfiguration groupConfig, bool isLongRefreshExpiration, string udid, PlatformType platform)
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             RefreshTokenExpiration = isLongRefreshExpiration ? 
                 (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) : 
-                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+                AuthorizationManager.GetPlatformExpiration(groupConfig, platform, DateTime.UtcNow);
             GroupID = groupId;
             SiteGuid = siteGuid;
             IsAdmin = isAdmin;
             IsLongRefreshExpiration = isLongRefreshExpiration;
             UDID = udid;
+            Platform = platform;
         }
 
         public APIToken(APIToken token, GroupConfiguration groupConfig)
@@ -68,7 +74,7 @@ namespace TVPApiModule.Objects.Authorization
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = token.RefreshToken;
             RefreshTokenExpiration = groupConfig.IsRefreshTokenExtendable ? 
-                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds) :
+                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + AuthorizationManager.GetPlatformExpiration(groupConfig, token.Platform)) :
                 token.RefreshTokenExpiration;
 
             // set access expiration time - no longer than refresh expiration
@@ -80,6 +86,7 @@ namespace TVPApiModule.Objects.Authorization
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
             UDID = token.UDID;
+            Platform = token.Platform;
         }
 
         public APIToken(RefreshToken token, GroupConfiguration groupConfig)
@@ -89,7 +96,7 @@ namespace TVPApiModule.Objects.Authorization
             if (groupConfig.IsRefreshTokenExtendable)
             {
                 RefreshTokenExpiration = token.IsLongRefreshExpiration ? (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
-                     (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
+                     AuthorizationManager.GetPlatformExpiration(groupConfig, token.Platform, DateTime.UtcNow);
             }
             else
             {
@@ -104,6 +111,7 @@ namespace TVPApiModule.Objects.Authorization
             IsAdmin = token.IsAdmin;
             IsLongRefreshExpiration = token.IsLongRefreshExpiration;
             UDID = token.UDID;
+            Platform = token.Platform;
         }
 
         public static string GetAPITokenId(string accessToken)
