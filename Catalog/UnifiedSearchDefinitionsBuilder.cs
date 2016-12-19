@@ -87,6 +87,7 @@ namespace Catalog
                 definitions.order.m_eOrderDir = order.m_eOrderDir;
                 definitions.order.m_eOrderBy = order.m_eOrderBy;
                 definitions.order.m_sOrderValue = order.m_sOrderValue;
+
                 definitions.groupId = request.m_nGroupID;
                 definitions.permittedWatchRules = Catalog.GetPermittedWatchRules(request.m_nGroupID);
                 definitions.filterPhrase = request.filterTree;
