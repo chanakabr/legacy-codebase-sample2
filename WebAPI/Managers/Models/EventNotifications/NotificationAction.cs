@@ -39,6 +39,13 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+        [JsonProperty("friendly_name")]
+        public string FriendlyName
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("handler")]
         public object Handler
         {

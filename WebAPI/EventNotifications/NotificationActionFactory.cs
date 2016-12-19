@@ -25,7 +25,10 @@ namespace WebAPI
             switch (type)
             {
                 case WebAPI.Managers.Models.eNotificationActionTypes.Http:
-                break;
+                {
+                    handler = jsonHandler.ToObject<HttpNotificationHandler>();
+                    break;
+                }
                 case WebAPI.Managers.Models.eNotificationActionTypes.Email:
                 {
                     handler = jsonHandler.ToObject<EmailNotificationHandler>();

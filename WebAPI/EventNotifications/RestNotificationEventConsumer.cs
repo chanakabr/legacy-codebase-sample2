@@ -1,4 +1,5 @@
 ﻿using EventManager;
+using EventManager.Events;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -27,16 +28,25 @@ namespace WebAPI
 
         public override bool ShouldConsume(KalturaEvent kalturaEvent)
         {
-            return true;
+            bool result = false;
+
+            if (kalturaEvent is KalturaObjectActionEvent)
+            {
+                result = true;
+            }
+
+            return result;
         }
 
         protected override bool Consume(KalturaEvent kalturaEvent)
         {
+            KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
+
             bool result = false;
             WebAPI.Managers.Models.EventNotification specificNotification = null;
             WebAPI.Managers.Models.EventNotification generalNotification = null;
 
-            Dictionary<string, NotificationAction> actions = new Dictionary<string,NotificationAction>();
+            Dictionary<string, NotificationAction> actions = new Dictionary<string, NotificationAction>();
 
             bool shouldConsume = true;
 
@@ -52,7 +62,7 @@ namespace WebAPI
             {
                 cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
-                string cbKey = GetCBSpecificKey(kalturaEvent);
+                string cbKey = GetCBSpecificKey(actionEvent);
                 specificNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
@@ -62,7 +72,7 @@ namespace WebAPI
                 QueryType = KLogEnums.eDBQueryType.SELECT
             })
             {
-                string cbKey = GetCBGeneralKey(kalturaEvent);
+                string cbKey = GetCBGeneralKey(actionEvent);
                 generalNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
@@ -112,7 +122,7 @@ namespace WebAPI
 
             if (generalNotification != null)
             {
-                Type source = kalturaEvent.Object.GetType();
+                Type source = actionEvent.Object.GetType();
             
                 foreach (var action in actions.Values)
                 {
@@ -127,7 +137,7 @@ namespace WebAPI
                         // Get the type from the general definition
                         Type destination = Type.GetType(specificNotification.PhoenixType);
 
-                        object t = AutoMapper.Mapper.Map(kalturaEvent.Object, source, destination);
+                        object t = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
 
                         object actionBody = action.Handler;
                         JObject jsonObject = actionBody as JObject;
@@ -151,7 +161,7 @@ namespace WebAPI
                     {
                         log.ErrorFormat(
                             "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
-                            kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action, action.ActionType, ex);
+                            kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.ActionType, ex);
                     }
                 }
 
@@ -161,13 +171,13 @@ namespace WebAPI
             return result;
         }
 
-        protected string GetCBGeneralKey(KalturaEvent kalturaEvent)
+        protected string GetCBGeneralKey(KalturaObjectActionEvent kalturaEvent)
         {
             return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }
 
 
-        protected string GetCBSpecificKey(KalturaEvent kalturaEvent)
+        protected string GetCBSpecificKey(KalturaObjectActionEvent kalturaEvent)
         {
             return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }

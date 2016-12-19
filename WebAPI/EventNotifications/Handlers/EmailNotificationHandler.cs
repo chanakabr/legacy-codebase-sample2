@@ -10,7 +10,6 @@ namespace WebAPI.EventNotifications
     [Serializable]
     public class EmailNotificationHandler : NotificationEventHandler
     {
-
         public EmailNotificationHandler() : base()
         {
         }
