@@ -34,6 +34,7 @@ using WS_API;
 using WS_Billing;
 using WS_Pricing;
 using WS_Users;
+using EventManager;
 
 namespace ConditionalAccess
 {
@@ -12644,6 +12645,39 @@ namespace ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         break;
+                }
+
+                if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
+                {
+                    string type = string.Empty;
+
+                    switch (transactionType)
+                    {
+                        case eTransactionType.PPV:
+                        {
+                            type = "ppv_purchase";
+                            break;
+                        }
+                        case eTransactionType.Subscription:
+                        {
+                            type = "subscription_purchase";
+                            break;
+                        }
+                        case eTransactionType.Collection:
+                        {
+                            type = "collection_purchase";
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+
+                    if (!string.IsNullOrEmpty(type))
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(m_nGroupID,
+                            response,
+                            EventManager.Events.eKalturaEventActions.Created, type));
+                    }
                 }
             }
             catch (Exception ex)

@@ -23,7 +23,7 @@ namespace Users
     /// </summary>
     [Serializable]
     [JsonObject(Id = "Domain")]
-    public class Domain
+    public class Domain : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_USER_TASK\\{0}";
@@ -222,10 +222,11 @@ namespace Users
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
             {
                 INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+
                 if (npvr != null)
                 {
-
                     NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
+
                     if (resp != null)
                     {
                         if (resp.isOK)
@@ -248,8 +249,12 @@ namespace Users
                 {
                     log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                 }
-
             }
+
+            EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+                nGroupID,
+                this,
+                EventManager.Events.eKalturaEventActions.Created));
 
             return this;
         }
