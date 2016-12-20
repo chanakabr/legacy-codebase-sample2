@@ -632,8 +632,10 @@
     <Compile Include="EventNotifications\NotificationEventHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
+    <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />

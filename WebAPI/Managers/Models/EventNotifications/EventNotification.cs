@@ -36,5 +36,12 @@ namespace WebAPI.Managers.Models
             get;
             set;
         }
+
+        [JsonProperty("conditions")]
+        public List<NotificationCondition> Conditions
+        {
+            get;
+            set;
+        }
     }
 }

@@ -52,6 +52,5 @@ namespace WebAPI.Managers.Models
             get;
             set;
         }
-
     }
 }
