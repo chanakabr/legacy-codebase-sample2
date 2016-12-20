@@ -1,20 +1,81 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Web;
 using WebAPI.Models.General;
+using KLogMonitor;
+using KlogMonitorHelper;
+using System.Reflection;
 
 namespace WebAPI.EventNotifications
 {
     [Serializable]
     public class HttpNotificationHandler : NotificationEventHandler
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        #region Override Method
+        
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, object phoenixObject)
         {
+            //WebRequest request = WebRequest.Create(this.Url);
             
+            //int statusCode = -1;
+
+            //request.Method = this.Method.ToString().ToUpper();
+            //request.ContentType = "application/json";
+
+            //string phoenixString = string.Empty;
+
+            //byte[] byteArray = Encoding.UTF8.GetBytes(phoenixString);
+
+            //Stream dataStream = request.GetRequestStream();
+            //dataStream.Write(byteArray, 0, byteArray.Length);
+            //dataStream.Close();
+
+            //WebResponse response = request.GetResponse();
+            //dataStream = response.GetResponseStream();
+
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+
+            //reader.Close();
+            //dataStream.Close();
+            //response.Close();
+
+            //WebClient webClient = new WebClient();
+
+            //webClient.BaseAddress = this.Url;
+            //webClient.Credentials = new NotificationCredentials(this);
+
+            //if (this.CustomHeaders != null)
+            //{
+            //    foreach (var header in this.CustomHeaders)
+            //    {
+            //        webClient.Headers.Add(header.key, header.value);
+            //    }
+            //}
+
+            //var stream = webClient.OpenRead(this.Url);
+
+            //using (StreamReader sr = new StreamReader(stream))
+            //{
+            //    var page = sr.ReadToEnd();
+            //}
+
+            //client.
+
+            //webClient.Dispose();
         }
+
+        #endregion 
+
+        #region Properties
 
         [JsonProperty("url")]
         public string Url
@@ -24,14 +85,14 @@ namespace WebAPI.EventNotifications
         }
 
         [JsonProperty("method")]
-        public eHttpMethod method
+        public eHttpMethod Method
         {
             get;
             set;
         }
 
         [JsonProperty("data")]
-        public object data
+        public object Data
         {
             get;
             set;
@@ -141,6 +202,104 @@ namespace WebAPI.EventNotifications
         {
             get;
             set;
+        }
+
+        #endregion
+
+        #region Protected and private methods
+
+        protected void SendRequest(object phoenixObject)
+        {
+            int statusCode = -1;
+
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
+            webRequest.ContentType = "application/x-www-form-urlencoded";
+            webRequest.Method = this.Method.ToString().ToUpper();
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(phoenixObject.ToString());
+            webRequest.ContentLength = bytes.Length;
+
+            using (System.IO.Stream os = webRequest.GetRequestStream())
+            {
+                os.Write(bytes, 0, bytes.Length);
+            }
+
+            string res = string.Empty;
+
+            try
+            {
+                string requestGuid = Guid.NewGuid().ToString();
+
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                {
+                    Database = this.Url,
+                    Table = requestGuid
+                })
+                {
+
+                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+                    HttpStatusCode responseStatusCode = webResponse.StatusCode;
+                    statusCode = GetResponseCode(responseStatusCode);
+                    StreamReader sr = null;
+
+                    try
+                    {
+                        sr = new StreamReader(webResponse.GetResponseStream());
+                        res = sr.ReadToEnd();
+                    }
+                    finally
+                    {
+                        if (sr != null)
+                            sr.Close();
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                log.Error("Error in HttpNotificationHandler WebException", ex);
+                StreamReader errorStream = null;
+                try
+                {
+                    errorStream = new StreamReader(ex.Response.GetResponseStream());
+                    res = errorStream.ReadToEnd();
+                }
+                finally
+                {
+                    if (errorStream != null)
+                        errorStream.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error in HttpNotificationHandler Exception", ex);
+            }
+        }
+
+        public static int GetResponseCode(HttpStatusCode theCode)
+        {
+            if (theCode == HttpStatusCode.OK || theCode == HttpStatusCode.Created || theCode == HttpStatusCode.Accepted)
+                return (int)HttpStatusCode.OK;
+            if (theCode == HttpStatusCode.NotFound)
+                return (int)HttpStatusCode.NotFound;
+            return (int)HttpStatusCode.InternalServerError;
+        }
+
+        #endregion
+    }
+
+    public class NotificationCredentials : ICredentials
+    {
+        private HttpNotificationHandler handler;
+
+        public NotificationCredentials(HttpNotificationHandler handler)
+        {
+            this.handler = handler;
+        }
+
+        public NetworkCredential GetCredential(Uri uri, string authType)
+        {
+            NetworkCredential credentials = new NetworkCredential(handler.Username, handler.Password);
+            
+            return credentials;
         }
     }
 
