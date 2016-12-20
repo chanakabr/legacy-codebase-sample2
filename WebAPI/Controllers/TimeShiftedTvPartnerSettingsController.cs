@@ -46,6 +46,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Configure the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
+        /// <param name="settings">Time shifted TV settings</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotSent = 5023, TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024</remarks>  
         [Route("update"), HttpPost]

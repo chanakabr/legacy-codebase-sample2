@@ -19,6 +19,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all regions for the partner
         /// </summary>
+        /// <param name="filter">Regions filter</param>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]

@@ -8,11 +8,17 @@ namespace WebAPI.Models.DMS
     [JsonObject]
     public class KalturaConfigurationIdentifier : KalturaOTTObject
     {
+        /// <summary>
+        /// Identifier
+        /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Name
+        /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]

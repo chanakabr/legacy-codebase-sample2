@@ -24,8 +24,8 @@ namespace WebAPI.Controllers
         /// List user's tv series follows.
         /// <remarks>Possible status codes:</remarks>
         /// </summary>
-        /// <param name="filter"></param>
-        /// <param name="pager"></param>
+        /// <param name="filter">Follow TV series filter</param>
+        /// <param name="pager">pager</param>
         /// <returns></returns>
         [Route("list"), HttpPost]
         [ApiAuthorize]
@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         /// Delete a user's tv series follow.
         /// <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
         /// </summary>
-        /// <param name="assetId"></param>
+        /// <param name="assetId">Asset identifier</param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
         /// Add a user's tv series follow.
         /// <remarks>Possible status codes: UserAlreadyFollowing = 8013, NotFound = 500007, InvalidAssetId = 4024</remarks>
         /// </summary>
-        /// <param name="followTvSeries"></param>
+        /// <param name="followTvSeries">Follow series request parameters</param>
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]

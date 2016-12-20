@@ -13,7 +13,7 @@ namespace WebAPI.Models.API
     public class KalturaDeviceBrandListResponse : KalturaListResponse
     {
         /// <summary>
-        /// 
+        /// Device brands
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]

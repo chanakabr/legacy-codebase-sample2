@@ -18,9 +18,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Get the limitation module by id
         /// </summary>
-        /// <remarks>
-        /// 
-        /// </remarks>
+        /// <param name="id">Household limitations module identifier</param>
         /// <returns></returns>
         [Route("get"), HttpPost]
         [ApiAuthorize]

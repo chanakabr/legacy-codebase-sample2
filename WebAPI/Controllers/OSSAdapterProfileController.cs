@@ -54,6 +54,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns all OSS adapters for partner : id + name
         /// </summary>
+        /// <param name="id">OSS adapter identifier</param>
         /// <remarks>       
         /// </remarks>
         [Route("get"), HttpPost]

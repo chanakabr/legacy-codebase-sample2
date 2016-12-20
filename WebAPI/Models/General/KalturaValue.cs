@@ -17,6 +17,9 @@ namespace WebAPI.Models.General
     [XmlInclude(typeof(KalturaDoubleValue))]
     public abstract class KalturaValue : KalturaOTTObject
     {
+        /// <summary>
+        /// Description
+        /// </summary>
         [DataMember(Name = "description")]
         [XmlElement("description", IsNullable = true)]
         [JsonProperty("description")]

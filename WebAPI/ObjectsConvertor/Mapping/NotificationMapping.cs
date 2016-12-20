@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
@@ -22,7 +23,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
-                 ;
+                 .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
+                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec));
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
@@ -34,7 +36,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
-                 ;
+                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset));
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
             Mapper.CreateMap<NotificationPartnerSettings, KalturaNotificationsPartnerSettings>()
@@ -46,7 +49,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
-                 ;
+                 .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
+                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec));
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaNotificationsPartnerSettings, NotificationPartnerSettings>()
@@ -58,7 +62,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MessageTTLDays, opt => opt.MapFrom(src => src.MessageTTLDays))
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
-                 ;
+                 .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset));
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
@@ -163,8 +168,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.State)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Category)))
-                 ;
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertInboxMessageType(src.Category)));
 
             //KalturaInboxMessage TO InboxMessage
             Mapper.CreateMap<KalturaInboxMessage, InboxMessage>()
@@ -173,8 +177,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.State, opt => opt.MapFrom(src => ConvertInboxMessageStatus(src.Status)))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 ;
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
 
             //DbAnnouncement to KalturaTopic
             Mapper.CreateMap<DbAnnouncement, KalturaTopic>()
@@ -182,8 +185,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
                  .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
-                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)))
-                 ;
+                 .ForMember(dest => dest.AutomaticIssueNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueFollowNotification)));
 
             //KalturaTopic TO DbAnnouncement
             Mapper.CreateMap<KalturaTopic, DbAnnouncement>()
@@ -191,17 +193,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SubscribersAmount, opt => opt.MapFrom(src => src.SubscribersAmount))
                  .ForMember(dest => dest.LastMessageSentDateSec, opt => opt.MapFrom(src => src.LastMessageSentDateSec))
-                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)))
-                 ;
+                 .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => ConvertAutomaticIssueNotification(src.AutomaticIssueNotification)));
 
             //RegistryParameter to KalturaPushWebParameters
             Mapper.CreateMap<RegistryResponse, KalturaRegistryResponse>()
-                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
+                 .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.NotificationId))
                  .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
+
+            //DbReminder to KalturaReminder
+            Mapper.CreateMap<DbReminder, KalturaReminder>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            // KalturaReminder to DbReminder
+            Mapper.CreateMap<KalturaReminder, DbReminder>()
+                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            //DbReminder to KalturaAssetReminder
+            Mapper.CreateMap<DbReminder, KalturaAssetReminder>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
         }
-
-
 
         public static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)
         {
@@ -346,6 +361,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eOTTAssetTypes.Series:
                     result = KalturaOTTAssetType.Series;
                     break;
+                case eOTTAssetTypes.Reminder:
+                    result = KalturaOTTAssetType.Reminder;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
             }
@@ -361,6 +379,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaOTTAssetType.Series:
                     result = eOTTAssetTypes.Series;
+                    break;
+                case KalturaOTTAssetType.Reminder:
+                    result = eOTTAssetTypes.Reminder;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
@@ -505,6 +526,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             else
                 return eTopicAutomaticIssueNotification.Default;
+        }
+
+        internal static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy orderBy)
+        {
+
+            OrderObj result = new OrderObj();
+
+            switch (orderBy)
+            {
+                case KalturaAssetOrderBy.NAME_ASC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetOrderBy.NAME_DESC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.VIEWS_DESC:
+                    result.m_eOrderBy = OrderBy.VIEWS;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.RATINGS_DESC:
+                    result.m_eOrderBy = OrderBy.RATING;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.VOTES_DESC:
+                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.START_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.RELEVANCY_DESC:
+                    result.m_eOrderBy = OrderBy.RELATED;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetOrderBy.START_DATE_ASC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetOrderBy.LIKES_DESC:
+                    result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+            }
+            return result;
         }
     }
 }

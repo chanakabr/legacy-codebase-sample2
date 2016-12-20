@@ -368,6 +368,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Returns the devices within the household
         /// </summary>
+        /// <param name="filter">Household devices filter</param>
         /// <returns></returns><remarks>Possible status codes:
         /// Household does not exist = 1006, Household user failed = 1007
         /// </remarks>

@@ -121,6 +121,7 @@ namespace WebAPI.Managers.Models
         ArgumentsCannotBeEmpty = 500056,
         InvalidVersion = 500057,
         ArgumentShouldContainMinValueCrossed = 500058,
-        ArgumentShouldContainMaxValueCrossed = 500059
+        ArgumentShouldContainMaxValueCrossed = 500059,
+        InvalidUdid = 500060,
     }
 }

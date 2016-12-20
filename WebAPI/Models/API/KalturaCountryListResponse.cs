@@ -14,7 +14,7 @@ namespace WebAPI.Models.API
     public class KalturaCountryListResponse : KalturaListResponse
     {
         /// <summary>
-        /// 
+        /// Countries
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
