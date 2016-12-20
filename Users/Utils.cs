@@ -1059,7 +1059,7 @@ namespace Users
             string wsUsername = string.Empty;
             string wsPassword = string.Empty;
             GetWSCredentials(groupId, eWSModules.NOTIFICATIONS, ref wsUsername, ref wsPassword);
-            string Address = Utils.GetTcmConfigValue("ws_notifications");
+            string Address = Utils.GetTcmConfigValue("NotificationService");
             string SoapAction = "http://tempuri.org/INotificationService/InitiateNotificationAction";
             if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
             {
