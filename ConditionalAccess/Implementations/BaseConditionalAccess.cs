@@ -10022,7 +10022,7 @@ namespace ConditionalAccess
                     {
                         List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainId);
 
-                        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
+                        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && !isRecording)
                         {
                             CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, nMediaFileID);
                             if (cachedEntitlementResults != null)
