@@ -90,11 +90,13 @@ namespace TVPApiModule.Manager
             if (groupConfig == null)
             {
                 groupConfig = cbManager.Get<GroupConfiguration>(groupKey, true);
+                 
                 if (groupConfig != null)
                 {
                     // add app credentials to dictionary if not exists
                     if (_lock.TryEnterWriteLock(1000))
                     {
+                        groupConfig.AccessExpirationForPinLoginSeconds = groupConfig.AccessExpirationForPinLoginSeconds != 0 ? groupConfig.AccessExpirationForPinLoginSeconds : groupConfig.AccessTokenExpirationSeconds;
                         try
                         {
                             HttpContext.Current.Cache.Insert(groupKey, groupConfig, null, _groupConfigsTtlSeconds == 0 ? DateTime.MaxValue : DateTime.UtcNow.AddSeconds(_groupConfigsTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
@@ -237,7 +239,7 @@ namespace TVPApiModule.Manager
             }
         }
 
-        public object RefreshAccessToken(string refreshToken, string accessToken, int groupId, PlatformType platform, string udid)
+        public object RefreshAccessToken(string refreshToken, string accessToken, int groupId, PlatformType platform, string udid, string userId)
         {
             // validate request parameters
             if (string.IsNullOrEmpty(refreshToken))
@@ -292,12 +294,6 @@ namespace TVPApiModule.Manager
                     returnError(401);
                     return null;
                 }
-                if (accessTokenDoc == null)
-                {
-                    logger.ErrorFormat("RefreshAccessToken: Access token not found (refreshToken expired).");
-                    returnError(401);
-                    return null;
-                }
 
                 // create refresh access doc
                 refreshTokenDoc = new RefreshToken(accessTokenDoc);
@@ -311,8 +307,15 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            if (groupConfig.ValidateUserDevice && (udid != refreshTokenDoc.UDID || userId != refreshTokenDoc.SiteGuid))
+            {
+                logger.ErrorFormat("RefreshAccessToken: siteGuid or UDID of the token do not match the initObj.");
+                returnError(401);
+                return null;
+            }
+
             // if the provided udid does not match the udid in the token and session revocation and the token is not old (and missing udid) is enabled return 403
-            if (groupConfig.SessionRevocationEnabled && !string.IsNullOrEmpty(refreshTokenDoc.UDID) && refreshTokenDoc.UDID != udid)
+            if (groupConfig.SessionRevocationEnabled)
             {
                 logger.ErrorFormat("RefreshAccessToken: provided udid does not match the udid in the token and session revocation enabled. siteGuid = {0}, supplied udid = {1}", refreshTokenDoc.SiteGuid, udid);
                 returnError(403);
@@ -377,7 +380,6 @@ namespace TVPApiModule.Manager
                     else
                     {
                         logger.DebugFormat("RefreshAccessToken: Removed access token with ID = {0} for {1}", view.RefreshTokenId, sessionInfoString);
-
                     }
                 }
                 else
@@ -825,26 +827,6 @@ namespace TVPApiModule.Manager
                 }
             }
             return siteGuidsDomain;
-        }
-
-        internal static long GetPlatformExpiration(GroupConfiguration group, PlatformType platform, DateTime? now = null)
-        {
-            long expiration;
-            if (group.RefreshTokenExpirationForPlatforms.ContainsKey(platform.ToString()))
-            {
-                expiration = group.RefreshTokenExpirationForPlatforms[platform.ToString()];
-            }
-            else
-            {
-                expiration = group.RefreshTokenExpirationSeconds;
-            }
-
-            if (now.HasValue)
-            {
-                return (long)TimeHelper.ConvertToUnixTimestamp(now.Value.AddSeconds(expiration));
-            }
-            else
-                return expiration;
         }
     }
 }
