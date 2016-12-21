@@ -632,6 +632,7 @@
     <Compile Include="EventNotifications\NotificationEventHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
+    <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
