@@ -7,6 +7,7 @@ using System.Web;
 namespace WebAPI.Managers.Models
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class EventNotification
     {
         [JsonProperty("webservice_type")]

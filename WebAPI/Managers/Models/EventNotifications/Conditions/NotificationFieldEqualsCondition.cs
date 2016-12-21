@@ -1,4 +1,5 @@
 ﻿using EventManager;
+using EventManager.Events;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Web;
 namespace WebAPI.Managers.Models
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class NotificationFieldEqualsCondition : NotificationCondition
     {
         [JsonProperty("value")]
@@ -24,9 +26,32 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        public override bool Evaluate(KalturaEvent kalturaEvent)
+        public override bool Evaluate(KalturaEvent kalturaEvent, object eventObject)
         {
-            return base.Evaluate(kalturaEvent);
+            bool result = false;
+
+            KalturaObjectEvent kalturaObjectEvent = kalturaEvent as KalturaObjectEvent;
+
+            if (kalturaObjectEvent != null && eventObject != null)
+            {
+                var property = eventObject.GetType().GetProperty(this.Field);
+
+                if (property != null)
+                {
+                    var objectValue = property.GetValue(eventObject, null);
+
+                    if (objectValue != null)
+                    {
+                        result = objectValue.Equals(this.Value);
+                    }
+                    else if (this.Value == null)
+                    {
+                        result = true;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

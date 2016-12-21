@@ -138,6 +138,12 @@ namespace WebAPI
                     {
                         continue;
                     }
+                    
+                    // Get the phoenix type Type
+                    Type destination = Type.GetType(phoenixType);
+
+                    // convert the WS object to an API/rest/phoenixObject
+                    object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
 
                     bool conditionResult = true;
 
@@ -146,7 +152,7 @@ namespace WebAPI
                     {
                         foreach (var condition in action.Conditions)
                         {
-                            conditionResult &= condition.Evaluate(kalturaEvent);
+                            conditionResult &= condition.Evaluate(kalturaEvent, phoenixObject);
                         }
                     }
 
@@ -154,12 +160,6 @@ namespace WebAPI
                     {
                         continue;
                     }
-
-                    // Get the phoenix type Type
-                    Type destination = Type.GetType(phoenixType);
-
-                    // convert the WS object to an API/rest/phoenixObject
-                    object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
 
                     object actionBody = action.Handler;
                     JObject jsonObject = actionBody as JObject;

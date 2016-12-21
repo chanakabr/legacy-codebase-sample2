@@ -16,6 +16,7 @@ namespace WebAPI.Managers.Models
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class NotificationAction
     {
         [JsonProperty("type")]
