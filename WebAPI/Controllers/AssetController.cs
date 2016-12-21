@@ -124,6 +124,19 @@ namespace WebAPI.Controllers
                             }
                         }
                         break;
+                    case KalturaCatalogReferenceBy.channel:
+                        {
+                            int channelID;
+                            if (!int.TryParse(filter.IDs.First().value, out channelID))
+                            {
+                                throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETER, "filter.ids");
+                            }
+
+                            var withList = with.Select(x => x.type).ToList();
+                            response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language,
+                            pager.getPageIndex(), pager.PageSize, withList, channelID, order_by, string.Empty);
+                        }
+                        break;
                 }
             }
             catch (ClientException ex)
