@@ -75,6 +75,9 @@ namespace Validator.Managers.Scheme
                 loadErrors(exception);
             }
 
+            LoadType(typeof(KalturaClientConfiguration), loadAll);
+            LoadType(typeof(KalturaRequestConfiguration), loadAll);
+
             foreach (Type controller in controllers)
             {
                 var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
@@ -429,7 +432,7 @@ namespace Validator.Managers.Scheme
             writer.WriteEndElement(); // userId
 
             writer.WriteStartElement("language");
-            writer.WriteAttributeString("type", "int");
+            writer.WriteAttributeString("type", "string");
             writer.WriteAttributeString("description", "Content language");
             writer.WriteEndElement(); // language
 
@@ -759,6 +762,13 @@ namespace Validator.Managers.Scheme
             //Print values
             foreach (var enumValue in Enum.GetValues(type))
             {
+                MemberInfo[] memberInfo = type.GetMember(enumValue.ToString());
+                object[] attributes = memberInfo[0].GetCustomAttributes(typeof(ObsoleteAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    continue;
+                }
+
                 string eValue = isIntEnum ? ((int)Enum.Parse(type, enumValue.ToString())).ToString() : enumValue.ToString();
                 writer.WriteStartElement("const");
                 writer.WriteAttributeString("name", enumValue.ToString().ToUpper());
