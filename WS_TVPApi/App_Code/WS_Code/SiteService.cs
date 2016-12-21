@@ -694,7 +694,7 @@ namespace TVPApiServices
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "SignIn", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 
-            if (groupID > 0)
+                if (groupID > 0)
             {
                 try
                 {
@@ -1475,7 +1475,7 @@ namespace TVPApiServices
             {
                 try
                 {
-                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform, initObj.UDID);
+                    response = AuthorizationManager.Instance.RefreshAccessToken(refreshToken, initObj.Token, groupID, initObj.Platform, initObj.UDID, initObj.SiteGuid);
                 }
                 catch (Exception ex)
                 {
