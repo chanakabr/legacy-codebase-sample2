@@ -57,10 +57,12 @@ namespace TVPApiModule.Objects.Authorization
         {
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
-            AccessTokenExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
-            RefreshTokenExpiration = isLongRefreshExpiration ? 
-                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) : 
-                AuthorizationManager.GetPlatformExpiration(groupConfig, platform, DateTime.UtcNow);
+            AccessTokenExpiration = isLongRefreshExpiration ? 
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessExpirationForPinLoginSeconds)) : 
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
+            RefreshTokenExpiration = isLongRefreshExpiration ?
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             GroupID = groupId;
             SiteGuid = siteGuid;
             IsAdmin = isAdmin;
@@ -74,11 +76,14 @@ namespace TVPApiModule.Objects.Authorization
             AccessToken = Guid.NewGuid().ToString().Replace("-", string.Empty);
             RefreshToken = token.RefreshToken;
             RefreshTokenExpiration = groupConfig.IsRefreshTokenExtendable ? 
-                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : token.RefreshTokenExpiration + AuthorizationManager.GetPlatformExpiration(groupConfig, token.Platform)) :
+                (token.IsLongRefreshExpiration ? token.RefreshTokenExpiration + groupConfig.RefreshExpirationForPinLoginSeconds : 
+                token.RefreshTokenExpiration + groupConfig.RefreshTokenExpirationSeconds) :
                 token.RefreshTokenExpiration;
 
             // set access expiration time - no longer than refresh expiration
-            long accessExpiration =(long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
+            long accessExpiration = token.IsLongRefreshExpiration ? 
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessExpirationForPinLoginSeconds)) :
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
             
             GroupID = token.GroupID;
@@ -95,15 +100,18 @@ namespace TVPApiModule.Objects.Authorization
             RefreshToken = token.RefreshTokenValue;
             if (groupConfig.IsRefreshTokenExtendable)
             {
-                RefreshTokenExpiration = token.IsLongRefreshExpiration ? (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
-                     AuthorizationManager.GetPlatformExpiration(groupConfig, token.Platform, DateTime.UtcNow);
+                RefreshTokenExpiration = token.IsLongRefreshExpiration ? 
+                    (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshExpirationForPinLoginSeconds)) :
+                    (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.RefreshTokenExpirationSeconds));
             }
             else
             {
                 RefreshTokenExpiration = token.RefreshTokenExpiration;
             }
             // set access expiration time - no longer than refresh expiration
-            long accessExpiration = (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
+            long accessExpiration = token.IsLongRefreshExpiration ?
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessExpirationForPinLoginSeconds)) :
+                (long)TimeHelper.ConvertToUnixTimestamp(DateTime.UtcNow.AddSeconds(groupConfig.AccessTokenExpirationSeconds));
             AccessTokenExpiration = accessExpiration >= RefreshTokenExpiration ? RefreshTokenExpiration : accessExpiration;
 
             GroupID = token.GroupID;
