@@ -762,6 +762,13 @@ namespace Validator.Managers.Scheme
             //Print values
             foreach (var enumValue in Enum.GetValues(type))
             {
+                MemberInfo[] memberInfo = type.GetMember(enumValue.ToString());
+                object[] attributes = memberInfo[0].GetCustomAttributes(typeof(ObsoleteAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    continue;
+                }
+
                 string eValue = isIntEnum ? ((int)Enum.Parse(type, enumValue.ToString())).ToString() : enumValue.ToString();
                 writer.WriteStartElement("const");
                 writer.WriteAttributeString("name", enumValue.ToString().ToUpper());
