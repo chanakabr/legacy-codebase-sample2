@@ -139,6 +139,22 @@ namespace WebAPI
                         continue;
                     }
 
+                    bool conditionResult = true;
+
+                    // Check conditions for this action. If all are OK, perform action. If one fails, stop.
+                    if (action.Conditions != null && action.Conditions.Count > 0)
+                    {
+                        foreach (var condition in action.Conditions)
+                        {
+                            conditionResult &= condition.Evaluate(kalturaEvent);
+                        }
+                    }
+
+                    if (!conditionResult)
+                    {
+                        continue;
+                    }
+
                     // Get the phoenix type Type
                     Type destination = Type.GetType(phoenixType);
 

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EventManager;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,11 @@ namespace WebAPI.Managers.Models
         {
             get;
             set;
+        }
+
+        public override bool Evaluate(KalturaEvent kalturaEvent)
+        {
+            return base.Evaluate(kalturaEvent);
         }
     }
 }

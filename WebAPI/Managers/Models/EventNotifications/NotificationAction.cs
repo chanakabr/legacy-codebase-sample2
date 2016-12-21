@@ -46,6 +46,13 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+        [JsonProperty("conditions")]
+        public List<NotificationCondition> Conditions
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("handler")]
         public object Handler
         {
