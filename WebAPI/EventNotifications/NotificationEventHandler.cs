@@ -24,8 +24,6 @@ namespace WebAPI.EventNotifications
 
         }
 
-        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, object t);
-
         // props
     }
 }

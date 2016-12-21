@@ -22,26 +22,26 @@ namespace WebAPI
         {
             NotificationEventHandler handler = null;
 
-            switch (type)
-            {
-                case WebAPI.Managers.Models.eNotificationActionTypes.Http:
-                {
-                    handler = jsonHandler.ToObject<HttpNotificationHandler>();
-                    break;
-                }
-                case WebAPI.Managers.Models.eNotificationActionTypes.Email:
-                {
-                    handler = jsonHandler.ToObject<EmailNotificationHandler>();
-                    break;
-                }
-                case WebAPI.Managers.Models.eNotificationActionTypes.RabbitQueue:
-                {
-                    handler = jsonHandler.ToObject<RabbitQueueHandler>();
-                    break;
-                }
-                default:
-                break;
-            }
+            //switch (type)
+            //{
+            //    case WebAPI.Managers.Models.eNotificationActionTypes.Http:
+            //    {
+            //        handler = jsonHandler.ToObject<HttpNotificationHandler>();
+            //        break;
+            //    }
+            //    case WebAPI.Managers.Models.eNotificationActionTypes.Email:
+            //    {
+            //        handler = jsonHandler.ToObject<EmailNotificationHandler>();
+            //        break;
+            //    }
+            //    case WebAPI.Managers.Models.eNotificationActionTypes.RabbitQueue:
+            //    {
+            //        handler = jsonHandler.ToObject<RabbitQueueHandler>();
+            //        break;
+            //    }
+            //    default:
+            //    break;
+            //}
 
             return handler;
         }

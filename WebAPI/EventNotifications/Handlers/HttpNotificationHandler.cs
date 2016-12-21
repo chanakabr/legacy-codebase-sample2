@@ -11,11 +11,13 @@ using WebAPI.Models.General;
 using KLogMonitor;
 using KlogMonitorHelper;
 using System.Reflection;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.EventNotifications
 {
     [Serializable]
-    public class HttpNotificationHandler : NotificationEventHandler
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class HttpNotificationHandler : NotificationAction
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

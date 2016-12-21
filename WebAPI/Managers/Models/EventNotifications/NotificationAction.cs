@@ -7,24 +7,10 @@ using System.Web;
 
 namespace WebAPI.Managers.Models
 {
-    public enum eNotificationActionTypes
-    {
-        Http = 0,
-        Email = 1,
-        RabbitQueue = 2,
-        // to be continued
-    }
-
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class NotificationAction
+    public abstract class NotificationAction
     {
-        [JsonProperty("type")]
-        public eNotificationActionTypes ActionType
-        {
-            get;
-            set;
-        }
 
         [JsonProperty("status")]
         public int Status
@@ -54,11 +40,6 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        [JsonProperty("handler")]
-        public object Handler
-        {
-            get;
-            set;
-        }
+        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, object t);
     }
 }

@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.EventNotifications
 {
     [Serializable]
-    public class RabbitQueueHandler : NotificationEventHandler
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class RabbitQueueHandler : NotificationAction
     {
         public RabbitQueueHandler()
             : base()

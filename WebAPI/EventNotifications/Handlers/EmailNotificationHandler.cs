@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using WebAPI.Managers.Models;
 
 namespace WebAPI.EventNotifications
 {
     [Serializable]
-    public class EmailNotificationHandler : NotificationEventHandler
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
+    public class EmailNotificationHandler : NotificationAction
     {
         public EmailNotificationHandler() : base()
         {

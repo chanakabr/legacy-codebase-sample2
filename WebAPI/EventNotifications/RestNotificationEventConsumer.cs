@@ -152,7 +152,11 @@ namespace WebAPI
                     {
                         foreach (var condition in action.Conditions)
                         {
-                            conditionResult &= condition.Evaluate(kalturaEvent, phoenixObject);
+                            // Only for active/enabled conditions
+                            if (condition.Status == 1)
+                            {
+                                conditionResult &= condition.Evaluate(kalturaEvent, phoenixObject);
+                            }
                         }
                     }
 
@@ -161,23 +165,7 @@ namespace WebAPI
                         continue;
                     }
 
-                    object actionBody = action.Handler;
-                    JObject jsonObject = actionBody as JObject;
-                    NotificationEventHandler handler = null;
-
-                    if (jsonObject != null)
-                    {
-                        handler = NotificationActionFactory.CreateEventHandler(action.ActionType, jsonObject);
-                    }
-                    else
-                    {
-                        handler = NotificationActionFactory.CreateEventHandler(action.ActionType, actionBody.ToString());
-                    }
-
-                    if (handler != null)
-                    {
-                        handler.Handle(kalturaEvent, phoenixObject);
-                    }
+                    action.Handle(kalturaEvent, phoenixObject);
                 }
                 catch (Exception ex)
                 {
