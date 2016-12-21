@@ -641,8 +641,11 @@ public partial class MethodFinder
                 // add "tokenization" to context for later validations (only if not admin)
                 if (!isAdmin)
                 {
-                    // override siteGuid in initObj
-                    initObj.SiteGuid = siteGuid;
+                    if (executer.m_MetodInfo.Name != "RefreshAccessToken")
+                    {
+                        // override siteGuid in initObj
+                        initObj.SiteGuid = siteGuid;
+                    }
                     HttpContext.Current.Items.Add("tokenization", null);
                 }
             }
