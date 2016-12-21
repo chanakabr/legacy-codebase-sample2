@@ -75,6 +75,9 @@ namespace Validator.Managers.Scheme
                 loadErrors(exception);
             }
 
+            LoadType(typeof(KalturaClientConfiguration), loadAll);
+            LoadType(typeof(KalturaRequestConfiguration), loadAll);
+
             foreach (Type controller in controllers)
             {
                 var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
@@ -429,7 +432,7 @@ namespace Validator.Managers.Scheme
             writer.WriteEndElement(); // userId
 
             writer.WriteStartElement("language");
-            writer.WriteAttributeString("type", "int");
+            writer.WriteAttributeString("type", "string");
             writer.WriteAttributeString("description", "Content language");
             writer.WriteEndElement(); // language
 

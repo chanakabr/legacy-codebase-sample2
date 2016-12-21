@@ -98,7 +98,7 @@ namespace WebAPI.Managers.Models
         ListTypeCannotBeEmptyOrAll = 500032,
         ActionNotSpecified = 500033,
         RefreshTokenFailed = 500034,
-        InvalidUser = 500035,
+        UnauthorizedUser = 500035,
         ArgumentReadonly = 500036,
         ArgumentInsertonly = 500037,
         ArgumentsConflictsEachOther = 500038,

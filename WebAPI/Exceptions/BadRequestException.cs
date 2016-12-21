@@ -21,7 +21,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType KS_EXPIRED = new ApiExceptionType(StatusCode.ExpiredKS, "KS expired");
         public static ApiExceptionType INVALID_REFRESH_TOKEN = new ApiExceptionType(StatusCode.InvalidRefreshToken, "Invalid refresh token");
         public static ApiExceptionType REFRESH_TOKEN_FAILED = new ApiExceptionType(StatusCode.RefreshTokenFailed, StatusCode.Error, "Refresh token failed");
-        public static ApiExceptionType INVALID_USER_ID = new ApiExceptionType(StatusCode.InvalidUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");
+        public static ApiExceptionType INVALID_USER_ID = new ApiExceptionType(StatusCode.UnauthorizedUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");
         public static ApiExceptionType INVALID_UDID = new ApiExceptionType(StatusCode.InvalidUdid, StatusCode.Unauthorized, "Invalid UDID [@id@]", "id");
 
         public static ApiExceptionType INVALID_SERVICE = new ApiExceptionType(StatusCode.InvalidService, "Service [@service@] not found", "service");
