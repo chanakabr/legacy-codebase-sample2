@@ -87,7 +87,10 @@ namespace SetupTaskHandler
 
                             var status = service.DeleteAnnouncementsOlderThan(string.Empty, string.Empty);
                             if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                            {
                                 log.Debug("NotificationCleanupIteration: Successfully run cleanup notifications");
+                                success = true;
+                            }
                             else
                                 log.Error("NotificationCleanupIteration: Error received when trying to run cleanup notifications");
                         }
