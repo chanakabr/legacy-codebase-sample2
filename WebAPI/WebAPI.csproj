@@ -628,8 +628,6 @@
     <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
     <Compile Include="EventNotifications\Handlers\HttpNotificationHandler.cs" />
     <Compile Include="EventNotifications\Handlers\RabbitQueueHandler.cs" />
-    <Compile Include="EventNotifications\NotificationActionFactory.cs" />
-    <Compile Include="EventNotifications\NotificationEventHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />

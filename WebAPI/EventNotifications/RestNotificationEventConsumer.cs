@@ -171,7 +171,7 @@ namespace WebAPI
                 {
                     log.ErrorFormat(
                         "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
-                        kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.ActionType, ex);
+                        kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.GetType().ToString(), ex);
                 }
             }
 
