@@ -1882,22 +1882,26 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaEntitlement UpdateEntitlement(int groupId, KalturaEntitlement kEntitlement)
+        internal KalturaEntitlement UpdateEntitlement(int groupId, long domainID, int id, KalturaEntitlement kEntitlement)
         {
             KalturaEntitlement kalturaEntitlement = null;
-            Entitlements entitlements = null;
+            Status response = null;
+            Entitlements entitlements = new Entitlements();
 
             // get group 
             Group group = GroupsManager.GetGroup(groupId);
 
             try
             {
-                Entitlement entitlement = Mapper.Map<Entitlement>(kEntitlement);
-
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    // fire request
-                    entitlements = ConditionalAccess.UpdateEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, entitlement);
+                    if (kEntitlement is KalturaSubscriptionEntitlement)
+                    {
+                        // fire request
+                        KalturaSubscriptionEntitlement ksEntitlement = (KalturaSubscriptionEntitlement)kEntitlement;                       
+                        response = ConditionalAccess.UpdatePaymentDetails(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainID, id, ksEntitlement.PaymentGatewayId.Value,
+                            ksEntitlement.PaymentMethodId.Value);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1906,17 +1910,22 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (wsResponse == null)
+            if (response == null)
             {
                 // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (wsResponse.Code != (int)StatusCode.OK)
+            if (response.Code != (int)StatusCode.OK)
             {
                 // internal web service exception
-                throw new ClientException(wsResponse.Code, wsResponse.Message);
-            }
+                throw new ClientException(response.Code, response.Message);
+            }          
+
+            // convert response
+            kalturaEntitlement = kEntitlement;
+
+            return kalturaEntitlement;
         }
     }
 }

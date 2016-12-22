@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -15,7 +16,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "paymentGatewayId")]
         [JsonProperty("paymentGatewayId")]
-        [XmlElement(ElementName = "paymentGatewayId")]       
+        [XmlElement(ElementName = "paymentGatewayId")]
+        [SchemeProperty(MinInteger = 1)]
         public int? PaymentGatewayId { get; set; }
 
         /// <summary>
@@ -24,6 +26,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentMethodId")]
         [JsonProperty("paymentMethodId")]
         [XmlElement(ElementName = "paymentMethodId")]
+        [SchemeProperty(MinInteger = 1)]
         public int? PaymentMethodId { get; set; }
     }
 }

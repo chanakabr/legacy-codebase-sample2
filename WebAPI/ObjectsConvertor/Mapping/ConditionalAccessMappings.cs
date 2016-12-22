@@ -81,7 +81,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             Mapper.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
-            Mapper.CreateMap<KalturaEntitlement, Entitlement>().ConstructUsing(ConvertToEntitlement);
+            //Mapper.CreateMap<KalturaEntitlement, Entitlement>().ConstructUsing(ConvertToEntitlement);
 
             #endregion
 

@@ -3005,6 +3005,16 @@
             User not in household = 1005, User does not exist = 2000, User suspended = 2001, Reconciliation too frequent = 3029, Adapter application failure = 6012
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.Update(System.Int32,WebAPI.Models.ConditionalAccess.KalturaEntitlement)">
+            <summary>
+            Update Kaltura Entitelment by Purchase id
+            </summary>                
+            <param name="entitlement">KalturaEntitlement object</param>
+            <remarks>Possible status codes: 
+            InvalidPurchase = 3000, SubscriptionNotRenewable = 3002, PaymentGatewayNotExist = 6008,  PaymentGatewayNotValid = 6043,PaymentGatewayNotSupportPaymentMethod = 6056,
+            PaymentGatewayNotSetForHousehold = 6007,PaymentGatewayTransactionNotFound = 6038,
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>
             Add media to user's favorite list
