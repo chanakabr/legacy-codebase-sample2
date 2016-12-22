@@ -15,16 +15,29 @@ namespace WebAPI
 {
     public class RestNotificationEventConsumer : BaseEventConsumer
     {
+        #region Consts
+        
         private const string CB_SECTION_NAME = "groups";
         private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}_{2}";
         private const string CB_GENERAL_KEY_FORMAT = "notification_{0}_{1}";
 
+        #endregion
+
+        #region Logger
+        
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        #endregion
+
+        #region Ctor
 
         public RestNotificationEventConsumer()
         {
         }
+
+        #endregion
+
+        #region Override methods
 
         public override bool ShouldConsume(KalturaEvent kalturaEvent)
         {
@@ -40,13 +53,14 @@ namespace WebAPI
 
         protected override bool Consume(KalturaEvent kalturaEvent)
         {
-            KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
-
             bool result = false;
-            WebAPI.Managers.Models.EventNotification specificNotification = null;
-            WebAPI.Managers.Models.EventNotification generalNotification = null;
 
+            KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
+            EventNotification specificNotification = null;
+            EventNotification generalNotification = null;
             Dictionary<string, NotificationAction> actions = new Dictionary<string, NotificationAction>();
+
+            #region Get notification definitions
 
             bool shouldConsume = true;
 
@@ -113,6 +127,10 @@ namespace WebAPI
                 return false;
             }
 
+            #endregion
+
+            #region Convert object
+
             Type source = actionEvent.Object.GetType();
 
             string phoenixType = string.Empty;
@@ -129,6 +147,17 @@ namespace WebAPI
                 phoenixType = specificNotification.PhoenixType;
             }
 
+            // Get the phoenix type Type
+            Type destination = Type.GetType(phoenixType);
+
+            // convert the WS object to an API/rest/phoenixObject
+            object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
+
+            #endregion
+
+            #region Handle actions
+
+            // Perform the actions for this event
             foreach (var action in actions.Values)
             {
                 try
@@ -138,13 +167,6 @@ namespace WebAPI
                     {
                         continue;
                     }
-                    
-                    // Get the phoenix type Type
-                    Type destination = Type.GetType(phoenixType);
-
-                    // convert the WS object to an API/rest/phoenixObject
-                    object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
-
                     bool conditionResult = true;
 
                     // Check conditions for this action. If all are OK, perform action. If one fails, stop.
@@ -175,20 +197,28 @@ namespace WebAPI
                 }
             }
 
+            #endregion
+
             result = true;
 
             return result;
         }
+
+        #endregion
+
+        #region Protected methods
 
         protected string GetCBGeneralKey(KalturaObjectActionEvent kalturaEvent)
         {
             return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }
 
-
         protected string GetCBSpecificKey(KalturaObjectActionEvent kalturaEvent)
         {
             return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }
+
+        #endregion
+
     }
 }
