@@ -2651,5 +2651,18 @@ namespace DAL
             }
         }
 
+
+        public static DataRow GetPurchaseByID(int purchaseID)
+        {            
+            try
+            {
+                return ODBCWrapper.Utils.GetTableSingleRowByValue("subscriptions_purchases", "ID", purchaseID, true, "CA_CONNECTION_STRING");
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail in GetPurchaseByID (DAL) purchaseID={0} , ex={1}", purchaseID, ex.Message);
+                return null;
+            }
+        }
     }
 }

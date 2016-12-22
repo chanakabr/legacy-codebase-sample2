@@ -2480,12 +2480,12 @@ namespace DAL
             failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
 
-        public static DataTable GetPaymentDetailsTransaction(List<string> billingGuids)
+        public static DataTable GetTransactionPaymentDetails(List<string> billingGuids)
         {
             DataTable dt = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PaymentDetailsTransaction");//Get_LatestPaymentGatewayTransaction");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TransactionPaymentDetails");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");                
                 sp.AddIDListParameter<string>("@billing_guids", billingGuids, "ID");
                 DataSet ds = sp.ExecuteDataSet();
@@ -2498,6 +2498,26 @@ namespace DAL
                 HandleException(ex);
             }
             return dt;
+        }
+
+        public static int SetPaymentDetailsTransaction(int groupID, string billingGuid, int newPaymentGatewayId, int newPaymentMethodId)
+        {
+            int result;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentDetailsTransaction");
+            sp.SetConnectionKey("BILLING_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@BillingGuid", billingGuid);
+            sp.AddParameter("@PaymentGatewayId", newPaymentGatewayId);
+            sp.AddParameter("@PaymentMethodId", newPaymentMethodId);
+
+            if (sp.ExecuteReturnValue<int>(out result))
+            {
+                return result;
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 }

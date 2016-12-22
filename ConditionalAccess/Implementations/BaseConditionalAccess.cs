@@ -5410,13 +5410,17 @@ namespace ConditionalAccess
                 
                 // get all builingGuid from subscription 
                 List<string>  billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
-                                            select row.Field<string>("BILLING_GUID")).ToList();
+                                              where row.Field<int>("IS_RECURRING") == 1
+                                              select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
                 List<DataRow> renewPaymentDetails = null;
                 if (billingGuids != null && billingGuids.Count > 0)
                 {
                     // get all renew payment details
-                    DataTable dt = GetRenewPaymentDetails(billingGuids);
-                    renewPaymentDetails = (from row in dt.AsEnumerable() select row).ToList();
+                    DataTable dt = DAL.BillingDAL.GetTransactionPaymentDetails(billingGuids);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        renewPaymentDetails = (from row in dt.AsEnumerable() select row).ToList();
+                    }
                 }            
 
                 Entitlement entitlement = null;
@@ -5437,21 +5441,7 @@ namespace ConditionalAccess
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return entitlementsResponse;
-        }
-
-        private DataTable GetRenewPaymentDetails(List<string> billingGuids)
-        {    
-            try
-            {
-                DataTable dt = DAL.BillingDAL.GetPaymentDetailsTransaction(billingGuids);
-                return dt;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("GetRenewPaymentDetails fail with billingGuids={0}, ex={1}", string.Join(",", billingGuids), ex);
-                return null;
-            }
-        }
+        }       
 
         private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<DataRow> renewPaymentDetails)
         {
@@ -5499,8 +5489,18 @@ namespace ConditionalAccess
                 paymentDetails = renewPaymentDetails.Where(x=>x.Field<string>("BILLING_GUID") == billingGuid).FirstOrDefault();
                 if (paymentDetails != null)
                 {
-                    entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "payment_gateway_id");
-                    entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "payment_method_id");
+
+                    // check if any changes made in payment gateway or payment method                              
+                    entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "rpd_payment_gateway_id");
+                    if (entitlement.paymentGatewayId == 0)
+                    {
+                        entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "pgt_payment_gateway_id");
+                        entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "pgt_payment_method_id");
+                    }
+                    else
+                    {
+                        entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "rpd_payment_method_id");
+                    }
                 }                
             }
 
@@ -19555,6 +19555,69 @@ namespace ConditionalAccess
             //{
             //    log.DebugFormat("Failed to delete PPVs for householdId = {0}", householdId);
             //}
+        }
+
+        public ApiObjects.Response.Status UpdatePaymentDetails(int nGroupID, long domainID, int purchaseID, int paymentGatewayId, int paymentMethodId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            { 
+                // 1. validate household
+                //---------------------------------               
+                Domain domain = null;
+                ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, (int)domainID, out  domain);
+                if (status ==null || status.Code != (int)eResponseStatus.OK || domain == null)
+                {
+                    log.ErrorFormat("UpdateEntitlement ValidateUserAndDomain purchaseID = {0} status.Code = {1},  householdId = {2} ", purchaseID, status.Code, domainID);
+                    response = status;
+                    return response;
+                }               
+
+                // get entitelment with the current payment gateway id + current payment method id 
+                DataRow dr = ConditionalAccessDAL.GetPurchaseByID(purchaseID);               
+                if (dr == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidPurchase, eResponseStatus.InvalidPurchase.ToString());
+                    return response;
+                }
+
+                if (ODBCWrapper.Utils.GetIntSafeVal(dr, "domain_id") != domainID)
+                {
+                    log.ErrorFormat("UpdateEntitlement purchaseID = {0} not belong to householdId = {1} ", purchaseID,  domainID);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidPurchase, eResponseStatus.InvalidPurchase.ToString());
+                    return response;
+                }                
+                                
+                // ask if renewable + subscription related to domain 
+               bool isRecurring =  ODBCWrapper.Utils.GetIntSafeVal(dr, "is_recurring_status") == 1 ? true : false;
+               if (!isRecurring)
+               {
+                   log.DebugFormat("UpdateEntitlement subscription for purchaseID = {0} is not recurring", purchaseID);
+                   response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, eResponseStatus.SubscriptionNotRenewable.ToString());
+                   return response;
+               }
+
+                // get latest PaymentDetailsTransaction
+                string billingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "billing_guid");
+
+                // move here to Billing WS (write all in billing)
+                string wsUserName = string.Empty;
+                string wsPass = string.Empty;
+                module wsBillingService = null;
+                InitializeBillingModule(ref wsBillingService, ref wsUserName, ref wsPass);
+
+                ApiObjects.Response.Status changeStatus = wsBillingService.ChangePaymentDetails(wsUserName, wsPass, billingGuid, domainID, paymentGatewayId, paymentMethodId);
+
+                // comlete entitelment details 
+                response = changeStatus;              
+                
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("UpdateEntitlement failed ex={0}, GroupID={1}, domainID={2}, purchaseID={3}, paymentGatewayId={4}, paymentMethodId={5} ", ex, nGroupID, domainID, purchaseID, paymentGatewayId, paymentMethodId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
         }
     }
 }
