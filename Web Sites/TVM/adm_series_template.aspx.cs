@@ -37,7 +37,18 @@ public partial class adm_series_template : System.Web.UI.Page
                 messageTemplate = GetPageData();
                 if (messageTemplate != null)
                 {
-                    ImporterImpl.SetMessageTemplate(groupId, ref messageTemplate);
+                    result = ImporterImpl.SetMessageTemplate(groupId, ref messageTemplate);
+                }
+
+                if (result == null)
+                {
+                    Session["error_msg_s"] = "Error";
+                    Session["error_msg"] = "Error";
+                }
+                else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    Session["error_msg"] = result.Message;
+                    Session["error_msg_s"] = result.Message;
                 }
             }
         }
