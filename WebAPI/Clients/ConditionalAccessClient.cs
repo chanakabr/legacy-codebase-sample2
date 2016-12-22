@@ -1900,7 +1900,7 @@ namespace WebAPI.Clients
                         // fire request
                         KalturaSubscriptionEntitlement ksEntitlement = (KalturaSubscriptionEntitlement)kEntitlement;                       
                         response = ConditionalAccess.UpdatePaymentDetails(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainID, id, ksEntitlement.PaymentGatewayId.Value,
-                            ksEntitlement.PaymentMethodId.Value);
+                            ksEntitlement.PaymentMethodId.HasValue == false ? 0 : ksEntitlement.PaymentMethodId.Value);
                     }
                 }
             }
@@ -1923,7 +1923,10 @@ namespace WebAPI.Clients
             }          
 
             // convert response
-            kalturaEntitlement = kEntitlement;
+            if (kEntitlement is KalturaSubscriptionEntitlement)
+            {
+                kalturaEntitlement = kEntitlement;
+            }
 
             return kalturaEntitlement;
         }

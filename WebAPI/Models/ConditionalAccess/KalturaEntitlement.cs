@@ -33,7 +33,7 @@ namespace WebAPI.Models.ConditionalAccess
     [OldStandard("mediaId", "media_id")]
     [OldStandard("isInGracePeriod", "is_in_grace_period")]
     public class KalturaEntitlement : KalturaOTTObject
-    {
+    {                
         /// <summary>
         ///Purchase identifier (for subscriptions and collections only)
         /// </summary>
