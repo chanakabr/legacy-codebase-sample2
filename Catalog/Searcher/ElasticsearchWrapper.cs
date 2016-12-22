@@ -1667,6 +1667,16 @@ namespace Catalog
                 Key = "end_date"
             };
 
+            // If we don't have any tag, use a "0=1" filter so query return 0 results instead of ALL results
+            if (tagsFilter.IsEmpty())
+            {
+                tagsFilter.AddChild(new ESTerm(true)
+                {
+                    Key = "_id",
+                    Value = "-1"
+                });
+            }
+
             // Filter associated media by:
             // is_active = 1
             // start_date < NOW
