@@ -1,12 +1,17 @@
 ﻿using ApiObjects.Response;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Web;
 using System.Web.Http;
+using System.Xml.Serialization;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -295,10 +300,17 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier");
         public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type");
         public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error");
-        
-        public int Code { get; set; }
-        new public string Message { get; set; }
 
+        [DataMember(Name = "code")]
+        [JsonProperty("code")]
+        [XmlElement(ElementName = "code")]
+        public int Code { get; set; }
+
+        [DataMember(Name = "message")]
+        [JsonProperty("message")]
+        [XmlElement(ElementName = "message")]
+        new public string Message { get; set; }
+        
         public class ExceptionType
         {
         }
@@ -360,6 +372,11 @@ namespace WebAPI.Exceptions
             }
             public int code { get; set; }
             public HttpError error { get; set; }
+        }
+
+        public ApiException()
+            : base(HttpStatusCode.OK)
+        {
         }
 
         public ApiException(ClientException ex)
