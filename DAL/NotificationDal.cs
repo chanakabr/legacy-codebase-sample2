@@ -2156,7 +2156,7 @@ namespace DAL
                 sp.AddParameter("@name", dbReminder.Name);
                 sp.AddParameter("@phrase", dbReminder.Phrase);
                 sp.AddParameter("@queueId", dbReminder.QueueId);
-                sp.AddParameter("@queueName", dbReminder.QueueName);
+                sp.AddParameter("@routeName", dbReminder.RouteName);
                 sp.AddParameter("@reference", dbReminder.Reference);
                 sp.AddParameter("@sendTime", ODBCWrapper.Utils.UnixTimestampToDateTime(dbReminder.SendTime));
                 sp.AddParameter("@externalId", dbReminder.ExternalPushId);
@@ -2233,7 +2233,7 @@ namespace DAL
                 Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                 Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
                 QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
-                QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
+                RouteName = ODBCWrapper.Utils.GetSafeStr(row, "route_name"),
                 Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
                 ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
