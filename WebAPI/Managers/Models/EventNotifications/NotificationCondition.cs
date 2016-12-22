@@ -11,6 +11,13 @@ namespace WebAPI.Managers.Models
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class NotificationCondition
     {
+        [JsonProperty("status")]
+        public int Status
+        {
+            get;
+            set;
+        }
+
         public virtual bool Evaluate(KalturaEvent kalturaEvent, object eventObject)
         {
             return true;
