@@ -17864,13 +17864,13 @@ namespace ConditionalAccess
                 if (cleanupScheduledTask != null && cleanupScheduledTask.Status.Code == (int)eResponseStatus.OK && cleanupScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     recordingCleanupIntervalSec = cleanupScheduledTask.NextRunIntervalInSeconds;
-                    if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
+                    if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec) > DateTime.UtcNow)
                     {
-                        shouldInsertToQueue = true;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        shouldInsertToQueue = true;
                     }
                 }
                 else
@@ -17995,13 +17995,13 @@ namespace ConditionalAccess
                 if (recordingsLifetimeScheduledTask != null && recordingsLifetimeScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsLifetimeScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingsLifetimeScheduledTask.NextRunIntervalInSeconds;
-                    if (recordingsLifetimeScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingsLifetimeScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) > DateTime.UtcNow)
                     {
-                        shouldInsertToQueue = true;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        shouldInsertToQueue = true;
                     }
                 }
                 else
@@ -18223,13 +18223,13 @@ namespace ConditionalAccess
                 if (recordingsScheduledTask != null && recordingsScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingsScheduledTask.NextRunIntervalInSeconds;
-                    if (recordingsScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingsScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) > DateTime.UtcNow)
                     {
-                        shouldInsertToQueue = true;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        shouldInsertToQueue = true;
                     }
                 }
                 else
