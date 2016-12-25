@@ -307,6 +307,14 @@ namespace TVPApiModule.Manager
                 return null;
             }
 
+            // if the provided udid does not match the udid in the token and session revocation and the token is not old (and missing udid) is enabled return 403
+            if (groupConfig.SessionRevocationEnabled && !string.IsNullOrEmpty(refreshTokenDoc.UDID) && refreshTokenDoc.UDID != udid)
+            {
+                logger.ErrorFormat("RefreshAccessToken: provided udid does not match the udid in the token and session revocation enabled. siteGuid = {0}, supplied udid = {1}", refreshTokenDoc.SiteGuid, udid);
+                returnError(403);
+                return null;
+            }
+
             if (groupConfig.ValidateUserDevice && (udid != refreshTokenDoc.UDID || userId != refreshTokenDoc.SiteGuid))
             {
                 logger.ErrorFormat("RefreshAccessToken: siteGuid or UDID of the token do not match the initObj.");
