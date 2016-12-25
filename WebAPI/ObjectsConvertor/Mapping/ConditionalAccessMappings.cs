@@ -78,10 +78,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.purchaseID, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.paymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
               .ForMember(dest => dest.paymentMethodId, opt => opt.MapFrom(src => src.PaymentMethodId))
+              .ForMember(dest => dest.type, opt => opt.MapFrom(src=> eTransactionType.Subscription))
               ;
 
-            Mapper.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);
-            //Mapper.CreateMap<KalturaEntitlement, Entitlement>().ConstructUsing(ConvertToEntitlement);
+            Mapper.CreateMap<Entitlement, KalturaEntitlement>().ConstructUsing(ConvertToKalturaEntitlement);          
 
             #endregion
 
