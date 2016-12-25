@@ -2656,13 +2656,22 @@ namespace DAL
         {            
             try
             {
-                return ODBCWrapper.Utils.GetTableSingleRowByValue("subscriptions_purchases", "ID", purchaseID, true, "CA_CONNECTION_STRING");
+                StoredProcedure sp = new StoredProcedure("Get_SubscriptionsByPurchaseID");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@ID", purchaseID);
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    return dt.Rows[0];
+                }
+               // return ODBCWrapper.Utils.GetTableSingleRowByValue("subscriptions_purchases", "ID", purchaseID, true, "CA_CONNECTION_STRING");
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("fail in GetPurchaseByID (DAL) purchaseID={0} , ex={1}", purchaseID, ex.Message);
                 return null;
             }
+            return null;
         }
     }
 }

@@ -21,6 +21,11 @@ namespace ConditionalAccess.Response
             this.status = status;
             this.entitelments = entitelments;
         }
+        public Entitlements(ApiObjects.Response.Status status)
+        {
+            this.status = status;
+            this.entitelments = new List<Entitlement>();
+        }
     }
 
     public class Entitlement

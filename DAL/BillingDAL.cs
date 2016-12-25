@@ -2500,10 +2500,10 @@ namespace DAL
             return dt;
         }
 
-        public static int SetPaymentDetailsTransaction(int groupID, string billingGuid, int newPaymentGatewayId, int newPaymentMethodId)
+        public static int SetTransactionPaymentDetails(int groupID, string billingGuid, int newPaymentGatewayId, int newPaymentMethodId)
         {
             int result;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_PaymentDetailsTransaction");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_TransactionPaymentDetails");
             sp.SetConnectionKey("BILLING_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupID);
             sp.AddParameter("@BillingGuid", billingGuid);
