@@ -907,17 +907,47 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
             <summary>
+            Indicates whether the user is currently in his grace period entitlement (only for subscription)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaFileId">
+             <summary>
+            Media file identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaId">
+             <summary>
+            Media identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.NextRenewalDate">
+             <summary>
+            The date of the next renewal (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsRenewableForPurchase">
+             <summary>
+            Indicates whether the subscription is renewable in this purchase (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsRenewable">
+             <summary>
+            Indicates whether a subscription is renewable (only for subscription)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.IsInGracePeriod">
+            <summary>
             Indicates whether the user is currently in his grace period entitlement
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentGatewayId">
              <summary>
-            Payment Gateway identifier (only for Subscription)
+            Payment Gateway identifier
              </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.PaymentMethodId">
              <summary>
-            Payment Method identifier (only for Subscription)
+            Payment Method identifier
              </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Id">

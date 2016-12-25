@@ -169,6 +169,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("nextRenewalDate")]
         [XmlElement(ElementName = "nextRenewalDate")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public long? NextRenewalDate { get; set; }
 
         /// <summary>
@@ -178,6 +179,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewableForPurchase")]
         [XmlElement(ElementName = "isRenewableForPurchase")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public bool? IsRenewableForPurchase { get; set; }
 
         /// <summary>
@@ -187,6 +189,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
@@ -196,6 +199,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaFileId")]
         [XmlElement(ElementName = "mediaFileId")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public int? MediaFileId { get; set; }
 
         /// <summary>
@@ -205,15 +209,17 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaId")]
         [XmlElement(ElementName = "mediaId")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public int? MediaId { get; set; }
 
         /// <summary>
-        /// Indicates whether the user is currently in his grace period entitlement
+        /// Indicates whether the user is currently in his grace period entitlement (only for subscription)
         /// </summary>
         [DataMember(Name = "isInGracePeriod")]
         [JsonProperty("isInGracePeriod")]
         [XmlElement(ElementName = "isInGracePeriod")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public bool? IsInGracePeriod { get; set; }
 
     }
