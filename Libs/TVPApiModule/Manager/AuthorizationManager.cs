@@ -428,13 +428,6 @@ namespace TVPApiModule.Manager
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(apiToken.UDID) && apiToken.UDID != udid)
-            {
-                logger.ErrorFormat("ValidateAccessToken: access token UDID does not match initObj.UDID.");
-                returnError(401);
-                return false;
-            }
-
             siteGuid = apiToken.SiteGuid;
             isAdmin = apiToken.IsAdmin;
 
