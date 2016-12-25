@@ -71,6 +71,8 @@ namespace WebAPI.Controllers
                 ks = KS.GetFromRequest();
             }
 
+            var payload = KSUtils.ExtractKSPayload(ks);
+
             return new KalturaSession()
             {
                 ks = ks.ToString(),
@@ -79,7 +81,8 @@ namespace WebAPI.Controllers
                 privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty,
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
-                udid = KSUtils.ExtractKSPayload(ks).UDID
+                udid = payload.UDID,
+                createDate = payload.CreateDate,
             };
         }
 
@@ -154,7 +157,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
 
             Group group = GroupsManager.GetGroup(groupId);
             if (!group.IsSwitchingUsersAllowed)
@@ -174,7 +178,25 @@ namespace WebAPI.Controllers
 
             string udid = KSUtils.ExtractKSPayload().UDID;
 
+            AuthorizationManager.LogOut(ks);
             return AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
         }
+
+        /// <summary>
+        /// Revokes all the sessions (KS) of a given user 
+        /// </summary>
+        /// <param name="userId">The identifier of the user to change</param>
+        [Route("revoke"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool Revoke()
+        {
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            string userId = ks.UserId;
+
+            return AuthorizationManager.RevokeSessions(groupId, userId);
+        }
+
     }
 }

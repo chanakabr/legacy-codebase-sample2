@@ -155,6 +155,7 @@
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Service References\Notifications\NotificationService2.disco" />
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
@@ -445,14 +446,7 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Service References\Notifications\NotificationService.wsdl" />
-    <None Include="Service References\Notifications\NotificationService.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService1.wsdl" />
-    <None Include="Service References\Notifications\NotificationService1.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Service References\Notifications\NotificationService10.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -484,28 +478,35 @@
     <None Include="Service References\Notifications\NotificationService19.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService2.xsd">
-      <SubType>Designer</SubType>
-    </None>
+    <Content Include="Service References\Notifications\NotificationService2.wsdl" />
     <None Include="Service References\Notifications\NotificationService20.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService3.xsd">
+    <None Include="Service References\Notifications\NotificationService21.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService4.xsd">
+    <None Include="Service References\Notifications\NotificationService22.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService5.xsd">
+    <None Include="Service References\Notifications\NotificationService23.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService6.xsd">
+    <None Include="Service References\Notifications\NotificationService24.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService7.xsd">
+    <None Include="Service References\Notifications\NotificationService25.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\Notifications\NotificationService8.xsd">
+    <None Include="Service References\Notifications\NotificationService26.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService27.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService28.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\Notifications\NotificationService29.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\Notifications\NotificationService9.xsd">
@@ -544,7 +545,6 @@
     </None>
     <None Include="Service References\Notifications\NotificationService1.disco" />
     <None Include="Service References\Notifications\NotificationService12.disco" />
-    <None Include="Service References\Notifications\NotificationService.disco" />
     <Content Include="Swagger.ashx" />
     <Content Include="Service References\Notifications\WebAPI.Notifications.AddMessageAnnouncementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -614,6 +614,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
     <Compile Include="Controllers\SocialFriendActivityController.cs" />
@@ -624,6 +625,7 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Managers\Models\UserSessions.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
@@ -933,6 +935,10 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
+    <Compile Include="Models\Notification\KalturaAssetReminder.cs" />
+    <Compile Include="Models\Notification\KalturaReminderFilter.cs" />
+    <Compile Include="Models\Notification\KalturaReminderListResponse.cs" />
+    <Compile Include="Models\Notification\KalturaReminder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageTypeHolder.cs" />
     <Compile Include="Models\Notification\KalturaInboxMessageResponse.cs" />
     <Compile Include="Models\Notification\KalturaAnnouncement.cs" />
@@ -1169,6 +1175,9 @@
     </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Service References\Notifications\WebAPI.Notifications.RemindersResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>

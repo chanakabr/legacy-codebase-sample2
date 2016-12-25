@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="eAnnouncementRecipientsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="All" />
+      <xs:enumeration value="LoggedIn" />
+      <xs:enumeration value="Guests" />
+      <xs:enumeration value="Other" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eAnnouncementRecipientsType" nillable="true" type="tns:eAnnouncementRecipientsType" />
+  <xs:simpleType name="eAnnouncementStatus">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NotSent" />
+      <xs:enumeration value="Sending" />
+      <xs:enumeration value="Sent" />
+      <xs:enumeration value="Aborted" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eAnnouncementStatus" nillable="true" type="tns:eAnnouncementStatus" />
+  <xs:simpleType name="eUserMessageAction">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Login" />
+      <xs:enumeration value="Logout" />
+      <xs:enumeration value="AnonymousPushRegistration" />
+      <xs:enumeration value="IdentifyPushRegistration" />
+      <xs:enumeration value="DeleteUser" />
+      <xs:enumeration value="ChangeUsers" />
+      <xs:enumeration value="EnableUserNotifications" />
+      <xs:enumeration value="DisableUserNotifications" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eUserMessageAction" nillable="true" type="tns:eUserMessageAction" />
+  <xs:simpleType name="eOTTAssetTypes">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Series" />
+      <xs:enumeration value="Reminder" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eOTTAssetTypes" nillable="true" type="tns:eOTTAssetTypes" />
+  <xs:simpleType name="eMessageState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Unread" />
+      <xs:enumeration value="Read" />
+      <xs:enumeration value="Trashed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eMessageState" nillable="true" type="tns:eMessageState" />
+  <xs:simpleType name="eMessageCategory">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SystemAnnouncement" />
+      <xs:enumeration value="Followed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eMessageCategory" nillable="true" type="tns:eMessageCategory" />
+  <xs:complexType name="ArrayOfeMessageCategory">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="eMessageCategory" type="tns:eMessageCategory" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfeMessageCategory" nillable="true" type="tns:ArrayOfeMessageCategory" />
+  <xs:simpleType name="eTopicAutomaticIssueNotification">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default" />
+      <xs:enumeration value="Yes" />
+      <xs:enumeration value="No" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eTopicAutomaticIssueNotification" nillable="true" type="tns:eTopicAutomaticIssueNotification" />
+</xs:schema>

@@ -105,6 +105,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Get the URL for playing an asset - program, media or recording
         /// </summary>
+        /// <param name="request">Licensed URL request parameters</param>
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]

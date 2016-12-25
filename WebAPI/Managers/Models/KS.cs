@@ -38,14 +38,14 @@ namespace WebAPI.Managers.Models
         public class KSData
         {
             public string UDID { get; set; }
-            public DateTime CreateDate { get; set; }
+            public int CreateDate { get; set; }
         }
 
         public KSVersion ksVersion { get; private set; }
 
         public bool IsValid
         {
-            get { return expiration > DateTime.UtcNow; }
+            get { return AuthorizationManager.IsKsValid(this); }
         }
 
         public int GroupId

@@ -20,6 +20,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Holder object for Catalog With enum
     /// </summary>    
+    [Obsolete]
     public class KalturaCatalogWithHolder : KalturaOTTObject
     {
         [DataMember(Name="type")]

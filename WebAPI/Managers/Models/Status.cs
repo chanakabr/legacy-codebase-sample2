@@ -98,7 +98,7 @@ namespace WebAPI.Managers.Models
         ListTypeCannotBeEmptyOrAll = 500032,
         ActionNotSpecified = 500033,
         RefreshTokenFailed = 500034,
-        InvalidUser = 500035,
+        UnauthorizedUser = 500035,
         ArgumentReadonly = 500036,
         ArgumentInsertonly = 500037,
         ArgumentsConflictsEachOther = 500038,
@@ -121,6 +121,7 @@ namespace WebAPI.Managers.Models
         ArgumentsCannotBeEmpty = 500056,
         InvalidVersion = 500057,
         ArgumentShouldContainMinValueCrossed = 500058,
-        ArgumentShouldContainMaxValueCrossed = 500059
+        ArgumentShouldContainMaxValueCrossed = 500059,
+        InvalidUdid = 500060,
     }
 }

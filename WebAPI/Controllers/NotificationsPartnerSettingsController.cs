@@ -52,8 +52,7 @@ namespace WebAPI.Controllers
         /// 
         /// <remarks>        
         /// </remarks>
-        /// <returns>The notification settings that apply for the partner</returns>
-        /// 
+        /// <returns>The notification settings that apply for the partner</returns>        
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]

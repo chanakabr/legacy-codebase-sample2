@@ -54,7 +54,7 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "viewableUntilDate")]
         [JsonProperty("viewableUntilDate")]
-        [XmlElement(ElementName = "viewableUntilDate")]
+        [XmlElement(ElementName = "viewableUntilDate", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? ViewableUntilDate { get; set; }
 

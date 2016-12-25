@@ -12,6 +12,9 @@ namespace WebAPI.Models.Catalog
     {
         MEDIA = 0,
         EPG_INTERNAL = 2,
-        EPG_EXTERNAL = 3
+        EPG_EXTERNAL = 3,
+
+        [Obsolete]
+        channel = 1
     }
 }

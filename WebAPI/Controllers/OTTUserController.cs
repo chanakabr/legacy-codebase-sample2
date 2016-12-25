@@ -324,6 +324,7 @@ namespace WebAPI.Controllers
                 // call client
                 response = ClientsManager.UsersClient().CheckPasswordToken(partnerId, token);
                 ClientsManager.UsersClient().RenewPassword(partnerId, response.Username, password);
+                AuthorizationManager.RevokeSessions(partnerId, response.Id);
             }
             catch (ClientException ex)
             {
@@ -360,6 +361,12 @@ namespace WebAPI.Controllers
             {
                 // call client
                 response = ClientsManager.UsersClient().RenewPassword(partnerId, username, password);
+                var usersList = ClientsManager.UsersClient().GetUserByName(partnerId, username);
+                if (usersList != null && usersList.Users != null && usersList.Users.Count > 0)
+                    AuthorizationManager.RevokeSessions(partnerId, usersList.Users[0].Id);
+                else
+                    throw new InternalServerErrorException();
+                
             }
             catch (ClientException ex)
             {
@@ -394,6 +401,7 @@ namespace WebAPI.Controllers
             {
                 // call client
                 ClientsManager.UsersClient().UpdateUserPassword(groupId, userId, password);
+                AuthorizationManager.RevokeSessions(groupId, userId.ToString());
             }
             catch (ClientException ex)
             {
@@ -475,6 +483,11 @@ namespace WebAPI.Controllers
                 //TODO: get username by user id
                 // call client
                 response = ClientsManager.UsersClient().ChangeUserPassword(groupId, username, oldPassword, newPassword);
+                var usersList = ClientsManager.UsersClient().GetUserByName(groupId, username);
+                if (usersList != null && usersList.Users != null && usersList.Users.Count > 0)
+                    AuthorizationManager.RevokeSessions(groupId, usersList.Users[0].Id);
+                else
+                    throw new InternalServerErrorException();
             }
             catch (ClientException ex)
             {
@@ -674,6 +687,10 @@ namespace WebAPI.Controllers
             try
             {
                 response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid);
+                if (response)
+                {
+                    response = AuthorizationManager.LogOut(ks);
+                }
 
             }
             catch (ClientException ex)

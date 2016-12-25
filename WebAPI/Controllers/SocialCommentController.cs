@@ -26,6 +26,7 @@ namespace WebAPI.Controllers
         /// Get a list of all social comments filtered by asset ID and social platform
         /// </summary>
         /// <param name="filter">Country filter</param>
+        /// <param name="pager">Pager</param>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]

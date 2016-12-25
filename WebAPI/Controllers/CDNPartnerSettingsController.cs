@@ -46,6 +46,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Configure the partner’s CDN settings (default adapters)
         /// </summary>
+        /// <param name="settings">CDN partner settings</param>
         /// <returns></returns>
         /// <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         [Route("update"), HttpPost]
