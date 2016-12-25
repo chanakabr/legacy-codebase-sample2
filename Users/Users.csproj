@@ -238,6 +238,10 @@
       <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
       <Name>ElasticSearch</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Mailer\Mailer.csproj">
       <Project>{8c082dfd-81ee-4623-8be9-32d34ded6407}</Project>
       <Name>Mailer</Name>

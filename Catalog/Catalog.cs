@@ -5976,6 +5976,27 @@ namespace Catalog
 
             #endregion
 
+            #region Order
+
+            OrderObj order = new OrderObj();
+            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
+            order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+
+            Catalog.GetOrderValues(ref order, request.OrderObj);
+
+            if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+            {
+                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+            }
+
+            definitions.order = new OrderObj();
+            definitions.order.m_eOrderDir = order.m_eOrderDir;
+            definitions.order.m_eOrderBy = order.m_eOrderBy;
+            definitions.order.m_sOrderValue = order.m_sOrderValue;
+
+            #endregion
+
             #region Excluded Media
 
             // Exclude the original media from the search

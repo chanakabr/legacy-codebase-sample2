@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ApiObjects.Billing
 {
-    public class TransactionResponse
+    public class TransactionResponse : CoreObject
     {
         //Kaltura purchase response status
         public ApiObjects.Response.Status Status { get; set; }

@@ -16,7 +16,7 @@ namespace Users
     /// </summary>
     [Serializable]
     [JsonObject(Id = "User")]
-    public class User
+    public class User : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -626,9 +626,15 @@ namespace Users
                         return (-1);
                     }
 
-                    return userID;
+                    if (userID > 0)
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+                            nGroupID,
+                            this,
+                            EventManager.Events.eKalturaEventActions.Created));
+                    }
                 }
-
+                else
                 // Existing user - Remove & Update from cache
                 if (int.TryParse(m_sSiteGUID, out userID))
                 {
@@ -663,18 +669,23 @@ namespace Users
                     catch (Exception ex)
                     {
                         log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
+                    }
 
+                    if (userID > 0)
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+                            nGroupID,
+                            this,
+                            EventManager.Events.eKalturaEventActions.Changed));
                     }
                 }
-
-                return userID;
-
             }
             catch
             {
-                return (-1);
+                userID = -1;
             }
-            
+
+            return userID;            
         }
 
         public bool SaveDynamicData(int nGroupID)

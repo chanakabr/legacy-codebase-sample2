@@ -80,9 +80,7 @@ namespace CouchbaseManager
 
         static CouchbaseManager()
         {
-            //binder = new TypeNameSerializationBinder("ApiObjects.SearchObjects.{0}, ApiObjects");
-
-            serializer = serializer = new DefaultSerializer();
+            serializer = new DefaultSerializer();
 
             // DeserializationSettings
             serializer.DeserializationSettings.TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Auto;
@@ -351,9 +349,20 @@ namespace CouchbaseManager
         private static T JsonToObject<T>(string json)
         {
             if (!string.IsNullOrEmpty(json))
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            {
+                if (serializer != null && serializer.DeserializationSettings != null)
+                {
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json, serializer.DeserializationSettings);
+                }
+                else
+                {
+                    return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+                }
+            }
             else
+            {
                 return default(T);
+            }
         }
 
         /// <summary>

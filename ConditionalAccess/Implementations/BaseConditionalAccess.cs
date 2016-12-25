@@ -34,12 +34,14 @@ using WS_API;
 using WS_Billing;
 using WS_Pricing;
 using WS_Users;
+using EventManager;
 
 namespace ConditionalAccess
 {
     public abstract class BaseConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger casLog = new KLogger("casLogAppender", true);
 
         protected string m_sPurchaseMailTemplate;
         protected string m_sMailFromName;
@@ -10060,7 +10062,7 @@ namespace ConditionalAccess
                     {
                         List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(p_sSiteGUID, m_nGroupID, ref domainId);
 
-                        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
+                        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && !isRecording)
                         {
                             CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, nMediaFileID);
                             if (cachedEntitlementResults != null)
@@ -12683,6 +12685,39 @@ namespace ConditionalAccess
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product ID");
                         log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                         break;
+                }
+
+                if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
+                {
+                    string type = string.Empty;
+
+                    switch (transactionType)
+                    {
+                        case eTransactionType.PPV:
+                        {
+                            type = "ppv_purchase";
+                            break;
+                        }
+                        case eTransactionType.Subscription:
+                        {
+                            type = "subscription_purchase";
+                            break;
+                        }
+                        case eTransactionType.Collection:
+                        {
+                            type = "collection_purchase";
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+
+                    if (!string.IsNullOrEmpty(type))
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(m_nGroupID,
+                            response,
+                            EventManager.Events.eKalturaEventActions.Created, type));
+                    }
                 }
             }
             catch (Exception ex)
@@ -17868,13 +17903,13 @@ namespace ConditionalAccess
                 if (cleanupScheduledTask != null && cleanupScheduledTask.Status.Code == (int)eResponseStatus.OK && cleanupScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     recordingCleanupIntervalSec = cleanupScheduledTask.NextRunIntervalInSeconds;
-                    if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec) < DateTime.UtcNow)
+                    if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec) > DateTime.UtcNow)
                     {
-                        shouldInsertToQueue = true;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        shouldInsertToQueue = true;
                     }
                 }
                 else
@@ -17999,13 +18034,13 @@ namespace ConditionalAccess
                 if (recordingsLifetimeScheduledTask != null && recordingsLifetimeScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsLifetimeScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingsLifetimeScheduledTask.NextRunIntervalInSeconds;
-                    if (recordingsLifetimeScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingsLifetimeScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) > DateTime.UtcNow)
                     {
-                        shouldInsertToQueue = true;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        shouldInsertToQueue = true;
                     }
                 }
                 else
@@ -18227,13 +18262,13 @@ namespace ConditionalAccess
                 if (recordingsScheduledTask != null && recordingsScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingsScheduledTask.NextRunIntervalInSeconds;
-                    if (recordingsScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) < DateTime.UtcNow)
+                    if (recordingsScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) > DateTime.UtcNow)
                     {
-                        shouldInsertToQueue = true;
+                        return true;
                     }
                     else
                     {
-                        return true;
+                        shouldInsertToQueue = true;
                     }
                 }
                 else

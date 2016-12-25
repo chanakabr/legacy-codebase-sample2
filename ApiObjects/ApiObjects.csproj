@@ -116,6 +116,7 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponse.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
+    <Compile Include="CoreObject.cs" />
     <Compile Include="MetaResponse.cs" />
     <Compile Include="DeviceBrand.cs" />
     <Compile Include="DeviceBrandResponse.cs" />
@@ -135,9 +136,10 @@
     <Compile Include="IngestBusinessModules\IngestPriceCode.cs" />
     <Compile Include="IngestResponse.cs" />
     <Compile Include="Notification\Announcement.cs" />
-    <Compile Include="Notification\AnnouncementSubscription.cs" />
+    <Compile Include="Notification\NotificationSubscription.cs" />
     <Compile Include="Notification\AnnouncementsResponse.cs" />
-    <Compile Include="Notification\DbReminders.cs" />
+    <Compile Include="Notification\RemindersResponse.cs" />
+    <Compile Include="Notification\DbReminder.cs" />
     <Compile Include="Notification\InboxMessageResponse.cs" />
     <Compile Include="Notification\DbAnnouncement.cs" />
     <Compile Include="Notification\DeviceNotificationData.cs" />
@@ -188,6 +190,7 @@
     <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
     <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestPricePlan.cs" />
+    <Compile Include="QueueObjects\MessageReminderData.cs" />
     <Compile Include="QueueObjects\RecordingModificationData.cs" />
     <Compile Include="QueueObjects\SeriesRecordingTaskData.cs" />
     <Compile Include="QueueObjects\FreeItemUpdateData.cs" />

@@ -705,26 +705,26 @@ namespace DAL
             DataTable dt = sp.Execute();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                foreach (var row in dt.Rows)
+                foreach (DataRow row in dt.Rows)
                 {
-                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "automatic_sending");
+                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(row, "automatic_sending");
 
                     if (!string.IsNullOrEmpty(automaticSending))
                         automaticIssueFollowNotification = automaticSending.Equals("1");
 
                     settings.Add(new NotificationPartnerSettings()
                     {
-                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_notification_enabled") == 1 ? true : false,
-                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_system_announcements_enabled") == 1 ? true : false,
-                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_start_hour"),
-                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "push_end_hour"),
-                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_inbox_enable") == 1 ? true : false,
-                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
+                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_notification_enabled") == 1 ? true : false,
+                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_system_announcements_enabled") == 1 ? true : false,
+                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_start_hour"),
+                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_end_hour"),
+                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_inbox_enable") == 1 ? true : false,
+                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(row, "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
-                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id"),
-                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days"),
-                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_reminder_enabled") == 1 ? true : false,
-                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "reminder_offset_sec")
+                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_cleanup_expiration_days"),
+                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
+                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec")
                     });
                 }
             }
@@ -1219,9 +1219,9 @@ namespace DAL
 
         }
 
-        public static MessageTemplate GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
+        public static List<MessageTemplate> GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
         {
-            MessageTemplate result = null;
+            List<MessageTemplate> result = new List<MessageTemplate>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
@@ -1233,7 +1233,10 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 0)
-                        result = CreateMessageTemplate(ds.Tables[0].Rows[0]);
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                            result.Add(CreateMessageTemplate(row));
+                    }
                 }
             }
             catch (Exception ex)
@@ -2055,22 +2058,191 @@ namespace DAL
             }
         }
 
-        //public static bool test(string key, string data, out ulong  outCas,ulong cas = 0)
-        //{
-        //    bool result = false;
-        //    try
-        //    {
-        //        result = cbManager.e(GetUserNotificationKey(groupId, userId), cas);
-        //        if (!result)
-        //            log.ErrorFormat("Error while removing user notification data. GID: {0}, user ID: {1}.", groupId, userId);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while set user notification data. gid: {0}, user ID: {1}, ex: {2}", groupId, userId, ex);
-        //    }
-        //    return result;
-        //}
+        public static List<DbReminder> GetReminders(int groupId, long reminderId = 0)
+        {
+            List<DbReminder> result = null;
 
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRemindersByGroupId");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@reminderId", reminderId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbReminder>();
+                    DbReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        dbReminder = CreateDbReminder(row);
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetRemindersByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        public static DbReminder GetReminderByReferenceId(int groupId, long referenceId)
+        {
+            DbReminder result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetReminderByReferenceId");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@referenceId", referenceId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    result = CreateDbReminder(ds.Tables[0].Rows[0]);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetRemindersByGroupId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        public static List<DbReminder> GetReminderByReferenceId(int groupId, List<long> referenceIds)
+        {
+            List<DbReminder> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetReminderByReferenceIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@referenceIds", referenceIds, "id");
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbReminder>();
+                    DbReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        dbReminder = CreateDbReminder(row);
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetReminderByReferenceId. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        public static int SetReminder(DbReminder dbReminder)
+        {
+            int reminderId = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetReminder");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", dbReminder.GroupId);
+                sp.AddParameter("@id", dbReminder.ID);
+                sp.AddParameter("@isSent", dbReminder.IsSent);
+                sp.AddParameter("@name", dbReminder.Name);
+                sp.AddParameter("@phrase", dbReminder.Phrase);
+                sp.AddParameter("@queueId", dbReminder.QueueId);
+                sp.AddParameter("@routeName", dbReminder.RouteName);
+                sp.AddParameter("@reference", dbReminder.Reference);
+                sp.AddParameter("@sendTime", ODBCWrapper.Utils.UnixTimestampToDateTime(dbReminder.SendTime));
+                sp.AddParameter("@externalId", dbReminder.ExternalPushId);
+                sp.AddParameter("@externalResult", dbReminder.ExternalResult);
+                sp.AddParameter("@message", dbReminder.Message);
+
+                reminderId = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetReminder. groupId: {0}, Reminder: {1} . Error {2}", dbReminder.GroupId, JsonConvert.SerializeObject(dbReminder), ex);
+            }
+
+            return reminderId;
+        }
+
+        public static bool DeleteReminder(int groupId, long reminderId)
+        {
+            int affectedRows = 0;
+
+            ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("DeleteReminder");
+            spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            spInsertUserNotification.AddParameter("@reminderId", reminderId);
+            spInsertUserNotification.AddParameter("@groupId", groupId);
+            affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
+
+            return affectedRows > 0;
+        }
+
+        public static List<DbReminder> GetReminders(int groupId, List<long> remindersIds)
+        {
+            List<DbReminder> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetRemindersByIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@remindersIds", remindersIds, "id");
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbReminder>();
+                    DbReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        dbReminder = CreateDbReminder(row);
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetRemindersByIds. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        private static DbReminder CreateDbReminder(DataRow row)
+        {
+            DateTime? sentDate = ODBCWrapper.Utils.GetNullableDateSafeVal(row, "send_time");
+            long sentDateSec = 0;
+            if (sentDate != null)
+                sentDateSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp((DateTime)sentDate);
+
+            DbReminder result = new DbReminder()
+            {
+                GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                IsSent = ODBCWrapper.Utils.GetIntSafeVal(row, "is_sent") == 1 ? true : false,
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
+                QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
+                RouteName = ODBCWrapper.Utils.GetSafeStr(row, "route_name"),
+                Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
+                ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                Message = ODBCWrapper.Utils.GetSafeStr(row, "message"),
+
+                SendTime = sentDateSec
+            };
+
+            return result;
+        }
     }
 }
 
