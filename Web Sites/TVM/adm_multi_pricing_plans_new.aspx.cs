@@ -1134,10 +1134,10 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select gdlm.NAME from groups_device_limitation_modules gdlm inner join Pricing..subscriptions s on gdlm.id = s.device_limit_id where gdlm.status = 1 and";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("s.id", "=", subID);
-            if (selectQuery.Execute("query", true) != null)
+            DataTable dt = selectQuery.Execute("query", true);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                dlm = selectQuery.Table("query").Rows[0][0].ToString();
+                dlm = dt.Rows[0][0].ToString();
             }
             selectQuery.Finish();
             selectQuery = null;
