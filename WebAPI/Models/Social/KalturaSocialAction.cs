@@ -36,7 +36,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "time")]
         [JsonProperty("time")]
-        [XmlElement(ElementName = "time")]
+        [XmlElement(ElementName = "time", IsNullable = true)]
         public long? Time { get; set; }
 
         /// <summary>
