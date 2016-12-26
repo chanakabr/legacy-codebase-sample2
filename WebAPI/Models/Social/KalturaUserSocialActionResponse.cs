@@ -17,7 +17,7 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "socialAction")]
         [JsonProperty("socialAction")]
-        [XmlArray(ElementName = "socialAction", IsNullable = true)]        
+        [XmlElement(ElementName = "socialAction", IsNullable = true)]        
         public KalturaSocialAction SocialAction { get; set; }
         
         /// <summary>
@@ -37,7 +37,7 @@ namespace WebAPI.Models.Social
         /// </summary
         [DataMember(Name = "status")]
         [JsonProperty("status")]
-        [XmlElement(ElementName = "status", IsNullable = true)]
+        [XmlElement(ElementName = "status")]
         public KalturaSocialStatus Status { get; set; }
 
         /// <summary>
