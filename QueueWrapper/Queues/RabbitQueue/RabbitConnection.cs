@@ -249,6 +249,44 @@ namespace QueueWrapper
             return isPublishSucceeded;
         }
 
+        public void ResetFailCounter()
+        {
+            if (m_FailCounter > 0)
+            {
+                m_lock.EnterWriteLock();
+                try
+                {
+                    if (m_FailCounter > 0)
+                    {
+                        this.m_FailCounter = 0;
+                    }
+                }
+                finally
+                {
+                    m_lock.ExitWriteLock();
+                }
+            }
+        }
+
+        private void IncreaseFailCounter()
+        {
+            if (m_FailCounter < m_FailCounterLimit)
+            {
+                m_lock.EnterWriteLock();
+                try
+                {
+                    if (m_FailCounter < m_FailCounterLimit)
+                    {
+                        this.m_FailCounter++;
+                    }
+                }
+                finally
+                {
+                    m_lock.ExitWriteLock();
+                }
+            }
+        }
+
         private void ClearConnection()
         {
             if (this.m_Connection != null)
@@ -431,45 +469,6 @@ namespace QueueWrapper
         #endregion
 
         #region Private Methods
-
-        public void ResetFailCounter()
-        {
-            if (m_FailCounter > 0)
-            {
-                m_lock.EnterWriteLock();
-                try
-                {
-                    if (m_FailCounter > 0)
-                    {
-                        this.m_FailCounter = 0;
-                    }
-                }
-                finally
-                {
-                    m_lock.ExitWriteLock();
-                }
-            }
-        }
-
-        private void IncreaseFailCounter()
-        {
-            if (m_FailCounter < m_FailCounterLimit)
-            {
-                m_lock.EnterWriteLock();
-                try
-                {
-                    if (m_FailCounter < m_FailCounterLimit)
-                    {
-                        this.m_FailCounter++;
-                    }
-                }
-                finally
-                {
-                    m_lock.ExitWriteLock();
-                }
-            }
-        }
-
 
         private bool GetInstance(RabbitConfigurationData configuration, QueueAction action)
         {
