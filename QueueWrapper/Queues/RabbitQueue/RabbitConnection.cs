@@ -143,6 +143,12 @@ namespace QueueWrapper
                     {
                         try
                         {
+                            if (this.m_Model != null)
+                            {
+                                this.m_Model.Dispose();
+                                this.m_Model = null;
+                            }
+
                             this.m_Model = m_Connection.CreateModel();
                         }
                         // If failed, retry until we reach limit - with a new connection
@@ -171,6 +177,9 @@ namespace QueueWrapper
 
                             isPublishSucceeded = true;
                             ResetFailCounter();
+
+                            m_Model.Dispose();
+                            m_Model = null;
                         }
                     }
                     catch (OperationInterruptedException ex)
@@ -203,7 +212,7 @@ namespace QueueWrapper
             return isPublishSucceeded;
         }
 
-        private void ResetFailCounter()
+        public void ResetFailCounter()
         {
             if (m_FailCounter > 0)
             {
@@ -256,22 +265,36 @@ namespace QueueWrapper
 
                         if (this.m_Connection != null)
                         {
-                            this.m_Connection = null;
-                            this.m_Model = null;
+                            this.m_Connection.Dispose();
                         }
                     }
                     catch (Exception ex)
                     {
                         log.Error("Failed closing instance of Rabbit Connection.", ex);
-                        m_Connection = null;
-                        m_Model = null;
                     }
                     finally
                     {
                         m_Connection = null;
                         m_Model = null;
-                        mutex.ReleaseMutex();
                     }
+
+                    try
+                    {
+                        if (this.m_Model != null)
+                        {
+                            this.m_Model.Dispose();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Failed closing instance of Rabbit Connection (model).", ex);
+                    }
+                    finally
+                    {
+                        m_Model = null;
+                    }
+
+                    mutex.ReleaseMutex();
                 }
             }
         }

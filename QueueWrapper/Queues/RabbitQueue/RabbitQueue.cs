@@ -50,6 +50,7 @@ namespace QueueWrapper
                     {
                         configData.RoutingKey = routingKey;
 
+                        RabbitConnection.Instance.ResetFailCounter();
                         bIsEnqueueSucceeded = RabbitConnection.Instance.Publish(configData, dataToIndex);
                     }
                 }
