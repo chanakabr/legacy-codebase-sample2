@@ -166,6 +166,12 @@ namespace QueueWrapper
                     {
                         try
                         {
+                            if (this.m_Model != null)
+                            {
+                                this.m_Model.Dispose();
+                                this.m_Model = null;
+                            }
+
                             this.m_Model = m_Connection.CreateModel();
                         }
                         // If failed, retry until we reach limit - with a new connection
@@ -198,6 +204,9 @@ namespace QueueWrapper
 
                             isPublishSucceeded = true;
                             ResetFailCounter();
+
+                            m_Model.Dispose();
+                            m_Model = null;
                         }
                     }
                     catch (OperationInterruptedException ex)
@@ -230,6 +239,44 @@ namespace QueueWrapper
             return isPublishSucceeded;
         }
 
+        public void ResetFailCounter()
+        {
+            if (m_FailCounter > 0)
+            {
+                m_lock.EnterWriteLock();
+                try
+                {
+                    if (m_FailCounter > 0)
+                    {
+                        this.m_FailCounter = 0;
+                    }
+                }
+                finally
+                {
+                    m_lock.ExitWriteLock();
+                }
+            }
+        }
+
+        private void IncreaseFailCounter()
+        {
+            if (m_FailCounter < m_FailCounterLimit)
+            {
+                m_lock.EnterWriteLock();
+                try
+                {
+                    if (m_FailCounter < m_FailCounterLimit)
+                    {
+                        this.m_FailCounter++;
+                    }
+                }
+                finally
+                {
+                    m_lock.ExitWriteLock();
+                }
+            }
+        }
+
         private void ClearConnection()
         {
             if (this.m_Connection != null)
@@ -245,22 +292,36 @@ namespace QueueWrapper
 
                         if (this.m_Connection != null)
                         {
-                            this.m_Connection = null;
-                            this.m_Model = null;
+                            this.m_Connection.Dispose();
                         }
                     }
                     catch (Exception ex)
                     {
                         log.Error("Failed closing instance of Rabbit Connection.", ex);
-                        m_Connection = null;
-                        m_Model = null;
                     }
                     finally
                     {
                         m_Connection = null;
                         m_Model = null;
-                        mutex.ReleaseMutex();
                     }
+
+                    try
+                    {
+                        if (this.m_Model != null)
+                        {
+                            this.m_Model.Dispose();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Failed closing instance of Rabbit Connection (model).", ex);
+                    }
+                    finally
+                    {
+                        m_Model = null;
+                    }
+
+                    mutex.ReleaseMutex();
                 }
             }
         }
@@ -311,46 +372,7 @@ namespace QueueWrapper
         #endregion
 
         #region Private Methods
-
-        private void ResetFailCounter()
-        {
-            if (m_FailCounter > 0)
-            {
-                m_lock.EnterWriteLock();
-                try
-                {
-                    if (m_FailCounter > 0)
-                    {
-                        this.m_FailCounter = 0;
-                    }
-                }
-                finally
-                {
-                    m_lock.ExitWriteLock();
-                }
-            }
-        }
-
-        private void IncreaseFailCounter()
-        {
-            if (m_FailCounter < m_FailCounterLimit)
-            {
-                m_lock.EnterWriteLock();
-                try
-                {
-                    if (m_FailCounter < m_FailCounterLimit)
-                    {
-                        this.m_FailCounter++;
-                    }
-                }
-                finally
-                {
-                    m_lock.ExitWriteLock();
-                }
-            }
-        }
-
-
+        
         private bool GetInstance(RabbitConfigurationData configuration, QueueAction action)
         {
             bool bIsGetInstanceSucceeded = false;
