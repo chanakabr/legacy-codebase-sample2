@@ -1582,7 +1582,7 @@ namespace ConditionalAccess
         internal static void GetApiAndPricingCredentials(int nGroupID, ref string sPricingUsername, ref string sPricingPassword,
             ref string sAPIUsername, ref string sAPIPassword)
         {
-            Dictionary<string, string[]> dict = ConditionalAccessDAL.Get_MultipleWSCredentials(nGroupID, new List<string>(2) { "api", "pricing" });
+            Dictionary<string, string[]> dict = Get_MultipleWSCredentials(nGroupID, new List<string>(2) { "api", "pricing" });
             string[] apiDetails = dict["api"];
             sAPIUsername = apiDetails[0];
             sAPIPassword = apiDetails[1];
@@ -2061,13 +2061,44 @@ namespace ConditionalAccess
         private static void GetUsersAndDomainsCredentials(int nGroupID, ref string sUsersUsername, ref string sUsersPassword,
             ref string sDomainsUsername, ref string sDomainsPassword)
         {
-            Dictionary<string, string[]> dict = ConditionalAccessDAL.Get_MultipleWSCredentials(nGroupID, new List<string>(2) { "users", "domains" });
+            Dictionary<string, string[]> dict = Utils.Get_MultipleWSCredentials(nGroupID, new List<string>(2) { "users", "domains" });
             string[] usersCreds = dict["users"];
             sUsersUsername = usersCreds[0];
             sUsersPassword = usersCreds[1];
             string[] domainsCreds = dict["domains"];
             sDomainsUsername = domainsCreds[0];
             sDomainsPassword = domainsCreds[1];
+        }
+
+        private static Dictionary<string, string[]> Get_MultipleWSCredentials(int groupId, List<string> serviceList)
+        {
+            Dictionary<string, string[]> result = new Dictionary<string, string[]>();
+            List<string> missingWsCredentials = new List<string>();
+            foreach (string serviceName in serviceList)
+            {
+                eWSModules wsModule;
+                if (Enum.TryParse(serviceName, true, out wsModule))
+                {
+                    string userName = string.Empty;
+                    string password = string.Empty;
+                    GetWSCredentials(groupId, wsModule, ref userName, ref password);
+                    if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
+                    {
+                        missingWsCredentials.Add(serviceName);
+                    }
+                    else
+                    {
+                        result.Add(serviceName, new string[2] { userName, password });
+                    }
+                }
+            }
+
+            if (missingWsCredentials != null && missingWsCredentials.Count > 0)
+            {
+                result.Union(ConditionalAccessDAL.Get_MultipleWSCredentials(groupId, missingWsCredentials));                
+            }
+
+            return result;
         }
 
         internal static List<int> GetAllUsersDomainBySiteGUID(string sSiteGUID, Int32 nGroupID, ref int domainID)
