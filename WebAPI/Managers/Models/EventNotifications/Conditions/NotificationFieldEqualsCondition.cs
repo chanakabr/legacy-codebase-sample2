@@ -1,5 +1,5 @@
-﻿using EventManager;
-using EventManager.Events;
+﻿using ApiObjects;
+using EventManager;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

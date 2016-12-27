@@ -1,5 +1,4 @@
 ﻿using EventManager;
-using EventManager.Events;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -10,6 +9,7 @@ using System.Collections.Concurrent;
 using Newtonsoft.Json.Linq;
 using WebAPI.EventNotifications;
 using System.Reflection;
+using ApiObjects;
 
 namespace WebAPI
 {
