@@ -46,17 +46,8 @@
     <Compile Include="BaseEventConsumer.cs" />
     <Compile Include="Consumers\NotificationEventConsumer.cs" />
     <Compile Include="EventManager.cs" />
-    <Compile Include="Events\KalturaObjectActionEvent.cs" />
-    <Compile Include="Events\KalturaObjectChangedEvent.cs" />
-    <Compile Include="Events\KalturaObjectEvent.cs" />
     <Compile Include="KalturaEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
-      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
-      <Name>ApiObjects</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

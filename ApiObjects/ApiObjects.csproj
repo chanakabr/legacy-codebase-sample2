@@ -117,6 +117,9 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
     <Compile Include="CoreObject.cs" />
+    <Compile Include="Events\KalturaObjectActionEvent.cs" />
+    <Compile Include="Events\KalturaObjectChangedEvent.cs" />
+    <Compile Include="Events\KalturaObjectEvent.cs" />
     <Compile Include="MetaResponse.cs" />
     <Compile Include="DeviceBrand.cs" />
     <Compile Include="DeviceBrandResponse.cs" />
@@ -437,6 +440,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MediaIndexingObjects\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

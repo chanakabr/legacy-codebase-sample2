@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventManager.Events
+namespace ApiObjects
 {
     public enum eKalturaEventActions
     {

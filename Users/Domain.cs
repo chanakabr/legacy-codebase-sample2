@@ -251,10 +251,10 @@ namespace Users
                 }
             }
 
-            EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+            EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
                 nGroupID,
                 this,
-                EventManager.Events.eKalturaEventActions.Created));
+                eKalturaEventActions.Created));
 
             return this;
         }
@@ -2757,6 +2757,27 @@ namespace Users
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return false;
             }
+        }
+
+        public override bool DoInsert()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool DoUpdate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool DoDelete()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public override CoreObject CoreClone()
+        {
+            throw new NotImplementedException();
         }
     }
 }

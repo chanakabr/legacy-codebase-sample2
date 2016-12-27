@@ -1,10 +1,11 @@
-﻿using System;
+﻿using EventManager;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventManager.Events
+namespace ApiObjects
 {
     public class KalturaObjectEvent : KalturaEvent
     {

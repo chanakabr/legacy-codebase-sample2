@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventManager.Events
+namespace ApiObjects
 {
     public class KalturaObjectChangedEvent : KalturaObjectActionEvent
     {
