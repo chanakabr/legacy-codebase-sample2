@@ -47,7 +47,7 @@ namespace CachingProvider
         {
             if (string.IsNullOrEmpty(sKey))
                 return false;
-            return cache.Add(sKey, oValue.result, DateTime.Now.AddMinutes(nMinuteOffset));
+            return cache.Add(sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
         }
 
         public bool Add(string sKey, BaseModuleCache oValue)
@@ -62,7 +62,7 @@ namespace CachingProvider
                 return false;
             try
             {
-                cache.Set(sKey, oValue.result, DateTime.Now.AddMinutes(nMinuteOffset));
+                cache.Set(sKey, oValue.result, DateTime.UtcNow.AddMinutes(nMinuteOffset));
                 res = true;
             }
             catch (Exception ex)
@@ -137,7 +137,7 @@ namespace CachingProvider
             if (string.IsNullOrEmpty(sKey))
                 return false;
 
-            return cache.Add(sKey, oValue, DateTime.Now.AddMinutes(nMinuteOffset));
+            return cache.Add(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
         }
 
         public bool SetWithVersion<T>(string sKey, BaseModuleCache oValue, double nMinuteOffset)
@@ -163,7 +163,7 @@ namespace CachingProvider
                         {                            
                             Guid versionGuid = Guid.NewGuid();
                             baseModule.version = versionGuid.ToString();
-                            cache.Set(sKey, baseModule, DateTime.Now.AddMinutes(nMinuteOffset));
+                            cache.Set(sKey, baseModule, DateTime.UtcNow.AddMinutes(nMinuteOffset));
                             return true;
                         }                        
                     }

@@ -67,6 +67,7 @@ namespace ConditionalAccess
         private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
         private const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
         private const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
+        private const double MAX_SERVER_TIME_DIF = 5;
 
         //errors
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -17903,7 +17904,7 @@ namespace ConditionalAccess
                 if (cleanupScheduledTask != null && cleanupScheduledTask.Status.Code == (int)eResponseStatus.OK && cleanupScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     recordingCleanupIntervalSec = cleanupScheduledTask.NextRunIntervalInSeconds;
-                    if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec) > DateTime.UtcNow)
+                    if (cleanupScheduledTask.LastRunDate.AddSeconds(recordingCleanupIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                     {
                         return true;
                     }
@@ -18034,7 +18035,7 @@ namespace ConditionalAccess
                 if (recordingsLifetimeScheduledTask != null && recordingsLifetimeScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsLifetimeScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingsLifetimeScheduledTask.NextRunIntervalInSeconds;
-                    if (recordingsLifetimeScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) > DateTime.UtcNow)
+                    if (recordingsLifetimeScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                     {
                         return true;
                     }
@@ -18262,7 +18263,7 @@ namespace ConditionalAccess
                 if (recordingsScheduledTask != null && recordingsScheduledTask.Status.Code == (int)eResponseStatus.OK && recordingsScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     scheduledTaskIntervalSec = recordingsScheduledTask.NextRunIntervalInSeconds;
-                    if (recordingsScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec) > DateTime.UtcNow)
+                    if (recordingsScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                     {
                         return true;
                     }
