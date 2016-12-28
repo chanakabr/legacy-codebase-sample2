@@ -5470,24 +5470,15 @@ namespace ConditionalAccess
                 entitlement.IsInGracePeriod = true;
             }
 
+            string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
+
             entitlement.recurringStatus = false;
             entitlement.nextRenewalDate = DateTime.MaxValue;
             if (ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_RECURRING_STATUS") == 1)
             {
                 entitlement.recurringStatus = true;
                 entitlement.nextRenewalDate = endDate;
-            }
 
-            if (isExpired && entitlement.maxUses != 0 && entitlement.currentUses >= entitlement.maxUses)
-            {
-                endDate = entitlement.lastViewDate;
-            }
-
-            string billingGuid = ODBCWrapper.Utils.GetSafeStr(dataRow, "BILLING_GUID");
-            entitlement.isRenewable = false;
-            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]) == 1)
-            {
-                entitlement.isRenewable = true;
                 // get renew payment details 
                 if (renewPaymentDetails != null)
                 {
@@ -5508,6 +5499,17 @@ namespace ConditionalAccess
                         }
                     }
                 }
+            }
+
+            if (isExpired && entitlement.maxUses != 0 && entitlement.currentUses >= entitlement.maxUses)
+            {
+                endDate = entitlement.lastViewDate;
+            }
+            
+            entitlement.isRenewable = false;
+            if (ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]) == 1)
+            {
+                entitlement.isRenewable = true;
             }
 
             entitlement.endDate = endDate;
