@@ -11,6 +11,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Social
 {
+    [XmlInclude(typeof(KalturaSocialActionRate))]
     public class KalturaSocialAction : KalturaOTTObject
     {
 
