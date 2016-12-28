@@ -95,14 +95,21 @@ namespace ODBCWrapper
             }
         }
 
-        static public void SetCachedDataTable(string sCachStr, System.Data.DataTable dDataTable)
+        static public void SetCachedDataTable(string sCachStr, System.Data.DataTable dDataTable, int cacheSec = 0)
         {
             try
             {
-                Int32 nCacheSec = GetCachedSec();
-                if (nCacheSec == 0)
+                if (cacheSec == 0)
+                {
+                    cacheSec = GetCachedSec();
+                }
+
+                if (cacheSec == 0)
+                {
                     return;
-                CachingManager.CachingManager.SetCachedData(sCachStr, dDataTable.Copy(), nCacheSec, System.Web.Caching.CacheItemPriority.Default, 0, true);
+                }
+
+                CachingManager.CachingManager.SetCachedData(sCachStr, dDataTable.Copy(), cacheSec, System.Web.Caching.CacheItemPriority.Default, 0, true);
                 //HttpRuntime.Cache.Add(sCachStr, dDataTable.Copy(), null, DateTime.Now.AddHours(nCacheSec), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
             }
             catch

@@ -135,7 +135,9 @@ namespace ODBCWrapper
                     m_myDataSet.Tables.Add(sVirtualTableName);
                 }
                 if (m_nCachedSec > 0)
-                    ODBCWrapper.SelectCacher.SetCachedDataTable(sCachStr, m_myDataSet.Tables[sVirtualTableName]);
+                {
+                    ODBCWrapper.SelectCacher.SetCachedDataTable(sCachStr, m_myDataSet.Tables[sVirtualTableName], m_nCachedSec);
+                }
             }
             else
             {
