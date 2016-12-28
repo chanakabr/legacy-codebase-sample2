@@ -24,6 +24,7 @@ namespace WebAPI.App_Start
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+           
             // get request ID
             HttpContext.Current.Items[Constants.REQUEST_ID_KEY] = request.GetCorrelationId();
 
