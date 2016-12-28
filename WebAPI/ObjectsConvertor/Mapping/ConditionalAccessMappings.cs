@@ -68,7 +68,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetPayment(src.mediaFileID)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetPayment(src.mediaID)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => GetPayment(0)))
+<<<<<<< HEAD
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetPayment(0)))
+=======
+               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src =>0) )
+               .ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => false))
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => false))
+               .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => false))
+>>>>>>> 9990f7a12829c15d0b1476de84d7f6844c995a76
                ;
 
             Mapper.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
