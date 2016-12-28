@@ -40,8 +40,7 @@ namespace ConditionalAccess
 {
     public abstract class BaseConditionalAccess
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly KLogger casLog = new KLogger("casLogAppender", true);
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         protected string m_sPurchaseMailTemplate;
         protected string m_sMailFromName;
