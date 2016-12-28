@@ -629,7 +629,7 @@ namespace WebAPI.Clients
                 throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
             }
 
-            // convert response
+            // convert response    
             entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
 
             return entitlements;
@@ -1880,6 +1880,55 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        internal KalturaEntitlement UpdateEntitlement(int groupId, long domainID, int id, KalturaEntitlement kEntitlement)
+        {
+            KalturaEntitlement kalturaEntitlement = null;
+            Entitlements response = null;
+           
+
+            // get group 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    if (kEntitlement is KalturaSubscriptionEntitlement)
+                    {
+                        Entitlement entitlement = Mapper.Map<Entitlement>(kEntitlement);
+                        entitlement.purchaseID = id;
+                        // fire request                        
+                        response = ConditionalAccess.UpdateEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, (int)domainID, entitlement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.status.Code, response.status.Message);
+            }          
+
+            // convert response
+            if (kEntitlement is KalturaSubscriptionEntitlement)
+            {
+                kalturaEntitlement = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaEntitlement>(response.entitelments[0]);
+            }
+
+            return kalturaEntitlement;
         }
     }
 }

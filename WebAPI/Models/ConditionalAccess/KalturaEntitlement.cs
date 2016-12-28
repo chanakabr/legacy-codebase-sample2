@@ -33,7 +33,16 @@ namespace WebAPI.Models.ConditionalAccess
     [OldStandard("mediaId", "media_id")]
     [OldStandard("isInGracePeriod", "is_in_grace_period")]
     public class KalturaEntitlement : KalturaOTTObject
-    {
+    {                
+        /// <summary>
+        ///Purchase identifier (for subscriptions and collections only)
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public int? Id { get; set; }
+
         /// <summary>
         ///Entitlement type
         /// </summary>
@@ -41,6 +50,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public KalturaTransactionType Type { get; set; }
 
         /// <summary>
@@ -104,6 +114,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public int? PurchaseId { get; set; }
 
         /// <summary>
@@ -158,6 +169,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("nextRenewalDate")]
         [XmlElement(ElementName = "nextRenewalDate")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public long? NextRenewalDate { get; set; }
 
         /// <summary>
@@ -167,6 +179,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewableForPurchase")]
         [XmlElement(ElementName = "isRenewableForPurchase")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public bool? IsRenewableForPurchase { get; set; }
 
         /// <summary>
@@ -176,6 +189,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
@@ -185,6 +199,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaFileId")]
         [XmlElement(ElementName = "mediaFileId")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public int? MediaFileId { get; set; }
 
         /// <summary>
@@ -194,15 +209,17 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaId")]
         [XmlElement(ElementName = "mediaId")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public int? MediaId { get; set; }
 
         /// <summary>
-        /// Indicates whether the user is currently in his grace period entitlement
+        /// Indicates whether the user is currently in his grace period entitlement (only for subscription)
         /// </summary>
         [DataMember(Name = "isInGracePeriod")]
         [JsonProperty("isInGracePeriod")]
         [XmlElement(ElementName = "isInGracePeriod")]
         [SchemeProperty(ReadOnly = true)]
+        [Obsolete]
         public bool? IsInGracePeriod { get; set; }
 
     }

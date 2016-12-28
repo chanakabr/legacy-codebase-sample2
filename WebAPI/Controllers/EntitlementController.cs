@@ -427,7 +427,39 @@ namespace WebAPI.Controllers
 
             return response;
         }
+        
+        /// <summary>
+        /// Update Kaltura Entitelment by Purchase id
+        /// </summary>                
+        /// <param name="entitlement">KalturaEntitlement object</param>
+        /// <remarks>Possible status codes: 
+        /// InvalidPurchase = 3000, SubscriptionNotRenewable = 3002, PaymentGatewayNotExist = 6008,  PaymentGatewayNotValid = 6043,PaymentGatewayNotSupportPaymentMethod = 6056,
+        /// PaymentGatewayNotSetForHousehold = 6007,PaymentGatewayTransactionNotFound = 6038,
+        /// </remarks>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        public KalturaEntitlement Update(int id, KalturaEntitlement entitlement)
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
 
-
+            try
+            {
+                if (entitlement is KalturaSubscriptionEntitlement)
+                {
+                    if (((KalturaSubscriptionEntitlement)entitlement).PaymentGatewayId == null)
+                    {
+                        throw new ClientException((int)eResponseStatus.PaymentGatewayIdRequired, "PaymentGateway Id Required");
+                    }
+                }
+                // call client
+                return ClientsManager.ConditionalAccessClient().UpdateEntitlement(groupId, domainID, id, entitlement);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return null;
+        }
     }
 }
