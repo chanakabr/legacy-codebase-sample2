@@ -119,6 +119,7 @@
     <Compile Include="CoreObject.cs" />
     <Compile Include="Events\KalturaObjectActionEvent.cs" />
     <Compile Include="Events\KalturaObjectChangedEvent.cs" />
+    <Compile Include="Events\KalturaObjectDeletedEvent.cs" />
     <Compile Include="Events\KalturaObjectEvent.cs" />
     <Compile Include="MetaResponse.cs" />
     <Compile Include="DeviceBrand.cs" />

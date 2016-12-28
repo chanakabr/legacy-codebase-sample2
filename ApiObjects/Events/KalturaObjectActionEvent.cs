@@ -22,7 +22,6 @@ namespace ApiObjects
 
     public class KalturaObjectActionEvent : KalturaObjectEvent
     {
-
         #region Props
 
         private eKalturaEventActions action;

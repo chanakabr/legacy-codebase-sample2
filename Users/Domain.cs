@@ -1012,7 +1012,7 @@ namespace Users
         /// Update the Domain name, description and max_limit
         /// according to GroupID and DomainID
         /// </summary>
-        public bool Update()
+        public override bool DoUpdate()
         {
             bool dbRes = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
 
@@ -2764,16 +2764,10 @@ namespace Users
             throw new NotImplementedException();
         }
 
-        public override bool DoUpdate()
-        {
-            throw new NotImplementedException();
-        }
-
         public override bool DoDelete()
         {
             throw new NotImplementedException();
         }
-
 
         public override CoreObject CoreClone()
         {

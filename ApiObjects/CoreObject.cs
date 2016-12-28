@@ -14,6 +14,12 @@ namespace ApiObjects
             set;
         }
 
+        protected long Id
+        {
+            get;
+            set;
+        }
+
         #region Abstract Methods
 
         public abstract bool DoInsert();
@@ -52,6 +58,20 @@ namespace ApiObjects
                     this.GroupId,
                     this,
                     previous));
+            }
+
+            return result;
+        }
+
+        public bool Delete()
+        {
+            bool result = DoDelete();
+
+            if (result)
+            {
+                EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
+                    this.GroupId,
+                    this.Id));
             }
 
             return result;
