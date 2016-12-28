@@ -49,8 +49,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
                .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetPayment(src.paymentGatewayId)))
                .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetPayment(src.paymentMethodId)))
-                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetPayment(0)))
-               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetPayment(0)))
                ;
 
             Mapper.CreateMap<Entitlement, KalturaPpvEntitlement>()
@@ -65,14 +63,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => 0))
                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetPayment(src.mediaFileID)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetPayment(src.mediaID)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => GetPayment(0)))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetPayment(0)))
-               .ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => GetPayment(0)))
-               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => GetPayment(0)))
-               .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => GetPayment(0)))
                ;
 
             Mapper.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()

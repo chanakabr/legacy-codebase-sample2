@@ -582,8 +582,25 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
-
+            if (wsResponse.entitelments != null && wsResponse.entitelments.Count > 0)
+            {
+                entitlements = new List<KalturaEntitlement>();
+                foreach (Entitlement entitelment in wsResponse.entitelments)
+                {
+                    switch (entitelment.type)
+                    {
+                        case eTransactionType.PPV:
+                            entitlements.Add(Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement>(entitelment));
+                            break;
+                        case eTransactionType.Subscription:
+                            entitlements.Add(Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement>(entitelment));
+                            break;
+                        case eTransactionType.Collection:
+                        default:
+                            break;
+                    }
+                }
+            }
             return entitlements;
         }
 
