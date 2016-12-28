@@ -16,7 +16,7 @@ namespace Users
     /// </summary>
     [Serializable]
     [JsonObject(Id = "User")]
-    public class User : CoreObject
+    public class User
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -225,9 +225,9 @@ namespace Users
             if (m_sSiteGUID != "")
             {
                 //Try Getting user current object so we return the current values on the response
-                int currentUserID;                
+                int currentUserID;
                 if (int.TryParse(m_sSiteGUID, out currentUserID))
-                {   
+                {
                     UsersCache usersCache = UsersCache.Instance();
                     User user = usersCache.GetUser(currentUserID, nGroupID);
                     if (user != null)
@@ -236,7 +236,7 @@ namespace Users
                         m_eSuspendState = user.m_eSuspendState;
                         m_eUserState = user.m_eUserState;
                         m_isDomainMaster = user.m_isDomainMaster;
-                        m_nSSOOperatorID = user.m_nSSOOperatorID;                        
+                        m_nSSOOperatorID = user.m_nSSOOperatorID;
                     }
                 }
 
@@ -349,7 +349,7 @@ namespace Users
             }
             catch (Exception)
             {
-                
+
                 throw;
             }
 
@@ -408,17 +408,17 @@ namespace Users
         }
 
         public void InitializeBasicAndDynamicData(UserBasicData oBasicData, UserDynamicData oDynamicData)
-        {                          
+        {
             m_oBasicData = oBasicData;
             m_oDynamicData = oDynamicData;
-        }        
+        }
 
         public bool Initialize(Int32 nUserID, Int32 nGroupID, bool shouldSaveInCache = true)
         {
             bool res = false;
 
             try
-            {                
+            {
                 User user = null;
                 // Get user from cache by siteGUID
                 UsersCache usersCache = UsersCache.Instance();
@@ -586,13 +586,13 @@ namespace Users
                     string sActivationToken = bIsSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
 
                     int countryID = 0, stateID = 0;
-                    if(m_oBasicData.m_Country != null)
+                    if (m_oBasicData.m_Country != null)
                     {
-                        countryID = m_oBasicData.m_Country.m_nObjecrtID;                        
+                        countryID = m_oBasicData.m_Country.m_nObjecrtID;
                     }
-                    if(m_oBasicData.m_State != null && countryID > 0)
+                    if (m_oBasicData.m_State != null && countryID > 0)
                     {
-                        stateID = m_oBasicData.m_State.m_nObjecrtID;                        
+                        stateID = m_oBasicData.m_State.m_nObjecrtID;
                     }
 
                     userID = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
@@ -603,7 +603,7 @@ namespace Users
 
                     if (userID > 0)
                     {
-                        m_sSiteGUID = userID.ToString();       
+                        m_sSiteGUID = userID.ToString();
 
                         // add user role
                         long roleId;
@@ -621,20 +621,14 @@ namespace Users
                         return (-1);
                     }
 
-                    if (m_oDynamicData != null &&  m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
+                    if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
                     {
                         return (-1);
                     }
 
-                    if (userID > 0)
-                    {
-                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
-                            nGroupID,
-                            this,
-                            EventManager.Events.eKalturaEventActions.Created));
-                    }
+                    return userID;
                 }
-                else
+
                 // Existing user - Remove & Update from cache
                 if (int.TryParse(m_sSiteGUID, out userID))
                 {
@@ -669,23 +663,18 @@ namespace Users
                     catch (Exception ex)
                     {
                         log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
-                    }
 
-                    if (userID > 0)
-                    {
-                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
-                            nGroupID,
-                            this,
-                            EventManager.Events.eKalturaEventActions.Changed));
                     }
                 }
+
+                return userID;
+
             }
             catch
             {
-                userID = -1;
+                return (-1);
             }
 
-            return userID;            
         }
 
         public bool SaveDynamicData(int nGroupID)
@@ -818,7 +807,7 @@ namespace Users
             {
                 Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.Logout, siteGuid, sDeviceUDID);
             }
-            else 
+            else
                 log.ErrorFormat("SignOut: error while logging user out: user: {0}, group: {1}, error: {2}", siteGuid, nGroupID, retVal.m_RespStatus);
 
             return retVal;
@@ -852,16 +841,16 @@ namespace Users
         }
 
         private void UpdateUserTypeOnBasicData(Int32 nGroupID)
-        {            
+        {
             if (m_oBasicData.m_UserType.ID == null)
             {
-                m_oBasicData.m_UserType = GetDefaultUserType(nGroupID);                
+                m_oBasicData.m_UserType = GetDefaultUserType(nGroupID);
             }
             else //Check if user type id exists at users_types table
             {
                 if (IsUserTypeExist(nGroupID, m_oBasicData.m_UserType.ID.Value) == false)
                 {
-                    m_oBasicData.m_UserType.ID = null;                    
+                    m_oBasicData.m_UserType.ID = null;
                 }
             }
         }
@@ -874,7 +863,7 @@ namespace Users
                 bool bIsDeviceActivated = false;
                 Device device = CreateAndInitializeDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
                 bIsDeviceActivated = (device != null && device.m_state == DeviceState.Activated) || (device == null); // device == null means web login
-                
+
                 //Ignore device check for now (token issue)
                 //if (!bIsDeviceActivated)
                 //{
@@ -882,7 +871,7 @@ namespace Users
                 //    return retObj;
                 //}
                 //else
-                
+
                 {
                     string sDeviceIDToUse = device != null ? device.m_id : string.Empty;
                     int nSiteGuid = 0;
