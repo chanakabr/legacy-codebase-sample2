@@ -16,20 +16,20 @@ namespace WebAPI.Controllers
     {
 
         /// <summary>
-        /// 
+        /// Gets a topic
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// 
+        /// AnnouncementNotFound = 8006
         /// </remarks>
-        /// <param name="id">topic id</param>        
+        /// <param name="id">Topic identifier</param>        
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [SchemeArgument("id", MinInteger = 1)]
         public KalturaTopic Get(int id)
         {
             KalturaTopic response = null;
-            
+
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Get list of topics
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
@@ -108,11 +108,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Deleted a topic
         /// </summary>
         /// <remarks>
         /// Possible status codes:  
-        /// 
+        /// AnnouncementNotFound = 8006
         /// </remarks>
         /// <param name="id">Topic identifier</param>
         [Route("delete"), HttpPost]
@@ -137,14 +137,18 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Updates a topic "automatic issue notification" behavior.
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
         /// 
         /// </remarks>
-        /// <param name="id"></param>        
-        /// <param name="automaticIssueNotification"></param>        
+        /// <param name="id">Topic identifier</param>        
+        /// <param name="automaticIssueNotification">Behavior options:
+        ///  Inherit = 0: Take value from partner notification settings
+        ///  Yes = 1: Issue a notification massage when a new episode is available on the catalog
+        ///  No = 2: Do send a notification message when a new episode is available on the catalog
+        /// </param>        
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]

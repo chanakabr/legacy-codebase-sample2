@@ -27,6 +27,9 @@ namespace WebAPI.Models.Notification
         public List<KalturaAnnouncement> Announcements { get; set; }
     }
 
+    /// <summary>
+    /// order announcements
+    /// </summary>
     public enum KalturaAnnouncementOrderBy
     {
         NONE
