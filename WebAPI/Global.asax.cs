@@ -20,7 +20,6 @@ namespace WebAPI
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-
         protected void Application_Start()
         {
             TCMClient.Settings.Instance.Init();
