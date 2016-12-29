@@ -32,6 +32,9 @@ namespace WebAPI.Models.Notification
         NONE
     }
 
+    /// <summary>
+    /// order announcements
+    /// </summary>
     public class KalturaAnnouncementFilter : KalturaFilter<KalturaAnnouncementOrderBy>
     {
         public override KalturaAnnouncementOrderBy GetDefaultOrderByValue()

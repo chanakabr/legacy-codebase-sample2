@@ -28,14 +28,31 @@ namespace WebAPI
             AutoMapperConfig.RegisterMappings();
 
             // build log4net partial file name
+            string partialLogName = string.Empty;
+
+            // try to get application name from virtual path
             string ApplicationAlias = HostingEnvironment.ApplicationVirtualPath;
             if (ApplicationAlias.Length > 2)
-                log4net.GlobalContext.Properties["LogName"] = ApplicationAlias.Substring(1);
+                partialLogName = ApplicationAlias.Substring(1);
             else
             {
-                // error getting application name - invent a log name
-                log4net.GlobalContext.Properties["LogName"] = Guid.NewGuid().ToString();
+                // try to get application name from application ID
+                string applicationID = HostingEnvironment.ApplicationID;
+                if (!string.IsNullOrEmpty(applicationID))
+                {
+                    var appIdArr = applicationID.Split('/');
+                    if (appIdArr != null && appIdArr.Length > 0)
+                        partialLogName = appIdArr[appIdArr.Length - 1];
+                }
             }
+
+            if (string.IsNullOrWhiteSpace(partialLogName))
+            {
+                // error getting application name - invent a log name
+                partialLogName = Guid.NewGuid().ToString();
+            }
+
+            log4net.GlobalContext.Properties["LogName"] = partialLogName;
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
