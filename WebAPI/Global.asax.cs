@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Web;
+using System.Web.Hosting;
 using System.Web.Http;
 using System.Web.Routing;
 using KLogMonitor;
@@ -25,6 +26,16 @@ namespace WebAPI
             TCMClient.Settings.Instance.Init();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
+
+            // build log4net partial file name
+            string ApplicationAlias = HostingEnvironment.ApplicationVirtualPath;
+            if (ApplicationAlias.Length > 2)
+                log4net.GlobalContext.Properties["LogName"] = ApplicationAlias.Substring(1);
+            else
+            {
+                // error getting application name - invent a log name
+                log4net.GlobalContext.Properties["LogName"] = Guid.NewGuid().ToString();
+            }
 
             // set monitor and log configuration files
             KMonitor.Configure("log4net.config", KLogEnums.AppType.WS);
