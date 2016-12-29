@@ -13,12 +13,15 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using KLogMonitor;
 
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/system/action")]
     public class SystemController : ApiController
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         /// <summary>
         /// Returns country details by the provided IP, if not provided - by the client IP
         /// </summary>
@@ -61,6 +64,8 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public bool Ping()
         {
+            log.Error("in rest method");
+
             return true;
         }
 

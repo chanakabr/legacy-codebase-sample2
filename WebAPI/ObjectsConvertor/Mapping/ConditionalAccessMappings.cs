@@ -47,8 +47,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
                .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
-               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetPayment(src.paymentGatewayId)))
-               .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetPayment(src.paymentMethodId)))
+               .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
+               .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
                ;
 
             Mapper.CreateMap<Entitlement, KalturaPpvEntitlement>()
@@ -65,10 +65,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => 0))
                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
-               .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetPayment(src.mediaFileID)))
-               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetPayment(src.mediaID)))
-               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => GetPayment(0)))
-               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetPayment(0)))
+               .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
+               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.mediaID)))
+               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => GetNullableInt(0)))
+               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                ;
 
             Mapper.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
@@ -358,7 +358,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static int? GetPayment(int p)
+        private static int? GetNullableInt(int p)
         {
             if (p == 0)
             {
