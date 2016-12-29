@@ -542,7 +542,7 @@ namespace WebAPI.Clients
         internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
-            List<KalturaEntitlement> entitlements = null;
+            List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
             Entitlements wsResponse = null;
 
             // convert WS eTransactionType to KalturaTransactionType
@@ -586,7 +586,6 @@ namespace WebAPI.Clients
             {
                 foreach (Entitlement entitelment in wsResponse.entitelments)
                 {
-                    entitlements = new List<KalturaEntitlement>();
                     entitlements.Add(ConditionalAccessMappings.ConvertToKalturaEntitlement(entitelment));
                 }
             }
