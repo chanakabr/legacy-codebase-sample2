@@ -8746,6 +8746,13 @@
             -26 is EPG
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaChannel.MediaTypes">
+            <summary>
+            Media types in the channel 
+            Asset types in the channel.
+            -26 is EPG
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaChannel.FilterExpression">
             <summary>
             Filter expression
