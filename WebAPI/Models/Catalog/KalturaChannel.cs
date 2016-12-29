@@ -46,13 +46,10 @@ namespace WebAPI.Models.Catalog
         
         /// <summary>
         /// Media types in the channel 
-        /// Asset types in the channel.
         /// -26 is EPG
         /// </summary>
         [DataMember(Name = "media_types")]
-        [JsonProperty(PropertyName = "media_types")]
-        [XmlArray(ElementName = "media_types", IsNullable = true)]
-        [XmlArrayItem("item")]
+        [JsonIgnore]
         [Obsolete]
         public List<KalturaIntegerValue> MediaTypes { get; set; }
 
