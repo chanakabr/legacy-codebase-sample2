@@ -351,13 +351,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         }
 
-        private static Entitlement ConvertToEntitlement(KalturaSubscriptionEntitlement arg)
-        {
-            Entitlement result = null;
-            result = AutoMapper.Mapper.Map<Entitlement>(arg);            
-            return result;
-        }
-
         private static int? GetNullableInt(int p)
         {
             if (p == 0)
@@ -370,7 +363,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static KalturaEntitlement ConvertToKalturaEntitlement(Entitlement entitlement)
+        internal static KalturaEntitlement ConvertToKalturaEntitlement(Entitlement entitlement)
         {
             KalturaEntitlement result = null;
             switch (entitlement.type)

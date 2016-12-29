@@ -584,21 +584,10 @@ namespace WebAPI.Clients
             // convert response
             if (wsResponse.entitelments != null && wsResponse.entitelments.Count > 0)
             {
-                entitlements = new List<KalturaEntitlement>();
                 foreach (Entitlement entitelment in wsResponse.entitelments)
                 {
-                    switch (entitelment.type)
-                    {
-                        case eTransactionType.PPV:
-                            entitlements.Add(Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement>(entitelment));
-                            break;
-                        case eTransactionType.Subscription:
-                            entitlements.Add(Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement>(entitelment));
-                            break;
-                        case eTransactionType.Collection:
-                        default:
-                            break;
-                    }
+                    entitlements = new List<KalturaEntitlement>();
+                    entitlements.Add(ConditionalAccessMappings.ConvertToKalturaEntitlement(entitelment));
                 }
             }
             return entitlements;
@@ -1927,7 +1916,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (response == null || response.entitelments == null || response.entitelments.Count < 1)
             {
                 // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1942,7 +1931,7 @@ namespace WebAPI.Clients
             // convert response
             if (kEntitlement is KalturaSubscriptionEntitlement)
             {
-                kalturaEntitlement = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaEntitlement>(response.entitelments[0]);
+                kalturaEntitlement = ConditionalAccessMappings.ConvertToKalturaEntitlement(response.entitelments[0]);
             }
 
             return kalturaEntitlement;
