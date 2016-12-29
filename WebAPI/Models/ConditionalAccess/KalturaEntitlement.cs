@@ -32,6 +32,8 @@ namespace WebAPI.Models.ConditionalAccess
     [OldStandard("mediaFileId", "media_file_id")]
     [OldStandard("mediaId", "media_id")]
     [OldStandard("isInGracePeriod", "is_in_grace_period")]
+    [XmlInclude(typeof(KalturaSubscriptionEntitlement))]
+    [XmlInclude(typeof(KalturaPpvEntitlement))]
     public class KalturaEntitlement : KalturaOTTObject
     {                
         /// <summary>
