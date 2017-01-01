@@ -12,6 +12,7 @@ using KLogMonitor;
 using KlogMonitorHelper;
 using System.Reflection;
 using WebAPI.Managers.Models;
+using System.Security.Cryptography.X509Certificates;
 
 namespace WebAPI.EventNotifications
 {
@@ -212,17 +213,69 @@ namespace WebAPI.EventNotifications
 
         protected void SendRequest(object phoenixObject)
         {
+            try
+            {
+                int statusCode = -1;
+
+                System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
+
+                switch (this.Method)
+                {
+                    case eHttpMethod.Get:
+                    {
+                        this.SendGetHttpReq();
+                        break;
+                    }
+                    case eHttpMethod.Post:
+                    {
+                        this.SendPostHttpReq(phoenixObject);
+                        break;
+                    }
+                    case eHttpMethod.Put:
+                    break;
+                    case eHttpMethod.Delete:
+                    break;
+                    default:
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error in HttpNotificationHandler Exception", ex);
+            }
+        }
+
+        #region HTTP requests
+
+        public void SendPostHttpReq(object phoenixObject)
+        {
             int statusCode = -1;
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
             webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = this.Method.ToString().ToUpper();
+            webRequest.Method = "POST";
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(phoenixObject.ToString());
             webRequest.ContentLength = bytes.Length;
+
+            // custom headers
+            if (this.CustomHeaders != null)
+            {
+                foreach (var header in this.CustomHeaders)
+                {
+                    webRequest.Headers.Add(header.key, header.value);
+                }
+            }
+
+            webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
 
             using (System.IO.Stream os = webRequest.GetRequestStream())
             {
                 os.Write(bytes, 0, bytes.Length);
+            }
+
+            if (this.Timeout > 0)
+            {
+                webRequest.Timeout = this.Timeout;
             }
 
             string res = string.Empty;
@@ -239,10 +292,9 @@ namespace WebAPI.EventNotifications
                 {
 
                     HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                    HttpStatusCode responseStatusCode = webResponse.StatusCode;
-                    statusCode = GetResponseCode(responseStatusCode);
+                    HttpStatusCode httpStatusCode = webResponse.StatusCode;
+                    statusCode = GetResponseCode(httpStatusCode);
                     StreamReader sr = null;
-
                     try
                     {
                         sr = new StreamReader(webResponse.GetResponseStream());
@@ -257,7 +309,7 @@ namespace WebAPI.EventNotifications
             }
             catch (WebException ex)
             {
-                log.Error("Error in HttpNotificationHandler WebException", ex);
+                log.Error("Error in SendPostHttpReq WebException", ex);
                 StreamReader errorStream = null;
                 try
                 {
@@ -272,19 +324,126 @@ namespace WebAPI.EventNotifications
             }
             catch (Exception ex)
             {
-                log.Error("Error in HttpNotificationHandler Exception", ex);
+                log.Error("Error in SendPostHttpReq Exception", ex);
             }
         }
 
-        public static int GetResponseCode(HttpStatusCode theCode)
+        public void SendGetHttpReq()
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
+            HttpWebResponse webResponse = null;
+            Stream receiveStream = null;
+            Int32 statusCode = -1;
+            Encoding encoding = new UTF8Encoding(false);
+
+            try
+            {
+                webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
+
+                if (this.Timeout > 0)
+                {
+                    webRequest.Timeout = this.Timeout;
+                }
+
+                webResponse = (HttpWebResponse)webRequest.GetResponse();
+                HttpStatusCode sCode = webResponse.StatusCode;
+                statusCode = GetResponseCode(sCode);
+                receiveStream = webResponse.GetResponseStream();
+
+                StreamReader sr = new StreamReader(receiveStream, encoding);
+                string resultString = sr.ReadToEnd();
+
+                sr.Close();
+
+                webResponse.Close();
+                webRequest = null;
+                webResponse = null;
+            }
+            catch (Exception ex)
+            {
+                log.Debug("Error in SendGettHttpReq WebException:" + ex.Message + " to: " + this.Url);
+
+                if (webResponse != null)
+                {
+                    webResponse.Close();
+                }
+
+                if (receiveStream != null)
+                {
+                    receiveStream.Close();
+                }
+            }
+        }
+
+        //public string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
+        //{
+        //    Int32 nStatusCode = -1;
+
+        //    HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
+        //    webRequest.ContentType = "application/x-www-form-urlencoded";
+        //    webRequest.Method = "DELETE";
+        //    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
+        //    webRequest.ContentLength = bytes.Length;
+        //    System.IO.Stream os = webRequest.GetRequestStream();
+        //    os.Write(bytes, 0, bytes.Length);
+        //    os.Close();
+
+        //    string res = string.Empty;
+        //    try
+        //    {
+        //        HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+        //        HttpStatusCode sCode = webResponse.StatusCode;
+        //        nStatusCode = GetResponseCode(sCode);
+        //        StreamReader sr = null;
+        //        try
+        //        {
+        //            sr = new StreamReader(webResponse.GetResponseStream());
+        //            res = sr.ReadToEnd();
+        //        }
+        //        finally
+        //        {
+        //            if (sr != null)
+        //                sr.Close();
+        //        }
+
+        //    }
+        //    catch (WebException ex)
+        //    {
+        //        StreamReader errorStream = null;
+        //        try
+        //        {
+        //            errorStream = new StreamReader(ex.Response.GetResponseStream());
+        //            res = errorStream.ReadToEnd();
+        //        }
+        //        finally
+        //        {
+        //            if (errorStream != null)
+        //                errorStream.Close();
+        //        }
+        //    }
+
+        //    //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
+        //    if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
+        //    {
+        //        string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
+        //        res = SendDeleteHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
+        //    }
+
+        //    nStatus = nStatusCode;
+        //    return res;
+        //}
+
+        public Int32 GetResponseCode(HttpStatusCode theCode)
         {
             if (theCode == HttpStatusCode.OK || theCode == HttpStatusCode.Created || theCode == HttpStatusCode.Accepted)
                 return (int)HttpStatusCode.OK;
             if (theCode == HttpStatusCode.NotFound)
                 return (int)HttpStatusCode.NotFound;
             return (int)HttpStatusCode.InternalServerError;
+
         }
 
+        #endregion
         #endregion
     }
 
@@ -303,6 +462,18 @@ namespace WebAPI.EventNotifications
             
             return credentials;
         }
+    }
+
+    public class KalturaPolicy : ICertificatePolicy
+    {
+        #region ICertificatePolicy Members
+
+        public bool CheckValidationResult(ServicePoint srvPoint, X509Certificate certificate, WebRequest request, int certificateProblem)
+        {
+            return true;
+        }
+
+        #endregion
     }
 
     #region Enums
