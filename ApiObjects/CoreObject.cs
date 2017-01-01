@@ -48,7 +48,7 @@ namespace ApiObjects
 
         public bool Update()
         {
-            CoreObject previous = this.CoreClone() as CoreObject;
+            CoreObject previous = this.CoreClone();
 
             bool result = DoUpdate();
 
