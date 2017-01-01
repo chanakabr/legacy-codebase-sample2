@@ -121,6 +121,10 @@ namespace Users
         [JsonProperty()]
         public int m_nRegion;
 
+        [XmlIgnore]
+        protected int m_nMasterGuID;
+        private DomainResponseStatus removeResponse;
+
        
         public Domain()
         {
@@ -164,97 +168,13 @@ namespace Users
         /// <returns>the new record ID</returns>
         public virtual Domain CreateNewDomain(string sName, string sDescription, int nGroupID, int nMasterGuID, string sCoGuid = null)
         {
-            DateTime dDateTime = DateTime.UtcNow;
-
-            long npvrQuotaInSecs = 0;
-
-
-            // try to get the DomainLimitID
-            int nDomainID = -1;
-            int nDomainLimitID = DomainDal.Get_DomainLimitID(nGroupID);
-            bool bInserRes = DomainDal.InsertNewDomain(sName, sDescription, nGroupID, dDateTime, nDomainLimitID, ref nDomainID, sCoGuid);
-
-            if (!bInserRes)
-            {
-                m_DomainStatus = DomainStatus.Error;
-                return this;
-            }
-
-            
-            int nIsActive = 0;
-            int nStatus = 0;
-            int regionId = 0;
-
-            Domain domainDbObj = this;
-
-            bool resDbObj = DomainDal.GetDomainDbObject(nGroupID, dDateTime, ref sName, ref sDescription, nDomainID, ref nIsActive, ref nStatus, ref sCoGuid, ref regionId);          
- 
             m_sName = sName;
             m_sDescription = sDescription;
-            m_nDomainID = nDomainID;
-            m_nIsActive = nIsActive;
-            m_nStatus = nStatus;
-            m_sCoGuid = sCoGuid;
             m_nGroupID = nGroupID;
-            m_nRegion = regionId;
+            m_sCoGuid = sCoGuid;
+            m_nMasterGuID = nMasterGuID;
 
-            m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
-
-            // try to get from chace - DomainLimitID by nDomainLimitID
-
-            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDomainLimitID, m_nGroupID, Utils.FICTIVE_DATE);
-
-            m_DomainStatus = DomainStatus.OK;
-
-            m_UsersIDs = new List<int>();
-            m_PendingUsersIDs = new List<int>();
-            m_DefaultUsersIDs = new List<int>();
-
-            DomainResponseStatus res = AddUserToDomain(m_nGroupID, m_nDomainID, nMasterGuID, nMasterGuID, UserDomainType.Master);
-
-            if (res == DomainResponseStatus.OK)
-            {
-                m_UsersIDs = new List<int>();
-                m_UsersIDs.Add(nMasterGuID);
-                m_totalNumOfUsers++;
-            }
-
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
-            {
-                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-
-                if (npvr != null)
-                {
-                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
-
-                    if (resp != null)
-                    {
-                        if (resp.isOK)
-                        {
-                            m_DomainStatus = DomainStatus.OK;
-                        }
-                        else
-                        {
-                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                            log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg));
-                        }
-                    }
-                    else
-                    {
-                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                        log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                    }
-                }
-                else
-                {
-                    log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                }
-            }
-
-            EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                nGroupID,
-                this,
-                eKalturaEventActions.Created));
+            this.Insert();
 
             return this;
         }
@@ -352,78 +272,12 @@ namespace Users
 
         public DomainResponseStatus Remove()
         {
-            DomainResponseStatus res = DomainResponseStatus.UnKnown;
-            int isActive = 2;   // Inactive
-            int status = 2;     // Removed
+            removeResponse = DomainResponseStatus.UnKnown;
 
-            // get household users
-            List<int> domainUserIds = new List<int>();
-            domainUserIds.AddRange(m_DefaultUsersIDs);
-            domainUserIds.AddRange(m_masterGUIDs);
-            domainUserIds.AddRange(m_PendingUsersIDs);
-            domainUserIds.AddRange(m_UsersIDs);
-            domainUserIds = domainUserIds.Distinct().ToList(); 
+            this.Delete();
 
-            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
-
-            //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
-            if (IsDomainRemovedSuccessfully(statusRes))
-            {
-                //remove domain from cache
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
-
-                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
-                {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-                    if (npvr != null)
-                    {
-                        NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
-
-                        if (response != null)
-                        {
-                            if (response.isOK)
-                            {
-                                res = DomainResponseStatus.OK;
-                                // delete users from cache
-                                foreach (var userId in domainUserIds)
-                                {
-                                    UsersCache usersCache = UsersCache.Instance();
-                                    usersCache.RemoveUser(userId, m_nGroupID);
-                                }
-                            }
-                            else
-                            {
-                                res = DomainResponseStatus.Error;
-                                log.Error("Error - " + string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
-                            }
-                        }
-                        else
-                        {
-                            res = DomainResponseStatus.Error;
-                            log.Error("Error - " + string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                        }
-                    }
-                    else
-                    {
-                        res = DomainResponseStatus.Error;
-                        log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                    }
-                }
-            }
-            else
-            {
-                res = DomainResponseStatus.Error;
-            }
-
-            if (res == DomainResponseStatus.UnKnown)
-            {
-                res = statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
-            }
-            return res;
+            return removeResponse;
         }
-
-
 
         /// <summary>
         /// Init new Domain Object according to GroupId and DomainId
@@ -2761,17 +2615,183 @@ namespace Users
 
         public override bool DoInsert()
         {
-            throw new NotImplementedException();
+            bool success = false;
+
+            DateTime dDateTime = DateTime.UtcNow;
+
+            long npvrQuotaInSecs = 0;
+
+            // try to get the DomainLimitID
+            int nDomainID = -1;
+            int nDomainLimitID = DomainDal.Get_DomainLimitID(this.m_nGroupID);
+            bool bInserRes = 
+                DomainDal.InsertNewDomain(this.m_sName, this.m_sDescription, this.m_nGroupID, dDateTime, nDomainLimitID, ref nDomainID, this.m_sCoGuid);
+
+            if (!bInserRes)
+            {
+                m_DomainStatus = DomainStatus.Error;
+                return success;
+            }
+
+            int nIsActive = 0;
+            int nStatus = 0;
+            int regionId = 0;
+
+            Domain domainDbObj = this;
+
+            bool resDbObj =
+                DomainDal.GetDomainDbObject(this.m_nGroupID, dDateTime, ref this.m_sName, ref this.m_sDescription,
+                nDomainID, ref nIsActive, ref nStatus, ref this.m_sCoGuid, ref regionId);
+
+            m_nDomainID = nDomainID;
+            m_nIsActive = nIsActive;
+            m_nStatus = nStatus;
+            m_nRegion = regionId;
+
+            m_nLimit = nDomainLimitID; // the id for GROUPS_DEVICE_LIMITATION_MODULES table 
+
+            // try to get from chace - DomainLimitID by nDomainLimitID
+
+            npvrQuotaInSecs = InitializeDLM(npvrQuotaInSecs, nDomainLimitID, m_nGroupID, Utils.FICTIVE_DATE);
+
+            m_DomainStatus = DomainStatus.OK;
+
+            m_UsersIDs = new List<int>();
+            m_PendingUsersIDs = new List<int>();
+            m_DefaultUsersIDs = new List<int>();
+
+            DomainResponseStatus res = AddUserToDomain(m_nGroupID, m_nDomainID, this.m_nMasterGuID, this.m_nMasterGuID, UserDomainType.Master);
+
+            if (res == DomainResponseStatus.OK)
+            {
+                m_UsersIDs = new List<int>();
+                m_UsersIDs.Add(this.m_nMasterGuID);
+                m_totalNumOfUsers++;
+                success = true;
+            }
+
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+            {
+                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+
+                if (npvr != null)
+                {
+                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj()
+                    {
+                        EntityID = m_nDomainID.ToString(),
+                        Quota = npvrQuotaInSecs
+                    });
+
+                    if (resp != null)
+                    {
+                        if (resp.isOK)
+                        {
+                            m_DomainStatus = DomainStatus.OK;
+                        }
+                        else
+                        {
+                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
+                            log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg));
+                        }
+                    }
+                    else
+                    {
+                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
+                        log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                    }
+                }
+                else
+                {
+                    log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                }
+            }
+
+            return success;
         }
 
         public override bool DoDelete()
         {
-            throw new NotImplementedException();
+            bool success = false;
+
+            int isActive = 2;   // Inactive
+            int status = 2;     // Removed
+
+            // get household users
+            List<int> domainUserIds = new List<int>();
+            domainUserIds.AddRange(m_DefaultUsersIDs);
+            domainUserIds.AddRange(m_masterGUIDs);
+            domainUserIds.AddRange(m_PendingUsersIDs);
+            domainUserIds.AddRange(m_UsersIDs);
+            domainUserIds = domainUserIds.Distinct().ToList();
+
+            int statusRes = DomainDal.SetDomainStatus(m_nGroupID, m_nDomainID, isActive, status);
+
+            //return statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            if (IsDomainRemovedSuccessfully(statusRes))
+            {
+                //remove domain from cache
+                DomainsCache oDomainCache = DomainsCache.Instance();
+                oDomainCache.RemoveDomain(m_nDomainID);
+
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+                    if (npvr != null)
+                    {
+                        NPVRUserActionResponse npvrResponse = npvr.DeleteAccount(new NPVRParamsObj()
+                        {
+                            EntityID = m_nDomainID.ToString()
+                        });
+
+                        if (npvrResponse != null)
+                        {
+                            if (npvrResponse.isOK)
+                            {
+                                removeResponse = DomainResponseStatus.OK;
+                                // delete users from cache
+                                foreach (var userId in domainUserIds)
+                                {
+                                    UsersCache usersCache = UsersCache.Instance();
+                                    usersCache.RemoveUser(userId, m_nGroupID);
+                                }
+                            }
+                            else
+                            {
+                                removeResponse = DomainResponseStatus.Error;
+                                log.Error("Error - " + string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, npvrResponse.msg));
+                            }
+                        }
+                        else
+                        {
+                            removeResponse = DomainResponseStatus.Error;
+                            log.Error("Error - " + string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                        }
+                    }
+                    else
+                    {
+                        removeResponse = DomainResponseStatus.Error;
+                        log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                    }
+                }
+            }
+            else
+            {
+                removeResponse = DomainResponseStatus.Error;
+            }
+
+            if (removeResponse == DomainResponseStatus.UnKnown)
+            {
+                removeResponse = statusRes == 2 ? DomainResponseStatus.OK : DomainResponseStatus.Error;
+            }
+
+            success = removeResponse == DomainResponseStatus.OK;
+
+            return success;
         }
 
         public override CoreObject CoreClone()
         {
-            throw new NotImplementedException();
+            return this.MemberwiseClone() as CoreObject;
         }
     }
 }
