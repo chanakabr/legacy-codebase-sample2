@@ -1915,7 +1915,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null || response.entitelments == null || response.entitelments.Count < 1)
+            if (response == null)
             {
                 // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1925,7 +1925,13 @@ namespace WebAPI.Clients
             {
                 // internal web service exception
                 throw new ClientException(response.status.Code, response.status.Message);
-            }          
+            }
+
+            if (response.entitelments == null || response.entitelments.Count < 1)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
 
             // convert response
             if (kEntitlement is KalturaSubscriptionEntitlement)
