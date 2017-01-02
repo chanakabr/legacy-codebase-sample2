@@ -5412,7 +5412,7 @@ namespace ConditionalAccess
                 
                 // get all builingGuid from subscription 
                 List<string>  billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
-                                              where row.Field<int>("IS_RECURRING") == 1
+                                              where row.Field<int>("IS_RECURRING_STATUS") == 1
                                               select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
                 List<DataRow> renewPaymentDetails = null;
                 if (billingGuids != null && billingGuids.Count > 0)
