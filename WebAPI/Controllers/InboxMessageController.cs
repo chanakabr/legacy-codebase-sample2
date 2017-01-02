@@ -102,14 +102,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// TBD
+        /// Updates the message status.
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
-        /// 
+        /// UserIDInvalid = 500009, FeatureDisabled = 8009, MessageIdentifierRequired = 8019, UserInboxMessagesNotExist = 8020
         /// </remarks>
-        /// <param name="id"></param>        
-        /// <param name="status"></param>        
+        /// <param name="id">Message identifier</param>        
+        /// <param name="status">Message status</param>        
         [Route("updateStatus"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]

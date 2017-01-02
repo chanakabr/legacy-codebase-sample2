@@ -43,6 +43,15 @@ namespace WebAPI.Models.Catalog
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
+        
+        /// <summary>
+        /// Media types in the channel 
+        /// -26 is EPG
+        /// </summary>
+        [DataMember(Name = "media_types")]
+        [JsonIgnore]
+        [Obsolete]
+        public List<KalturaIntegerValue> MediaTypes { get; set; }
 
         /// <summary>
         /// Filter expression
@@ -80,8 +89,11 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
-        public int[] getAssetTypes() 
+        public int[] getAssetTypes()
         {
+            if (AssetTypes == null && MediaTypes != null)
+                AssetTypes = MediaTypes;
+
             if (AssetTypes == null)
                 return new int[0];
 

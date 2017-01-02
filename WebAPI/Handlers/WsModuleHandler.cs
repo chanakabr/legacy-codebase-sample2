@@ -14,27 +14,28 @@ namespace WebAPI
 
         public void ProcessRequest(HttpContext context)
         {
-            if (context.Request.ApplicationPath.ToLower().Contains("cas"))
+            string applicationPath = context.Request.ApplicationPath.ToLower();
+            if (applicationPath.Contains("cas"))
             {
                 context.Server.TransferRequest("~/ws_cas_module.asmx", true);
             }
-            else if (context.Request.ApplicationPath.ToLower().Contains("billing"))
+            else if (applicationPath.Contains("billing"))
             {
                 context.Server.TransferRequest("~/ws_billing_module.asmx", true);
             }
-            else if (context.Request.ApplicationPath.ToLower().Contains("domain"))
+            else if (applicationPath.Contains("domain"))
             {
                 context.Server.TransferRequest("~/ws_domains_module.asmx", true);
             }
-            else if (context.Request.ApplicationPath.ToLower().Contains("pricing"))
+            else if (applicationPath.Contains("pricing"))
             {
                 context.Server.TransferRequest("~/ws_pricing_module.asmx", true);
             }
-            else if (context.Request.ApplicationPath.ToLower().Contains("social"))
+            else if (applicationPath.Contains("social"))
             {
                 context.Server.TransferRequest("~/ws_social_module.asmx", true);
             }
-            else if (context.Request.ApplicationPath.ToLower().Contains("users"))
+            else if (applicationPath.Contains("users"))
             {
                 context.Server.TransferRequest("~/ws_users_module.asmx", true);
             }

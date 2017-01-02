@@ -542,7 +542,7 @@ namespace WebAPI.Clients
         internal List<KalturaEntitlement> GetDomainEntitlements(int groupId, int domainId, KalturaTransactionType type, bool isExpired = false, int pageSize = 500, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
-            List<KalturaEntitlement> entitlements = null;
+            List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
             Entitlements wsResponse = null;
 
             // convert WS eTransactionType to KalturaTransactionType
@@ -582,8 +582,13 @@ namespace WebAPI.Clients
             }
 
             // convert response
-            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
-
+            if (wsResponse.entitelments != null && wsResponse.entitelments.Count > 0)
+            {
+                foreach (Entitlement entitelment in wsResponse.entitelments)
+                {
+                    entitlements.Add(ConditionalAccessMappings.ConvertToKalturaEntitlement(entitelment));
+                }
+            }
             return entitlements;
         }
 
@@ -1910,7 +1915,7 @@ namespace WebAPI.Clients
                 ErrorUtils.HandleWSException(ex);
             }
 
-            if (response == null)
+            if (response == null || response.entitelments == null || response.entitelments.Count < 1)
             {
                 // general exception
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1925,7 +1930,7 @@ namespace WebAPI.Clients
             // convert response
             if (kEntitlement is KalturaSubscriptionEntitlement)
             {
-                kalturaEntitlement = Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaEntitlement>(response.entitelments[0]);
+                kalturaEntitlement = ConditionalAccessMappings.ConvertToKalturaEntitlement(response.entitelments[0]);
             }
 
             return kalturaEntitlement;

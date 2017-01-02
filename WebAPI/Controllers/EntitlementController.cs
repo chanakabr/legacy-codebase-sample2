@@ -188,7 +188,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response.Count };
+            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response != null ? response.Count : 0 };
         }
 
         /// <summary>
@@ -234,7 +234,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response.Count };
+            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response != null ? response.Count : 0 };
         }
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response.Count };
+            return new KalturaEntitlementListResponse() { Entitlements = response, TotalCount = response != null ? response.Count : 0 };
         }
 
         /// <summary>        
