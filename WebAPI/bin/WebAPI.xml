@@ -281,11 +281,12 @@
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
-            <summary>
-            get KalturaAssetFileContext
-            </summary>
-            <param name="id">Asset file identifier</param>
-            <remarks></remarks>
+             <summary>
+             get KalturaAssetFileContext
+             </summary>
+             <param name="id">Asset file identifier</param>
+            <param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
+             <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetStatisticsController.Query(WebAPI.Models.Catalog.KalturaAssetStatisticsQuery)">
             <summary>
@@ -910,6 +911,11 @@
             Indicates whether the user is currently in his grace period entitlement (only for subscription)
             </summary>
         </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
+            <summary>
+            KalturaPpvEntitlement
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement.MediaFileId">
              <summary>
             Media file identifier
@@ -919,6 +925,11 @@
              <summary>
             Media identifier
              </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">
+            <summary>
+            KalturaSubscriptionEntitlement
+            </summary>   
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.NextRenewalDate">
              <summary>
@@ -1558,14 +1569,14 @@
         </member>
         <member name="M:WebAPI.Controllers.InboxMessageController.UpdateStatus(System.String,WebAPI.Models.Notification.KalturaInboxMessageStatus)">
             <summary>
-            Updates the message status to Unread/Read/Deleted
+            Updates the message status.
             </summary>
             <remarks>
             Possible status codes:       
             UserIDInvalid = 500009, FeatureDisabled = 8009, MessageIdentifierRequired = 8019, UserInboxMessagesNotExist = 8020
             </remarks>
-            <param name="id"></param>        
-            <param name="status"></param>        
+            <param name="id">Message identifier</param>        
+            <param name="status">Message status</param>        
         </member>
         <member name="M:WebAPI.Controllers.MessageTemplateController.Set(WebAPI.Models.Notification.KalturaMessageTemplate)">
             <summary>
@@ -3098,6 +3109,7 @@
             <summary>
             Update Kaltura Entitelment by Purchase id
             </summary>                
+            <param name="id">Purchase Id</param>
             <param name="entitlement">KalturaEntitlement object</param>
             <remarks>Possible status codes: 
             InvalidPurchase = 3000, SubscriptionNotRenewable = 3002, PaymentGatewayNotExist = 6008,  PaymentGatewayNotValid = 6043,PaymentGatewayNotSupportPaymentMethod = 6056,

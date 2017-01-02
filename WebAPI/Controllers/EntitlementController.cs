@@ -431,6 +431,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Update Kaltura Entitelment by Purchase id
         /// </summary>                
+        /// <param name="id">Purchase Id</param>
         /// <param name="entitlement">KalturaEntitlement object</param>
         /// <remarks>Possible status codes: 
         /// InvalidPurchase = 3000, SubscriptionNotRenewable = 3002, PaymentGatewayNotExist = 6008,  PaymentGatewayNotValid = 6043,PaymentGatewayNotSupportPaymentMethod = 6056,
