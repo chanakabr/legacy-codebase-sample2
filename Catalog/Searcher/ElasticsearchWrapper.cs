@@ -1059,7 +1059,20 @@ namespace Catalog
         {
             T result = default(T);
 
-            JToken tempToken = item.SelectToken(fieldName);
+            JToken tempToken = null;
+
+            try
+            {
+                tempToken = item[fieldName];
+            }
+            catch
+            {
+            }
+
+            if (tempToken == null)
+            {
+                tempToken = item.SelectToken(fieldName);
+            }
 
             result = ExtractValueFromToken<T>(tempToken);
 
