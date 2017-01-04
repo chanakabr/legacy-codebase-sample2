@@ -1059,7 +1059,20 @@ namespace Catalog
         {
             T result = default(T);
 
-            JToken tempToken = item.SelectToken(fieldName);
+            JToken tempToken = null;
+
+            try
+            {
+                tempToken = item[fieldName];
+            }
+            catch
+            {
+            }
+
+            if (tempToken == null)
+            {
+                tempToken = item.SelectToken(fieldName);
+            }
 
             result = ExtractValueFromToken<T>(tempToken);
 
@@ -1321,8 +1334,15 @@ namespace Catalog
 
                 if (orderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                 {
-                    unifiedSearchDefinitions.extraReturnFields.Add("start_date");
-                    unifiedSearchDefinitions.extraReturnFields.Add("media_type_id");
+                    if (!unifiedSearchDefinitions.extraReturnFields.Contains("start_date"))
+                    {
+                        unifiedSearchDefinitions.extraReturnFields.Add("start_date");
+                    }
+
+                    if (!unifiedSearchDefinitions.extraReturnFields.Contains("media_type_id"))
+                    {
+                        unifiedSearchDefinitions.extraReturnFields.Add("media_type_id");
+                    }
                 }
                 else
                 {

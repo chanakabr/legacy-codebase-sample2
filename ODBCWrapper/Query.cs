@@ -148,7 +148,7 @@ namespace ODBCWrapper
                         sCachStr.Append(m_hashTable[i].ToString());
                 }
             }
-            sCachStr.Append(")");
+            sCachStr.AppendFormat(") {0}", string.IsNullOrEmpty(m_sConnectionKey) ? "CONNECTION_STRING" : m_sConnectionKey);
             return sCachStr.ToString();
         }
 
