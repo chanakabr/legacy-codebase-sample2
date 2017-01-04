@@ -26,12 +26,13 @@ namespace WebAPI.EventNotifications
         
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, object phoenixObject)
         {
+            this.SendRequest(phoenixObject);
             //WebRequest request = WebRequest.Create(this.Url);
             
             //int statusCode = -1;
 
             //request.Method = this.Method.ToString().ToUpper();
-            //request.ContentType = "application/json";
+            //request.ContentType = "application/json";ֲ
 
             //string phoenixString = string.Empty;
 
