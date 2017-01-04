@@ -9,6 +9,9 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {
+    /// <summary>
+    /// KalturaSubscriptionEntitlement
+    /// </summary>   
     public class KalturaSubscriptionEntitlement : KalturaEntitlement
     {
 

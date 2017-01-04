@@ -17,47 +17,48 @@ namespace WebAPI.Controllers
     [RoutePrefix("_service/assetFile/action")]
     public class AssetFileController : ApiController
     {
-         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         /// <summary>
-         /// get KalturaAssetFileContext
+        /// get KalturaAssetFileContext
         /// </summary>
         /// <param name="id">Asset file identifier</param>
+        ///<param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
         /// <remarks></remarks>
-         [Route("getContext"), HttpPost]
-         [ApiAuthorize]
-         [ValidationException(SchemeValidationType.ACTION_NAME)]
-         public KalturaAssetFileContext GetContext(string id, WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType contextType)
-         {
-             KalturaAssetFileContext response = null;
+        [Route("getContext"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaAssetFileContext GetContext(string id, WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType contextType)
+        {
+            KalturaAssetFileContext response = null;
 
-             int groupId = KS.GetFromRequest().GroupId;
+            int groupId = KS.GetFromRequest().GroupId;
 
-             if (string.IsNullOrEmpty(id))
-             {
-                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
-             }
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
+            }
 
-             try
-             {
-                 string userID = KS.GetFromRequest().UserId;
-                 string udid = KSUtils.ExtractKSPayload().UDID;
-                 string language = Utils.Utils.GetLanguageFromRequest();
+            try
+            {
+                string userID = KS.GetFromRequest().UserId;
+                string udid = KSUtils.ExtractKSPayload().UDID;
+                string language = Utils.Utils.GetLanguageFromRequest();
 
-                 response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language, contextType);
+                response = ClientsManager.ConditionalAccessClient().GetAssetFileContext(groupId, userID, id, udid, language, contextType);
 
-                 // if no response - return not found status 
-                 if (response == null)
-                 {
-                     throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Asset-File", id);
-                 }
-             }
-             catch (ClientException ex)
-             {
-                 ErrorUtils.HandleClientException(ex);
-             }
+                // if no response - return not found status 
+                if (response == null)
+                {
+                    throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "Asset-File", id);
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-             return response;
-         }
+            return response;
+        }
     }
 }
