@@ -9,6 +9,7 @@ namespace ApiObjects
     /// Represent type of user, 
     /// ID property maps to User_Type column at users table , Description maps to  users_types table.
     /// </summary>
+    [Serializable]
     public struct UserType
     {
         public int? ID { get; set; }
