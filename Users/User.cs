@@ -608,7 +608,7 @@ namespace Users
             return this.userId;
         }
 
-        public override bool DoInsert()
+        protected override bool DoInsert()
         {
             bool success = false;
 
@@ -670,7 +670,7 @@ namespace Users
             return success;
         }
 
-        public override bool DoUpdate()
+        protected override bool DoUpdate()
         {
             bool success = false;
 
@@ -722,7 +722,7 @@ namespace Users
             return success;
         }
 
-        public override bool DoDelete()
+        protected override bool DoDelete()
         {
             throw new NotImplementedException();
         }

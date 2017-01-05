@@ -51,17 +51,17 @@ namespace ApiObjects.Billing
             Status = new Response.Status(statusCode, statusMessage);
         }
 
-        public override bool DoInsert()
+        protected override bool DoInsert()
         {
             throw new NotImplementedException();
         }
 
-        public override bool DoUpdate()
+        protected override bool DoUpdate()
         {
             throw new NotImplementedException();
         }
 
-        public override bool DoDelete()
+        protected override bool DoDelete()
         {
             throw new NotImplementedException();
         }

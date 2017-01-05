@@ -22,9 +22,9 @@ namespace ApiObjects
 
         #region Abstract Methods
 
-        public abstract bool DoInsert();
-        public abstract bool DoUpdate();
-        public abstract bool DoDelete();
+        protected abstract bool DoInsert();
+        protected abstract bool DoUpdate();
+        protected abstract bool DoDelete();
         public abstract CoreObject CoreClone();
 
         #endregion

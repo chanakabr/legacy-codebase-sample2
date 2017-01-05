@@ -866,7 +866,7 @@ namespace Users
         /// Update the Domain name, description and max_limit
         /// according to GroupID and DomainID
         /// </summary>
-        public override bool DoUpdate()
+        protected override bool DoUpdate()
         {
             bool dbRes = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
 
@@ -2613,7 +2613,7 @@ namespace Users
             }
         }
 
-        public override bool DoInsert()
+        protected override bool DoInsert()
         {
             bool success = false;
 
@@ -2709,7 +2709,7 @@ namespace Users
             return success;
         }
 
-        public override bool DoDelete()
+        protected override bool DoDelete()
         {
             bool success = false;
 
