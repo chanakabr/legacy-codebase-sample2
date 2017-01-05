@@ -595,7 +595,7 @@ namespace WebAPI.Clients
         internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
-            List<KalturaEntitlement> entitlements = null;
+            List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
             Entitlements wsResponse = null;
 
             // convert WS eTransactionType to KalturaTransactionType
