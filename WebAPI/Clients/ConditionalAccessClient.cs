@@ -634,8 +634,14 @@ namespace WebAPI.Clients
                 throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
             }
 
-            // convert response    
-            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
+            // convert response
+            if (wsResponse.entitelments != null && wsResponse.entitelments.Count > 0)
+            {
+                foreach (Entitlement entitelment in wsResponse.entitelments)
+                {
+                    entitlements.Add(ConditionalAccessMappings.ConvertToKalturaEntitlement(entitelment));
+                }
+            }
 
             return entitlements;
         }
