@@ -13,6 +13,7 @@ using KlogMonitorHelper;
 using System.Reflection;
 using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
+using Newtonsoft.Json.Linq;
 
 namespace WebAPI.EventNotifications
 {
@@ -255,7 +256,9 @@ namespace WebAPI.EventNotifications
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
             webRequest.ContentType = "application/x-www-form-urlencoded";
             webRequest.Method = "POST";
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(phoenixObject.ToString());
+
+            string postBody = JsonConvert.SerializeObject(phoenixObject, Newtonsoft.Json.Formatting.None);
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
             webRequest.ContentLength = bytes.Length;
 
             // custom headers
