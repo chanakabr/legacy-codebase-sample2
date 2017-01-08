@@ -99,6 +99,14 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "reminderOffsetSec", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, MaxInteger = 3600)]
         public int? ReminderOffset { get; set; }
+
+        /// <summary>
+        /// Push adapter URL
+        /// </summary>
+        [DataMember(Name = "pushAdapterUrl")]
+        [JsonProperty("pushAdapterUrl")]
+        [XmlElement(ElementName = "pushAdapterUrl", IsNullable = true)]
+        public string PushAdapterUrl { get; set; }
     }
 
     [Obsolete]
