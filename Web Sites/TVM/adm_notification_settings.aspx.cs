@@ -149,6 +149,10 @@ public partial class adm_notification_settings : System.Web.UI.Page
             dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
             theRecord.AddRecord(dr_groups);
 
+            DataRecordShortTextField pushAdapterUrl = new DataRecordShortTextField("ltr", true, 60, 128);
+            pushAdapterUrl.Initialize("Push adapter URL", "adm_table_header_nbg", "FormInput", "push_adapter_url", false);
+            theRecord.AddRecord(pushAdapterUrl);
+
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;
