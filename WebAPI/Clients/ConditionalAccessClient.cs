@@ -595,7 +595,7 @@ namespace WebAPI.Clients
         internal List<KalturaEntitlement> GetUserEntitlements(int groupId, string userId, KalturaTransactionType type, bool isExpired = false, int pageSize = 50, int pageIndex = 0,
             KalturaEntitlementOrderBy orderBy = KalturaEntitlementOrderBy.PURCHASE_DATE_ASC)
         {
-            List<KalturaEntitlement> entitlements = null;
+            List<KalturaEntitlement> entitlements = new List<KalturaEntitlement>();
             Entitlements wsResponse = null;
 
             // convert WS eTransactionType to KalturaTransactionType
@@ -634,8 +634,14 @@ namespace WebAPI.Clients
                 throw new ClientException(wsResponse.status.Code, wsResponse.status.Message);
             }
 
-            // convert response    
-            entitlements = Mapper.Map<List<WebAPI.Models.ConditionalAccess.KalturaEntitlement>>(wsResponse.entitelments);
+            // convert response
+            if (wsResponse.entitelments != null && wsResponse.entitelments.Count > 0)
+            {
+                foreach (Entitlement entitelment in wsResponse.entitelments)
+                {
+                    entitlements.Add(ConditionalAccessMappings.ConvertToKalturaEntitlement(entitelment));
+                }
+            }
 
             return entitlements;
         }
