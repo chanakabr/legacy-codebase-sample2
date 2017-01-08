@@ -14,6 +14,7 @@ using System.Reflection;
 using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace WebAPI.EventNotifications
 {
@@ -230,7 +231,8 @@ namespace WebAPI.EventNotifications
                     }
                     case eHttpMethod.Post:
                     {
-                        this.SendPostHttpReq(phoenixObject);
+                        this.SendPostHttpRequest(phoenixObject);
+                        this.Post(phoenixObject);
                         break;
                     }
                     case eHttpMethod.Put:
@@ -249,7 +251,7 @@ namespace WebAPI.EventNotifications
 
         #region HTTP requests
 
-        public void SendPostHttpReq(object phoenixObject)
+        public void SendPostHttpRequest(object phoenixObject)
         {
             int statusCode = -1;
 
@@ -271,6 +273,7 @@ namespace WebAPI.EventNotifications
             }
 
             webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
+            webRequest.ClientCertificates.Add(new X509Certificate()); //add cert
 
             using (System.IO.Stream os = webRequest.GetRequestStream())
             {
@@ -329,6 +332,37 @@ namespace WebAPI.EventNotifications
             catch (Exception ex)
             {
                 log.Error("Error in SendPostHttpReq Exception", ex);
+            }
+        }
+
+        public void Post(object phoenix)
+        {
+            try
+            {
+                HttpClient httpClient = new HttpClient();
+
+                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+                httpClient.BaseAddress = new Uri(this.Url);
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+
+                string postBody = JsonConvert.SerializeObject(phoenix, Newtonsoft.Json.Formatting.None);
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
+
+                HttpContent content = new ByteArrayContent(bytes);
+                Task<HttpResponseMessage> task = httpClient.PostAsync(this.Url, content);
+
+                task.Wait();
+
+                var response = task.Result;
+
+                string test = response.ToString();
+            }
+            catch (HttpRequestException e)
+            {
+            }
+            catch (Exception ex)
+            {
             }
         }
 
