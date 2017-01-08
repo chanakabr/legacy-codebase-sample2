@@ -13,6 +13,7 @@ namespace ApiObjects.Notification
         public int? MessageTTLDays { get; set; }
         public bool? AutomaticIssueFollowNotifications { get; set; }
         public int? TopicExpirationDurationDays { get; set; }
+        public string PushAdapterUrl { get; set; }
 
         public NotificationPartnerSettings()
         {
