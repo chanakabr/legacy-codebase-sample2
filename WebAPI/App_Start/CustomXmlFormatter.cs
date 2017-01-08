@@ -13,6 +13,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Exceptions;
 using System.Web.Http;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace WebAPI.App_Start
 {
@@ -113,6 +114,16 @@ namespace WebAPI.App_Start
                     xrw = new XmlMultiReponseWrapper()
                     {
                         result = (object[])wrapper.Result
+                    };
+                }
+                else if (wrapper.Result is IList)
+                {
+                    IList result = (IList)wrapper.Result;
+                    object[] array = new object[result.Count];
+                    result.CopyTo(array, 0);
+                    xrw = new XmlMultiReponseWrapper()
+                    {
+                        result = array
                     };
                 }
                 else
