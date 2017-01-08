@@ -677,6 +677,10 @@ namespace DAL
             {
                 sp.AddParameter("@topicCleanupExpirationDays", settings.TopicExpirationDurationDays.Value);
             }
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
+            }
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -713,7 +717,8 @@ namespace DAL
                         MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
                         PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "group_id"),
-                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days")
+                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "topic_cleanup_expiration_days"),
+                        PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url")
                     });
                 }
             }
