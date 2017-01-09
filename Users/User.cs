@@ -575,7 +575,7 @@ namespace Users
         {
             return (Save(nGroupID, false));
         }
-
+                
         public int Save(Int32 groupId, bool bIsSetUserActive, bool isRemoveFromCache = true)
         {
             try
@@ -599,10 +599,6 @@ namespace Users
             catch
             {
                 this.userId = -1;
-            }
-            finally
-            {
-                shouldRemoveFromCache = false;
             }
 
             return this.userId;
@@ -663,9 +659,6 @@ namespace Users
                 this.userId = -1;
                 return success;
             }
-
-            // Reset to defeault;
-            shouldRemoveFromCache = false;
 
             return success;
         }
@@ -1204,8 +1197,14 @@ namespace Users
 
         // Save method members
 
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
         protected bool shouldSetUserActive;
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
         protected bool shouldRemoveFromCache;
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
         protected int userId;
 
     }

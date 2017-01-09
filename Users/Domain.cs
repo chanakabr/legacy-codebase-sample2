@@ -123,6 +123,9 @@ namespace Users
 
         [XmlIgnore]
         protected int m_nMasterGuID;
+
+        [XmlIgnore]
+        [JsonIgnore()]
         private DomainResponseStatus removeResponse;
 
        
@@ -272,11 +275,11 @@ namespace Users
 
         public DomainResponseStatus Remove()
         {
-            removeResponse = DomainResponseStatus.UnKnown;
+            this.removeResponse = DomainResponseStatus.UnKnown;
 
             this.Delete();
 
-            return removeResponse;
+            return this.removeResponse;
         }
 
         /// <summary>

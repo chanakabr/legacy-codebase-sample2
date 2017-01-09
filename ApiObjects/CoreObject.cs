@@ -20,6 +20,12 @@ namespace ApiObjects
             set;
         }
 
+        public List<string> ChangedFields
+        {
+            get;
+            set;
+        }
+
         #region Abstract Methods
 
         protected abstract bool DoInsert();
@@ -57,7 +63,8 @@ namespace ApiObjects
                 EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
                     this.GroupId,
                     this,
-                    previous));
+                    previous,
+                    this.ChangedFields));
             }
 
             return result;
