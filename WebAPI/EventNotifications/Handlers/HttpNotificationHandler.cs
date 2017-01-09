@@ -339,30 +339,50 @@ namespace WebAPI.EventNotifications
         {
             try
             {
-                HttpClient httpClient = new HttpClient();
+                // Initialize handler and client
+                using (HttpClientHandler handler = new HttpClientHandler()
+                {
+                    Credentials = new NotificationCredentials(this)
+                })
+                using (HttpClient httpClient = new HttpClient(handler))
+                {
+                    // Set basic parameters
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+                    httpClient.BaseAddress = new Uri(this.Url);
+                    httpClient.DefaultRequestHeaders.Accept.Clear();
 
-                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+                    // serialize and code object
+                    string postBody = JsonConvert.SerializeObject(phoenix, Newtonsoft.Json.Formatting.None);
+                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
+                    HttpContent content = new ByteArrayContent(bytes);
 
-                httpClient.BaseAddress = new Uri(this.Url);
-                httpClient.DefaultRequestHeaders.Accept.Clear();
+                    // Set headers
+                    foreach (var header in this.CustomHeaders)
+                    {
+                        content.Headers.Add(header.key, header.value);
+                    }
 
-                string postBody = JsonConvert.SerializeObject(phoenix, Newtonsoft.Json.Formatting.None);
-                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
+                    // Send request and wait until it finishes
+                    Task<HttpResponseMessage> task = httpClient.PostAsync(this.Url, content);
+                    task.Wait();
 
-                HttpContent content = new ByteArrayContent(bytes);
-                Task<HttpResponseMessage> task = httpClient.PostAsync(this.Url, content);
+                    // Result is here
+                    var response = task.Result;
 
-                task.Wait();
+                    string responseString = response.ToString();
 
-                var response = task.Result;
-
-                string test = response.ToString();
+                    log.DebugFormat("Http POST request response is {0}", responseString);
+                }
             }
             catch (HttpRequestException e)
             {
             }
             catch (Exception ex)
             {
+            }
+            finally
+            {
+
             }
         }
 
