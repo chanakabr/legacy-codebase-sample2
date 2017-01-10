@@ -44,6 +44,22 @@ namespace ConditionalAccess.Modules
             this.GroupId = groupId;
         }
 
+        public SubscriptionPurchase Clone()
+        {
+            return CloneImpl();
+        }
+
+        protected virtual SubscriptionPurchase CloneImpl()
+        {
+            var copy = (SubscriptionPurchase)MemberwiseClone();
+
+            return copy;
+        }
+
+        public override CoreObject CoreClone()
+        {
+            return this.Clone();
+        }
 
         protected override bool DoInsert()
         {

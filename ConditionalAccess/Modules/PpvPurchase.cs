@@ -37,6 +37,23 @@ namespace ConditionalAccess.Modules
             this.GroupId = groupId;
         }
 
+        public PpvPurchase Clone()
+        {
+            return CloneImpl();
+        }
+
+        protected virtual PpvPurchase CloneImpl()
+        {
+            var copy = (PpvPurchase)MemberwiseClone();
+
+            return copy;
+        }
+
+        public override CoreObject CoreClone()
+        {
+            return this.Clone();
+        }
+
         protected override bool DoInsert()
         {
             bool success = false;
