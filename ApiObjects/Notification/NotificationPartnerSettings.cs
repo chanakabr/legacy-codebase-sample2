@@ -15,6 +15,7 @@ namespace ApiObjects.Notification
         public int? TopicExpirationDurationDays { get; set; }
         public bool? IsRemindersEnabled { get; set; }
         public int? RemindersPrePaddingSec { get; set; }
+        public string PushAdapterUrl { get; set; }
 
         public NotificationPartnerSettings()
         {
