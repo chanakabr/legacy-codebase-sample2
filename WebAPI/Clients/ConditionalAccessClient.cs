@@ -1941,5 +1941,65 @@ namespace WebAPI.Clients
 
             return kalturaEntitlement;
         }
+
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            KalturaPlaybackContext kalturaPlaybackContext = null;
+            PlayBackContextResponse response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId,
+                        ApiMappings.ConvertAssetType(assetType), contextDataParams.MediaFileId, contextDataParams.StreamerType, contextDataParams.MediaProtocol);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response.Files);
+
+            if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
+            {
+                foreach (var source in kalturaPlaybackContext.Sources)
+                {
+                    string customData = DrmUtils.BuildCencCustomDataString(source.Id.HasValue ? source.Id.Value : 0);
+                    source.DRM = new List<KalturaDrmPlaybackPluginData>();
+                    source.DRM.Add(new KalturaCencDrmPlaybackPluginData()
+                    {
+                        CustomDateString = customData,
+                        Signature = DrmUtils.BuildCencSignatureString(customData),
+                        //LicenseURL = ???
+                        //Scheme = ???
+                    });
+                }
+            }
+            else
+            {
+                kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
+                kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });
+
+            }
+
+            return kalturaPlaybackContext;
+        }
     }
 }

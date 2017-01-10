@@ -280,6 +280,11 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetController.GetPlaybackContext(System.String,WebAPI.Models.Catalog.KalturaAssetType,WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions)">
+            <summary>
+            This action delivers all data relevant for player
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
              <summary>
              get KalturaAssetFileContext
@@ -806,6 +811,116 @@
             A list of OSS adapter-profiles
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
+            <summary>
+            Message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Code">
+            <summary>
+            Code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
+            <summary>
+            Protocol of the specific media object.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
+            <summary>
+            Playback streamer type: RTMP, HTTP, appleHttps, rtsp, sl.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaFileId">
+            <summary>
+            Media file ID
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
+            <summary>
+            Media file details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AssetId">
+            <summary>
+            Unique identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Id">
+            <summary>
+            File unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
+            <summary>
+            Device types as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
+            <summary>
+            URL of the media file to be played
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
+            <summary>
+            Duration of the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
+            <summary>
+            External identifier for the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
+            <summary>
+            Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Protocols">
+            <summary>
+            Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.DRM">
+            <summary>
+            DRM data object containing relevant license URL ,scheme name and certificate
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">
+            <summary>
+            Scheme
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.LicenseURL">
+            <summary>
+            License URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCencDrmPlaybackPluginData.CustomDateString">
+            <summary>
+            Custom data string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCencDrmPlaybackPluginData.Signature">
+            <summary>
+            Signature string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">
+            <summary>
+            Sources
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Actions">
+            <summary>
+            Actions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
             <summary>
             Entitlement
@@ -925,6 +1040,11 @@
              <summary>
             Media identifier
              </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Type">
+            <summary>
+            The type of the action
+            </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">
             <summary>
@@ -9514,41 +9634,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaBuzzScore.AvgScore">
             <summary>
             Average score
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
-            <summary>
-            Media file details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AssetId">
-            <summary>
-            Unique identifier for the asset
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Id">
-            <summary>
-            File unique identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
-            <summary>
-            Device types as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
-            <summary>
-            URL of the media file to be played
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
-            <summary>
-            Duration of the media file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
-            <summary>
-            External identifier for the media file
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">

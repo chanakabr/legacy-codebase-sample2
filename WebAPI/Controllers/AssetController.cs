@@ -842,6 +842,31 @@ namespace WebAPI.Controllers
 
             return response;
         }
-               
+
+        /// <summary>
+        /// This action delivers all data relevant for player
+        /// </summary>
+        [Route("getPlaybackContext"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            KalturaPlaybackContext response = null;
+           
+            KS ks = KS.GetFromRequest();
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, assetId, assetType, contextDataParams);
+                
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+
+        }
     }
 }
