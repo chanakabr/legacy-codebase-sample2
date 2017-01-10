@@ -7046,6 +7046,11 @@
             Offset time (UTC) in seconds for send reminder
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.PushAdapterUrl">
+            <summary>
+            Push adapter URL
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
             <summary>
             List of message follow data.

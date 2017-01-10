@@ -24,7 +24,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
-                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec));
+                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 ;
 
             //KalturaPartnerNotificationSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaPartnerNotificationSettings, NotificationPartnerSettings>()
@@ -37,7 +39,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
-                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset));
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 ;
 
             //NotificationPartnerSettings to KalturaNotificationPartnerSettings
             Mapper.CreateMap<NotificationPartnerSettings, KalturaNotificationsPartnerSettings>()
@@ -50,7 +54,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AutomaticIssueFollowNotification, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotifications))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
-                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec));
+                 .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
             Mapper.CreateMap<KalturaNotificationsPartnerSettings, NotificationPartnerSettings>()
@@ -63,7 +69,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AutomaticIssueFollowNotifications, opt => opt.MapFrom(src => src.AutomaticIssueFollowNotification))
                  .ForMember(dest => dest.TopicExpirationDurationDays, opt => opt.MapFrom(src => src.TopicExpirationDurationDays))
                  .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
-                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset));
+                 .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset))
+                 .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
+                 ;
 
             Mapper.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
