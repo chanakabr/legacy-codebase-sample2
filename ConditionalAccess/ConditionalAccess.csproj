@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
+    <Compile Include="Modules\SubscriptionPurchase.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
     <Compile Include="Recordings\QuotaManager.cs" />
@@ -473,6 +474,7 @@
   <ItemGroup>
     <None Include="Service References\WS_Catalog\Service11.disco" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
