@@ -17,6 +17,7 @@ using WS_Pricing;
 using WS_API;
 using WS_Billing;
 using Billing;
+using ConditionalAccess.Modules;
 
 
 namespace ConditionalAccess
@@ -746,9 +747,27 @@ namespace ConditionalAccess
                 string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, contentId, siteguid, price, currency, maxNumOfViews,
-                                                                        customData, subscriptionCode, billingTransactionId, startDate, endDate,
-                                                                        entitlementDate, country, string.Empty, deviceName, houseHoldId, billingGuid);
+                PpvPurchase ppvPurchase = new PpvPurchase(m_nGroupID)
+                {
+                    contentId = contentId,
+                    siteGuid = siteguid,
+                    price = price,
+                    currency = currency,
+                    maxNumOfViews = maxNumOfViews,
+                    customData = customData,
+                    subscriptionCode = subscriptionCode,
+                    billingTransactionId = billingTransactionId,
+                    startDate = startDate,
+                    endDate = endDate,
+                    entitlementDate = entitlementDate,
+                    country = country,
+                    deviceName = deviceName,
+                    houseHoldId = houseHoldId,
+                    billingGuid = billingGuid
+                };
+                ppvPurchase.Insert();
+                purchaseId = ppvPurchase.purchaseId;
+                               
                 if (purchaseId < 1)
                 {
                     // entitlement failed
@@ -823,9 +842,30 @@ namespace ConditionalAccess
                 }
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
-                             deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                             previewModuleID, transactionStartDate, subscriptionEndDate.Value, entitlementDate.Value, houseHoldId, billingGuid);
+                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
+                    {
+                        productId = productId,
+                        price = price,
+                        siteguid = siteguid,
+                        isEntitledToPreviewModule = isEntitledToPreviewModule,
+                        currency = currency,
+                        customData = customData,
+                        country = country,
+                        deviceName = deviceName,
+                        usageModuleExists = usageModuleExists,
+                        viewLifeCycle = subscription.m_oUsageModule.m_tsViewLifeCycle,
+                        maxNumberOfViews = subscription.m_oUsageModule.m_nMaxNumberOfViews,
+                        isRecurring = isRecurring,
+                        billingTransactionId = billingTransactionId,
+                        previewModuleId = previewModuleID,
+                        transactionStartDate = transactionStartDate,
+                        subscriptionEndDate = subscriptionEndDate,
+                        entitlementDate = entitlementDate,
+                        houseHoldId = houseHoldId,
+                        billingGuid = billingGuid
+                    };
+                subscriptionPurchase.Insert();
+                purchaseId = subscriptionPurchase.purchaseId;
 
                 if (purchaseId == 0)
                 {
