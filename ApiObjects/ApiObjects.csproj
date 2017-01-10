@@ -190,6 +190,7 @@
     <Compile Include="PersonalEnrichments\UserBundlesResponse.cs" />
     <Compile Include="PersonalEnrichments\UserPurhcasedAssetsResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestPricePlan.cs" />
+    <Compile Include="PlayBackContext\PlayBackContext.cs" />
     <Compile Include="QueueObjects\MessageReminderData.cs" />
     <Compile Include="QueueObjects\RecordingModificationData.cs" />
     <Compile Include="QueueObjects\SeriesRecordingTaskData.cs" />

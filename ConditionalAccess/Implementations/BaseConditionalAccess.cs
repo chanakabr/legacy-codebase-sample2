@@ -40,7 +40,7 @@ namespace ConditionalAccess
 {
     public abstract class BaseConditionalAccess
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected string m_sPurchaseMailTemplate;
         protected string m_sMailFromName;
@@ -4170,7 +4170,7 @@ namespace ConditionalAccess
             int OfflineStatus = 0;
             mdoule m = null;
             try
-            {                
+            {
                 if (OfflineStatus == 1)
                 {
                     string sWSUserName = string.Empty;
@@ -4189,21 +4189,21 @@ namespace ConditionalAccess
                     {
                         throw new Exception(String.Concat("PPV_DoesCreditNeedToDownloaded. PPV Module was returned null by WS_Pricing. PPV Code: ", sPPVMCd));
                     }
-                    
+
                     nViewLifeCycle = ppvModule.m_oUsageModule.m_tsViewLifeCycle;
                     fullLifeCycle = ppvModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle;
                     isOfflinePlayback = ppvModule.m_oUsageModule.m_bIsOfflinePlayBack;
                     transactionType = eTransactionType.PPV;
                 }
                 else if (theSub != null && theSub.m_oSubscriptionUsageModule != null)
-                {                    
+                {
                     nViewLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsViewLifeCycle;
                     fullLifeCycle = theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
                     isOfflinePlayback = theSub.m_oSubscriptionUsageModule.m_bIsOfflinePlayBack;
                     transactionType = eTransactionType.Subscription;
                 }
                 else if (theCol != null && theCol.m_oCollectionUsageModule != null)
-                {                    
+                {
                     nViewLifeCycle = theCol.m_oCollectionUsageModule.m_tsViewLifeCycle;
                     fullLifeCycle = theCol.m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle;
                     isOfflinePlayback = theCol.m_oCollectionUsageModule.m_bIsOfflinePlayBack;
@@ -5279,7 +5279,7 @@ namespace ConditionalAccess
                         nCount = numOfItems;
                     }
                     int i = 0;
-                   
+
                     UsageModule oUsageModule = null;
 
                     foreach (DataRow dataRow in allSubscriptionsPurchases.Rows)
@@ -5409,11 +5409,11 @@ namespace ConditionalAccess
 
                 //Get Iteration Rows according page size and index
                 IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allSubscriptionsPurchases);
-                
+
                 // get all builingGuid from subscription 
-                List<string>  billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
-                                              where row.Field<int>("IS_RECURRING_STATUS") == 1
-                                              select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
+                List<string> billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
+                                             where row.Field<int>("IS_RECURRING_STATUS") == 1
+                                             select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
                 List<DataRow> renewPaymentDetails = null;
                 if (billingGuids != null && billingGuids.Count > 0)
                 {
@@ -5423,7 +5423,7 @@ namespace ConditionalAccess
                     {
                         renewPaymentDetails = (from row in dt.AsEnumerable() select row).ToList();
                     }
-                }            
+                }
 
                 Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
@@ -5443,7 +5443,7 @@ namespace ConditionalAccess
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return entitlementsResponse;
-        }       
+        }
 
         private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<DataRow> renewPaymentDetails)
         {
@@ -5504,7 +5504,7 @@ namespace ConditionalAccess
             {
                 endDate = entitlement.lastViewDate;
             }
-            
+
             entitlement.isRenewable = false;
             if (ODBCWrapper.Utils.GetIntSafeVal(dataRow["IS_RECURRING"]) == 1)
             {
@@ -9976,7 +9976,7 @@ namespace ConditionalAccess
             string strViewLifeCycle = TimeSpan.Zero.ToString();
             string strFullLifeCycle = TimeSpan.Zero.ToString();
             bool bIsOfflinePlayback = false;
-            bool shouldCheckEntitlement = false;            
+            bool shouldCheckEntitlement = false;
             int domainId = 0;
 
             try
@@ -10031,9 +10031,9 @@ namespace ConditionalAccess
                                 {
                                     enableNonEntitled = enableChannelNonEntitled;
                                 }
-                                
+
                                 if (enableCdvr == 1 && IsServiceAllowed(m_nGroupID, domainId, eService.NPVR))
-                                {                                    
+                                {
                                     if (enableNonEntitled == 1)
                                     {
                                         //shouldCheckEntitlement is already false
@@ -10129,7 +10129,7 @@ namespace ConditionalAccess
                                 int nViewLifeCycle = 0;
                                 int nFullLifeCycle = 0;
                                 DateTime dtViewDate = new DateTime();
-                                DateTime dtNow = DateTime.UtcNow;                                
+                                DateTime dtNow = DateTime.UtcNow;
                                 List<int> lstRelatedMediaFiles = GetRelatedMediaFiles(objPrice, nMediaFileID);
                                 DateTime? dtEntitlementStartDate = GetStartDate(objPrice);
                                 DateTime? dtEntitlementEndDate = GetEndDate(objPrice);
@@ -11880,7 +11880,7 @@ namespace ConditionalAccess
                     // item must be free otherwise we wouldn't get this far
                     else if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache")
                             && !Utils.InsertOrSetCachedEntitlementResults(domainID, nMediaFileID, new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false, eTransactionType.PPV)))
-                                // transaction type doesn't matter when item is free so just pass PPV
+                    // transaction type doesn't matter when item is free so just pass PPV
                     {
                         log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
                     }
@@ -12696,22 +12696,22 @@ namespace ConditionalAccess
                     switch (transactionType)
                     {
                         case eTransactionType.PPV:
-                        {
-                            type = "ppv_purchase";
-                            break;
-                        }
+                            {
+                                type = "ppv_purchase";
+                                break;
+                            }
                         case eTransactionType.Subscription:
-                        {
-                            type = "subscription_purchase";
-                            break;
-                        }
+                            {
+                                type = "subscription_purchase";
+                                break;
+                            }
                         case eTransactionType.Collection:
-                        {
-                            type = "collection_purchase";
-                            break;
-                        }
+                            {
+                                type = "collection_purchase";
+                                break;
+                            }
                         default:
-                        break;
+                            break;
                     }
 
                     if (!string.IsNullOrEmpty(type))
@@ -16789,7 +16789,7 @@ namespace ConditionalAccess
                 CdvrAdapterController cdvrAdapter = CdvrAdapterController.GetInstance();
                 return cdvrAdapter.SetConfiguration(adapter, groupId);
             }
-            catch 
+            catch
             {
                 return false;
             }
@@ -18956,7 +18956,7 @@ namespace ConditionalAccess
                 }
                 else if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());                    
+                    log.DebugFormat("seriesRecording status after FollowSeasonOrSeries is not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
                     return seriesRecording;
                 }
                 // successfully followed season or series and we have found future recordings, if the domain has programs of this season or series scheduled, they need to be canceled
@@ -19336,8 +19336,8 @@ namespace ConditionalAccess
                         return response;
                     }
 
-                    price = prices[0];                       
-                    isItemPurchased = IsItemPurchased(price);                    
+                    price = prices[0];
+                    isItemPurchased = IsItemPurchased(price);
                     if (!isItemPurchased && !IsFreeItem(price))
                     {
                         log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
@@ -19673,6 +19673,66 @@ namespace ConditionalAccess
                 response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        public PlayBackContextResponse GetPlaybackContext(int groupId, string userId, string assetId, eAssetTypes assetType, int fileId, string streamerType, string mediaProtocol)
+        {
+            PlayBackContextResponse response = new PlayBackContextResponse()
+                {
+                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+                };
+            try
+            {
+                List<int> assetFileIds = null;
+
+                if (fileId == 0)
+                {
+                    assetFileIds = GetAssetFileIds(assetId, assetType);
+                }
+                else
+                {
+                    assetFileIds = new List<int>() { fileId };
+                }
+
+                if (assetFileIds != null && assetFileIds.Count > 0)
+                {
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(assetFileIds.ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
+                    if (prices != null && prices.Length > 0)
+                    {
+                        List<int> fileIds = new List<int>();
+                        foreach (MediaFileItemPricesContainer price in prices)
+                        {
+                            if (IsFreeItem(price) || IsItemPurchased(price))
+                            {
+                                fileIds.Add(fileId);
+                            }
+                        }
+
+                        if (fileIds.Count > 0)
+                        {
+
+                            response.Files = GetMediaFiles(fileIds, streamerType, mediaProtocol);
+                        }
+                    }
+                }
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to GetPlaybackContext for userId = {0}, assetId = {1}, assetType = {2}", userId, assetId, assetType), ex);
+            }
+            return response;
+        }
+
+        private List<MediaFile> GetMediaFiles(List<int> fileIds, string streamerType, string mediaProtocol)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        private List<int> GetAssetFileIds(string assetId, eAssetTypes assetType)
+        {
+            throw new NotImplementedException();
         }
     }
 }
