@@ -677,6 +677,7 @@ namespace DAL
             {
                 sp.AddParameter("@topicCleanupExpirationDays", settings.TopicExpirationDurationDays.Value);
             }
+
             if (settings.IsRemindersEnabled.HasValue)
             {
                 sp.AddParameter("@isRemindersEnabled", settings.IsRemindersEnabled.Value);
@@ -684,6 +685,11 @@ namespace DAL
             if (settings.RemindersPrePaddingSec.HasValue)
             {
                 sp.AddParameter("@remindersPrePaddingSec", settings.RemindersPrePaddingSec.Value);
+            }
+
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
             }
 
             return sp.ExecuteReturnValue<bool>();
@@ -724,7 +730,8 @@ namespace DAL
                         PartnerId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
                         TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_cleanup_expiration_days"),
                         IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
-                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec")
+                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec"),
+                        PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url")
                     });
                 }
             }
