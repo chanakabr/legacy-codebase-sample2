@@ -364,6 +364,10 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj">
+      <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
+      <Name>ElasticSearch</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EpgBL\EpgBL.csproj">
       <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
       <Name>EpgBL</Name>
