@@ -747,7 +747,7 @@ namespace ConditionalAccess
                 string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
 
                 // grant entitlement
-                PpvEntitlement ppvPurchase = new PpvEntitlement(m_nGroupID, EntitlementAction.Purchase)
+                PpvPurchase ppvPurchase = new PpvPurchase(m_nGroupID)
                 {
                     contentId = contentId,
                     siteGuid = siteguid,
@@ -842,9 +842,9 @@ namespace ConditionalAccess
                 }
 
                 // grant entitlement
-                SubscriptionEntitlement subscriptionPurchase = new SubscriptionEntitlement(m_nGroupID, EntitlementAction.Purchase)
+                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
                     {
-                        productId = productId,
+                        productId = productId.ToString(),
                         price = price,
                         siteGuid = siteguid,
                         isEntitledToPreviewModule = isEntitledToPreviewModule,

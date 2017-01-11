@@ -35,6 +35,7 @@ using WS_Billing;
 using WS_Pricing;
 using WS_Users;
 using EventManager;
+using ConditionalAccess.Modules;
 
 namespace ConditionalAccess
 {
@@ -14948,8 +14949,16 @@ namespace ConditionalAccess
         {
             log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
-            // Try to cancel subscription
-            if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, m_nGroupID, siteguid, subscription.m_SubscriptionCode, (int)SubscriptionPurchaseStatus.Fail) == 0)
+            // grant entitlement
+            SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
+            {
+                purchaseId = (int)purchaseId,               
+                siteGuid = siteguid,
+                productId = subscription.m_SubscriptionCode,
+                status = SubscriptionPurchaseStatus.Fail             
+            };
+            bool success = subscriptionPurchase.Update();
+            if (!success)
             {
                 log.Error("Error while trying to cancel subscription");
                 return false;

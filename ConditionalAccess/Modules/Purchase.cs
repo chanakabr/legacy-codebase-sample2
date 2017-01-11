@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace ConditionalAccess.Modules
 {
-    public abstract class Entitlement : CoreObject
+    public abstract class Purchase : CoreObject
     {
         #region members
-        public EntitlementAction action {get; set;}
 
         public string siteGuid { get; set; }
         public string currency { get; set; }
@@ -30,10 +29,9 @@ namespace ConditionalAccess.Modules
 
         #endregion
 
-        public Entitlement(int groupId, EntitlementAction action)
+        public Purchase(int groupId)
         {
             this.GroupId = groupId;
-            this.action = action;
         }
 
         public abstract override CoreObject CoreClone();       

@@ -824,8 +824,4 @@ namespace ApiObjects
         HouseholdCancel = 4
     }
 
-    public enum EntitlementAction
-    {
-        Purchase = 0
-    }
 }
