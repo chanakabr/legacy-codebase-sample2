@@ -73,9 +73,10 @@ namespace NPVR
             return provider;
         }
 
-        public bool IsGroupHaveNPVRImpl(int groupID)
+        public bool IsGroupHaveNPVRImpl(int groupID, out INPVRProvider npvr)
         {
-            return GetProvider(groupID) != null;
+            npvr = GetProvider(groupID);
+            return npvr != null;
         }
 
         public INPVRProvider GetProvider(int groupID)
