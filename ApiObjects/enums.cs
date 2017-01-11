@@ -823,4 +823,9 @@ namespace ApiObjects
         Fail = 3,
         HouseholdCancel = 4
     }
+
+    public enum EntitlementAction
+    {
+        Purchase = 0
+    }
 }

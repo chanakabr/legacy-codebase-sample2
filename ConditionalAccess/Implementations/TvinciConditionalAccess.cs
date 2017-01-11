@@ -747,7 +747,7 @@ namespace ConditionalAccess
                 string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
 
                 // grant entitlement
-                PpvPurchase ppvPurchase = new PpvPurchase(m_nGroupID)
+                PpvEntitlement ppvPurchase = new PpvEntitlement(m_nGroupID, EntitlementAction.Purchase)
                 {
                     contentId = contentId,
                     siteGuid = siteguid,
@@ -842,11 +842,11 @@ namespace ConditionalAccess
                 }
 
                 // grant entitlement
-                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
+                SubscriptionEntitlement subscriptionPurchase = new SubscriptionEntitlement(m_nGroupID, EntitlementAction.Purchase)
                     {
                         productId = productId,
                         price = price,
-                        siteguid = siteguid,
+                        siteGuid = siteguid,
                         isEntitledToPreviewModule = isEntitledToPreviewModule,
                         currency = currency,
                         customData = customData,
@@ -858,8 +858,8 @@ namespace ConditionalAccess
                         isRecurring = isRecurring,
                         billingTransactionId = billingTransactionId,
                         previewModuleId = previewModuleID,
-                        transactionStartDate = transactionStartDate,
-                        subscriptionEndDate = subscriptionEndDate,
+                        startDate = transactionStartDate,
+                        endDate = subscriptionEndDate,
                         entitlementDate = entitlementDate,
                         houseHoldId = houseHoldId,
                         billingGuid = billingGuid

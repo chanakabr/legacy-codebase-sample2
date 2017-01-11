@@ -105,8 +105,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
-    <Compile Include="Modules\PpvPurchase.cs" />
-    <Compile Include="Modules\SubscriptionPurchase.cs" />
+    <Compile Include="Modules\PpvEntitlement.cs" />
+    <Compile Include="Modules\Entitlement.cs" />
+    <Compile Include="Modules\SubscriptionEntitlement.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
     <Compile Include="Recordings\QuotaManager.cs" />
