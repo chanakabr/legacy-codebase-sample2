@@ -12054,7 +12054,12 @@ namespace ConditionalAccess
             {
                 sPlayCycleKey = Guid.NewGuid().ToString();
             }
-            int nCountryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(sUserIP);
+
+            API api = new API();
+            string sAPIWSUserName = string.Empty;
+            string sAPIWSPass = string.Empty;
+            Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIWSUserName, ref sAPIWSPass);
+            int nCountryID = api.GetIPCountryCode(sAPIWSUserName, sAPIWSPass, sUserIP);
             Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
         }
 
