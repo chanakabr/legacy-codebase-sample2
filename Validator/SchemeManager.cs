@@ -20,16 +20,6 @@ namespace Validator.Managers.Scheme
 {
     public class SchemeManager
     {
-        private static Scheme scheme;
-        private static Scheme getScheme()
-        {
-            if (scheme != null)
-                return scheme;
-
-            scheme = new Scheme(true);
-            return scheme;
-        }
-
         private static string GetProjectDir()
         {
             string filename = Assembly.GetExecutingAssembly().CodeBase;
@@ -102,13 +92,14 @@ namespace Validator.Managers.Scheme
 
         public static void Generate(Stream stream)
         {
-            Scheme writer = new Scheme(stream);
-            writer.write();
+            Scheme writer = Scheme.getInstance();
+            writer.RemoveInvalidObjects();
+            writer.write(stream);
         }
 
         public static bool Validate()
         {
-            return getScheme().validate();
+            return Scheme.getInstance().validate();
         }
 
         public static bool ValidateErrors(IEnumerable<Type> exceptions, bool strict)
@@ -222,7 +213,7 @@ namespace Validator.Managers.Scheme
             }
 
             // description
-            string description = getScheme().getDescription(property);
+            string description = Scheme.getInstance().getDescription(property);
             description = description.Trim();
             if (string.IsNullOrEmpty(description))
             {
@@ -481,7 +472,7 @@ namespace Validator.Managers.Scheme
             }
 
             // description
-            string description = getScheme().getDescription(action, param);
+            string description = Scheme.getInstance().getDescription(action, param);
             description = description.Trim();
             if (string.IsNullOrEmpty(description))
             {
@@ -667,7 +658,7 @@ namespace Validator.Managers.Scheme
             }
 
             // description
-            string description = getScheme().getDescription(action);
+            string description = Scheme.getInstance().getDescription(action);
             description = description.Trim();
             if (string.IsNullOrEmpty(description))
             {
