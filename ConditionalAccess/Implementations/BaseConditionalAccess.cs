@@ -12713,6 +12713,13 @@ namespace ConditionalAccess
                         default:
                         break;
                     }
+
+                    if (!string.IsNullOrEmpty(type))
+                    {
+                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(m_nGroupID,
+                            response,
+                            EventManager.Events.eKalturaEventActions.Created, type));
+                    }
                 }
             }
             catch (Exception ex)
@@ -18006,10 +18013,7 @@ namespace ConditionalAccess
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(recordingCleanupIntervalSec);
-                    SetupTasksQueue queue = new SetupTasksQueue()
-                    {
-                         storeForRecovery = true
-                    };
+                    SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingsCleanup, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     queue.Enqueue(data, ROUTING_KEY_RECORDINGS_CLEANUP);
                 }
@@ -18085,10 +18089,7 @@ namespace ConditionalAccess
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
-                    SetupTasksQueue queue = new SetupTasksQueue()
-                    {
-                        storeForRecovery = true
-                    };
+                    SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.InsertExpiredRecordingsTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     queue.Enqueue(data, RECORDINGS_LIFETIME_ROUTING_KEY);
                 }
@@ -18147,10 +18148,7 @@ namespace ConditionalAccess
 
                     if (shouldCallAgain)
                     {
-                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue()
-                        {
-                            storeForRecovery = true
-                        };
+                        QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                         ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainId, string.Empty, string.Empty, 0,
                                                                                                                      eSeriesRecordingTask.CompleteRecordings) { ETA = DateTime.UtcNow.AddMinutes(1) };
                         queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
@@ -18291,10 +18289,7 @@ namespace ConditionalAccess
                 {
                     foreach (HandleDomainQuataByRecordingTask expiredRecording in expiredRecordingsToSchedule.Values)
                     {
-                        GenericCeleryQueue queue = new GenericCeleryQueue()
-                        {
-                            storeForRecovery = true
-                        };
+                        GenericCeleryQueue queue = new GenericCeleryQueue();
                         RecordingModificationData data = new RecordingModificationData(expiredRecording.GroupId, expiredRecording.Id, expiredRecording.RecordingId, expiredRecording.ScheduledExpirationEpoch) { ETA = DateTime.UtcNow };
                         bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, expiredRecording.GroupId));
                         if (!queueExpiredRecordingResult)
@@ -18333,10 +18328,7 @@ namespace ConditionalAccess
                     }
 
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
-                    SetupTasksQueue queue = new SetupTasksQueue()
-                    {
-                        storeForRecovery = true
-                    };
+                    SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingScheduledTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
                     queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY);
                 }
@@ -18996,10 +18988,7 @@ namespace ConditionalAccess
                 // if series is already followed then complete the series recordings for the domain
                 if (isSeriesFollowed)
                 {
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue()
-                    {
-                        storeForRecovery = true
-                    };
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                     ApiObjects.QueueObjects.SeriesRecordingTaskData data = new ApiObjects.QueueObjects.SeriesRecordingTaskData(m_nGroupID, string.Empty, domainID, string.Empty, string.Empty, 0,
                                                                                                                     eSeriesRecordingTask.CompleteRecordings) { ETA = DateTime.UtcNow.AddMinutes(1) };
                     queue.Enqueue(data, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
@@ -19013,10 +19002,7 @@ namespace ConditionalAccess
                                         m_nGroupID, seriesRecording.SeriesId, seriesRecording.SeasonNumber, seriesRecording.EpgChannelId);
                     }
 
-                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue()
-                    {
-                        storeForRecovery = true
-                    };
+                    QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();
                     SeriesRecordingTaskData SeriesRecordingTask = new SeriesRecordingTaskData(m_nGroupID, userID, domainID, seriesRecording.EpgChannelId.ToString(), seriesRecording.SeriesId, seriesRecording.SeasonNumber, eSeriesRecordingTask.FirstFollower);
                     queue.Enqueue(SeriesRecordingTask, string.Format(ROUTING_KEY_SERIES_RECORDING_TASK, m_nGroupID));
                 }
