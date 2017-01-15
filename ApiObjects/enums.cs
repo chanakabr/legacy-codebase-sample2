@@ -823,4 +823,5 @@ namespace ApiObjects
         Fail = 3,
         HouseholdCancel = 4
     }
+
 }

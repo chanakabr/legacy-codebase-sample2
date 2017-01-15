@@ -844,9 +844,9 @@ namespace ConditionalAccess
                 // grant entitlement
                 SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
                     {
-                        productId = productId,
+                        productId = productId.ToString(),
                         price = price,
-                        siteguid = siteguid,
+                        siteGuid = siteguid,
                         isEntitledToPreviewModule = isEntitledToPreviewModule,
                         currency = currency,
                         customData = customData,
@@ -858,8 +858,8 @@ namespace ConditionalAccess
                         isRecurring = isRecurring,
                         billingTransactionId = billingTransactionId,
                         previewModuleId = previewModuleID,
-                        transactionStartDate = transactionStartDate,
-                        subscriptionEndDate = subscriptionEndDate,
+                        startDate = transactionStartDate,
+                        endDate = subscriptionEndDate,
                         entitlementDate = entitlementDate,
                         houseHoldId = houseHoldId,
                         billingGuid = billingGuid
