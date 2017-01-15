@@ -823,4 +823,21 @@ namespace ApiObjects
         Fail = 3,
         HouseholdCancel = 4
     }
+
+    public enum PlayContextType
+    {
+        Trailer,
+        Catchup,
+        StartOver,
+        TrickPlay,
+        Playback
+    }
+
+    public enum StreamerType
+    {
+        applehttp, 
+        mpegdash,
+        url,
+ 
+    }
 }

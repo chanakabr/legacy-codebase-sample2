@@ -3942,5 +3942,42 @@ namespace DAL
 
             return dt;
         }
+
+        public static List<MediaFile> GetMediaFiles(int m_nGroupID, long mediaId)
+        {
+            List<MediaFile> files = null;
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFiles");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", m_nGroupID);
+            sp.AddParameter("@mediaId", mediaId);
+            dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                files = new List<MediaFile>();
+                MediaFile file;
+                StreamerType streamerType;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    file = new MediaFile()
+                    {
+                        Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
+                        ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
+                        Type = ODBCWrapper.Utils.GetSafeStr(dr, ""), // TODO: get the type
+                        IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false
+                    };
+                    
+                    if (Enum.TryParse(ODBCWrapper.Utils.GetSafeStr(dr, "streamer_type"), out streamerType))
+                    {
+                        file.StreamerType = streamerType;
+                    }
+
+                    files.Add(file);
+                }
+            }
+            return files;
+        }
     }
 }

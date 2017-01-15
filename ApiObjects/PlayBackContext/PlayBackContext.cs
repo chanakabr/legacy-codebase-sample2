@@ -8,14 +8,36 @@ namespace ApiObjects
 {
     public class PlayBackContextResponse
     {
+        public int AssetId { get; set; }
+
         public List<MediaFile> Files { get; set; }
+
+        public List<PlaybackStatus> PlaybackStatus { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
     }
 
     public class MediaFile
     {
+        public long Id { get; set; }
 
+        public string Type { get; set; }
+
+        public string Url { get; set; } // tan tan
+
+        public long Duration { get; set; }
+
+        public string ExternalId { get; set; }
+
+        public StreamerType? StreamerType { get; set; }
+
+        public bool IsTrailer { get; set; }
     }
 
+    public class PlaybackStatus
+    {
+        public string Code { get; set; }
+
+        public string Message { get; set; }
+    }
 }

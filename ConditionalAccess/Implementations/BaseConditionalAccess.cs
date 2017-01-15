@@ -82,6 +82,8 @@ namespace ConditionalAccess
         private const string ADAPTER_ALIAS_REQUIRED = "Adapter Alias must have a value";
         private const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";
 
+        private const string MEDIA_FILES_CACHE_KEY_FORMAT = "MediaFiles_{0}";
+
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
         public const string USER_IP = "up";
@@ -19675,46 +19677,71 @@ namespace ConditionalAccess
             return response;
         }
 
-        public PlayBackContextResponse GetPlaybackContext(int groupId, string userId, string assetId, eAssetTypes assetType, int fileId, string streamerType, string mediaProtocol)
+        public PlayBackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, string streamerType, string mediaProtocol, List<PlayContextType> contexts, 
+            string ip, string udid)
         {
             PlayBackContextResponse response = new PlayBackContextResponse()
-                {
-                    Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-                };
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
             try
             {
-                List<int> assetFileIds = null;
-
-                if (fileId == 0)
+                List<MediaFile> files;
+                if (fileIds == null || fileIds.Count == 0)
                 {
-                    assetFileIds = GetAssetFileIds(assetId, assetType);
+                    files = GetAssetFiles(assetId, assetType, streamerType, mediaProtocol, contexts);
                 }
                 else
                 {
-                    assetFileIds = new List<int>() { fileId };
+                    files = GetAssetFiles(assetId, assetType, streamerType, mediaProtocol, contexts, fileIds);
                 }
 
-                if (assetFileIds != null && assetFileIds.Count > 0)
+
+                if (files != null && files.Count > 0)
                 {
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(assetFileIds.ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
                     if (prices != null && prices.Length > 0)
                     {
-                        List<int> fileIds = new List<int>();
+                        List<int> assetFileIds = new List<int>();
                         foreach (MediaFileItemPricesContainer price in prices)
                         {
                             if (IsFreeItem(price) || IsItemPurchased(price))
                             {
-                                fileIds.Add(fileId);
+                                assetFileIds.Add(price.m_nMediaFileID);
                             }
                         }
 
                         if (fileIds.Count > 0)
                         {
+                            int domainID = 0;
+                            List<int> ruleIds = new List<int>();
+                            DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, assetFileIds[0], udid, prices, int.Parse(assetId), ip, ref ruleIds, ref domainID);
 
-                            response.Files = GetMediaFiles(fileIds, streamerType, mediaProtocol);
+                            //if (mediaConcurrencyResponse != DomainResponseStatus.OK)
+                            //{
+                            //    log.Debug("GetLicensedLinks - " + string.Format("{0}, user:{1}, MFID:{2}", mediaConcurrencyResponse.ToString(), userId, nMediaFileID));
+                            //    res = new LicensedLinkResponse(string.Empty, string.Empty, mediaConcurrencyResponse.ToString());
+                            //    res.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
+                            //    return res;
+                            //}
+
+                            //response.Files = GetMediaFiles(fileIds);
                         }
                     }
                 }
+
+
+                //long householdId = 0;
+                //ResponseStatus status = Utils.ValidateUser(m_nGroupID, userId, ref householdId);
+                //if (status != ResponseStatus.OK)
+                //{
+                //    // user validation failed
+                //    response.Status = SetResponseStatus(status);
+                //    log.ErrorFormat("User validation failed: userId = {0}, status = {1}", userId, status);
+                //    return response;
+                //}
+
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
@@ -19729,10 +19756,65 @@ namespace ConditionalAccess
             throw new NotImplementedException();
         }
 
-
-        private List<int> GetAssetFileIds(string assetId, eAssetTypes assetType)
+        private List<MediaFile> GetAssetFiles(string assetId, eAssetTypes assetType, string streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds = null)
         {
-            throw new NotImplementedException();
+            List<MediaFile> files = null;
+            long mediaId = 0;
+            long id = 0;
+
+            if (long.TryParse(assetId, out id))
+            {
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        {
+                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long> { id });
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                mediaId = epgs[0].LINEAR_MEDIA_ID;
+                            }
+                        }
+                        break;
+                    case eAssetTypes.NPVR:
+                        {
+                            Recording recording = Utils.GetRecordingById(id);
+                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long> { recording.EpgId });
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                mediaId = epgs[0].LINEAR_MEDIA_ID;
+                            }
+                        }
+                        break;
+                    case eAssetTypes.MEDIA:
+                        mediaId = id;
+                        break;
+                    default:
+                        break;
+                }
+
+                // cache
+                List<MediaFile> allMediafiles = null;
+                string mediaFilesCacheKey = string.Format(MEDIA_FILES_CACHE_KEY_FORMAT, mediaId);
+                if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
+                {
+                    allMediafiles = ApiDAL.GetMediaFiles(m_nGroupID, mediaId);
+                    if (allMediafiles != null)
+                    {
+                        ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
+                    }
+                }
+
+                // filter
+                if (allMediafiles != null && allMediafiles.Count > 0)
+                {
+                    // TODO: something about the file URL..
+                    files = allMediafiles.Where(f => (!string.IsNullOrEmpty(streamerType) && f.StreamerType.HasValue && f.StreamerType.ToString().ToLower() == streamerType.ToLower()) &&
+                        ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
+                        f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
+                        (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                }
+            }
+            return files;
         }
     }
 }
