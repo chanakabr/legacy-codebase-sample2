@@ -85,19 +85,6 @@ namespace DAL
             return null;
         }
 
-        public static DataTable Get_IPCountryCode(Int64 nIP)
-        {
-            ODBCWrapper.StoredProcedure spIPCountryCode = new ODBCWrapper.StoredProcedure("Get_IPCountryCode");
-            spIPCountryCode.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spIPCountryCode.AddParameter("@IPVal", nIP);
-
-            DataSet ds = spIPCountryCode.ExecuteDataSet();
-
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-        }
-
         public static DataSet Get_MediaDetailsForEmail(int nMediaID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure spMediaDetailsForEmail = new ODBCWrapper.StoredProcedure("Get_MediaDetailsForEmail");

@@ -2036,6 +2036,11 @@ namespace ConditionalAccess
             string sAPIPassword)
         {
             bool res = false;
+            if (nSubGeoCommerceID <= 0)
+            {
+                return res;
+            }
+
             if (!string.IsNullOrEmpty(sClientIP))
             {
                 using (API apiWS = new API())
@@ -3010,31 +3015,6 @@ namespace ConditionalAccess
 
             return res;
         }
-
-        internal static int GetCountryIDByIP(string sIP)
-        {
-            int retCountryID = 0;
-
-            if (!string.IsNullOrEmpty(sIP))
-            {
-                long nIPVal = 0;
-                string[] splited = sIP.Split('.');
-
-                if (splited != null && splited.Length >= 3)
-                {
-                    nIPVal = long.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-                }
-
-                DataTable dtCountry = ApiDAL.Get_IPCountryCode(nIPVal);
-                if (dtCountry != null && dtCountry.Rows.Count > 0)
-                {
-                    retCountryID = ODBCWrapper.Utils.GetIntSafeVal(dtCountry.Rows[0], "Country_ID");
-                }
-            }
-            return retCountryID;
-        }
-
-
 
         internal static bool GetStreamingUrlType(int fileMainStreamingCoID, ref string CdnStrID)
         {
@@ -4971,7 +4951,7 @@ namespace ConditionalAccess
                 DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                 DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
                 long viewableUntilEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "VIEWABLE_UNTIL_EPOCH", 0);
-                long protectedUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_DATE", 0);
+                long protectedUntilDate = ODBCWrapper.Utils.GetLongSafeVal(dr, "PROTECTED_UNTIL_EPOCH", 0);
                 RecordingInternalStatus recordingInternalStatus = (RecordingInternalStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORDING_STATUS");
                 DomainRecordingStatus domainRecordingStatus = (DomainRecordingStatus)ODBCWrapper.Utils.GetIntSafeVal(dr, "DOMAIN_RECORDING_STATUS");
                 TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(domainRecordingStatus);
