@@ -137,7 +137,7 @@ namespace ConditionalAccess
         protected abstract bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
                                                                  int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate,
-                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate);
+                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus);
 
         protected abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
@@ -13056,7 +13056,7 @@ namespace ConditionalAccess
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, coupon, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate);
+                                                                                      billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK);
 
                                 if (handleBillingPassed && endDate.HasValue)
                                 {
@@ -13584,7 +13584,7 @@ namespace ConditionalAccess
                                 // grant entitlement
                                 bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
-                                                                                      billingGuid.ToString(), entitleToPreview, isRecurring, entitlementDate, ref purchaseID, ref subscriptionEndDate);
+                                                                                      billingGuid.ToString(), entitleToPreview, isRecurring, entitlementDate, ref purchaseID, ref subscriptionEndDate, SubscriptionPurchaseStatus.OK);
 
                                 if (handleBillingPassed && subscriptionEndDate.HasValue)
                                 {
@@ -14408,7 +14408,7 @@ namespace ConditionalAccess
                 // grant entitlement
                 var result = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                     userIp, country, deviceName, lBillingTransactionID, customData, productId, billingGuid.ToString(),
-                    entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate);
+                    entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate, isGrant? SubscriptionPurchaseStatus.OK : SubscriptionPurchaseStatus.Switched_To);
 
                 if (result)
                 {
@@ -16115,7 +16115,7 @@ namespace ConditionalAccess
                             // grant entitlement
                             bool handleBillingPassed = HandleSubscriptionBillingSuccess(ref transactionResponse, userId, householdId, subscription, price, currency, coupon, userIP,
                                 country, udid, long.Parse(transactionResponse.TransactionID), customData, productId, billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring,
-                                entitlementDate, ref purchaseID, ref endDate);
+                                entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK);
 
                             if (handleBillingPassed && endDate.HasValue)
                             {
@@ -19813,7 +19813,7 @@ namespace ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "CancelSubscriptionPurchaseTransaction fail");
                     return response;
                 }
-                long purchaseID = 0;
+               
                 ApiObjects.Response.Status status = GrantEntitlements(siteGuid, houseHoldID, 0, int.Parse(newSubscription.m_SubscriptionCode), eTransactionType.Subscription, userIp, deviceName, history, false, oldSubscription.m_dEndDate);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
