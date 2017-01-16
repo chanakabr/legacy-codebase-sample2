@@ -483,14 +483,12 @@ namespace WebAPI.Controllers
             bool response = false;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;            
-
-            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+            string userId = KS.GetFromRequest().UserId;
 
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SwaptEntitlements(groupId, userId, domainID, currentProductId, swapProductId, history);
+                response = ClientsManager.ConditionalAccessClient().SwaptEntitlements(groupId, userId, currentProductId, swapProductId, history);
             }
             catch (ClientException ex)
             {

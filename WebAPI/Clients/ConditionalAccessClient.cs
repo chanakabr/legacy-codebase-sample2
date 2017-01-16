@@ -1948,7 +1948,7 @@ namespace WebAPI.Clients
             return kalturaEntitlement;
         }
 
-        internal bool SwaptEntitlements(int groupId, string userId, long domainID, int currentProductId, int swapProductId, bool history)
+        internal bool SwaptEntitlements(int groupId, string userId, int currentProductId, int swapProductId, bool history)
         {
             Status response = null;
 
