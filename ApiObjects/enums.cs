@@ -826,6 +826,7 @@ namespace ApiObjects
         Switched_To = 6
     }
 
+<<<<<<< HEAD
     public enum PlayContextType
     {
         Trailer,
@@ -840,6 +841,14 @@ namespace ApiObjects
         applehttp, 
         mpegdash,
         url,
- 
+    }
+
+    public enum eService
+    {
+        Unknown = 0,
+        CatchUp = 1,
+        StartOver = 2,
+        NPVR = 3,
+        Download = 4
     }
 }
