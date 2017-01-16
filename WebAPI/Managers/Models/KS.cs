@@ -297,5 +297,39 @@ namespace WebAPI.Managers.Models
 
             return ks;
         }
+
+        public static KS ParseKS(string ks)
+        {
+            StringBuilder sb = new StringBuilder(ks);
+            sb = sb.Replace("-", "+");
+            sb = sb.Replace("_", "/");
+
+            int groupId = 0;
+            byte[] encryptedData = null;
+            string encryptedDataStr = null;
+            string[] ksParts = null;
+
+            try
+            {
+                encryptedData = System.Convert.FromBase64String(sb.ToString());
+                encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+                ksParts = encryptedDataStr.Split('|');
+            }
+            catch (Exception)
+            {
+                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+            }
+
+            if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
+            {
+                throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
+            }
+
+            Group group = WebAPI.ClientManagers.GroupsManager.GetGroup(groupId);
+            string adminSecret = group.UserSecret;
+
+            // build KS
+            return KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KS.KSVersion.V2);
+        }
     }
 }

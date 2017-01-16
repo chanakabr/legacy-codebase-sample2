@@ -293,6 +293,13 @@
             <param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
              <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.GetPlayManifest(System.Int32)">
+            <summary>
+            Redirects to play manifest
+            </summary>
+            <remarks></remarks>
+            assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
+        </member>
         <member name="M:WebAPI.Controllers.AssetStatisticsController.Query(WebAPI.Models.Catalog.KalturaAssetStatisticsQuery)">
             <summary>
             Returns statistics for given list of assets by type and / or time period
@@ -831,9 +838,14 @@
             Playback streamer type: RTMP, HTTP, appleHttps, rtsp, sl.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaFileId">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaFileIds">
             <summary>
-            Media file ID
+            List of comma separated media file IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Contexts">
+            <summary>
+            List of comma separated context types
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
@@ -896,14 +908,19 @@
             License URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCencDrmPlaybackPluginData.CustomDateString">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.CustomDateString">
             <summary>
             Custom data string
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCencDrmPlaybackPluginData.Signature">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Signature">
             <summary>
             Signature string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
+            <summary>
+            Custom data string
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">

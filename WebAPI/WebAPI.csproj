@@ -639,6 +639,7 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />

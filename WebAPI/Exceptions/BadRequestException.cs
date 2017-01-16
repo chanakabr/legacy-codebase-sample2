@@ -19,6 +19,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ACTION_ARGUMENT_FORBIDDEN = new ApiExceptionType(StatusCode.ActionArgumentForbidden, StatusCode.ServiceForbidden, "Argument [@argument@] in action [@service@].[@action@] is forbidden", "argument", "service", "action");
         public static ApiExceptionType INVALID_KS_FORMAT = new ApiExceptionType(StatusCode.InvalidKS, "Invalid KS format");
         public static ApiExceptionType KS_EXPIRED = new ApiExceptionType(StatusCode.ExpiredKS, "KS expired");
+        public static ApiExceptionType PARTNER_INVALID = new ApiExceptionType(StatusCode.PartnerInvalid, "Partner invalid");
         public static ApiExceptionType INVALID_REFRESH_TOKEN = new ApiExceptionType(StatusCode.InvalidRefreshToken, "Invalid refresh token");
         public static ApiExceptionType REFRESH_TOKEN_FAILED = new ApiExceptionType(StatusCode.RefreshTokenFailed, StatusCode.Error, "Refresh token failed");
         public static ApiExceptionType INVALID_USER_ID = new ApiExceptionType(StatusCode.UnauthorizedUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");

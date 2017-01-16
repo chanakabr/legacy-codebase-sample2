@@ -28,14 +28,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("licenseURL")]
         [XmlElement(ElementName = "licenseURL")]
         public string LicenseURL { get; set; }
-    }
 
-    public class KalturaPluginData : KalturaOTTObject
-    {
-    }
-
-    public class KalturaCencDrmPlaybackPluginData : KalturaDrmPlaybackPluginData
-    {
         /// <summary>
         /// Custom data string
         /// </summary>
@@ -53,9 +46,27 @@ namespace WebAPI.Models.ConditionalAccess
         public string Signature { get; set; }
     }
 
+    public class KalturaPluginData : KalturaOTTObject
+    {
+    }
+
+    public class KalturaFairPlayPlaybackPluginData : KalturaDrmPlaybackPluginData
+    {
+        /// <summary>
+        /// Custom data string
+        /// </summary>
+        [DataMember(Name = "certificate")]
+        [JsonProperty("certificate")]
+        [XmlElement(ElementName = "certificate")]
+        public string Certificate { get; set; }
+    }
+
     public enum KalturaDrmSchemeName
     {
         PLAYREADY_CENC,
-        WIDEVINE_CENC
+        WIDEVINE_CENC,
+        FAIRPLAY,
+        WIDEVINE,
+        PLAYREADY
     }
 }

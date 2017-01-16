@@ -298,6 +298,12 @@ namespace WebAPI.Filters
                 return;
             }
 
+            if (!actionContext.Request.GetRouteData().Route.RouteTemplate.StartsWith("api_v3"))
+            {
+                base.OnActionExecuting(actionContext);
+                return;
+            }
+
             HttpContext.Current.Items[REQUEST_TIME] = DateTime.UtcNow;
 
             NameValueCollection formData = null;

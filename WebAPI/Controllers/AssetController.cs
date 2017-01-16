@@ -49,6 +49,7 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+
             string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)
@@ -857,8 +858,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, assetId, assetType, contextDataParams);
-                
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
             }
             catch (ClientException ex)
             {
@@ -866,7 +866,6 @@ namespace WebAPI.Controllers
             }
 
             return response;
-
         }
     }
 }

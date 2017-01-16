@@ -346,8 +346,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<EntitlementResponse, KalturaAssetFileContext>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
-            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+              .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
 
+            Mapper.CreateMap<MediaFile, KalturaPlaybackSource>()
+              .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.MediaId.ToString()))
+              .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+              .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()))
+              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Url) ? src.Url.ToLower().StartsWith("https") ? "https" : "http" : string.Empty));
         }
 
         private static int? GetNullableInt(int p)
@@ -712,6 +721,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;                
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown ConditionalAccess.PaymentMethod type");
+            }
+
+            return result;
+        }
+
+        public static PlayContextType ConvertPlayContextType(KalturaContextType type)
+        {
+            PlayContextType result;
+            switch (type)
+            {
+                case KalturaContextType.TRAILER:
+                    result = PlayContextType.Trailer;
+                    break;
+                case KalturaContextType.CATCHUP:
+                    result = PlayContextType.Catchup;
+                    break;
+                case KalturaContextType.START_OVER:
+                    result = PlayContextType.StartOver;
+                    break;
+                case KalturaContextType.TRICK_PLAY:
+                    result = PlayContextType.TrickPlay;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaContextType type");
+                    break;
             }
 
             return result;

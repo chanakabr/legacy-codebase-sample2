@@ -1948,19 +1948,21 @@ namespace WebAPI.Clients
             return kalturaEntitlement;
         }
 
-        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
             PlayBackContextResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
+
+            List<PlayContextType> wsContexts = contextDataParams.GetContexts().Select(c => ConditionalAccessMappings.ConvertPlayContextType(c)).ToList();
             
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId,
-                        ApiMappings.ConvertAssetType(assetType), contextDataParams.MediaFileId, contextDataParams.StreamerType, contextDataParams.MediaProtocol);
+                    response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, udid, Utils.Utils.GetClientIP(), 
+                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), contextDataParams.StreamerType, contextDataParams.MediaProtocol, wsContexts);
                 }
             }
             catch (Exception ex)
@@ -1985,24 +1987,27 @@ namespace WebAPI.Clients
 
             if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
             {
+                KalturaDrmPlaybackPluginData drmData;
                 foreach (var source in kalturaPlaybackContext.Sources)
                 {
-                    string customData = DrmUtils.BuildCencCustomDataString(source.Id.HasValue ? source.Id.Value : 0);
-                    source.DRM = new List<KalturaDrmPlaybackPluginData>();
-                    source.DRM.Add(new KalturaCencDrmPlaybackPluginData()
+                    List<KalturaDrmSchemeName> schemes = DrmUtils.GetDrmSchemeName(source.Format);
+                    if (schemes != null && schemes.Count > 0)
                     {
-                        CustomDateString = customData,
-                        Signature = DrmUtils.BuildCencSignatureString(customData),
-                        //LicenseURL = ???
-                        //Scheme = ???
-                    });
+                        source.DRM = new List<KalturaDrmPlaybackPluginData>();
+
+                        foreach (var scheme in schemes)
+                        {
+                            drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
+
+                            source.DRM.Add(drmData);
+                        }
+                    }
                 }
             }
             else
             {
                 kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
                 kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });
-
             }
 
             return kalturaPlaybackContext;
