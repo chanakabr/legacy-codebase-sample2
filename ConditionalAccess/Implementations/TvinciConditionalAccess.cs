@@ -771,7 +771,8 @@ namespace ConditionalAccess
 
         protected override bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
                                                                  string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
-                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate)
+                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate
+                                                                ,SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK )
         {
             purchaseId = 0;
             try
@@ -825,7 +826,7 @@ namespace ConditionalAccess
                 // grant entitlement
                 purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
                              deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                             previewModuleID, transactionStartDate, subscriptionEndDate.Value, entitlementDate.Value, houseHoldId, billingGuid);
+                             previewModuleID, transactionStartDate, subscriptionEndDate.Value, entitlementDate.Value, houseHoldId, billingGuid, (int)purchaseStatus);
 
                 if (purchaseId == 0)
                 {
