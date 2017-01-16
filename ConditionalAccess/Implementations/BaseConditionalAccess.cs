@@ -12724,9 +12724,9 @@ namespace ConditionalAccess
 
                     if (!string.IsNullOrEmpty(type))
                     {
-                        EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(m_nGroupID,
-                            response,
-                            EventManager.Events.eKalturaEventActions.Created, type));
+                        //EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(m_nGroupID,
+                        //    response,
+                        //    EventManager.Events.eKalturaEventActions.Created, type));
                     }
                 }
             }

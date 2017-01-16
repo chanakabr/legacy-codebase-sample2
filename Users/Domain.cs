@@ -251,10 +251,10 @@ namespace Users
                 }
             }
 
-            EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
-                nGroupID,
-                this,
-                EventManager.Events.eKalturaEventActions.Created));
+            //EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+            //    nGroupID,
+            //    this,
+            //    EventManager.Events.eKalturaEventActions.Created));
 
             return this;
         }
