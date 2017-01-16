@@ -462,5 +462,42 @@ namespace WebAPI.Controllers
             }
             return null;
         }
+
+        /// <summary>        
+        /// Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
+        /// </summary>
+        /// <param name="currentProductId">Identifier for the current product package</param>
+        /// <param name="swapProductId">Identifier for the new product package </param>
+        /// <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+        /// <remarks>Possible status codes: 
+        /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
+        /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
+        ///,       
+        /// </remarks>
+        [Route("swap"), HttpPost]
+        [ApiAuthorize]       
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+
+        public bool Swap(int currentProductId, int swapProductId, bool history)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;            
+
+            long domainID = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().SwaptEntitlements(groupId, userId, domainID, currentProductId, swapProductId, history);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
