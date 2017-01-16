@@ -28,11 +28,7 @@ namespace TVinciShared
                     return result;
                 }
 
-                GenericCeleryQueue queue = new GenericCeleryQueue()
-                {
-                    storeForRecovery = true
-                };
-
+                GenericCeleryQueue queue = new GenericCeleryQueue();
                 FreeItemUpdateData data = new FreeItemUpdateData(parentGroupId, type, assetIDs, updateIndexDate);
                 bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_FREE_ITEM_UPDATE, parentGroupId));
                 if (enqueueSuccessful)

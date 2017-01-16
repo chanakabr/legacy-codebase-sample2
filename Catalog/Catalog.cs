@@ -4782,136 +4782,121 @@ namespace Catalog
             return response;
         }
 
-        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
+        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request, INPVRProvider npvr)
         {
             NPVRSeriesResponse nPVRSeriesResponse = new NPVRSeriesResponse();
-            INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID, out npvr))
-            {
-                    int domainID = 0;
-                    if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
-                    {
-                        NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj()
-                        {
-                            EntityID = domainID.ToString(),
-                            PageIndex = request.m_nPageIndex,
-                            PageSize = request.m_nPageSize
-                        });
-                        if (response != null)
-                        {
-                            if (response.isOK)
-                            {
-                                nPVRSeriesResponse.totalItems = response.totalItems;
-                                nPVRSeriesResponse.recordedSeries = response.results;
-                            }
-                            else
-                            {
-                                log.Error("Error - " + string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg));
-                                nPVRSeriesResponse.recordedSeries = new List<RecordedSeriesObject>(0);
-                            }
-                        }
-                        else
-                        {
-                            throw new Exception("NPVR layer returned response null.");
-                        }
 
+            int domainID = 0;
+            if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
+            {
+                NPVRRetrieveSeriesResponse response = npvr.RetrieveSeries(new NPVRRetrieveParamsObj()
+                {
+                    EntityID = domainID.ToString(),
+                    PageIndex = request.m_nPageIndex,
+                    PageSize = request.m_nPageSize
+                });
+                if (response != null)
+                {
+                    if (response.isOK)
+                    {
+                        nPVRSeriesResponse.totalItems = response.totalItems;
+                        nPVRSeriesResponse.recordedSeries = response.results;
                     }
                     else
                     {
-                        throw new Exception("Either user is not valid or user has no domain.");
+                        log.Error("Error - " + string.Format("GetSeriesRecordings. NPVR layer returned errorneus response. Req: {0} , Resp Err Msg: {1}", request.ToString(), response.msg));
+                        nPVRSeriesResponse.recordedSeries = new List<RecordedSeriesObject>(0);
                     }
-                
+                }
+                else
+                {
+                    throw new Exception("NPVR layer returned response null.");
+                }
+
             }
             else
             {
-                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
+                throw new Exception("Either user is not valid or user has no domain.");
             }
 
             return nPVRSeriesResponse;
         }
 
-        internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
+        internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request, INPVRProvider npvr)
         {
             List<RecordedEPGChannelProgrammeObject> res = null;
-            INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID, out npvr))
+
+            int domainID = 0;
+            if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
             {
-
-                int domainID = 0;
-                if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
+                NPVRRetrieveParamsObj args = new NPVRRetrieveParamsObj();
+                args.PageIndex = request.m_nPageIndex;
+                args.PageSize = request.m_nPageSize;
+                args.EntityID = domainID.ToString();
+                args.OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy);
+                args.Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir);
+                switch (request.m_eNPVRSearchBy)
                 {
-                    NPVRRetrieveParamsObj args = new NPVRRetrieveParamsObj();
-                    args.PageIndex = request.m_nPageIndex;
-                    args.PageSize = request.m_nPageSize;
-                    args.EntityID = domainID.ToString();
-                    args.OrderBy = (NPVROrderBy)((int)request.m_oOrderObj.m_eOrderBy);
-                    args.Direction = (NPVROrderDir)((int)request.m_oOrderObj.m_eOrderDir);
-                    switch (request.m_eNPVRSearchBy)
-                    {
-                        case NPVRSearchBy.ByStartDate:
-                            args.StartDate = request.m_dtStartDate;
-                            args.SearchBy.Add(SearchByField.byStartTime);
-                            break;
-                        case NPVRSearchBy.ByRecordingStatus:
-                            args.RecordingStatus.AddRange(request.m_lRecordingStatuses.Distinct().Select((item) => (NPVRRecordingStatus)((int)item)));
-                            args.SearchBy.Add(SearchByField.byStatus);
-                            break;
-                        case NPVRSearchBy.ByRecordingID:
-                            args.AssetIDs.AddRange(request.m_lRecordingIDs.Distinct());
-                            args.SearchBy.Add(SearchByField.byAssetId);
-                            break;
-                        default:
-                            break;
-                    }
+                    case NPVRSearchBy.ByStartDate:
+                        args.StartDate = request.m_dtStartDate;
+                        args.SearchBy.Add(SearchByField.byStartTime);
+                        break;
+                    case NPVRSearchBy.ByRecordingStatus:
+                        args.RecordingStatus.AddRange(request.m_lRecordingStatuses.Distinct().Select((item) => (NPVRRecordingStatus)((int)item)));
+                        args.SearchBy.Add(SearchByField.byStatus);
+                        break;
+                    case NPVRSearchBy.ByRecordingID:
+                        args.AssetIDs.AddRange(request.m_lRecordingIDs.Distinct());
+                        args.SearchBy.Add(SearchByField.byAssetId);
+                        break;
+                    default:
+                        break;
+                }
 
-                    if (request.m_nEPGChannelID > 0)
+                if (request.m_nEPGChannelID > 0)
+                {
+                    args.EpgChannelID = request.m_nEPGChannelID.ToString();
+                    args.SearchBy.Add(SearchByField.byChannelId);
+                }
+                if (request.m_lProgramIDs != null && request.m_lProgramIDs.Count > 0)
+                {
+                    List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(groupID, request.m_lProgramIDs);
+                    if (epgs != null && epgs.Count > 0)
                     {
-                        args.EpgChannelID = request.m_nEPGChannelID.ToString();
-                        args.SearchBy.Add(SearchByField.byChannelId);
-                    }
-                    if (request.m_lProgramIDs != null && request.m_lProgramIDs.Count > 0)
-                    {
-                        List<EPGChannelProgrammeObject> epgs = GetEpgsByGroupAndIDs(groupID, request.m_lProgramIDs);
-                        if (epgs != null && epgs.Count > 0)
-                        {
-                            // get all linear settings about channel + group
-                            GetLinearChannelSettings(groupID, epgs);
+                        // get all linear settings about channel + group
+                        GetLinearChannelSettings(groupID, epgs);
 
-                            args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
-                            args.SearchBy.Add(SearchByField.byProgramId);
-                        }
-                        else
-                        {
-                            log.Error("Error - " + string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()));
-                        }
-                    }
-                    if (request.m_lSeriesIDs != null && request.m_lSeriesIDs.Count > 0)
-                    {
-                        args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
-                        args.SearchBy.Add(SearchByField.bySeasonId);
-                    }
-
-                    NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
-                    if (npvrResp != null)
-                    {
-                        res = npvrResp.results;
+                        args.EpgProgramIDs.AddRange(epgs.Select((item) => item.EPG_IDENTIFIER));
+                        args.SearchBy.Add(SearchByField.byProgramId);
                     }
                     else
                     {
-                        throw new Exception("NPVR layer returned response null.");
+                        log.Error("Error - " + string.Format("GetRecordings. No epgs returned from CB for the request: {0}", request.ToString()));
                     }
+                }
+                if (request.m_lSeriesIDs != null && request.m_lSeriesIDs.Count > 0)
+                {
+                    args.SeriesIDs.AddRange(request.m_lSeriesIDs.Distinct());
+                    args.SearchBy.Add(SearchByField.bySeasonId);
+                }
 
+                NPVRRetrieveAssetsResponse npvrResp = npvr.RetrieveAssets(args);
+                if (npvrResp != null)
+                {
+                    res = npvrResp.results;
                 }
                 else
                 {
-                    throw new Exception("Either user is not valid or user has no domain.");
+                    throw new Exception("NPVR layer returned response null.");
                 }
 
             }
             else
             {
-                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
+                throw new Exception("Either user is not valid or user has no domain.");
             }
+
+
 
             return res;
         }

@@ -219,6 +219,11 @@ namespace Users
                 m_totalNumOfUsers++;
             }
 
+            EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+                nGroupID,
+                this,
+                EventManager.Events.eKalturaEventActions.Created));
+
             return this;
         }
 
