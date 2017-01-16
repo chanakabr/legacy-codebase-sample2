@@ -336,8 +336,14 @@ namespace Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
 
-                INPVRProvider npvr;
+                // delete users from cache
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (var userId in domainUserIds)
+                {
+                    usersCache.RemoveUser(userId, m_nGroupID);
+                }
 
+                INPVRProvider npvr;
                 if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
                 {
                     NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
@@ -347,23 +353,17 @@ namespace Users
                         if (response.isOK)
                         {
                             res = DomainResponseStatus.OK;
-                            // delete users from cache
-                            foreach (var userId in domainUserIds)
-                            {
-                                UsersCache usersCache = UsersCache.Instance();
-                                usersCache.RemoveUser(userId, m_nGroupID);
-                            }
                         }
                         else
                         {
                             res = DomainResponseStatus.Error;
-                            log.Error("Error - " + string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
+                            log.Error(string.Format("Error - Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
                         }
                     }
                     else
                     {
                         res = DomainResponseStatus.Error;
-                        log.Error("Error - " + string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                        log.Error(string.Format("Error - Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                     }
                 }
 

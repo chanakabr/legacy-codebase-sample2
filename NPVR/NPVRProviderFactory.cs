@@ -58,6 +58,8 @@ namespace NPVR
                         {
                             log.Error("Error - " + string.Format("Unknown NPVR Provider ID extracted from DB. G ID: {0} , NPVR ID: {1}", groupID, npvrProviderID));
                         }
+
+                        groupsToNPVRImplMapping.Add(groupID, provider);
                     }
                     else
                     {
