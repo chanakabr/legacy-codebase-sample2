@@ -1948,6 +1948,41 @@ namespace WebAPI.Clients
             return kalturaEntitlement;
         }
 
+        internal bool SwapEntitlements(int groupId, string userId, int currentProductId, int newProductId, bool history)
+        {
+            Status response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = ConditionalAccess.SwapSubscription(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId,
+                        currentProductId, newProductId, Utils.Utils.GetClientIP(), string.Empty, history);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
         internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
@@ -1956,12 +1991,12 @@ namespace WebAPI.Clients
             Group group = GroupsManager.GetGroup(groupId);
 
             List<PlayContextType> wsContexts = contextDataParams.GetContexts().Select(c => ConditionalAccessMappings.ConvertPlayContextType(c)).ToList();
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, udid, Utils.Utils.GetClientIP(), 
+                    response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, udid, Utils.Utils.GetClientIP(),
                         assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), contextDataParams.StreamerType, contextDataParams.MediaProtocol, wsContexts);
                 }
             }

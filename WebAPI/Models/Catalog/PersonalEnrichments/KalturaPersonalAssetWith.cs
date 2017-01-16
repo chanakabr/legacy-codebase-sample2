@@ -9,6 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    [Obsolete]
     public enum KalturaPersonalAssetWith
     {
         bookmark,
@@ -18,7 +19,8 @@ namespace WebAPI.Models.Catalog
 
     /// <summary>
     /// Holder object for personal asset with enum
-    /// </summary>    
+    /// </summary>  
+    [Obsolete]  
     public class KalturaPersonalAssetWithHolder : KalturaOTTObject
     {
         [DataMember(Name = "type")]

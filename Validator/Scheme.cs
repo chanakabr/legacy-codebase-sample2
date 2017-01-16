@@ -22,6 +22,73 @@ using WebAPI.Models.Renderers;
 
 namespace Validator.Managers.Scheme
 {
+    internal class Field
+    {
+        static public Dictionary<string, Field> loadedTypes = new Dictionary<string, Field>();
+
+        public Type type;
+        private List<string> _dependsOn;
+
+        public Field(Type type)
+        {
+            this.type = type;
+            _dependsOn = new List<string>();
+            
+            AddDependencies(type, false);
+        }
+
+        private void AddDependencies(Type type, bool ignoreCurrent = true)
+        {
+            if (ignoreCurrent && type.Name.Equals(this.type.Name))
+                return;
+
+            if (_dependsOn.Contains(type.Name))
+                return;
+
+            if (type == typeof(KalturaOTTObject))
+                return;
+            
+            if (type.IsSubclassOf(typeof(KalturaOTTObject)))
+            {
+                if (!type.Name.Equals(this.type.Name))
+                    _dependsOn.Add(type.Name);
+
+                if (type.BaseType != null)
+                    AddDependencies(type.BaseType);
+
+                foreach (var property in type.GetProperties())
+                {
+                    AddDependencies(property.PropertyType);
+                }
+            }
+            else if (type.IsGenericType)
+            {
+                foreach (var genericArgument in type.GetGenericArguments())
+                {
+                    AddDependencies(genericArgument);
+                }
+            }
+            else if (type.IsArray)
+            {
+                var arrType = type.GetElementType();
+                AddDependencies(arrType);
+            }
+        }
+
+        public IEnumerable<Field> getDependencies()
+        {
+            return loadedTypes.Values.Where(field => _dependsOn.Contains(field.Name));
+        }
+        
+        public string Name
+        {
+            get
+            {
+                return type.Name;
+            }
+        }
+    }
+
     internal class Scheme
     {
         private Stream stream;
@@ -31,41 +98,38 @@ namespace Validator.Managers.Scheme
         private XmlWriter writer;
 
         private List<Type> enums = new List<Type>();
-        private List<Type> types;
-        private Dictionary<string, Type> loadedTypes = new Dictionary<string, Type>();
+        private IEnumerable<Type> types;
         private IEnumerable<Type> controllers;
         private IEnumerable<Type> exceptions;
         private Dictionary<int, ApiException.ExceptionType> errors = new Dictionary<int, ApiException.ExceptionType>();
 
-        public Scheme(bool loadAll)
+        private static Scheme scheme;
+        public static Scheme getInstance()
+        {
+            if (scheme != null)
+                return scheme;
+
+            scheme = new Scheme();
+            return scheme;
+        }
+
+        protected Scheme()
         {
             this.assembly = Assembly.Load("WebAPI");
             this.validatorAssembly = Assembly.GetExecutingAssembly();
             this.assemblyXml = GetAssemblyXml();
 
-            Load(loadAll);
+            Load();
         }
-
-        public Scheme() : this(false)
+        
+        public void RemoveInvalidObjects()
         {
-
+            controllers = controllers.Where(controller => SchemeManager.Validate(controller, false));
+            enums = enums.Where(type => SchemeManager.Validate(type, false)).ToList();
+            types = types.Where(type => SchemeManager.Validate(type, false)).ToList();
         }
 
-        public Scheme(Stream stream) : this()
-        {
-            this.stream = stream;
-
-            XmlWriterSettings settings = new XmlWriterSettings
-            {
-                Indent = true,
-                IndentChars = "  ",
-                NewLineChars = "\r\n",
-                NewLineHandling = NewLineHandling.Replace
-            };
-            writer = XmlWriter.Create(stream, settings);
-        }
-
-        private void Load(bool loadAll)
+        private void Load()
         {
             controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController)));
             exceptions = assembly.GetTypes().Where(myType => myType.IsClass && (myType.IsSubclassOf(typeof(ApiException)) || myType == typeof(ApiException)));
@@ -75,16 +139,13 @@ namespace Validator.Managers.Scheme
                 loadErrors(exception);
             }
 
-            LoadType(typeof(KalturaClientConfiguration), loadAll);
-            LoadType(typeof(KalturaRequestConfiguration), loadAll);
+            LoadType(typeof(KalturaClientConfiguration));
+            LoadType(typeof(KalturaRequestConfiguration));
 
             foreach (Type controller in controllers)
             {
                 var apiExplorerSettings = controller.GetCustomAttribute<ApiExplorerSettingsAttribute>(false);
                 if (apiExplorerSettings != null && apiExplorerSettings.IgnoreApi)
-                    continue;
-
-                if (!loadAll && !SchemeManager.Validate(controller, false))
                     continue;
 
                 var methods = controller.GetMethods();
@@ -98,17 +159,14 @@ namespace Validator.Managers.Scheme
                     if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
                         continue;
 
-                    if (!loadAll && !SchemeManager.Validate(method, false))
-                        continue;
-
                     foreach (var param in method.GetParameters())
                     {
-                        LoadType(param.ParameterType, loadAll);
+                        LoadType(param.ParameterType);
                     }
 
                     if (method.ReturnType != null)
                     {
-                        LoadType(method.ReturnType, loadAll);
+                        LoadType(method.ReturnType);
                     }
                 };
             }
@@ -125,22 +183,32 @@ namespace Validator.Managers.Scheme
                 }
             }
 
-            List<Field> fields = new List<Field>();
-            foreach (Type type in loadedTypes.Values)
-            {   
-                fields.Add(new Field(type));
-            }
-
-            int[] sortedFields = Sort(fields);
-
-            List<Type> sortedTypes = new List<Type>();
-            for (int i = 0; i < sortedFields.Length; i++)
-            {
-                var field = fields[sortedFields[i]];
-                sortedTypes.Insert(0, loadedTypes.Values.Where(myType => myType.Name == field.Name).First());
-            }
-            types = sortedTypes;
+            types = FixTypeDependencies(Field.loadedTypes.Values);
         }
+
+        private IEnumerable<Type> FixTypeDependencies(IEnumerable<Field> input)
+        {
+            return FixTypeDependencies(input, new List<Type>(), new List<string>());
+        }
+
+        private IEnumerable<Type> FixTypeDependencies(IEnumerable<Field> input, List<Type> output, List<string> added)
+        {
+		    foreach (Field field in input)
+		    {
+                if(output.Contains(field.type))
+				    continue;		// already added
+                
+                if(added.Contains(field.Name))
+				    continue;
+
+                added.Add(field.Name);
+                IEnumerable<Field> dependencies = field.getDependencies();
+                FixTypeDependencies(dependencies, output, added);
+
+                output.Add(field.type);
+		    }
+            return output;
+	    }
 
         private void loadErrors(Type exception)
         {
@@ -165,27 +233,26 @@ namespace Validator.Managers.Scheme
             }
         }
 
-        private void LoadType(Type type, bool loadAll)
+        private void LoadType(Type type)
         {
             if (type.IsEnum && !enums.Contains(type))
             {
-                if (loadAll || SchemeManager.Validate(type, false))
-                    enums.Add(type);
+                enums.Add(type);
                 return;
             }
-            if (loadedTypes.ContainsKey(type.Name))
+            if (Field.loadedTypes.ContainsKey(type.Name))
             {
                 return;
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                LoadType(type.GetGenericArguments()[0], loadAll);
+                LoadType(type.GetGenericArguments()[0]);
                 return;
             }
 
             if (type == typeof(KalturaOTTObject))
             {
-                LoadTypeProperties(type, loadAll);
+                LoadTypeProperties(type);
                 return;
             }
 
@@ -193,40 +260,40 @@ namespace Validator.Managers.Scheme
             if (type.IsGenericType && typeName.StartsWith("KalturaFilter"))
                 typeName = "KalturaFilter";
 
-            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !loadedTypes.ContainsKey(typeName) && (loadAll || SchemeManager.Validate(type, false)))
+            if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !Field.loadedTypes.ContainsKey(typeName))
             {
-                loadedTypes.Add(typeName, type);
-                LoadType(type.BaseType, loadAll);
+                Field.loadedTypes.Add(typeName, new Field(type));
+                LoadType(type.BaseType);
 
                 var subClasses = assembly.GetTypes().Where(myType => myType.IsSubclassOf(type));
                 foreach (Type subClass in subClasses)
-                    LoadType(subClass, loadAll);
+                    LoadType(subClass);
 
-                LoadTypeProperties(type, loadAll);
+                LoadTypeProperties(type);
                 return;
             }
 
             if (type.IsArray)
             {
-                LoadType(type.GetElementType(), loadAll);
+                LoadType(type.GetElementType());
             }
             else if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>)))
             {
-                LoadType(type.GetGenericArguments()[1], loadAll);
+                LoadType(type.GetGenericArguments()[1]);
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
             {
-                LoadType(type.GetGenericArguments()[0], loadAll);
+                LoadType(type.GetGenericArguments()[0]);
             }
         }
 
-        private void LoadTypeProperties(Type type, bool loadAll)
+        private void LoadTypeProperties(Type type)
         {
             List<PropertyInfo> properties = type.GetProperties().ToList();
             foreach (var property in properties)
             {
                 if (property.DeclaringType == type)
-                    LoadType(property.PropertyType, loadAll);
+                    LoadType(property.PropertyType);
             }
         }
 
@@ -320,8 +387,19 @@ namespace Validator.Managers.Scheme
             return valid;
         }
 
-        internal void write()
+        internal void write(Stream stream)
         {
+            this.stream = stream;
+
+            XmlWriterSettings settings = new XmlWriterSettings
+            {
+                Indent = true,
+                IndentChars = "  ",
+                NewLineChars = "\r\n",
+                NewLineHandling = NewLineHandling.Replace
+            };
+            writer = XmlWriter.Create(stream, settings);
+
             writer.WriteStartDocument();
             writer.WriteStartElement("xml");
             writer.WriteAttributeString("apiVersion", GetAssemblyVersion());
@@ -452,36 +530,6 @@ namespace Validator.Managers.Scheme
             writer.Dispose();
         }
 
-        private int[] Sort(List<Field> fields)
-        {
-            TopologicalSorter topologicalSorter = new TopologicalSorter(fields.Count);
-            Dictionary<string, int> _indexes = new Dictionary<string, int>();
-
-            //add vertices
-            for (int i = 0; i < fields.Count; i++)
-            {
-                _indexes[fields[i].Name.ToLower()] = topologicalSorter.AddVertex(i);
-            }
-
-            //add edges
-            for (int i = 0; i < fields.Count; i++)
-            {
-                if (fields[i].DependsOn != null)
-                {
-                    for (int j = 0; j < fields[i].DependsOn.Count; j++)
-                    {
-                        var name = fields[i].DependsOn[j];
-                        if (!_indexes.ContainsKey(name.ToLower()))
-                            throw new Exception(string.Format("Unable to find dependency [{0}] for type [{1}]", name, fields[i].Name));
-
-                        topologicalSorter.AddEdge(i, _indexes[name.ToLower()]);
-                    }
-                }
-            }
-
-            return topologicalSorter.Sort();
-        }
-
         private void writeErrors(Type exception)
         {
             FieldInfo[] fields = exception.GetFields();
@@ -527,9 +575,12 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("id", serviceId.ToLower());
 
             var methods = controller.GetMethods().OrderBy(method => method.Name);
-            foreach (var method in methods)
+            foreach (MethodInfo method in methods)
             {
                 if (!method.IsPublic || method.DeclaringType.Namespace != "WebAPI.Controllers")
+                    continue;
+
+                if (!SchemeManager.Validate(method, false))
                     continue;
 
                 //Read only HTTP POST as we will have duplicates otherwise
@@ -693,7 +744,7 @@ namespace Validator.Managers.Scheme
 
                 if (typeName == "KalturaFilter" && dataMemberAttr.Name == "orderBy")
                 {
-                    appendType(typeof(int));
+                    appendType(typeof(string));
                 }
                 else
                 {

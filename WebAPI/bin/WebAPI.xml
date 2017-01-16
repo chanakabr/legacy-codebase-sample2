@@ -3253,6 +3253,18 @@
             PaymentGatewayNotSetForHousehold = 6007,PaymentGatewayTransactionNotFound = 6038,
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.Swap(System.Int32,System.Int32,System.Boolean)">
+             <summary>        
+             Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
+             </summary>
+             <param name="currentProductId">Identifier for the current product package</param>
+             <param name="newProductId">Identifier for the new product package </param>
+             <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+             <remarks>Possible status codes: 
+             UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
+            ,User not in household = 1005, Not for purchase = 3025
+             </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>
             Add media to user's favorite list
@@ -5886,7 +5898,7 @@
         <member name="T:WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder">
             <summary>
             Holder object for personal asset with enum
-            </summary>    
+            </summary>  
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetsBookmarksResponse">
             <summary>
