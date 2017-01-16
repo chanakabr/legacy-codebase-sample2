@@ -194,13 +194,13 @@ namespace ConditionalAccess
         NotPurchased = 13
     }
 
-    public enum eService
-    {
-        Unknown = 0,
-        CatchUp = 1,
-        StartOver = 2,
-        NPVR = 3,
-        Download = 4
-    }
+    //public enum eService
+    //{
+    //    Unknown = 0,
+    //    CatchUp = 1,
+    //    StartOver = 2,
+    //    NPVR = 3,
+    //    Download = 4
+    //}
 
 }

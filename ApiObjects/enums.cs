@@ -825,4 +825,13 @@ namespace ApiObjects
         Switched = 5, 
         Switched_To = 6
     }
+
+    public enum eService
+    {
+        Unknown = 0,
+        CatchUp = 1,
+        StartOver = 2,
+        NPVR = 3,
+        Download = 4
+    }
 }
