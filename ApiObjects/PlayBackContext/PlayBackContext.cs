@@ -12,13 +12,15 @@ namespace ApiObjects
 
         public List<MediaFile> Files { get; set; }
 
-        public List<PlaybackStatus> PlaybackStatus { get; set; }
+        public List<PlaybackStatus> PlaybackStatuses { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
     }
 
     public class MediaFile
     {
+        public long MediaId { get; set; }
+
         public long Id { get; set; }
 
         public string Type { get; set; }

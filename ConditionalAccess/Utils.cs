@@ -37,6 +37,9 @@ namespace ConditionalAccess
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
 
+        private const string MEDIA_FILES_CACHE_KEY_FORMAT = "MediaFiles_{0}";
+
+
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
@@ -6289,6 +6292,68 @@ namespace ConditionalAccess
         internal static CachedEntitlementResults GetCachedEntitlementResults(long domainId, int mediaFileId)
         {
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
+        }
+
+        internal static List<MediaFile> GetAssetFiles(int groupId, string assetId, eAssetTypes assetType, StreamerType streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds = null)
+        {
+            List<MediaFile> files = null;
+            long mediaId = 0;
+            long id = 0;
+
+            if (long.TryParse(assetId, out id))
+            {
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        {
+                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { id });
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                mediaId = epgs[0].LINEAR_MEDIA_ID;
+                            }
+                        }
+                        break;
+                    case eAssetTypes.NPVR:
+                        {
+                            // check recording valid
+                            Recording recording = Utils.GetRecordingById(id);
+                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { recording.EpgId });
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                mediaId = epgs[0].LINEAR_MEDIA_ID;
+                            }
+                        }
+                        break;
+                    case eAssetTypes.MEDIA:
+                        mediaId = id;
+                        break;
+                    default:
+                        break;
+                }
+
+                // cache
+                List<MediaFile> allMediafiles = null;
+                string mediaFilesCacheKey = string.Format(MEDIA_FILES_CACHE_KEY_FORMAT, mediaId);
+                if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
+                {
+                    allMediafiles = ApiDAL.GetMediaFiles(mediaId);
+                    if (allMediafiles != null)
+                    {
+                        ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
+                    }
+                }
+
+                // filter
+                if (allMediafiles != null && allMediafiles.Count > 0)
+                {
+                    // TODO: something about the file URL..
+                    files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
+                        ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
+                        f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
+                        (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                }
+            }
+            return files;
         }
 
     }
