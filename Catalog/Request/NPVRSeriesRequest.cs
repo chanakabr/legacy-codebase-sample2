@@ -19,14 +19,6 @@ namespace Catalog.Request
         [DataMember]
         public RecordedEPGOrderObj m_oOrderObj;
 
-        protected override void CheckRequestValidness()
-        {
-            if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
-            {
-                throw new ArgumentException(String.Concat("Group: ", m_nGroupID, " does not have NPVR implementation."));
-            }
-        }
-
         public BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             NPVRSeriesResponse res = new NPVRSeriesResponse();
@@ -35,8 +27,14 @@ namespace Catalog.Request
             {
                 CheckRequestValidness();
                 CheckSignature(this);
-                
-                res = Catalog.GetSeriesRecordings(m_nGroupID, this);
+
+                INPVRProvider npvr;
+                if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                {
+                    throw new ArgumentException(String.Concat("Group: ", m_nGroupID, " does not have NPVR implementation."));
+                }
+
+                res = Catalog.GetSeriesRecordings(m_nGroupID, this, npvr);
 
             }
             catch (Exception ex)
