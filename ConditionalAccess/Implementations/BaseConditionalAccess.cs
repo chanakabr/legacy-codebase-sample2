@@ -35,6 +35,7 @@ using WS_Billing;
 using WS_Pricing;
 using WS_Users;
 using EventManager;
+using NPVR;
 
 namespace ConditionalAccess
 {
@@ -14029,10 +14030,9 @@ namespace ConditionalAccess
 
 
         public ApiObjects.Response.Status GrantEntitlements(string siteguid, long householdId, int contentId, int productId, eTransactionType transactionType, string userIp,
-            string deviceName, bool history)
+            string deviceName, bool history, bool isGrant = true, DateTime? endDate = null)
         {
             ApiObjects.Response.Status status = null;
-
             // log request
             string logString = string.Format("GrantEntitlements request: siteguid {0}, contentId {1}, productId {2}, productType {3}, userIp {4}, deviceName {5}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
@@ -14063,14 +14063,6 @@ namespace ConditionalAccess
 
             try
             {
-                // validate household
-                //if (householdId < 1)
-                //{
-                //    status.Message = "Illegal household";
-                //    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                //    return status;
-                //}
-
                 // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
                 userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
@@ -14088,7 +14080,7 @@ namespace ConditionalAccess
                         status = GrantPPV(siteguid, householdId, contentId, productId, userIp, deviceName, history);
                         break;
                     case eTransactionType.Subscription:
-                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1);
+                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1, null, endDate, isGrant);
                         break;
                     case eTransactionType.Collection:
                         status = GrantCollection(siteguid, householdId, productId, userIp, deviceName, history);
@@ -14316,10 +14308,10 @@ namespace ConditionalAccess
         }
 
         private ApiObjects.Response.Status GrantSubscription(string siteguid, long householdId, int productId, string userIp, string deviceName, bool saveHistory,
-             int recurringNumber, DateTime? startDate = null, DateTime? endDate = null)
+             int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, bool isGrant = true)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
+          
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, saveHistory {5}",
                 !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
@@ -14428,6 +14420,27 @@ namespace ConditionalAccess
                         UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                     }
 
+                    // update Quota
+                    if (subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
+                    {
+                        INPVRProvider npvr;
+                        if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                        {
+                            if (npvr != null)
+                            {
+                                NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
+                                NPVRUserActionResponse resp;
+                                if (isGrant)
+                                {
+                                    resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                                }
+                                else
+                                {
+                                    resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                                }
+                            }
+                        }
+                    }
                     if (subscription.m_bIsRecurring)
                     {
 
@@ -15726,7 +15739,6 @@ namespace ConditionalAccess
                         DateTime? endDate = null;
                         if (subscription.EndDateSeconds != 0)
                             endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
-
                         var res = GrantSubscription(userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate);
                         string logString = string.Format("userId = {0}, subscriptionId = {1}, subscriptionproductCode = {2}", userId, subscription.ProductId, subscription.ProductCode);
                         if (res.Code != (int)eResponseStatus.OK)
@@ -19801,32 +19813,13 @@ namespace ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "CancelSubscriptionPurchaseTransaction fail");
                     return response;
                 }
-
-                ApiObjects.Response.Status status = GrantEntitlements(siteGuid, houseHoldID, 0, int.Parse(newSubscription.m_SubscriptionCode), eTransactionType.Subscription, userIp, deviceName, history);
+                long purchaseID = 0;
+                ApiObjects.Response.Status status = GrantEntitlements(siteGuid, houseHoldID, 0, int.Parse(newSubscription.m_SubscriptionCode), eTransactionType.Subscription, userIp, deviceName, history, false, oldSubscription.m_dEndDate);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GrantEntitlements fail");
                     return response;
                 }
-
-                // update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
-                UpdateDLM(houseHoldID, newSubscription.m_nDomainLimitationModule);
-                WriteSubChangeToUserLog(siteGuid, newSubscription, oldSubscription);
-                // Enqueue notification for PS so they know a collection was charged
-                var dicData = new Dictionary<string, object>()
-                            {
-                                {"oldSubscription", oldSubscription.m_sSubscriptionCode},
-                                {"newSubscription", newSubscription},
-                                {"SiteGUID", siteGuid},
-                                {"domainID", houseHoldID}
-                            };
-
-                this.EnqueueEventRecord(NotifiedAction.ChangedSubscription, dicData);
-
-                // update Quota                                                   
-
-
-
             }
             catch (Exception ex)
             {

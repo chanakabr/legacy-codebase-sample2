@@ -219,10 +219,10 @@ namespace Users
                 m_totalNumOfUsers++;
             }
 
-<<<<<<< HEAD
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+            INPVRProvider npvr;
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
             {
-                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
+               // INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
 
                 if (npvr != null)
                 {
