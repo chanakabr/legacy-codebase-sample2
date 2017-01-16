@@ -826,7 +826,6 @@ namespace ApiObjects
         Switched_To = 6
     }
 
-<<<<<<< HEAD
     public enum PlayContextType
     {
         Trailer,
