@@ -467,18 +467,17 @@ namespace WebAPI.Controllers
         /// Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
         /// </summary>
         /// <param name="currentProductId">Identifier for the current product package</param>
-        /// <param name="swapProductId">Identifier for the new product package </param>
-        /// <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+        /// <param name="newProductId">Identifier for the new product package </param>
+        /// <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         /// <remarks>Possible status codes: 
-        /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
-        /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
-        ///,       
+        /// UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
+        ///,User not in household = 1005, Not for purchase = 3025
         /// </remarks>
         [Route("swap"), HttpPost]
         [ApiAuthorize]       
         [ValidationException(SchemeValidationType.ACTION_NAME)]
 
-        public bool Swap(int currentProductId, int swapProductId, bool history)
+        public bool Swap(int currentProductId, int newProductId, bool history)
         {
             bool response = false;
 
@@ -488,7 +487,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SwaptEntitlements(groupId, userId, currentProductId, swapProductId, history);
+                response = ClientsManager.ConditionalAccessClient().SwapEntitlements(groupId, userId, currentProductId, newProductId, history);
             }
             catch (ClientException ex)
             {

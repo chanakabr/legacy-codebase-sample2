@@ -3121,12 +3121,11 @@
              Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
              </summary>
              <param name="currentProductId">Identifier for the current product package</param>
-             <param name="swapProductId">Identifier for the new product package </param>
-             <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+             <param name="newProductId">Identifier for the new product package </param>
+             <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
              <remarks>Possible status codes: 
-             User not in household = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
-             Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
-            ,       
+             UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
+            ,User not in household = 1005, Not for purchase = 3025
              </remarks>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">

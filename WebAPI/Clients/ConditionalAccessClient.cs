@@ -1948,7 +1948,7 @@ namespace WebAPI.Clients
             return kalturaEntitlement;
         }
 
-        internal bool SwaptEntitlements(int groupId, string userId, int currentProductId, int swapProductId, bool history)
+        internal bool SwapEntitlements(int groupId, string userId, int currentProductId, int newProductId, bool history)
         {
             Status response = null;
 
@@ -1961,7 +1961,7 @@ namespace WebAPI.Clients
                 {
                     // fire request
                     response = ConditionalAccess.SwapSubscription(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId,
-                        currentProductId, swapProductId, Utils.Utils.GetClientIP(), string.Empty, history);
+                        currentProductId, newProductId, Utils.Utils.GetClientIP(), string.Empty, history);
                 }
             }
             catch (Exception ex)
