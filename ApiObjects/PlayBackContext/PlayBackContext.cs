@@ -34,6 +34,8 @@ namespace ApiObjects
         public StreamerType? StreamerType { get; set; }
 
         public bool IsTrailer { get; set; }
+
+        public int CdnId { get; set; }
     }
 
     public class PlaybackStatus

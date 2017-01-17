@@ -829,7 +829,7 @@ namespace ApiObjects
     public enum PlayContextType
     {
         Trailer,
-        Catchup,
+        CatchUp,
         StartOver,
         TrickPlay,
         Playback
