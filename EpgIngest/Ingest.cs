@@ -695,6 +695,8 @@ namespace EpgIngest
                                 {
                                     epgDic.Remove(cbEpg.EpgIdentifier);
                                 }
+
+                                removeLang.Clear();
                             }
                         }
 
@@ -702,6 +704,9 @@ namespace EpgIngest
                         {
                             // update the epgs with publish date 
                             bool bUpdate = EpgDal.UpdateEpgChannelSchedulePublishDate(epgIdsToUpdate, dPublishDate);
+
+                            //Log
+                            log.DebugFormat("Programs Ids with no changes: {0}", string.Join(",", epgIdsToUpdate));
                         }
                     }
                 }
