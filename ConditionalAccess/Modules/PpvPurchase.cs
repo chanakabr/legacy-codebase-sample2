@@ -11,12 +11,14 @@ namespace ConditionalAccess.Modules
     public class PpvPurchase : Purchase
     {
         #region member
+
         public int contentId { get; set; }
         public int maxNumOfViews { get; set; }
        
         public string subscriptionCode { get; set; }
 
         public DateTime entitlementDate { get; set; }
+
         #endregion
 
         public PpvPurchase(int groupId)
@@ -51,6 +53,7 @@ namespace ConditionalAccess.Modules
                                                                 this.customData, this.subscriptionCode, this.billingTransactionId, this.startDate.Value, this.endDate.Value,
                                                                 this.entitlementDate, this.country, string.Empty, this.deviceName, this.houseHoldId, this.billingGuid);
                 this.purchaseId = 0;
+
                 if (this.purchaseId > 0)
                 {
                     success = true;
@@ -59,6 +62,7 @@ namespace ConditionalAccess.Modules
             catch
             {
             }
+
             return success;        
         }
 

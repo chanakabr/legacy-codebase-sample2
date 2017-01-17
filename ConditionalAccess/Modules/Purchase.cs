@@ -34,21 +34,6 @@ namespace ConditionalAccess.Modules
             this.GroupId = groupId;
         }
 
-        public abstract override CoreObject CoreClone();       
-
-        protected override bool DoInsert()
-        {
-             throw new NotImplementedException();
-        }
-
-        protected override bool DoUpdate()
-        {
-             throw new NotImplementedException();
-        }
-
-        protected override bool DoDelete()
-        {
-             throw new NotImplementedException();
-        }
+        public abstract override CoreObject CoreClone();
     }
 }
