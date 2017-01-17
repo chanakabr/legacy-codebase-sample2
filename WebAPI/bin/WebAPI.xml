@@ -3356,7 +3356,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="token">Social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByTokenOldStandard(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3365,7 +3365,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="token">Social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Get(WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3386,16 +3386,17 @@
             User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
             <param name="token">social token</param>
             <param name="partnerId">Partner identifier</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <param name="email">User email</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
@@ -3404,7 +3405,8 @@
             <param name="type">Social network type</param>
             <param name="should_create_domain">New domain is created upon registration</param>
             <param name="subscribe_newsletter">Subscribes to newsletter</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <param name="email">User email</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Merge(System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3412,7 +3414,7 @@
             </summary>
             <param name="token">social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.MergeOldStandard(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3424,14 +3426,14 @@
             <param name="social_id">external social identifier</param>
             <param name="type">Social network type</param>
             <param name="partnerId">Partner identifier</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Unmerge(WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Disconnect an existing user in the system from its external social network user
             </summary>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.UnmergeOldStandard(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3441,7 +3443,7 @@
             <param name="username">Username</param>
             <param name="password">Password</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Nullable{WebAPI.Models.Social.KalturaSocialNetwork},System.Nullable{System.Int32})">
             <summary>
