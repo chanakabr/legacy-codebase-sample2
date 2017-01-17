@@ -249,7 +249,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Registers FB user")]
-        public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter)
+        public FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string email)
         {
             int groupId = ConnectionHelper.GetGroupID("tvpapi", "FBUserRegister", initObj.ApiUser, initObj.ApiPass,
                     SiteHelper.GetClientIP());
@@ -259,7 +259,8 @@ namespace TVPApiServices
                 {
 
                     ApiSocialService service = new ApiSocialService(groupId, initObj.Platform);
-                    var oExtra = new List<KeyValuePair>() { new KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, new KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" } };
+                    var oExtra = new List<KeyValuePair>() { new KeyValuePair() { key = "news", value = bGetNewsletter ? "1" : "0" }, 
+                        new KeyValuePair() { key = "domain", value = bCreateNewDomain ? "1" : "0" }, new KeyValuePair() { key = "email", value = email } };
                     return service.FBUserRegister(sToken, "0", oExtra, Context.Request.UserHostAddress);
 
                 }

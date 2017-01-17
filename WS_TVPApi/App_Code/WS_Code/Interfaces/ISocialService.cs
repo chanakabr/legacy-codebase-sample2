@@ -32,7 +32,7 @@ namespace TVPApiServices
         FacebookResponseObject GetFBUserData(InitializationObject initObj, string sToken);
 
         [OperationContract]
-        FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter);
+        FacebookResponseObject FBUserRegister(InitializationObject initObj, string sToken, bool bCreateNewDomain, bool bGetNewsletter, string email);
 
         [OperationContract]
         FacebookResponseObject FBUserMerge(InitializationObject initObj, string sToken, string sFBID, string sUsername, string sPassword);
