@@ -6271,6 +6271,67 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
+        internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
+        {
+            ApiObjects.Response.Status status = null;
+            switch (priceReason)
+            {
+                case PriceReason.PPVPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchasePPVPurchased, "PPV already purchased");
+                break;
+                case PriceReason.Free:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseFree, "Free");
+                break;
+                case PriceReason.ForPurchaseSubscriptionOnly:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly, "Subscription only");
+                break;
+                case PriceReason.SubscriptionPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, "Already purchased (subscription)");
+                break;
+                case PriceReason.NotForPurchase:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchase");
+                break;
+                case PriceReason.CollectionPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseCollectionPurchased, "Collection already purchased");
+                break;
+                default:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                break;
+            }
+
+            return status;
+        }
+
+        internal static ApiObjects.Response.Status SetResponseStatus(ResponseStatus userValidStatus)
+        {
+            ApiObjects.Response.Status status = null;
+            // user validation failed
+            switch (userValidStatus)
+            {
+                case ResponseStatus.UserDoesNotExist:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User doesn't exists");
+                break;
+                case ResponseStatus.UserSuspended:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "Suspended user");
+                break;
+                case ResponseStatus.UserNotIndDomain:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotInDomain, "User doesn't exist in household");
+                break;
+                default:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to validate user");
+                break;
+            }
+
+            return status;
+        }
+
+        internal static void InitializeBillingModule(ref WS_Billing.module bm, int groupId, ref string sWSUsername, ref string sWSPassword)
+        {
+            Utils.GetWSCredentials(groupId, eWSModules.BILLING, ref sWSUsername, ref sWSPassword);
+
+            bm = new WS_Billing.module();
+        }
+
     }
 }
 

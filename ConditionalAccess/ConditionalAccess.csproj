@@ -107,6 +107,7 @@
     <Compile Include="BaseCampaignActionImpl.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
+    <Compile Include="Purchase\PurchaseManager.cs" />
     <Compile Include="Recordings\QuotaManager.cs" />
     <Compile Include="Recordings\RecordingsManager.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
