@@ -252,9 +252,7 @@ namespace ApiObjects.Response
         AssetAlreadyRated = 7014,
         AssetNeverLiked = 7015,
         SocialActionIdDoseNotExists = 7016,
-                   
-       /* MEDIA_ALEADY_FOLLOWED = 12,
-        MEDIA_ALREADY_RATED = 14,*/
+        UserEmailIsMissing = 7017,
 
         // notification 8000-8999
         NoNotificationSettingsSent = 8000,
