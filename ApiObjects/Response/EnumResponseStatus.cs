@@ -237,6 +237,7 @@ namespace ApiObjects.Response
         // social 7000 - 7999
         Conflict = 7000,
         MinFriendsLimitation = 7001,
+        UserEmailIsMissing = 7002,
 
         // notification 8000-8999
         NoNotificationSettingsSent = 8000,
