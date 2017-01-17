@@ -31,6 +31,7 @@
 <script type="text/javascript" src="components/duallist/js/calender.js"></script>
 <script type="text/javascript" src="components/duallist/js/list.js"></script>
 <script type="text/javascript" src="components/duallist/js/duallist.js"></script>
+    <script type="text/javascript" src="components/duallist/js/numberField.js"></script>
 <!-- end dual list -->
 
 </head>

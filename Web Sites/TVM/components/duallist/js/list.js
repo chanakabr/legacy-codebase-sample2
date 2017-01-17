@@ -1,5 +1,5 @@
 /* This describes a single list, the duallist, well.. uses two of these */
-var List = function (listId, listTitle, pageName, withCalendar, dualListParent, WithOrderByButtons) {
+var List = function (listId, listTitle, pageName, withCalendar, dualListParent, WithOrderByButtons, withQuota) {
     var listComponentId = listId;
     var listComponentTitle = listTitle;    
     var listWrapper, listItems, listItemsArray, quickSearchInput;
@@ -99,6 +99,17 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                         infoIcon.setAttribute('href', 'javascript:;');
                         listLiItem.appendChild(infoIcon);
                     }
+                    //else if (withQuota === true) {
+                    //    var numbervalue = items[i].NumberField;
+                    //    if (numbervalue >= 0) {
+                    //        var infoIcon = document.createElement('a');
+                    //        $(infoIcon).addClass('channel-number');                            
+                    //        listLiItem.appendChild(infoIcon);
+                    //        infoIcon.setAttribute('href', 'javascript:;');
+
+                    //       // new NumberField(items[i], listLiItem);
+                    //    }
+                    //}
                     
                     if (WithOrderByButtons === true) {
                         if (toChangeStatus === true) {
@@ -130,8 +141,8 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                         listLiItem.appendChild(moveDownIcon);
                     }
 
-                    //if the Calendar and WithOrderByButtons are not used the width of ppvm-text should be 100% of the list
-                    if (withCalendar === false && WithOrderByButtons === false) {
+                    //if the Calendar and WithOrderByButtons and withQuota are not used the width of ppvm-text should be 100% of the list
+                    if (withCalendar === false && WithOrderByButtons === false && withQuota === false) {
                         listLiItem.childNodes[0].style.width = "100%";
                     }
                     else {
@@ -152,6 +163,13 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     if (type == 'remove') {
                         if (withCalendar === true) {
                             new Calendar(items[i], listLiItem, pageName);
+                        }
+                        else if (withQuota === true)
+                        {
+                            var numbervalue = items[i].NumberField;
+                            if (numbervalue >= 0) {
+                                new NumberField(items[i], listLiItem, pageName, toChangeStatus);
+                            }
                         }
                         else {
                             new Number(items[i], listLiItem);

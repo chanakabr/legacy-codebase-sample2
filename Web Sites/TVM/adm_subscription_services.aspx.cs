@@ -84,7 +84,7 @@ public partial class adm_subscription_services : System.Web.UI.Page
     {
     }
 
-    protected void InsertSubscriptionsServices(Int32 nServiceID, Int32 nGroupID, Int32 nSubscriptionID)
+    protected void InsertSubscriptionsServices(Int32 nServiceID, Int32 nGroupID, Int32 nSubscriptionID, long? quota = null)
     {
         ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_services");
         insertQuery.SetConnectionKey("pricing_connection");
@@ -93,16 +93,39 @@ public partial class adm_subscription_services : System.Web.UI.Page
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SERVICE_ID", "=", nServiceID);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+        if (quota.HasValue)
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("QUOTA_IN_MINUTES", "=", quota.Value);
+        }
         insertQuery.Execute();
         insertQuery.Finish();
         insertQuery = null;
     }
 
-    protected void UpdateSubscriptionsServices(Int32 nID, Int32 nStatus)
+    protected void UpdateSubscriptionsServices(Int32 nID, Int32 nStatus, bool isNPVR)
     {
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_services");
         updateQuery.SetConnectionKey("pricing_connection");
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
+        if (isNPVR)
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("QUOTA_IN_MINUTES", "=", 0);
+        }
+
+        updateQuery += "where ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+    }
+
+   
+
+    protected void UpdateSubscriptionsServicesQuota(Int32 nID, long quota)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_services");
+        updateQuery.SetConnectionKey("pricing_connection");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("QUOTA_IN_MINUTES", "=", quota);
         updateQuery += "where ";
         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
         updateQuery.Execute();
@@ -144,18 +167,41 @@ public partial class adm_subscription_services : System.Web.UI.Page
         Int32 nStatus = 0;
         Int32 nSubscriptionID = int.Parse(Session["subscription_id"].ToString());
         Int32 nGroupServiceID = GetSubscriptionServiceID(int.Parse(sID), nLogedInGroupID, nSubscriptionID, ref nStatus);
+        
         if (nGroupServiceID != 0)
         {
             if (nStatus == 0)
-                UpdateSubscriptionsServices(nGroupServiceID, 1);
+                UpdateSubscriptionsServices(nGroupServiceID, 1, sID == "3");
             else
-                UpdateSubscriptionsServices(nGroupServiceID, 0);
+                UpdateSubscriptionsServices(nGroupServiceID, 0, sID == "3");
         }
         else
         {
             InsertSubscriptionsServices(int.Parse(sID), nLogedInGroupID, nSubscriptionID);
         }
 
+        return "";
+    }
+
+
+    public string changeNumberField(string sID, string val)
+    {
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        Int32 nStatus = 0;
+        Int32 nSubscriptionID = int.Parse(Session["subscription_id"].ToString());
+        Int32 nGroupServiceID = GetSubscriptionServiceID(int.Parse(sID), nLogedInGroupID, nSubscriptionID, ref nStatus);
+        long quota = 0 ;
+        if (long.TryParse(val, out quota))
+        {
+            if (nGroupServiceID != 0)
+            {
+                UpdateSubscriptionsServicesQuota(nGroupServiceID, quota);
+            }
+            else
+            {
+                InsertSubscriptionsServices(int.Parse(sID), nLogedInGroupID, nSubscriptionID, quota);
+            }
+        }
         return "";
     }
 
@@ -179,7 +225,7 @@ public partial class adm_subscription_services : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery subscriptionServicesSelectQuery = new ODBCWrapper.DataSetSelectQuery();
             subscriptionServicesSelectQuery.SetConnectionKey("pricing_connection");
-            subscriptionServicesSelectQuery += "select ID, SERVICE_ID from subscriptions_services where status = 1 and is_active = 1 and ";
+            subscriptionServicesSelectQuery += "select ID, SERVICE_ID, QUOTA_IN_MINUTES from subscriptions_services where status = 1 and is_active = 1 and ";
             subscriptionServicesSelectQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", "=", int.Parse(Session["subscription_id"].ToString()));
             subscriptionServicesSelectQuery += " and ";
             if (nCommerceGroupID == 0)
@@ -193,6 +239,9 @@ public partial class adm_subscription_services : System.Web.UI.Page
                 {
                     string sID = ODBCWrapper.Utils.GetStrSafeVal(groupServicesSelectQuery, "SERVICE_ID", i);
                     string sTitle = ODBCWrapper.Utils.GetStrSafeVal(groupServicesSelectQuery, "DESCRIPTION", i);
+
+                   // string Quota = ODBCWrapper.Utils.GetStrSafeVal(subscriptionServicesSelectQuery, "QUOTA_IN_MINUTES", i);
+
                     DataRow drService = subscriptionServicesSelectQuery.Table("query").Select(string.Format("SERVICE_ID = {0}", sID)).FirstOrDefault();
                     if (drService != null)
                     {
@@ -201,7 +250,8 @@ public partial class adm_subscription_services : System.Web.UI.Page
                             ID = sID,
                             Title = sTitle,
                             Description = sTitle,
-                            InList = true
+                            InList = true,
+                            NumberField = sID == "3" ? ODBCWrapper.Utils.GetLongSafeVal(drService, "QUOTA_IN_MINUTES", 0) : -1
                         };
                         premiumServices.Add(data);
                     }
@@ -212,7 +262,8 @@ public partial class adm_subscription_services : System.Web.UI.Page
                             ID = sID,
                             Title = sTitle,
                             Description = sTitle,
-                            InList = false
+                            InList = false,
+                            NumberField = sID == "3" ? 0 : -1
                         };
                         premiumServices.Add(data);
                     }
@@ -229,7 +280,7 @@ public partial class adm_subscription_services : System.Web.UI.Page
 
         dualList.Add("Data", resultData);
         dualList.Add("pageName", "adm_subscription_services.aspx");
-        dualList.Add("withCalendar", false);
+        dualList.Add("withQuota", true);
 
         return dualList.ToJSON();
     }

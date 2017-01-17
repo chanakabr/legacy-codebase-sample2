@@ -19,7 +19,7 @@ function initDualList(data)
             data: getListData(data.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar);
+        window.components.dualList = new DualList(first, second, document.getElementById('DualListPH'), data.pageName, data.withCalendar, data.withQuota);
         $('.has-placeholder').placeholder();
     }
 }
@@ -40,7 +40,7 @@ function initMultipleLists(dataLists) {
             data: getListData(currentDualList.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar);
+        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar, currentDualList.data.withQuota);
         $('.has-placeholder').placeholder();
     }
 }
@@ -62,6 +62,7 @@ function callback_init_dobj(ret) {
 }
 
 function getListData(data, isInCurrentList) {
+    
     var ListData = [];
     var dataLen = data.length;
     for (var i = 0; i < dataLen; i++) {
@@ -72,7 +73,8 @@ function getListData(data, isInCurrentList) {
                 ID: data[i].ID,
                 Info: data[i].Description,
                 Title: data[i].Title,
-                OrderNum: data[i].OrderNum
+                OrderNum: data[i].OrderNum,
+                NumberField: data[i].NumberField
             };
             ListData.push(res);
         }
@@ -91,6 +93,12 @@ function changeItemOrder(sID, pageName, updatedOrderNum) {
 function changeItemDates(sID, startDate, endDate, pageName) {
     RS.Execute(pageName, "changeItemDates", sID, startDate, endDate, callback_dates_changed, errorCallback);
 }
+
+
+function changeNumberField(sID, pageName, numberField) {
+    RS.Execute(pageName, "changeNumberField", sID, numberField, callback_number_changed, errorCallback);
+}
+
 function initDualObj() {
     RS.Execute("adm_media_files_ppvmodules.aspx", "initDualObj", callback_init_dobj, errorCallback);
 }
@@ -113,5 +121,10 @@ function callback_status_changed(res) {
 }
 
 function callback_order_changed(res) {
+    //
+}
+
+
+function callback_number_changed(res) {
     //
 }
