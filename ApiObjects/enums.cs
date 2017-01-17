@@ -821,7 +821,18 @@ namespace ApiObjects
         Cancel = 1,
         CancelNow = 2,
         Fail = 3,
-        HouseholdCancel = 4
+        HouseholdCancel = 4,
+        Switched = 5, 
+        Switched_To = 6
+    }
+
+    public enum eService
+    {
+        Unknown = 0,
+        CatchUp = 1,
+        StartOver = 2,
+        NPVR = 3,
+        Download = 4
     }
 
 }
