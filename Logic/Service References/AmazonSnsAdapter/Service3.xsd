@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/AwsSns.Model" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/AwsSns.Model" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/AwsSns" />
+  <xs:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" />
+  <xs:complexType name="ArrayOfAnnouncementSubscriptionData">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="AnnouncementSubscriptionData" nillable="true" type="tns:AnnouncementSubscriptionData" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfAnnouncementSubscriptionData" nillable="true" type="tns:ArrayOfAnnouncementSubscriptionData" />
+  <xs:complexType name="AnnouncementSubscriptionData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EndPointArn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ExternalId" type="xs:long" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/AwsSns" minOccurs="0" name="Protocol" type="q1:Enums.eDeliveryProtocol" />
+      <xs:element minOccurs="0" name="SubscriptionArnResult" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="TopicArn" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="AnnouncementSubscriptionData" nillable="true" type="tns:AnnouncementSubscriptionData" />
+  <xs:complexType name="ArrayOfUnSubscribe">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="UnSubscribe" nillable="true" type="tns:UnSubscribe" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfUnSubscribe" nillable="true" type="tns:ArrayOfUnSubscribe" />
+  <xs:complexType name="UnSubscribe">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ExternalId" type="xs:long" />
+      <xs:element minOccurs="0" name="SubscriptionArn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Success" type="xs:boolean" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="UnSubscribe" nillable="true" type="tns:UnSubscribe" />
+  <xs:complexType name="WSEndPointPublishData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DefaultAttributes" nillable="true" type="tns:ArrayOfKeyValue" />
+      <xs:element minOccurs="0" name="EndPoints" nillable="true" type="tns:ArrayOfEndPointData" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" minOccurs="0" name="Message" nillable="true" type="q2:MessageData" />
+      <xs:element minOccurs="0" name="Subject" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="WSEndPointPublishData" nillable="true" type="tns:WSEndPointPublishData" />
+  <xs:complexType name="ArrayOfKeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValue" nillable="true" type="tns:KeyValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfKeyValue" nillable="true" type="tns:ArrayOfKeyValue" />
+  <xs:complexType name="KeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Key" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Value" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="KeyValue" nillable="true" type="tns:KeyValue" />
+  <xs:complexType name="ArrayOfEndPointData">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="EndPointData" nillable="true" type="tns:EndPointData" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfEndPointData" nillable="true" type="tns:ArrayOfEndPointData" />
+  <xs:complexType name="EndPointData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Attributes" nillable="true" type="tns:ArrayOfKeyValue" />
+      <xs:element minOccurs="0" name="Badge" type="xs:int" />
+      <xs:element minOccurs="0" name="Category" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="EndPointArn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResultMessageId" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Sound" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="EndPointData" nillable="true" type="tns:EndPointData" />
+  <xs:complexType name="ArrayOfWSEndPointPublishDataResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="WSEndPointPublishDataResult" nillable="true" type="tns:WSEndPointPublishDataResult" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfWSEndPointPublishDataResult" nillable="true" type="tns:ArrayOfWSEndPointPublishDataResult" />
+  <xs:complexType name="WSEndPointPublishDataResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EndPointArn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ResultMessageId" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="WSEndPointPublishDataResult" nillable="true" type="tns:WSEndPointPublishDataResult" />
+  <xs:complexType name="DeviceAppRegistration">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="EndpointArn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="PlatformApplicationArn" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Token" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DeviceAppRegistration" nillable="true" type="tns:DeviceAppRegistration" />
+  <xs:complexType name="DeviceAppRegistrationAnnouncementResult">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AnnounsmentsCancelledSubscriptions" nillable="true" type="tns:ArrayOfUnSubscribe" />
+      <xs:element minOccurs="0" name="AnnounsmentsSubscriptions" nillable="true" type="tns:ArrayOfAnnouncementSubscriptionData" />
+      <xs:element minOccurs="0" name="EndPointArn" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DeviceAppRegistrationAnnouncementResult" nillable="true" type="tns:DeviceAppRegistrationAnnouncementResult" />
+</xs:schema>

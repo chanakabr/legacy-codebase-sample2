@@ -1,0 +1,92 @@
+﻿using ApiObjects.Pricing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace Core.Pricing
+{
+    public class TvinciCoupons : BaseCoupons
+    {
+        public TvinciCoupons(Int32 nGroupID): base(nGroupID)
+        {
+        }
+
+        public override CouponsGroup[] GetCouponGroupListForAdmin(bool isVoucher)
+        {
+            CouponsGroup[] ret = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery += "select id from coupons_groups with (nolock) where is_active=1 and status=1 and START_DATE<getdate() and (end_date is null OR end_date>getdate()) and ";
+                selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                        ret = new CouponsGroup[nCount];
+                    for (int i = 0; i < nCount; i++)
+                    {
+                        ret[i] = GetCouponGroupData(selectQuery.Table("query").DefaultView[i].Row["ID"].ToString());
+                    }
+                }
+
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
+            return ret;
+        }
+
+        public override CouponsGroup[] GetCouponGroupListForAdmin()
+        {
+            return GetCouponGroupListForAdmin(false);
+
+        }
+
+        public override CouponsGroup GetCouponGroupData(string sCouponGroupID)
+        {
+            CouponsGroup tmp = null;
+            Int32 nCouponGroupID = 0;
+            try
+            {
+                nCouponGroupID = int.Parse(sCouponGroupID);
+            }
+            catch
+            {
+                return null;
+            }
+            tmp = new CouponsGroup();
+            tmp.Initialize(nCouponGroupID, m_nGroupID);
+            return tmp;
+        }
+
+        public override CouponData GetCouponStatus(string sCouponCode)
+        {
+            Coupon t = new Coupon();
+            if (t.Initialize(sCouponCode, m_nGroupID) == true)
+            {
+                CouponsGroup g = t.GetCouponGroup(m_nGroupID);
+                CouponData d = new CouponData();
+                d.Initialize(g, t.GetCouponStatus(), t.m_couponType, t.m_campaignID, t.m_ownerGUID, t.m_ownerMedia);
+                return d;
+            }
+            else
+            {
+                CouponData d = new CouponData();
+                d.m_CouponStatus = CouponsStatus.NotExists;
+                return d;
+            }
+        }
+
+        public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode)
+        {
+            return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID,nCollectionCode, nMFID, nSubCode, nPrePaidCode);
+        }
+    }
+}

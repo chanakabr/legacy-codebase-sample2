@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/pgadapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" />
+  <xs:import schemaLocation="http://localhost/pgadapter/Service.svc?xsd=xsd3" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:element name="SetConfiguration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="transactUrl" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="statusUrl" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="renewUrl" nillable="true" type="xs:string" />
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="connectionSettings" nillable="true" type="q1:ArrayOfKeyValue" />
+        <xs:element minOccurs="0" name="partnerId" type="xs:int" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SetConfigurationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="SetConfigurationResult" nillable="true" type="q2:AdapterStatus" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetConfiguration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="intent" nillable="true" type="xs:string" />
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="extra" nillable="true" type="q3:ArrayOfKeyValue" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetConfigurationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="GetConfigurationResult" nillable="true" type="q4:ConfigurationResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Transact">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="householdChargeId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="price" type="xs:double" />
+        <xs:element minOccurs="0" name="currency" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="productId" nillable="true" type="xs:string" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="transactionType" type="q5:eTransactionType" />
+        <xs:element minOccurs="0" name="contentId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="paymentMethodExternalId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="adapterData" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TransactResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="TransactResult" nillable="true" type="q6:TransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VerifyPendingTransaction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="transactionID" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VerifyPendingTransactionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="VerifyPendingTransactionResult" nillable="true" type="q7:TransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VerifyTransaction">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="ip" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="productId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="productCode" nillable="true" type="xs:string" />
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="transactionType" type="q8:eTransactionType" />
+        <xs:element minOccurs="0" name="purchaseToken" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="contentId" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VerifyTransactionResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="VerifyTransactionResult" nillable="true" type="q9:TransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessRenewal">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="userId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="productId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="productCode" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="transactionId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="gracePeriodMinutes" type="xs:int" />
+        <xs:element minOccurs="0" name="price" type="xs:double" />
+        <xs:element minOccurs="0" name="currency" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="chargeId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="paymentMethodExternalId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ProcessRenewalResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="ProcessRenewalResult" nillable="true" type="q10:TransactionResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemovePaymentMethod">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="householdChargeId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="paymentMethodExternalId" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemovePaymentMethodResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="RemovePaymentMethodResult" nillable="true" type="q11:PaymentMethodResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoveAccount">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="paymentGatewayId" type="xs:int" />
+        <xs:element minOccurs="0" name="householdChargeId" nillable="true" type="xs:string" />
+        <xs:element xmlns:q12="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="paymentMethodExternalIds" nillable="true" type="q12:ArrayOfstring" />
+        <xs:element minOccurs="0" name="timeStamp" type="xs:long" />
+        <xs:element minOccurs="0" name="signature" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RemoveAccountResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/PGAdapterCommon.Models" minOccurs="0" name="RemoveAccountResult" nillable="true" type="q13:PaymentMethodResponse" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

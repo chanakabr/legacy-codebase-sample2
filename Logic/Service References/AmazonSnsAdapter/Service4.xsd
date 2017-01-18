@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/AwsSns" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/AwsSns" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="Enums.eDeliveryProtocol">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="http" />
+      <xs:enumeration value="https" />
+      <xs:enumeration value="email" />
+      <xs:enumeration value="sms" />
+      <xs:enumeration value="sqs" />
+      <xs:enumeration value="application" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Enums.eDeliveryProtocol" nillable="true" type="tns:Enums.eDeliveryProtocol" />
+</xs:schema>

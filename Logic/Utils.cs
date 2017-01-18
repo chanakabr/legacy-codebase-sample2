@@ -1,0 +1,379 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using System.Configuration;
+using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
+using ApiObjects.Response;
+using Tvinci.Core.DAL;
+using System.IO;
+using System.IO.Compression;
+using System.Net;
+using System.Web;
+using System.ServiceModel;
+using Core.Users;
+using ApiObjects.SearchObjects;
+
+namespace APILogic
+{
+    public class Utils
+    {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        public static int GetIntSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return int.Parse(dr[sField].ToString());
+                return 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public static string GetSafeStr(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return dr[sField].ToString();
+                return string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static int GetIntSafeVal(string val)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(val))
+                    return int.Parse(val);
+                return -1;
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        public static double GetDoubleSafeVal(DataRow dr, string sField)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                    return double.Parse(dr[sField].ToString());
+                return -1.0;
+            }
+            catch
+            {
+                return -1.0;
+            }
+        }
+
+        public static double GetDoubleSafeVal(string val)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(val))
+                    return double.Parse(val);
+                return -1.0;
+            }
+            catch
+            {
+                return -1.0;
+            }
+        }
+
+        //public static string GetSafeStr(object o)
+        //{
+        //    if (o == DBNull.Value)
+        //        return string.Empty;
+        //    else if (o == null)
+        //        return string.Empty;
+        //    else
+        //        return o.ToString();
+        //}
+
+        internal static List<int> ConvertMediaResultObjectIDsToIntArray(SearchResult[] medias)
+        {
+            List<int> res = new List<int>();
+
+            if (medias != null && medias.Length > 0)
+            {
+                IEnumerable<int> ids = from media in medias
+                                       select media.assetID;
+
+                res = ids.ToList<int>();
+            }
+
+            return res;
+        }
+
+        public static string GetCatalogUrl()
+        {
+            string sCatalogURL = string.Empty;
+
+            try
+            {
+                sCatalogURL = GetWSUrl("WS_Catalog");
+            }
+            catch (Exception ex)
+            {
+                log.Error("Catalog URL - Cannot read catalog URL", ex);
+            }
+
+            return sCatalogURL;
+        }
+
+        public static string GetWSUrl(string sKey)
+        {
+            return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
+        }
+
+        /// <summary>
+        /// Validates that a user exists and belongs to a given domain
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="siteGuid"></param>
+        /// <param name="domainId"></param>
+        /// <returns></returns>
+        public static ResponseStatus ValidateUser(int groupId, string siteGuid, int domainId)
+        {
+            ResponseStatus status = ResponseStatus.InternalError;
+
+            try
+            {
+                UserResponseObject response = Core.Users.Module.GetUserData(groupId, siteGuid, string.Empty);
+
+                // Make sure response is OK
+                if (response != null)
+                {
+                    if (response.m_RespStatus == ResponseStatus.OK)
+                    {
+                        // If the user belongs to the domain or no domain was sent
+                        if (response.m_user != null &&
+                            (domainId == 0 || response.m_user.m_domianID == domainId))
+                        {
+                            status = ResponseStatus.OK;
+                        }
+                        else
+                        {
+                            status = ResponseStatus.UserNotIndDomain;
+                        }
+                    }
+                    else
+                    {
+                        status = response.m_RespStatus;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("ValidateUser - " +
+                    string.Format("Error when validating user {0} in group {1}. ex = {2}, ST = {3}", siteGuid, groupId, ex.Message, ex.StackTrace),
+                    ex);
+            }
+
+            return status;
+        }
+
+        /// <summary>
+        /// Validates that a domain exists
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="domainId"></param>
+        /// <returns></returns>
+        public static eResponseStatus ValidateDomain(int groupId, int domainId)
+        {
+            eResponseStatus responseStatus = eResponseStatus.Error;
+
+            try
+            {
+                // get domain info
+                DomainResponse response = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+
+                // validate response
+                if (!Enum.TryParse(response.Status.Code.ToString(), out responseStatus))
+                    responseStatus = eResponseStatus.Error;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ValidateDomain - Error when validating domain {0} in group {1}. ex = {2}", domainId, groupId, ex);
+            }
+
+            return responseStatus;
+        }
+
+        public static Int32 GetGroupID(string sWSUserName, string sWSPassword)
+        {
+            Credentials oCredentials = new Credentials(sWSUserName, sWSPassword);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.API, oCredentials);
+
+            if (nGroupID == 0)
+                log.Debug("WS ignored -  eWSModules: eWSModules.API " + " UN: " + sWSUserName + " Pass: " + sWSPassword);
+
+            return nGroupID;
+        }
+
+        public static string GetGroupDefaultLanguageCode(int groupId)
+        {
+            var language = Core.Api.api.GetGroupLanguages(groupId).Where(l => l.IsDefault).FirstOrDefault();
+            return language != null ? language.Code : string.Empty;
+        }
+
+        public static int[] GetGroupMediaTypesIds(int groupId)
+        {
+            int[] ids = null;
+
+            try
+            {
+                Dictionary<int, string> idToName;
+                Dictionary<string, int> nameToId;
+                Dictionary<int, int> parentMediaTypes;
+                List<int> linearMediaTypes;
+
+                CatalogDAL.GetMediaTypes(groupId, out idToName, out nameToId, out parentMediaTypes, out linearMediaTypes);
+                if (idToName != null)
+                {
+                    ids = idToName.Keys.ToArray();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed to get media types ids for group {0} with error", groupId), ex);
+            }
+            return ids;
+        }
+
+        /// <summary>
+        /// Compress a given file
+        /// </summary>
+        /// <param name="filePathToCompress">file path + file name. For example: c:\example\test.xml</param>
+        /// <param name="compressedFileLocation">directory location without file name. For example: c:\output\</param>
+        /// <returns></returns>
+        public static bool CompressFile(string filePathToCompress, string compressedFileLocation)
+        {
+            try
+            {
+                FileInfo fi = new FileInfo(filePathToCompress);
+
+                // Get the stream of the source file.
+                using (FileStream inFile = fi.OpenRead())
+                {
+                    // Prevent compressing hidden and 
+                    // already compressed files.
+                    if ((File.GetAttributes(fi.FullName)
+                        & FileAttributes.Hidden)
+                        != FileAttributes.Hidden & fi.Extension != ".gz")
+                    {
+                        // Create the compressed file.
+                        using (FileStream outFile =
+                                    File.Create((compressedFileLocation.EndsWith("\\") ? compressedFileLocation : compressedFileLocation + "\\") + fi.Name + ".gz"))
+                        {
+                            using (GZipStream Compress =
+                                new GZipStream(outFile,
+                                CompressionMode.Compress))
+                            {
+                                // Copy the source file into 
+                                // the compression stream.
+                                inFile.CopyTo(Compress);
+
+                                Console.WriteLine("Compressed {0} from {1} to {2} bytes.",
+                                    fi.Name, fi.Length.ToString(), outFile.Length.ToString());
+
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("error in compress file", ex);
+                return false;
+            }
+
+            return false;
+        }
+
+        static public bool SendGetHttpRequest(string url, ref string response, ref int statusCode)
+        {
+            bool result = false;
+            statusCode = -1;
+
+            HttpWebResponse webResponse = null;
+            Stream receiveStream = null;
+
+            try
+            {
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+
+                webResponse = (HttpWebResponse)webRequest.GetResponse();
+
+                response = string.Empty;
+
+                if (webResponse.ContentLength < 10000000 && webResponse.ContentLength > 0)
+                {
+                    receiveStream = webResponse.GetResponseStream();
+                    StreamReader sr = new StreamReader(receiveStream);
+                    response = sr.ReadToEnd();
+                    webResponse.Close();
+                    sr.Close();
+                }
+                else
+                {
+                    webResponse.Close();
+                }
+
+                statusCode = (int)webResponse.StatusCode;
+                result = true;
+
+                webRequest = null;
+                webResponse = null;
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("SendGetHttpRequest failed, url = {0}", url), ex);
+                if (webResponse != null)
+                    webResponse.Close();
+                if (receiveStream != null)
+                    receiveStream.Close();
+                statusCode = 500;
+                response = null;
+            }
+
+            return result;
+        }
+
+        public static ApiObjects.MetaType GetMetaTypeByDbName(string metaDbName)
+        {
+            if (metaDbName.EndsWith("DOUBLE"))
+            {
+                return ApiObjects.MetaType.Number;
+            }
+
+            if (metaDbName.EndsWith("BOOL"))
+            {
+                return ApiObjects.MetaType.Bool;
+            }
+
+            if (metaDbName.EndsWith("STR"))
+            {
+                return ApiObjects.MetaType.String;
+            }
+
+            return ApiObjects.MetaType.All;
+        }
+
+    }
+}

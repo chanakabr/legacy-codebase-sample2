@@ -1,0 +1,1155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{27C6F3ED-B660-466A-9415-DE2D43E58FF0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>APILogic</RootNamespace>
+    <AssemblyName>ApiLogic</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>http://localhost/api/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Local|AnyCPU'">
+    <OutputPath>bin\Local\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\ComponentSpace.SAML2.dll</HintPath>
+    </Reference>
+    <Reference Include="CouchbaseManager, Version=3.4.118.16077, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
+    </Reference>
+    <Reference Include="Enyim.Caching">
+      <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
+    </Reference>
+    <Reference Include="Jil">
+      <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
+    </Reference>
+    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
+    </Reference>
+    <Reference Include="KlogMonitorHelper, Version=3.4.583.29708, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="LinqToTwitter">
+      <HintPath>..\..\tvmcore\External\LinqToTwitter.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\TVinciCommon\External\Couchbase-Net-Client-2.2.6\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PerceptiveMCAPI, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\PerceptiveMCAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="SimpleInjector, Version=2.3.6.0, Culture=neutral, PublicKeyToken=984cb50dea722e99, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\net40\SimpleInjector.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="SimpleInjector.Integration.Wcf">
+      <HintPath>..\..\tvmcore\External\net40\SimpleInjector.Integration.Wcf.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Activation" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\TCMClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdaptersController.cs" />
+    <Compile Include="api.cs" />
+    <Compile Include="ApiCache.cs" />
+    <Compile Include="Billing\999SMS.cs" />
+    <Compile Include="Billing\AdaptersController.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Billing\Adyen\AdyenBillingDetail.cs" />
+    <Compile Include="Billing\Adyen\AdyenCreditCard.cs" />
+    <Compile Include="Billing\Adyen\AdyenDirectDebit.cs" />
+    <Compile Include="Billing\Adyen\AdyenMailer.cs" />
+    <Compile Include="Billing\Adyen\AdyenUtils.cs" />
+    <Compile Include="Billing\Base\BaseBilling.cs" />
+    <Compile Include="Billing\Base\BaseCellularCreditCard.cs" />
+    <Compile Include="Billing\Base\BaseCellularDirectDebit.cs" />
+    <Compile Include="Billing\Base\BaseCreditCard.cs" />
+    <Compile Include="Billing\Base\BaseDirectDebit.cs" />
+    <Compile Include="Billing\Base\BaseInAppPurchase.cs" />
+    <Compile Include="Billing\Base\BasePaymentGateway.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Billing\Base\BasePopup.cs" />
+    <Compile Include="Billing\Base\BaseSMS.cs" />
+    <Compile Include="Billing\BillingCache.cs" />
+    <Compile Include="Billing\BillingMailTemplateFactory.cs" />
+    <Compile Include="Billing\Cinepolis\CinepolisCreditCard.cs" />
+    <Compile Include="Billing\Cinepolis\CinepolisDummyCreditCard.cs" />
+    <Compile Include="Billing\Cinepolis\CinepolisMailObj.cs" />
+    <Compile Include="Billing\Cinepolis\CinepolisUtils.cs" />
+    <Compile Include="Billing\Constants.cs" />
+    <Compile Include="Billing\Dummy\DummyCreditCard.cs" />
+    <Compile Include="Billing\Elisa\ElisaInAppPurchase.cs" />
+    <Compile Include="Billing\M1\M1CellularCreditCard.cs" />
+    <Compile Include="Billing\M1\M1CellularDirectDebit.cs" />
+    <Compile Include="Billing\Offline\OfflineCreditCard.cs" />
+    <Compile Include="Billing\Offline\OfflineDirectDebit.cs" />
+    <Compile Include="Billing\SmartSun\SmartSunCreditCard.cs" />
+    <Compile Include="Billing\Tikle\TikleCreditCard.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Billing\Tikle\TikleSMS.cs" />
+    <Compile Include="Billing\Tvinci\TvinciCreditCard.cs" />
+    <Compile Include="Billing\Tvinci\TvinciPopup.cs" />
+    <Compile Include="Billing\Utils.cs" />
+    <Compile Include="Billing\WinPLCSMS.cs" />
+    <Compile Include="Billing\WinPLSMSHelper.cs" />
+    <Compile Include="Catalog\AdProvider.cs" />
+    <Compile Include="Catalog\Attributes\LogTopicAttribute.cs" />
+    <Compile Include="Catalog\BaseEpg.cs" />
+    <Compile Include="Catalog\BaseObject.cs" />
+    <Compile Include="Catalog\Bootstrapper.cs" />
+    <Compile Include="Catalog\Branding.cs" />
+    <Compile Include="Catalog\Cache\CatalogCache.cs" />
+    <Compile Include="Catalog\Cache\EntitlementDefinitionsCache.cs" />
+    <Compile Include="Catalog\Cache\ParentalRulesTagsCache.cs" />
+    <Compile Include="Catalog\CatalogLogic.cs" />
+    <Compile Include="Catalog\ChannelViewsResult.cs" />
+    <Compile Include="Catalog\Controller\IngestController.cs" />
+    <Compile Include="Catalog\Crowdsourcing.cs" />
+    <Compile Include="Catalog\DoesMediaBelongToChannels.cs" />
+    <Compile Include="Catalog\EntitledAssetsUtils.cs" />
+    <Compile Include="Catalog\FactoryImp.cs" />
+    <Compile Include="Catalog\FileMedia.cs" />
+    <Compile Include="Catalog\Filter.cs" />
+    <Compile Include="Catalog\IEpgSearchable.cs" />
+    <Compile Include="Catalog\IFactoryImp.cs" />
+    <Compile Include="Catalog\IngestRequest.cs" />
+    <Compile Include="Catalog\LinearChannelSettings.cs" />
+    <Compile Include="Catalog\ManualMedia.cs" />
+    <Compile Include="Catalog\MediaType.cs" />
+    <Compile Include="Catalog\OrderObj.cs" />
+    <Compile Include="Catalog\PicData.cs" />
+    <Compile Include="Catalog\PicSize.cs" />
+    <Compile Include="Catalog\Picture.cs" />
+    <Compile Include="Catalog\ProgramObj.cs" />
+    <Compile Include="Catalog\Request\AssetCommentAddRequest.cs" />
+    <Compile Include="Catalog\Request\AssetCommentsRequest.cs" />
+    <Compile Include="Catalog\Request\AssetInfoRequest.cs" />
+    <Compile Include="Catalog\Request\AssetsBookmarksRequest.cs" />
+    <Compile Include="Catalog\Request\AssetsBookmarksRequestData.cs" />
+    <Compile Include="Catalog\Request\AssetStatsRequest.cs" />
+    <Compile Include="Catalog\Request\BaseChannelRequest.cs" />
+    <Compile Include="Catalog\Request\BaseMediaSearchRequest.cs" />
+    <Compile Include="Catalog\Request\BaseProtocolRequest.cs" />
+    <Compile Include="Catalog\Request\BaseRequest.cs" />
+    <Compile Include="Catalog\Request\BundleAssetsRequest.cs" />
+    <Compile Include="Catalog\Request\BundleContainingMediaRequest.cs" />
+    <Compile Include="Catalog\Request\BundleMediaRequest.cs" />
+    <Compile Include="Catalog\Request\BundlesContainingMediaRequest.cs" />
+    <Compile Include="Catalog\Request\BuzzMeterRequest.cs" />
+    <Compile Include="Catalog\Request\CategoryRequest.cs" />
+    <Compile Include="Catalog\Request\ChannelObjRequest.cs" />
+    <Compile Include="Catalog\Request\ChannelRequest.cs" />
+    <Compile Include="Catalog\Request\ChannelRequestMultiFiltering.cs" />
+    <Compile Include="Catalog\Request\ChannelsContainingMediaRequest.cs" />
+    <Compile Include="Catalog\Request\ChannelsListRequest.cs" />
+    <Compile Include="Catalog\Request\ChannelViewsRequest.cs" />
+    <Compile Include="Catalog\Request\CommentRequest.cs" />
+    <Compile Include="Catalog\Request\CommentsListRequest.cs" />
+    <Compile Include="Catalog\Request\CountryRequest.cs" />
+    <Compile Include="Catalog\Request\CrowdsourceRequest.cs" />
+    <Compile Include="Catalog\Request\EpgAutoCompleteRequest.cs" />
+    <Compile Include="Catalog\Request\EpgCommentRequest.cs" />
+    <Compile Include="Catalog\Request\EpgCommentsListRequest.cs" />
+    <Compile Include="Catalog\Request\EpgProgramDetailsRequest.cs" />
+    <Compile Include="Catalog\Request\EPGProgramsByProgramsIdentefierRequest.cs" />
+    <Compile Include="Catalog\Request\EPGProgramsByScidsRequest.cs" />
+    <Compile Include="Catalog\Request\EpgRequest.cs" />
+    <Compile Include="Catalog\Request\EPGSearchContentRequest.cs" />
+    <Compile Include="Catalog\Request\EpgSearchRequest.cs" />
+    <Compile Include="Catalog\Request\ExtendedSearchRequest.cs" />
+    <Compile Include="Catalog\Request\ExternalChannelRequest.cs" />
+    <Compile Include="Catalog\Request\IMediasProtocolRequest.cs" />
+    <Compile Include="Catalog\Request\InternalChannelRequest.cs" />
+    <Compile Include="Catalog\Request\IProgramsRequest.cs" />
+    <Compile Include="Catalog\Request\IRequestImp.cs" />
+    <Compile Include="Catalog\Request\IsMediaExistsInSubscriptionRequest.cs" />
+    <Compile Include="Catalog\Request\MediaAutoCompleteRequest.cs" />
+    <Compile Include="Catalog\Request\MediaChannelsRequest.cs" />
+    <Compile Include="Catalog\Request\MediaCommentRequest.cs" />
+    <Compile Include="Catalog\Request\MediaFilesRequest.cs" />
+    <Compile Include="Catalog\Request\MediaHitRequest.cs" />
+    <Compile Include="Catalog\Request\MediaLastPositionRequest.cs" />
+    <Compile Include="Catalog\Request\MediaLastPositionRequestData.cs" />
+    <Compile Include="Catalog\Request\MediaMarkRequest.cs" />
+    <Compile Include="Catalog\Request\MediaPlayRequestData.cs" />
+    <Compile Include="Catalog\Request\MediaRelatedExternalRequest.cs" />
+    <Compile Include="Catalog\Request\MediaRelatedRequest.cs" />
+    <Compile Include="Catalog\Request\MediaSearchExternalRequest.cs" />
+    <Compile Include="Catalog\Request\MediaSearchFullRequest.cs" />
+    <Compile Include="Catalog\Request\MediaSearchRequest.cs" />
+    <Compile Include="Catalog\Request\MediasProtocolRequest.cs" />
+    <Compile Include="Catalog\Request\MediaUpdateDateRequest.cs" />
+    <Compile Include="Catalog\Request\NPVRRetrieveRequest.cs" />
+    <Compile Include="Catalog\Request\NPVRSeriesRequest.cs" />
+    <Compile Include="Catalog\Request\PersonalLasDeviceRequest.cs" />
+    <Compile Include="Catalog\Request\PersonalLastWatchedRequest.cs" />
+    <Compile Include="Catalog\Request\PersonalRecommendedRequest.cs" />
+    <Compile Include="Catalog\Request\PicRequest.cs" />
+    <Compile Include="Catalog\Request\PWLALProtocolRequest.cs" />
+    <Compile Include="Catalog\Request\PWWAWProtocolRequest.cs" />
+    <Compile Include="Catalog\Request\ScheduledRecordingsRequest.cs" />
+    <Compile Include="Catalog\Request\UnifiedSearchRequest.cs" />
+    <Compile Include="Catalog\Request\UserSocialMediasRequest.cs" />
+    <Compile Include="Catalog\Request\WatchHistoryRequest.cs" />
+    <Compile Include="Catalog\Response\AssetCommentResponse.cs" />
+    <Compile Include="Catalog\Response\AssetCommentsListResponse.cs" />
+    <Compile Include="Catalog\Response\AssetInfoResponse.cs" />
+    <Compile Include="Catalog\Response\AssetsBookmarksResponse.cs" />
+    <Compile Include="Catalog\Response\AssetStatsResponse.cs" />
+    <Compile Include="Catalog\Response\BaseResponse.cs" />
+    <Compile Include="Catalog\Response\BundlesContainingMediaResponse.cs" />
+    <Compile Include="Catalog\Response\BuzzMeterResponse.cs" />
+    <Compile Include="Catalog\Response\CategoryResponse.cs" />
+    <Compile Include="Catalog\Response\ChannelDetailsResponse.cs" />
+    <Compile Include="Catalog\Response\ChannelObjResponse.cs" />
+    <Compile Include="Catalog\Response\ChannelResponse.cs" />
+    <Compile Include="Catalog\Response\ChannelsContainingMediaResponse.cs" />
+    <Compile Include="Catalog\Response\ChannelViewsResponse.cs" />
+    <Compile Include="Catalog\Response\CommentResponse.cs" />
+    <Compile Include="Catalog\Response\CommentsListResponse.cs" />
+    <Compile Include="Catalog\Response\ContainingMediaResponse.cs" />
+    <Compile Include="Catalog\Response\CountryResponse.cs" />
+    <Compile Include="Catalog\Response\CrowdsourceResponse.cs" />
+    <Compile Include="Catalog\Response\EpgAutoCompleteResponse.cs" />
+    <Compile Include="Catalog\Response\EpgProgramResponse.cs" />
+    <Compile Include="Catalog\Response\EpgProgramsResponse.cs" />
+    <Compile Include="Catalog\Response\EpgResponse.cs" />
+    <Compile Include="Catalog\Response\EpgSearchResponse.cs" />
+    <Compile Include="Catalog\Response\ExtendedSearchResult.cs" />
+    <Compile Include="Catalog\Response\IsMediaExistsInSubscriptionResponse.cs" />
+    <Compile Include="Catalog\Response\MediaAutoCompleteResponse.cs" />
+    <Compile Include="Catalog\Response\MediaChannelsResponse.cs" />
+    <Compile Include="Catalog\Response\MediaFilesResponse.cs" />
+    <Compile Include="Catalog\Response\MediaHitResponse.cs" />
+    <Compile Include="Catalog\Response\MediaIdsResponse.cs" />
+    <Compile Include="Catalog\Response\MediaIdsStatusResponse.cs" />
+    <Compile Include="Catalog\Response\MediaLastPositionResponse.cs" />
+    <Compile Include="Catalog\Response\MediaMarkResponse.cs" />
+    <Compile Include="Catalog\Response\MediaResponse.cs" />
+    <Compile Include="Catalog\Response\NPVRRetrieveResponse.cs" />
+    <Compile Include="Catalog\Response\NPVRSeriesResponse.cs" />
+    <Compile Include="Catalog\Response\PersonalLastDeviceResponse.cs" />
+    <Compile Include="Catalog\Response\PicResponse.cs" />
+    <Compile Include="Catalog\Response\UnifiedSearchExternalResponse.cs" />
+    <Compile Include="Catalog\Response\UnifiedSearchResponse.cs" />
+    <Compile Include="Catalog\Response\UnifiedSearchResult.cs" />
+    <Compile Include="Catalog\Response\UserWatchHistory.cs" />
+    <Compile Include="Catalog\Response\WatchHistoryResponse.cs" />
+    <Compile Include="Catalog\Searcher\ElasticsearchWrapper.cs" />
+    <Compile Include="Catalog\Searcher\Helper.cs" />
+    <Compile Include="Catalog\Searcher\ISearcher.cs" />
+    <Compile Include="Catalog\Searcher\LuceneWrapper.cs" />
+    <Compile Include="Catalog\TagMeta.cs" />
+    <Compile Include="Catalog\UnifiedSearchDefinitionsBuilder.cs" />
+    <Compile Include="Catalog\Utils.cs" />
+    <Compile Include="ConditionalAccess\BaseCampaignActionImpl.cs" />
+    <Compile Include="ConditionalAccess\BillingTransactionContainer.cs" />
+    <Compile Include="ConditionalAccess\Commands\BaseNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\CancelNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\CancelSeriesNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\DeleteNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\DeleteSeriesNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\LicensedLinkNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\ProtectNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordSeriesByNameNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\Commands\RetrieveQuotaNPVRCommand.cs" />
+    <Compile Include="ConditionalAccess\ConditionalAccessCache.cs" />
+    <Compile Include="ConditionalAccess\Implementations\KangurooConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\TikleConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\ItemPriceContainer.cs" />
+    <Compile Include="ConditionalAccess\PermittedCollectionContainer.cs" />
+    <Compile Include="ConditionalAccess\PermittedMediaContainer.cs" />
+    <Compile Include="ConditionalAccess\PermittedSubscriptionContainer.cs" />
+    <Compile Include="ConditionalAccess\PersonalEnrichments\AssetItemPriceResponse.cs" />
+    <Compile Include="ConditionalAccess\PersonalEnrichments\AssetItemPrices.cs" />
+    <Compile Include="ConditionalAccess\Recordings\QuotaManager.cs" />
+    <Compile Include="ConditionalAccess\Recordings\RecordingsManager.cs" />
+    <Compile Include="ConditionalAccess\Response\BillingStatusResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\BillingTransactions.cs" />
+    <Compile Include="ConditionalAccess\Response\CancelDeleteResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\DomainServicesResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\Entitlement.cs" />
+    <Compile Include="ConditionalAccess\Response\EntitlementResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\LicensedLinkNPVRResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\LicensedLinkResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\MediaFileItemPricesContainerResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\PermittedMediaContainerResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\PrePaidResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\ProtectionResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\QuotaResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\RecordResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\SubscriptionsPricesResponse.cs" />
+    <Compile Include="ConditionalAccess\Response\UserBillingTransactionResponse.cs" />
+    <Compile Include="ConditionalAccess\SocialInviteCampaignImpl.cs" />
+    <Compile Include="ConditionalAccess\UserEntitlementsObject.cs" />
+    <Compile Include="ConditionalAccess\UserPrePaidContainer.cs" />
+    <Compile Include="ConditionalAccess\Utils.cs" />
+    <Compile Include="ConditionalAccess\VoucherCampaignImpl.cs" />
+    <Compile Include="CRUD\KSQLChannelsManager.cs" />
+    <Compile Include="enums.cs" />
+    <Compile Include="ExportLogic.cs" />
+    <Compile Include="ConditionalAccess\Implementations\BaseConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\CinepolisConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\ElisaConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\EutelsatConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\FilmoConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\TvinciConditionalAccess.cs" />
+    <Compile Include="ConditionalAccess\Implementations\VodafoneConditionalAccess.cs" />
+    <Compile Include="MaxMind.cs" />
+    <Compile Include="Modules\Domains.cs" />
+    <Compile Include="Modules\Notification.cs" />
+    <Compile Include="Modules\Social.cs" />
+    <Compile Include="Modules\Users.cs" />
+    <Compile Include="Notification\Adapters\DmsAdapter.cs" />
+    <Compile Include="Notification\Adapters\NotificationAdapter.cs" />
+    <Compile Include="Notification\AnnouncementManager.cs" />
+    <Compile Include="Notification\BaseImplementor.cs" />
+    <Compile Include="Notification\BaseNotification.cs" />
+    <Compile Include="Notification\BroadcastImplementor.cs" />
+    <Compile Include="Notification\Datatable.cs" />
+    <Compile Include="Notification\DeviceNotification.cs" />
+    <Compile Include="Notification\ElisaEmailNotification.cs" />
+    <Compile Include="Notification\ElisaSMSNotification.cs" />
+    <Compile Include="Notification\EmailNotification.cs" />
+    <Compile Include="Notification\enums.cs" />
+    <Compile Include="Notification\FactoryImp.cs" />
+    <Compile Include="Notification\FollowManager.cs" />
+    <Compile Include="Notification\FollowUpTagNotification.cs" />
+    <Compile Include="Notification\IFactoryImp.cs" />
+    <Compile Include="Notification\ImplementorsFactory.cs" />
+    <Compile Include="Notification\IRequestImp.cs" />
+    <Compile Include="Notification\MessageBoxServiceWrapper.cs" />
+    <Compile Include="Notification\MessageInboxManger.cs" />
+    <Compile Include="Notification\Notification.cs" />
+    <Compile Include="Notification\NotificationBase.cs" />
+    <Compile Include="Notification\NotificationCache.cs" />
+    <Compile Include="Notification\NotificationConsumer.cs" />
+    <Compile Include="Notification\NotificationManager.cs" />
+    <Compile Include="Notification\NotificationMessage.cs" />
+    <Compile Include="Notification\NotificationRequest.cs" />
+    <Compile Include="Notification\NotificationRequestAction.cs" />
+    <Compile Include="Notification\NotificationSettings.cs" />
+    <Compile Include="Notification\NotificationTag.cs" />
+    <Compile Include="Notification\NotificationTagRequest.cs" />
+    <Compile Include="Notification\NotificationUtils.cs" />
+    <Compile Include="Notification\PullNotification.cs" />
+    <Compile Include="Notification\PushAnnouncementsHelper.cs" />
+    <Compile Include="Notification\ReminderManager.cs" />
+    <Compile Include="Notification\SendVia.cs" />
+    <Compile Include="Notification\SimpleImlementor.cs" />
+    <Compile Include="Notification\SMSNotification.cs" />
+    <Compile Include="Notification\TagIDValue.cs" />
+    <Compile Include="Notification\TestHelper.cs" />
+    <Compile Include="Notification\UserMessageFlow.cs" />
+    <Compile Include="Notification\UserSettings.cs" />
+    <Compile Include="Notification\Utils.cs" />
+    <Compile Include="Pricing\BaseCampaign.cs" />
+    <Compile Include="Pricing\BaseCollection.cs" />
+    <Compile Include="Pricing\BaseCollectionDecorator.cs" />
+    <Compile Include="Pricing\BaseCoupons.cs" />
+    <Compile Include="Pricing\BaseDiscount.cs" />
+    <Compile Include="Pricing\BasePPVModule.cs" />
+    <Compile Include="Pricing\BasePPVModuleDecorator.cs" />
+    <Compile Include="Pricing\BasePrePaidModule.cs" />
+    <Compile Include="Pricing\BasePrePaidModuleDecorator.cs" />
+    <Compile Include="Pricing\BasePreviewModule.cs" />
+    <Compile Include="Pricing\BasePricing.cs" />
+    <Compile Include="Pricing\BasePricingDecorator.cs" />
+    <Compile Include="Pricing\BaseSubscription.cs" />
+    <Compile Include="Pricing\BaseSubscriptionDecorator.cs" />
+    <Compile Include="Pricing\BaseUsageModule.cs" />
+    <Compile Include="Pricing\BaseUsageModuleDecorator.cs" />
+    <Compile Include="Pricing\Campaign.cs" />
+    <Compile Include="Pricing\Collection.cs" />
+    <Compile Include="Pricing\CollectionCacheWrapper.cs" />
+    <Compile Include="Pricing\Coupon.cs" />
+    <Compile Include="Pricing\CouponData.cs" />
+    <Compile Include="Pricing\CouponDataResponse.cs" />
+    <Compile Include="Pricing\CouponsGroup.cs" />
+    <Compile Include="Pricing\Currency.cs" />
+    <Compile Include="Pricing\DiscountModule.cs" />
+    <Compile Include="Pricing\MediaFilePPVContainer.cs" />
+    <Compile Include="Pricing\MediaFilePPVModule.cs" />
+    <Compile Include="Pricing\PPVModule.cs" />
+    <Compile Include="Pricing\PPVModuleCacheWrapper.cs" />
+    <Compile Include="Pricing\PPVModuleDataResponse.cs" />
+    <Compile Include="Pricing\PPVModuleResponse.cs" />
+    <Compile Include="Pricing\PPVModuleWithExpiry.cs" />
+    <Compile Include="Pricing\PrePaidModule.cs" />
+    <Compile Include="Pricing\PrePaidModuleCacheWrapper.cs" />
+    <Compile Include="Pricing\PreviewModule.cs" />
+    <Compile Include="Pricing\Price.cs" />
+    <Compile Include="Pricing\PriceCode.cs" />
+    <Compile Include="Pricing\PricingCache.cs" />
+    <Compile Include="Pricing\PricingCacheWrapper.cs" />
+    <Compile Include="Pricing\Subscription.cs" />
+    <Compile Include="Pricing\SubscriptionCacheWrapper.cs" />
+    <Compile Include="Pricing\SubscriptionsResponse.cs" />
+    <Compile Include="Pricing\TvinciCampaign.cs" />
+    <Compile Include="Pricing\TvinciCollection.cs" />
+    <Compile Include="Pricing\TvinciCoupons.cs" />
+    <Compile Include="Pricing\TvinciDiscount.cs" />
+    <Compile Include="Pricing\TvinciPPVModule.cs" />
+    <Compile Include="Pricing\TvinciPrePaidModule.cs" />
+    <Compile Include="Pricing\TvinciPreviewModule.cs" />
+    <Compile Include="Pricing\TvinciPricing.cs" />
+    <Compile Include="Pricing\TvinciSubscription.cs" />
+    <Compile Include="Pricing\TvinciUsageModule.cs" />
+    <Compile Include="Pricing\UsageModule.cs" />
+    <Compile Include="Pricing\UsageModuleCacheWrapper.cs" />
+    <Compile Include="Pricing\Utils.cs" />
+    <Compile Include="Pricing\WhenAlgo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\AmazonSnsAdapter\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\DmsService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\OSSAdapterService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Service References\PaymentGWAdapter\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
+    <Compile Include="Social\BaseSocialBL.cs" />
+    <Compile Include="Social\Cache\SocialCache.cs" />
+    <Compile Include="Social\FacebookManager.cs" />
+    <Compile Include="Social\FacebookResponse.cs" />
+    <Compile Include="Social\FacebookWrapper.cs" />
+    <Compile Include="Social\FBUtils.cs" />
+    <Compile Include="Social\ISocialBL.cs" />
+    <Compile Include="Social\Requests\BaseDoUserActionRequest.cs" />
+    <Compile Include="Social\Requests\BaseSocialPrivacyRequest.cs" />
+    <Compile Include="Social\Requests\FacebookObjectRequest.cs" />
+    <Compile Include="Social\Requests\GetFriendsActionsRequest.cs" />
+    <Compile Include="Social\Requests\IBaseSocialRequest.cs" />
+    <Compile Include="Social\Requests\SocialBaseRequestWrapper.cs" />
+    <Compile Include="Social\Requests\UserSocialActionQueryRequest.cs" />
+    <Compile Include="Social\Responses\BaseSocialPrivacyReponse.cs" />
+    <Compile Include="Social\Responses\BaseSocialResponse.cs" />
+    <Compile Include="Social\Responses\DoSocialActionResponse.cs" />
+    <Compile Include="Social\Responses\SocialActionQueryResponse.cs" />
+    <Compile Include="Social\Responses\SocialObjectReponse.cs" />
+    <Compile Include="Social\SocialCommands\BaseFBExternalCommand.cs" />
+    <Compile Include="Social\SocialCommands\FBDeleteExternalCommand.cs" />
+    <Compile Include="Social\SocialCommands\FBFollowsExternalCommand.cs" />
+    <Compile Include="Social\SocialCommands\FBLikeExternalCommand.cs" />
+    <Compile Include="Social\SocialCommands\FBRateExternalCommand.cs" />
+    <Compile Include="Social\SocialCommands\FBShareExternalCommand.cs" />
+    <Compile Include="Social\SocialCommands\FBWatchExternalCommand.cs" />
+    <Compile Include="Social\SocialFeedUtils.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialFeedItem.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialFeedItemComment.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialFeedMediaTags.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialPlatformObjs\FacebookResp.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialPlatformObjs\InAppResp.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialPlatformObjs\ISocialFeed.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialPlatformObjs\TweeterResp.cs" />
+    <Compile Include="Social\SocialFeed\Objects\SocialPlatformObjs\TwitterTokenResp.cs" />
+    <Compile Include="Social\TvinciSocialBL.cs" />
+    <Compile Include="Social\UserSocialAction.cs" />
+    <Compile Include="Social\UserSocialActionObject.cs" />
+    <Compile Include="Social\Utils.cs" />
+    <Compile Include="Users\BaseDevice.cs" />
+    <Compile Include="Users\BaseDomain.cs" />
+    <Compile Include="Users\BaseMailImpl.cs" />
+    <Compile Include="Users\BaseNewsLetterImpl.cs" />
+    <Compile Include="Users\BaseUsers.cs" />
+    <Compile Include="Users\Cache\DomainsCache.cs" />
+    <Compile Include="Users\Cache\UsersCache.cs" />
+    <Compile Include="Users\ChangeDLMObj.cs" />
+    <Compile Include="Users\Country.cs" />
+    <Compile Include="Users\Device.cs" />
+    <Compile Include="Users\DeviceContainer.cs" />
+    <Compile Include="Users\DeviceFamilyLimitations.cs" />
+    <Compile Include="Users\DeviceRegistrationStatusResponse.cs" />
+    <Compile Include="Users\DeviceResponse.cs" />
+    <Compile Include="Users\DeviceResponseObject.cs" />
+    <Compile Include="Users\DLMResponse.cs" />
+    <Compile Include="Users\Domain.cs" />
+    <Compile Include="Users\DomainFactory.cs" />
+    <Compile Include="Users\DomainInfo.cs" />
+    <Compile Include="Users\DomainResponse.cs" />
+    <Compile Include="Users\DomainResponseObject.cs" />
+    <Compile Include="Users\DomainStatusResponse.cs" />
+    <Compile Include="Users\Encrypters\BaseEncrypter.cs" />
+    <Compile Include="Users\Encrypters\MD5Encrypter.cs" />
+    <Compile Include="Users\Encrypters\SHA1Encrypter.cs" />
+    <Compile Include="Users\Encrypters\SHA256Encrypter.cs" />
+    <Compile Include="Users\Encrypters\SHA384Encrypter.cs" />
+    <Compile Include="Users\enums.cs" />
+    <Compile Include="Users\EutelsatDomain.cs" />
+    <Compile Include="Users\EutelsatUsers.cs" />
+    <Compile Include="Users\FavoriteResponse.cs" />
+    <Compile Include="Users\FavoritObject.cs" />
+    <Compile Include="Users\FlowManager.cs" />
+    <Compile Include="Users\HomeNetwork.cs" />
+    <Compile Include="Users\ISSOProvider.cs" />
+    <Compile Include="Users\KalturaBaseUsers.cs" />
+    <Compile Include="Users\KalturaSSOUsers.cs" />
+    <Compile Include="Users\KalturaUsers.cs" />
+    <Compile Include="Users\LimitationsManager.cs" />
+    <Compile Include="Users\MailFactory.cs" />
+    <Compile Include="Users\MCMailImpl.cs" />
+    <Compile Include="Users\MCNewsLetterImpl.cs" />
+    <Compile Include="Users\MediaCorpUsers.cs" />
+    <Compile Include="Users\NetworkResponseObject.cs" />
+    <Compile Include="Users\OAuthUtil.cs" />
+    <Compile Include="Users\OSamlUtils.cs" />
+    <Compile Include="Users\PinCodeResponse.cs" />
+    <Compile Include="Users\Saml\LoginSamlA.cs" />
+    <Compile Include="Users\Saml\SAML.cs" />
+    <Compile Include="Users\Saml\SamlAuthenticationObject.cs" />
+    <Compile Include="Users\Saml\SamlConfig.cs" />
+    <Compile Include="Users\Saml\SamlCredentialObject.cs" />
+    <Compile Include="Users\Saml\SamlProviderObject.cs" />
+    <Compile Include="Users\Saml\SamlResponseObject.cs" />
+    <Compile Include="Users\Saml\SamlUtils.cs" />
+    <Compile Include="Users\SSOKdgImplementation.cs" />
+    <Compile Include="Users\SSOMCImplementation.cs" />
+    <Compile Include="Users\SSOOAuthImplementation.cs" />
+    <Compile Include="Users\SSOOSamlImplementation.cs" />
+    <Compile Include="Users\SSOTvinciImplementation.cs" />
+    <Compile Include="Users\SSOUsers.cs" />
+    <Compile Include="Users\State.cs" />
+    <Compile Include="Users\TvinciDevice.cs" />
+    <Compile Include="Users\TvinciDomain.cs" />
+    <Compile Include="Users\TvinciUsers.cs" />
+    <Compile Include="Users\User.cs" />
+    <Compile Include="Users\UserBasicData.cs" />
+    <Compile Include="Users\UserDynamicData.cs" />
+    <Compile Include="Users\UserDynamicDataContainer.cs" />
+    <Compile Include="Users\UserGroupRuleResponse.cs" />
+    <Compile Include="Users\UserItemList.cs" />
+    <Compile Include="Users\UserOfflineObject.cs" />
+    <Compile Include="Users\UserResponse.cs" />
+    <Compile Include="Users\UsersItemsListsResponse.cs" />
+    <Compile Include="Users\UsersResponse.cs" />
+    <Compile Include="Users\UserUpdateResponse.cs" />
+    <Compile Include="Users\Utils.cs" />
+    <Compile Include="Users\ValidationResponseObject.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="Web References\AdyenPayAPI\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\AdyenRecAPI\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\tikle\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Web References\Lucene\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+    <Compile Include="Modules\Api.cs" />
+    <Compile Include="Modules\Billing.cs" />
+    <Compile Include="Modules\Catalog.cs" />
+    <Compile Include="Modules\ConditionalAccess.cs" />
+    <Compile Include="Modules\Pricing.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\cdntokenizers\CDNTokenizers\CDNTokenizers.csproj">
+      <Project>{add7636b-71db-494d-9dbd-4af9538d3edf}</Project>
+      <Name>CDNTokenizers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\AdapterControllers\AdapterControllers.csproj">
+      <Project>{a1fbded5-52fe-4b67-9aab-e71cc366d5cd}</Project>
+      <Name>AdapterControllers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ADIFeeder\ADIFeeder.csproj">
+      <Project>{0b1d4349-8059-48f7-bf8b-31fb1e7a2260}</Project>
+      <Name>ADIFeeder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj">
+      <Project>{4e22204a-9560-4e78-8805-efed0d0eec9d}</Project>
+      <Name>AkamaiTokenGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingHelpers\CachingHelpers.csproj">
+      <Project>{c94f4aff-e892-4055-9d20-07586be88f3a}</Project>
+      <Name>CachingHelpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\CachingManager\CachingManager.csproj">
+      <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\DalCB\DalCB.csproj">
+      <Project>{cc97d8e8-cfcb-4a33-a8ae-34ebdb0812c3}</Project>
+      <Name>DalCB</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
+      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ElasticSearch\ElasticSearch.csproj">
+      <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
+      <Name>ElasticSearch</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EpgBL\EpgBL.csproj">
+      <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
+      <Name>EpgBL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EpgIngest\EpgIngest.csproj">
+      <Project>{13504508-227b-4099-9987-3df3d2f8e792}</Project>
+      <Name>EpgIngest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
+      <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
+      <Name>GoogleAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
+      <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
+      <Name>M1BL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\Mailer\Mailer.csproj">
+      <Project>{8c082dfd-81ee-4623-8be9-32d34ded6407}</Project>
+      <Name>Mailer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\MCGroupRules\MCGroupRules.csproj">
+      <Project>{7a9c7a82-02fa-4b2e-9391-175ca212012d}</Project>
+      <Name>MCGroupRules</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\Notifiers\Notifiers.csproj">
+      <Project>{31a03896-6fd2-4591-ab2e-a4278c24f8db}</Project>
+      <Name>Notifiers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\NPVR\NPVR.csproj">
+      <Project>{ea7e6211-06bc-41ad-8e44-874e5660fbf1}</Project>
+      <Name>NPVR</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48CB3B25-623B-4500-8E88-2E77A7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
+      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
+      <Name>ScheduledTasks</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\StaticticsBL\StaticticsBL.csproj">
+      <Project>{798abf79-9cc5-4d97-bac3-de1f9b016ec2}</Project>
+      <Name>StaticticsBL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\StreamingProvider\StreamingProvider.csproj">
+      <Project>{320c9ff3-da35-42ea-a872-65b1cfe681cb}</Project>
+      <Name>StreamingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\Synchronizer\Synchronizer.csproj">
+      <Project>{9b1d6676-614f-4f0d-9bfb-66422f8a5031}</Project>
+      <Name>Synchronizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
+      <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
+      <Name>TvinciCache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\TvinciImporter\TvinciImporter.csproj">
+      <Project>{0a7d54e6-41a3-4f53-bbdd-81fd9a67a2c1}</Project>
+      <Name>TvinciImporter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+      <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\Uploader\Uploader.csproj">
+      <Project>{a35bd0d3-3055-4206-8b3f-80079f9eca15}</Project>
+      <Name>Uploader</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.AdapterStatus.datasource" />
+    <None Include="Properties\DataSources\AdapterControllers.RecommendationEngineAdapter.RecommendationsResult.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.AnnouncementSubscriptionData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.DeviceAppRegistration.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.DeviceAppRegistrationAnnouncementResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.UnSubscribe.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.WSEndPointPublishDataResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\Service.wsdl" />
+    <None Include="Service References\AmazonSnsAdapter\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AmazonSnsAdapter\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DmsService\APILogic.DmsService.PushData.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\DmsService\Service.wsdl" />
+    <None Include="Service References\DmsService\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DmsService\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DmsService\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\DmsService\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.EntitlementsResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.HouseholdPaymentGatewayResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service.wsdl" />
+    <None Include="Service References\OSSAdapterService\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service1.wsdl" />
+    <None Include="Service References\OSSAdapterService\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service11.wsdl" />
+    <None Include="Service References\OSSAdapterService\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service4.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service41.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service42.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\OSSAdapterService\Service43.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.AdapterStatus1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.ConfigurationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.TransactionResponse1.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Billing.PaymentGWAdapter.TransactionResult.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Service12.wsdl" />
+    <None Include="Service References\PaymentGWAdapter\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Service31.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\PaymentGWAdapter\Service32.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\AdyenPayAPI\BalanceCheckResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenPayAPI\DirectDebitResponse.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenPayAPI\FundTransferResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenPayAPI\ModificationResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenPayAPI\Payment.wsdl" />
+    <None Include="Web References\AdyenPayAPI\PaymentResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenPayAPI\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\AdyenRecAPI\DisableResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenRecAPI\Recurring.wsdl" />
+    <None Include="Web References\AdyenRecAPI\RecurringDetailsResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenRecAPI\RecurringResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\AdyenRecAPI\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\AdyenRecAPI\StoreTokenResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene\ChannelContainObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene\ChannelContainObj1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\Lucene\SearchResult1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene\SearchResultsObj.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene\SearchResultsObj1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Lucene\Service.wsdl" />
+    <None Include="Web References\Lucene\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\Lucene\Service0.wsdl" />
+    <None Include="Web References\Lucene\Service0.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\Lucene\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\Lucene\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Web References\Lucene\Service3.xsd">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://212.58.18.44:8080/Service.asmx">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\tikle\</RelPath>
+      <UpdateFromURL>http://212.58.18.44:8080/Service.asmx</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>APILogic_tikle_Service</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="http://localhost/LuceneWCF2.0/Service.svc">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\Lucene\</RelPath>
+      <UpdateFromURL>http://localhost/LuceneWCF2.0/Service.svc</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>api_Lucene_Service</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="https://pal-test.adyen.com/pal/Recurring.wsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\AdyenRecAPI\</RelPath>
+      <UpdateFromURL>https://pal-test.adyen.com/pal/Recurring.wsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>api_AdyenRecAPI_Recurring</CachedSettingsPropName>
+    </WebReferenceUrl>
+    <WebReferenceUrl Include="https://pal-test.adyen.com/pal/servlet/soap/Payment%3fwsdl">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\AdyenPayAPI\</RelPath>
+      <UpdateFromURL>https://pal-test.adyen.com/pal/servlet/soap/Payment%3fwsdl</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>api_AdyenPayAPI_Payment</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\tikle\Cinema.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tikle\City.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tikle\Movie.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tikle\MovieOnVision.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tikle\PurchaseResponseInfo.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tikle\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+    <None Include="Web References\tikle\Response.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\tikle\service.disco" />
+    <None Include="Web References\tikle\service.wsdl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\Lucene\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\AmazonSnsAdapter\" />
+    <WCFMetadataStorage Include="Service References\DmsService\" />
+    <WCFMetadataStorage Include="Service References\PaymentGWAdapter\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\PaymentGWAdapter\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\OSSAdapterService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OSSAdapterService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OSSAdapterService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OSSAdapterService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OSSAdapterService\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OSSAdapterService\Service11.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\OSSAdapterService\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AmazonSnsAdapter\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AmazonSnsAdapter\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AmazonSnsAdapter\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DmsService\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DmsService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DmsService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\DmsService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Social\SocialFeed\Logs\IDAN-PC\Unknown\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

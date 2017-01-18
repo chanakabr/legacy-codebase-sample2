@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://tempuri.org/" elementFormDefault="qualified" targetNamespace="http://tempuri.org/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/AwsSns.Model" />
+  <xs:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" />
+  <xs:element name="CreateTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="topicName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CreateTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="CreateTopicResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="topicArn" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DeleteTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="DeleteTopicResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubscribeToTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="topicSubscriptions" nillable="true" type="q1:ArrayOfAnnouncementSubscriptionData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="SubscribeToTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="SubscribeToTopicResult" nillable="true" type="q2:ArrayOfAnnouncementSubscriptionData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConfirmSubscriptionToTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="topicArn" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="token" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ConfirmSubscriptionToTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ConfirmSubscriptionToTopicResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnSubscribeToTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="subscriptionArns" nillable="true" type="q3:ArrayOfUnSubscribe" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="UnSubscribeToTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="UnSubscribeToTopicResult" nillable="true" type="q4:ArrayOfUnSubscribe" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PublishToTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="topicArn" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="subject" nillable="true" type="xs:string" />
+        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" minOccurs="0" name="message" nillable="true" type="q5:MessageData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PublishToTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="PublishToTopicResult" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PublishToEndPoint">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="endPointPublish" nillable="true" type="q6:WSEndPointPublishData" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PublishToEndPointResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="PublishToEndPointResult" nillable="true" type="q7:ArrayOfWSEndPointPublishDataResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterDeviceToApplication">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="deviceAppRegistration" nillable="true" type="q8:DeviceAppRegistration" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterDeviceToApplicationResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="RegisterDeviceToApplicationResult" nillable="true" type="q9:DeviceAppRegistration" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterDeviceToApplicationAndTopic">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="deviceAppRegistration" nillable="true" type="q10:DeviceAppRegistration" />
+        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="announcementToSubscribe" nillable="true" type="q11:ArrayOfAnnouncementSubscriptionData" />
+        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="announcementToUnsubscribe" nillable="true" type="q12:ArrayOfUnSubscribe" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="RegisterDeviceToApplicationAndTopicResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/AwsSns.Model" minOccurs="0" name="RegisterDeviceToApplicationAndTopicResult" nillable="true" type="q13:DeviceAppRegistrationAnnouncementResult" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

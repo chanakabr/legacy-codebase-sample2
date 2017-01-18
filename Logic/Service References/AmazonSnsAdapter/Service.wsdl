@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Service" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/AwsSns.Model" />
+      <xsd:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/AwsSns" />
+      <xsd:import schemaLocation="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IService_CreateTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:CreateTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_CreateTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:CreateTopicResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_DeleteTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_DeleteTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:DeleteTopicResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_SubscribeToTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:SubscribeToTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_SubscribeToTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:SubscribeToTopicResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_ConfirmSubscriptionToTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:ConfirmSubscriptionToTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_ConfirmSubscriptionToTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ConfirmSubscriptionToTopicResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_UnSubscribeToTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:UnSubscribeToTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_UnSubscribeToTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:UnSubscribeToTopicResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_PublishToTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:PublishToTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_PublishToTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PublishToTopicResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_PublishToEndPoint_InputMessage">
+    <wsdl:part name="parameters" element="tns:PublishToEndPoint" />
+  </wsdl:message>
+  <wsdl:message name="IService_PublishToEndPoint_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PublishToEndPointResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_RegisterDeviceToApplication_InputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterDeviceToApplication" />
+  </wsdl:message>
+  <wsdl:message name="IService_RegisterDeviceToApplication_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterDeviceToApplicationResponse" />
+  </wsdl:message>
+  <wsdl:message name="IService_RegisterDeviceToApplicationAndTopic_InputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterDeviceToApplicationAndTopic" />
+  </wsdl:message>
+  <wsdl:message name="IService_RegisterDeviceToApplicationAndTopic_OutputMessage">
+    <wsdl:part name="parameters" element="tns:RegisterDeviceToApplicationAndTopicResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IService">
+    <wsdl:operation name="CreateTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/CreateTopic" message="tns:IService_CreateTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/CreateTopicResponse" message="tns:IService_CreateTopic_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/DeleteTopic" message="tns:IService_DeleteTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/DeleteTopicResponse" message="tns:IService_DeleteTopic_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="SubscribeToTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/SubscribeToTopic" message="tns:IService_SubscribeToTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/SubscribeToTopicResponse" message="tns:IService_SubscribeToTopic_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmSubscriptionToTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/ConfirmSubscriptionToTopic" message="tns:IService_ConfirmSubscriptionToTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/ConfirmSubscriptionToTopicResponse" message="tns:IService_ConfirmSubscriptionToTopic_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="UnSubscribeToTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/UnSubscribeToTopic" message="tns:IService_UnSubscribeToTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/UnSubscribeToTopicResponse" message="tns:IService_UnSubscribeToTopic_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="PublishToTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/PublishToTopic" message="tns:IService_PublishToTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/PublishToTopicResponse" message="tns:IService_PublishToTopic_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="PublishToEndPoint">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/PublishToEndPoint" message="tns:IService_PublishToEndPoint_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/PublishToEndPointResponse" message="tns:IService_PublishToEndPoint_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterDeviceToApplication">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/RegisterDeviceToApplication" message="tns:IService_RegisterDeviceToApplication_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/RegisterDeviceToApplicationResponse" message="tns:IService_RegisterDeviceToApplication_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="RegisterDeviceToApplicationAndTopic">
+      <wsdl:input wsaw:Action="http://tempuri.org/IService/RegisterDeviceToApplicationAndTopic" message="tns:IService_RegisterDeviceToApplicationAndTopic_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IService/RegisterDeviceToApplicationAndTopicResponse" message="tns:IService_RegisterDeviceToApplicationAndTopic_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IService" type="tns:IService">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="CreateTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/CreateTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/DeleteTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SubscribeToTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/SubscribeToTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmSubscriptionToTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/ConfirmSubscriptionToTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnSubscribeToTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/UnSubscribeToTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PublishToTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/PublishToTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PublishToEndPoint">
+      <soap:operation soapAction="http://tempuri.org/IService/PublishToEndPoint" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterDeviceToApplication">
+      <soap:operation soapAction="http://tempuri.org/IService/RegisterDeviceToApplication" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegisterDeviceToApplicationAndTopic">
+      <soap:operation soapAction="http://tempuri.org/IService/RegisterDeviceToApplicationAndTopic" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service">
+    <wsdl:port name="BasicHttpBinding_IService" binding="tns:BasicHttpBinding_IService">
+      <soap:address location="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/AwsSns.Model.Message" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="MessageData">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Alert" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Badge" type="xs:int" />
+      <xs:element minOccurs="0" name="Category" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ContentAvailable" type="xs:int" />
+      <xs:element minOccurs="0" name="Sound" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Url" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="MessageData" nillable="true" type="tns:MessageData" />
+</xs:schema>
