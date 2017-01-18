@@ -5211,7 +5211,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
         {
-            AddMessageAnnouncementResponse response = null;
+            Notification_WCF.AddMessageAnnouncementResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5225,7 +5225,7 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-                MessageAnnouncement announcement = new MessageAnnouncement();
+                Notification_WCF.MessageAnnouncement announcement = new Notification_WCF.MessageAnnouncement();
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
@@ -5260,7 +5260,7 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-                MessageAnnouncement announcement = new MessageAnnouncement();
+                Notification_WCF.MessageAnnouncement announcement = new Notification_WCF.MessageAnnouncement();
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
@@ -5268,7 +5268,7 @@ namespace TvinciImporter
                 announcement.Timezone = timezone;
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
-                MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
+                Notification_WCF.MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
             catch (Exception)
