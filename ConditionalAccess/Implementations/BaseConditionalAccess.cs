@@ -13326,7 +13326,7 @@ namespace ConditionalAccess
 
 
         public ApiObjects.Response.Status GrantEntitlements(string siteguid, long householdId, int contentId, int productId, eTransactionType transactionType, string userIp,
-            string deviceName, bool history, bool isGrant = true, DateTime? endDate = null)
+            string deviceName, bool history)
         {
             ApiObjects.Response.Status status = null;
             // log request
@@ -13376,7 +13376,7 @@ namespace ConditionalAccess
                         status = GrantPPV(siteguid, householdId, contentId, productId, userIp, deviceName, history);
                         break;
                     case eTransactionType.Subscription:
-                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1, null, endDate, isGrant);
+                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1);
                         break;
                     case eTransactionType.Collection:
                         status = GrantCollection(siteguid, householdId, productId, userIp, deviceName, history);
@@ -13602,6 +13602,19 @@ namespace ConditionalAccess
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
+
+                //validate that user have no DLM or Quota - FOR GRANT ONLY 
+                if (isGrant)
+                {
+                    status = CheckSubscriptionOverlap(subscription, siteguid);
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                        return status;
+                    }                   
+                }
+
+
                 // price is validated, create custom data
                 string customData = GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                  string.Empty, userIp, country, string.Empty, deviceName, string.Empty,
@@ -13667,18 +13680,16 @@ namespace ConditionalAccess
                         INPVRProvider npvr;
                         if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
                         {
-                            if (npvr != null)
+
+                            NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
+                            NPVRUserActionResponse resp;
+                            if (isGrant)
                             {
-                                NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
-                                NPVRUserActionResponse resp;
-                                if (isGrant)
-                                {
-                                    resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                                }
-                                else
-                                {
-                                    resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                                }
+                                resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                            }
+                            else
+                            {
+                                resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
                             }
                         }
                     }
@@ -18392,7 +18403,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status SwapSubscription(string sSiteGuid, int oldSubscriptionCode, int newSubscriptionCode, string userIp, string deviceName, bool history)
+        public ApiObjects.Response.Status SwapSubscription(string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
@@ -18401,117 +18412,121 @@ namespace ConditionalAccess
                 DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
                 int domainID = 0;
 
-                if (!Utils.IsUserValid(sSiteGuid, m_nGroupID, ref domainID, ref suspendStatus))
+                if (!Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref suspendStatus))
                 {
-                    log.Debug("SwapSubscription - User with siteGuid: " + sSiteGuid + " does not exist. Subscription was not changed");
+                    log.Debug("SwapSubscription - User with siteGuid: " + userId + " does not exist. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
                     return response;
                 }
 
                 if (suspendStatus == DomainSuspentionStatus.Suspended)
                 {
-                    log.Debug("SwapSubscription - User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed");
+                    log.Debug("SwapSubscription - User with siteGuid: " + userId + " Suspended. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, eResponseStatus.UserSuspended.ToString());
                     return response;
                 }
 
-                PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
+                PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(userId);//get all the valid subscriptions that this user has
                 Subscription userSubNew = null;
                 PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
-                List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
                 //check if old sub exists
                 if (userSubsArray != null)
                 {
-                    userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == oldSubscriptionCode.ToString()).ToList();
-                }
-                if (userOldSubList == null || userOldSubList.Count == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, oldSubscriptionCode));
-                    return response;
-                }
-                else
-                {
-                    if (userOldSubList.Count > 0 && userOldSubList[0] != null)
+                    userSubOld = userSubsArray.Where(x => x.m_sSubscriptionCode == oldSubscriptionCode.ToString()).FirstOrDefault();
+                    if (userSubOld == null)
                     {
-                        userSubOld = userOldSubList[0];
-                        //check if the Subscription has autorenewal  
-                        if (!userSubOld.m_bRecurringStatus)
-                        {
-                            log.Debug("SwapSubscription - Previous Subscription ID: " + oldSubscriptionCode + " is not renewable. Subscription was not changed");
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, oldSubscriptionCode));
-                            return response;
-                        }
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, oldSubscriptionCode));
+                        return response;
                     }
+                }
+                //check if the Subscription has autorenewal  
+                if (!userSubOld.m_bRecurringStatus)
+                {
+                    log.Debug("SwapSubscription - Previous Subscription ID: " + oldSubscriptionCode + " is not renewable. Subscription was not changed");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, oldSubscriptionCode));
+                    return response;
                 }
 
                 //check if new subscsription already exists for this user
-                List<PermittedSubscriptionContainer> userNewSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == newSubscriptionCode.ToString()).ToList();
-                if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
+                PermittedSubscriptionContainer userNewSub = userSubsArray.Where(x => x.m_sSubscriptionCode == newSubscriptionCode.ToString()).FirstOrDefault();
+                if (userNewSub != null)
                 {
                     log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " is already attached to this user. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, string.Format(ERROR_SUBSCRIPTION_ALREADY_PURCHASED, newSubscriptionCode));
                     return response;
                 }
-                string pricingUsername = string.Empty, pricingPassword = string.Empty;
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
 
-                Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(new List<int>(1) { newSubscriptionCode }, pricingUsername, pricingPassword, m_nGroupID);
-                if (subs != null && subs.Length > 0)
+                Subscription s = null;
+                string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                using (mdoule m = new mdoule())
                 {
-                    userSubNew = subs[0];
-                }
-                //set new subscprion
-                if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
-                {
-                    if (!userSubNew.m_bIsRecurring)
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+                    s = m.GetSubscriptionData(pricingUsername, pricingPassword, newSubscriptionCode.ToString(), string.Empty, string.Empty, string.Empty, false);
+                    if (s == null || string.IsNullOrEmpty(s.m_SubscriptionCode))
                     {
-                        log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " is not renewable. Subscription was not changed");
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, newSubscriptionCode));
+                        log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " was not found. Subscription was not changed");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, newSubscriptionCode));
                         return response;
                     }
-
-                    response =  SetSubscriptionSwap(sSiteGuid, domainID, userSubNew, userSubOld, userIp, deviceName, history);                    
+                    userSubNew = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(s));
                 }
-                else
+                if (!userSubNew.m_bIsRecurring)
                 {
-                    log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " was not found. Subscription was not changed");
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, newSubscriptionCode));
+                    log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " is not renewable. Subscription was not changed");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, newSubscriptionCode));
                     return response;
                 }
+
+                // check overlapping DLM or Quota in any of subscriptions (except old one)
+                List<string> subCodes = userSubsArray.Where(x => x.m_sSubscriptionCode != oldSubscriptionCode.ToString()).Select(y=>y.m_sSubscriptionCode).ToList();
+
+                if (subCodes.Count > 0)
+                {
+                    response = CheckSubscriptionOverlap(userSubNew, userId, subCodes);
+
+                    if (response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.Debug("SwapSubscription - CheckExistsDlmAndQuota: fail" + response.Message);
+                        return response;
+                    }
+                }
+                //set new subscprion
+                response = SetSubscriptionSwap(userId, domainID, userSubNew, userSubOld, ip, udid, history);
             }
             catch (Exception exc)
             {
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at SwapSubscription. ");
                 sb.Append(String.Concat(" Ex Msg: ", exc.Message));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                sb.Append(String.Concat(" Site Guid: ", userId));
                 sb.Append(String.Concat(" New Sub: ", newSubscriptionCode));
                 sb.Append(String.Concat(" Old Sub: ", oldSubscriptionCode));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", exc.GetType().Name));
                 sb.Append(String.Concat(" ST: ", exc.StackTrace));
                 log.Error("Exception - " + sb.ToString(), exc);
-                #endregion               
+                #endregion
             } 
             return response;
         }
 
         //the new subscription is 
         //the previous  subscription is cancled and its end date is set to 'now' with new status 
-        private ApiObjects.Response.Status SetSubscriptionSwap(string siteGuid, int houseHoldID, Subscription newSubscription, PermittedSubscriptionContainer oldSubscription, string userIp, string deviceName, bool history)
+        private ApiObjects.Response.Status SetSubscriptionSwap(string userId, int houseHoldID, Subscription newSubscription, PermittedSubscriptionContainer oldSubscription, string userIp, string deviceName, bool history)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
                 // update old subscription with end_date = now                
-                bool result = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(siteGuid, int.Parse(oldSubscription.m_sSubscriptionCode), houseHoldID, (int)SubscriptionPurchaseStatus.Switched);
+                bool result = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(userId, int.Parse(oldSubscription.m_sSubscriptionCode), houseHoldID, (int)SubscriptionPurchaseStatus.Switched);
                 if (!result)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "CancelSubscriptionPurchaseTransaction fail");
                     return response;
                 }
+
+                ApiObjects.Response.Status status = GrantSubscription(userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, false);
                
-                ApiObjects.Response.Status status = GrantEntitlements(siteGuid, houseHoldID, 0, int.Parse(newSubscription.m_SubscriptionCode), eTransactionType.Subscription, userIp, deviceName, history, false, oldSubscription.m_dEndDate);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GrantEntitlements fail");
@@ -18523,7 +18538,7 @@ namespace ConditionalAccess
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception in SetSubscriptionSwap. ");
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", siteGuid));
+                sb.Append(String.Concat(" Site Guid: ", userId));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
                 log.Error("SetSubscriptionSwap - " + sb.ToString(), ex);
                 #endregion
@@ -18532,6 +18547,81 @@ namespace ConditionalAccess
            
             response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); 
             return response;
+        }
+
+        private ApiObjects.Response.Status CheckSubscriptionOverlap(Subscription subscription, string userId, List<string> SubCodes = null)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                List<Subscription> permittedSubscriptions = null;
+
+                bool npvrCheck = false;
+                bool dlmCheck = subscription.m_nDomainLimitationModule > 0 ? true : false;
+
+                // if subscription for grant contain DLM \ Quota ==> than check overlapping  DLM or Quota in any of subscriptions  in permitted subscription 
+                if (subscription.m_lServices != null && subscription.m_lServices.Select(x => x.ID == (long)eService.NPVR).Count() > 0)
+                {
+                    npvrCheck = true;
+                }
+
+                if (!npvrCheck && !dlmCheck)
+                {
+                    return status;
+                }
+
+                // need to check other subscriptions 
+                //get all permitted subscription (if didn't get) 
+                if (SubCodes == null || SubCodes.Count == 0)
+                {
+                    PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(userId);
+                    if (userSubsArray == null || userSubsArray.Count() == 0)
+                    {
+                        return status;
+                    }
+                    SubCodes = userSubsArray.Select(x => x.m_sSubscriptionCode).ToList();
+
+                    if (SubCodes == null && SubCodes.Count == 0)
+                    {
+                        return status;
+                    }
+                }          
+
+                string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                using (mdoule m = new mdoule())
+                {
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+
+                    SubscriptionsResponse subscriptionsResponse = m.GetSubscriptions(pricingUsername, pricingPassword, SubCodes.ToArray(), string.Empty, string.Empty, string.Empty);
+                    if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions != null && subscriptionsResponse.Subscriptions.Count() > 0)
+                    {
+                        permittedSubscriptions = subscriptionsResponse.Subscriptions.ToList();
+                    }
+                }
+
+                if (npvrCheck)
+                {
+                    if (permittedSubscriptions.Select(x => x.m_lServices != null && x.m_lServices.Select(y => y.ID == (long)eService.NPVR).Count() > 0 ).Count() > 0)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceAlreadyExists, eResponseStatus.ServiceAlreadyExists.ToString());
+                        return status;
+                    }
+                }
+
+                if (dlmCheck)
+                {
+                    if (permittedSubscriptions.Select(x => x.m_nDomainLimitationModule > 0).Count() > 0)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.DlmExist, eResponseStatus.DlmExist.ToString());
+                        return status;
+                    }
+                }
+            }
+            catch
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return status;
         }
         
     }

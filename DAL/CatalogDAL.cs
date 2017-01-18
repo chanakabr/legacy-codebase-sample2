@@ -4135,7 +4135,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static int GetEpgPicsData(int groupId, string description)
+        public static int GetEpgPicsData(int groupId, string description, int pendingThresholdInMinutes = 0, int activeThresholdInMinutes = 0)
         {
             int picId = 0;
 
@@ -4145,6 +4145,10 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddParameter("@Description", description);
+                if( pendingThresholdInMinutes > 0)
+                    sp.AddParameter("@PendingThresholdInMinutes", pendingThresholdInMinutes);
+                if (activeThresholdInMinutes > 0)
+                    sp.AddParameter("@ActiveThresholdInMinutes", activeThresholdInMinutes);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
