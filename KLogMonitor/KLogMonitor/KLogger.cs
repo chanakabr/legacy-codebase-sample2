@@ -84,8 +84,12 @@ namespace KLogMonitor
                 StackTrace stackTrace = new StackTrace();           // get call stack
                 StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
 
-                StackFrame callingFrame = stackFrames[2];
-                this.MethodName = callingFrame.GetMethod().Name;
+                StackFrame callingFrame;
+                if (stackFrames != null && stackFrames.Length > 1)
+                {
+                    callingFrame = stackFrames[2];
+                    this.MethodName = callingFrame.GetMethod().Name;
+                }
 
                 if (args != null && ex != null)
                     throw new Exception("Args and Exception cannot co exist");
