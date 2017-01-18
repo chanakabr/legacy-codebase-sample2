@@ -14365,7 +14365,7 @@ namespace ConditionalAccess
                 //validate that user have no DLM or Quota - FOR GRANT ONLY 
                 if (isGrant)
                 {
-                    status = CheckExistsDlmAndQuota(subscription, siteguid);
+                    status = CheckSubscriptionOverlap(subscription, siteguid);
                     if (status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
@@ -14439,18 +14439,16 @@ namespace ConditionalAccess
                         INPVRProvider npvr;
                         if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
                         {
-                            if (npvr != null)
+
+                            NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
+                            NPVRUserActionResponse resp;
+                            if (isGrant)
                             {
-                                NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
-                                NPVRUserActionResponse resp;
-                                if (isGrant)
-                                {
-                                    resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                                }
-                                else
-                                {
-                                    resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                                }
+                                resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                            }
+                            else
+                            {
+                                resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
                             }
                         }
                     }
@@ -19785,14 +19783,16 @@ namespace ConditionalAccess
                 // check overlapping DLM or Quota in any of subscriptions (except old one)
                 List<string> subCodes = userSubsArray.Where(x => x.m_sSubscriptionCode != oldSubscriptionCode.ToString()).Select(y=>y.m_sSubscriptionCode).ToList();
 
-                response = CheckExistsDlmAndQuota(userSubNew, userId, subCodes);
-
-                if (response.Code != (int)eResponseStatus.OK)
+                if (subCodes.Count > 0)
                 {
-                    log.Debug("SwapSubscription - CheckExistsDlmAndQuota: fail" + response.Message );
-                    return response;
-                }
+                    response = CheckSubscriptionOverlap(userSubNew, userId, subCodes);
 
+                    if (response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.Debug("SwapSubscription - CheckExistsDlmAndQuota: fail" + response.Message);
+                        return response;
+                    }
+                }
                 //set new subscprion
                 response = SetSubscriptionSwap(userId, domainID, userSubNew, userSubOld, ip, udid, history);
             }
@@ -19852,7 +19852,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private ApiObjects.Response.Status CheckExistsDlmAndQuota(Subscription subscription, string userId, List<string> SubCodes = null)
+        private ApiObjects.Response.Status CheckSubscriptionOverlap(Subscription subscription, string userId, List<string> SubCodes = null)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
