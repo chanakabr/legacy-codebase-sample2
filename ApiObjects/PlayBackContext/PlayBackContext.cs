@@ -44,4 +44,11 @@ namespace ApiObjects
 
         public string Message { get; set; }
     }
+
+    public class AssetLicensedLink
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public string Url { get; set; }
+    }
 }

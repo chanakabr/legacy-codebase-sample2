@@ -6275,12 +6275,15 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
-        internal static ApiObjects.Response.Status GetAssetFiles(int groupId, string assetId, eAssetTypes assetType, StreamerType streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, out List<MediaFile> files, out long mediaId)
+        internal static ApiObjects.Response.Status GetAssetFiles(int groupId, string assetId, eAssetTypes assetType, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
+            out List<MediaFile> files, out long mediaId, out EPGChannelProgrammeObject program, out Recording recording, bool filterOnlyByIds = false)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             files = null;
             long id = 0;
             mediaId = 0;
+            recording = null;
+            program = null;
 
             if (long.TryParse(assetId, out id))
             {
@@ -6290,7 +6293,7 @@ namespace ConditionalAccess
                     case eAssetTypes.NPVR:
                         {
                             // check recording valid
-                            Recording recording = Utils.GetRecordingById(id);
+                            recording = Utils.GetRecordingById(id);
 
                             if (recording == null || recording.Id == 0 || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                             {
@@ -6301,7 +6304,8 @@ namespace ConditionalAccess
                             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { recording.EpgId });
                             if (epgs != null && epgs.Count > 0)
                             {
-                                mediaId = epgs[0].LINEAR_MEDIA_ID;
+                                program = epgs[0];
+                                mediaId = program.LINEAR_MEDIA_ID;
                             }
                             else
                             {
@@ -6314,7 +6318,8 @@ namespace ConditionalAccess
                             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { id });
                             if (epgs != null && epgs.Count > 0)
                             {
-                                mediaId = epgs[0].LINEAR_MEDIA_ID;
+                                program = epgs[0];
+                                mediaId = program.LINEAR_MEDIA_ID;
                             }
                             else
                             {
@@ -6346,11 +6351,17 @@ namespace ConditionalAccess
                 // filter
                 if (allMediafiles != null && allMediafiles.Count > 0)
                 {
-                    // TODO: something about the file URL..
-                    files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
-                        ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
-                        f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
-                        (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                    if (filterOnlyByIds)
+                    {
+                        files = allMediafiles.Where(f => fileIds != null && fileIds.Contains(f.Id)).ToList();
+                    }
+                    else
+                    {
+                        files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
+                            ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
+                            f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
+                            (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                    }
                 }
                 
                 status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -6379,6 +6390,25 @@ namespace ConditionalAccess
             }
 
             return service;
+        }
+
+        internal static eEPGFormatType GetEpgFormatTypeByPlayContextType(PlayContextType contextType)
+        {
+            eEPGFormatType type;
+
+            switch (contextType)
+            {
+                case PlayContextType.CatchUp:
+                    type = eEPGFormatType.Catchup;
+                    break;
+                case PlayContextType.StartOver:
+                    type = eEPGFormatType.StartOver;
+                    break;
+                default:
+                    throw new Exception("not supported context for EPG");
+            }
+
+            return type;
         }
 
         internal static List<PlaybackStatus> BuildPlaybackStatuses(string code, string message)
@@ -6481,6 +6511,8 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        
     }
 }
 

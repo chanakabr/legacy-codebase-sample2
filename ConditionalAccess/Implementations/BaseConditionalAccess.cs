@@ -19725,12 +19725,14 @@ namespace ConditionalAccess
         }
 
         public PlayBackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
-            List<PlayContextType> contexts, string ip, string udid)
+            List<PlayContextType> contexts, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
             PlayBackContextResponse response = new PlayBackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
+
+            filePrice = null;
 
             try
             {
@@ -19785,8 +19787,8 @@ namespace ConditionalAccess
                 List<MediaFile> files;
                 ApiObjects.Response.Status filesStatus;
                 long mediaId;
-                
-                filesStatus = Utils.GetAssetFiles(m_nGroupID, assetId, assetType, streamerType, mediaProtocol, contexts, fileIds, out files, out mediaId);
+                EPGChannelProgrammeObject  program;
+                filesStatus = Utils.GetAssetFiles(m_nGroupID, assetId, assetType, streamerType, mediaProtocol, contexts, fileIds, out files, out mediaId, out program, out recording);
 
                 if (filesStatus.Code != (int)eResponseStatus.OK)
                 {
@@ -19823,6 +19825,7 @@ namespace ConditionalAccess
                             {
                                 assetFileIds.Add(price.m_nMediaFileID);
                             }
+                            filePrice = price;
                         }
 
                         if (files.Count > 0)
@@ -19913,7 +19916,7 @@ namespace ConditionalAccess
             return domainServicesResponse;
         }
 
-        internal List<PlayContextType> FilterNotAllowedServices(long domainId, List<PlayContextType> contexts)
+        public List<PlayContextType> FilterNotAllowedServices(long domainId, List<PlayContextType> contexts)
         {
             List<PlayContextType> response = new List<PlayContextType>();
             foreach (PlayContextType context in contexts)
@@ -19928,6 +19931,248 @@ namespace ConditionalAccess
                 {
                     log.DebugFormat("service is not allowed for domain = {0}, service = {1}", domainId, service);
                 }
+            }
+
+            return response;
+        }
+
+        public AssetLicensedLink GetAssetLicensedLink(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, DateTime startTime)
+        {
+            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            try
+            {
+                // TODO: add cache
+                List<MediaFile> files;
+                long mediaId;
+                Recording recording = null;
+                EPGChannelProgrammeObject program = null;
+
+                ApiObjects.Response.Status filesStatus = Utils.GetAssetFiles(m_nGroupID, assetId, assetType, null, null, null, new List<long>() { fileId },
+                    out files, out mediaId, out program, out recording, true);
+
+                if (filesStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = filesStatus;
+                    return response;
+                }
+                if (files == null || files.Count == 0)
+                {
+                    return response;
+                }
+                
+                MediaFile file = files[0];
+                MediaFileItemPricesContainer price;
+                PlayBackContextResponse playbackContextResponse = GetPlaybackContext(userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
+                    file.Url.Substring(0, file.Url.IndexOf(':')), new List<PlayContextType>() { playContextType }, ip, udid, out price);
+                if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = playbackContextResponse.Status;
+                    return response;
+                }
+
+                if (playbackContextResponse.PlaybackStatuses != null && playbackContextResponse.PlaybackStatuses.Count > 0)
+                {
+                    // TODO: something like that: response.Status = playbackContextResponse.playbackContextResponse.PlaybackStatuses[0];
+                    return response;
+                }
+
+                // get adapter
+                bool isDefaultAdapter = false;
+                CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(m_nGroupID, file.CdnId, assetType, ref isDefaultAdapter);
+                
+                int assetIdInt = int.Parse(assetId);
+
+                switch (assetType)
+                {
+                    case eAssetTypes.EPG:
+                        response = GetEpgLicensedLink(userId, program, file, udid, ip, adapterResponse, playContextType, startTime);
+                        break;
+                    case eAssetTypes.NPVR:
+                            response = GetRecordingLicensedLink(userId, recording, file, udid, ip, adapterResponse);
+                        break;
+                    case eAssetTypes.MEDIA:
+                            response = GetMediaLicensedLink(userId, file, udid, ip, adapterResponse);
+                        break;
+                    default:
+                        break;
+                }
+
+                // get domain ID
+                int domainId = 0;
+                DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
+                Utils.IsUserValid(userId, m_nGroupID, ref domainId, ref domainStatus); 
+
+                if (response.Status.Code == (int)eResponseStatus.OK)
+                {
+                    // HandlePlayUses
+                    if (Utils.IsItemPurchased(price))
+                    {
+                        HandlePlayUses(price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in get GetAssetLicensedLink, userId = {0}, fileId = {1}, assetId = {2}, assetType = {3}", userId, fileId, assetId, assetType), ex);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
+
+        public AssetLicensedLink GetMediaLicensedLink(string userId, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
+        {
+            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            try
+            {
+                if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+                {
+                    var link = CDNAdapterController.GetInstance().GetVodLink(m_nGroupID, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)file.MediaId, (int)file.Id, ip);
+                    response.Url = link != null ? link.Url : string.Empty;
+                }
+                else
+                {
+                    Dictionary<string, string> licensedLinkParams = Utils.GetLicensedLinkParamsDict(userId, file.Id.ToString(), file.Url, ip, string.Empty, string.Empty, udid, string.Empty);
+                    response.Url = GetLicensedLink(file.CdnId, licensedLinkParams);
+                }
+
+                if (!string.IsNullOrEmpty(response.Url))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to GetMediaLicensedLink for fileId = {0}, userId = {1}", file.Id, userId), ex);
+            }
+            return response;
+        }
+
+        public AssetLicensedLink GetRecordingLicensedLink(string userId, Recording recording, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
+        {
+            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            try
+            {
+                int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(m_nGroupID);
+                CDVRAdapter cdvrAdapter = ConditionalAccessDAL.GetCDVRAdapter(m_nGroupID, adapterId);
+                RecordingLink recordingLink = null;
+                if (cdvrAdapter != null && cdvrAdapter.DynamicLinksSupport)
+                {
+                    // get the link from the CDVR adapter
+                    string externalChannelId = Tvinci.Core.DAL.CatalogDAL.GetEPGChannelCDVRId(m_nGroupID, recording.ChannelId);
+
+                    RecordResult recordResult = CdvrAdapterController.GetInstance().GetRecordingLinks(m_nGroupID, externalChannelId, recording.ExternalRecordingId, cdvrAdapter.ID);
+
+                    if (recordResult == null || recordResult.Links == null || recordResult.Links.Count == 0)
+                    {
+                        log.ErrorFormat("Failed to get recording links dynamically from CDVR adapter. adapterId = {0}, groupId = {1}, userId = {2}, domainRecordingId = {3}, externalRecordingId = {4}, recordingId = {5}",
+                            cdvrAdapter.ID, m_nGroupID, userId, recording.Id, recording.ExternalRecordingId, recording.Id);
+                        return response;
+                    }
+
+                    recordingLink = recordResult.Links.Where(rl => rl.FileType == file.Type).FirstOrDefault();
+                }
+                else
+                {
+                    // get the link for the recording with the given udid brand
+                    recordingLink = RecordingsDAL.GetRecordingLinkByFileType(m_nGroupID, recording.Id, file.Type);
+                }
+
+                if (recordingLink == null || string.IsNullOrEmpty(recordingLink.Url))
+                {
+                    log.ErrorFormat("Recording link was not found for fileType = {0}. groupId = {1}, userId = {2}, domainRecordingId = {3}, udid = {4}, recordingId = {5}",
+                        file.Type, m_nGroupID, userId, recording.Id, udid, recording.Id);
+                    return response;
+                }
+
+                if (adapterResponse == null || adapterResponse.Adapter == null || adapterResponse.Status.Code != (int)eResponseStatus.OK || string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+                {
+                    log.ErrorFormat("failed to get CDN adapter for recordings for groupId = {0}. userId = {1}, domainRecordingId = {2}, recordingId = {3}",
+                        m_nGroupID, userId, recording.Id, recording.Id);
+                    return response;
+                }
+
+                // main url
+                var link = CDNAdapterController.GetInstance().GetRecordingLink(m_nGroupID, adapterResponse.Adapter.ID, userId, recordingLink.Url, file.Type, recording.ExternalRecordingId, ip);
+
+                if (link != null && !string.IsNullOrEmpty(link.Url))
+                {
+                    response.Url = link.Url;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to GetRecordingLicensedLink for fileId = {0}, userId = {1}", file.Id, userId), ex);
+            }
+
+            return response;
+        }
+
+        public AssetLicensedLink GetEpgLicensedLink(string userId, EPGChannelProgrammeObject program, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context, DateTime startTime)
+        {
+            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            try
+            {
+                DateTime programEndTime = DateTime.ParseExact(program.END_DATE, "dd/MM/yyyy HH:mm:ss", null);
+                DateTime programStartTime = DateTime.ParseExact(program.START_DATE, "dd/MM/yyyy HH:mm:ss", null);
+
+                Dictionary<string, object> dURLParams = new Dictionary<string, object>();
+                dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_END, programEndTime);
+                eEPGFormatType formatType = Utils.GetEpgFormatTypeByPlayContextType(context);
+                dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.EPG_FORMAT_TYPE, formatType);
+                switch (formatType)
+                {
+                    case eEPGFormatType.Catchup:
+                    case eEPGFormatType.StartOver:
+                        {
+                            dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, programStartTime);
+                        }
+                        break;
+                    case eEPGFormatType.LivePause: // TODO: do we support this?
+                        dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, startTime);
+                        break;
+                    case eEPGFormatType.NPVR:
+                    default:
+                        break;
+                }
+
+                // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+                if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+                {
+                    int actionType = Utils.MapActionTypeForAdapter(formatType);
+
+                    // main url
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(m_nGroupID, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID, (int)file.MediaId, (int)file.Id,
+                        TVinciShared.DateUtils.DateTimeToUnixTimestamp(programStartTime), actionType, ip);
+                    response.Url = link != null ? link.Url : null;
+                }
+                else
+                {
+                    string CdnStrID = string.Empty;
+                    bool bIsDynamic = Utils.GetStreamingUrlType(file.CdnId, ref CdnStrID);
+                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.IS_DYNAMIC, bIsDynamic);
+                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.BASIC_LINK, file.Url);
+
+                    StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
+                    if (provider != null)
+                    {
+                        string liveUrl = provider.GenerateEPGLink(dURLParams);
+                        response.Url = !string.IsNullOrEmpty(liveUrl) ? liveUrl : null;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(response.Url))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed to GetEpgLicensedLink for fileId = {0}, userId = {1}", file.Id, userId), ex);
             }
 
             return response;
