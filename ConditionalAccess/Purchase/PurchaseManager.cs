@@ -305,7 +305,6 @@ namespace ConditionalAccess
             return response;
         }
 
-
         private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid, long householdId, double price, string currency, int productId,
                                                       CouponData coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {

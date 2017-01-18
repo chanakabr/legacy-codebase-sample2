@@ -840,8 +840,10 @@ namespace ConditionalAccess
                                     productId);           // {2}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
-
+                if (billingTransactionId > 0)
+                {
+                    ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                }
             }
             catch (Exception ex)
             {
