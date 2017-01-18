@@ -23,12 +23,13 @@ namespace DAL
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
         private static readonly string CB_MESSAGE_QUEUE_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_queue_messages_design");
 
-        public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
+        public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID, int countryId = 0)
         {
             ODBCWrapper.StoredProcedure spGeoBlockPerMedia = new ODBCWrapper.StoredProcedure("Get_GeoBlockPerMedia");
             spGeoBlockPerMedia.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGeoBlockPerMedia.AddParameter("@GroupID", nGroupID);
             spGeoBlockPerMedia.AddParameter("@MediaID", nMediaID);
+            spGeoBlockPerMedia.AddParameter("@CountryId", countryId);
 
             DataSet ds = spGeoBlockPerMedia.ExecuteDataSet();
 
