@@ -1992,12 +1992,18 @@ namespace WebAPI.Clients
 
             List<PlayContextType> wsContexts = contextDataParams.GetContexts().Select(c => ConditionalAccessMappings.ConvertPlayContextType(c)).ToList();
 
+            StreamerType streamerType;
+            if (!Enum.TryParse(contextDataParams.StreamerType, out streamerType))
+            {
+                throw new ClientException((int)StatusCode.Error, "Unknown streamerType");
+            }
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, udid, Utils.Utils.GetClientIP(),
-                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), contextDataParams.StreamerType, contextDataParams.MediaProtocol, wsContexts);
+                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContexts);
                 }
             }
             catch (Exception ex)
@@ -2046,6 +2052,40 @@ namespace WebAPI.Clients
             }
 
             return kalturaPlaybackContext;
+        }
+
+        internal string GetAssetLicensedLink(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaContextType contextType, long seekFrom)
+        {
+            AssetLicensedLink response = null;
+
+            // get group ID
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.GetAssetLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId, ApiMappings.ConvertAssetType(assetType),
+                        assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType), Utils.SerializationUtils.ConvertFromUnixTimestamp(seekFrom));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            return response.Url;
         }
     }
 }

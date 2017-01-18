@@ -735,13 +735,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     result = PlayContextType.Trailer;
                     break;
                 case KalturaContextType.CATCHUP:
-                    result = PlayContextType.Catchup;
+                    result = PlayContextType.CatchUp;
                     break;
                 case KalturaContextType.START_OVER:
                     result = PlayContextType.StartOver;
                     break;
                 case KalturaContextType.TRICK_PLAY:
                     result = PlayContextType.TrickPlay;
+                    break;
+                case KalturaContextType.PLAYBACK:
+                    result = PlayContextType.Playback;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown KalturaContextType type");

@@ -69,83 +69,67 @@ namespace WebAPI.Controllers
         /// assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
         [Route("p/{partnerId}/playManifest"), HttpPost, HttpGet]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool GetPlayManifest(int partnerId)//, string assetId, KalturaAssetType? assetType, long assetFileId, string ks, long seekFrom)
+        public bool GetPlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, string ks, long seekFrom, KalturaContextType contextType)
         {
-            //if (partnerId == 0)
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
-            //}
+            if (partnerId == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
+            }
 
-            //if (string.IsNullOrEmpty(assetId))
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
-            //}
+            if (string.IsNullOrEmpty(assetId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
+            }
 
-            //if (assetType == null)
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetType");
-            //}
+            if (assetType == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetType");
+            }
 
-            //if (assetFileId == 0)
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileId");
-            //}
+            if (assetFileId == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileId");
+            }
 
-            //if (assetType.HasValue && assetType.Value == KalturaAssetType.epg && seekFrom == 0)
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "seekFrom");
-            //}
+            if (assetType == KalturaAssetType.epg && seekFrom == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "seekFrom");
+            }
 
-            //KS ksObject = KS.ParseKS(ks);
+            KS ksObject = KS.ParseKS(ks);
 
-            //if (!ksObject.IsValid)
-            //{
-            //    throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
-            //}
+            if (!ksObject.IsValid)
+            {
+                throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
+            }
 
-            //if (partnerId != ksObject.GroupId)
-            //{
-            //    throw new UnauthorizedException(UnauthorizedException.PARTNER_INVALID);
-            //}
+            if (partnerId != ksObject.GroupId)
+            {
+                throw new UnauthorizedException(UnauthorizedException.PARTNER_INVALID);
+            }
 
-            //KalturaLicensedUrl response = null;
+            string response = null;
 
-            //try
-            //{
-            //    string userId = ksObject.UserId;
-            //    string udid = KSUtils.ExtractKSPayload(ksObject).UDID;
-            //    switch (assetType.Value)
-            //    {
-            //        case KalturaAssetType.media:
-            //            //response = ClientsManager.ConditionalAccessClient().GetLicensedLinks(partnerId, userId, udid, assetFileId, BaseUrl);
-            //            break;
-            //        case KalturaAssetType.recording:
-            //            //response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(partnerId, userId, udid, assetId, FileType);
-            //            break;
-            //        case KalturaAssetType.epg:
-            //            //response = ClientsManager.ConditionalAccessClient().GetEPGLicensedLink(partnerId, userId, udid, assetId, assetFileId, BaseUrl, seekFrom, StreamType);
-            //            break;
-            //        default:
-            //            break;
-            //    }
+            try
+            {
+                string userId = ksObject.UserId;
+                string udid = KSUtils.ExtractKSPayload(ksObject).UDID;
 
-            //    if (response != null)
-            //    {
-            //        if (!string.IsNullOrEmpty(response.MainUrl))
-            //        {
-            //            Redirect(response.MainUrl);
-            //        }
-            //        else
-            //        {
-            //            Redirect(response.AltUrl);
-            //        }
-            //    }
-            //}
-            //catch (ClientException ex)
-            //{
-            //    ErrorUtils.HandleClientException(ex);
-            //    return false;
-            //}
+                response = ClientsManager.ConditionalAccessClient().GetAssetLicensedLink(partnerId, userId, assetId, assetType, assetFileId, udid, contextType, seekFrom);
+
+                if (response != null)
+                {
+                    if (!string.IsNullOrEmpty(response))
+                    {
+                        Redirect(response);
+                    }
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+                return false;
+            }
 
             return true;
         }

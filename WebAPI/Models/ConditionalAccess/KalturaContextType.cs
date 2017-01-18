@@ -11,5 +11,6 @@ namespace WebAPI.Models.ConditionalAccess
         CATCHUP,
         START_OVER,
         TRICK_PLAY,
+        PLAYBACK
     }
 }

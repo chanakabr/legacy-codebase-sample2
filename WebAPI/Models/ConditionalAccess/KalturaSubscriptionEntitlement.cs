@@ -14,7 +14,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// </summary>   
     public class KalturaSubscriptionEntitlement : KalturaEntitlement
     {
-
         /// <summary>
         ///The date of the next renewal (only for subscription)
         /// </summary>
