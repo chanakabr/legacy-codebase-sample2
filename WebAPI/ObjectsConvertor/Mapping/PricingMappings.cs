@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
-using Pricing;
 using ApiObjects;
-using ConditionalAccess;
-using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Exceptions;
 using WebAPI.Models.Pricing;
@@ -14,6 +11,11 @@ using WebAPI.Models.General;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Users;
 using WebAPI.Models.Catalog;
+using ApiObjects.Pricing;
+using Core.Pricing;
+using Core.ConditionalAccess;
+using ApiObjects.ConditionalAccess;
+using WebAPI.Utils;
 
 
 namespace WebAPI.ObjectsConvertor.Mapping

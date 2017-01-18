@@ -5749,7 +5749,7 @@
         <member name="T:WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder">
             <summary>
             Holder object for personal asset with enum
-            </summary>    
+            </summary>  
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetsBookmarksResponse">
             <summary>

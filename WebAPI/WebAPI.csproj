@@ -1201,13 +1201,13 @@
     <WCFMetadataStorage Include="Service References\Notifications\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ConditionalAccess\ConditionalAccess.csproj">
-      <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>
-      <Name>ConditionalAccess</Name>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
+      <Name>ApiLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
@@ -1216,50 +1216,6 @@
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Users\Users.csproj">
-      <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
-      <Name>Users</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_api\WS_API.csproj">
-      <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
-      <Name>WS_API</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_billing\Billing\Billing.csproj">
-      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
-      <Name>Billing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_billing\WS_Billing.csproj">
-      <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
-      <Name>WS_Billing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_conditionalaccess\WS_ConditionalAccess.csproj">
-      <Project>{5368db6d-5ac3-432c-b1b6-43276d42a869}</Project>
-      <Name>WS_ConditionalAccess</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_domains\WS_Domains.csproj">
-      <Project>{359cfa7e-bee9-4bc8-b1f7-e53e64f28aa7}</Project>
-      <Name>WS_Domains</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_pricing\Pricing\Pricing.csproj">
-      <Project>{143a9361-b461-42a7-b579-a75c0e7b1ea3}</Project>
-      <Name>Pricing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_pricing\WS_Pricing.csproj">
-      <Project>{2c08f19b-40e0-4ef1-9f7d-5132c795a184}</Project>
-      <Name>WS_Pricing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_social\Social\Social.csproj">
-      <Project>{9b08c03b-c3db-4850-8809-44f0059ed338}</Project>
-      <Name>Social</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_social\WS_Social.csproj">
-      <Project>{2f2a7c8d-bde1-43bc-acaf-86df0bc86815}</Project>
-      <Name>WS_Social</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_users\WS_Users.csproj">
-      <Project>{7a491492-fd8e-47da-ad3e-7fdc5fdf5e03}</Project>
-      <Name>WS_Users</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

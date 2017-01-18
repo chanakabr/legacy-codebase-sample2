@@ -10,15 +10,16 @@ using WebAPI.Catalog;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
-using ConditionalAccess;
-using Pricing;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
-using Billing;
-using ConditionalAccess.Response;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Catalog;
+using Core.ConditionalAccess;
+using Core.ConditionalAccess.Response;
+using Core.Pricing;
 using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -663,55 +664,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaPaymentMethodType ConvertPaymentMethod(ConditionalAccess.PaymentMethod paymentMethod)
+        public static KalturaPaymentMethodType ConvertPaymentMethod(ePaymentMethod paymentMethod)
         {
             KalturaPaymentMethodType result;
             switch (paymentMethod)
             {
-                case ConditionalAccess.PaymentMethod.Unknown:
+                case ePaymentMethod.Unknown:
                     result = KalturaPaymentMethodType.unknown;
                     break;
-                case ConditionalAccess.PaymentMethod.CreditCard:
+                case ePaymentMethod.CreditCard:
                     result = KalturaPaymentMethodType.credit_card;
                     break;
-                case ConditionalAccess.PaymentMethod.SMS:
+                case ePaymentMethod.SMS:
                     result = KalturaPaymentMethodType.sms;
                     break;
-                case ConditionalAccess.PaymentMethod.PayPal:
+                case ePaymentMethod.PayPal:
                     result = KalturaPaymentMethodType.pay_pal;
                     break;
-                case ConditionalAccess.PaymentMethod.DebitCard:
+                case ePaymentMethod.DebitCard:
                     result = KalturaPaymentMethodType.debit_card;
                     break;
-                case ConditionalAccess.PaymentMethod.Ideal:
+                case ePaymentMethod.Ideal:
                     result = KalturaPaymentMethodType.ideal;
                     break;
-                case ConditionalAccess.PaymentMethod.Incaso:
+                case ePaymentMethod.Incaso:
                     result = KalturaPaymentMethodType.incaso;
                     break;
-                case ConditionalAccess.PaymentMethod.Gift:
+                case ePaymentMethod.Gift:
                     result = KalturaPaymentMethodType.gift;
                     break;
-                case ConditionalAccess.PaymentMethod.Visa:
+                case ePaymentMethod.Visa:
                     result = KalturaPaymentMethodType.visa;
                     break;
-                case ConditionalAccess.PaymentMethod.MasterCard:
+                case ePaymentMethod.MasterCard:
                     result = KalturaPaymentMethodType.master_card;
                     break;
-                case ConditionalAccess.PaymentMethod.InApp:
+                case ePaymentMethod.InApp:
                     result = KalturaPaymentMethodType.in_app;
                     break;
-                case ConditionalAccess.PaymentMethod.M1:
+                case ePaymentMethod.M1:
                     result = KalturaPaymentMethodType.m1;
                     break;
-                case ConditionalAccess.PaymentMethod.ChangeSubscription:
+                case ePaymentMethod.ChangeSubscription:
                     result = KalturaPaymentMethodType.change_subscription;
                     break;
-                case ConditionalAccess.PaymentMethod.Offline:
+                case ePaymentMethod.Offline:
                     result = KalturaPaymentMethodType.offline;
                     break;                
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ConditionalAccess.PaymentMethod type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown ePaymentMethod type");
             }
 
             return result;
