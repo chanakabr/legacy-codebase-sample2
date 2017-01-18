@@ -2096,6 +2096,15 @@ namespace TvinciImporter
                 ratioID = ImageUtils.GetGroupDefaultEpgRatio(groupID);
             }
 
+            //check for epg_image default threshold value
+            int pendingThresholdInMinutes = 0;
+            var epgImagePendingThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImagePendingThresholdInMinutes");
+            int.TryParse(epgImagePendingThresholdInMinutes, out pendingThresholdInMinutes);
+
+            int activeThresholdInMinutes = 0;
+            var epgImageActiveThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImageActiveThresholdInMinutes");
+            int.TryParse(epgImageActiveThresholdInMinutes, out activeThresholdInMinutes);
+
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
             if (picId == 0)
@@ -2188,7 +2197,7 @@ namespace TvinciImporter
             }
         }
 
-        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, int ratioID, out string picName, out int picId)
+        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, int ratioID, out string picName, out int picId, int pendingThresholdInMinutes = 0, int activeThresholdInMinutes = 0)
         {
             picName = getPictureFileName(thumb);
             picId = 0;
@@ -2537,7 +2546,7 @@ namespace TvinciImporter
                 }
                 else
                 {
-                    picId=  DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
+                    picId = DownloadPicToUploader(sPic, sMediaName, nGroupID, nMediaID, sMainLang, sPicType, bSetMediaThumb, ratioID);
                 }
             }
             else
@@ -5239,7 +5248,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch 
+            catch
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
@@ -5453,7 +5462,7 @@ namespace TvinciImporter
                 }
                 return response.Status;
             }
-            catch 
+            catch
             {
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
@@ -5923,7 +5932,7 @@ namespace TvinciImporter
         public static void UpdateRecordingsOfEPGs(List<ulong> epgIds, int groupId, ApiObjects.eAction action, string tcmKey = "conditionalaccess_ws")
         {
             try
-            {                
+            {
                 string sWSUserName = string.Empty;
                 string sWSPassword = string.Empty;
                 WS_Utils.GetWSCredentials(groupId, eWSModules.CONDITIONALACCESS.ToString(), ref sWSUserName, ref sWSPassword);
