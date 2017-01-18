@@ -85,7 +85,7 @@ namespace KLogMonitor
                 StackFrame[] stackFrames = stackTrace.GetFrames();  // get method calls (frames)
 
                 StackFrame callingFrame;
-                if (stackFrames != null && stackFrames.Length > 1)
+                if (stackFrames != null && stackFrames.Length > 2)
                 {
                     callingFrame = stackFrames[2];
                     this.MethodName = callingFrame.GetMethod().Name;
