@@ -40,7 +40,7 @@ function initMultipleLists(dataLists) {
             data: getListData(currentDualList.Data, false)
         };
         window.components = window.components || {};
-        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar, currentDualList.data.withQuota);
+        window.components.dualList = new DualList(first, second, document.getElementById(currentDualList.name), currentDualList.pageName, currentDualList.withCalendar, currentDualList.withQuota);
         $('.has-placeholder').placeholder();
     }
 }
