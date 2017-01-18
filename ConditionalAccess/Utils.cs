@@ -2937,6 +2937,48 @@ namespace ConditionalAccess
             return result;
         }
 
+        static public CouponData GetCouponData(int groupID, string couponCode)
+        {
+            CouponData result = null;
+            mdoule module = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    module = new mdoule();
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
+
+                    CouponDataResponse couponResponse = module.GetCouponStatus(sWSUserName, sWSPass, couponCode);
+
+                    if (couponResponse != null &&
+                        couponResponse.Status != null &&
+                        couponResponse.Status.Code == (int)eResponseStatus.OK &&
+                        couponResponse.Coupon != null &&
+                        couponResponse.Coupon.m_CouponStatus == CouponsStatus.Valid)
+                    {
+                        result = couponResponse.Coupon;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = null;
+                log.Error("GetCouponData - " + string.Format("Error on GetCouponData(), group id:{0}, coupon code:{1}, errorMessage:{2}", groupID, couponCode, ex.ToString()), ex);
+            }
+            finally
+            {
+                #region Disposing
+                if (module != null)
+                {
+                    module.Dispose();
+                }
+                #endregion
+            }
+
+            return result;
+        }
 
         internal static bool IsFirstDeviceEqualToCurrentDevice(int nMediaFileID, string sPPVCode, List<int> lUsersIds, string sCurrentDeviceName, ref string sFirstDeviceName)
         {

@@ -105,19 +105,26 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                CouponData couponData = null;
+
                 // coupon validation
-                if (!string.IsNullOrEmpty(coupon) && !Utils.IsCouponValid(groupId, coupon))
+                if (!string.IsNullOrEmpty(coupon))
                 {
-                    response.Status.Message = "Coupon Not Valid";
-                    response.Status.Code = (int)eResponseStatus.CouponNotValid;
-                    log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
-                    return response;
+                    couponData = Utils.GetCouponData(groupId, coupon);
+
+                    if (couponData == null)
+                    {
+                        response.Status.Message = "Coupon Not Valid";
+                        response.Status.Code = (int)eResponseStatus.CouponNotValid;
+                        log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
+                        return response;
+                    }
                 }
 
                 switch (transactionType)
                 {
                     case eTransactionType.PPV:
-                    response = PurchasePPV(cas, groupId, siteguid, household, price, currency, contentId, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
+                    response = PurchasePPV(cas, groupId, siteguid, household, price, currency, contentId, productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
                     break;
                     case eTransactionType.Subscription:
                     response = PurchaseSubscription(cas, groupId, siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
@@ -497,10 +504,18 @@ namespace ConditionalAccess
         }
 
 
-        private static TransactionResponse PurchasePPV(BaseConditionalAccess cas, int groupId, string siteguid, long householdId, double price, string currency, int contentId, int productId, string coupon,
-                                                string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
+        private static TransactionResponse PurchasePPV(BaseConditionalAccess cas, int groupId, 
+            string siteguid, long householdId, double price, 
+            string currency, int contentId, int productId, CouponData coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            string couponCode = string.Empty;
+
+            if (coupon != null)
+            {
+                couponCode = coupon.id;
+            }
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, productId {5}, coupon {6}, userIp {7}, deviceName {8}, paymentGwId {9}, paymentMethodId {10}, adapterData {11}",
@@ -510,7 +525,7 @@ namespace ConditionalAccess
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 contentId,                                                     // {4}
                 productId,                                                     // {5}   
-                !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {6}
+                !string.IsNullOrEmpty(couponCode) ? couponCode : string.Empty,         // {6}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {7}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {8}
                 paymentGwId, paymentMethodId, adapterData);                    // {9,10,11}
@@ -535,8 +550,8 @@ namespace ConditionalAccess
                 }
 
                 // validate PPV 
-                PPVModule thePPVModule = null;
-                ApiObjects.Response.Status status = cas.ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
+                PPVModule ppvModule = null;
+                ApiObjects.Response.Status status = cas.ValidatePPVModuleCode(productId, contentId, ref ppvModule);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = status;
@@ -549,18 +564,44 @@ namespace ConditionalAccess
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
-                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, coupon, groupId,
-                                                                                              ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, deviceName);
 
-                bool couponFullDiscount = (ePriceReason == PriceReason.Free) && !string.IsNullOrEmpty(coupon);
+                bool isGiftCard = false;
+                Price priceObject = null;
+
+                if (coupon != null &&
+                    coupon.m_CouponStatus == CouponsStatus.Valid &&
+                    coupon.m_oCouponGroup.isGiftCard &&
+                    ppvModule != null &&
+                    ppvModule.m_oCouponsGroup != null &&
+                    coupon.m_oCouponGroup != null &&
+                    ppvModule.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
+                {
+                    isGiftCard = true;
+                    ePriceReason = PriceReason.Free;
+                    priceObject = new Price()
+                    {
+                        m_dPrice = 0.0,
+                        m_oCurrency = new Currency()
+                        {
+                            m_sCurrencyCD3 = currency
+                        }
+                    };
+                }
+                else
+                {
+                    priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode, groupId,
+                                                                                                  ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
+                                                                                                  string.Empty, string.Empty, deviceName);
+                }
+                bool couponFullDiscount = (ePriceReason == PriceReason.Free) && coupon != null;
 
                 if (ePriceReason == PriceReason.ForPurchase ||
-                    (ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0) ||
-                    couponFullDiscount)
+                    (ePriceReason == PriceReason.SubscriptionPurchased && priceObject.m_dPrice > 0) ||
+                    couponFullDiscount ||
+                    isGiftCard)
                 {
                     // item is for purchase
-                    if (oPrice.m_dPrice == price && oPrice.m_oCurrency.m_sCurrencyCD3 == currency)
+                    if (priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
                     {
                         string country = string.Empty;
                         if (!string.IsNullOrEmpty(userIp))
@@ -570,22 +611,27 @@ namespace ConditionalAccess
                         }
 
                         // create custom data
-                        string customData = cas.GetCustomData(relevantSub, thePPVModule, null, siteguid, price, currency,
-                                                          contentId, mediaID, productId.ToString(), string.Empty, coupon,
+                        string customData = cas.GetCustomData(relevantSub, ppvModule, null, siteguid, price, currency,
+                                                          contentId, mediaID, productId.ToString(), string.Empty, couponCode,
                                                           userIp, country, string.Empty, deviceName);
 
                         // create new GUID for billing transaction
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        if (couponFullDiscount)
+                        if (couponFullDiscount && !isGiftCard)
                         {
                             response = HandleGiftPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, contentId);
+                        }
+                        else if (isGiftCard)
+                        {
+                            response = HandleGiftCardPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, contentId);
                         }
                         else
                         {
                             response = HandlePurchase(cas, groupId, siteguid, householdId, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId, adapterData);
                         }
+
                         if (response != null &&
                             response.Status != null)
                         {
@@ -602,8 +648,8 @@ namespace ConditionalAccess
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
-                                bool handleBillingPassed = cas.HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, price, currency, coupon, userIp,
-                                                                                   country, deviceName, long.Parse(response.TransactionID), customData, thePPVModule,
+                                bool handleBillingPassed = cas.HandlePPVBillingSuccess(ref response, siteguid, householdId, relevantSub, price, currency, couponCode, userIp,
+                                                                                   country, deviceName, long.Parse(response.TransactionID), customData, ppvModule,
                                                                                    productId, contentId, billingGuid, entitlementDate, ref purchaseId);
 
                                 if (handleBillingPassed)
@@ -668,6 +714,20 @@ namespace ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
                 log.Error("Exception occurred. data: " + logString, ex);
             }
+            return response;
+        }
+
+        private static TransactionResponse HandleGiftCardPurchase(BaseConditionalAccess cas, int groupId, string siteguid, double price, string currency, 
+            string userIp, string customData, int productId, eTransactionType eTransactionType, string billingGuid, int contentId)
+        {
+            TransactionResponse response = new TransactionResponse()
+            {
+                Status = new Status(),
+                State = eTransactionState.OK.ToString(),
+                FailReasonCode = 0,
+                TransactionID = "0"
+            };
+
             return response;
         }
 

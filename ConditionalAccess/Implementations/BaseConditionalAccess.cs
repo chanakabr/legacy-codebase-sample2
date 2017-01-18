@@ -3436,13 +3436,14 @@ namespace ConditionalAccess
         /// Checks if there is recurring coupon definition on the subscription and if yes 
         /// activate the discount of the coupon on the price and return the updated price and the coupon code. 
         /// </summary> 
-        private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode)
+        private void HandleRecurringCoupon(int nPurchaseID, Subscription subscription, int nTotalPaymentsNumber, Currency oCurrency, 
+            bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode)
         {
             try
             {
-                if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
+                if (subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_oDiscountCode != null)
                 {
-                    if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, theSub.m_oCouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
+                    if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, subscription.m_oCouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
                     {
                         string sCouponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID);
                         if (!string.IsNullOrEmpty(sCouponCode))
@@ -3450,7 +3451,7 @@ namespace ConditionalAccess
                             Price priceBeforeCouponDiscount = new Price();
                             priceBeforeCouponDiscount.m_dPrice = dPrice;
                             priceBeforeCouponDiscount.m_oCurrency = oCurrency;
-                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, theSub.m_oCouponsGroup.m_oDiscountCode, 0);
+                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, subscription.m_oCouponsGroup.m_oDiscountCode, 0);
                             dPrice = priceResult.m_dPrice;
                             retCouponCode = sCouponCode;
                         }
