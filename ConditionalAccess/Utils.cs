@@ -6275,15 +6275,54 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
-        internal static ApiObjects.Response.Status GetAssetFiles(int groupId, string assetId, eAssetTypes assetType, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
-            out List<MediaFile> files, out long mediaId, out EPGChannelProgrammeObject program, out Recording recording, bool filterOnlyByIds = false)
+        internal static ApiObjects.Response.Status FilterMediaFilesForAsset(int groupId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
+            out List<MediaFile> files, bool filterOnlyByIds = false)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             files = null;
-            long id = 0;
+
+            // cache
+            List<MediaFile> allMediafiles = null;
+            string mediaFilesCacheKey = string.Format(MEDIA_FILES_CACHE_KEY_FORMAT, mediaId);
+            if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
+            {
+                allMediafiles = ApiDAL.GetMediaFiles(mediaId);
+                allMediafiles.ForEach(f => f.Url = Utils.GetAssetUrl(groupId, assetType, f.Url, f.CdnId));
+
+                if (allMediafiles != null)
+                {
+                    ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
+                }
+            }
+
+            // filter
+            if (allMediafiles != null && allMediafiles.Count > 0)
+            {
+                if (filterOnlyByIds)
+                {
+                    files = allMediafiles.Where(f => fileIds != null && fileIds.Contains(f.Id)).ToList();
+                }
+                else
+                {
+                    files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
+                        ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
+                        f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
+                        (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                }
+            }
+                
+            status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            
+
+            return status;
+        }
+
+        internal static ApiObjects.Response.Status GetLinearMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
+        {
             mediaId = 0;
             recording = null;
             program = null;
+            long id;
 
             if (long.TryParse(assetId, out id))
             {
@@ -6333,41 +6372,9 @@ namespace ConditionalAccess
                     default:
                         break;
                 }
-
-                // cache
-                List<MediaFile> allMediafiles = null;
-                string mediaFilesCacheKey = string.Format(MEDIA_FILES_CACHE_KEY_FORMAT, mediaId);
-                if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
-                {
-                    allMediafiles = ApiDAL.GetMediaFiles(mediaId);
-                    allMediafiles.ForEach(f => f.Url = Utils.GetAssetUrl(groupId, assetType, f.Url, f.CdnId));
-
-                    if (allMediafiles != null)
-                    {
-                        ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
-                    }
-                }
-
-                // filter
-                if (allMediafiles != null && allMediafiles.Count > 0)
-                {
-                    if (filterOnlyByIds)
-                    {
-                        files = allMediafiles.Where(f => fileIds != null && fileIds.Contains(f.Id)).ToList();
-                    }
-                    else
-                    {
-                        files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
-                            ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
-                            f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
-                            (fileIds != null && fileIds.Contains(f.Id))).ToList();
-                    }
-                }
-                
-                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
-            return status;
+            return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         internal static eService GetServiceByPlayContextType(PlayContextType contextType)

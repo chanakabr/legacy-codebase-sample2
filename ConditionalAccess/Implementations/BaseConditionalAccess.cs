@@ -19727,6 +19727,7 @@ namespace ConditionalAccess
         public PlayBackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
             List<PlayContextType> contexts, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
+            // TODO: playback stuff
             PlayBackContextResponse response = new PlayBackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
@@ -19736,7 +19737,6 @@ namespace ConditionalAccess
 
             try
             {
-                Recording recording = null;
                 Domain domain = null;
                 long domainId = 0;
 
@@ -19752,52 +19752,41 @@ namespace ConditionalAccess
                     }
                 }
 
-                switch (assetType)
+                // EPG
+                if (assetType == eAssetTypes.EPG)
                 {
-                    case eAssetTypes.EPG:
-                        {
-                            // services
-                            List<PlayContextType> allowedContexts = FilterNotAllowedServices(domainId, contexts);
-                            if (allowedContexts == null || allowedContexts.Count == 0)
-                            {
-                                log.DebugFormat("No allowed services were asked for domainId = {0}", domainId);
-                                response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
-                                // TODO: add codes somewhere
-                                return response;
-                            }
-                        }
-                        break;
-                    case eAssetTypes.NPVR:
-                        {
-                            long longAssetId = 0;
-                            long.TryParse(assetId, out longAssetId);
-                            response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, recording);
-                            if (response.Status.Code != (int)eResponseStatus.OK)
-                            {
-                                // TODO: add codes somewhere if needed in that case
-                                response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
-                                return response;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
+                    // services
+                    List<PlayContextType> allowedContexts = FilterNotAllowedServices(domainId, contexts);
+                    if (allowedContexts == null || allowedContexts.Count == 0)
+                    {
+                        log.DebugFormat("No allowed services were asked for domainId = {0}", domainId);
+                        response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
+                        // TODO: add codes somewhere
+                        return response;
+                    }
                 }
 
-                List<MediaFile> files;
-                ApiObjects.Response.Status filesStatus;
                 long mediaId;
-                EPGChannelProgrammeObject  program;
-                filesStatus = Utils.GetAssetFiles(m_nGroupID, assetId, assetType, streamerType, mediaProtocol, contexts, fileIds, out files, out mediaId, out program, out recording);
-
-                if (filesStatus.Code != (int)eResponseStatus.OK)
+                Recording recording = null;
+                EPGChannelProgrammeObject program = null;
+                response.Status = Utils.GetLinearMediaIdForAsset(m_nGroupID, assetId, assetType, out mediaId, out  recording, out program);
+                if (response.Status.Code != (int)eResponseStatus.OK)
                 {
-                    response.Status = filesStatus;
                     return response;
                 }
 
-                if (files != null && files.Count > 0)
+                // Recording
+                if (assetType == eAssetTypes.NPVR)
                 {
+                    long longAssetId = 0;
+                    long.TryParse(assetId, out longAssetId);
+                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, recording);
+                    if (response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        // TODO: add codes somewhere if needed in that case
+                        response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
+                        return response;
+                    }
                     if (assetType == eAssetTypes.NPVR)
                     {
                         var epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, (int)mediaId);
@@ -19810,11 +19799,25 @@ namespace ConditionalAccess
                         {
                             log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, channelId = {4}, recordingId = {5}",
                                 m_nGroupID, userId, domainId, assetId, recording.ChannelId, recording.Id);
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
+                            response.PlaybackStatuses = null; // = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
                             return response;
+                            // TODO: add codes somewhere if needed in that case
                         }
                     }
+                }
 
+                List<MediaFile> files;
+                ApiObjects.Response.Status filesStatus;
+                filesStatus = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds, out files);
+
+                if (filesStatus.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = filesStatus;
+                    return response;
+                }
+
+                if (files != null && files.Count > 0)
+                {
                     MediaFileItemPricesContainer[] prices = GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
                     if (prices != null && prices.Length > 0)
                     {
@@ -19947,8 +19950,13 @@ namespace ConditionalAccess
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
 
-                ApiObjects.Response.Status filesStatus = Utils.GetAssetFiles(m_nGroupID, assetId, assetType, null, null, null, new List<long>() { fileId },
-                    out files, out mediaId, out program, out recording, true);
+                response.Status = Utils.GetLinearMediaIdForAsset(m_nGroupID, assetId, assetType, out mediaId, out  recording, out program);
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+
+                ApiObjects.Response.Status filesStatus = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, null, null, null, new List<long>() { fileId }, out files, true);
 
                 if (filesStatus.Code != (int)eResponseStatus.OK)
                 {
