@@ -127,7 +127,7 @@ namespace ConditionalAccess
                     response = PurchasePPV(cas, groupId, siteguid, household, price, currency, contentId, productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
                     break;
                     case eTransactionType.Subscription:
-                    response = PurchaseSubscription(cas, groupId, siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
+                    response = PurchaseSubscription(cas, groupId, siteguid, household, price, currency, productId, couponData, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
                     break;
                     case eTransactionType.Collection:
                     response = PurchaseCollection(cas, groupId, siteguid, household, price, currency, productId, coupon, userIp, deviceName, paymentGwId, paymentMethodId, adapterData);
@@ -307,9 +307,16 @@ namespace ConditionalAccess
 
 
         private static TransactionResponse PurchaseSubscription(BaseConditionalAccess cas, int groupId, string siteguid, long householdId, double price, string currency, int productId,
-                                                      string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
+                                                      CouponData coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            string couponCode = string.Empty;
+
+            if (coupon != null)
+            {
+                couponCode = coupon.id;
+            }
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, userIp {6}, deviceName {7}, paymentGwId {8}, paymentMethodId {9}, adapterData {10}",
@@ -318,7 +325,7 @@ namespace ConditionalAccess
                 price,                                                         // {2}  
                 !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
                 productId,                                                     // {4}   
-                !string.IsNullOrEmpty(coupon) ? coupon : string.Empty,         // {5}
+                !string.IsNullOrEmpty(couponCode) ? couponCode : string.Empty, // {5}
                 !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {6}
                 !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {7}
                 paymentGwId, paymentMethodId, adapterData);
@@ -335,14 +342,42 @@ namespace ConditionalAccess
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
-                Price priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, coupon, ref priceReason, ref subscription, country, string.Empty, deviceName);
+
+                bool isGiftCard = false;
+                Price priceResponse = null;
+
+                if (coupon != null &&
+                    coupon.m_CouponStatus == CouponsStatus.Valid &&
+                    coupon.m_oCouponGroup.isGiftCard &&
+                    subscription != null &&
+                    subscription.m_oCouponsGroup != null &&
+                    coupon.m_oCouponGroup != null &&
+                    subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
+                {
+                    isGiftCard = true;
+                    priceReason = PriceReason.Free;
+                    priceResponse = new Price()
+                    {
+                        m_dPrice = 0.0,
+                        m_oCurrency = new Currency()
+                        {
+                            m_sCurrencyCD3 = currency
+                        }
+                    };
+                }
+                else
+                {
+                    priceResponse =
+                        Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode, ref priceReason, ref subscription, country, string.Empty, deviceName);
+                }
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
-                bool couponFullDiscount = (priceReason == PriceReason.Free && !string.IsNullOrEmpty(coupon));
+                bool couponFullDiscount = (priceReason == PriceReason.Free && coupon != null);
 
                 if (priceReason == PriceReason.ForPurchase ||
                     entitleToPreview ||
-                    couponFullDiscount)
+                    couponFullDiscount ||
+                    isGiftCard)
                 {
                     // item is for purchase
                     if (priceResponse != null &&
@@ -351,7 +386,7 @@ namespace ConditionalAccess
                     {
                         // price is validated, create custom data
                         string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, price, currency,
-                                                                         coupon, userIp, country, string.Empty, deviceName, string.Empty,
+                                                                         couponCode, userIp, country, string.Empty, deviceName, string.Empty,
                                                                          entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
                                                                          entitleToPreview);
 
@@ -359,9 +394,13 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        if (couponFullDiscount)
+                        if (couponFullDiscount && !isGiftCard)
                         {
                             response = HandleGiftPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.Subscription, billingGuid, 0);
+                        }
+                        else if (isGiftCard)
+                        {
+                            response = HandleGiftCardPurchase();
                         }
                         else
                         {
@@ -385,7 +424,7 @@ namespace ConditionalAccess
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
                                 // grant entitlement
-                                bool handleBillingPassed = cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, coupon, userIp,
+                                bool handleBillingPassed = cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
                                                                                       billingGuid.ToString(), entitleToPreview, subscription.m_bIsRecurring, entitlementDate, 
                                                                                       ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK);
@@ -625,7 +664,7 @@ namespace ConditionalAccess
                         }
                         else if (isGiftCard)
                         {
-                            response = HandleGiftCardPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, contentId);
+                            response = HandleGiftCardPurchase();
                         }
                         else
                         {
@@ -717,8 +756,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private static TransactionResponse HandleGiftCardPurchase(BaseConditionalAccess cas, int groupId, string siteguid, double price, string currency, 
-            string userIp, string customData, int productId, eTransactionType eTransactionType, string billingGuid, int contentId)
+        private static TransactionResponse HandleGiftCardPurchase()
         {
             TransactionResponse response = new TransactionResponse()
             {
