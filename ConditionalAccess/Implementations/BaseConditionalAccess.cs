@@ -19878,16 +19878,17 @@ namespace ConditionalAccess
                 if (SubCodes == null || SubCodes.Count == 0)
                 {
                     PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(userId);
-                    if (userSubsArray != null && userSubsArray.Count() > 0)
+                    if (userSubsArray == null || userSubsArray.Count() == 0)
                     {
-                        SubCodes = userSubsArray.Select(x => x.m_sSubscriptionCode).ToList();
-
-                        if (SubCodes == null && SubCodes.Count == 0)
-                        {
-                            return status;
-                        }
+                        return status;
                     }
-                }               
+                    SubCodes = userSubsArray.Select(x => x.m_sSubscriptionCode).ToList();
+
+                    if (SubCodes == null && SubCodes.Count == 0)
+                    {
+                        return status;
+                    }
+                }          
 
                 string pricingUsername = string.Empty, pricingPassword = string.Empty;
                 using (mdoule m = new mdoule())
