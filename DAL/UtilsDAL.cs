@@ -751,5 +751,10 @@ namespace DAL
         {
             return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
         }
+
+        public static string GetCheckGeoBlockMediaKey(int groupID, int mediaID, int countryID)
+        {
+            return string.Format("groupId_{0}_mediaId_{1}_CountryId_{2}", groupID, mediaID, countryID);
+        }
     }
 }

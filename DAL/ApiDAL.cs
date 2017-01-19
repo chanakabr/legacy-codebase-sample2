@@ -30,12 +30,13 @@ namespace DAL
             spGeoBlockPerMedia.AddParameter("@GroupID", nGroupID);
             spGeoBlockPerMedia.AddParameter("@MediaID", nMediaID);
             spGeoBlockPerMedia.AddParameter("@CountryId", countryId);
+            DataTable dt = spGeoBlockPerMedia.Execute();
+            if (dt == null)
+            {
+                dt = new DataTable();
+            }
 
-            DataSet ds = spGeoBlockPerMedia.ExecuteDataSet();
-
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
+            return dt;
         }
 
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)

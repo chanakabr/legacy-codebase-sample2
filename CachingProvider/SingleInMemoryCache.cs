@@ -43,6 +43,13 @@ namespace CachingProvider
 
         #endregion
 
+        public bool AddGenericType<T>(string sKey, T oValue, double nMinuteOffset)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+            return cache.Add(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+        }
+
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
             if (string.IsNullOrEmpty(sKey))
@@ -100,11 +107,41 @@ namespace CachingProvider
             return baseModule;
         }
 
+        public bool RemoveWithBoolResult(string sKey)
+        {
+            bool? result = false;
+            result = cache.Remove(sKey) as bool?;
+            return result.HasValue && result.Value;
+        }
+
         public T Get<T>(string sKey) where T : class
         {
             if (string.IsNullOrEmpty(sKey))
                 return default(T);
             return cache.Get(sKey) as T;
+        }
+
+        public bool GetGenericType<T>(string sKey, ref T result)
+        {
+            result = default(T);
+            bool res = false;
+            try
+            {
+                if (!string.IsNullOrEmpty(sKey))
+                {
+                    object cacheResult = cache.Get(sKey);                    
+                    if (cacheResult != null)
+                    {
+                        result = (T)cacheResult;
+                        res = true;
+                    }                    
+                }
+            }
+            catch
+            {                
+            }
+
+            return res;
         }
 
         public BaseModuleCache GetWithVersion<T>(string sKey)
