@@ -756,5 +756,10 @@ namespace DAL
         {
             return string.Format("groupId_{0}_mediaId_{1}_CountryId_{2}", groupID, mediaID, countryID);
         }
+
+        public static string GetIsMediaExistsToUserTypeKey(int mediaID, int userTypeID)
+        {
+            return string.Format("mediaId_{0}_userTypeId_{1}", mediaID, userTypeID);
+        }
     }
 }
