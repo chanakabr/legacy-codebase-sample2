@@ -345,6 +345,9 @@ namespace ConditionalAccess
                 bool isGiftCard = false;
                 Price priceResponse = null;
 
+                priceResponse =
+                        Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode, ref priceReason, ref subscription, country, string.Empty, deviceName);
+
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&
                     coupon.m_oCouponGroup.isGiftCard &&
@@ -354,20 +357,6 @@ namespace ConditionalAccess
                     subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
                 {
                     isGiftCard = true;
-                    priceReason = PriceReason.Free;
-                    priceResponse = new Price()
-                    {
-                        m_dPrice = 0.0,
-                        m_oCurrency = new Currency()
-                        {
-                            m_sCurrencyCD3 = currency
-                        }
-                    };
-                }
-                else
-                {
-                    priceResponse =
-                        Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode, ref priceReason, ref subscription, country, string.Empty, deviceName);
                 }
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
