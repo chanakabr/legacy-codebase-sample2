@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
-    public class PlayBackContextResponse
+    public class PlaybackContextResponse
     {
         public int AssetId { get; set; }
 
         public List<MediaFile> Files { get; set; }
-
-        public List<PlaybackStatus> PlaybackStatuses { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
     }
@@ -38,14 +36,7 @@ namespace ApiObjects
         public int CdnId { get; set; }
     }
 
-    public class PlaybackStatus
-    {
-        public string Code { get; set; }
-
-        public string Message { get; set; }
-    }
-
-    public class AssetLicensedLink
+    public class PlayManifestResponse
     {
         public ApiObjects.Response.Status Status { get; set; }
 

@@ -6275,11 +6275,10 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
-        internal static ApiObjects.Response.Status FilterMediaFilesForAsset(int groupId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
-            out List<MediaFile> files, bool filterOnlyByIds = false)
+        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
+            bool filterOnlyByIds = false)
         {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            files = null;
+            List<MediaFile> files = null;
 
             // cache
             List<MediaFile> allMediafiles = null;
@@ -6311,10 +6310,7 @@ namespace ConditionalAccess
                 }
             }
                 
-            status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            
-
-            return status;
+            return files;
         }
 
         internal static ApiObjects.Response.Status GetLinearMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
@@ -6416,18 +6412,6 @@ namespace ConditionalAccess
             }
 
             return type;
-        }
-
-        internal static List<PlaybackStatus> BuildPlaybackStatuses(string code, string message)
-        {
-            List<PlaybackStatus> response = new List<PlaybackStatus>();
-            response.Add(new PlaybackStatus()
-            {
-                Code = code,
-                Message = message
-
-            }); 
-            return response;
         }
 
         internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId, long domainRecordingId, Recording recording)

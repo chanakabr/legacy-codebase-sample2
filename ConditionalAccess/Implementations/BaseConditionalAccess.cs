@@ -19724,11 +19724,10 @@ namespace ConditionalAccess
             return response;
         }
 
-        public PlayBackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
+        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
             List<PlayContextType> contexts, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
-            // TODO: playback stuff
-            PlayBackContextResponse response = new PlayBackContextResponse()
+            PlaybackContextResponse response = new PlaybackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
@@ -19760,8 +19759,7 @@ namespace ConditionalAccess
                     if (allowedContexts == null || allowedContexts.Count == 0)
                     {
                         log.DebugFormat("No allowed services were asked for domainId = {0}", domainId);
-                        response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
-                        // TODO: add codes somewhere
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, "Service not allowed");
                         return response;
                     }
                 }
@@ -19783,8 +19781,6 @@ namespace ConditionalAccess
                     response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, recording);
                     if (response.Status.Code != (int)eResponseStatus.OK)
                     {
-                        // TODO: add codes somewhere if needed in that case
-                        response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
                         return response;
                     }
                     if (assetType == eAssetTypes.NPVR)
@@ -19799,22 +19795,13 @@ namespace ConditionalAccess
                         {
                             log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, channelId = {4}, recordingId = {5}",
                                 m_nGroupID, userId, domainId, assetId, recording.ChannelId, recording.Id);
-                            response.PlaybackStatuses = null; // = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
                             return response;
-                            // TODO: add codes somewhere if needed in that case
                         }
                     }
                 }
 
-                List<MediaFile> files;
-                ApiObjects.Response.Status filesStatus;
-                filesStatus = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds, out files);
-
-                if (filesStatus.Code != (int)eResponseStatus.OK)
-                {
-                    response.Status = filesStatus;
-                    return response;
-                }
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds);
 
                 if (files != null && files.Count > 0)
                 {
@@ -19836,11 +19823,9 @@ namespace ConditionalAccess
                             int domainID = 0;
                             List<int> ruleIds = new List<int>();
                             DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, (int)assetFileIds[0], udid, prices, int.Parse(assetId), ip, ref ruleIds, ref domainID);
-
                             if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                             {
-                                response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
-                                // TODO: add codes somewhere
+                                response.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
                                 return response;
                             }
 
@@ -19850,10 +19835,8 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    log.DebugFormat("No files found for asset assetId = {0}, assetType = {1}, streamerType = {2}, protocols = {3}",
-                                    userId, assetId, assetType, streamerType, mediaProtocol);
-                    response.PlaybackStatuses = Utils.BuildPlaybackStatuses("", "");
-                    // TODO: add codes somewhere
+                    log.DebugFormat("No files found for asset assetId = {0}, assetType = {1}, streamerType = {2}, protocols = {3}", userId, assetId, assetType, streamerType, mediaProtocol);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
                     return response;
                 }
             }
@@ -19939,13 +19922,13 @@ namespace ConditionalAccess
             return response;
         }
 
-        public AssetLicensedLink GetAssetLicensedLink(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, DateTime startTime)
+        public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
         {
-            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
             try
             {
                 // TODO: add cache
-                List<MediaFile> files;
+                
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
@@ -19956,13 +19939,8 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                ApiObjects.Response.Status filesStatus = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, null, null, null, new List<long>() { fileId }, out files, true);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, null, null, null, new List<long>() { fileId }, true);
 
-                if (filesStatus.Code != (int)eResponseStatus.OK)
-                {
-                    response.Status = filesStatus;
-                    return response;
-                }
                 if (files == null || files.Count == 0)
                 {
                     return response;
@@ -19970,17 +19948,11 @@ namespace ConditionalAccess
                 
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
-                PlayBackContextResponse playbackContextResponse = GetPlaybackContext(userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
+                PlaybackContextResponse playbackContextResponse = GetPlaybackContext(userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
                     file.Url.Substring(0, file.Url.IndexOf(':')), new List<PlayContextType>() { playContextType }, ip, udid, out price);
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;
-                    return response;
-                }
-
-                if (playbackContextResponse.PlaybackStatuses != null && playbackContextResponse.PlaybackStatuses.Count > 0)
-                {
-                    // TODO: something like that: response.Status = playbackContextResponse.playbackContextResponse.PlaybackStatuses[0];
                     return response;
                 }
 
@@ -19993,7 +19965,7 @@ namespace ConditionalAccess
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
-                        response = GetEpgLicensedLink(userId, program, file, udid, ip, adapterResponse, playContextType, startTime);
+                        response = GetEpgLicensedLink(userId, program, file, udid, ip, adapterResponse, playContextType);
                         break;
                     case eAssetTypes.NPVR:
                             response = GetRecordingLicensedLink(userId, recording, file, udid, ip, adapterResponse);
@@ -20028,9 +20000,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public AssetLicensedLink GetMediaLicensedLink(string userId, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
+        public PlayManifestResponse GetMediaLicensedLink(string userId, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
         {
-            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
             try
             {
@@ -20057,9 +20029,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public AssetLicensedLink GetRecordingLicensedLink(string userId, Recording recording, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
+        public PlayManifestResponse GetRecordingLicensedLink(string userId, Recording recording, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
         {
-            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
             try
             {
@@ -20119,9 +20091,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        public AssetLicensedLink GetEpgLicensedLink(string userId, EPGChannelProgrammeObject program, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context, DateTime startTime)
+        public PlayManifestResponse GetEpgLicensedLink(string userId, EPGChannelProgrammeObject program, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context)
         {
-            AssetLicensedLink response = new AssetLicensedLink() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
             try
             {
@@ -20132,20 +20104,9 @@ namespace ConditionalAccess
                 dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_END, programEndTime);
                 eEPGFormatType formatType = Utils.GetEpgFormatTypeByPlayContextType(context);
                 dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.EPG_FORMAT_TYPE, formatType);
-                switch (formatType)
+                if (formatType == eEPGFormatType.Catchup || formatType == eEPGFormatType.StartOver)
                 {
-                    case eEPGFormatType.Catchup:
-                    case eEPGFormatType.StartOver:
-                        {
-                            dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, programStartTime);
-                        }
-                        break;
-                    case eEPGFormatType.LivePause: // TODO: do we support this?
-                        dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, startTime);
-                        break;
-                    case eEPGFormatType.NPVR:
-                    default:
-                        break;
+                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, programStartTime);
                 }
 
                 // if adapter response is not null and is adapter (has an adapter url) - call the adapter
