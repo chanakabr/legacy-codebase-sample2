@@ -156,6 +156,13 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Service References\Notifications\NotificationService2.disco" />
+    <Content Include="WS_Modules\api.asmx" />
+    <Content Include="WS_Modules\billing.asmx" />
+    <Content Include="WS_Modules\cas.asmx" />
+    <Content Include="WS_Modules\domains.asmx" />
+    <Content Include="WS_Modules\users.asmx" />
+    <Content Include="WS_Modules\social.asmx" />
+    <Content Include="WS_Modules\pricing.asmx" />
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
@@ -1165,6 +1172,34 @@
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
     <Compile Include="Handlers\WsModuleHandler.cs" />
+    <Compile Include="WS_Modules\api.asmx.cs">
+      <DependentUpon>api.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\billing.asmx.cs">
+      <DependentUpon>billing.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\cas.asmx.cs">
+      <DependentUpon>cas.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\domains.asmx.cs">
+      <DependentUpon>domains.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\users.asmx.cs">
+      <DependentUpon>users.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\social.asmx.cs">
+      <DependentUpon>social.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\pricing.asmx.cs">
+      <DependentUpon>pricing.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web References\Social\SocialConfig.datasource">
@@ -1212,6 +1247,10 @@
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
+      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
+      <Name>ScheduledTasks</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>

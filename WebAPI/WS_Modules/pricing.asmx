@@ -1,0 +1,1 @@
+﻿<%@ WebService Language="C#" CodeBehind="pricing.asmx.cs" Class="WS_Pricing.mdoule" %>
