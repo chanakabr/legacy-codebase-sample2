@@ -46,6 +46,7 @@ namespace ApiObjects.Response
         HomeNetworkLimitation = 1032,
         HomeNetworkDoesNotExist = 1033,
         HomeNetworkFrequency = 1034,
+        DlmExist = 1035,
 
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,
@@ -124,8 +125,9 @@ namespace ApiObjects.Response
         RecordingPlaybackNotAllowedForNonExistingEpgChannel = 3050,
         RecordingPlaybackNotAllowedForNotEntitledEpgChannel = 3051,
         SeasonNumberNotMatch = 3052,
-        NoFilesFound = 3053, 
-
+        ServiceAlreadyExists = 3053,
+        NoFilesFound = 3054, 
+        
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,

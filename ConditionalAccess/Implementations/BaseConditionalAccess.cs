@@ -10035,7 +10035,7 @@ namespace ConditionalAccess
                                 {
                                     enableNonEntitled = enableChannelNonEntitled;
                                 }
-
+                                
                                 if (enableCdvr == 1 && IsServiceAllowed(domainId, eService.NPVR))
                                 {                                    
                                     if (enableNonEntitled == 1)
@@ -10125,7 +10125,7 @@ namespace ConditionalAccess
                             {
                                 GetFreeItemLeftLifeCycle(ref strViewLifeCycle, ref strFullLifeCycle);
                             }
-                            else if (Utils.IsItemPurchased(objPrice))
+                            else if (IsItemPurchased(objPrice))
                             // Item is not free and also not user is not suspended
                             {
                                 bool bIsOfflineStatus = false;
@@ -11848,7 +11848,7 @@ namespace ConditionalAccess
                     mediaId = nMediaID;
 
                     // validate prices
-                    if (!IsFreeItem(prices[0]) && !Utils.IsItemPurchased(prices[0]))
+                    if (!IsFreeItem(prices[0]) && !IsItemPurchased(prices[0]))
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice));
                         res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
@@ -11877,7 +11877,7 @@ namespace ConditionalAccess
                         return res;
                     }
 
-                    if (Utils.IsItemPurchased(prices[0]))
+                    if (IsItemPurchased(prices[0]))
                     {
                         HandlePlayUses(prices[0], sSiteGuid, nMediaFileID, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode, domainID);
                     }
@@ -11920,7 +11920,7 @@ namespace ConditionalAccess
                     }
                     else if (!string.IsNullOrEmpty(CdnStrID))
                     {
-                        Dictionary<string, string> licensedLinkParams = Utils.GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
+                        Dictionary<string, string> licensedLinkParams = GetLicensedLinkParamsDict(sSiteGuid, nMediaFileID.ToString(),
                             fileMainUrl, sUserIP, sCountryCode, sLanguageCode, sDeviceName, sCouponCode);
 
                         // TO DO if dynamic call to right provider to get the URL
@@ -12177,6 +12177,48 @@ namespace ConditionalAccess
             return response;
         }
 
+        private Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,
+            string userIP, string countryCode, string langCode,
+            string deviceName, string couponCode)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>(8);
+
+            res.Add(CDNTokenizers.Constants.SITE_GUID, sSiteGuid);
+            res.Add(CDNTokenizers.Constants.MEDIA_FILE_ID, mediaFileIDStr);
+            res.Add(CDNTokenizers.Constants.URL, basicLink);
+            res.Add(CDNTokenizers.Constants.IP, userIP);
+            res.Add(CDNTokenizers.Constants.COUNTRY_CODE, countryCode);
+            res.Add(CDNTokenizers.Constants.LANGUAGE_CODE, langCode);
+            res.Add(CDNTokenizers.Constants.DEVICE_NAME, deviceName);
+            res.Add(CDNTokenizers.Constants.COUPON_CODE, couponCode);
+
+            return res;
+        }
+
+        internal bool IsItemPurchased(MediaFileItemPricesContainer price)
+        {
+            bool res = false;
+            if (price == null || price.m_oItemPrices == null || price.m_oItemPrices.Length == 0)
+            {
+                return res;
+            }
+            PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
+            switch (reason)
+            {
+                case PriceReason.SubscriptionPurchased:
+                case PriceReason.PrePaidPurchased:
+                case PriceReason.CollectionPurchased:
+                case PriceReason.PPVPurchased:
+                    res = price.m_oItemPrices[0].m_oPrice.m_dPrice == 0d;
+                    break;
+                default:
+                    break;
+
+            }
+
+            return res;
+        }
+
         private bool IsAlterBasicLink(string sBasicLink, int nMediaFileID)
         {
             return sBasicLink.Contains(string.Format("||{0}", nMediaFileID));
@@ -12256,7 +12298,39 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
-        
+        public ConditionalAccess.Response.DomainServicesResponse GetDomainServices(int domainID)
+        {
+            DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);
+            PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
+
+            if (domainSubscriptions != null)
+            {
+                List<long> subscriptionIDs = domainSubscriptions.Select(s => long.Parse(s.m_sSubscriptionCode)).ToList();
+                DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(m_nGroupID, subscriptionIDs);
+                if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
+                {
+                    HashSet<int> uniqueIds = new HashSet<int>();
+
+                    foreach (DataRow row in subscriptionServices.Rows)
+                    {
+                        int serviceId = ODBCWrapper.Utils.ExtractInteger(row, "service_id");
+
+                        if (!uniqueIds.Contains(serviceId))
+                        {
+                            domainServicesResponse.Services.Add(new ServiceObject()
+                            {
+                                ID = serviceId,
+                                Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
+                            });
+
+                            uniqueIds.Add(serviceId);
+                        }
+                    }
+                }
+            }
+
+            return domainServicesResponse;
+        }
 
         protected void UpdateDLM(long domainID, int dlm)
         {
@@ -12291,6 +12365,26 @@ namespace ConditionalAccess
                     #endregion
                 }
             }
+        }
+
+        protected bool IsServiceAllowed(int domainID, eService service)
+        {
+            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(m_nGroupID);
+            //check if service is part of the group enforced services
+            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
+            {
+                return true;
+            }
+
+            // check if the service is allowed for the domain
+            ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(domainID);
+            if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 &&
+                allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         protected eService GetServiceByEPGFormat(eEPGFormatType eformat)
@@ -13936,7 +14030,7 @@ namespace ConditionalAccess
 
 
         public ApiObjects.Response.Status GrantEntitlements(string siteguid, long householdId, int contentId, int productId, eTransactionType transactionType, string userIp,
-            string deviceName, bool history, bool isGrant = true, DateTime? endDate = null)
+            string deviceName, bool history)
         {
             ApiObjects.Response.Status status = null;
             // log request
@@ -13986,7 +14080,7 @@ namespace ConditionalAccess
                         status = GrantPPV(siteguid, householdId, contentId, productId, userIp, deviceName, history);
                         break;
                     case eTransactionType.Subscription:
-                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1, null, endDate, isGrant);
+                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1);
                         break;
                     case eTransactionType.Collection:
                         status = GrantCollection(siteguid, householdId, productId, userIp, deviceName, history);
@@ -14267,6 +14361,19 @@ namespace ConditionalAccess
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                     return status;
                 }
+
+                //validate that user have no DLM or Quota - FOR GRANT ONLY 
+                if (isGrant)
+                {
+                    status = CheckSubscriptionOverlap(subscription, siteguid);
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
+                        return status;
+                    }                   
+                }
+
+
                 // price is validated, create custom data
                 string customData = GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                  string.Empty, userIp, country, string.Empty, deviceName, string.Empty,
@@ -14332,18 +14439,16 @@ namespace ConditionalAccess
                         INPVRProvider npvr;
                         if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
                         {
-                            if (npvr != null)
+
+                            NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
+                            NPVRUserActionResponse resp;
+                            if (isGrant)
                             {
-                                NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
-                                NPVRUserActionResponse resp;
-                                if (isGrant)
-                                {
-                                    resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                                }
-                                else
-                                {
-                                    resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                                }
+                                resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                            }
+                            else
+                            {
+                                resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
                             }
                         }
                     }
@@ -17047,7 +17152,7 @@ namespace ConditionalAccess
                     {
                         foreach (MediaFileItemPricesContainer price in prices)
                         {
-                            if (IsFreeItem(price) || Utils.IsItemPurchased(price))
+                            if (IsFreeItem(price) || IsItemPurchased(price))
                             {
                                 foreach (long epgId in fileIdsToEpgsMap[price.m_nMediaFileID])
                                 {
@@ -19192,10 +19297,29 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                Recording recording = null;
-                response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, domainRecordingId, recording);
-                if (response.Status.Code != (int)eResponseStatus.OK)
+                // get device brand ID - and make sure the device is in the domain
+                if (!Utils.IsDeviceInDomain(domain, udid))
                 {
+                    log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, udid = {4}",
+                        m_nGroupID, userId, domainId, domainRecordingId, udid);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in the user's domain");
+                    return response;
+                }
+
+                // validate recording
+                Recording recording;
+                var domainRecordings = Utils.GetDomainRecordingIdsToRecordingsMap(m_nGroupID, domainId, new List<long>() { domainRecordingId });
+                if (domainRecordings == null || domainRecordings.Count == 0 || (recording = domainRecordings[domainRecordingId]) == null)
+                {
+                    log.ErrorFormat("Recording does not exist. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}", m_nGroupID, userId, domainId, domainRecordingId);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording was not found");
+                    return response;
+                }
+                if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
+                {
+                    log.ErrorFormat("Recording status is not valid for playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, recording = {4}, recordingStatus = {5}",
+                        m_nGroupID, userId, domainId, domainRecordingId, recording.Id, recording.RecordingStatus);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Recording status is not valid");
                     return response;
                 }
 
@@ -19243,8 +19367,8 @@ namespace ConditionalAccess
                         return response;
                     }
 
-                    price = prices[0];
-                    isItemPurchased = Utils.IsItemPurchased(price);                    
+                    price = prices[0];                       
+                    isItemPurchased = IsItemPurchased(price);                    
                     if (!isItemPurchased && !IsFreeItem(price))
                     {
                         log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
@@ -19582,7 +19706,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status SwapSubscription(string sSiteGuid, int oldSubscriptionCode, int newSubscriptionCode, string userIp, string deviceName, bool history)
+        public ApiObjects.Response.Status SwapSubscription(string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             try
@@ -19591,117 +19715,121 @@ namespace ConditionalAccess
                 DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
                 int domainID = 0;
 
-                if (!Utils.IsUserValid(sSiteGuid, m_nGroupID, ref domainID, ref suspendStatus))
+                if (!Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref suspendStatus))
                 {
-                    log.Debug("SwapSubscription - User with siteGuid: " + sSiteGuid + " does not exist. Subscription was not changed");
+                    log.Debug("SwapSubscription - User with siteGuid: " + userId + " does not exist. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, eResponseStatus.UserDoesNotExist.ToString());
                     return response;
                 }
 
                 if (suspendStatus == DomainSuspentionStatus.Suspended)
                 {
-                    log.Debug("SwapSubscription - User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed");
+                    log.Debug("SwapSubscription - User with siteGuid: " + userId + " Suspended. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, eResponseStatus.UserSuspended.ToString());
                     return response;
                 }
 
-                PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(sSiteGuid);//get all the valid subscriptions that this user has
+                PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(userId);//get all the valid subscriptions that this user has
                 Subscription userSubNew = null;
                 PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
-                List<PermittedSubscriptionContainer> userOldSubList = new List<PermittedSubscriptionContainer>();
                 //check if old sub exists
                 if (userSubsArray != null)
                 {
-                    userOldSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == oldSubscriptionCode.ToString()).ToList();
-                }
-                if (userOldSubList == null || userOldSubList.Count == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, oldSubscriptionCode));
-                    return response;
-                }
-                else
-                {
-                    if (userOldSubList.Count > 0 && userOldSubList[0] != null)
+                    userSubOld = userSubsArray.Where(x => x.m_sSubscriptionCode == oldSubscriptionCode.ToString()).FirstOrDefault();
+                    if (userSubOld == null)
                     {
-                        userSubOld = userOldSubList[0];
-                        //check if the Subscription has autorenewal  
-                        if (!userSubOld.m_bRecurringStatus)
-                        {
-                            log.Debug("SwapSubscription - Previous Subscription ID: " + oldSubscriptionCode + " is not renewable. Subscription was not changed");
-                            response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, oldSubscriptionCode));
-                            return response;
-                        }
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, oldSubscriptionCode));
+                        return response;
                     }
+                }
+                //check if the Subscription has autorenewal  
+                if (!userSubOld.m_bRecurringStatus)
+                {
+                    log.Debug("SwapSubscription - Previous Subscription ID: " + oldSubscriptionCode + " is not renewable. Subscription was not changed");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, oldSubscriptionCode));
+                    return response;
                 }
 
                 //check if new subscsription already exists for this user
-                List<PermittedSubscriptionContainer> userNewSubList = userSubsArray.Where(x => x.m_sSubscriptionCode == newSubscriptionCode.ToString()).ToList();
-                if (userNewSubList != null && userNewSubList.Count > 0 && userNewSubList[0] != null)
+                PermittedSubscriptionContainer userNewSub = userSubsArray.Where(x => x.m_sSubscriptionCode == newSubscriptionCode.ToString()).FirstOrDefault();
+                if (userNewSub != null)
                 {
                     log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " is already attached to this user. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, string.Format(ERROR_SUBSCRIPTION_ALREADY_PURCHASED, newSubscriptionCode));
                     return response;
                 }
-                string pricingUsername = string.Empty, pricingPassword = string.Empty;
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
 
-                Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(new List<int>(1) { newSubscriptionCode }, pricingUsername, pricingPassword, m_nGroupID);
-                if (subs != null && subs.Length > 0)
+                Subscription s = null;
+                string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                using (mdoule m = new mdoule())
                 {
-                    userSubNew = subs[0];
-                }
-                //set new subscprion
-                if (userSubNew != null && userSubNew.m_SubscriptionCode != null)
-                {
-                    if (!userSubNew.m_bIsRecurring)
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+                    s = m.GetSubscriptionData(pricingUsername, pricingPassword, newSubscriptionCode.ToString(), string.Empty, string.Empty, string.Empty, false);
+                    if (s == null || string.IsNullOrEmpty(s.m_SubscriptionCode))
                     {
-                        log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " is not renewable. Subscription was not changed");
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, newSubscriptionCode));
+                        log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " was not found. Subscription was not changed");
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, newSubscriptionCode));
                         return response;
                     }
-
-                    response =  SetSubscriptionSwap(sSiteGuid, domainID, userSubNew, userSubOld, userIp, deviceName, history);                    
+                    userSubNew = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(s));
                 }
-                else
+                if (!userSubNew.m_bIsRecurring)
                 {
-                    log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " was not found. Subscription was not changed");
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Format(ERROR_SUBSCRIPTION_NOT_EXSITS, newSubscriptionCode));
+                    log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " is not renewable. Subscription was not changed");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, string.Format(ERROR_SUBSCRIPTION_NOT_RENEWABLE, newSubscriptionCode));
                     return response;
                 }
+
+                // check overlapping DLM or Quota in any of subscriptions (except old one)
+                List<string> subCodes = userSubsArray.Where(x => x.m_sSubscriptionCode != oldSubscriptionCode.ToString()).Select(y=>y.m_sSubscriptionCode).ToList();
+
+                if (subCodes.Count > 0)
+                {
+                    response = CheckSubscriptionOverlap(userSubNew, userId, subCodes);
+
+                    if (response.Code != (int)eResponseStatus.OK)
+                    {
+                        log.Debug("SwapSubscription - CheckExistsDlmAndQuota: fail" + response.Message);
+                        return response;
+                    }
+                }
+                //set new subscprion
+                response = SetSubscriptionSwap(userId, domainID, userSubNew, userSubOld, ip, udid, history);
             }
             catch (Exception exc)
             {
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at SwapSubscription. ");
                 sb.Append(String.Concat(" Ex Msg: ", exc.Message));
-                sb.Append(String.Concat(" Site Guid: ", sSiteGuid));
+                sb.Append(String.Concat(" Site Guid: ", userId));
                 sb.Append(String.Concat(" New Sub: ", newSubscriptionCode));
                 sb.Append(String.Concat(" Old Sub: ", oldSubscriptionCode));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", exc.GetType().Name));
                 sb.Append(String.Concat(" ST: ", exc.StackTrace));
                 log.Error("Exception - " + sb.ToString(), exc);
-                #endregion               
+                #endregion
             } 
             return response;
         }
 
         //the new subscription is 
         //the previous  subscription is cancled and its end date is set to 'now' with new status 
-        private ApiObjects.Response.Status SetSubscriptionSwap(string siteGuid, int houseHoldID, Subscription newSubscription, PermittedSubscriptionContainer oldSubscription, string userIp, string deviceName, bool history)
+        private ApiObjects.Response.Status SetSubscriptionSwap(string userId, int houseHoldID, Subscription newSubscription, PermittedSubscriptionContainer oldSubscription, string userIp, string deviceName, bool history)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
                 // update old subscription with end_date = now                
-                bool result = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(siteGuid, int.Parse(oldSubscription.m_sSubscriptionCode), houseHoldID, (int)SubscriptionPurchaseStatus.Switched);
+                bool result = DAL.ConditionalAccessDAL.CancelSubscriptionPurchaseTransaction(userId, int.Parse(oldSubscription.m_sSubscriptionCode), houseHoldID, (int)SubscriptionPurchaseStatus.Switched);
                 if (!result)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "CancelSubscriptionPurchaseTransaction fail");
                     return response;
                 }
+
+                ApiObjects.Response.Status status = GrantSubscription(userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, false);
                
-                ApiObjects.Response.Status status = GrantEntitlements(siteGuid, houseHoldID, 0, int.Parse(newSubscription.m_SubscriptionCode), eTransactionType.Subscription, userIp, deviceName, history, false, oldSubscription.m_dEndDate);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GrantEntitlements fail");
@@ -19713,7 +19841,7 @@ namespace ConditionalAccess
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception in SetSubscriptionSwap. ");
                 sb.Append(String.Concat("Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", siteGuid));
+                sb.Append(String.Concat(" Site Guid: ", userId));
                 sb.Append(String.Concat(" Stack Trace: ", ex.StackTrace));
                 log.Error("SetSubscriptionSwap - " + sb.ToString(), ex);
                 #endregion
@@ -19722,6 +19850,81 @@ namespace ConditionalAccess
            
             response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); 
             return response;
+        }
+
+        private ApiObjects.Response.Status CheckSubscriptionOverlap(Subscription subscription, string userId, List<string> SubCodes = null)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                List<Subscription> permittedSubscriptions = null;
+
+                bool npvrCheck = false;
+                bool dlmCheck = subscription.m_nDomainLimitationModule > 0 ? true : false;
+
+                // if subscription for grant contain DLM \ Quota ==> than check overlapping  DLM or Quota in any of subscriptions  in permitted subscription 
+                if (subscription.m_lServices != null && subscription.m_lServices.Select(x => x.ID == (long)eService.NPVR).Count() > 0)
+                {
+                    npvrCheck = true;
+                }
+
+                if (!npvrCheck && !dlmCheck)
+                {
+                    return status;
+                }
+
+                // need to check other subscriptions 
+                //get all permitted subscription (if didn't get) 
+                if (SubCodes == null || SubCodes.Count == 0)
+                {
+                    PermittedSubscriptionContainer[] userSubsArray = GetUserPermittedSubscriptions(userId);
+                    if (userSubsArray == null || userSubsArray.Count() == 0)
+                    {
+                        return status;
+                    }
+                    SubCodes = userSubsArray.Select(x => x.m_sSubscriptionCode).ToList();
+
+                    if (SubCodes == null && SubCodes.Count == 0)
+                    {
+                        return status;
+                    }
+                }          
+
+                string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                using (mdoule m = new mdoule())
+                {
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+
+                    SubscriptionsResponse subscriptionsResponse = m.GetSubscriptions(pricingUsername, pricingPassword, SubCodes.ToArray(), string.Empty, string.Empty, string.Empty);
+                    if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions != null && subscriptionsResponse.Subscriptions.Count() > 0)
+                    {
+                        permittedSubscriptions = subscriptionsResponse.Subscriptions.ToList();
+                    }
+                }
+
+                if (npvrCheck)
+                {
+                    if (permittedSubscriptions.Select(x => x.m_lServices != null && x.m_lServices.Select(y => y.ID == (long)eService.NPVR).Count() > 0 ).Count() > 0)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceAlreadyExists, eResponseStatus.ServiceAlreadyExists.ToString());
+                        return status;
+                    }
+                }
+
+                if (dlmCheck)
+                {
+                    if (permittedSubscriptions.Select(x => x.m_nDomainLimitationModule > 0).Count() > 0)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.DlmExist, eResponseStatus.DlmExist.ToString());
+                        return status;
+                    }
+                }
+            }
+            catch
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return status;
         }
 
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
@@ -19848,60 +20051,6 @@ namespace ConditionalAccess
             return response;
         }
 
-        public bool IsServiceAllowed(int domainID, eService service)
-        {
-            List<int> enforcedGroupServices = Utils.GetGroupEnforcedServices(m_nGroupID);
-            //check if service is part of the group enforced services
-            if (enforcedGroupServices == null || enforcedGroupServices.Count == 0 || !enforcedGroupServices.Contains((int)service))
-            {
-                return true;
-            }
-
-            // check if the service is allowed for the domain
-            ConditionalAccess.Response.DomainServicesResponse allowedDomainServicesRes = GetDomainServices(domainID);
-            if (allowedDomainServicesRes != null && allowedDomainServicesRes.Status.Code == 0 &&
-                allowedDomainServicesRes.Services != null && allowedDomainServicesRes.Services.Count > 0 && allowedDomainServicesRes.Services.Where(s => s.ID == (int)service).FirstOrDefault() != null)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public ConditionalAccess.Response.DomainServicesResponse GetDomainServices(int domainID)
-        {
-            DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);
-            PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
-
-            if (domainSubscriptions != null)
-            {
-                List<long> subscriptionIDs = domainSubscriptions.Select(s => long.Parse(s.m_sSubscriptionCode)).ToList();
-                DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(m_nGroupID, subscriptionIDs);
-                if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
-                {
-                    HashSet<int> uniqueIds = new HashSet<int>();
-
-                    foreach (DataRow row in subscriptionServices.Rows)
-                    {
-                        int serviceId = ODBCWrapper.Utils.ExtractInteger(row, "service_id");
-
-                        if (!uniqueIds.Contains(serviceId))
-                        {
-                            domainServicesResponse.Services.Add(new ServiceObject()
-                            {
-                                ID = serviceId,
-                                Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
-                            });
-
-                            uniqueIds.Add(serviceId);
-                        }
-                    }
-                }
-            }
-
-            return domainServicesResponse;
-        }
-
         public List<PlayContextType> FilterNotAllowedServices(long domainId, List<PlayContextType> contexts)
         {
             List<PlayContextType> response = new List<PlayContextType>();
@@ -19928,7 +20077,7 @@ namespace ConditionalAccess
             try
             {
                 // TODO: add cache
-                
+
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
@@ -19945,7 +20094,7 @@ namespace ConditionalAccess
                 {
                     return response;
                 }
-                
+
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
@@ -19959,7 +20108,7 @@ namespace ConditionalAccess
                 // get adapter
                 bool isDefaultAdapter = false;
                 CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(m_nGroupID, file.CdnId, assetType, ref isDefaultAdapter);
-                
+
                 int assetIdInt = int.Parse(assetId);
 
                 switch (assetType)
@@ -19968,10 +20117,10 @@ namespace ConditionalAccess
                         response = GetEpgLicensedLink(userId, program, file, udid, ip, adapterResponse, playContextType);
                         break;
                     case eAssetTypes.NPVR:
-                            response = GetRecordingLicensedLink(userId, recording, file, udid, ip, adapterResponse);
+                        response = GetRecordingLicensedLink(userId, recording, file, udid, ip, adapterResponse);
                         break;
                     case eAssetTypes.MEDIA:
-                            response = GetMediaLicensedLink(userId, file, udid, ip, adapterResponse);
+                        response = GetMediaLicensedLink(userId, file, udid, ip, adapterResponse);
                         break;
                     default:
                         break;
@@ -19980,7 +20129,7 @@ namespace ConditionalAccess
                 // get domain ID
                 int domainId = 0;
                 DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
-                Utils.IsUserValid(userId, m_nGroupID, ref domainId, ref domainStatus); 
+                Utils.IsUserValid(userId, m_nGroupID, ref domainId, ref domainStatus);
 
                 if (response.Status.Code == (int)eResponseStatus.OK)
                 {
