@@ -1986,7 +1986,7 @@ namespace WebAPI.Clients
         internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext kalturaPlaybackContext = null;
-            PlayBackContextResponse response = null;
+            PlaybackContextResponse response = null;
 
             Group group = GroupsManager.GetGroup(groupId);
 
@@ -2018,13 +2018,14 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Status.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)eResponseStatus.OK || response.Status.Code != (int)eResponseStatus.ServiceNotAllowed || 
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel || response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation || 
+                response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation || response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed || response.Status.Code != (int)eResponseStatus.NoFilesFound)
             {
-                // internal web service exception
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response.Files);
+            kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
 
             if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
             {
@@ -2054,9 +2055,9 @@ namespace WebAPI.Clients
             return kalturaPlaybackContext;
         }
 
-        internal string GetAssetLicensedLink(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaContextType contextType, long seekFrom)
+        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaContextType contextType)
         {
-            AssetLicensedLink response = null;
+            PlayManifestResponse response = null;
 
             // get group ID
             Group group = GroupsManager.GetGroup(groupId);
@@ -2065,8 +2066,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetAssetLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId, ApiMappings.ConvertAssetType(assetType),
-                        assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType), Utils.SerializationUtils.ConvertFromUnixTimestamp(seekFrom));
+                    response = ConditionalAccess.GetPlayManifest(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId, ApiMappings.ConvertAssetType(assetType),
+                        assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType));
                 }
             }
             catch (Exception ex)

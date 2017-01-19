@@ -850,6 +850,10 @@ namespace WebAPI.Controllers
         [Route("getPlaybackContext"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
         public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext response = null;

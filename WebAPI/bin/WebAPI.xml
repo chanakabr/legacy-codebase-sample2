@@ -293,12 +293,11 @@
             <param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
              <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.GetPlayManifest(System.Int32)">
+        <member name="M:WebAPI.Controllers.AssetFileController.GetPlayManifestWrapper(System.Int32,System.String,System.String,System.Nullable{WebAPI.Models.Catalog.KalturaAssetType},System.Int64,System.Nullable{WebAPI.Models.ConditionalAccess.KalturaContextType})">
             <summary>
             Redirects to play manifest
             </summary>
             <remarks></remarks>
-            assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
         </member>
         <member name="M:WebAPI.Controllers.AssetStatisticsController.Query(WebAPI.Models.Catalog.KalturaAssetStatisticsQuery)">
             <summary>
@@ -828,116 +827,6 @@
             Code
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
-            <summary>
-            Protocol of the specific media object.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
-            <summary>
-            Playback streamer type: RTMP, HTTP, appleHttps, rtsp, sl.
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaFileIds">
-            <summary>
-            List of comma separated media file IDs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Contexts">
-            <summary>
-            List of comma separated context types
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
-            <summary>
-            Media file details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AssetId">
-            <summary>
-            Unique identifier for the asset
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Id">
-            <summary>
-            File unique identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
-            <summary>
-            Device types as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
-            <summary>
-            URL of the media file to be played
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
-            <summary>
-            Duration of the media file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
-            <summary>
-            External identifier for the media file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
-            <summary>
-            Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Protocols">
-            <summary>
-            Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.DRM">
-            <summary>
-            DRM data object containing relevant license URL ,scheme name and certificate
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">
-            <summary>
-            Scheme
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.LicenseURL">
-            <summary>
-            License URL
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.CustomDateString">
-            <summary>
-            Custom data string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Signature">
-            <summary>
-            Signature string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
-            <summary>
-            Custom data string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">
-            <summary>
-            Sources
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Actions">
-            <summary>
-            Actions
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
-            <summary>
-            
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
             <summary>
             Entitlement
@@ -1041,6 +930,116 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
             <summary>
             Indicates whether the user is currently in his grace period entitlement (only for subscription)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">
+            <summary>
+            Scheme
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.LicenseURL">
+            <summary>
+            License URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.CustomDateString">
+            <summary>
+            Custom data string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Signature">
+            <summary>
+            Signature string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
+            <summary>
+            Custom data string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">
+            <summary>
+            Sources
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Actions">
+            <summary>
+            Actions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
+            <summary>
+            Protocol of the specific media object.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
+            <summary>
+            Playback streamer type: RTMP, HTTP, appleHttps, rtsp, sl.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaFileIds">
+            <summary>
+            List of comma separated media file IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Contexts">
+            <summary>
+            List of comma separated context types
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
+            <summary>
+            Media file details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AssetId">
+            <summary>
+            Unique identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Id">
+            <summary>
+            File unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
+            <summary>
+            Device types as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
+            <summary>
+            URL of the media file to be played
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
+            <summary>
+            Duration of the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
+            <summary>
+            External identifier for the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
+            <summary>
+            Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Protocols">
+            <summary>
+            Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.DRM">
+            <summary>
+            DRM data object containing relevant license URL ,scheme name and certificate
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">

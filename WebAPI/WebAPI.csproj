@@ -627,6 +627,7 @@
     </Compile>
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
+    <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
@@ -639,13 +640,13 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPpvEntitlement.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRuleAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionEntitlement.cs" />

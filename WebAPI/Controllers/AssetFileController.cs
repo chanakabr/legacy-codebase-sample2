@@ -66,14 +66,57 @@ namespace WebAPI.Controllers
         /// Redirects to play manifest
         /// </summary>
         /// <remarks></remarks>
-        /// assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
-        [Route("p/{partnerId}/playManifest"), HttpPost, HttpGet]
+        // assetId/{assetId}/assetType/{assetType}/assetFileId/{assetFileId}/ks/{ks}/seekFrom/{seekFrom}
+        [Route("p/{partnerId}/playManifest/{*pathData}"), HttpPost, HttpGet]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        public bool GetPlayManifest(int partnerId, string assetId, KalturaAssetType assetType, long assetFileId, string ks, long seekFrom, KalturaContextType contextType)
+        [SchemeArgument("partnerId", MinInteger = 1)]
+        [SchemeArgument("assetFileId", MinInteger = 1)]
+        [FailureHttpCode]
+        public async Task<object> GetPlayManifestWrapper(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaContextType? contextType = null)
         {
-            if (partnerId == 0)
+            MethodInfo methodInfo = null;
+            ApiController classInstance = null;
+            object response = null;
+
+            ServiceController.CreateMethodInvoker("AssetFile", "GetPlayManifest", out methodInfo, out classInstance);
+
+            try
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "partnerId");
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.Filters.RequestParser.REQUEST_METHOD_PARAMETERS];
+                response = methodInfo.Invoke(classInstance, methodParams.ToArray());
+            }
+            catch (ApiException ex)
+            {
+                ApiException apiEx = new ApiException(ex, System.Net.HttpStatusCode.InternalServerError);
+                throw apiEx;
+            }
+            catch (TargetParameterCountException ex)
+            {
+                ApiException apiEx = new ApiException(new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS), System.Net.HttpStatusCode.InternalServerError);
+                throw apiEx;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to perform action", ex);
+
+                if (ex.InnerException is ApiException)
+                {
+                    ApiException apiEx = new ApiException((ApiException)ex.InnerException, System.Net.HttpStatusCode.InternalServerError);
+                    throw apiEx;
+                }
+
+                ApiException generalErrorEx = new ApiException(ex, System.Net.HttpStatusCode.InternalServerError);
+                throw generalErrorEx;
+            }
+
+            return response;
+        }
+
+        public bool GetPlayManifest(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaContextType? contextType = null)
+        {
+            if (string.IsNullOrEmpty(ks))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ks");
             }
 
             if (string.IsNullOrEmpty(assetId))
@@ -81,20 +124,16 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
             }
 
-            if (assetType == null)
+            if (!assetType.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetType");
             }
 
-            if (assetFileId == 0)
+            if (!contextType.HasValue)
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetFileId");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "contextType");
             }
 
-            if (assetType == KalturaAssetType.epg && seekFrom == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "seekFrom");
-            }
 
             KS ksObject = KS.ParseKS(ks);
 
@@ -115,7 +154,7 @@ namespace WebAPI.Controllers
                 string userId = ksObject.UserId;
                 string udid = KSUtils.ExtractKSPayload(ksObject).UDID;
 
-                response = ClientsManager.ConditionalAccessClient().GetAssetLicensedLink(partnerId, userId, assetId, assetType, assetFileId, udid, contextType, seekFrom);
+                response = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType.Value, assetFileId, udid, contextType.Value);
 
                 if (response != null)
                 {

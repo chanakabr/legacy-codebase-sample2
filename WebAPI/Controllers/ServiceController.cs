@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out ApiController classInstance)
+        public static void CreateMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out ApiController classInstance)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
             ApiController classInstance = null;
             object response = null;
 
-            createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
+            CreateMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             try
             {                

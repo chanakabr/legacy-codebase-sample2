@@ -310,6 +310,8 @@ namespace WebAPI.Exceptions
         [JsonProperty("message")]
         [XmlElement(ElementName = "message")]
         new public string Message { get; set; }
+
+        private HttpStatusCode FailureHttpCode;
         
         public class ExceptionType
         {
@@ -372,6 +374,7 @@ namespace WebAPI.Exceptions
             }
             public int code { get; set; }
             public HttpError error { get; set; }
+            public HttpStatusCode failureHttpCode { get; set; }
         }
 
         public ApiException()
@@ -384,6 +387,24 @@ namespace WebAPI.Exceptions
         {
         }
 
+        public ApiException(ClientException ex, HttpStatusCode httpStatusCode)
+            : this(ex.Code, ex.ExceptionMessage, httpStatusCode)
+        {
+            FailureHttpCode = httpStatusCode;
+        }
+
+        public ApiException(ApiException ex, HttpStatusCode httpStatusCode)
+            : this(ex.Code, ex.Message, httpStatusCode)
+        {
+            FailureHttpCode = httpStatusCode;
+        }
+
+        public ApiException(Exception ex, HttpStatusCode httpStatusCode)
+            : this((int)eResponseStatus.Error, eResponseStatus.Error.ToString(), httpStatusCode)
+        {
+            FailureHttpCode = httpStatusCode;
+        }
+
         protected ApiException(ApiException ex)
             : this(ex.Code, ex.Message)
         {
@@ -394,14 +415,15 @@ namespace WebAPI.Exceptions
         {
         }
 
-        private ApiException(int code, string message)
+        private ApiException(int code, string message, HttpStatusCode httpStatusCode = HttpStatusCode.OK)
             : base(new HttpResponseMessage()
             {
                 StatusCode = HttpStatusCode.OK,
                 Content = new ObjectContent(typeof(ExceptionPayload), new ExceptionPayload()
                 {
                     error = new HttpError(new Exception(message), true),
-                    code = code
+                    code = code,
+                    failureHttpCode = httpStatusCode
                 },
                 new JsonMediaTypeFormatter())
             })

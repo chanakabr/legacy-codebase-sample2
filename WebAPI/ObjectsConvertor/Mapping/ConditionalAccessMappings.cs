@@ -357,6 +357,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.Url) ? src.Url.ToLower().StartsWith("https") ? "https" : "http" : string.Empty));
+
+            Mapper.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
+              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))
+              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Status));
+
+            Mapper.CreateMap<ApiObjects.Response.Status, KalturaAccessControlMessage>()
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => ((ApiObjects.Response.eResponseStatus)src.Code).ToString()))
+              .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
         }
 
         private static int? GetNullableInt(int p)
