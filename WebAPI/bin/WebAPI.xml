@@ -911,6 +911,31 @@
             Indicates whether the user is currently in his grace period entitlement (only for subscription)
             </summary>
         </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService">
+            <summary>
+            Npvr Premium Service
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
+            <summary>
+            Premium service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
+            <summary>
+            Service identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
+            <summary>
+            Service name / description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService.QuotaInMinutes">
+            <summary>
+            Quota in minutes
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
             <summary>
             KalturaPpvEntitlement
@@ -3125,7 +3150,7 @@
              <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
              <remarks>Possible status codes: 
              UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
-            ,User not in household = 1005, Not for purchase = 3025
+            ,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
              </remarks>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
@@ -4753,21 +4778,6 @@
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
             <summary>
             Houshold premium service
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
-            <summary>
-            Premium service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
-            <summary>
-            Service identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
-            <summary>
-            Service name / description
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">

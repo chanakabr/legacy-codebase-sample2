@@ -471,7 +471,7 @@ namespace WebAPI.Controllers
         /// <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
         /// <remarks>Possible status codes: 
         /// UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
-        ///,User not in household = 1005, Not for purchase = 3025
+        ///,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
         /// </remarks>
         [Route("swap"), HttpPost]
         [ApiAuthorize]       

@@ -639,6 +639,7 @@
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPpvEntitlement.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionEntitlement.cs" />
     <Compile Include="Models\DMS\KalturaConfigurations.cs" />
