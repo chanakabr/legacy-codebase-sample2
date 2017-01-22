@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
@@ -34,6 +35,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "mediaFileIds")]
         [JsonProperty("mediaFileIds")]
         [XmlElement(ElementName = "mediaFileIds")]
+        [SchemeProperty(DynamicMinInt = 1)]
         public string MediaFileIds { get; set; }
 
         /// <summary>
@@ -42,6 +44,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "contexts")]
         [JsonProperty("contexts")]
         [XmlElement(ElementName = "contexts")]
+        [SchemeProperty(DynamicType = typeof(KalturaContextType))]
         public string Contexts { get; set; }
 
 
@@ -53,15 +56,8 @@ namespace WebAPI.Models.ConditionalAccess
                 string[] stringValues = MediaFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
-                    long value;
-                    if (long.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPlaybackContextOptions.mediaFileIds");
-                    }
+                    long value = long.Parse(stringValue);
+                    list.Add(value);
                 }
             }
 
@@ -76,15 +72,8 @@ namespace WebAPI.Models.ConditionalAccess
                 string[] stringValues = MediaFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
-                    KalturaContextType value;
-                    if (Enum.TryParse(stringValue, out value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPlaybackContextOptions.contexts");
-                    }
+                    KalturaContextType value = (KalturaContextType)Enum.Parse(typeof(KalturaContextType), stringValue);
+                    list.Add(value);
                 }
             }
 

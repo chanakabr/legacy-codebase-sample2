@@ -1125,47 +1125,7 @@ namespace WebAPI.Filters
 
         private static void parseKS(string ksVal)
         {
-            StringBuilder sb = new StringBuilder(ksVal);
-            sb = sb.Replace("-", "+");
-            sb = sb.Replace("_", "/");
-
-            int groupId = 0;
-            byte[] encryptedData = null;
-            string encryptedDataStr = null;
-            string[] ksParts = null;
-
-            try
-            {
-                encryptedData = System.Convert.FromBase64String(sb.ToString());
-                encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-                ksParts = encryptedDataStr.Split('|');
-            }
-            catch (Exception)
-            {
-                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
-            }
-
-            if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
-            {
-                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
-            }
-
-            Group group = null;
-            try
-            {
-                // get group secret
-                group = GroupsManager.GetGroup(groupId);
-            }
-            catch (ApiException ex)
-            {
-                throw new RequestParserException(ex);
-            }
-
-            string adminSecret = group.UserSecret;
-
-            // build KS
-            KS ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ksVal, KS.KSVersion.V2);
-
+            KS ks = KS.ParseKS(ksVal);
             ks.SaveOnRequest();
         }
 
