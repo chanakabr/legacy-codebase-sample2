@@ -837,9 +837,9 @@ namespace ApiObjects
 
     public enum StreamerType
     {
-        applehttp, 
-        mpegdash,
-        url,
+        applehttp = 0, 
+        mpegdash = 1,
+        url = 2,
     }
 
     public enum eService

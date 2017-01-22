@@ -3943,7 +3943,6 @@ namespace DAL
             {
                 files = new List<MediaFile>();
                 MediaFile file;
-                StreamerType streamerType;
                 foreach (DataRow dr in dt.Rows)
                 {
                     file = new MediaFile()
@@ -3954,13 +3953,9 @@ namespace DAL
                         Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), // TODO: get the type
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                        StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
                         MediaId = mediaId,
                     };
-                    
-                    if (Enum.TryParse(ODBCWrapper.Utils.GetSafeStr(dr, "streamer_type"), out streamerType))
-                    {
-                        file.StreamerType = streamerType;
-                    }
 
                     files.Add(file);
                 }
