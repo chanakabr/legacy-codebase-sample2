@@ -361,6 +361,19 @@ public partial class adm_my_group : System.Web.UI.Page
         drFacebookRedirect.Initialize("Facebook redirect", "adm_table_header_nbg", "FormInput", "fb_redirect", false);
         theRecord.AddRecord(drFacebookRedirect);
 
+        //Npvr filed - provider + quota
+        DataRecordDropDownField dr_npvr_provider = new DataRecordDropDownField("lu_npvr_providers", "NAME", "id", "", null, 60, true);
+        sQuery = "select name as txt,id as id from lu_npvr_providers where status=1 and is_active = 1";
+        dr_npvr_provider.SetSelectsQuery(sQuery);
+        dr_npvr_provider.Initialize("NPVR Provider", "adm_table_header_nbg", "FormInput", "npvr_provider_id", false);
+        string deafultNpvr = "NO NPVR";
+        dr_npvr_provider.SetDefaultVal(deafultNpvr);
+        theRecord.AddRecord(dr_npvr_provider);
+
+        DataRecordShortIntField dr_npvr_quota = new DataRecordShortIntField(true, 30, 128);
+        dr_npvr_quota.Initialize("NPVR Quota", "adm_table_header_nbg", "FormInput", "npvr_quota_in_seconds", false);
+        theRecord.AddRecord(dr_npvr_quota);
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
