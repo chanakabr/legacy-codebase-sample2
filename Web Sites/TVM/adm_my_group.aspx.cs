@@ -337,6 +337,30 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_enable_comment_automatically.SetDefault(1);
         theRecord.AddRecord(dr_enable_comment_automatically);
 
+        DataRecordShortTextField drFacebookAppId = new DataRecordShortTextField("ltr", true, 60, 128);
+        drFacebookAppId.Initialize("Facebook app ID", "adm_table_header_nbg", "FormInput", "fb_app_id", false);
+        theRecord.AddRecord(drFacebookAppId);
+
+        DataRecordShortTextField drFacebookAppSecret = new DataRecordShortTextField("ltr", true, 60, 128);
+        drFacebookAppSecret.Initialize("Facebook app secret", "adm_table_header_nbg", "FormInput", "fb_app_secret", false);
+        theRecord.AddRecord(drFacebookAppSecret);
+
+        DataRecordShortTextField drFacebookCallback = new DataRecordShortTextField("ltr", true, 60, 128);
+        drFacebookCallback.Initialize("Facebook min friends  ", "adm_table_header_nbg", "FormInput", "fb_callback", false);
+        theRecord.AddRecord(drFacebookCallback);
+
+        DataRecordShortTextField drFacebookMinFriends = new DataRecordShortTextField("ltr", true, 60, 128);
+        drFacebookMinFriends.Initialize("Facebook callback ", "adm_table_header_nbg", "FormInput", "fb_min_friends", false);
+        theRecord.AddRecord(drFacebookMinFriends);
+
+        DataRecordShortTextField drFacebookPermissions = new DataRecordShortTextField("ltr", true, 60, 128);
+        drFacebookPermissions.Initialize("Facebook permissions  ", "adm_table_header_nbg", "FormInput", "fb_permissions", false);
+        theRecord.AddRecord(drFacebookPermissions);
+
+        DataRecordShortTextField drFacebookRedirect = new DataRecordShortTextField("ltr", true, 60, 128);
+        drFacebookRedirect.Initialize("Facebook redirect", "adm_table_header_nbg", "FormInput", "fb_redirect", false);
+        theRecord.AddRecord(drFacebookRedirect);
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
