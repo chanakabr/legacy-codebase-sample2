@@ -6313,7 +6313,8 @@ namespace ConditionalAccess
             return files;
         }
 
-        internal static ApiObjects.Response.Status GetLinearMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
+        internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
+            out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
         {
             mediaId = 0;
             recording = null;
@@ -6328,12 +6329,12 @@ namespace ConditionalAccess
                     case eAssetTypes.NPVR:
                         {
                             // check recording valid
-                            recording = Utils.GetRecordingById(id);
+                            var recordingStatus = ValidateRecording(groupId, domain, udid, userId, id, recording);
 
-                            if (recording == null || recording.Id == 0 || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
+                            if (recordingStatus.Code != (int)eResponseStatus.OK)
                             {
                                 log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
-                                return new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording not found");
+                                return new ApiObjects.Response.Status(recordingStatus.Code, recordingStatus.Message);
                             }
 
                             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { recording.EpgId });

@@ -19930,6 +19930,8 @@ namespace ConditionalAccess
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
             List<PlayContextType> contexts, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
+            // TODO: add cache
+
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
@@ -19970,7 +19972,7 @@ namespace ConditionalAccess
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
-                response.Status = Utils.GetLinearMediaIdForAsset(m_nGroupID, assetId, assetType, out mediaId, out  recording, out program);
+                response.Status = Utils.GetMediaIdForAsset(m_nGroupID, assetId, assetType, userId, domain, udid, out mediaId, out  recording, out program);
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
                     return response;
@@ -19986,21 +19988,19 @@ namespace ConditionalAccess
                     {
                         return response;
                     }
-                    if (assetType == eAssetTypes.NPVR)
+                   
+                    var epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, (int)mediaId);
+
+                    // get TSTV settings
+                    var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+
+                    // validate recording channel exists or the settings allow it to not exist
+                    if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
                     {
-                        var epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, (int)mediaId);
-
-                        // get TSTV settings
-                        var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-
-                        // validate recording channel exists or the settings allow it to not exist
-                        if (epgChannelLinearMedia == null && (!tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.HasValue || !tstvSettings.IsRecordingPlaybackNonExistingChannelEnabled.Value))
-                        {
-                            log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, channelId = {4}, recordingId = {5}",
-                                m_nGroupID, userId, domainId, assetId, recording.ChannelId, recording.Id);
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
-                            return response;
-                        }
+                        log.ErrorFormat("EPG channel does not exist and TSTV settings do not allow playback in this case. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, channelId = {4}, recordingId = {5}",
+                            m_nGroupID, userId, domainId, assetId, recording.ChannelId, recording.Id);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
+                        return response;
                     }
                 }
 
@@ -20076,15 +20076,25 @@ namespace ConditionalAccess
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
             try
             {
-                // TODO: add cache
-
                 long mediaId;
                 Recording recording = null;
                 EPGChannelProgrammeObject program = null;
+                Domain domain = null;
+                long domainId = 0;
 
-                response.Status = Utils.GetLinearMediaIdForAsset(m_nGroupID, assetId, assetType, out mediaId, out  recording, out program);
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
+
+                if (assetType != eAssetTypes.MEDIA && validationStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", m_nGroupID, userId, domainId);
+                    response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                    return response;
+                }
+
+                response.Status = Utils.GetMediaIdForAsset(m_nGroupID, assetId, assetType, userId, domain, udid, out mediaId, out  recording, out program);
                 if (response.Status.Code != (int)eResponseStatus.OK)
                 {
+                    log.ErrorFormat("Failed to get media ID for assetId = {0}, assetType = {1}", assetId, assetType);
                     return response;
                 }
 
@@ -20092,6 +20102,8 @@ namespace ConditionalAccess
 
                 if (files == null || files.Count == 0)
                 {
+                    log.ErrorFormat("Failed to get files for assetId = {0}, assetType = {1}, mediaId = {2}", assetId, assetType, mediaId);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoFilesFound, "No files found");
                     return response;
                 }
 
@@ -20126,15 +20138,10 @@ namespace ConditionalAccess
                         break;
                 }
 
-                // get domain ID
-                int domainId = 0;
-                DomainSuspentionStatus domainStatus = DomainSuspentionStatus.OK;
-                Utils.IsUserValid(userId, m_nGroupID, ref domainId, ref domainStatus);
-
                 if (response.Status.Code == (int)eResponseStatus.OK)
                 {
                     // HandlePlayUses
-                    if (Utils.IsItemPurchased(price))
+                    if (domainId > 0 && Utils.IsItemPurchased(price))
                     {
                         HandlePlayUses(price, userId, (int)file.Id, ip, string.Empty, string.Empty, udid, string.Empty, domainId);
                     }
