@@ -68,6 +68,8 @@ namespace ConditionalAccess
                 return true;
             }
 
+            #region Get subscription purchase
+
             // get subscription purchase 
             DataRow subscriptionPurchaseRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(groupId, purchaseId, billingGuid);
 
@@ -80,11 +82,16 @@ namespace ConditionalAccess
                 return false;
             }
 
+            #endregion
+
             // get product ID
             long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
+            string couponCode = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "COUPON_CODE");
 
             ResponseStatus userValidStatus = ResponseStatus.OK;
             userValidStatus = Utils.ValidateUser(groupId, siteguid, ref householdId);
+
+            #region Dummy
 
             try
             {
@@ -108,6 +115,8 @@ namespace ConditionalAccess
                 log.ErrorFormat("Renew: Error while getting data from xml, data: {0}, error: {1}", logString, exc);
                 return false;
             }
+
+            #endregion
 
             // get end date
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
@@ -135,7 +144,10 @@ namespace ConditionalAccess
             // validate user object               
             bool shouldSwitchToMasterUser = false;
 
-            // check if we need to set isSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
+            // check if we need to set shouldSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
+
+            #region shouldSwitchToMasterUser
+
             if (userValidStatus == ResponseStatus.UserDoesNotExist)
             {
                 shouldSwitchToMasterUser = true;
@@ -163,7 +175,7 @@ namespace ConditionalAccess
                 }
             }
 
-            // check if response OK only if we know response is not UserDoesNotExist, isSwitchToMasterUser is set to false by default
+            // check if response OK only if we know response is not UserDoesNotExist, shouldSwitchToMasterUser is set to false by default
             if (!shouldSwitchToMasterUser && userValidStatus != ResponseStatus.OK)
             {
                 // user validation failed
@@ -171,6 +183,8 @@ namespace ConditionalAccess
                 log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
                 return true;
             }
+
+            #endregion
 
             // validate household
             if (householdId <= 0)
@@ -193,7 +207,8 @@ namespace ConditionalAccess
 
             log.DebugFormat("Renew details received. data: {0}", logString);
 
-            // get subscription data
+            #region Get Subscription data
+
             string wsUsername = string.Empty;
             string wsPassword = string.Empty;
             Subscription subscription = null;
@@ -211,6 +226,7 @@ namespace ConditionalAccess
                 return false;
             }
 
+
             // validate subscription
             if (subscription == null)
             {
@@ -220,6 +236,8 @@ namespace ConditionalAccess
             }
 
             log.DebugFormat("Subscription data received. data: {0}", logString);
+
+            #endregion
 
             // get payment number
             int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
@@ -251,7 +269,6 @@ namespace ConditionalAccess
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
             int maxVLCOfSelectedUsageModule = 0;
-            string couponCode = string.Empty;
             double price = 0;
             string currency = "n/a";
 
