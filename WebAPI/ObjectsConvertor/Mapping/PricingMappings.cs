@@ -80,6 +80,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
+            Mapper.CreateMap<NpvrServiceObject, KalturaNpvrPremiumService>()
+               .ForMember(dest => dest.QuotaInMinutes, opt => opt.MapFrom(src => src.Quota))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
             // LanguageContainer to TranslationContainer
             Mapper.CreateMap<LanguageContainer, KalturaTranslationToken>()
                .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.m_sLanguageCode3))
@@ -111,7 +116,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.m_fictivicMediaID))
-               .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
+               //.ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => src.m_lServices))
+               .ForMember(dest => dest.PremiumServices, opt => opt.MapFrom(src => ConvertServices(src.m_lServices)))
                .ForMember(dest => dest.PricePlans, opt => opt.MapFrom(src => src.m_MultiSubscriptionUsageModule))
                .ForMember(dest => dest.HouseholdLimitationsId, opt => opt.MapFrom(src => src.m_nDomainLimitationModule))
                .ForMember(dest => dest.RenewalsNumber, opt => opt.MapFrom(src => src.m_nNumberOfRecPeriods))
@@ -370,6 +376,42 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             }
             return prices;
+        }
+
+        private static List<KalturaPremiumService> ConvertServices(ServiceObject[] services)
+        {
+            try
+            {
+                List<KalturaPremiumService> result = null;
+
+                if (services != null && services.Count() > 0)
+                {
+                    result = new List<KalturaPremiumService>();
+
+                    KalturaPremiumService item;
+
+                    foreach (var service in services)
+                    {
+                        if (service is NpvrServiceObject)
+                        {
+                            item = AutoMapper.Mapper.Map<KalturaNpvrPremiumService>((NpvrServiceObject)service);
+                        }
+                        else
+                        {
+                            item = AutoMapper.Mapper.Map<KalturaPremiumService>(service);
+                        }
+                        result.Add(item);
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+
+            return new List<KalturaPremiumService>();
         }
     }
 }

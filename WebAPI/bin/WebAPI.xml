@@ -1042,6 +1042,31 @@
             DRM data object containing relevant license URL ,scheme name and certificate
             </summary>
         </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService">
+            <summary>
+            Npvr Premium Service
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
+            <summary>
+            Premium service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
+            <summary>
+            Service identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
+            <summary>
+            Service name / description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService.QuotaInMinutes">
+            <summary>
+            Quota in minutes
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
             <summary>
             KalturaPpvEntitlement
@@ -3261,7 +3286,7 @@
              <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
              <remarks>Possible status codes: 
              UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
-            ,User not in household = 1005, Not for purchase = 3025
+            ,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
              </remarks>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
@@ -3492,7 +3517,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="token">Social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByTokenOldStandard(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3501,7 +3526,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="token">Social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Get(WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3522,16 +3547,17 @@
             User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
             <param name="token">social token</param>
             <param name="partnerId">Partner identifier</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <param name="email">User email</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
@@ -3540,7 +3566,8 @@
             <param name="type">Social network type</param>
             <param name="should_create_domain">New domain is created upon registration</param>
             <param name="subscribe_newsletter">Subscribes to newsletter</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <param name="email">User email</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Merge(System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3548,7 +3575,7 @@
             </summary>
             <param name="token">social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.MergeOldStandard(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3560,14 +3587,14 @@
             <param name="social_id">external social identifier</param>
             <param name="type">Social network type</param>
             <param name="partnerId">Partner identifier</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Unmerge(WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Disconnect an existing user in the system from its external social network user
             </summary>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.UnmergeOldStandard(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3577,7 +3604,7 @@
             <param name="username">Username</param>
             <param name="password">Password</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Nullable{WebAPI.Models.Social.KalturaSocialNetwork},System.Nullable{System.Int32})">
             <summary>
@@ -4889,21 +4916,6 @@
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumService">
             <summary>
             Houshold premium service
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
-            <summary>
-            Premium service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
-            <summary>
-            Service identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
-            <summary>
-            Service name / description
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">
