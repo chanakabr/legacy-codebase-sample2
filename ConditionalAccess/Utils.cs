@@ -6286,15 +6286,14 @@ namespace ConditionalAccess
             if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
             {
                 allMediafiles = ApiDAL.GetMediaFiles(mediaId);
-                foreach (MediaFile mediaFile in allMediafiles)
-                {
-                    mediaFile.Url = GetAssetUrl(groupId, assetType, mediaFile.Url, mediaFile.CdnId);
-                    // TODO: CONTEXT!!!
-                    mediaFile.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, mediaFile.Id, contexts[0]);
-                }
-
                 if (allMediafiles != null)
                 {
+                    foreach (MediaFile mediaFile in allMediafiles)
+                    {
+                        mediaFile.Url = GetAssetUrl(groupId, assetType, mediaFile.Url, mediaFile.CdnId);
+                        // TODO: CONTEXT!!!
+                        mediaFile.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, mediaFile.Id, contexts[0]);
+                    }
                     ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
                 }
             }
