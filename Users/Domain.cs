@@ -219,39 +219,6 @@ namespace Users
                 m_totalNumOfUsers++;
             }
 
-            INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
-            {
-               // INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-
-                if (npvr != null)
-                {
-                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
-
-                    if (resp != null)
-                    {
-                        if (resp.isOK)
-                        {
-                            m_DomainStatus = DomainStatus.OK;
-                        }
-                        else
-                        {
-                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                            log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg));
-                        }
-                    }
-                    else
-                    {
-                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                        log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                    }
-                }
-                else
-                {
-                    log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                }
-            }
-
             //EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
             //    nGroupID,
             //    this,
