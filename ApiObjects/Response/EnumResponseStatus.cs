@@ -124,10 +124,10 @@ namespace ApiObjects.Response
         EpgIdNotPartOfSeries = 3049,
         RecordingPlaybackNotAllowedForNonExistingEpgChannel = 3050,
         RecordingPlaybackNotAllowedForNotEntitledEpgChannel = 3051,
-        SeasonNumberNotMatch = 3052, 
+        SeasonNumberNotMatch = 3052,
         ServiceAlreadyExists = 3053,
+        NoFilesFound = 3054, 
         
-
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,

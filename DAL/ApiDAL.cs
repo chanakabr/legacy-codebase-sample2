@@ -3929,5 +3929,38 @@ namespace DAL
 
             return dt;
         }
+
+        public static List<MediaFile> GetMediaFiles(long mediaId)
+        {
+            List<MediaFile> files = null;
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFiles");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@mediaId", mediaId);
+            dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                files = new List<MediaFile>();
+                MediaFile file;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    file = new MediaFile()
+                    {
+                        Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
+                        ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
+                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), // TODO: get the type
+                        IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
+                        CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                        StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
+                        MediaId = mediaId,
+                    };
+
+                    files.Add(file);
+                }
+            }
+            return files;
+        }
     }
 }

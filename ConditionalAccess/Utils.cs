@@ -22,6 +22,7 @@ using ApiObjects.CDNAdapter;
 using WS_API;
 using Users;
 using WS_Users;
+using AdapterControllers;
 
 namespace ConditionalAccess
 {
@@ -36,6 +37,9 @@ namespace ConditionalAccess
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
+
+        private const string MEDIA_FILES_CACHE_KEY_FORMAT = "MediaFiles_{0}";
+
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -6271,6 +6275,236 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
+        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
+            bool filterOnlyByIds = false)
+        {
+            List<MediaFile> files = null;
+
+            // cache
+            List<MediaFile> allMediafiles = null;
+            string mediaFilesCacheKey = string.Format(MEDIA_FILES_CACHE_KEY_FORMAT, mediaId);
+            if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
+            {
+                allMediafiles = ApiDAL.GetMediaFiles(mediaId);
+                allMediafiles.ForEach(f => f.Url = Utils.GetAssetUrl(groupId, assetType, f.Url, f.CdnId));
+
+                if (allMediafiles != null)
+                {
+                    ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
+                }
+            }
+
+            // filter
+            if (allMediafiles != null && allMediafiles.Count > 0)
+            {
+                if (filterOnlyByIds)
+                {
+                    files = allMediafiles.Where(f => fileIds != null && fileIds.Contains(f.Id)).ToList();
+                }
+                else
+                {
+                    files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
+                        ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
+                        f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
+                        (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                }
+            }
+                
+            return files;
+        }
+
+        internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
+            out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
+        {
+            mediaId = 0;
+            recording = null;
+            program = null;
+            long id;
+
+            if (long.TryParse(assetId, out id))
+            {
+                switch (assetType)
+                {
+
+                    case eAssetTypes.NPVR:
+                        {
+                            // check recording valid
+                            var recordingStatus = ValidateRecording(groupId, domain, udid, userId, id, recording);
+
+                            if (recordingStatus.Code != (int)eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
+                                return new ApiObjects.Response.Status(recordingStatus.Code, recordingStatus.Message);
+                            }
+
+                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { recording.EpgId });
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                program = epgs[0];
+                                mediaId = program.LINEAR_MEDIA_ID;
+                            }
+                            else
+                            {
+                                return new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                            }
+                        }
+                        break;
+                    case eAssetTypes.EPG:
+                        {
+                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { id });
+                            if (epgs != null && epgs.Count > 0)
+                            {
+                                program = epgs[0];
+                                mediaId = program.LINEAR_MEDIA_ID;
+                            }
+                            else
+                            {
+                                return new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                            }
+                        }
+                        break;
+                    case eAssetTypes.MEDIA:
+                        mediaId = id;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        }
+
+        internal static eService GetServiceByPlayContextType(PlayContextType contextType)
+        {
+            eService service;
+            switch (contextType)
+            {
+                case PlayContextType.CatchUp:
+                    service = eService.CatchUp;
+                    break;
+                case PlayContextType.StartOver:
+                    service = eService.StartOver;
+                    break;
+                case PlayContextType.TrickPlay:
+                case PlayContextType.Trailer:
+                case PlayContextType.Playback:
+                default:
+                    service = eService.Unknown;
+                    break;
+            }
+
+            return service;
+        }
+
+        internal static eEPGFormatType GetEpgFormatTypeByPlayContextType(PlayContextType contextType)
+        {
+            eEPGFormatType type;
+
+            switch (contextType)
+            {
+                case PlayContextType.CatchUp:
+                    type = eEPGFormatType.Catchup;
+                    break;
+                case PlayContextType.StartOver:
+                    type = eEPGFormatType.StartOver;
+                    break;
+                default:
+                    throw new Exception("not supported context for EPG");
+            }
+
+            return type;
+        }
+
+        internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId, long domainRecordingId, Recording recording)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK , eResponseStatus.OK.ToString());
+
+            // get device brand ID - and make sure the device is in the domain
+            if (!Utils.IsDeviceInDomain(domain, udid))
+            {
+                log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, udid = {4}",
+                    groupId, userId, domain.m_nDomainID, domainRecordingId, udid);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in the user's domain");
+                return response;
+            }
+
+            // validate recording
+            var domainRecordings = Utils.GetDomainRecordingIdsToRecordingsMap(groupId, domain.m_nDomainID, new List<long>() { domainRecordingId });
+            if (domainRecordings == null || domainRecordings.Count == 0 || (recording = domainRecordings[domainRecordingId]) == null)
+            {
+                log.ErrorFormat("Recording does not exist. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}", groupId, userId, domain.m_nDomainID, domainRecordingId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording was not found");
+                return response;
+            }
+            if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
+            {
+                log.ErrorFormat("Recording status is not valid for playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, recording = {4}, recordingStatus = {5}",
+                    groupId, userId, domain.m_nDomainID, domainRecordingId, recording.Id, recording.RecordingStatus);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Recording status is not valid");
+                return response;
+            }
+
+            return response;
+        }
+
+        public static string GetAssetUrl(int groupId, eAssetTypes assetType, string url, int cdnId)
+        {
+            // get adapter
+            bool isDefaultAdapter = false;
+            var adapterResponse = GetRelevantCDN(groupId, cdnId, assetType, ref isDefaultAdapter);
+
+            // if adapter response is not null and is adapter (has an adapter url) - call the adapter
+            if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
+            {
+                url = string.Format("{0}{1}", adapterResponse.Adapter.BaseUrl, url);
+            }
+
+            return url;
+        }
+
+        public static Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,
+            string userIP, string countryCode, string langCode,
+            string deviceName, string couponCode)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>(8);
+
+            res.Add(CDNTokenizers.Constants.SITE_GUID, sSiteGuid);
+            res.Add(CDNTokenizers.Constants.MEDIA_FILE_ID, mediaFileIDStr);
+            res.Add(CDNTokenizers.Constants.URL, basicLink);
+            res.Add(CDNTokenizers.Constants.IP, userIP);
+            res.Add(CDNTokenizers.Constants.COUNTRY_CODE, countryCode);
+            res.Add(CDNTokenizers.Constants.LANGUAGE_CODE, langCode);
+            res.Add(CDNTokenizers.Constants.DEVICE_NAME, deviceName);
+            res.Add(CDNTokenizers.Constants.COUPON_CODE, couponCode);
+
+            return res;
+        }
+
+        public static bool IsItemPurchased(MediaFileItemPricesContainer price)
+        {
+            bool res = false;
+            if (price == null || price.m_oItemPrices == null || price.m_oItemPrices.Length == 0)
+            {
+                return res;
+            }
+            PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
+            switch (reason)
+            {
+                case PriceReason.SubscriptionPurchased:
+                case PriceReason.PrePaidPurchased:
+                case PriceReason.CollectionPurchased:
+                case PriceReason.PPVPurchased:
+                    res = price.m_oItemPrices[0].m_oPrice.m_dPrice == 0d;
+                    break;
+                default:
+                    break;
+
+            }
+
+            return res;
+        }
+
+        
     }
 }
 
