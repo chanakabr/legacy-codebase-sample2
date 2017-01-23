@@ -859,10 +859,24 @@ namespace WebAPI.Controllers
             KalturaPlaybackContext response = null;
            
             KS ks = KS.GetFromRequest();
+            string userId = ks.UserId;
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+                // build manifest url
+                string baseUrl = string.Format("{0}://{1}{2}", HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Authority, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+                foreach (var source in response.Sources)
+                {
+                    if (!string.IsNullOrEmpty(userId) && userId != "0")
+                    {
+                        source.Url = string.Format("{0}{1}/ks/{2}", baseUrl, source.Url, ks.ToString());
+                    }
+                    else
+                    {
+                        source.Url = string.Format("{0}{1}", baseUrl, source.Url);
+                    }
+                }
             }
             catch (ClientException ex)
             {

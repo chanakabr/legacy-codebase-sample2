@@ -122,10 +122,10 @@ namespace WebAPI.Utils
                     drmData = new KalturaDrmPlaybackPluginData();
                     break;
             }
-            drmData.CustomDataString = DrmUtils.BuildCencCustomDataString(source.Id.HasValue ? source.Id.Value : 0);
-            drmData.Signature = DrmUtils.BuildCencSignatureString(drmData.CustomDataString);
+            var customDataString = DrmUtils.BuildCencCustomDataString(source.Id.HasValue ? source.Id.Value : 0);
+            var signature = DrmUtils.BuildCencSignatureString(customDataString);
             drmData.Scheme = scheme;
-            drmData.LicenseURL = DrmUtils.BuildUDrmUrl(scheme, drmData.CustomDataString, drmData.Signature);
+            drmData.LicenseURL = DrmUtils.BuildUDrmUrl(scheme, customDataString, signature);
             return drmData;
         }
     }

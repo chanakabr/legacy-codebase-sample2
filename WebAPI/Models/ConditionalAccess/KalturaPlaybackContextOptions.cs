@@ -39,7 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
         public string AssetFileIds { get; set; }
 
         /// <summary>
-        /// List of comma separated context types
+        /// List of comma separated context types, possible values: TRAILER, CATCHUP, START_OVER, PLAYBACK
         /// </summary>
         [DataMember(Name = "contexts")]
         [JsonProperty("contexts")]

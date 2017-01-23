@@ -28,22 +28,6 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("licenseURL")]
         [XmlElement(ElementName = "licenseURL")]
         public string LicenseURL { get; set; }
-
-        /// <summary>
-        /// Custom data string
-        /// </summary>
-        [DataMember(Name = "customDataString")]
-        [JsonProperty("customDataString")]
-        [XmlElement(ElementName = "customDataString")]
-        public string CustomDataString { get; set; }
-
-        /// <summary>
-        /// Signature string
-        /// </summary>
-        [DataMember(Name = "signature")]
-        [JsonProperty("signature")]
-        [XmlElement(ElementName = "signature")]
-        public string Signature { get; set; }
     }
 
     public class KalturaPluginData : KalturaOTTObject

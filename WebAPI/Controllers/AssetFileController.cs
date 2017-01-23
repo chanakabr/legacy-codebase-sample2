@@ -71,7 +71,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("partnerId", MinInteger = 1)]
         [SchemeArgument("assetFileId", MinInteger = 1)]
-        [FailureHttpCode]
+        [FailureHttpCode(System.Net.HttpStatusCode.NotFound)]
         public async Task<object> GetPlayManifestWrapper(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaPlaybackContextType? contextType = null)
         {
             MethodInfo methodInfo = null;
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
 
                 if (ex.InnerException is ApiException)
                 {
-                    ApiException apiEx = new ApiException((ApiException)ex.InnerException, System.Net.HttpStatusCode.InternalServerError);
+                    ApiException apiEx = new ApiException((ApiException)ex.InnerException, System.Net.HttpStatusCode.NotFound);
                     throw apiEx;
                 }
 
@@ -114,10 +114,7 @@ namespace WebAPI.Controllers
 
         public bool GetPlayManifest(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaPlaybackContextType? contextType = null)
         {
-            if (string.IsNullOrEmpty(ks))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ks");
-            }
+            
 
             if (string.IsNullOrEmpty(assetId))
             {
@@ -134,24 +131,29 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "contextType");
             }
 
-            KS ksObject = KS.ParseKS(ks);
+            KS ksObject = null;
 
-            if (!ksObject.IsValid)
+            if (!string.IsNullOrEmpty(ks))
             {
-                throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
-            }
+                ksObject = KS.ParseKS(ks);
 
-            if (partnerId != ksObject.GroupId)
-            {
-                throw new UnauthorizedException(UnauthorizedException.PARTNER_INVALID);
+                if (!ksObject.IsValid)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.KS_EXPIRED);
+                }
+
+                if (partnerId != ksObject.GroupId)
+                {
+                    throw new UnauthorizedException(UnauthorizedException.PARTNER_INVALID);
+                }
             }
 
             string response = null;
 
             try
             {
-                string userId = ksObject.UserId;
-                string udid = KSUtils.ExtractKSPayload(ksObject).UDID;
+                string userId = ksObject != null ? ksObject.UserId : "0";
+                string udid = ksObject != null ? KSUtils.ExtractKSPayload(ksObject).UDID : string.Empty;
 
                 response = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType.Value, assetFileId, udid, contextType.Value);
 

@@ -942,16 +942,6 @@
             License URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.CustomDataString">
-            <summary>
-            Custom data string
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Signature">
-            <summary>
-            Signature string
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
             <summary>
             Custom data string
@@ -989,7 +979,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Contexts">
             <summary>
-            List of comma separated context types
+            List of comma separated context types, possible values: TRAILER, CATCHUP, START_OVER, PLAYBACK
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">

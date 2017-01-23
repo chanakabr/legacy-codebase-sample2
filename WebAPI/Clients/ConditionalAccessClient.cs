@@ -1992,10 +1992,15 @@ namespace WebAPI.Clients
 
             List<PlayContextType> wsContexts = contextDataParams.GetContexts().Select(c => ConditionalAccessMappings.ConvertPlayContextType(c)).ToList();
 
-            StreamerType streamerType;
-            if (!Enum.TryParse(contextDataParams.StreamerType, out streamerType))
+            StreamerType? streamerType = null;
+            if (!string.IsNullOrEmpty(contextDataParams.StreamerType))
             {
-                throw new ClientException((int)StatusCode.Error, "Unknown streamerType");
+                StreamerType type;
+                if (!Enum.TryParse(contextDataParams.StreamerType, out type))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamerType");
+                }
+                streamerType = type;
             }
 
             try
@@ -2018,7 +2023,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Status.Code != (int)eResponseStatus.OK || response.Status.Code != (int)eResponseStatus.ServiceNotAllowed ||
+            if (response.Status.Code != (int)eResponseStatus.OK || response.Status.Code != (int)eResponseStatus.ServiceNotAllowed || response.Status.Code != (int)eResponseStatus.NotEntitled ||
                 response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel || response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation ||
                 response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation || response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed || response.Status.Code != (int)eResponseStatus.NoFilesFound)
             {
