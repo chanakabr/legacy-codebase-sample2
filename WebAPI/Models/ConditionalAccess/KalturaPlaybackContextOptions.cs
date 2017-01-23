@@ -14,7 +14,7 @@ namespace WebAPI.Models.ConditionalAccess
     public class KalturaPlaybackContextOptions : KalturaOTTObject
     {
         /// <summary>
-        /// Protocol of the specific media object.
+        /// Protocol of the specific media object (http / https).
         /// </summary>
         [DataMember(Name = "mediaProtocol")]
         [JsonProperty("mediaProtocol")]
@@ -22,7 +22,7 @@ namespace WebAPI.Models.ConditionalAccess
         public string MediaProtocol { get; set; }
 
         /// <summary>
-        /// Playback streamer type: RTMP, HTTP, appleHttps, rtsp, sl.
+        /// Playback streamer type: applehttp, mpegdash, url.
         /// </summary>
         [DataMember(Name = "streamerType")]
         [JsonProperty("streamerType")]
@@ -32,11 +32,11 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// List of comma separated media file IDs
         /// </summary>
-        [DataMember(Name = "mediaFileIds")]
-        [JsonProperty("mediaFileIds")]
-        [XmlElement(ElementName = "mediaFileIds")]
+        [DataMember(Name = "assetFileIds")]
+        [JsonProperty("assetFileIds")]
+        [XmlElement(ElementName = "assetFileIds")]
         [SchemeProperty(DynamicMinInt = 1)]
-        public string MediaFileIds { get; set; }
+        public string AssetFileIds { get; set; }
 
         /// <summary>
         /// List of comma separated context types
@@ -51,9 +51,9 @@ namespace WebAPI.Models.ConditionalAccess
         public List<long> GetMediaFileIds()
         {
             List<long> list = new List<long>();
-            if (!string.IsNullOrEmpty(MediaFileIds))
+            if (!string.IsNullOrEmpty(AssetFileIds))
             {
-                string[] stringValues = MediaFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = AssetFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
                     long value = long.Parse(stringValue);
@@ -67,9 +67,9 @@ namespace WebAPI.Models.ConditionalAccess
         public List<KalturaPlaybackContextType> GetContexts()
         {
             List<KalturaPlaybackContextType> list = new List<KalturaPlaybackContextType>();
-            if (!string.IsNullOrEmpty(MediaFileIds))
+            if (!string.IsNullOrEmpty(AssetFileIds))
             {
-                string[] stringValues = MediaFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = AssetFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
                     KalturaPlaybackContextType value = (KalturaPlaybackContextType)Enum.Parse(typeof(KalturaPlaybackContextType), stringValue);

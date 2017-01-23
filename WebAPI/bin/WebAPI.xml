@@ -942,7 +942,7 @@
             License URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.CustomDateString">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.CustomDataString">
             <summary>
             Custom data string
             </summary>
@@ -974,15 +974,15 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
             <summary>
-            Protocol of the specific media object.
+            Protocol of the specific media object (http / https).
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
             <summary>
-            Playback streamer type: RTMP, HTTP, appleHttps, rtsp, sl.
+            Playback streamer type: applehttp, mpegdash, url.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaFileIds">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.AssetFileIds">
             <summary>
             List of comma separated media file IDs
             </summary>

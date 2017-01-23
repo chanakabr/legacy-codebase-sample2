@@ -32,10 +32,10 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// Custom data string
         /// </summary>
-        [DataMember(Name = "customDateString")]
-        [JsonProperty("customDateString")]
-        [XmlElement(ElementName = "customDateString")]
-        public string CustomDateString { get; set; }
+        [DataMember(Name = "customDataString")]
+        [JsonProperty("customDataString")]
+        [XmlElement(ElementName = "customDataString")]
+        public string CustomDataString { get; set; }
 
         /// <summary>
         /// Signature string
