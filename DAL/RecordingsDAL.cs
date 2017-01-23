@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.TimeShiftedTv;
 using KLogMonitor;
+using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -793,11 +794,13 @@ namespace DAL
 
         /// <summary>
         /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.GetDomainQuota
-        /// </summary>
-        public static bool GetDomainQuota(int groupId, long domainId, out int quota)
+        /// </summary>        
+        public static bool GetDomainQuota(int groupId, long domainId, out DomainQuota quota, int defaultTotal)
         {
             bool result = false;
-            quota = 0;
+            object quotaObj;
+            quota = null;
+            
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
@@ -815,7 +818,8 @@ namespace DAL
                     int numOfRetries = 0;
                     while (numOfRetries < limitRetries)
                     {
-                        quota = cbClient.Get<int>(domainQuotaKey, out getResult);
+                        quotaObj = cbClient.Get<object>(domainQuotaKey, out getResult);
+
                         if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
                             log.DebugFormat("domain: {0} does not have a quota document with key: {1}", domainId, domainQuotaKey);
@@ -823,7 +827,23 @@ namespace DAL
                         }
                         else if (getResult == Couchbase.IO.ResponseStatus.Success)
                         {
-                            result = true;
+                            Type type = quotaObj.GetType();
+                            if (type != null)
+                            {
+                                if (quotaObj.GetType() == typeof(Int64))
+                                {
+                                    int availableQuota = JsonConvert.DeserializeObject<int>(quotaObj.ToString());
+
+                                    quota = new DomainQuota(0, defaultTotal - availableQuota);
+                                    bool setResult = SetDomainQuota(domainId, quota); // insert to cb total quota + used as OBJECT
+                                    result = true;
+                                }
+                                else //JObject
+                                {
+                                    quota = JsonConvert.DeserializeObject<DomainQuota>(quotaObj.ToString());                                    
+                                    result = true;
+                                }
+                            }
                             break;
                         }
                         else
@@ -843,10 +863,12 @@ namespace DAL
             return result;
         }
 
+
         /// <summary>
         /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.IncreaseDomainQuota
+        /// update domain quota 
         /// </summary>
-        public static bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
+        public static bool UpdateDomainQuota(long domainId, DomainQuota domainQuota)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
@@ -864,90 +886,143 @@ namespace DAL
                 int numOfRetries = 0;
                 while (!result && numOfRetries < limitRetries)
                 {
-                    ulong version;
-                    int currentQuota;
+                    ulong version;                   
                     Couchbase.IO.ResponseStatus status;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
+                    DomainQuota quota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
                     if (status == Couchbase.IO.ResponseStatus.Success)
                     {
-                        int updatedQuota = currentQuota + quotaToIncrease;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
+                        result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
                     }
 
                     if (!result)
                     {
                         numOfRetries++;
-                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToIncrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToIncrease);
+                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, domainQuota : {3}", numOfRetries, limitRetries, domainId, domainQuota.ToString());
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToIncrease: {1}, ex: {2}", domainId, quotaToIncrease, ex);
+                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, domainQuota: {1}, ex: {2}", domainId, domainQuota.ToString(), ex);
             }
 
             return result;
         }
 
-        /// <summary>
-        /// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.DecreaseDomainQuota
-        /// </summary>
-        public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease, int domainQuota)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
-            if (string.IsNullOrEmpty(domainQuotaKey))
-            {
-                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
-                return result;
-            }
+        ///// <summary>
+        ///// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.IncreaseDomainQuota
+        ///// reduce quota to the used quota mean total quota increased
+        ///// </summary>
+        //public static bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
+        //{
+        //    bool result = false;
+        //    CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+        //    int limitRetries = RETRY_LIMIT;
+        //    Random r = new Random();
+        //    string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+        //    if (string.IsNullOrEmpty(domainQuotaKey))
+        //    {
+        //        log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+        //        return result;
+        //    }
 
-            try
-            {
-                int numOfRetries = 0;
-                while (!result && numOfRetries < limitRetries)
-                {
-                    ulong version;
-                    int currentQuota;
-                    int updatedQuota = 0;
-                    Couchbase.IO.ResponseStatus status;
-                    currentQuota = cbClient.GetWithVersion<int>(domainQuotaKey, out version, out status);
-                    if (status == Couchbase.IO.ResponseStatus.Success)
-                    {
-                        updatedQuota = currentQuota - quotaToDecrease;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, version);
-                    }
-                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    {
-                        updatedQuota = domainQuota - quotaToDecrease;
-                        result = cbClient.SetWithVersion<int>(domainQuotaKey, updatedQuota, 0);
-                    }
+        //    try
+        //    {
+        //        int numOfRetries = 0;
+        //        while (!result && numOfRetries < limitRetries)
+        //        {
+        //            ulong version;
+        //            DomainQuota domainQuota;
+        //            Couchbase.IO.ResponseStatus status;
+        //            domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status);
+        //            if (status == Couchbase.IO.ResponseStatus.Success)
+        //            {
+        //                domainQuota.Used -= quotaToIncrease;
+        //                result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
+        //            }
 
-                    if (!result)
-                    {
-                        numOfRetries++;
-                        log.ErrorFormat("Error while decreasing quota to domain. number of tries: {0}/{1}. domainId: {2}, currentQuota: {3}, quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, currentQuota, quotaToDecrease);
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                    else
-                    {
-                        log.DebugFormat("successfully updated domain quota to {0}. domainId = {1}", updatedQuota, domainId);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while decreasing quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
-            }
+        //            if (!result)
+        //            {
+        //                numOfRetries++;
+        //                log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, quotaToIncrease: {3}", numOfRetries, limitRetries, domainId, quotaToIncrease);
+        //                System.Threading.Thread.Sleep(r.Next(50));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quotaToIncrease: {1}, ex: {2}", domainId, quotaToIncrease, ex);
+        //    }
 
-            
+        //    return result;
+        //}
 
-            return result;
-        }
+        ///// <summary>
+        ///// DO NOT DIRECTLY USE THIS FUNCTION, USE QuotaManager.DecreaseDomainQuota
+        ///// adding quota to the used quota mean total quota decreased
+        ///// </summary>
+        //public static bool DecreaseDomainQuota(long domainId, int quotaToDecrease, int totalDomainQuota)
+        //{
+        //    bool result = false;
+        //    CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+        //    int limitRetries = RETRY_LIMIT;
+        //    Random r = new Random();
+        //    string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+        //    if (string.IsNullOrEmpty(domainQuotaKey))
+        //    {
+        //        log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+        //        return result;
+        //    }
+
+        //    try
+        //    {
+        //        int numOfRetries = 0;
+        //        while (!result && numOfRetries < limitRetries)
+        //        {
+        //            ulong version;
+        //            DomainQuota domainQuota;
+                    
+        //            Couchbase.IO.ResponseStatus status;
+        //            domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status);
+        //            if (status == Couchbase.IO.ResponseStatus.Success)
+        //            {
+                        
+        //                domainQuota.Used += quotaToDecrease;
+        //                domainQuota.Total = totalDomainQuota;
+
+        //                result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
+        //            }
+        //            else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+        //            {
+        //                domainQuota = new DomainQuota()
+        //                {
+        //                    Total = totalDomainQuota,
+        //                    Used = quotaToDecrease
+        //                };
+
+        //                result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
+        //            }
+
+        //            if (!result)
+        //            {
+        //                numOfRetries++;
+        //                log.ErrorFormat("Error while decreasing quota to domain. number of tries: {0}/{1}. domainId: {2},  quotaToDecrease: {4}", numOfRetries, limitRetries, domainId, quotaToDecrease);
+        //                System.Threading.Thread.Sleep(r.Next(50));
+        //            }
+        //            else
+        //            {
+        //                log.DebugFormat("successfully updated domain quota to {0}. domainId = {1}", domainQuota.Used, domainId);
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while decreasing quota to domain, domainId: {0}, quotaToDecrease: {1}, ex: {2}", domainId, quotaToDecrease, ex);
+        //    }           
+
+        //    return result;
+        //}
 
         public static bool InsertFirstFollowerLock(int groupId, string seriesId, int seasonNumber, string channelId, bool isBlockLock)
         {
@@ -1204,6 +1279,49 @@ namespace DAL
             int res = sp.ExecuteReturnValue<int>();
 
             return res > 0;
+        }
+        
+        public static bool SetDomainQuota(long domainId, DomainQuota domainQuota)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;                    
+                    Couchbase.IO.ResponseStatus status;
+
+                    object quotaObj = cbClient.GetWithVersion<object>(domainQuotaKey, out version, out status);
+                    if (status == Couchbase.IO.ResponseStatus.Success)
+                    {   
+                        result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while set domain quota. number of tries: {0}/{1}. domainId: {2}, domainQuota: {3}", numOfRetries, limitRetries, domainId, domainQuota.ToString());
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while set quota to domain, domainId: {0}, domainQuota: {1}, ex: {2}", domainId, domainQuota.ToString(), ex);
+            }
+
+            return result;
         }
     }
 }

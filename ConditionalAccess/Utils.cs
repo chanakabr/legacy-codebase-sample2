@@ -5074,7 +5074,7 @@ namespace ConditionalAccess
             int domainDefaultQuota = 0;
             try
             {
-                string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);
+                string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);// get defualt quota by group_id
                 bool res = ConditionalAccessCache.GetItem<int>(key, out domainDefaultQuota);
                 if (!res || domainDefaultQuota == 0)
                 {
