@@ -360,7 +360,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
               .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))
-              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => src.Status));
+              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => new List<ApiObjects.Response.Status>() { src.Status }));
 
             Mapper.CreateMap<ApiObjects.Response.Status, KalturaAccessControlMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => ((ApiObjects.Response.eResponseStatus)src.Code).ToString()))

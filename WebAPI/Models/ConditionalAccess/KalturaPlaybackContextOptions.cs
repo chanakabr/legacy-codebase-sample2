@@ -44,9 +44,8 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "contexts")]
         [JsonProperty("contexts")]
         [XmlElement(ElementName = "contexts")]
-        [SchemeProperty(DynamicType = typeof(KalturaPlaybackContextType))]
+        [SchemeProperty(DynamicType = typeof(KalturaPlaybackContextType), MinLength = 1)]
         public string Contexts { get; set; }
-
 
         public List<long> GetMediaFileIds()
         {
@@ -67,9 +66,9 @@ namespace WebAPI.Models.ConditionalAccess
         public List<KalturaPlaybackContextType> GetContexts()
         {
             List<KalturaPlaybackContextType> list = new List<KalturaPlaybackContextType>();
-            if (!string.IsNullOrEmpty(AssetFileIds))
+            if (!string.IsNullOrEmpty(Contexts))
             {
-                string[] stringValues = AssetFileIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] stringValues = Contexts.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string stringValue in stringValues)
                 {
                     KalturaPlaybackContextType value = (KalturaPlaybackContextType)Enum.Parse(typeof(KalturaPlaybackContextType), stringValue);

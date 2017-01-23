@@ -2023,18 +2023,21 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Status.Code != (int)eResponseStatus.OK || response.Status.Code != (int)eResponseStatus.ServiceNotAllowed || response.Status.Code != (int)eResponseStatus.NotEntitled ||
-                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel || response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation ||
-                response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation || response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed || response.Status.Code != (int)eResponseStatus.NoFilesFound)
+            if (response.Status.Code != (int)eResponseStatus.OK && response.Status.Code != (int)eResponseStatus.ServiceNotAllowed && response.Status.Code != (int)eResponseStatus.NotEntitled &&
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation &&
+                response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
             else if (response.Status.Code != (int)eResponseStatus.OK)
             {
-                kalturaPlaybackContext.Messages = new List<KalturaAccessControlMessage>()
+                kalturaPlaybackContext = new KalturaPlaybackContext()
                 {
-                    new KalturaAccessControlMessage() {
-                        Code = ((eResponseStatus)response.Status.Code).ToString(), Message = response.Status.Message
+                    Messages = new List<KalturaAccessControlMessage>()
+                    {
+                        new KalturaAccessControlMessage() {
+                            Code = ((eResponseStatus)response.Status.Code).ToString(), Message = response.Status.Message
+                        }
                     }
                 };
             }
