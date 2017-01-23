@@ -19978,6 +19978,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                ConditionalAccess.WS_Catalog.MediaObj epgChannelLinearMedia = null;
                 // Recording
                 if (assetType == eAssetTypes.NPVR)
                 {
@@ -19989,7 +19990,7 @@ namespace ConditionalAccess
                         return response;
                     }
                    
-                    var epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, (int)mediaId);
+                    epgChannelLinearMedia = Utils.GetMediaById(m_nGroupID, (int)mediaId);
 
                     // get TSTV settings
                     var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
@@ -20005,23 +20006,28 @@ namespace ConditionalAccess
                 }
 
                 List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds);
+                List<long> assetFileIds = new List<long>();
 
-                if (files != null && files.Count > 0)
+                if (assetType == eAssetTypes.NPVR && (epgChannelLinearMedia == null || epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
+                {
+                    assetFileIds = files.Select(f => f.Id).ToList();
+                }  
+                else if (files != null && files.Count > 0)
                 {
                     MediaFileItemPricesContainer[] prices = GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
                     if (prices != null && prices.Length > 0)
                     {
-                        List<long> assetFileIds = new List<long>();
                         foreach (MediaFileItemPricesContainer price in prices)
                         {
                             if (IsFreeItem(price) || Utils.IsItemPurchased(price))
                             {
                                 assetFileIds.Add(price.m_nMediaFileID);
                             }
+                            
                             filePrice = price;
                         }
 
-                        if (files.Count > 0)
+                        if (files.Count > 0 && assetType != eAssetTypes.NPVR)
                         {
                             int domainID = 0;
                             List<int> ruleIds = new List<int>();
@@ -20033,6 +20039,13 @@ namespace ConditionalAccess
                             }
 
                             response.Files = files.Where(f => assetFileIds.Contains(f.Id)).ToList();
+                        }
+                        else if (assetType == eAssetTypes.NPVR)
+                        {
+                            log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
+                            m_nGroupID, userId, domainId, assetId, recording.EpgId, recording.Id);
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
+                            return response;
                         }
                     }
                 }
