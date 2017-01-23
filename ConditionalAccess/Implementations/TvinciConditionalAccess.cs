@@ -521,7 +521,7 @@ namespace ConditionalAccess
 
                 // check if the service allowed for domain  
                 eService eservice = GetServiceByEPGFormat(eformat);
-                if (eservice != eService.Unknown && !IsServiceAllowed(m_nGroupID, domainId, eservice))
+                if (eservice != eService.Unknown && !IsServiceAllowed(domainId, eservice))
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("GetEPGLink: service not allowed.");
