@@ -19929,7 +19929,7 @@ namespace ConditionalAccess
             return status;
         }
 
-        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType streamerType, string mediaProtocol,
+        public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
             List<PlayContextType> contexts, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
             // TODO: add cache
@@ -20007,48 +20007,60 @@ namespace ConditionalAccess
                     }
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetId, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds);
                 List<long> assetFileIds = new List<long>();
 
-                if (assetType == eAssetTypes.NPVR && (epgChannelLinearMedia == null || epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
+                if (files != null && files.Count > 0)
                 {
-                    assetFileIds = files.Select(f => f.Id).ToList();
-                }  
-                else if (files != null && files.Count > 0)
-                {
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
-                    if (prices != null && prices.Length > 0)
+                    MediaFileItemPricesContainer[] prices = null;
+
+                    if (assetType == eAssetTypes.NPVR && (epgChannelLinearMedia == null || epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                     {
-                        foreach (MediaFileItemPricesContainer price in prices)
+                        assetFileIds = files.Select(f => f.Id).ToList();
+                    }
+                    else
+                    {
+                        prices = GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
+                        if (prices != null && prices.Length > 0)
                         {
-                            if (IsFreeItem(price) || Utils.IsItemPurchased(price))
+                            foreach (MediaFileItemPricesContainer price in prices)
                             {
-                                assetFileIds.Add(price.m_nMediaFileID);
-                            }
-                            
-                            filePrice = price;
-                        }
+                                if (IsFreeItem(price) || Utils.IsItemPurchased(price))
+                                {
+                                    assetFileIds.Add(price.m_nMediaFileID);
+                                }
 
-                        if (files.Count > 0 && assetType != eAssetTypes.NPVR)
-                        {
-                            int domainID = 0;
-                            List<int> ruleIds = new List<int>();
-                            DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, (int)assetFileIds[0], udid, prices, int.Parse(assetId), ip, ref ruleIds, ref domainID);
-                            if (mediaConcurrencyResponse != DomainResponseStatus.OK)
-                            {
-                                response.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
-                                return response;
+                                filePrice = price;
                             }
-
-                            response.Files = files.Where(f => assetFileIds.Contains(f.Id)).ToList();
                         }
-                        else if (assetType == eAssetTypes.NPVR)
+                    }
+
+                    if (assetFileIds.Count > 0)
+                    {
+                        int domainID = 0;
+                        List<int> ruleIds = new List<int>();
+                        DomainResponseStatus mediaConcurrencyResponse = CheckMediaConcurrency(userId, (int)assetFileIds[0], udid, prices, int.Parse(assetId), ip, ref ruleIds, ref domainID);
+                        if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                         {
-                            log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
-                            m_nGroupID, userId, domainId, assetId, recording.EpgId, recording.Id);
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
+                            response.Status = ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
                             return response;
                         }
+
+                        response.Files = files.Where(f => assetFileIds.Contains(f.Id)).ToList();
+                    }
+                    else if (assetType == eAssetTypes.NPVR)
+                    {
+                        log.DebugFormat("User is not entitled for the EPG and TSTV settings do not allow playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",
+                        m_nGroupID, userId, domainId, assetId, recording.EpgId, recording.Id);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording playback is not allowed for not entitled EPG channel");
+                        return response;
+                    }
+                    else
+                    {
+                        log.DebugFormat("User is not entitled. groupId = {0}, userId = {1}, domainId = {2}, assetId = {3}, assetType = {4}",
+                        m_nGroupID, userId, domainId, assetId, assetType);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, "Not entitled");
+                        return response;
                     }
                 }
                 else
@@ -20113,7 +20125,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetType, mediaId, null, null, null, new List<long>() { fileId }, true);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetId, assetType, mediaId, null, null, null, new List<long>() { fileId }, true);
 
                 if (files == null || files.Count == 0)
                 {

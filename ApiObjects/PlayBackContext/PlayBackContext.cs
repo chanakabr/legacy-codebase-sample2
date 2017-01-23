@@ -23,7 +23,9 @@ namespace ApiObjects
 
         public string Type { get; set; }
 
-        public string Url { get; set; } // tan tan
+        public string Url { get; set; }
+
+        public string PlayManifestUrl { get; set; } 
 
         public long Duration { get; set; }
 

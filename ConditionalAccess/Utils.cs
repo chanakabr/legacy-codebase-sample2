@@ -6275,7 +6275,7 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
-        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
+        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, string assetId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
             bool filterOnlyByIds = false)
         {
             List<MediaFile> files = null;
@@ -6286,7 +6286,12 @@ namespace ConditionalAccess
             if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
             {
                 allMediafiles = ApiDAL.GetMediaFiles(mediaId);
-                allMediafiles.ForEach(f => f.Url = Utils.GetAssetUrl(groupId, assetType, f.Url, f.CdnId));
+                foreach (MediaFile mediaFile in allMediafiles)
+                {
+                    mediaFile.Url = GetAssetUrl(groupId, assetType, mediaFile.Url, mediaFile.CdnId);
+                    // TODO: CONTEXT!!!
+                    mediaFile.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, mediaFile.Id, contexts[0]);
+                }
 
                 if (allMediafiles != null)
                 {
@@ -6303,14 +6308,26 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    files = allMediafiles.Where(f => (streamerType == f.StreamerType) &&
+                    files = allMediafiles.Where(f => (streamerType.HasValue && streamerType.Value == f.StreamerType) &&
                         ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
-                        f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower())) &&
+                        (!string.IsNullOrEmpty(mediaProtocol) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
                         (fileIds != null && fileIds.Contains(f.Id))).ToList();
                 }
             }
                 
             return files;
+        }
+
+        private static string BuildFilePlayManifestUrl(int groupId, string assetId, eAssetTypes assetType, long mediaFileId, PlayContextType? playContextType)
+        {
+            StringBuilder sb = new StringBuilder(string.Format("/p/{0}/playManifest/assetId/{1}/assetType/{2}/assetFileId/{3}", groupId, assetId, assetType, mediaFileId));
+            
+            //TODO: make sure it's right to add this...
+            if (playContextType.HasValue)
+            {
+                sb.AppendFormat("/context/{0}", playContextType.Value);
+            }
+            return sb.ToString();
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
@@ -6385,7 +6402,6 @@ namespace ConditionalAccess
                 case PlayContextType.StartOver:
                     service = eService.StartOver;
                     break;
-                case PlayContextType.TrickPlay:
                 case PlayContextType.Trailer:
                 case PlayContextType.Playback:
                 default:
