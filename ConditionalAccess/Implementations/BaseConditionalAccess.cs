@@ -14436,23 +14436,9 @@ namespace ConditionalAccess
                     // update Quota
                     if (subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
                     {
-                        INPVRProvider npvr; 
-                        NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
-                        if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
-                        {  
-                            NPVRUserActionResponse resp;
-                            if (isGrant)
-                            {
-                                log.DebugFormat("npvr.CreateAccount at npvr Provider with householdId  {0}, Quota: {1}", householdId.ToString(), npvrObject.Quota);
-                                resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });                               
-                            }
-                            else
-                            {
-                                log.DebugFormat("npvr.UpdateAccount at npvr Provider with householdId  {0}, Quota: {1}", householdId.ToString(), npvrObject.Quota);
-                                resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
-                            }
-                        }
+                        Utils.HandleNPVRQuota(m_nGroupID, subscription, householdId, isGrant);
                     }
+
                     if (subscription.m_bIsRecurring)
                     {
 
@@ -14951,6 +14937,7 @@ namespace ConditionalAccess
 
             }
 
+            recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
             if (numOfPayments > 0 && recurringNumber >= numOfPayments)
             {
                 // Subscription ended
