@@ -353,6 +353,7 @@
     <Compile Include="Social\SocialNetwork.cs" />
     <Compile Include="Social\SocialPrivacySettings.cs" />
     <Compile Include="Social\PlatformConfig.cs" />
+    <Compile Include="TimeShiftedTv\DomainQuota.cs" />
     <Compile Include="TimeShiftedTv\Recording.cs" />
     <Compile Include="TimeShiftedTv\HandleDomainQuataByRecordingTask.cs" />
     <Compile Include="Scheduling.cs" />

@@ -13062,7 +13062,7 @@ namespace ConditionalAccess
                                 {
                                     WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
-
+                                    
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -14436,18 +14436,19 @@ namespace ConditionalAccess
                     // update Quota
                     if (subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
                     {
-                        INPVRProvider npvr;
+                        INPVRProvider npvr; 
+                        NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
                         if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
-                        {
-
-                            NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
+                        {  
                             NPVRUserActionResponse resp;
                             if (isGrant)
                             {
-                                resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                                log.DebugFormat("npvr.CreateAccount at npvr Provider with householdId  {0}, Quota: {1}", householdId.ToString(), npvrObject.Quota);
+                                resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });                               
                             }
                             else
                             {
+                                log.DebugFormat("npvr.UpdateAccount at npvr Provider with householdId  {0}, Quota: {1}", householdId.ToString(), npvrObject.Quota);
                                 resp = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
                             }
                         }
@@ -16857,12 +16858,12 @@ namespace ConditionalAccess
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-                        if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID, domainID, recordingDuration))
+                        if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID,domainID, recordingDuration))
                         {
                             recording.Type = recordingType;
                             if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                             {
-                                // increase the quota back to the user
+                                // increase the quota back to the user                               
                                 if (!QuotaManager.Instance.IncreaseDomainQuota(domainID, recordingDuration))
                                 {
                                     log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -18437,11 +18438,11 @@ namespace ConditionalAccess
                                 int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
                                 if (recordingDurationDif > 0)
                                 {
-                                    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainQuota(domainId, recordingDurationDif);
+                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainQuota(task.GroupId, domainId, recordingDurationDif, true);
                                 }
                                 else if (recordingDurationDif < 0)
                                 {
-                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainQuota(task.GroupId, domainId, -recordingDurationDif, true);
+                                    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainQuota(domainId, -recordingDurationDif);
                                 }
 
                                 if (quotaSuccessfullyUpdated)

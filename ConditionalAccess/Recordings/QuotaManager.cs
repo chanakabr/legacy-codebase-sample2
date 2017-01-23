@@ -106,31 +106,90 @@ namespace Recordings
 
         public ApiObjects.TimeShiftedTv.DomainQuotaResponse GetDomainQuotaResponse(int groupId, long domainId)
         {
+            ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
             Status status = new Status((int)eResponseStatus.OK);
-
-            int totalSeconds = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
-            int secondsLeft = GetDomainQuota(groupId, domainId);
-
-            ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse()
+            bool defaultQuota = true;
+            DomainQuota domainQuota = GetDomainQuotaObject(groupId, domainId, out defaultQuota);
+            if (domainQuota != null)
             {
-                Status = status,
-                TotalQuota = totalSeconds,
-                AvailableQuota = secondsLeft < 0 ? 0 : secondsLeft
-            };
+                int secondsLeft = domainQuota.Total - domainQuota.Used;
 
+                response = new DomainQuotaResponse()
+                {
+                    Status = status,
+                    TotalQuota = domainQuota.Total,
+                    AvailableQuota = secondsLeft < 0 ? 0 : secondsLeft
+                };
+            }
             return response;
         }
 
-        public int GetDomainQuota(int groupId, long domainId)
+        private DomainQuota GetDomainQuotaObject(int groupId, long domainId, out bool defaultQuota)
         {
-            int domainQuota;
+            defaultQuota = true;
+            DomainQuota domainQuota;
+            int availableQuota = 0;
             // if the domain quota wasn't on CB
-            if (!RecordingsDAL.GetDomainQuota(groupId, domainId, out domainQuota))
+
+            if (!RecordingsDAL.GetDomainQuota(groupId, domainId, out domainQuota, out availableQuota))
             {
-                domainQuota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+                int defaultTotal = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+                domainQuota = new DomainQuota(defaultTotal);
+            }
+            else
+            {
+                if ((domainQuota != null && domainQuota.Total == 0) || domainQuota == null) // means that user have no special quota - get default quota (by group)
+                {
+                    int defaultTotal = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+                    if (domainQuota != null)
+                    {
+                        domainQuota.Total = defaultTotal;
+                    }
+                    else
+                    {
+                        domainQuota = new DomainQuota(defaultTotal, defaultTotal - availableQuota);
+                        //if domain quota now as int in cb ==>  set domain Quota as Object 
+                        bool result = RecordingsDAL.SetDomainQuota(domainId, domainQuota, 0);
+                        // if fail to so what ???? 
+                    }
+                }
+                else
+                {
+                    defaultQuota = false;
+                }
             }
 
             return domainQuota;
+        }
+        
+        public int GetDomainQuota(int groupId, long domainId)
+        {
+            DomainQuota domainQuota;
+            int quota = 0;
+            int availableQuota = 0;
+            // if the domain quota wasn't on CB -  quota in seconds !
+            if (!RecordingsDAL.GetDomainQuota(groupId, domainId, out domainQuota, out availableQuota))
+            {
+                quota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+            }
+            else
+            {
+                if ((domainQuota != null && domainQuota.Total == 0) || domainQuota == null) // means that user have no special quota - get default quota (by group) 
+                {
+                    int defaultTotal = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);                   
+                    
+                    if (domainQuota == null)
+                    {
+                        domainQuota = new DomainQuota();
+                        domainQuota.Used = defaultTotal - availableQuota;
+                    } 
+
+                    domainQuota.Total = defaultTotal;
+                }
+                quota = (domainQuota.Total - domainQuota.Used);
+            }
+
+            return quota;
         }
 
         public bool IncreaseDomainQuota(long domainId, int quotaToIncrease)
@@ -149,10 +208,12 @@ namespace Recordings
         public bool DecreaseDomainQuota(int groupId, long domainId, int quotaToDecrease, bool shouldForceDecrease = false)
         {
             bool result = false;
-            int domainQuota = GetDomainQuota(groupId, domainId);
-            if (domainQuota >= quotaToDecrease || shouldForceDecrease)
+            bool defaultQuota = true;
+            DomainQuota domainQuota = GetDomainQuotaObject(groupId, domainId, out defaultQuota);
+
+            if (domainQuota.Total - domainQuota.Used >= quotaToDecrease || shouldForceDecrease)
             {
-                result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, domainQuota);
+                result = RecordingsDAL.DecreaseDomainQuota(domainId, quotaToDecrease, defaultQuota ? 0 : domainQuota.Total);
             }
             
             return result;
@@ -222,5 +283,7 @@ namespace Recordings
         }
 
         #endregion
+
+      
     }
 }

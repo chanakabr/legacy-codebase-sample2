@@ -2447,7 +2447,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() * 60;
         }
-
+        
         public static int GetTimeShiftedTVAdapterId(int groupId)
         {
             int adapterId = 0;
