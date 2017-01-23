@@ -2064,7 +2064,7 @@ namespace WebAPI.Clients
             return kalturaPlaybackContext;
         }
 
-        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaContextType contextType)
+        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaPlaybackContextType contextType)
         {
             PlayManifestResponse response = null;
 

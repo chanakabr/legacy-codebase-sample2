@@ -293,7 +293,7 @@
             <param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
              <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.AssetFileController.GetPlayManifestWrapper(System.Int32,System.String,System.String,System.Nullable{WebAPI.Models.Catalog.KalturaAssetType},System.Int64,System.Nullable{WebAPI.Models.ConditionalAccess.KalturaContextType})">
+        <member name="M:WebAPI.Controllers.AssetFileController.GetPlayManifestWrapper(System.Int32,System.String,System.String,System.Nullable{WebAPI.Models.Catalog.KalturaAssetType},System.Int64,System.Nullable{WebAPI.Models.ConditionalAccess.KalturaPlaybackContextType})">
             <summary>
             Redirects to play manifest
             </summary>

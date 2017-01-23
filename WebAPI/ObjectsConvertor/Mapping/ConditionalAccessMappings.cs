@@ -734,24 +734,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static PlayContextType ConvertPlayContextType(KalturaContextType type)
+        public static PlayContextType ConvertPlayContextType(KalturaPlaybackContextType type)
         {
             PlayContextType result;
             switch (type)
             {
-                case KalturaContextType.TRAILER:
+                case KalturaPlaybackContextType.TRAILER:
                     result = PlayContextType.Trailer;
                     break;
-                case KalturaContextType.CATCHUP:
+                case KalturaPlaybackContextType.CATCHUP:
                     result = PlayContextType.CatchUp;
                     break;
-                case KalturaContextType.START_OVER:
+                case KalturaPlaybackContextType.START_OVER:
                     result = PlayContextType.StartOver;
                     break;
-                case KalturaContextType.TRICK_PLAY:
+                case KalturaPlaybackContextType.TRICK_PLAY:
                     result = PlayContextType.TrickPlay;
                     break;
-                case KalturaContextType.PLAYBACK:
+                case KalturaPlaybackContextType.PLAYBACK:
                     result = PlayContextType.Playback;
                     break;
                 default:

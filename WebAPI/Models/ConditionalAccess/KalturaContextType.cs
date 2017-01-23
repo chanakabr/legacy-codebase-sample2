@@ -5,7 +5,7 @@ using System.Web;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    public enum KalturaContextType
+    public enum KalturaPlaybackContextType
     {
         TRAILER,
         CATCHUP,

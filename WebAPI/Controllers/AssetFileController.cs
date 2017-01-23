@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("partnerId", MinInteger = 1)]
         [SchemeArgument("assetFileId", MinInteger = 1)]
         [FailureHttpCode]
-        public async Task<object> GetPlayManifestWrapper(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaContextType? contextType = null)
+        public async Task<object> GetPlayManifestWrapper(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaPlaybackContextType? contextType = null)
         {
             MethodInfo methodInfo = null;
             ApiController classInstance = null;
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        public bool GetPlayManifest(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaContextType? contextType = null)
+        public bool GetPlayManifest(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaPlaybackContextType? contextType = null)
         {
             if (string.IsNullOrEmpty(ks))
             {
@@ -133,7 +133,6 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "contextType");
             }
-
 
             KS ksObject = KS.ParseKS(ks);
 
