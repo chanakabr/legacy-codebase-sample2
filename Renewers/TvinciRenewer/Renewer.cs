@@ -6,7 +6,6 @@ using System.Text;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
-using Billing;
 using Core.ConditionalAccess;
 using ApiObjects.Billing;
 /// ******************************************************
