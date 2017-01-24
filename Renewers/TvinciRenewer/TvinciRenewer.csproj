@@ -44,9 +44,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Billing">
-      <HintPath>..\..\..\ws_billing\Billing\bin\Debug\Billing.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -86,10 +83,6 @@
     <ProjectReference Include="..\..\..\TvmCore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\ws_billing\Billing\Billing.csproj">
-      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
-      <Name>Billing</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
