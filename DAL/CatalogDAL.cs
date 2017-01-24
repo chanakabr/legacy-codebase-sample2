@@ -3071,7 +3071,7 @@ namespace Tvinci.Core.DAL
             DataTable dt = null;
             try
             {
-                StoredProcedure sp = new StoredProcedure("Get_FileAndMediaBasicDetails");
+                StoredProcedure sp = new StoredProcedure("Get_ValidateMediaFiles");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
                 dt = sp.Execute();
