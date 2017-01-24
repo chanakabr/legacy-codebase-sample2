@@ -3066,6 +3066,29 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
+        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles)
+        {
+            DataTable dt = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_FileAndMediaBasicDetails");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                dt = sp.Execute();
+
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+            }
+            return dt;
+        }
+
+
         public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {
             RecommendationEngine result = null;

@@ -3165,7 +3165,7 @@ namespace ConditionalAccess
                     if (fileID.HasValue)
                     {
 
-                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_FileAndMediaBasicDetails(new int[1] { fileID.Value });
+                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(new int[1] { fileID.Value });
                         if (dt != null && dt.Rows != null)
                         {
                             dr = dt.Rows.Count > 0 ? dt.Rows[0] : dt.NewRow(); // if data not exists in DB return new DataRow to insert it to cache      

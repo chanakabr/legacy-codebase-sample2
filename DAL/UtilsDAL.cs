@@ -764,7 +764,7 @@ namespace DAL
 
         public static string GetFileAndMediaBasicDetailsKey(int fileID)
         {
-            return string.Format("fileId_{0}", fileID);
+            return string.Format("validate_fileId_{0}", fileID);
         }
     }
 }
