@@ -1737,7 +1737,7 @@ namespace Core.Users
         }
 
         
-        public ApiObjects.Response.Status ChangeUsers(int nGroupID, string userId, string userIdToChange, string udid)
+        public static ApiObjects.Response.Status ChangeUsers(int nGroupID, string userId, string userIdToChange, string udid)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1751,8 +1751,8 @@ namespace Core.Users
             return response;
         }
 
-        
-        public void AddInitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+
+        public static void AddInitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);

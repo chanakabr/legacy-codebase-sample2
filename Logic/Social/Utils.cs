@@ -30,6 +30,12 @@ namespace Core.Social
             return TVinciShared.WS_Utils.GetTcmConfigValue(sKey);
         }
 
+        static public Int32 GetGroupID(string sWSUserName, string sWSPassword)
+        {
+            ApiObjects.Credentials wsc = new ApiObjects.Credentials(sWSUserName, sWSPassword);
+            return TvinciCache.WSCredentials.GetGroupID(ApiObjects.eWSModules.BILLING, wsc);
+        }
+
         public static UserResponseObject GetUserDataByID(string sUserGuid, Int32 nGroupID)
         {
             UserResponseObject response = null;

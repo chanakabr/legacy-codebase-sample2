@@ -54,7 +54,7 @@ namespace Core.Pricing
             return dEnd - dStart;
         }
 
-        public static int GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName)
+        public static int GetGroupID(string sWSUserName, string sWSPassword)
         {
             Credentials wsc = new Credentials(sWSUserName, sWSPassword);
             int nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.PRICING, wsc);
@@ -151,7 +151,7 @@ namespace Core.Pricing
 
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePricing t)
         {
-            Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
             else
@@ -173,7 +173,7 @@ namespace Core.Pricing
      
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCampaign t)
         {
-            Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
             else
@@ -183,7 +183,7 @@ namespace Core.Pricing
 
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCoupons t)
         {
-            Int32 nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
                 Utils.GetBaseImpl(ref t, nGroupID);
@@ -198,7 +198,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseDiscount t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
@@ -210,7 +210,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseUsageModule t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
@@ -223,7 +223,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePPVModule t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
@@ -235,7 +235,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseSubscription t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
@@ -247,7 +247,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BaseCollection t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
@@ -259,7 +259,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePrePaidModule t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);
@@ -271,7 +271,7 @@ namespace Core.Pricing
         public static Int32 GetGroupID(string sWSUserName, string sWSPassword, string sFunctionName, ref BasePreviewModule t)
         {
             int nGroupID = 0;
-            nGroupID = GetGroupID(sWSUserName, sWSPassword, sFunctionName);
+            nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
                 GetBaseImpl(ref t, nGroupID);

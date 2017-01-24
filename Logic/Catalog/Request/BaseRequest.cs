@@ -69,7 +69,7 @@ namespace Core.Catalog.Request
     [ServiceKnownType(typeof(AssetCommentAddRequest))]
     [ServiceKnownType(typeof(ScheduledRecordingsRequest))]
     [DataContract]
-    public abstract class BaseRequest
+    public class BaseRequest
     {
         [DataMember]
         public string m_sUserIP;
@@ -138,8 +138,10 @@ namespace Core.Catalog.Request
             m_dServerTime = DateTime.UtcNow;
         }
 
-        public abstract BaseResponse GetResponse(BaseRequest request);
-
+        public virtual BaseResponse GetResponse(BaseRequest request)
+        {
+            return null;
+        }
 
         public String SerializeToXML<T>(T objectToSerialize)
         {
