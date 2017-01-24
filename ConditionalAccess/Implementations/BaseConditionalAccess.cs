@@ -1117,7 +1117,7 @@ namespace ConditionalAccess
 
 
 
-        protected DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)
+        public DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)
         {
             DateTime res = dtToInitializeWith;
             if (sub != null)

@@ -411,6 +411,11 @@ namespace ConditionalAccess
                                 DateTime? endDate = null;
                                 response.CreatedAt = DateUtils.DateTimeToUnixTimestamp(entitlementDate);
 
+                                if (isGiftCard)
+                                {
+                                    endDate = CalculateGiftCardEndDate(cas, coupon, subscription, entitlementDate);
+                                }
+
                                 // grant entitlement
                                 bool handleBillingPassed = cas.HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, price, currency, couponCode, userIp,
                                                                                       country, deviceName, long.Parse(response.TransactionID), customData, productId,
@@ -528,6 +533,23 @@ namespace ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        private static DateTime? CalculateGiftCardEndDate(BaseConditionalAccess cas, CouponData coupon, Subscription subscription, DateTime entitlementDate)
+        {
+            // Calculate first end date with normal rules
+            var initialEndDate = cas.CalcSubscriptionEndDate(subscription, false, entitlementDate);
+
+            // get the time span between now and the first period end date
+            var timeSpan = initialEndDate - entitlementDate;
+
+            // expand (multiply) this period by the coupon's recurring cound
+            var newTimeSpan = new TimeSpan(timeSpan.Ticks * coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon);
+
+            // new end date is now + X times the initial period
+            DateTime endDate = initialEndDate + newTimeSpan;
+
+            return endDate;
         }
 
 
