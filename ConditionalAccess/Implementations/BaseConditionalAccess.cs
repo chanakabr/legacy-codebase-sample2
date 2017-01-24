@@ -12081,60 +12081,62 @@ namespace ConditionalAccess
 
             try
             {
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-
-                /*Get Media Concurrency Rules*/
-                apiWs = new API();
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
-                int bmID = 0;
-                bool bSuccess = false;
-
-                eBusinessModule eBM = eBusinessModule.PPV;
-
-                if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
-                {
-                    bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
-                }
-                else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
-                {
-                    bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
-                    eBM = eBusinessModule.Subscription;
-                }
-                if (!bSuccess)
-                {
-                    return response;
-                }
-
-                List<MediaConcurrencyRule> mcRules = apiWs.GetMediaConcurrencyRules(sWSUserName, sWSPass, nMediaID, sUserIP, bmID, eBM);
-                ValidationResponseObject validationResponse = new ValidationResponseObject();
-                /*MediaConurrency Check */
-                domainsWS = new WS_Domains.module();
-                sWSUserName = string.Empty;
-                sWSPass = string.Empty;
-
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref sWSUserName, ref sWSPass);
                 int nDeviceFamilyBrand = 0;
                 long lSiteGuid = 0;
                 long.TryParse(sSiteGuid, out lSiteGuid);
 
-                if (mcRules != null && mcRules.Count() > 0)
-                {
-                    foreach (MediaConcurrencyRule mcRule in mcRules)
-                    {
-                        lRuleIDS.Add(mcRule.RuleID); // for future use
+                ValidationResponseObject validationResponse = new ValidationResponseObject();
+                domainsWS = new WS_Domains.module();
+                string domainUsername = string.Empty;
+                string domainPassword = string.Empty;
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref domainUsername, ref domainPassword);
 
-                        validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
-                            Users.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
-                        if (response == DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
+                if (prices != null && prices.Length > 0)
+                {
+                    /*Get Media Concurrency Rules*/
+                    string apiUsername = string.Empty;
+                    string apiPassword = string.Empty;
+                    apiWs = new API();
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref apiUsername, ref apiPassword);
+                    int bmID = 0;
+                    bool bSuccess = false;
+                    eBusinessModule eBM = eBusinessModule.PPV;
+
+                    if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.PPVPurchased)
+                    {
+                        bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                    }
+                    else if (prices[0].m_oItemPrices != null && prices[0].m_oItemPrices[0].m_PriceReason == PriceReason.SubscriptionPurchased)
+                    {
+                        bSuccess = int.TryParse(prices[0].m_oItemPrices[0].m_sPPVModuleCode, out bmID);
+                        eBM = eBusinessModule.Subscription;
+                    }
+                    if (!bSuccess)
+                    {
+                        return response;
+                    }
+
+                    List<MediaConcurrencyRule> mcRules = apiWs.GetMediaConcurrencyRules(apiUsername, apiPassword, nMediaID, sUserIP, bmID, eBM);
+                    /*MediaConurrency Check */
+
+                    if (mcRules != null && mcRules.Count() > 0)
+                    {
+                        foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
-                            response = validationResponse.m_eStatus;
+                            lRuleIDS.Add(mcRule.RuleID); // for future use
+
+                            validationResponse = domainsWS.ValidateLimitationModule(domainUsername, domainPassword, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
+                                Users.ValidationType.Concurrency, mcRule.RuleID, 0, nMediaID);
+                            if (response == DomainResponseStatus.OK && validationResponse != null) // when there is more then one rule  - change response status only when status is still OK (that mean that this is the first time it's change)
+                            {
+                                response = validationResponse.m_eStatus;
+                            }
                         }
                     }
                 }
                 else
                 {
-                    validationResponse = domainsWS.ValidateLimitationModule(sWSUserName, sWSPass, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
+                    validationResponse = domainsWS.ValidateLimitationModule(domainUsername, domainPassword, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                            Users.ValidationType.Concurrency, 0, 0, nMediaID);
                     response = validationResponse.m_eStatus;
                 }
@@ -19917,7 +19919,7 @@ namespace ConditionalAccess
         }
 
         public PlaybackContextResponse GetPlaybackContext(string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
-            List<PlayContextType> contexts, string ip, string udid, out MediaFileItemPricesContainer filePrice)
+            PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
             // TODO: add cache
 
@@ -19949,10 +19951,10 @@ namespace ConditionalAccess
                 if (assetType == eAssetTypes.EPG)
                 {
                     // services
-                    List<PlayContextType> allowedContexts = FilterNotAllowedServices(domainId, contexts);
-                    if (allowedContexts == null || allowedContexts.Count == 0)
+                    PlayContextType? allowedContext = FilterNotAllowedServices(domainId, context);
+                    if (!allowedContext.HasValue)
                     {
-                        log.DebugFormat("No allowed services were asked for domainId = {0}", domainId);
+                        log.DebugFormat("Service for domainId = {0}", domainId);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, "Service not allowed");
                         return response;
                     }
@@ -19994,7 +19996,7 @@ namespace ConditionalAccess
                     }
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetId, assetType, mediaId, streamerType, mediaProtocol, contexts, fileIds);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
                 List<long> assetFileIds = new List<long>();
 
                 if (files != null && files.Count > 0)
@@ -20065,24 +20067,19 @@ namespace ConditionalAccess
             return response;
         }
 
-        public List<PlayContextType> FilterNotAllowedServices(long domainId, List<PlayContextType> contexts)
+        public PlayContextType? FilterNotAllowedServices(long domainId, PlayContextType context)
         {
-            List<PlayContextType> response = new List<PlayContextType>();
-            foreach (PlayContextType context in contexts)
+            // check if the service allowed for domain  
+            eService service = Utils.GetServiceByPlayContextType(context);
+            if (service == eService.Unknown || IsServiceAllowed((int)domainId, service))
             {
-                // check if the service allowed for domain  
-                eService service = Utils.GetServiceByPlayContextType(context);
-                if (service == eService.Unknown || IsServiceAllowed((int)domainId, service))
-                {
-                    response.Add(context);
-                }
-                else
-                {
-                    log.DebugFormat("service is not allowed for domain = {0}, service = {1}", domainId, service);
-                }
+                return context;
             }
-
-            return response;
+            else
+            {
+                log.DebugFormat("service is not allowed for domain = {0}, service = {1}", domainId, service);
+                return null;
+            }
         }
 
         public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
@@ -20112,7 +20109,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetId, assetType, mediaId, null, null, null, new List<long>() { fileId }, true);
+                List<MediaFile> files = Utils.FilterMediaFilesForAsset(m_nGroupID, assetId, assetType, mediaId, null, null, playContextType, new List<long>() { fileId }, true);
 
                 if (files == null || files.Count == 0)
                 {
@@ -20124,7 +20121,7 @@ namespace ConditionalAccess
                 MediaFile file = files[0];
                 MediaFileItemPricesContainer price;
                 PlaybackContextResponse playbackContextResponse = GetPlaybackContext(userId, assetId, assetType, new List<long>() { fileId }, file.StreamerType.Value,
-                    file.Url.Substring(0, file.Url.IndexOf(':')), new List<PlayContextType>() { playContextType }, ip, udid, out price);
+                    file.Url.Substring(0, file.Url.IndexOf(':')), playContextType, ip, udid, out price);
                 if (playbackContextResponse.Status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = playbackContextResponse.Status;

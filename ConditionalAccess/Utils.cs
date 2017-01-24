@@ -6275,8 +6275,8 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
-        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, string assetId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, List<PlayContextType> contexts, List<long> fileIds, 
-            bool filterOnlyByIds = false)
+        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, string assetId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, 
+            PlayContextType context, List<long> fileIds, bool filterOnlyByIds = false)
         {
             List<MediaFile> files = null;
 
@@ -6291,8 +6291,7 @@ namespace ConditionalAccess
                     foreach (MediaFile mediaFile in allMediafiles)
                     {
                         mediaFile.Url = GetAssetUrl(groupId, assetType, mediaFile.Url, mediaFile.CdnId);
-                        // TODO: CONTEXT!!!
-                        mediaFile.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, mediaFile.Id, contexts[0]);
+                        mediaFile.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, mediaFile.Id, context);
                     }
                     ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
                 }
@@ -6308,9 +6307,9 @@ namespace ConditionalAccess
                 else
                 {
                     files = allMediafiles.Where(f => (streamerType.HasValue && streamerType.Value == f.StreamerType) &&
-                        ((contexts != null && contexts.Contains(PlayContextType.Trailer) && f.IsTrailer) || (contexts != null && contexts.Contains(PlayContextType.Playback) && !f.IsTrailer)) &&
-                        (!string.IsNullOrEmpty(mediaProtocol) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
-                        (fileIds != null && fileIds.Contains(f.Id))).ToList();
+                        ((context == PlayContextType.Trailer && f.IsTrailer) || (context == PlayContextType.Playback && !f.IsTrailer)) &&
+                        (!string.IsNullOrEmpty(mediaProtocol) && !string.IsNullOrEmpty(f.Url) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
+                        (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
                 }
             }
 
@@ -6324,7 +6323,7 @@ namespace ConditionalAccess
             //TODO: make sure it's right to add this...
             if (playContextType.HasValue)
             {
-                sb.AppendFormat("/context/{0}", playContextType.Value);
+                sb.AppendFormat("/contextType/{0}", playContextType.Value);
             }
             return sb.ToString();
         }
