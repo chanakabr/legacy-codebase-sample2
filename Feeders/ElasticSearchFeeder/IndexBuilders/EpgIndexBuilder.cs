@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using Catalog;
 using ElasticSearch.Common;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
-using Catalog.Cache;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;

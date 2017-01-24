@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using ScheduledTasks;
 using System.Data;
-using NotificationInterface;
 using DAL;
 using KLogMonitor;
 using System.Reflection;
+using Core.Notification;
 
 namespace NotificationFeeder
 {

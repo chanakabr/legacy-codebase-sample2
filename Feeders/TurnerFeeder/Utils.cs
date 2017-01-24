@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
-using Catalog.Cache;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EnumProject;

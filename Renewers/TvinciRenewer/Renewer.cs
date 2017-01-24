@@ -4,10 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using DAL;
-using ConditionalAccess;
 using KLogMonitor;
 using System.Reflection;
 using Billing;
+using Core.ConditionalAccess;
+using ApiObjects.Billing;
 /// ******************************************************
 /// Tvinci L.T.D
 /// Auto Renewer Scheduled Tasks
@@ -168,8 +169,8 @@ namespace TvinciRenewer
                                     string sDeviceName = ODBCWrapper.Utils.GetSafeStr(dtTransactions.Rows[i]["DEVICE_NAME"]);
                                     string sLanguageCode = ODBCWrapper.Utils.GetSafeStr(dtTransactions.Rows[i]["LANGUAGE_CODE"]);
 
-                                    ConditionalAccess.BaseConditionalAccess t = null;
-                                    ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
+                                    BaseConditionalAccess t = null;
+                                    Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
                                     eBillingProvider billingProvider = (eBillingProvider)nTransactionBillingProvider;
 
@@ -289,8 +290,8 @@ namespace TvinciRenewer
                                 string sDeviceName = ODBCWrapper.Utils.GetSafeStr(dtTransactions.Rows[i]["DEVICE_NAME"]);
                                 string sLanguageCode = ODBCWrapper.Utils.GetSafeStr(dtTransactions.Rows[i]["LANGUAGE_CODE"]);
 
-                                ConditionalAccess.BaseConditionalAccess t = null;
-                                ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
+                                BaseConditionalAccess t = null;
+                                Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
 
                                 eBillingProvider eBillingProvider = (eBillingProvider)(nTransactionBillingProvider);
 
@@ -425,7 +426,7 @@ namespace TvinciRenewer
         {
 
             int res = ConditionalAccessDAL.Get_GroupFailCount(m_nGroupID, "CA_CONNECTION_STRING");
-            return res > 0 ? res : ConditionalAccess.Utils.DEFAULT_MPP_RENEW_FAIL_COUNT;
+            return res > 0 ? res : Utils.DEFAULT_MPP_RENEW_FAIL_COUNT;
         }
 
         /// <summary>
