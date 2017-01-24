@@ -977,9 +977,9 @@
             List of comma separated media file IDs
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Contexts">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Context">
             <summary>
-            List of comma separated context types, possible values: TRAILER, CATCHUP, START_OVER, PLAYBACK
+            Playback context type
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">

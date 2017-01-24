@@ -1988,9 +1988,11 @@ namespace WebAPI.Clients
             KalturaPlaybackContext kalturaPlaybackContext = null;
             PlaybackContextResponse response = null;
 
+            contextDataParams.Validate();
+
             Group group = GroupsManager.GetGroup(groupId);
 
-            List<PlayContextType> wsContexts = contextDataParams.GetContexts().Select(c => ConditionalAccessMappings.ConvertPlayContextType(c)).ToList();
+            PlayContextType wsContext = ConditionalAccessMappings.ConvertPlayContextType(contextDataParams.Context.Value);
 
             StreamerType? streamerType = null;
             if (!string.IsNullOrEmpty(contextDataParams.StreamerType))
@@ -2008,7 +2010,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, udid, Utils.Utils.GetClientIP(),
-                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContexts);
+                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
                 }
             }
             catch (Exception ex)

@@ -39,13 +39,12 @@ namespace WebAPI.Models.ConditionalAccess
         public string AssetFileIds { get; set; }
 
         /// <summary>
-        /// List of comma separated context types, possible values: TRAILER, CATCHUP, START_OVER, PLAYBACK
+        /// Playback context type
         /// </summary>
-        [DataMember(Name = "contexts")]
-        [JsonProperty("contexts")]
-        [XmlElement(ElementName = "contexts")]
-        [SchemeProperty(DynamicType = typeof(KalturaPlaybackContextType), MinLength = 1)]
-        public string Contexts { get; set; }
+        [DataMember(Name = "context")]
+        [JsonProperty("context")]
+        [XmlElement(ElementName = "context")]
+        public KalturaPlaybackContextType? Context { get; set; }
 
         public List<long> GetMediaFileIds()
         {
@@ -63,20 +62,12 @@ namespace WebAPI.Models.ConditionalAccess
             return list;
         }
 
-        public List<KalturaPlaybackContextType> GetContexts()
+        internal void Validate()
         {
-            List<KalturaPlaybackContextType> list = new List<KalturaPlaybackContextType>();
-            if (!string.IsNullOrEmpty(Contexts))
+            if (!Context.HasValue)
             {
-                string[] stringValues = Contexts.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    KalturaPlaybackContextType value = (KalturaPlaybackContextType)Enum.Parse(typeof(KalturaPlaybackContextType), stringValue);
-                    list.Add(value);
-                }
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPlaybackContextOptions.context");
             }
-
-            return list;
         }
     }
 }

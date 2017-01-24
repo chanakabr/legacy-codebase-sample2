@@ -112,10 +112,8 @@ namespace WebAPI.Controllers
             return response;
         }
 
-        public bool GetPlayManifest(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaPlaybackContextType? contextType = null)
+        public void GetPlayManifest(int partnerId = 0, string ks = null, string assetId = null, KalturaAssetType? assetType = null, long assetFileId = 0, KalturaPlaybackContextType? contextType = null)
         {
-            
-
             if (string.IsNullOrEmpty(assetId))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetId");
@@ -157,21 +155,15 @@ namespace WebAPI.Controllers
 
                 response = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType.Value, assetFileId, udid, contextType.Value);
 
-                if (response != null)
+                if (!string.IsNullOrEmpty(response))
                 {
-                    if (!string.IsNullOrEmpty(response))
-                    {
-                        Redirect(response);
-                    }
+                    HttpContext.Current.Response.Redirect(response);
                 }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-                return false;
             }
-
-            return true;
         }
     }
 }

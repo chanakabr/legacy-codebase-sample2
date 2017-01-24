@@ -585,6 +585,11 @@ namespace WebAPI.Filters
 
                         methodInfo = createMethodInvoker(actionContext.ControllerContext.ControllerDescriptor.ControllerName, actionContext.ActionDescriptor.ActionName, asm, false);
 
+                        foreach (var rdv in rd.Values)
+                        {
+                            groupedParams.Add(rdv.Key, rdv.Value);
+                        }
+
                         List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
 
                         HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
