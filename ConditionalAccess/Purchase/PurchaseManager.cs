@@ -350,7 +350,7 @@ namespace ConditionalAccess
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&
-                    coupon.m_oCouponGroup.isGiftCard &&
+                    coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     subscription != null &&
                     subscription.m_oCouponsGroup != null &&
                     coupon.m_oCouponGroup != null &&
@@ -382,13 +382,9 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        if (couponFullDiscount && !isGiftCard)
+                        if (couponFullDiscount || isGiftCard)
                         {
-                            response = HandleGiftPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.Subscription, billingGuid, 0);
-                        }
-                        else if (isGiftCard)
-                        {
-                            response = HandleGiftCardPurchase();
+                            response = HandleFullCouponPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.Subscription, billingGuid, 0, isGiftCard);
                         }
                         else
                         {
@@ -619,7 +615,7 @@ namespace ConditionalAccess
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&
-                    coupon.m_oCouponGroup.isGiftCard &&
+                    coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ppvModule != null &&
                     ppvModule.m_oCouponsGroup != null &&
                     coupon.m_oCouponGroup != null &&
@@ -668,17 +664,14 @@ namespace ConditionalAccess
                         string billingGuid = Guid.NewGuid().ToString();
 
                         // purchase
-                        if (couponFullDiscount && !isGiftCard)
+                        if (couponFullDiscount || isGiftCard)
                         {
-                            response = HandleGiftPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, contentId);
-                        }
-                        else if (isGiftCard)
-                        {
-                            response = HandleGiftCardPurchase();
+                            response = HandleFullCouponPurchase(cas, groupId, siteguid, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, contentId, isGiftCard);
                         }
                         else
                         {
-                            response = HandlePurchase(cas, groupId, siteguid, householdId, price, currency, userIp, customData, productId, eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId, adapterData);
+                            response = HandlePurchase(cas, groupId, siteguid, householdId, price, currency, userIp, customData, productId, 
+                                eTransactionType.PPV, billingGuid, paymentGwId, contentId, paymentMethodId, adapterData);
                         }
 
                         if (response != null &&
@@ -818,8 +811,8 @@ namespace ConditionalAccess
             return response;
         }
 
-        internal static TransactionResponse HandleGiftPurchase(BaseConditionalAccess cas, int groupId, string siteGUID, double price, string currency, string userIP, string customData,
-                                                  int productID, eTransactionType transactionType, string billingGuid, int contentId)
+        internal static TransactionResponse HandleFullCouponPurchase(BaseConditionalAccess cas, int groupId, string siteGUID, double price, string currency, string userIP, string customData,
+                                                  int productID, eTransactionType transactionType, string billingGuid, int contentId, bool isGiftCard = false)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -830,8 +823,14 @@ namespace ConditionalAccess
                 module wsBillingService = null;
                 Utils.InitializeBillingModule(ref wsBillingService, groupId, ref userName, ref password);
 
+                string extraParams = string.Empty;
+                if (isGiftCard)
+                {
+                    extraParams = "GIFT_CARD";
+                }
+
                 // call new billing method for charge adapter
-                var transactionResponse = wsBillingService.CC_DummyChargeUser(userName, password, siteGUID, price, currency, userIP, customData, 1, 1, string.Empty);
+                var transactionResponse = wsBillingService.CC_DummyChargeUser(userName, password, siteGUID, price, currency, userIP, customData, 1, 1, extraParams);
                 long billingTransactionId = 0;
                 if (transactionResponse.m_oStatus == BillingResponseStatus.Success && long.TryParse(transactionResponse.m_sRecieptCode, out billingTransactionId))
                 {
