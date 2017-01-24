@@ -826,6 +826,21 @@ namespace ApiObjects
         Switched_To = 6
     }
 
+    public enum PlayContextType
+    {
+        Trailer,
+        CatchUp,
+        StartOver,
+        Playback
+    }
+
+    public enum StreamerType
+    {
+        applehttp = 0, 
+        mpegdash = 1,
+        url = 2,
+    }
+
     public enum eService
     {
         Unknown = 0,
