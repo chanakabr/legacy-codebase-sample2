@@ -1,4 +1,5 @@
-﻿using ElasticSearch.Common;
+﻿using Core.Catalog;
+using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using ElasticSearchHandler.Updaters;
 using KLogMonitor;
@@ -113,7 +114,7 @@ namespace ElasticSearchHandler
                 int totalItems = 0;
                 List<string> extraField = new List<string>() { "is_active" };
 
-                searchResults = Catalog.ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
+                searchResults = ElasticsearchWrapper.DecodeAssetSearchJsonObject(searchResultString, ref totalItems, extraField);
 
 
                 if (searchResults != null)

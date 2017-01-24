@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using Catalog;
 using ElasticSearch.Common;
 using System;
 using System.Collections.Generic;

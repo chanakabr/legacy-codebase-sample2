@@ -8,15 +8,15 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Catalog.Cache;
 using Tvinci.Core.DAL;
 using KLogMonitor;
 using System.Reflection;
-using Catalog;
 using GroupsCacheManager;
 using ElasticSearch.Searcher;
 using ApiObjects.Response;
 using ElasticSearch.Common;
+using Core.Catalog;
+using Core.Catalog.Cache;
 
 namespace ElasticSearchHandler
 {
