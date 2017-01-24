@@ -810,7 +810,6 @@ namespace DAL
             {
                 log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
             }
-
             else
             {
                 try
@@ -834,13 +833,21 @@ namespace DAL
                                 {
                                     int availableQuota = JsonConvert.DeserializeObject<int>(quotaObj.ToString());
 
-                                    quota = new DomainQuota(0, defaultTotal - availableQuota);
-                                    bool setResult = SetDomainQuota(domainId, quota); // insert to cb total quota + used as OBJECT
-                                    result = true;
+                                    quota = new DomainQuota(0, defaultTotal - availableQuota, true);
+                                    result = SetDomainQuota(domainId, quota); // insert to cb total quota + used as OBJECT
                                 }
                                 else //JObject
                                 {
-                                    quota = JsonConvert.DeserializeObject<DomainQuota>(quotaObj.ToString());                                    
+                                    quota = JsonConvert.DeserializeObject<DomainQuota>(quotaObj.ToString());
+                                    if (quota.Total == 0)
+                                    {
+                                        quota.IsDefaultQuota = true;
+                                        quota.Total = defaultTotal;
+                                    }
+                                    else
+                                    {
+                                        quota.IsDefaultQuota = false;
+                                    }
                                     result = true;
                                 }
                             }
@@ -880,6 +887,9 @@ namespace DAL
                 log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
                 return result;
             }
+
+            if (domainQuota.IsDefaultQuota)
+                domainQuota.Total = 0;
 
             try
             {
