@@ -22,7 +22,7 @@ using ApiObjects.CDNAdapter;
 using WS_API;
 using Users;
 using WS_Users;
-using CachingProvider;
+using CachingProvider.LayeredCache;
 
 namespace ConditionalAccess
 {
@@ -3208,13 +3208,9 @@ namespace ConditionalAccess
                 {
                     // call 
                     string key = DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(fileID);
-                    DataRow fileDr = null;
-                    ulong version;
+                    DataRow fileDr = null;                    
                     // try to get from cache            
-                    bool cacheResult = NewHybridCache.GetInstance().GetWithVersion<DataRow>(key, ref fileDr, out version,
-                        NewHybridCache.HybridCacheType.InMemoryCache | NewHybridCache.HybridCacheType.CbCache,
-                        Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileID", fileID } });
-
+                    bool cacheResult = LayeredCache.Instance.Get<DataRow>(key, ref fileDr, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileID", fileID } });
                     drs.Add(fileDr);
                 }
 

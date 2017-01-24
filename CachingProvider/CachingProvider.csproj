@@ -71,14 +71,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseModuleCache.cs" />
-    <Compile Include="NewHybridCache.cs" />
     <Compile Include="CouchBaseCache.cs" />
     <Compile Include="HybridCache.cs" />
     <Compile Include="ICachingService.cs" />
     <Compile Include="InMemoryCache.cs" />
+    <Compile Include="LayeredCache\CbLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\InMemoryLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\LayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\LayeredCache.cs" />
+    <Compile Include="LayeredCache\LayeredCacheType.cs" />
     <Compile Include="OutOfProcessCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleInMemoryCache.cs" />
+    <Compile Include="SingleInMemoryCacheManager.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionModuleCache.cs" />
   </ItemGroup>

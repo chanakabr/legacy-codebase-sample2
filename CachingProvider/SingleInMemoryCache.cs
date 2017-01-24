@@ -34,7 +34,7 @@ namespace CachingProvider
 
         #region Ctors
 
-        public SingleInMemoryCache(string name, double defaultMinOffset)
+        internal SingleInMemoryCache(string name, double defaultMinOffset)
         {
             CacheName = name;
             DefaultMinOffset = defaultMinOffset;
@@ -43,11 +43,11 @@ namespace CachingProvider
 
         #endregion
 
-        public bool AddGenericType<T>(string sKey, T oValue, double nMinuteOffset)
+        public bool Add<T>(string sKey, T value, uint expirationInSeconds)
         {
             if (string.IsNullOrEmpty(sKey))
                 return false;
-            return cache.Add(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes(expirationInSeconds / 60));
         }
 
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
@@ -105,43 +105,13 @@ namespace CachingProvider
             BaseModuleCache baseModule = new BaseModuleCache();
             baseModule.result = cache.Remove(sKey);
             return baseModule;
-        }
-
-        public bool RemoveWithBoolResult(string sKey)
-        {
-            bool? result = false;
-            result = cache.Remove(sKey) as bool?;
-            return result.HasValue && result.Value;
-        }
+        }        
 
         public T Get<T>(string sKey) where T : class
         {
             if (string.IsNullOrEmpty(sKey))
                 return default(T);
             return cache.Get(sKey) as T;
-        }
-
-        public bool GetGenericType<T>(string sKey, ref T result)
-        {
-            result = default(T);
-            bool res = false;
-            try
-            {
-                if (!string.IsNullOrEmpty(sKey))
-                {
-                    object cacheResult = cache.Get(sKey);                    
-                    if (cacheResult != null)
-                    {
-                        result = (T)cacheResult;
-                        res = true;
-                    }                    
-                }
-            }
-            catch
-            {                
-            }
-
-            return res;
         }
 
         public BaseModuleCache GetWithVersion<T>(string sKey)
@@ -262,7 +232,6 @@ namespace CachingProvider
             return sb.ToString();
         }
 
-
         public IDictionary<string, object> GetValues(List<string> keys, bool asJson = false)
         {
             IDictionary<string, object> iDict = null;
@@ -302,5 +271,58 @@ namespace CachingProvider
             }
             return keys;
         }
+
+        public bool Get<T>(string key, ref T result)
+        {
+            result = default(T);
+            bool res = false;
+            try
+            {
+                if (!string.IsNullOrEmpty(key))
+                {
+                    object cacheResult = cache.Get(key);
+                    if (cacheResult != null)
+                    {
+                        result = (T)cacheResult;
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Get<T> with key: {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        public bool GetWithVersion<T>(string key, out ulong version, ref T result)
+        {            
+            bool res = false;
+            version = 0;
+            try
+            {
+                res = Get<T>(key, ref result);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetWithVersion<T> with key: {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        public bool RemoveKey(string sKey)
+        {
+            bool? result = false;
+            result = cache.Remove(sKey) as bool?;
+            return result.HasValue && result.Value;
+        }
+
+        public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
+        {
+            return SetWithVersion<T>(key, new BaseModuleCache(value), expirationInSeconds / 60);
+        }
     }
+
 }

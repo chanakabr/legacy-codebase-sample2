@@ -14,6 +14,8 @@ namespace CachingProvider
         private SingleInMemoryCache inMemoryCache;
         private CouchBaseCache<T> couchbaseCache;
         private double secondsInMemory;
+        private const int RETRY_LIMIT = 5;
+        private readonly Random RETRY_INTERVAL = new Random(50);
 
         /// <summary>
         /// Initializes a new instance of the hybrid cache
@@ -21,7 +23,7 @@ namespace CachingProvider
         /// <param name="externalCacheName"></param>
         private HybridCache(eCouchbaseBucket externalCacheName, string internalCacheName)
         {
-            this.inMemoryCache = new SingleInMemoryCache(internalCacheName, 0);
+            this.inMemoryCache = SingleInMemoryCacheManager.Instance(internalCacheName, 0);
             this.couchbaseCache = CouchBaseCache<T>.GetInstance(externalCacheName.ToString());
             this.secondsInMemory = Utils.GetDoubleValueFromTcm("Groups_Cache_TTL");
 
@@ -180,7 +182,7 @@ namespace CachingProvider
             }
 
             return result;
-        }
+        }        
 
         public override bool AddWithVersion<T>(string key, BaseModuleCache value)
         {
@@ -329,5 +331,59 @@ namespace CachingProvider
         {
             return new List<string>();
         }
+
+        public override bool Get<T>(string key, ref T result)
+        {
+            bool res = false;
+
+            res = inMemoryCache.Get<T>(key, ref result);
+
+            if (!res)
+            {
+                res = couchbaseCache.Get<T>(key, ref result);
+
+                if (result != null)
+                {
+                    BaseModuleCache newBaseModule = new BaseModuleCache(result);
+                    inMemoryCache.Add(key, newBaseModule, this.secondsInMemory / 60);
+                }
+            }
+                        
+            return result != null;
+        }
+
+        public override bool GetWithVersion<T>(string key, out ulong version, ref T result)
+        {
+            bool res = inMemoryCache.Get<T>(key, ref result);
+            version = 0;
+            // If it isn't in in-memory, get it from couchbase and put in in-memory
+            if (!res)
+            {
+                res = couchbaseCache.GetWithVersion<T>(key, out version, ref result);
+
+                if (res)
+                {
+                    res = inMemoryCache.Get<T>(key, ref result);
+                }
+            }
+
+            return res;
+        }
+
+        public override bool RemoveKey(string key)
+        {
+            return this.couchbaseCache.RemoveKey(key) && this.inMemoryCache.RemoveKey(key);
+        }
+
+        public override bool Add<T>(string key, T value, uint expirationInSeconds)
+        {
+            return this.couchbaseCache.Add<T>(key, value, expirationInSeconds) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
+        }
+
+        public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
+        {
+            return this.couchbaseCache.SetWithVersion<T>(key, value, version, expirationInSeconds) && this.inMemoryCache.Add<T>(key, value, expirationInSeconds);
+        }
+
     }
 }

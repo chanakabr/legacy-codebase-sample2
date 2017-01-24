@@ -28,5 +28,23 @@ namespace CachingProvider
 
             return result;
         }
+
+        public static T GetTcmGenericValue<T>(string sKey)
+        {
+            T result = default(T);
+            try
+            {
+                result = TCMClient.Settings.Instance.GetValue<T>(sKey);
+                if (result == null)
+                    throw new NullReferenceException("missing key");
+            }
+            catch (Exception ex)
+            {
+                result = default(T);
+                log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
+            }
+            return result;
+        }
+
     }
 }
