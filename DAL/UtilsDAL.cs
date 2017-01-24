@@ -761,5 +761,10 @@ namespace DAL
         {
             return string.Format("mediaId_{0}_userTypeId_{1}", mediaID, userTypeID);
         }
+
+        public static string GetFileAndMediaBasicDetailsKey(int fileID)
+        {
+            return string.Format("fileId_{0}", fileID);
+        }
     }
 }

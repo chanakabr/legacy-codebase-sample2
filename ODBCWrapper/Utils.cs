@@ -422,6 +422,22 @@ namespace ODBCWrapper
             }
         }
 
+        static public DateTime GetDateSafeVal(DataRow dr, string sField, DateTime defaultDate)
+        {
+            try
+            {
+                if (dr != null && dr[sField] != DBNull.Value)
+                {
+                    return (DateTime)(dr[sField]);
+                }
+                return defaultDate;
+            }
+            catch
+            {
+                return defaultDate;
+            }
+        }
+
         static public DateTime? GetNullableDateSafeVal(DataRow dr, string sField)
         {
             try
