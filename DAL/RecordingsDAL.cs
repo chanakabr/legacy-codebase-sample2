@@ -889,7 +889,7 @@ namespace DAL
                     ulong version;                   
                     Couchbase.IO.ResponseStatus status;
                     DomainQuota quota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
-                    if (status == Couchbase.IO.ResponseStatus.Success)
+                    if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
                         result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
                     }
