@@ -14710,7 +14710,7 @@ namespace ConditionalAccess
                 string coupon = string.Empty;
                 string udid = string.Empty; //TODO
 
-                GetDataFromCustomData(customDataId, customData, ref customDataPrice, ref customDataCurrency, ref userIP, ref coupon, ref udid);
+                Utils.GetDataFromCustomData(customDataId, customData, ref customDataPrice, ref customDataCurrency, ref userIP, ref coupon, ref udid);
 
                 if (price != customDataPrice || string.IsNullOrEmpty(currency) || (currency != customDataCurrency))
                 {
@@ -15095,31 +15095,6 @@ namespace ConditionalAccess
                 log.Error("Exception occurred. data: " + logString, ex);
             }
             return status;
-        }
-
-        private static void GetDataFromCustomData(int customDataId, string customData, ref double customDataPrice, ref string customDataCurrency, ref string userIP, ref string coupon, ref string udid)
-        {
-            try
-            {
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(customData);
-                XmlNode theRequest = doc.FirstChild;
-
-                customDataCurrency = XmlUtils.GetSafeValue(CURRENCY, ref theRequest);
-                userIP = XmlUtils.GetSafeValue(USER_IP, ref theRequest);
-                coupon = XmlUtils.GetSafeValue(COUPON_CODE, ref theRequest);
-                udid = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
-                if (!Double.TryParse(XmlUtils.GetSafeValue(PRICE, ref theRequest), out customDataPrice))
-                {
-                    customDataPrice = 0.0;
-                }
-
-            }
-            catch (Exception exc)
-            {
-                log.ErrorFormat("SetEntitlement - error load custom data xml {0} Exception:{1}", customDataId, exc);
-                throw exc;
-            }
         }
 
         private TransactionResponse RecordBillingTransaction(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string paymentDetails,
