@@ -151,7 +151,9 @@ namespace Recordings
             }
             else
             {
-                return (domainQuota.Total - domainQuota.Used);
+                int totalQuota = domainQuota.Total == 0 ? defaultQuota : domainQuota.Total;
+
+                return (totalQuota - domainQuota.Used);
             }
         }
 
