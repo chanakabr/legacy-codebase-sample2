@@ -3950,10 +3950,11 @@ namespace DAL
                         Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
                         ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
                         Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
-                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), // TODO: get the type
+                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), 
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                         StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
+                        Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         MediaId = mediaId,
                     };
 

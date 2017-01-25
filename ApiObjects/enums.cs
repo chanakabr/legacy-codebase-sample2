@@ -831,7 +831,6 @@ namespace ApiObjects
         Trailer,
         CatchUp,
         StartOver,
-        TrickPlay,
         Playback
     }
 
