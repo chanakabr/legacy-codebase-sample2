@@ -9,7 +9,7 @@ using KLogMonitor;
 using ApiObjects;
 using Core.Pricing;
 
-using ApiObjects.Pricing;namespace WS_
+namespace WS_Pricing
 {
     /// <summary>
     /// Summary description for Service1
