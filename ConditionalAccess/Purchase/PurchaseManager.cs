@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
+using WS_API;
 using WS_Billing;
 
 namespace ConditionalAccess
@@ -682,6 +683,8 @@ namespace ConditionalAccess
                                (response.State.Equals(eTransactionState.OK.ToString()) ||
                                 response.State.Equals(eTransactionState.Pending.ToString())))
                             {
+                                PurchaseManager.SendGiftCardPurchaseMail(groupId, siteguid);
+
                                 // purchase passed
                                 long purchaseId = 0;
 
@@ -757,6 +760,30 @@ namespace ConditionalAccess
                 log.Error("Exception occurred. data: " + logString, ex);
             }
             return response;
+        }
+
+        private static void SendGiftCardPurchaseMail(int groupId, string siteGuid)
+        {
+            using (API api = new API())
+            {
+                string apiUsername = string.Empty;
+                string apiPass = string.Empty;
+                Utils.GetWSCredentials(groupId, eWSModules.API, ref apiUsername, ref apiPass);
+
+                if (string.IsNullOrEmpty(apiUsername) || string.IsNullOrEmpty(apiPass))
+                {
+                    log.ErrorFormat("PurchaseManager: failed to get WS API credentials. groupId = {0}, userId = {1}", groupId, siteGuid);
+                }
+
+                try
+                {
+                    var response = api.SendMailTemplate(apiUsername, apiPass, null);
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("PurchaseManager: Error while calling WS API GetExternalEntitlements. groupId = {0}, userId = {1}", groupId, siteGuid), ex);
+                }
+            }
         }
 
         private static TransactionResponse HandleGiftCardPurchase()
