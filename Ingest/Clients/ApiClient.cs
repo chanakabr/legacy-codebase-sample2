@@ -5,7 +5,6 @@ using System.Reflection;
 
 using System.Linq;
 using Ingest.Clients.ClientManager;
-using WS_API;
 
 namespace Ingest.Clients
 {
@@ -17,14 +16,6 @@ namespace Ingest.Clients
         {
         }
 
-        protected API Api
-        {
-            get
-            {
-                return (Module as API);
-            }
-        }
-
         internal int GetGroupIdByUsernamePassword(string username, string password)
         {
             int groupId = 0;
@@ -33,7 +24,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    groupId = Api.GetGroupIdByUsernamePassword(username, password);
+                    groupId = Core.Api.Module.GetGroupIdByUsernamePassword(username, password);
                 }
             }
             catch (Exception ex)
@@ -52,7 +43,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    result = Api.UpdateFreeFileTypeOfModule(groupID, moduleID);
+                    result = Core.Api.Module.UpdateFreeFileTypeOfModule(groupID, moduleID);
                 }
             }
             catch (Exception ex)
