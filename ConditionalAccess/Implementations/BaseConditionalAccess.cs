@@ -12091,6 +12091,8 @@ namespace ConditionalAccess
                 string domainPassword = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref domainUsername, ref domainPassword);
 
+                bool validateLimitationModule = true;
+
                 if (prices != null && prices.Length > 0)
                 {
                     /*Get Media Concurrency Rules*/
@@ -12121,6 +12123,7 @@ namespace ConditionalAccess
 
                     if (mcRules != null && mcRules.Count() > 0)
                     {
+                        validateLimitationModule = false;
                         foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
                             lRuleIDS.Add(mcRule.RuleID); // for future use
@@ -12134,7 +12137,8 @@ namespace ConditionalAccess
                         }
                     }
                 }
-                else
+                
+                if (validateLimitationModule)
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(domainUsername, domainPassword, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                            Users.ValidationType.Concurrency, 0, 0, nMediaID);
