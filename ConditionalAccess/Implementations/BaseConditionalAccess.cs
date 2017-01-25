@@ -19975,7 +19975,7 @@ namespace ConditionalAccess
                 {
                     long longAssetId = 0;
                     long.TryParse(assetId, out longAssetId);
-                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, recording);
+                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, ref recording);
                     if (response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
