@@ -23,20 +23,29 @@ namespace DAL
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
         private static readonly string CB_MESSAGE_QUEUE_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_queue_messages_design");
 
-        public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID, int countryId = 0)
+        public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
             ODBCWrapper.StoredProcedure spGeoBlockPerMedia = new ODBCWrapper.StoredProcedure("Get_GeoBlockPerMedia");
             spGeoBlockPerMedia.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGeoBlockPerMedia.AddParameter("@GroupID", nGroupID);
             spGeoBlockPerMedia.AddParameter("@MediaID", nMediaID);
-            spGeoBlockPerMedia.AddParameter("@CountryId", countryId);
-            DataTable dt = spGeoBlockPerMedia.Execute();
-            if (dt == null)
-            {
-                dt = new DataTable();
-            }
 
-            return dt;
+            DataSet ds = spGeoBlockPerMedia.ExecuteDataSet();
+
+            if (ds != null)
+                return ds.Tables[0];
+            return null;            
+        }
+
+        public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
+        {
+            ODBCWrapper.StoredProcedure sp_GeoBlockRuleForMediaAndCountries = new ODBCWrapper.StoredProcedure("Get_GeoBlockRuleForMediaAndCountries");
+            sp_GeoBlockRuleForMediaAndCountries.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GeoBlockRuleForMediaAndCountries.AddParameter("@GroupID", nGroupID);
+            sp_GeoBlockRuleForMediaAndCountries.AddParameter("@MediaID", nMediaID);
+            DataTable dt = sp_GeoBlockRuleForMediaAndCountries.Execute();
+
+            return dt != null ? dt : new DataTable();
         }
 
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)

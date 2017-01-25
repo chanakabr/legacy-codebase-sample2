@@ -1,6 +1,7 @@
 ﻿using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -44,6 +45,12 @@ namespace CachingProvider
                 log.Error("TvinciShared.Ws_Utils - Key=" + sKey + "," + ex.Message, ex);
             }
             return result;
+        }
+
+        public static long UnixTimeStampNow()
+        {
+            TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
         }
 
     }

@@ -752,9 +752,9 @@ namespace DAL
             return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
         }
 
-        public static string GetCheckGeoBlockMediaKey(int groupID, int mediaID, int countryID)
+        public static string GetCheckGeoBlockMediaKey(int groupID, int mediaID)
         {
-            return string.Format("groupId_{0}_mediaId_{1}_CountryId_{2}", groupID, mediaID, countryID);
+            return string.Format("groupId_{0}_mediaId_{1}", groupID, mediaID);
         }
 
         public static string GetIsMediaExistsToUserTypeKey(int mediaID, int userTypeID)

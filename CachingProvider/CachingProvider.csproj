@@ -75,10 +75,12 @@
     <Compile Include="HybridCache.cs" />
     <Compile Include="ICachingService.cs" />
     <Compile Include="InMemoryCache.cs" />
-    <Compile Include="LayeredCache\CbLayeredCacheConfig.cs" />
-    <Compile Include="LayeredCache\InMemoryLayeredCacheConfig.cs" />
-    <Compile Include="LayeredCache\LayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\CbLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\InMemoryLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheBucketSettings.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheConfig.cs" />
     <Compile Include="LayeredCache\LayeredCache.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheTcmConfig.cs" />
     <Compile Include="LayeredCache\LayeredCacheType.cs" />
     <Compile Include="OutOfProcessCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
