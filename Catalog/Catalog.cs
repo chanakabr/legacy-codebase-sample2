@@ -5590,6 +5590,19 @@ namespace Catalog
 
             #endregion
 
+            #region Order
+
+            if (request.m_nMediaID > 0)
+            {
+                definitions.order = new OrderObj()
+                {
+                    m_eOrderBy = OrderBy.RELATED,
+                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                };
+            }
+
+            #endregion
+
             #region Excluded Media
 
             // Exclude the original media from the search
