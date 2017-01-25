@@ -8,6 +8,7 @@ using ApiObjects.Response;
 using KLogMonitor;
 using ApiObjects;
 using Core.Pricing;
+using ApiObjects.Pricing;
 
 namespace WS_Pricing
 {
