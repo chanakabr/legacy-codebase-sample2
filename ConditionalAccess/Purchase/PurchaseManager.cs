@@ -824,6 +824,7 @@ namespace ConditionalAccess
                 Utils.InitializeBillingModule(ref wsBillingService, groupId, ref userName, ref password);
 
                 string extraParams = string.Empty;
+
                 if (isGiftCard)
                 {
                     extraParams = "GIFT_CARD";
