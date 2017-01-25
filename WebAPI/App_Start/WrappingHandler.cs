@@ -31,7 +31,7 @@ namespace WebAPI.App_Start
             // log request body
             log.DebugFormat("API Request - {0} {1}",
                             request.RequestUri.OriginalString,            // 0
-                            request.Content.ReadAsStringAsync());         // 1 (!!! - removed the await)
+                            await request.Content.ReadAsStringAsync());   // 1 
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
