@@ -12091,6 +12091,8 @@ namespace ConditionalAccess
                 string domainPassword = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref domainUsername, ref domainPassword);
 
+                bool skipValidateLimitationModule = false;
+
                 if (prices != null && prices.Length > 0)
                 {
                     /*Get Media Concurrency Rules*/
@@ -12121,6 +12123,7 @@ namespace ConditionalAccess
 
                     if (mcRules != null && mcRules.Count() > 0)
                     {
+                        skipValidateLimitationModule = true;
                         foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
                             lRuleIDS.Add(mcRule.RuleID); // for future use
@@ -12134,7 +12137,8 @@ namespace ConditionalAccess
                         }
                     }
                 }
-                else
+
+                if (!skipValidateLimitationModule)
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(domainUsername, domainPassword, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                            Users.ValidationType.Concurrency, 0, 0, nMediaID);
@@ -16847,13 +16851,13 @@ namespace ConditionalAccess
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-                        if (QuotaManager.Instance.DecreaseDomainQuota(m_nGroupID,domainID, recordingDuration))
+                        if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                         {
                             recording.Type = recordingType;
                             if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                             {
                                 // increase the quota back to the user                               
-                                if (!QuotaManager.Instance.IncreaseDomainQuota(m_nGroupID, domainID, recordingDuration))
+                                if (!QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                                 {
                                     log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                                 }
@@ -16954,7 +16958,7 @@ namespace ConditionalAccess
 
                 if (res)
                 {
-                    if (QuotaManager.Instance.IncreaseDomainQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
                     {
                         ContextData contextData = new ContextData();
                         System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
@@ -18427,12 +18431,12 @@ namespace ConditionalAccess
                                 int recordingDurationDif = task.OldRecordingDuration != 0 ? task.OldRecordingDuration - recordingDuration : recordingDuration;
                                 if (recordingDurationDif > 0)
                                 {
-                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainQuota(task.GroupId, domainId, recordingDurationDif, true);
+                                    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainUsedQuota(task.GroupId, domainId, recordingDurationDif, true);
                                 }
                                 else if (recordingDurationDif < 0)
                                 {
 
-                                    quotaSuccessfullyUpdated = QuotaManager.Instance.IncreaseDomainQuota(m_nGroupID, domainId, -recordingDurationDif);
+                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, -recordingDurationDif);
                                 }
 
                                 if (quotaSuccessfullyUpdated)

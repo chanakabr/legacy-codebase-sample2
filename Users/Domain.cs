@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Data;
+﻿using ApiObjects;
 using ApiObjects.MediaMarks;
-using Tvinci.Core.DAL;
-using DAL;
-using System.Xml.Serialization;
-
-using Users.Cache;
-using NPVR;
-using Newtonsoft.Json;
-using ApiObjects;
 using ApiObjects.Response;
+using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
+using NPVR;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
+using Tvinci.Core.DAL;
+using Users.Cache;
 
 namespace Users
 {
@@ -351,27 +349,32 @@ namespace Users
                 INPVRProvider npvr;
                 if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
                 {
-                    NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
-
-                    if (response != null)
+                    try
                     {
-                        if (response.isOK)
+                        NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
+                        if (response != null)
                         {
-                            res = DomainResponseStatus.OK;
+                            if (response.isOK)
+                            {
+                                res = DomainResponseStatus.OK;
+                            }
+                            else
+                            {
+                                res = DomainResponseStatus.Error;
+                                log.Error(string.Format("Error - Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
+                            }
                         }
                         else
                         {
                             res = DomainResponseStatus.Error;
-                            log.Error(string.Format("Error - Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
+                            log.Error(string.Format("Error - Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        res = DomainResponseStatus.Error;
-                        log.Error(string.Format("Error - Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                        log.ErrorFormat("Error - Remove. NPVR provider DeleteAccount failed. groupId: {0}, domainId: {1}, error: {2}", m_nGroupID, m_nDomainID, ex);
                     }
                 }
-
             }
             else
             {
