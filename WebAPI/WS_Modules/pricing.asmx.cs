@@ -20,7 +20,7 @@ namespace WS_Pricing
     [System.ComponentModel.ToolboxItem(false)]
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     [System.Web.Script.Services.ScriptService]
-    public class mdoule : System.Web.Services.WebService
+    public class module : System.Web.Services.WebService
     {
 
         [WebMethod]
