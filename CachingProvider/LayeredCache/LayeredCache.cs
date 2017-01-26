@@ -520,9 +520,9 @@ namespace CachingProvider.LayeredCache
                 versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;               
             }
 
-            if (!string.IsNullOrEmpty(versionToAdd))
+            if (!string.IsNullOrEmpty(versionValue))
             {
-                keys.ForEach(x => x = string.Format("{0}_V{1}", x, versionToAdd));
+                keys.ForEach(x => x = string.Format("{0}_V{1}", x, versionValue));
             }            
         }
 
