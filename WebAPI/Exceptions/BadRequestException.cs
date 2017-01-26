@@ -47,7 +47,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENT_MIN_LENGTH_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinLengthCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum length is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENT_MAX_VALUE_CROSSED = new ApiExceptionType(StatusCode.ArgumentMaxValueCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] maximum value is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENT_MIN_VALUE_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinValueCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum value is [@value@]", "argument", "value");
-
+        public static ApiExceptionType ARGUMENTS_VALUES_CONFLICT_EACH_OTHER = new ApiExceptionType(StatusCode.ArgumentsConflictEachOther, StatusCode.BadRequest, "Argument [@argument1@] value conflicts Argument [@argument2@] value", "argument1", "argument2");
 
         public static ApiExceptionType MEDIA_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.MediaIdsMustBeNumeric, StatusCode.BadRequest, "Media ids must be numeric");
         public static ApiExceptionType EPG_INTERNAL_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.EpgInternalIdsMustBeNumeric, StatusCode.BadRequest, "EPG internal ids must be numeric");
