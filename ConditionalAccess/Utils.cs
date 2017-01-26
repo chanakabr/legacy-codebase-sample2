@@ -3441,12 +3441,12 @@ namespace ConditionalAccess
                   Dictionary<string,int> mediaIdGroupFileTypeMapper = null; 
                 List<string> keys = mediaIDsToMap.Select(x=>DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
                
-                // try to get from cache            
+                           
                 bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaDs", mediaIDsToMap } });
                 if (cacheResult)
                 {
                     userPpvEntitlements.MediaIdGroupFileTypeMapper = mediaIdGroupFileTypeMapper;
-                }
+                }// if not ? what to dao here ??? 
 
                // userPpvEntitlements.MediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
             }

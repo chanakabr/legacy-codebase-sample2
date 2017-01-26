@@ -1274,6 +1274,33 @@ namespace DAL
             sp.AddParameter("@Price", price);
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static List<int> GetGiftCardReminders(int groupID)
+        {
+            List<int> res = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("GetGiftCardReminders");
+                sp.SetConnectionKey("pricing_connection");
+                sp.AddParameter("@GroupID", groupID);
+
+
+                DataTable dt = sp.Execute();
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = dt.AsEnumerable().Select(x => x.Field<int>("NUMBER_OF_DAYS")).ToList();
+                }
+                else
+                {
+                    res = new List<int>(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                HandleException(string.Empty, ex);
+            }
+            return res;
+        }
     }
 }
 
