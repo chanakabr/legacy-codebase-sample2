@@ -47,7 +47,7 @@ namespace CachingProvider
         {
             if (string.IsNullOrEmpty(sKey))
                 return false;
-            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes(expirationInSeconds / 60));
+            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60));
         }
 
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)

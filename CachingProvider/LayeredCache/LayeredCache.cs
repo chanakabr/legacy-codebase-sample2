@@ -54,9 +54,11 @@ namespace CachingProvider.LayeredCache
                 genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
                 {
+                    // set validation to now
+                    Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
                     foreach (LayeredCacheConfig cacheConfig in insertToCacheConfig)
                     {
-                        if (!TryInsert<T>(key, tuple, cacheConfig))
+                        if (!TryInsert<T>(key, tupleToInsert, cacheConfig))
                         {
                             log.ErrorFormat("Failed inserting key {0} to {1}", key, cacheConfig.Type.ToString());
                         }
@@ -361,9 +363,7 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = cacheConfig.GetICachingService();
-                // set validation to now
-                Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
+                ICachingService cache = cacheConfig.GetICachingService();                                
                 if (cache != null)
                 {
                     if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
@@ -371,11 +371,11 @@ namespace CachingProvider.LayeredCache
                         ulong version;
                         Tuple<T, long> getResult = default(Tuple<T, long>);
                         cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        cache.SetWithVersion<Tuple<T, long>>(key, tupleToInsert, version, cacheConfig.TTL);
+                        cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
                     }
                     else
                     {
-                        res = cache.Add<Tuple<T, long>>(key, tupleToInsert, cacheConfig.TTL);
+                        res = cache.Add<Tuple<T, long>>(key, tuple, cacheConfig.TTL);
                     }
                 }
             }
