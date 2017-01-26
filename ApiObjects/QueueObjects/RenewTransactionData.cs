@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiObjects;
 
 namespace ApiObjects
 {
@@ -14,8 +15,10 @@ namespace ApiObjects
         private string billingGuid;
         private string siteGuid;
         private long endDate;
+        private eSubscriptionRenewRequestType type;
 
-        public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, long endDate, DateTime nextRenewDate) :
+        public RenewTransactionData(int groupId, string siteGuid, long purchaseId, string billingGuid, long endDate, DateTime nextRenewDate, 
+            eSubscriptionRenewRequestType type = eSubscriptionRenewRequestType.Renew) :
             base(// id = guid
                  string.Format("p{0}_d{1}", purchaseId, endDate),
                 // task = const
@@ -28,6 +31,7 @@ namespace ApiObjects
             this.siteGuid = siteGuid;
             this.purchaseId = purchaseId;
             this.endDate = endDate;
+            this.type = type;
 
             this.args = new List<object>()
             {
@@ -35,7 +39,8 @@ namespace ApiObjects
                 billingGuid,
                 siteGuid,
                 purchaseId,
-                endDate
+                endDate,
+                type
             };
         }
     }

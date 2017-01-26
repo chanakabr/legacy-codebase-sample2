@@ -857,4 +857,10 @@ namespace ApiObjects
         UDRM = -1,
         NO_DRM = 0,
     }
+
+    public enum eSubscriptionRenewRequestType
+    {
+        Renew = 0,
+        Reminder = 1
+    }
 }
