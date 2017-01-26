@@ -1274,6 +1274,11 @@ namespace DAL
             sp.AddParameter("@Price", price);
             return sp.ExecuteReturnValue<int>();
         }
+
+        public static List<int> GetGiftCardReminders(int groupId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
