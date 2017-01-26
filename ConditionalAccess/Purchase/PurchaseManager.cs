@@ -809,10 +809,10 @@ namespace ConditionalAccess
                         m_sSenderTo = dummyRequest.m_sSenderTo,
                         m_sSubject = dummyRequest.m_sSubject,
                         m_sTemplateName = dummyRequest.m_sTemplateName,
-                        offerName = itemName,
+                        m_sItemName = itemName,
                         offerType = transactionType.ToString(),
-                        price = dummyRequest.m_sPrice,
-                        purchaseDate = purchaseDateString
+                        m_sPrice = dummyRequest.m_sPrice,
+                        m_sPurchaseDate = purchaseDateString
                     };
 
                     var response = api.SendMailTemplate(apiUsername, apiPass, mailRequest);
