@@ -5418,15 +5418,15 @@ namespace ConditionalAccess
                 List<string>  billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
                                               where row.Field<int>("IS_RECURRING_STATUS") == 1
                                               select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
-                List<DataRow> renewPaymentDetails = null;
+                List<PaymentDetails> renewPaymentDetails = null;
                 if (billingGuids != null && billingGuids.Count > 0)
                 {
-                    // get all renew payment details
-                    DataTable dt = DAL.BillingDAL.GetTransactionPaymentDetails(billingGuids);
-                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        renewPaymentDetails = (from row in dt.AsEnumerable() select row).ToList();
-                    }
+                    // call billing service to get all transaction payment details
+                    string sWSUserName = "";
+                    string sWSPass = "";
+                    module bm = new module();
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
+                    renewPaymentDetails = bm.GetPaymentDetails(sWSUserName, sWSPass, billingGuids);
                 }            
 
                 Entitlement entitlement = null;
@@ -5447,13 +5447,13 @@ namespace ConditionalAccess
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return entitlementsResponse;
-        }       
+        }
 
-        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<DataRow> renewPaymentDetails)
+        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<PaymentDetails> renewPaymentDetails)
         {
             UsageModule oUsageModule = null;
             Entitlement entitlement = new Entitlement();
-            DataRow paymentDetails = null;
+            PaymentDetails paymentDetails = null;
 
             entitlement.type = eTransactionType.Subscription;
             entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "SUBSCRIPTION_CODE");
@@ -5485,21 +5485,11 @@ namespace ConditionalAccess
                 // get renew payment details 
                 if (renewPaymentDetails != null)
                 {
-                    paymentDetails = renewPaymentDetails.Where(x => x.Field<string>("BILLING_GUID") == billingGuid).FirstOrDefault();
+                    paymentDetails = renewPaymentDetails.Where(x=>x.BillingGuid == billingGuid).FirstOrDefault();
                     if (paymentDetails != null)
                     {
-
-                        // check if any changes made in payment gateway or payment method                              
-                        entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "rpd_payment_gateway_id");
-                        if (entitlement.paymentGatewayId == 0)
-                        {
-                            entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "pgt_payment_gateway_id");
-                            entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "pgt_payment_method_id");
-                        }
-                        else
-                        {
-                            entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "rpd_payment_method_id");
-                        }
+                        entitlement.paymentGatewayId = paymentDetails.PaymentGatewayId;
+                        entitlement.paymentMethodId = paymentDetails.PaymentMethodId;
                     }
                 }
             }
