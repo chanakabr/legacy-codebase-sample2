@@ -211,6 +211,11 @@ public partial class adm_coupons_groups_new : System.Web.UI.Page
         dr_financial.SetDefault(0);
         theRecord.AddRecord(dr_financial);
 
+        DataRecordRadioField dr_coupon_type = new DataRecordRadioField("lu_coupon_group_type", "text", "id", "", null);
+        dr_coupon_type.SetFieldType("string");
+        dr_coupon_type.Initialize("Coupon Type", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_TYPE", true);
+        dr_coupon_type.SetDefault(0);
+        theRecord.AddRecord(dr_coupon_type);
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
