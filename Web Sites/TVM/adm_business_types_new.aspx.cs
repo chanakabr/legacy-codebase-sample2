@@ -123,6 +123,11 @@ public partial class adm_business_types_new : System.Web.UI.Page
         dr_streamerType.SetNoSelectStr("None");
         theRecord.AddRecord(dr_streamerType);
 
+        DataRecordDropDownField dr_drmType = new DataRecordDropDownField("", "NAME", "id", "", null, 60, false);
+        dr_drmType.SetSelectsDT(GetDrmTypeDT());
+        dr_drmType.Initialize("DRM", "adm_table_header_nbg", "FormInput", "DRM_ID", false);
+        theRecord.AddRecord(dr_drmType);
+
         string sTable = theRecord.GetTableHTML("adm_business_types_new.aspx?submited=1");
 
         return sTable;
@@ -134,6 +139,18 @@ public partial class adm_business_types_new : System.Web.UI.Page
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
         foreach (ApiObjects.StreamerType r in Enum.GetValues(typeof(ApiObjects.StreamerType)))
+        {
+            dt.Rows.Add((int)r, r);
+        }
+        return dt;
+    }
+
+    private System.Data.DataTable GetDrmTypeDT()
+    {
+        System.Data.DataTable dt = new System.Data.DataTable();
+        dt.Columns.Add("id", typeof(int));
+        dt.Columns.Add("txt", typeof(string));
+        foreach (ApiObjects.DrmType r in Enum.GetValues(typeof(ApiObjects.DrmType)))
         {
             dt.Rows.Add((int)r, r);
         }
