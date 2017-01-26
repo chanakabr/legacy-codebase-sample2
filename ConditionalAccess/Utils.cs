@@ -6351,16 +6351,10 @@ namespace ConditionalAccess
             return files;
         }
 
-        private static string BuildFilePlayManifestUrl(int groupId, string assetId, eAssetTypes assetType, long mediaFileId, PlayContextType? playContextType)
+        private static string BuildFilePlayManifestUrl(int groupId, string assetId, eAssetTypes assetType, long mediaFileId, PlayContextType playContextType)
         {
-            StringBuilder sb = new StringBuilder(string.Format("/p/{0}/playManifest/assetId/{1}/assetType/{2}/assetFileId/{3}", groupId, assetId, assetType, mediaFileId));
-            
-            //TODO: make sure it's right to add this...
-            if (playContextType.HasValue)
-            {
-                sb.AppendFormat("/contextType/{0}", playContextType.Value);
-            }
-            return sb.ToString();
+            return string.Format("api_v3/service/assetFile/playManifest/partnerId/{0}/assetId/{1}/assetType/{2}/assetFileId/{3}/contextType/{4}",
+                groupId, assetId, assetType, mediaFileId, playContextType);
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
@@ -6375,7 +6369,6 @@ namespace ConditionalAccess
             {
                 switch (assetType)
                 {
-
                     case eAssetTypes.NPVR:
                         {
                             // check recording valid
