@@ -34,7 +34,18 @@ namespace DAL
 
             if (ds != null)
                 return ds.Tables[0];
-            return null;
+            return null;            
+        }
+
+        public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
+        {
+            ODBCWrapper.StoredProcedure sp_GeoBlockRuleForMediaAndCountries = new ODBCWrapper.StoredProcedure("Get_GeoBlockRuleForMediaAndCountries");
+            sp_GeoBlockRuleForMediaAndCountries.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GeoBlockRuleForMediaAndCountries.AddParameter("@GroupID", nGroupID);
+            sp_GeoBlockRuleForMediaAndCountries.AddParameter("@MediaID", nMediaID);
+            DataTable dt = sp_GeoBlockRuleForMediaAndCountries.Execute();
+
+            return dt != null ? dt : new DataTable();
         }
 
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)
@@ -3955,6 +3966,7 @@ namespace DAL
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                         StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                        DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
                     };
 

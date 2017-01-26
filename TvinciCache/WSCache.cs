@@ -12,7 +12,7 @@ namespace TvinciCache
     public class WSCache
     {
         #region Constants
-        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 120d;
+        private static readonly uint DEFAULT_TIME_IN_CACHE_SECONDS = 7200;
         private static readonly string DEFAULT_CACHE_NAME = "Cache";
         #endregion
         #region Singleton properties
@@ -29,16 +29,20 @@ namespace TvinciCache
             return DEFAULT_CACHE_NAME;
         }
 
-        private double GetDefaultCacheTimeInMinutes()
+        private uint GetDefaultCacheTimeInSeconds()
         {
-            double res = 0d;
+            uint res = 0;
             string timeStr = WS_Utils.GetTcmConfigValue("CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            {
+                res *= 60;
                 return res;
-            return DEFAULT_TIME_IN_CACHE_MINUTES;
+            }
+
+            return DEFAULT_TIME_IN_CACHE_SECONDS;
         }
 
-        private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
+        private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
             string res = WS_Utils.GetTcmConfigValue("CACHE_TYPE");
 
@@ -48,7 +52,7 @@ namespace TvinciCache
                     //this.cache = new OutOfProcessCache
                     break;
                 default:
-                    this.cache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+                    this.cache = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
                     break;
 
             }
@@ -56,7 +60,7 @@ namespace TvinciCache
 
         private WSCache()
         {
-            InitializeCachingService(GetCacheName(), GetDefaultCacheTimeInMinutes());
+            InitializeCachingService(GetCacheName(), GetDefaultCacheTimeInSeconds());
         }
 
         public static WSCache Instance
@@ -141,7 +145,7 @@ namespace TvinciCache
         {
             if (instance != null)
             {
-                instance = null;
+                instance.cache = null;
             }
         }
 

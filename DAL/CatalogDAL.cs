@@ -3044,23 +3044,50 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        public static DataSet Get_FileAndMediaBasicDetails(int[] mediaFiles)
+        public static DataTable Get_FileAndMediaBasicDetails(int[] mediaFiles)
         {
-            DataSet ds = null;
+            DataTable dt = null;
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_FileAndMediaBasicDetails");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                dt = sp.Execute();
 
-                ds = sp.ExecuteDataSet();
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
+            }
+            catch (Exception ex)
+            {                
+                log.Error(string.Empty, ex);
+            }
+            return dt;
+        }
+
+        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles)
+        {
+            DataTable dt = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_ValidateMediaFiles");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                dt = sp.Execute();
+
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Empty, ex);
             }
-            return ds;
+            return dt;
         }
+
 
         public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {

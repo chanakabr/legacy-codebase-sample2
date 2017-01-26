@@ -43,9 +43,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CouchbaseManager, Version=3.4.118.16724, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
+    <Reference Include="Couchbase.NetClient">
+      <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
@@ -76,11 +75,25 @@
     <Compile Include="HybridCache.cs" />
     <Compile Include="ICachingService.cs" />
     <Compile Include="InMemoryCache.cs" />
+    <Compile Include="LayeredCache\Config\CbLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\InMemoryLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheBucketSettings.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\LayeredCache.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheTcmConfig.cs" />
+    <Compile Include="LayeredCache\LayeredCacheType.cs" />
     <Compile Include="OutOfProcessCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleInMemoryCache.cs" />
+    <Compile Include="SingleInMemoryCacheManager.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionModuleCache.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

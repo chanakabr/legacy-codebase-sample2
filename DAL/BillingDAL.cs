@@ -2480,24 +2480,23 @@ namespace DAL
             failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
 
-        public static DataTable GetTransactionPaymentDetails(List<string> billingGuids)
+        public static DataSet GetTransactionPaymentDetails(List<string> billingGuids)
         {
-            DataTable dt = null;
+            DataSet ds = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TransactionPaymentDetails");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");                
                 sp.AddIDListParameter<string>("@billing_guids", billingGuids, "ID");
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                    return ds.Tables[0];
+                ds = sp.ExecuteDataSet();                
+                
             }
             catch (Exception ex)
             {
+                ds = null;
                 HandleException(ex);
             }
-            return dt;
+            return ds;
         }
 
         public static int SetTransactionPaymentDetails(int groupID, string billingGuid, int newPaymentGatewayId, int newPaymentMethodId)

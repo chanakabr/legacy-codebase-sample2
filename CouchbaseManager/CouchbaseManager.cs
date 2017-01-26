@@ -901,6 +901,23 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool Get<T>(string key, ref T result)
+        {
+            bool res = false;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            try
+            {
+                result = Get<T>(key, out status);
+                res = status == Couchbase.IO.ResponseStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return res;
+        }
+
         public T Get<T>(string key, out Couchbase.IO.ResponseStatus status, int inMemoryCacheTTL)
         {
             T result = default(T);
@@ -1063,6 +1080,24 @@ namespace CouchbaseManager
             }
 
             return result;
+        }
+
+        public bool GetWithVersion<T>(string key, out ulong version, ref T result)
+        {
+            bool res = false;
+            version = 0;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            try
+            {
+                result = GetWithVersion<T>(key, out version, out status);
+                res = status == Couchbase.IO.ResponseStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - Failed Get with key = {0}, ex = {1}", key, ex);
+            }
+
+            return res;
         }
 
         public T GetWithVersion<T>(string key, out ulong version, out Couchbase.IO.ResponseStatus status, bool asJson = false)

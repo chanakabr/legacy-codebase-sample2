@@ -851,4 +851,10 @@ namespace ApiObjects
         NPVR = 3,
         Download = 4
     }
+
+    public enum DrmType
+    {
+        UDRM = -1,
+        NO_DRM = 0,
+    }
 }
