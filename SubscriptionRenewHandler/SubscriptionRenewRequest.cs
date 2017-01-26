@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,13 @@ namespace SubscriptionRenewHandler
 
         [JsonProperty("end_date")]
         public long EndDate
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("type")]
+        public eSubscriptionRenewRequestType Type
         {
             get;
             set;

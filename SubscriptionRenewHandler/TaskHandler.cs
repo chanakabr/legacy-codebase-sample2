@@ -12,6 +12,7 @@ using TVinciShared;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using ApiObjects;
 
 namespace SubscriptionRenewHandler
 {
@@ -40,7 +41,23 @@ namespace SubscriptionRenewHandler
                     if (!string.IsNullOrEmpty(url))
                         cas.Url = url;
 
-                    bool success = cas.Renew(username, password, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                    bool success = false;
+
+                    switch (request.Type)
+                    {
+                        case eSubscriptionRenewRequestType.Renew:
+                        {
+                            success = cas.Renew(username, password, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                            break;
+                        }
+                        case eSubscriptionRenewRequestType.Reminder:
+                        {
+                            success = cas.GiftCardReminder(username, password, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                            break;
+                        }
+                        default:
+                        break;
+                    }
 
                     if (!success)
                     {
@@ -77,5 +94,3 @@ namespace SubscriptionRenewHandler.WS_CAS
         }
     }
 }
-
-
