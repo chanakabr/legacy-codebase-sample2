@@ -3157,33 +3157,45 @@ namespace ConditionalAccess
         }
 
         //TO DO need to change this one to get List<int> and retirn List<DataROws>
-        internal static Tuple<DataRow, bool> Get_FileAndMediaBasicDetails(Dictionary<string, object> funcParams)
+        internal static Tuple<Dictionary<string, DataRow>, bool> Get_FileAndMediaBasicDetails(Dictionary<string, object> funcParams)
         {
-            bool res = false;            
-            DataRow dr = null;
+            bool res = false;           
+            Dictionary<string, DataRow> result = new Dictionary<string, DataRow>();
             try
             {
-                if (funcParams.ContainsKey("fileID"))
+                if (funcParams.ContainsKey("fileIDs"))
                 {
-                    int? fileID;
-                    fileID = funcParams["fileID"] as int?;
-                    if (fileID.HasValue)
+                    int[] fileIDs;
+                    fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
+                    if (fileIDs != null)
                     {
-
-                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(new int[1] { fileID.Value });
+                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs);
                         if (dt != null && dt.Rows != null)
                         {
-                            dr = dt.Rows.Count > 0 ? dt.Rows[0] : dt.NewRow(); // if data not exists in DB return new DataRow to insert it to cache      
-                            res = dr != null;
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                result.Add(ODBCWrapper.Utils.GetSafeStr(dr, "media_file_id"), dr);
+                            }
                         }
-                    }
+
+                        List<int> missingKeys = fileIDs.Where(x => !result.ContainsKey(x.ToString())).ToList();
+                        if (missingKeys != null)
+                        {
+
+                            foreach (int key in missingKeys)
+                            {
+                                result.Add(key.ToString(), new DataTable().NewRow());
+                            }
+                        }
+                    } 
+                    res = result.Keys.Count() == fileIDs.Count();
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            return new Tuple<DataRow, bool>(dr, res);
+            return new Tuple<Dictionary<string, DataRow>, bool>(new Dictionary<string, DataRow>(), res);
         }
 
         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
@@ -3209,40 +3221,47 @@ namespace ConditionalAccess
 
                 // get basic file details from cach / DB 
                 List<DataRow> drs = new List<DataRow>();
-                foreach (int fileID in nMediaFiles)
-                {
-                    // call 
-                    string key = DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(fileID);
-                    DataRow fileDr = null;                    
-                    // try to get from cache            
-                    bool cacheResult = LayeredCache.Instance.Get<DataRow>(key, ref fileDr, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileID", fileID } });
-                    drs.Add(fileDr);
-                }
-
+                Dictionary<string,DataRow> fileDr = null; 
+                List<string> keys = nMediaFiles.Select(x=>DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(x)).ToList();
+               
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.GetValues<DataRow>(keys, ref fileDr, Get_FileAndMediaBasicDetails, new Dictionary<string, object>(){{  "fileIDs", nMediaFiles }});
+                
                 int mediaFileID;
                 int mediaIsActive = 0, mediaFileIsActive = 0;
                 int mediaStatus = 0, mediaFileStatus = 0;
                 DateTime mediaStartDate, mediaFileStartDate;
-                DateTime mediaEndDate, mediaFileEndDate;
-                DateTime mediaFinalEndDate;
+                DateTime? mediaEndDate, mediaFileEndDate, mediaFinalEndDate;
                 DateTime currentDate;
+                
+                if (!cacheResult)
+                {
+                    foreach (int mf in nMediaFiles)
+                    {
+                        if (!mediaFilesStatus.ContainsKey(mf))
+                        {
+                            mediaFilesStatus.Add(mf, MediaFileStatus.NotForPurchase);
+                        }
+                    }
+                    return mediaFilesStatus;
+                }
 
-                foreach (DataRow dr in drs)
+                foreach (DataRow dr in fileDr.Values)
                 {
                     currentDate = DateTime.UtcNow;
                     //media
                     mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
                     mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
                     mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
-                    mediaEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_end_date", currentDate.AddYears(200));// if no date return set date in the far future
-                    mediaFinalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_final_end_date", currentDate.AddYears(200));// if no date return set date in the far future
+                    mediaEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_end_date");
+                    mediaFinalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_final_end_date");
 
                     //mediaFiles
                     mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
                     mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
                     mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
                     mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
-                    mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date", currentDate.AddYears(200)); // if no date return set date in the far future
+                    mediaFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_end_date");
                     productCode = ODBCWrapper.Utils.GetSafeStr(dr, "Product_Code");
                     
                     if (!mediaFilesProductCode.ContainsKey(mediaFileID))
@@ -3262,11 +3281,11 @@ namespace ConditionalAccess
                     {
                         eMediaFileStatus = MediaFileStatus.NotForPurchase;
                     }
-                    else if (mediaFinalEndDate < currentDate || mediaFileEndDate < currentDate)
+                    else if ((mediaFinalEndDate != null && mediaFinalEndDate < currentDate) || (mediaFileEndDate!= null && mediaFileEndDate < currentDate))
                     {
                         eMediaFileStatus = MediaFileStatus.NotForPurchase;
                     }
-                    else if (mediaEndDate < currentDate && mediaFinalEndDate > currentDate) // cun see only if purchased
+                    else if ((mediaEndDate == null || mediaEndDate < currentDate) && (mediaFinalEndDate == null || mediaFinalEndDate > currentDate)) // cun see only if purchased
                     {
                         eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
                     }
@@ -6341,7 +6360,8 @@ namespace ConditionalAccess
                 else
                 {
                     files = allMediafiles.Where(f => (streamerType.HasValue && streamerType.Value == f.StreamerType) &&
-                        ((context == PlayContextType.Trailer && f.IsTrailer) || (context == PlayContextType.Playback && !f.IsTrailer)) &&
+                        ((context == PlayContextType.Trailer && f.IsTrailer) || 
+                        ((context == PlayContextType.Playback || context == PlayContextType.CatchUp || context == PlayContextType.CatchUp) && !f.IsTrailer)) &&
                         (!string.IsNullOrEmpty(mediaProtocol) && !string.IsNullOrEmpty(f.Url) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
                         (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
                 }
