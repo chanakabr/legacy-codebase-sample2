@@ -683,7 +683,7 @@ namespace ConditionalAccess
                                (response.State.Equals(eTransactionState.OK.ToString()) ||
                                 response.State.Equals(eTransactionState.Pending.ToString())))
                             {
-                                PurchaseManager.SendGiftCardPurchaseMail(groupId, siteguid);
+                                //PurchaseManager.SendGiftCardPurchaseMail(cas, groupId, siteguid, contentId, price, currency, DateTime.UtcNow, eTransactionType.PPV);
 
                                 // purchase passed
                                 long purchaseId = 0;
@@ -762,7 +762,9 @@ namespace ConditionalAccess
             return response;
         }
 
-        private static void SendGiftCardPurchaseMail(int groupId, string siteGuid)
+        private static void SendGiftCardPurchaseMail(
+            BaseConditionalAccess cas, int groupId, string siteGuid, int contentId, double price, string currency,
+            DateTime purchaseDate, eTransactionType transactionType, string itemName = "")
         {
             using (API api = new API())
             {
@@ -777,7 +779,43 @@ namespace ConditionalAccess
 
                 try
                 {
-                    var response = api.SendMailTemplate(apiUsername, apiPass, null);
+                    string email = string.Empty;
+
+                    if (transactionType == eTransactionType.PPV)
+                    {
+                        int[] mediaFileIds = new int[] { contentId };
+                        MeidaMaper[] mapper = Utils.GetMediaMapper(groupId, mediaFileIds, apiUsername, apiPass);
+
+                        if (mapper != null && mapper.Length > 0)
+                        {
+                            int mediaID = Utils.ExtractMediaIDOutOfMediaMapper(mapper, contentId);
+                            itemName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", mediaID, "MAIN_CONNECTION_STRING").ToString();
+                        }
+                    }
+
+                    string purchaseDateString = cas.GetDateSTRByGroup(purchaseDate, groupId);
+
+                    var dummyRequest = cas.GetPurchaseMailRequest(ref email, siteGuid, itemName, string.Empty, purchaseDateString, string.Empty, price, currency, groupId);
+
+                    PurchaseViaGiftCardMailRequest mailRequest = new PurchaseViaGiftCardMailRequest()
+                    {
+                        m_emailKey = dummyRequest.m_emailKey,
+                        m_eMailType = dummyRequest.m_eMailType,
+                        m_sBCCAddress = dummyRequest.m_sBCCAddress,
+                        m_sFirstName = dummyRequest.m_sFirstName,
+                        m_sLastName = dummyRequest.m_sLastName,
+                        m_sSenderFrom = dummyRequest.m_sSenderFrom,
+                        m_sSenderName = dummyRequest.m_sSenderName,
+                        m_sSenderTo = dummyRequest.m_sSenderTo,
+                        m_sSubject = dummyRequest.m_sSubject,
+                        m_sTemplateName = dummyRequest.m_sTemplateName,
+                        offerName = itemName,
+                        offerType = transactionType.ToString(),
+                        price = dummyRequest.m_sPrice,
+                        purchaseDate = purchaseDateString
+                    };
+
+                    var response = api.SendMailTemplate(apiUsername, apiPass, mailRequest);
                 }
                 catch (Exception ex)
                 {
