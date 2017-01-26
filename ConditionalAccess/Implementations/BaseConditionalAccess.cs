@@ -5418,15 +5418,15 @@ namespace ConditionalAccess
                 List<string>  billingGuids = (from row in allSubscriptionsPurchases.AsEnumerable()
                                               where row.Field<int>("IS_RECURRING_STATUS") == 1
                                               select row.Field<string>("BILLING_GUID")).ToList(); // only renewable subscriptions 
-                List<DataRow> renewPaymentDetails = null;
+                List<PaymentDetails> renewPaymentDetails = null;
                 if (billingGuids != null && billingGuids.Count > 0)
                 {
-                    // get all renew payment details
-                    DataTable dt = DAL.BillingDAL.GetTransactionPaymentDetails(billingGuids);
-                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        renewPaymentDetails = (from row in dt.AsEnumerable() select row).ToList();
-                    }
+                    // call billing service to get all transaction payment details
+                    string sWSUserName = "";
+                    string sWSPass = "";
+                    module bm = new module();
+                    Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
+                    renewPaymentDetails = bm.GetPaymentDetails(sWSUserName, sWSPass, billingGuids);
                 }            
 
                 Entitlement entitlement = null;
@@ -5447,13 +5447,13 @@ namespace ConditionalAccess
                 entitlementsResponse.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return entitlementsResponse;
-        }       
+        }
 
-        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<DataRow> renewPaymentDetails)
+        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<PaymentDetails> renewPaymentDetails)
         {
             UsageModule oUsageModule = null;
             Entitlement entitlement = new Entitlement();
-            DataRow paymentDetails = null;
+            PaymentDetails paymentDetails = null;
 
             entitlement.type = eTransactionType.Subscription;
             entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "SUBSCRIPTION_CODE");
@@ -5485,21 +5485,11 @@ namespace ConditionalAccess
                 // get renew payment details 
                 if (renewPaymentDetails != null)
                 {
-                    paymentDetails = renewPaymentDetails.Where(x => x.Field<string>("BILLING_GUID") == billingGuid).FirstOrDefault();
+                    paymentDetails = renewPaymentDetails.Where(x=>x.BillingGuid == billingGuid).FirstOrDefault();
                     if (paymentDetails != null)
                     {
-
-                        // check if any changes made in payment gateway or payment method                              
-                        entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "rpd_payment_gateway_id");
-                        if (entitlement.paymentGatewayId == 0)
-                        {
-                            entitlement.paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "pgt_payment_gateway_id");
-                            entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "pgt_payment_method_id");
-                        }
-                        else
-                        {
-                            entitlement.paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(paymentDetails, "rpd_payment_method_id");
-                        }
+                        entitlement.paymentGatewayId = paymentDetails.PaymentGatewayId;
+                        entitlement.paymentMethodId = paymentDetails.PaymentMethodId;
                     }
                 }
             }
@@ -12091,6 +12081,8 @@ namespace ConditionalAccess
                 string domainPassword = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref domainUsername, ref domainPassword);
 
+                bool skipValidateLimitationModule = false;
+
                 if (prices != null && prices.Length > 0)
                 {
                     /*Get Media Concurrency Rules*/
@@ -12121,6 +12113,7 @@ namespace ConditionalAccess
 
                     if (mcRules != null && mcRules.Count() > 0)
                     {
+                        skipValidateLimitationModule = true;
                         foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
                             lRuleIDS.Add(mcRule.RuleID); // for future use
@@ -12134,7 +12127,8 @@ namespace ConditionalAccess
                         }
                     }
                 }
-                else
+
+                if (!skipValidateLimitationModule)
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(domainUsername, domainPassword, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                            Users.ValidationType.Concurrency, 0, 0, nMediaID);
@@ -19975,7 +19969,7 @@ namespace ConditionalAccess
                 {
                     long longAssetId = 0;
                     long.TryParse(assetId, out longAssetId);
-                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, recording);
+                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, ref recording);
                     if (response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
