@@ -14,8 +14,6 @@ namespace CachingProvider
         private SingleInMemoryCache inMemoryCache;
         private CouchBaseCache<T> couchbaseCache;
         private double secondsInMemory;
-        private const int RETRY_LIMIT = 5;
-        private readonly Random RETRY_INTERVAL = new Random(50);
 
         /// <summary>
         /// Initializes a new instance of the hybrid cache
