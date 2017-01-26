@@ -2052,7 +2052,7 @@ namespace WebAPI.Clients
                 List<KalturaDrmSchemeName> schemes;
                 foreach (var source in kalturaPlaybackContext.Sources)
                 {
-                    if (source.DrmId == (int)DrmType.UDrm)
+                    if (source.DrmId == (int)DrmType.UDRM)
                     {
                         schemes = DrmUtils.GetDrmSchemeName(source.Format);
                         if (schemes != null && schemes.Count > 0)
