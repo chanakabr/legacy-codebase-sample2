@@ -766,5 +766,71 @@ namespace DAL
         {
             return string.Format("validate_fileId_{0}", fileID);
         }
+
+        public static string GetFileCoGuidKey(string coGuid)
+        {
+            return string.Format("fileCoGuid_{0}", coGuid);
+        }
+        public static string MediaIdGroupFileTypesKey(int mediaID)
+        {
+            return string.Format("media_group_file_type{0}", mediaID.ToString());
+        }
+
+
+
+        public static Tuple<int,bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
+        {
+            bool res = false;    
+            int mediaFileID = 0;
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            try
+            {
+                int? groupID = 0;
+                string coGuid = string.Empty;
+                if (funcParams.ContainsKey("groupID"))
+                {
+                    groupID = funcParams["groupID"] as int?;
+                }
+                if (funcParams.ContainsKey(coGuid))
+                {
+                    coGuid = funcParams["coGuid"].ToString();
+                }
+                if (groupID > 0 && !string.IsNullOrEmpty(coGuid))
+                {
+                    res = ConditionalAccessDAL.Get_MediaFileIDByCoGuid(coGuid, groupID.Value, ref mediaFileID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MediaFileIDByCoGuid faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<int,bool>(mediaFileID, res);
+        }
+
+
+        public static Tuple<Dictionary<string, int>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            try
+            {
+                if (funcParams.ContainsKey("mediaDs"))
+                {
+                    int[] mediaDs;
+                    mediaDs = funcParams["mediaDs"] != null ? funcParams["mediaDs"] as int[] : null;
+                    if (mediaDs != null)
+                    {
+                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaDs);
+
+                        res = result.Keys.Count() == mediaDs.Count();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<Dictionary<string, int>, bool>(result, res);
+        }    
     }
 }
