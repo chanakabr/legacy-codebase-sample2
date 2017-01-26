@@ -1027,7 +1027,7 @@
             Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.DRM">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Drm">
             <summary>
             DRM data object containing relevant license URL ,scheme name and certificate
             </summary>

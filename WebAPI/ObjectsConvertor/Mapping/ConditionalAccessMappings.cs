@@ -355,6 +355,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.PlayManifestUrl))
+              .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PlayManifestUrl) ? src.PlayManifestUrl.ToLower().StartsWith("https") ? "https" : "http" : string.Empty));
 
