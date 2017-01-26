@@ -6344,7 +6344,7 @@ namespace ConditionalAccess
                     case eAssetTypes.NPVR:
                         {
                             // check recording valid
-                            var recordingStatus = ValidateRecording(groupId, domain, udid, userId, id, recording);
+                            var recordingStatus = ValidateRecording(groupId, domain, udid, userId, id, ref recording);
 
                             if (recordingStatus.Code != (int)eResponseStatus.OK)
                             {
@@ -6429,7 +6429,7 @@ namespace ConditionalAccess
             return type;
         }
 
-        internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId, long domainRecordingId, Recording recording)
+        internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId, long domainRecordingId, ref Recording recording)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 

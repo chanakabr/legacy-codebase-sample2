@@ -734,16 +734,16 @@ namespace ElasticSearch.Searcher
             {
                 FilterCompositeType recoedingsDatesFilter = new FilterCompositeType(CutWith.AND);
                 
-                if (SearchDefinitions.shouldUseSearchEndDate)
-                {
-                    // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
-                    ESRange epgSearchEndDateRange = new ESRange(false)
-                    {
-                        Key = "search_end_date"
-                    };
-                    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
-                    recoedingsDatesFilter.AddChild(epgSearchEndDateRange);
-                }
+                //if (SearchDefinitions.shouldUseSearchEndDate)
+                //{
+                //    // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
+                //    ESRange epgSearchEndDateRange = new ESRange(false)
+                //    {
+                //        Key = "search_end_date"
+                //    };
+                //    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
+                //    recoedingsDatesFilter.AddChild(epgSearchEndDateRange);
+                //}
 
                 if (!recoedingsDatesFilter.IsEmpty())
                 {

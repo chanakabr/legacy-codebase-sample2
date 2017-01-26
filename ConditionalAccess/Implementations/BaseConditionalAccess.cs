@@ -12081,6 +12081,8 @@ namespace ConditionalAccess
                 string domainPassword = string.Empty;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.DOMAINS, ref domainUsername, ref domainPassword);
 
+                bool skipValidateLimitationModule = false;
+
                 if (prices != null && prices.Length > 0)
                 {
                     /*Get Media Concurrency Rules*/
@@ -12111,6 +12113,7 @@ namespace ConditionalAccess
 
                     if (mcRules != null && mcRules.Count() > 0)
                     {
+                        skipValidateLimitationModule = true;
                         foreach (MediaConcurrencyRule mcRule in mcRules)
                         {
                             lRuleIDS.Add(mcRule.RuleID); // for future use
@@ -12124,7 +12127,8 @@ namespace ConditionalAccess
                         }
                     }
                 }
-                else
+
+                if (!skipValidateLimitationModule)
                 {
                     validationResponse = domainsWS.ValidateLimitationModule(domainUsername, domainPassword, sDeviceName, nDeviceFamilyBrand, lSiteGuid, 0,
                            Users.ValidationType.Concurrency, 0, 0, nMediaID);
@@ -19965,7 +19969,7 @@ namespace ConditionalAccess
                 {
                     long longAssetId = 0;
                     long.TryParse(assetId, out longAssetId);
-                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, recording);
+                    response.Status = Utils.ValidateRecording(m_nGroupID, domain, udid, userId, longAssetId, ref recording);
                     if (response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return response;
