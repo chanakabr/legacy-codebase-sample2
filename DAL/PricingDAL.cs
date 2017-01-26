@@ -1280,7 +1280,7 @@ namespace DAL
             List<int> res = null;
             try
             {
-                StoredProcedure sp = new StoredProcedure("GetGiftCardReminders");
+                StoredProcedure sp = new StoredProcedure("Get_GiftCardReminders");
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
 
