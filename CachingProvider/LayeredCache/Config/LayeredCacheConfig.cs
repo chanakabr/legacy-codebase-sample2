@@ -30,5 +30,7 @@ namespace CachingProvider.LayeredCache
             this.TTL = ttl;
         }
 
+        public abstract ICachingService GetICachingService();
+
     }
 }

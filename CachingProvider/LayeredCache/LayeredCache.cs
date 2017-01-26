@@ -9,11 +9,10 @@ using Newtonsoft.Json;
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCache
-    {        
-        private const string IN_MEMORY_CACHE_NAME = "LayeredInMemoryCache";
+    {                
         private const string LAYERED_CACHE_TCM_CONFIG = "LayeredCache";
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                 
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
         private static LayeredCache instance = null;
         private static JsonSerializerSettings layeredCacheConfigSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
@@ -153,6 +152,54 @@ namespace CachingProvider.LayeredCache
 
         #endregion
 
+        #region Static Methods
+
+        public static string GetBucketFromLayeredCacheConfig(LayeredCacheType cacheType)
+        {
+            string bucketName = string.Empty;
+            try
+            {
+                LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
+                if (layeredCacheTcmConfig != null && layeredCacheTcmConfig.BucketSettings != null && layeredCacheTcmConfig.BucketSettings.Count > 0)
+                {
+                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType.HasFlag(cacheType)).FirstOrDefault();
+                    if (bucketSettings != null && bucketSettings.Bucket != eCouchbaseBucket.DEFAULT)
+                    {
+                        bucketName = bucketSettings.Bucket.ToString();
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetBucketFromLayeredCacheConfig for cacheType: {0}", cacheType.ToString()), ex);
+            }
+
+            return bucketName;
+        }
+
+        private static LayeredCacheTcmConfig GetLayeredCacheTcmConfig()
+        {
+            LayeredCacheTcmConfig layeredCacheTcmConfig = null;
+            try
+            {
+                object obj = Utils.GetTcmGenericValue<object>(LAYERED_CACHE_TCM_CONFIG);
+                if (obj != null)
+                {
+                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(obj.ToString(), layeredCacheConfigSerializerSettings);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetLayeredCacheTcmConfig for key: {0}", LAYERED_CACHE_TCM_CONFIG), ex);
+            }
+
+            return layeredCacheTcmConfig;
+        }        
+
+        #endregion
+
         #region Private Methods
 
         private bool TryGetFromCacheByConfig<T>(string key, ref Tuple<T, long> tupleResult, string layeredCacheConfigName, out List<LayeredCacheConfig> insertToCacheConfig,
@@ -168,7 +215,8 @@ namespace CachingProvider.LayeredCache
                     List<long> inValidationKeysResult = null;
                     if (TryGetInValidationKeys(inValidationKeys, ref inValidationKeysResult))
                     {
-                        long maxInValidationKey = inValidationKeysResult != null && inValidationKeysResult.Count > 0 ? inValidationKeysResult.Max() : 0;
+                        // if inValidationKeysResult.Max() we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
+                        long maxInValidationKey = inValidationKeysResult != null && inValidationKeysResult.Count > 0 ? inValidationKeysResult.Max() + 1 : 0;
                         foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                         {
                             if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig))
@@ -284,7 +332,7 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = GetICachingServiceByCacheConfig(cacheConfig);
+                ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
                     res = cache.Get<Tuple<T, long>>(key, ref tupleResult);
@@ -304,7 +352,7 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = GetICachingServiceByCacheConfig(cacheConfig);
+                ICachingService cache = cacheConfig.GetICachingService();
                 // set validation to now
                 Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
                 if (cache != null)
@@ -339,7 +387,7 @@ namespace CachingProvider.LayeredCache
             try
             {
                 bool res = false;
-                ICachingService cache = GetICachingServiceByCacheConfig(cacheConfig);
+                ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
                     res = cache.RemoveKey(key);
@@ -366,7 +414,13 @@ namespace CachingProvider.LayeredCache
                     return true;
                 }
 
-                ICachingService cache = GetICachingServiceByCacheConfig(GetLayeredCacheTcmConfig().InvalidationKeySettings);
+                LayeredCacheConfig invalidationKeyCacheConfigSettings = GetLayeredCacheTcmConfig().InvalidationKeySettings;
+                if (invalidationKeyCacheConfigSettings == null)
+                {
+                    return false;
+                }
+
+                ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
                 if (cache != null)
                 {
                     IDictionary<string, object> resultMap = cache.GetValues(keys);
@@ -393,48 +447,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
-        }
-
-        private ICachingService GetICachingServiceByCacheConfig(LayeredCacheConfig cacheConfig)
-        {
-            ICachingService cache = null;            
-            try
-            {
-                if (cacheConfig != null)
-                {
-                    switch (cacheConfig.Type)
-                    {
-                        case LayeredCacheType.None:
-                            break;
-                        case LayeredCacheType.InMemoryCache:
-                            InMemoryLayeredCacheConfig inMemoryCache = cacheConfig as InMemoryLayeredCacheConfig;
-                            if (inMemoryCache != null)
-                            {
-                                cache = SingleInMemoryCacheManager.Instance(string.IsNullOrEmpty(inMemoryCache.CacheName) ? IN_MEMORY_CACHE_NAME : inMemoryCache.CacheName, cacheConfig.TTL);
-                            }
-                            break;
-                        case LayeredCacheType.CbCache:
-                        case LayeredCacheType.CbMemCache:
-                            CbLayeredCacheConfig cbCache = cacheConfig as CbLayeredCacheConfig;
-                            if (cbCache != null)
-                            {
-                                string bucketName = string.IsNullOrEmpty(cbCache.Bucket) ? GetBucketFromLayeredCacheConfig(cacheConfig.Type) : cbCache.Bucket;
-                                cache = CouchBaseCache<object>.GetInstance(bucketName);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetICachingServiceByCacheConfig with LayeredCacheTypes {0}", GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
-            }
-
-            return cache;
-        }
+        }        
 
         private bool GetLayeredCacheConfig(string configurationName, out List<LayeredCacheConfig> layeredCacheConfig)
         {            
@@ -461,51 +474,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return layeredCacheConfig != null;
-        }
-
-        private LayeredCacheTcmConfig GetLayeredCacheTcmConfig()
-        {
-            LayeredCacheTcmConfig layeredCacheTcmConfig = null;
-            try
-            {
-                object obj = Utils.GetTcmGenericValue<object>(LAYERED_CACHE_TCM_CONFIG);
-                if (obj != null)
-                {
-                    layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(obj.ToString(), layeredCacheConfigSerializerSettings);
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetLayeredCacheTcmConfig for key: {0}", LAYERED_CACHE_TCM_CONFIG), ex);
-            }
-
-            return layeredCacheTcmConfig;
-        }
-
-        private string GetBucketFromLayeredCacheConfig(LayeredCacheType cacheType)
-        {
-            string bucketName = string.Empty;
-            try
-            {
-                LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
-                if (layeredCacheTcmConfig != null && layeredCacheTcmConfig.BucketSettings != null && layeredCacheTcmConfig.BucketSettings.Count > 0)
-                {
-                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType.HasFlag(cacheType)).FirstOrDefault();
-                    if (bucketSettings != null && bucketSettings.Bucket != eCouchbaseBucket.DEFAULT)
-                    {
-                        bucketName = bucketSettings.Bucket.ToString();
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetBucketFromLayeredCacheConfig for cacheType: {0}", cacheType.ToString()), ex);
-            }
-
-            return bucketName;
-        }
+        }        
 
         private void AddVersionOnKeys(ref List<string> keys, string versionToAdd = null)
         {
