@@ -76,9 +76,18 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectsMethod, Dictionary<string, object> funcParameters, string layeredCacheConfigName = null, Dictionary<string, List<string>> inValidationKeysMap = null, bool allowPartialResults = false)
+        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string,T>, bool>> fillObjectsMethod, Dictionary<string, object> funcParameters, string layeredCacheConfigName = null, Dictionary<string, List<string>> inValidationKeysMap = null, bool allowPartialResults = false)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
+                results = tuple != null ? tuple.Item1 : null;                                
+            }
+            catch (Exception)
+            {   
+                throw;
+            }
+            return results != null;
             //bool res = false;
             //List<LayeredCacheConfig> insertToCacheConfig = null;
             //try
