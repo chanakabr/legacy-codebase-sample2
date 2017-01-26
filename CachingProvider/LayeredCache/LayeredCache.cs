@@ -366,17 +366,16 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();                                
                 if (cache != null)
                 {
+                    ulong version = 0;
                     if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
                     {
-                        ulong version;
+                        
                         Tuple<T, long> getResult = default(Tuple<T, long>);
                         cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
+                        
                     }
-                    else
-                    {
-                        res = cache.Add<Tuple<T, long>>(key, tuple, cacheConfig.TTL);
-                    }
+                    
+                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
                 }
             }
 
