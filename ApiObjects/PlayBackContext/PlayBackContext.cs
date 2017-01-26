@@ -36,6 +36,8 @@ namespace ApiObjects
         public bool IsTrailer { get; set; }
 
         public int CdnId { get; set; }
+
+        public int DrmId { get; set; }
     }
 
     public class PlayManifestResponse

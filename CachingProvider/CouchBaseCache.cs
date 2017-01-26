@@ -11,8 +11,8 @@ namespace CachingProvider
     public class CouchBaseCache<T> : OutOfProcessCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const int RETRY_LIMIT = 5;
-        private readonly Random RETRY_INTERVAL = new Random(50);
+        private const int RETRY_LIMIT = 2;
+        private const int RETRY_INTERVAL = 30;
 
         eCouchbaseBucket bucket = eCouchbaseBucket.DEFAULT;
 
@@ -252,7 +252,7 @@ namespace CachingProvider
 
         public override bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
         {
-            return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL.Next(), expirationInSeconds);
+            return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL, expirationInSeconds);
         }
 
     }

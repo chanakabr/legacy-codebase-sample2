@@ -3966,6 +3966,7 @@ namespace DAL
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                         StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                        DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
                     };
 
