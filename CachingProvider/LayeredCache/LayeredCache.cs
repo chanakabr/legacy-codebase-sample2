@@ -346,7 +346,7 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    res = cache.Get<Tuple<T, long>>(key, ref tupleResult);
+                    res = cache.Get<Tuple<T, long>>(key, ref tupleResult);                    
                 }
             }
 

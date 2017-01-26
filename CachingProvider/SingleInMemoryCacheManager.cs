@@ -37,7 +37,7 @@ namespace CachingProvider
                 {
                     if (!caches.TryGetValue(name, out inMemoryCache))
                     {
-                        inMemoryCache = new SingleInMemoryCache(name, Math.Ceiling((double)expirationInSeconds / 60));
+                        inMemoryCache = new SingleInMemoryCache(name, (double )expirationInSeconds / 60);
                         caches.TryAdd(name, inMemoryCache);
                     }
                 }
