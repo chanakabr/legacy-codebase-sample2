@@ -500,8 +500,8 @@ namespace CachingProvider.LayeredCache
 
             if (!string.IsNullOrEmpty(versionValue))
             {
-                keys.ForEach(x => x = string.Format("{0}_V{1}", x, versionValue));
-            }            
+                keys = keys.Select(x => string.Format("{0}_V{1}", x, versionValue)).ToList();
+            }
         }
 
         private string GetOriginalKeyValue(string key)
