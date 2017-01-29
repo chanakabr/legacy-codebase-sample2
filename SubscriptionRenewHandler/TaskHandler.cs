@@ -43,7 +43,14 @@ namespace SubscriptionRenewHandler
 
                     bool success = false;
 
-                    switch (request.Type)
+                    eSubscriptionRenewRequestType requestType = eSubscriptionRenewRequestType.Renew;
+
+                    if (request.Type != null && request.Type.HasValue)
+                    {
+                        requestType = request.Type.Value;
+                    }
+
+                    switch (requestType)
                     {
                         case eSubscriptionRenewRequestType.Renew:
                         {

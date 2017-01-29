@@ -46,7 +46,7 @@ namespace SubscriptionRenewHandler
         }
 
         [JsonProperty("type")]
-        public eSubscriptionRenewRequestType Type
+        public eSubscriptionRenewRequestType? Type
         {
             get;
             set;
