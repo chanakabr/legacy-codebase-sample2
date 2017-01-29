@@ -47,7 +47,7 @@ namespace CachingProvider
         {
             if (string.IsNullOrEmpty(sKey))
                 return false;
-            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes(expirationInSeconds / 60));
+            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60));
         }
 
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
@@ -152,8 +152,6 @@ namespace CachingProvider
             bool bRes = false;
             try
             {
-                VersionModuleCache baseModule = (VersionModuleCache)oValue;
-
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 //lock 
@@ -164,13 +162,12 @@ namespace CachingProvider
                     try
                     {
                         mutex.WaitOne(-1);
-                        VersionModuleCache vModule = (VersionModuleCache)GetWithVersion<T>(sKey);
+                        BaseModuleCache vModule = GetWithVersion<T>(sKey);
                         // memory is empty for this key OR the object must have the same version 
-                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null && vModule.version != baseModule.version))
+                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null))
                         {                            
                             Guid versionGuid = Guid.NewGuid();
-                            baseModule.version = versionGuid.ToString();
-                            cache.Set(sKey, baseModule, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                            cache.Set(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
                             return true;
                         }                        
                     }
@@ -283,8 +280,8 @@ namespace CachingProvider
                     object cacheResult = cache.Get(key);
                     if (cacheResult != null)
                     {
-                        result = (T)cacheResult;
-                        res = true;
+                        result = (T) cacheResult;
+                        res = result != null;
                     }
                 }
             }
@@ -321,7 +318,44 @@ namespace CachingProvider
 
         public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
         {
-            return SetWithVersion<T>(key, new BaseModuleCache(value), expirationInSeconds / 60);
+            bool bRes = false;
+            try
+            {
+                
+
+                //lock 
+                bool createdNew = false;
+                var mutexSecurity = CreateMutex();
+                using (Mutex mutex = new Mutex(false, string.Concat("Lock", key), out createdNew, mutexSecurity))
+                {
+                    try
+                    {
+                        mutex.WaitOne(-1);
+                        T getResult = default(T);
+                        if (!GetWithVersion<T>(key, out version, ref getResult) || getResult == null)
+                        {
+                            DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
+                            cache.Set(key, value, dtExpiresAt);
+                            return true;                        
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        //unlock
+                        mutex.ReleaseMutex();
+                    }
+                }
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                log.Error("SetWithVersion<T>", ex);
+                return false;
+            }            
         }
     }
 

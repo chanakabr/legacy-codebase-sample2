@@ -54,9 +54,11 @@ namespace CachingProvider.LayeredCache
                 genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
                 {
+                    // set validation to now
+                    Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
                     foreach (LayeredCacheConfig cacheConfig in insertToCacheConfig)
                     {
-                        if (!TryInsert<T>(key, tuple, cacheConfig))
+                        if (!TryInsert<T>(key, tupleToInsert, cacheConfig))
                         {
                             log.ErrorFormat("Failed inserting key {0} to {1}", key, cacheConfig.Type.ToString());
                         }
@@ -344,7 +346,7 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    res = cache.Get<Tuple<T, long>>(key, ref tupleResult);
+                    res = cache.Get<Tuple<T, long>>(key, ref tupleResult);                    
                 }
             }
 
@@ -361,22 +363,19 @@ namespace CachingProvider.LayeredCache
             bool res = false;
             try
             {
-                ICachingService cache = cacheConfig.GetICachingService();
-                // set validation to now
-                Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
+                ICachingService cache = cacheConfig.GetICachingService();                                
                 if (cache != null)
                 {
+                    ulong version = 0;
                     if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
                     {
-                        ulong version;
+                        
                         Tuple<T, long> getResult = default(Tuple<T, long>);
                         cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        cache.SetWithVersion<Tuple<T, long>>(key, tupleToInsert, version, cacheConfig.TTL);
+                        
                     }
-                    else
-                    {
-                        res = cache.Add<Tuple<T, long>>(key, tupleToInsert, cacheConfig.TTL);
-                    }
+                    
+                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
                 }
             }
 
@@ -500,8 +499,8 @@ namespace CachingProvider.LayeredCache
 
             if (!string.IsNullOrEmpty(versionValue))
             {
-                keys.ForEach(x => x = string.Format("{0}_V{1}", x, versionValue));
-            }            
+                keys = keys.Select(x => string.Format("{0}_V{1}", x, versionValue)).ToList();
+            }
         }
 
         private string GetOriginalKeyValue(string key)
