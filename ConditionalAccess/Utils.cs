@@ -3445,11 +3445,10 @@ namespace ConditionalAccess
                 Dictionary<string, int> mediaIdGroupFileTypeMapper = null;
                 List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
 
-
-                bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaDs", mediaIDsToMap } });
+                bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } });
                 if (!cacheResult)
                 {
-                   // log.Error(string.Format());
+                    log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
                 }
                 userPpvEntitlements.MediaIdGroupFileTypeMapper = mediaIdGroupFileTypeMapper;                
             }

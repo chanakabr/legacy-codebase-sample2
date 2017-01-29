@@ -54,7 +54,7 @@ namespace ODBCWrapper
                     //this.cache = new OutOfProcessCache
                     break;
                 default:
-                    this.cache = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
+                    this.cache = new SingleInMemoryCache(expirationInSeconds);
                     break;
 
             }
