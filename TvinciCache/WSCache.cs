@@ -145,7 +145,7 @@ namespace TvinciCache
         {
             if (instance != null)
             {
-                instance.cache = null;
+                instance = null;
             }
         }
 
