@@ -205,7 +205,7 @@ namespace ConditionalAccess
             }
 
             log.DebugFormat("Renew details received. data: {0}", logString);
-
+            
             #region Get Subscription data
 
             string wsUsername = string.Empty;
@@ -621,6 +621,181 @@ namespace ConditionalAccess
             return true;
         }
 
+        internal static bool GiftCardReminder(BaseConditionalAccess cas, int groupId, string siteguid, long purchaseId, string billingGuid, long nextEndDate)
+        {
+            bool success = false;
+
+            // log request
+            string logString = string.Format("GiftCardReminder request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteguid, purchaseId, billingGuid, nextEndDate);
+
+            log.DebugFormat("Starting GiftCardReminder process. data: {0}", logString);
+
+            string customData = string.Empty;
+            long householdId = 0;
+
+            string userIp = "1.1.1.1";
+
+            // validate purchaseId
+            if (purchaseId <= 0 || string.IsNullOrEmpty(billingGuid))
+            {
+                // Illegal purchase ID  
+                log.ErrorFormat("Illegal purchaseId or billingGuid. data: {0}", logString);
+                return true;
+            }
+
+            #region Get subscription purchase
+
+            // get subscription purchase 
+            DataRow subscriptionPurchaseRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(groupId, purchaseId, billingGuid);
+
+            // validate subscription received
+            if (subscriptionPurchaseRow == null)
+            {
+                // subscription purchase wasn't found
+                log.ErrorFormat("problem getting the subscription purchase. Purchase ID: {0}, data: {1}", purchaseId, logString);
+                return false;
+            }
+
+            #endregion
+
+            // get product ID
+            long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
+            string couponCode = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "COUPON_CODE");
+
+            ResponseStatus userValidStatus = ResponseStatus.OK;
+            userValidStatus = Utils.ValidateUser(groupId, siteguid, ref householdId);
+
+            #region Dummy
+
+            try
+            {
+                customData = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "CUSTOMDATA"); // AKA subscription ID/CODE
+
+                if (userValidStatus == ResponseStatus.OK && !string.IsNullOrEmpty(customData))
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(customData);
+                    XmlNode theRequest = doc.FirstChild;
+
+                    bool isDummy = XmlUtils.IsNodeExists(ref theRequest, DUMMY);
+                    if (isDummy)
+                    {
+                        return HandleDummySubsciptionRenewal(cas, groupId, siteguid, billingGuid, logString, householdId, userIp, productId, theRequest);
+                    }
+                }
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("Renew: Error while getting data from xml, data: {0}, error: {1}", logString, exc);
+                return false;
+            }
+
+            #endregion
+
+            // get end date
+            DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
+
+            // validate renewal did not already happened
+            if (Math.Abs(TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate) - nextEndDate) > 60)
+            {
+                // subscription purchase wasn't found
+                log.ErrorFormat("Subscription purchase last end date is not the same as next the new end date - canceling GiftCardReminder task." +
+                    "Purchase ID: {0}, sub end_date: {1}, data: {2}",
+                    purchaseId, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), logString);
+                return true;
+            }
+
+            // validate user ID
+            string purchaseSiteguid = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "SITE_USER_GUID");
+            if (purchaseSiteguid != siteguid)
+            {
+                // siteguid not equal to purchase siteguid
+                log.ErrorFormat("siteguid {0} not equal to purchase siteguid {1}. data: {2}", siteguid, purchaseSiteguid, logString);
+                return true;
+            }
+
+            log.DebugFormat("subscription purchase found and validated. data: {0}", logString);
+
+            // validate user object               
+            bool shouldSwitchToMasterUser = true;
+
+            // check if we need to set shouldSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
+
+            #region shouldSwitchToMasterUser
+
+            householdId = ODBCWrapper.Utils.GetLongSafeVal(subscriptionPurchaseRow, "DOMAIN_ID");
+            string masterSiteGuid = string.Empty;
+            if (householdId > 0)
+            {
+                Domain domain = Utils.GetDomainInfo((int)householdId, groupId);
+                if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
+                {
+                    masterSiteGuid = domain.m_masterGUIDs.First().ToString();
+                }
+            }
+
+            if (string.IsNullOrEmpty(masterSiteGuid))
+            {
+                // could not find a master user to replace the deleted user                   
+                log.ErrorFormat("User validation failed: UserDoesNotExist and no MasterUser to replace in renew, data: {0}", logString);
+                return true;
+            }
+            else
+            {
+                log.WarnFormat("SiteGuid: {0} does not exist, changing renew SiteGuid value to MasterSiteGuid: {1}", siteguid, masterSiteGuid);
+                siteguid = masterSiteGuid;
+            }
+
+            // check if response OK only if we know response is not UserDoesNotExist, shouldSwitchToMasterUser is set to false by default
+            if (userValidStatus != ResponseStatus.OK && userValidStatus != ResponseStatus.UserDoesNotExist)
+            {
+                // user validation failed
+                ApiObjects.Response.Status status = Utils.SetResponseStatus(userValidStatus);
+                log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
+                return true;
+            }
+
+            #endregion
+
+            // validate household
+            if (householdId <= 0)
+            {
+                // illegal household ID
+                log.ErrorFormat("Error: Illegal household, data: {0}", logString);
+                return true;
+            }
+
+            // get transaction details
+            //--------------------------------------------
+            DataRow renewDetailsRow = DAL.ConditionalAccessDAL.Get_RenewDetails(groupId, purchaseId, billingGuid);
+
+            if (renewDetailsRow == null)
+            {
+                // transaction details weren't found
+                log.ErrorFormat("Transaction details weren't found. Product ID: {0}, billing GUID: {1}, data: {2}", productId, billingGuid, logString);
+                return false;
+            }
+
+            log.DebugFormat("Renew details received. data: {0}", logString);
+
+            var paymentDetails = BasePaymentGateway.GetPaymentDetails(groupId, new List<string>() { billingGuid });
+
+
+            PaymentDetails pd = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+
+            if (pd == null)
+            {
+                // error while trying to get payment GW ID and external transaction ID
+                log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupId, householdId, billingGuid);
+
+
+            }
+
+            success = true;
+
+            return success;
+        }
         #endregion
+
     }
 }
