@@ -773,7 +773,7 @@ namespace DAL
         }
         public static string MediaIdGroupFileTypesKey(int mediaID)
         {
-            return string.Format("media_group_file_type{0}", mediaID.ToString());
+            return string.Format("media_group_file_type_{0}", mediaID.ToString());
         }
 
 
@@ -814,15 +814,14 @@ namespace DAL
             Dictionary<string, int> result = new Dictionary<string, int>();
             try
             {
-                if (funcParams.ContainsKey("mediaDs"))
+                if (funcParams.ContainsKey("mediaIDs"))
                 {
-                    int[] mediaDs;
-                    mediaDs = funcParams["mediaDs"] != null ? funcParams["mediaDs"] as int[] : null;
-                    if (mediaDs != null)
+                    int[] mediaIDs;
+                    mediaIDs = funcParams["mediaIDs"] != null ? funcParams["mediaIDs"] as int[] : null;
+                    if (mediaIDs != null)
                     {
-                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaDs);
-
-                        res = result.Keys.Count() == mediaDs.Count();
+                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
+                        res = true;                        
                     }
                 }
             }
