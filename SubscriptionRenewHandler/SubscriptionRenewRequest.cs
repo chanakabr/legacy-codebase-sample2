@@ -45,7 +45,7 @@ namespace SubscriptionRenewHandler
             set;
         }
 
-        [JsonProperty("type")]
+        [JsonProperty("task_type")]
         public eSubscriptionRenewRequestType? Type
         {
             get;
