@@ -3264,6 +3264,10 @@ namespace ConditionalAccess
                         }
                     }
                 }
+                else
+                {
+                    log.Error(string.Format("ValidateMediaFiles -  LayeredCache return false for keys :{0}", string.Join(",", keys)));
+                }
             }
             catch (Exception ex)
             {
@@ -3436,19 +3440,18 @@ namespace ConditionalAccess
                 }
 
                 // Get mappings dictionary<mediaID_groupFileType, mediaFileID>
-                
-                // TO DO implament Cache here 
-                  Dictionary<string,int> mediaIdGroupFileTypeMapper = null; 
-                List<string> keys = mediaIDsToMap.Select(x=>DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
-               
-                           
-                bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaDs", mediaIDsToMap } });
-                if (cacheResult)
-                {
-                    userPpvEntitlements.MediaIdGroupFileTypeMapper = mediaIdGroupFileTypeMapper;
-                }// if not ? what to dao here ??? 
 
-               // userPpvEntitlements.MediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
+                // TO DO implament Cache here 
+                Dictionary<string, int> mediaIdGroupFileTypeMapper = null;
+                List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
+
+
+                bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaDs", mediaIDsToMap } });
+                if (!cacheResult)
+                {
+                   // log.Error(string.Format());
+                }
+                userPpvEntitlements.MediaIdGroupFileTypeMapper = mediaIdGroupFileTypeMapper;                
             }
         }
 
