@@ -3166,7 +3166,7 @@ namespace ConditionalAccess
             {
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            return new Tuple<Dictionary<string, DataRow>, bool>(new Dictionary<string, DataRow>(), res);
+            return new Tuple<Dictionary<string, DataRow>, bool>(result, res);
         }
 
         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
