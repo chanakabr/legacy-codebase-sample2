@@ -18,6 +18,9 @@ namespace CachingProvider
          * 1. MemoryCache is threadsafe, however the references it holds are not necessarily thread safe.
          * 2. MemoryCache should be properly disposed.
          */
+
+        private static readonly string DEFAULT_CACHE_NAME = "Cache";
+        private static readonly uint DEFAULT_CACHE_TTL_IN_SECONDS = 7200;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private MemoryCache cache = null;
 
@@ -34,14 +37,22 @@ namespace CachingProvider
 
         #region Ctors
 
-        internal SingleInMemoryCache(string name, double defaultMinOffset)
+        public SingleInMemoryCache(uint defaultExpirationInSeconds)
         {
-            CacheName = name;
-            DefaultMinOffset = defaultMinOffset;
-            cache = new MemoryCache(name);
+            CacheName = GetCacheName();
+            DefaultMinOffset = (double)defaultExpirationInSeconds / 60;
+            cache = new MemoryCache(CacheName);
         }
 
         #endregion
+
+        private string GetCacheName()
+        {
+            string res = Utils.GetTcmGenericValue<string>("CACHE_NAME");
+            if (res.Length > 0)
+                return res;
+            return DEFAULT_CACHE_NAME;
+        }
 
         public bool Add<T>(string sKey, T value, uint expirationInSeconds)
         {
