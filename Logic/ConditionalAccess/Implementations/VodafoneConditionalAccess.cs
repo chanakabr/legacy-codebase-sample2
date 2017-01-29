@@ -81,7 +81,7 @@ namespace Core.ConditionalAccess
                     if (suspendStatus != DomainSuspentionStatus.Suspended)
                     {
                         // validate that the service is allowed
-                        if (IsServiceAllowed(m_nGroupID, domainID, eService.NPVR))
+                        if (IsServiceAllowed(domainID, eService.NPVR))
                         {
                             // get media files which corresponds to the given asset ID (program ID)
                             List<int> fileIds = DAL.ConditionalAccessDAL.GetFileIdsByEpgProgramId(Convert.ToInt32(assetID), m_nGroupID);
@@ -101,7 +101,7 @@ namespace Core.ConditionalAccess
                                     {
                                         foreach (var price in prices)
                                         {
-                                            if (IsFreeItem(price) || IsItemPurchased(price))
+                                            if (IsFreeItem(price) || Utils.IsItemPurchased(price))
                                             {
                                                 priceValidationPassed = true;
                                                 break;

@@ -358,6 +358,7 @@ namespace Core.Pricing
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("pricing_connection");
                 selectQuery += "select id from subscriptions with (nolock) where is_active=1 and status=1 and start_date<getdate() and (end_date is null or end_date>getdate()) and ";
                 selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
                 if (selectQuery.Execute("query", true) != null)
@@ -503,6 +504,7 @@ namespace Core.Pricing
             ServiceObject[] res = null;
             long lSubCode = (long)nSubscriptionID;
             DataTable dt = PricingDAL.Get_SubscriptionsServices(m_nGroupID, new List<long>(1) { lSubCode });
+            ServiceObject service;
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 res = new ServiceObject[dt.Rows.Count];
@@ -510,7 +512,15 @@ namespace Core.Pricing
                 {
                     long serviceID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["service_id"]);
                     string desc = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
-                    ServiceObject service = new ServiceObject(serviceID, desc);
+                    if (serviceID == (int)eService.NPVR)
+                    {
+                        long quota = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["QUOTA_IN_MINUTES"]);
+                        service = new NpvrServiceObject(serviceID, desc, quota);
+                    }
+                    else
+                    {
+                        service = new ServiceObject(serviceID, desc);
+                    }
                     res[i] = service;
                 }
             }

@@ -177,52 +177,60 @@ namespace Core.Users
             return new DomainResponseObject(domain, eDomainResponseStatus);
         }
 
-        public virtual DomainResponseStatus RemoveDomain(int nDomainID)
+        public virtual DomainResponseStatus RemoveDomain(int domainId)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             try
             {
-                if (nDomainID < 1)
+                if (domainId < 1)
                     return DomainResponseStatus.DomainNotExists;
 
-                Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
+                Domain domain = DomainInitializer(m_nGroupID, domainId, false);
 
                 if (domain == null)
                     return DomainResponseStatus.DomainNotExists;
  
                 //cjeck if  send mail = true
                 bool sendMail = DomainDal.GetCloseAccountMailTrigger(m_nGroupID);
-                log.DebugFormat("Close Account mail settings m_nGroupID = {0}, sendMail = {1}", m_nGroupID, sendMail);
+                log.DebugFormat("RemoveDomain - Close Account mail settings groupId = {0}, sendMail = {1}", m_nGroupID, sendMail);
                 User masterUser = new User();
-                bool isUserValid = false;
                 if (sendMail)
                 {
                     // get domain master user details                    
-                    int userGuid = domain.m_masterGUIDs.FirstOrDefault();
-                    isUserValid = User.IsUserValid(m_nGroupID, userGuid, ref masterUser);
+                    int userId = domain.m_masterGUIDs.FirstOrDefault();
+                    masterUser = new User(m_nGroupID, userId);
+
+                    if (masterUser == null || !int.TryParse(masterUser.m_sSiteGUID, out userId) || userId == 0)
+                    {
+                        log.DebugFormat("RemoveDomain - Can't send mail to domain = {0} due to master user {1} is not valid", domainId, userId);
+                        sendMail = false;
+                    }
                 }
 
                 res = domain.Remove();
 
-                if (res == DomainResponseStatus.OK && isUserValid)
+                if (res != DomainResponseStatus.OK)
+                {
+                    return res;
+                }
+
+                if (sendMail)
                 {
                     RemoveDomianMailRequest mailRequest = MailFactory.GetRemoveDomainMailRequest(masterUser, m_nGroupID);
                     if (mailRequest != null)
                     {
                         bool sendingMailResult = Utils.SendMail(m_nGroupID, mailRequest);
+                        log.DebugFormat("RemoveDomain - sending mail to domain : {0}, result : {1}", domainId, sendingMailResult);
                     }
                 }
-                else if (!isUserValid)
-                {
-                    log.DebugFormat("can't send mail to DomainID = {0} due to master user is not valid", nDomainID);
-                }
+                
             }
 
             catch (Exception ex)
             {
                 res = DomainResponseStatus.Error;
                 StringBuilder sb = new StringBuilder("Exception at RemoveDomain. ");
-                sb.Append(String.Concat(" D ID: ", nDomainID));
+                sb.Append(String.Concat(" D ID: ", domainId));
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
                 sb.Append(String.Concat(" this is: ", this.GetType().Name));
                 sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));

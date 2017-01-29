@@ -823,6 +823,38 @@ namespace ApiObjects
         Cancel = 1,
         CancelNow = 2,
         Fail = 3,
-        HouseholdCancel = 4
+        HouseholdCancel = 4,
+        Switched = 5, 
+        Switched_To = 6
+    }
+
+    public enum PlayContextType
+    {
+        Trailer,
+        CatchUp,
+        StartOver,
+        Playback
+    }
+
+    public enum StreamerType
+    {
+        applehttp = 0, 
+        mpegdash = 1,
+        url = 2,
+    }
+
+    public enum eService
+    {
+        Unknown = 0,
+        CatchUp = 1,
+        StartOver = 2,
+        NPVR = 3,
+        Download = 4
+    }
+
+    public enum DrmType
+    {
+        UDRM = -1,
+        NO_DRM = 0,
     }
 }

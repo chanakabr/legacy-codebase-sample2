@@ -375,5 +375,57 @@ namespace APILogic
             return ApiObjects.MetaType.All;
         }
 
+
+        internal static Tuple<DataTable, bool> Get_GeoBlockPerMedia(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DataTable dt = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                    {
+                        int? groupId, mediaId;
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as int?;                        
+                        if (groupId.HasValue && mediaId.HasValue)
+                        {
+                            dt = DAL.ApiDAL.Get_GeoBlockRuleForMediaAndCountries(groupId.Value, mediaId.Value);
+                            res = dt != null;
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_GeoBlockPerMedia faild params : {0}", string.Join(";",funcParams.Keys)), ex);
+            }
+            return new Tuple<DataTable,bool>(dt, res);
+        }
+
+        internal static Tuple<bool?, bool> GetIsMediaExistsToUserType(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            bool? isMediaExistsToUserType = null;
+            if (funcParams != null && funcParams.Count == 3)
+            {
+                if (funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("userTypeId"))
+                {
+                    int? mediaId, userTypeId;                    
+                    mediaId = funcParams["mediaId"] as int?;
+                    userTypeId = funcParams["userTypeId"] as int?;
+                    if (mediaId.HasValue && userTypeId.HasValue)
+                    {
+                        isMediaExistsToUserType = DAL.ApiDAL.Is_MediaExistsToUserType(mediaId.Value, userTypeId.Value);
+                        res = isMediaExistsToUserType.HasValue;
+                    }
+                }
+            }
+
+            return new Tuple<bool?, bool>(isMediaExistsToUserType, res);
+        }
+
     }
 }

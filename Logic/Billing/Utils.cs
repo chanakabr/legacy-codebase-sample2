@@ -2491,5 +2491,10 @@ namespace Core.Billing
             return bytes;
         }
 
+
+        internal static bool DataTableExsits(DataTable dataTable)
+        {
+            return dataTable != null && dataTable.Rows != null && dataTable.Rows.Count > 0;
+        }
     }
 }

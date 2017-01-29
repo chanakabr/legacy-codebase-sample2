@@ -68,7 +68,7 @@ namespace Core.ConditionalAccess
 
         protected void HandleSubscriptionUsesNotification(Int32 nMediaFileID, string sSubCode, string sSiteGUID)
         {
-            Int32 nMediaID = Utils.GetMediaIDFeomFileID(nMediaFileID, m_nGroupID);
+            Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, m_nGroupID);
 
             string sUrl = string.Format("https://www.sinema.com/wswebtv/FreeMediaStat.aspx?media_id={0}&package_id={1}&customer_id={2}", nMediaFileID, sSubCode, sSiteGUID);
 
@@ -108,7 +108,7 @@ namespace Core.ConditionalAccess
                         CachingManager.CachingManager.SetCachedData("GetPPVModuleData" + sMediaFileForCache + "_" + m_nGroupID.ToString() + sLocaleForCache, oPPVModule, 86400, System.Web.Caching.CacheItemPriority.Default, 0, false);
                     }
 
-                    Int32 nMediaID = Utils.GetMediaIDFeomFileID(nMediaFileID, m_nGroupID);
+                    Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, m_nGroupID);
 
                     string sCustomData = GetCustomData(relevantSub, oPPVModule, null, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID,
                         sPPVModuleCode, string.Empty, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);

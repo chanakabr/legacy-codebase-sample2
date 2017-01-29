@@ -21,4 +21,20 @@ namespace ApiObjects.Pricing
             Name = name;
         }
     }
+
+    [Serializable]
+    public class NpvrServiceObject : ServiceObject
+    {
+        public long Quota;
+
+        public NpvrServiceObject() : base()
+        {
+        }
+
+        public NpvrServiceObject(long id, string name, long quota) : base (id, name)
+        {
+            Quota = quota;
+        }
+    }
+
 }

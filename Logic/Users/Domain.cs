@@ -219,42 +219,10 @@ namespace Core.Users
                 m_totalNumOfUsers++;
             }
 
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
-            {
-                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-
-                if (npvr != null)
-                {
-                    NPVRUserActionResponse resp = npvr.CreateAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString(), Quota = npvrQuotaInSecs });
-
-                    if (resp != null)
-                    {
-                        if (resp.isOK)
-                        {
-                            m_DomainStatus = DomainStatus.OK;
-                        }
-                        else
-                        {
-                            m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                            log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1} , NPVR Err Msg: {2}", m_nGroupID, m_nDomainID, resp.msg));
-                        }
-                    }
-                    else
-                    {
-                        m_DomainStatus = DomainStatus.DomainCreatedWithoutNPVRAccount;
-                        log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider CreateAccount response is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                    }
-                }
-                else
-                {
-                    log.Error("Error - " + string.Format("CreateNewDomain. NPVR Provider returned null from Factory. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
-                }
-            }
-
-            EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
-                nGroupID,
-                this,
-                EventManager.Events.eKalturaEventActions.Created));
+            //EventManager.EventManager.HandleEvent(new EventManager.Events.KalturaObjectActionEvent(
+            //    nGroupID,
+            //    this,
+            //    EventManager.Events.eKalturaEventActions.Created));
 
             return this;
         }
@@ -373,41 +341,40 @@ namespace Core.Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
 
-                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
+                // delete users from cache
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (var userId in domainUserIds)
                 {
-                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID);
-                    if (npvr != null)
+                    usersCache.RemoveUser(userId, m_nGroupID);
+                }
+
+                INPVRProvider npvr;
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                {
+                    try
                     {
                         NPVRUserActionResponse response = npvr.DeleteAccount(new NPVRParamsObj() { EntityID = m_nDomainID.ToString() });
-
                         if (response != null)
                         {
                             if (response.isOK)
                             {
                                 res = DomainResponseStatus.OK;
-                                // delete users from cache
-                                foreach (var userId in domainUserIds)
-                                {
-                                    UsersCache usersCache = UsersCache.Instance();
-                                    usersCache.RemoveUser(userId, m_nGroupID);
-                                }
                             }
                             else
                             {
                                 res = DomainResponseStatus.Error;
-                                log.Error("Error - " + string.Format("Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
+                                log.Error(string.Format("Error - Remove. NPVR DeleteAccount response status is not ok. G ID: {0} , D ID: {1} , Err Msg: {2}", m_nGroupID, m_nDomainID, response.msg));
                             }
                         }
                         else
                         {
                             res = DomainResponseStatus.Error;
-                            log.Error("Error - " + string.Format("Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                            log.Error(string.Format("Error - Remove. DeleteAccount returned response null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        res = DomainResponseStatus.Error;
-                        log.Error("Error - " + string.Format("Remove. NPVR Provider is null. G ID: {0} , D ID: {1}", m_nGroupID, m_nDomainID));
+                        log.ErrorFormat("Error - Remove. NPVR provider DeleteAccount failed. groupId: {0}, domainId: {1}, error: {2}", m_nGroupID, m_nDomainID, ex);
                     }
                 }
             }

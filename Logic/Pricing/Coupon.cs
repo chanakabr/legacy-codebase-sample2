@@ -85,6 +85,7 @@ namespace Core.Pricing
 
 
                         insertQuery = new ODBCWrapper.InsertQuery("coupon_uses");
+                        insertQuery.SetConnectionKey("pricing_connection");
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("SITE_GUID", "=", sSiteGUID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_ID", "=", c.m_nCouponID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);

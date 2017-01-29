@@ -136,6 +136,7 @@ namespace Core.Pricing
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("pricing_connection");
                 selectQuery += "select * from pre_paid_descriptions with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("pre_paid_module_id", "=", m_ObjectCode);
                 if (selectQuery.Execute("query", true) != null)

@@ -1184,5 +1184,18 @@ namespace Core.Billing
 
             return result;
         }
+
+        public static List<PaymentDetails> GetPaymentDetails(int nGroupID, List<string> billingGuids)
+        {
+            List<PaymentDetails> result = new List<PaymentDetails>();
+
+            BasePaymentGateway t = new BasePaymentGateway(nGroupID);
+            if (t != null)
+            {
+                result = t.GetPaymentDetails(billingGuids);
+            }
+
+            return result;
+        }
     }
 }

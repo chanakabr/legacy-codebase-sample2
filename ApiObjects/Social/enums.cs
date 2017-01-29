@@ -45,7 +45,8 @@ namespace ApiObjects.Social
         INVITEERROR = 11,
         ACCESSDENIED = 12,
         WRONGPASSWORDORUSERNAME = 13,
-        UNMERGEOK = 14
+        UNMERGEOK = 14,
+        USEREMAILISMISSING = 15
     }
 
     public enum SocialActionResponseStatus

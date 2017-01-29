@@ -199,16 +199,16 @@ namespace ApiObjects
 
                 #region Tags
                 if (this.Tags != null && obj.Tags != null && this.Tags.Count == obj.Tags.Count)
-                {
+                {  
                     foreach (string objTagKey in obj.Tags.Keys)
                     {
-                        if (!this.Tags.ContainsKey(objTagKey.ToLower()))
+                        if (!this.Tags.ContainsKey(objTagKey))
                         {
                             return false;
                         }
 
                         int countObjTagValues = obj.Tags[objTagKey] == null ? 0 : obj.Tags[objTagKey].Count;
-                        int countThisTagValues = this.Tags[objTagKey.ToLower()] == null ? 0 : this.Tags[objTagKey.ToLower()].Count;
+                        int countThisTagValues = this.Tags[objTagKey] == null ? 0 : this.Tags[objTagKey].Count;
 
                         if (countObjTagValues != countThisTagValues)
                         {
@@ -219,7 +219,7 @@ namespace ApiObjects
                             // compare the values between the lists
                             foreach (string sTagValue in obj.Tags[objTagKey])
                             {
-                                if (!this.Tags[objTagKey.ToLower()].Contains(sTagValue))
+                                if (!this.Tags[objTagKey].Contains(sTagValue))
                                 {
                                     return false;
                                 }
@@ -234,13 +234,13 @@ namespace ApiObjects
                 {
                     foreach (string objMetaKey in obj.Metas.Keys)
                     {
-                        if (!this.Metas.ContainsKey(objMetaKey.ToLower()))
+                        if (!this.Metas.ContainsKey(objMetaKey))
                         {
                             return false;
                         }
 
                         int countObjMetaValues = obj.Metas[objMetaKey] == null ? 0 : obj.Metas[objMetaKey].Count;
-                        int countThisMetaValues = this.Metas[objMetaKey.ToLower()] == null ? 0 : this.Metas[objMetaKey.ToLower()].Count;
+                        int countThisMetaValues = this.Metas[objMetaKey] == null ? 0 : this.Metas[objMetaKey].Count;
 
                         if (countObjMetaValues != countThisMetaValues)
                         {
@@ -251,7 +251,7 @@ namespace ApiObjects
                             // compare the values between the lists
                             foreach (string sMetaValue in obj.Metas[objMetaKey])
                             {
-                                if (!this.Metas[objMetaKey.ToLower()].Contains(sMetaValue))
+                                if (!this.Metas[objMetaKey].Contains(sMetaValue))
                                 {
                                     return false;
                                 }

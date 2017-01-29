@@ -1208,41 +1208,21 @@ namespace Core.Billing
             try
             {
                 // get payment GW ID and external transaction ID
+                List<PaymentDetails> PaymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
+                
+                PaymentDetails pd = PaymentDetails != null ? PaymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
 
-                string externalTransactionId = string.Empty;
-                int rpd_paymentGatewayId = 0;
-                int rpd_paymentMethodId = 0;
-                int pgt_paymentGatewayId = 0;
-                int pgt_paymentMethodId = 0;
-                int paymentGatewayId = 0;
-                int paymentMethodId = 0;
-                DataRow dataRowPGTransaction = null;
-                DataTable dt = DAL.BillingDAL.GetTransactionPaymentDetails(new List<string>() { billingGuid });
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    dataRowPGTransaction = dt.AsEnumerable().Where(x => x.Field<string>("billing_guid") == billingGuid).FirstOrDefault();
-                }
-
-                if (dataRowPGTransaction == null)
+                if (pd == null)
                 {
                     // error while trying to get payment GW ID and external transaction ID
                     log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupID, householdId, billingGuid);
                     transactionResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotExist, ERROR_PAYMENT_GATEWAY_NOT_EXIST);
                     return transactionResponse;
                 }
-                else
-                {
-                    rpd_paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "rpd_payment_gateway_id");
-                    rpd_paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "rpd_payment_method_id");
-                    pgt_paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "pgt_payment_gateway_id");
-                    pgt_paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "pgt_payment_method_id");
-                    if (rpd_paymentGatewayId == 0 || rpd_paymentGatewayId == pgt_paymentGatewayId) // if payment gateway the same - get the external_transaction_id
-                    {
-                        externalTransactionId = ODBCWrapper.Utils.GetSafeStr(dataRowPGTransaction, "external_transaction_id");
-                    }
-                    paymentGatewayId = rpd_paymentGatewayId != 0 ? rpd_paymentGatewayId : pgt_paymentGatewayId;
-                    paymentMethodId = rpd_paymentGatewayId != 0 ? rpd_paymentMethodId : pgt_paymentMethodId; // get the payment medtho by the relevant paymentGateway
-                }
+                
+                string externalTransactionId = pd.TransactionId;
+                int paymentGatewayId = pd.PaymentGatewayId;
+                int paymentMethodId = pd.PaymentMethodId;
 
                 log.DebugFormat("successfully received payment GW ID and external transaction ID. paymentGatewayId: {0}, externalTransactionId: {1}", paymentGatewayId, externalTransactionId);
 
@@ -2869,35 +2849,18 @@ namespace Core.Billing
 
             try
             {
-                // get payment GW ID
-                int paymentGatewayId = 0;
-                int paymentMethodId = 0;
-                DataTable dt = DAL.BillingDAL.GetTransactionPaymentDetails(new List<string>() { billingGuid });
-
-                DataRow dataRowPGTransaction = (from row in dt.AsEnumerable() select row).FirstOrDefault();
-
-                if (dataRowPGTransaction == null)
+                List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });
+                
+                if (paymentDetails == null || paymentDetails.Count == 0)
                 {
                     log.ErrorFormat("error while getting payment GW ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupID, householdId, billingGuid);
                     return paymentGatewayResponse;
                 }
-                else
-                {
-                    // check if any changes made in payment gateway or payment method            
-                    paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "rpd_payment_gateway_id");
-                    paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "rpd_payment_method_id");
-
-                    if (paymentGatewayId == 0)
-                    {
-                        paymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "pgt_payment_gateway_id");
-                        paymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(dataRowPGTransaction, "pgt_payment_method_id");
-
-                        DAL.BillingDAL.SetTransactionPaymentDetails(groupID, billingGuid, paymentGatewayId, paymentMethodId);
-                    }
-                }
-
+               
                 // get payment gateway 
-                paymentGatewayResponse = DAL.BillingDAL.GetPaymentGateway(groupID, paymentGatewayId);
+
+                PaymentDetails pd = paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault();
+                paymentGatewayResponse = DAL.BillingDAL.GetPaymentGateway(groupID, pd != null ? pd.PaymentGatewayId : 0);
                 if (paymentGatewayResponse == null)
                 {
                     log.ErrorFormat("payment gateway was not found billingGuid ={0}", billingGuid);
@@ -3955,43 +3918,38 @@ namespace Core.Billing
                     return response;
                 }
 
-                DataTable dt = DAL.BillingDAL.GetTransactionPaymentDetails(new List<string>() { billingGuid });
-                if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+                List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });               
+
+                int currentPaymentGatewayId, currentPaymentMethodId;
+
+                PaymentDetails pd = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+
+                bool SetPaymentDetails = false;
+                if (pd == null)
                 {
-                    log.ErrorFormat("error while getting payment details by billingGuid: {0}", billingGuid);
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while getting payment details");
-                    return response;
+                    SetPaymentDetails = true;
                 }
-
-                DataRow renewDetails = (from row in dt.AsEnumerable() select row).FirstOrDefault();
-                if (renewDetails == null)
+                else
                 {
-                    log.ErrorFormat("error while getting payment details by billingGuid: {0}", billingGuid);
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while getting payment details");
-                    return response;
+                    currentPaymentGatewayId = pd.PaymentGatewayId;
+                    currentPaymentMethodId = pd.PaymentMethodId;
+
+                    PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
+
+                    // check if IsVerificationPaymentGateway
+                    if (IsVerificationPaymentGateway(currentPaymentGateway))
+                    {
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
+                        return response;
+                    }
+
+                    // if diffrent - check if the new related to household payment gateway
+                    if (newPaymentGatewayId != currentPaymentGatewayId || newPaymentMethodId != currentPaymentMethodId)
+                    {
+                        SetPaymentDetails = true;
+                    }
                 }
-
-                // check if any changes made in payment gateway or payment method            
-                int currentPaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(renewDetails, "rpd_payment_gateway_id");
-                int currentPaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(renewDetails, "rpd_payment_method_id");
-
-                if (currentPaymentGatewayId == 0)
-                {
-                    currentPaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(renewDetails, "pgt_payment_gateway_id");
-                    currentPaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(renewDetails, "pgt_payment_method_id");
-                }
-
-                PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
-
-                // check if IsVerificationPaymentGateway
-                if (IsVerificationPaymentGateway(currentPaymentGateway))
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, PAYMENT_GATEWAY_NOT_VALID);
-                    return response;
-                }
-
-                // if diffrent - check if the new related to household payment gateway
-                if (newPaymentGatewayId != currentPaymentGatewayId || newPaymentMethodId != currentPaymentMethodId)
+                if (SetPaymentDetails)
                 {
                     if (DAL.BillingDAL.SetTransactionPaymentDetails(groupID, billingGuid, newPaymentGatewayId, newPaymentMethodId) == 0)
                     {
@@ -4011,6 +3969,78 @@ namespace Core.Billing
                 response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
+            return response;
+        }
+
+
+        public List<PaymentDetails> GetPaymentDetails(List<string> billingGuids)
+        {
+            List<PaymentDetails> response = new List<PaymentDetails>();
+            try
+            {
+                // get payment GW ID               
+                DataSet ds = DAL.BillingDAL.GetTransactionPaymentDetails(billingGuids);
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    PaymentDetails paymentDetails = new PaymentDetails();
+                    
+                    List<DataRow> rpd = new List<DataRow>();
+                    List<DataRow> pgt = new List<DataRow>();
+                    if (ds.Tables.Count > 1 && Utils.DataTableExsits(ds.Tables[1]))
+                    {
+                        rpd = ds.Tables[1].AsEnumerable().ToList();
+                    }
+                    if (ds.Tables.Count > 0 && Utils.DataTableExsits(ds.Tables[0]))
+                    {
+                        pgt = ds.Tables[0].AsEnumerable().ToList();
+                    }
+
+                    if (rpd.Count > 0)
+                    {
+                        foreach (DataRow dr in rpd)
+                        {
+                            paymentDetails = new PaymentDetails();
+
+                            paymentDetails.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dr, "payment_gateway_id");
+                            paymentDetails.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "payment_method_id");
+                            paymentDetails.BillingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "billing_guid");
+                            //get external transaction from pgt                             
+
+                            DataRow dataRow = pgt.Where(y => y.Field<string>("billing_guid") == paymentDetails.BillingGuid).FirstOrDefault();
+                            if (dataRow != null)
+                            {
+                                paymentDetails.TransactionId = dataRow != null ? ODBCWrapper.Utils.GetSafeStr(dataRow, "external_transaction_id") : string.Empty;
+                                pgt.Remove(dataRow);
+                            }
+
+                            response.Add(paymentDetails);
+                        }
+                    }
+
+                    if (pgt.Count > 0)
+                    {
+                        foreach (DataRow dr in pgt)
+                        {
+                            paymentDetails = new PaymentDetails();
+
+                            paymentDetails.PaymentGatewayId = ODBCWrapper.Utils.GetIntSafeVal(dr, "payment_gateway_id");
+                            paymentDetails.PaymentMethodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "payment_method_id");
+                            paymentDetails.TransactionId = ODBCWrapper.Utils.GetSafeStr(dr, "external_transaction_id");
+                            paymentDetails.BillingGuid = ODBCWrapper.Utils.GetSafeStr(dr, "billing_guid");
+
+                            response.Add(paymentDetails);
+
+                            // to do create thid one to get multi 
+                            DAL.BillingDAL.SetTransactionPaymentDetails(groupID, paymentDetails.BillingGuid, paymentDetails.PaymentGatewayId, paymentDetails.PaymentMethodId);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetPaymentDetails groupId={0} , billingGuids={1}", groupID, string.Join(",", billingGuids)), ex);
+                response = new List<PaymentDetails>();
+            }
             return response;
         }
     }

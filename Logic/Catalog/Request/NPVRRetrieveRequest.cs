@@ -42,10 +42,6 @@ namespace Core.Catalog.Request
 
         protected override void CheckRequestValidness()
         {
-            if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID))
-            {
-                throw new ArgumentException(String.Concat("GroupID: ", m_nGroupID, " has no NPVR configured."));
-            }
             switch (m_eNPVRSearchBy)
             {
                 case NPVRSearchBy.ByRecordingID:
@@ -74,7 +70,12 @@ namespace Core.Catalog.Request
                 {
                     m_oOrderObj = new RecordedEPGOrderObj();
                 }
-                res.recordedProgrammes = CatalogLogic.GetRecordings(m_nGroupID, this);
+                INPVRProvider npvr;
+                if (!NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                {
+                    throw new ArgumentException(String.Concat("GroupID: ", m_nGroupID, " has no NPVR configured."));
+                }
+                res.recordedProgrammes = CatalogLogic.GetRecordings(m_nGroupID, this, npvr);
                 res.m_nTotalItems = res.recordedProgrammes.Count;
 
 

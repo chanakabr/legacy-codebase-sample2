@@ -1872,7 +1872,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetDomainServices(groupID, domainID);
+                return t.GetDomainServices(domainID);
             }
             else
             {
@@ -2830,5 +2830,81 @@ namespace Core.ConditionalAccess
             return response;
         }
 
+        public static PlaybackContextResponse GetPlaybackContext(int groupID, string userId, string udid, string ip, string assetId, eAssetTypes assetType,
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+        {
+            PlaybackContextResponse response = new PlaybackContextResponse();
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                MediaFileItemPricesContainer price;
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price);
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        public static Status SwapSubscription(int groupID, string userId, int oldSubscription, int newSubscription, string ip, string udid, bool history)
+        {
+            Status response = new Status();
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                return t.SwapSubscription(userId, oldSubscription, newSubscription, ip, udid, history);
+            }
+            else
+            {
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        public static PlayManifestResponse GetPlayManifest(int groupID, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
+        {
+            PlayManifestResponse response = new PlayManifestResponse();
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                response = t.GetPlayManifest(userId, assetId, assetType, fileId, ip, udid, playContextType);
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        public static bool GiftCardReminder(int groupID, string siteguid, long purchaseId, string billingGuid, long endDate)
+        {
+            bool response = false;
+
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+
+            // get partner implementation and group ID
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+
+            if (t != null)
+            {
+                bool shouldUpdateTaskStatus = true;
+                try
+                {
+                    response = t.Renew(siteguid, purchaseId, billingGuid, endDate, ref shouldUpdateTaskStatus);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to remind about gift card subscription", ex);
+                }
+            }
+            return response;
+        }
     }
 }

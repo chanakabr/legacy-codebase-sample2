@@ -417,7 +417,7 @@ namespace Core.Pricing
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
-
+                selectQuery.SetConnectionKey("pricing_connection");
                 selectQuery += "select channel_id from subscriptions_channels with (nolock) where is_active=1 and status=1 and ";
                 selectQuery += "subscription_id in (" + sSubscriptionCodesStr.ToString() + ")";
                 if (selectQuery.Execute("query", true) != null)
@@ -790,12 +790,23 @@ namespace Core.Pricing
             DataTable dt = ds.Tables[6];
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
+                ServiceObject service;
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     long subID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["subscription_id"]);
                     long serviceID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["service_id"]);
                     string desc = ODBCWrapper.Utils.GetSafeStr(dt.Rows[i]["description"]);
-                    ServiceObject service = new ServiceObject(serviceID, desc);
+                    long quota = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[i]["QUOTA_IN_MINUTES"]);
+
+                    if (serviceID == (int)eService.NPVR)
+                    {
+                        service = new NpvrServiceObject(serviceID, desc, quota);
+                    }
+                    else
+                    {
+                        service = new ServiceObject(serviceID, desc);
+                    }
+
                     if (res.ContainsKey(subID))
                     {
                         res[subID].Add(service);

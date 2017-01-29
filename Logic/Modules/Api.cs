@@ -1636,5 +1636,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual);
         }
+
+        public static int GetIPCountryCode(string ip)
+        {
+            return Core.Api.api.GetIPCountryCode(ip);
+        }
     }
 }

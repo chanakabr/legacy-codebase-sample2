@@ -49,6 +49,7 @@ namespace Core.Pricing
             try
             {
                 selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("pricing_connection");
                 selectQuery += "SELECT ppm.ID, isnull(ppmf.ID, 0) AS mf_id , ppmf.start_date as start_date, ppmf.end_date as end_date " +
                                 "FROM ppv_modules ppm (nolock) LEFT JOIN ppv_modules_media_files ppmf (nolock) ON ppmf.PPV_MODULE_ID = ppm.ID and ppmf.status=1 and ppmf.is_active=1 ";
                 selectQuery += "and";

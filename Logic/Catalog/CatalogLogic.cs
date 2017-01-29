@@ -4689,15 +4689,10 @@ namespace Core.Catalog
             return response;
         }
 
-        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request)
+        internal static NPVRSeriesResponse GetSeriesRecordings(int groupID, NPVRSeriesRequest request, INPVRProvider npvr)
         {
             NPVRSeriesResponse nPVRSeriesResponse = new NPVRSeriesResponse();
 
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
-            {
-                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
-                if (npvr != null)
-                {
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
@@ -4730,28 +4725,14 @@ namespace Core.Catalog
                     {
                         throw new Exception("Either user is not valid or user has no domain.");
                     }
-                }
-                else
-                {
-                    throw new Exception("INPVRProvider instance is null.");
-                }
-            }
-            else
-            {
-                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
-            }
 
             return nPVRSeriesResponse;
         }
 
-        internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request)
+        internal static List<RecordedEPGChannelProgrammeObject> GetRecordings(int groupID, NPVRRetrieveRequest request, INPVRProvider npvr)
         {
             List<RecordedEPGChannelProgrammeObject> res = null;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupID))
-            {
-                INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(groupID);
-                if (npvr != null)
-                {
+
                     int domainID = 0;
                     if (IsUserValid(request.m_sSiteGuid, groupID, ref domainID) && domainID > 0)
                     {
@@ -4821,16 +4802,8 @@ namespace Core.Catalog
                     {
                         throw new Exception("Either user is not valid or user has no domain.");
                     }
-                }
-                else
-                {
-                    throw new Exception("INPVRProvider instance is null.");
-                }
-            }
-            else
-            {
-                throw new ArgumentException(String.Concat("Group does not have NPVR implementation. G ID: ", groupID));
-            }
+
+
 
             return res;
         }
@@ -5857,22 +5830,35 @@ namespace Core.Catalog
 
             #region Order
 
-            OrderObj order = new OrderObj();
-            order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
-            order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-
-            CatalogLogic.GetOrderValues(ref order, request.OrderObj);
-
-            if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+            if (request.m_nMediaID > 0)
             {
-                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                definitions.order = new OrderObj()
+                {
+                    m_eOrderBy = OrderBy.RELATED,
+                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                };
             }
+            else
+            {
+                OrderObj order = new OrderObj();
+                order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.NONE;
+                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
 
-            definitions.order = new OrderObj();
-            definitions.order.m_eOrderDir = order.m_eOrderDir;
-            definitions.order.m_eOrderBy = order.m_eOrderBy;
-            definitions.order.m_sOrderValue = order.m_sOrderValue;
+                CatalogLogic.GetOrderValues(ref order, request.OrderObj);
+
+                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+                {
+                    order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                    order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                }
+
+                definitions.order = new OrderObj()
+                {
+                    m_eOrderDir = order.m_eOrderDir,
+                    m_eOrderBy = order.m_eOrderBy,
+                    m_sOrderValue = order.m_sOrderValue
+                };
+            }
 
             #endregion
 

@@ -24,7 +24,7 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
+        private static readonly uint DEFAULT_TIME_IN_CACHE_MINUTES = 3600; // 1 hours
         private static readonly double SHORT_IN_CACHE_MINUTES = 3d; // 3 minutes
         private static readonly string DEFAULT_CACHE_NAME = "NotificationCache";
         private static readonly string TCM_CACHE_CONFIG_NAME = "CACHE_NAME";
@@ -33,7 +33,7 @@ namespace Core.Notification
 
         private static object locker = new object();
         private ICachingService CacheService = null;
-        private readonly double dCacheTT;
+        private readonly uint dCacheTT;
         private string sKeyCache = string.Empty;
 
         private string GetKey(eNotificationCacheTypes type, int groupId, int mediaTypeId = 0)
@@ -70,23 +70,27 @@ namespace Core.Notification
             return DEFAULT_CACHE_NAME;
         }
 
-        private double GetDefaultCacheTimeInMinutes()
+        private uint GetDefaultCacheTimeInSeconds()
         {
-            double res = 0d;
+            uint res = 0;
             string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue(TCM_CACHE_TIME_IN_MINUTES);
-            if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            {
+                res *= 60;
                 return res;
+            }
+
             return DEFAULT_TIME_IN_CACHE_MINUTES;
         }
 
-        private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
+        private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.CacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.CacheService = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
         }
 
         private NotificationCache()
         {
-            dCacheTT = GetDefaultCacheTimeInMinutes();
+            dCacheTT = GetDefaultCacheTimeInSeconds();
             InitializeCachingService(GetCacheName(), dCacheTT);
             sKeyCache = CACHE_KEY; // the key for cache in the inner memory start with CACHE_KEY prefix
         }

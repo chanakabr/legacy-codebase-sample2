@@ -13,6 +13,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
+using CachingProvider.LayeredCache;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -79,6 +80,7 @@ namespace Core.Api
         private const string ROUTING_KEY_PROCESS_EXPORT = "PROCESS_EXPORT\\{0}";
 
         private const string PURCHASE_SETTINGS_TYPE_INVALID = "Purchase settings type invalid";
+        private const string CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME = "CheckGeoBlockMedia";
 
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";
@@ -2237,79 +2239,58 @@ namespace Core.Api
 
         protected Int32 m_nGroupID;
 
-        static private Int32 GetIPCountryCode(string sIP)
+        public static int GetIPCountryCode(string ip)
         {
-            Int32 nCountry = 0;
-            if (sIP == "127.0.0.1")
-                nCountry = 18;
-            else if (sIP != "")
-            {
-                string[] splited = sIP.Split('.');
-
-                Int64 nIPVal = Int64.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-                Int32 nID = 0;
-
-                DataTable dt = DAL.ApiDAL.Get_IPCountryCode(nIPVal);
-                if (dt != null)
-                {
-                    if (dt.Rows != null && dt.Rows.Count > 0)
-                    {
-                        nCountry = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "COUNTRY_ID");
-                        nID = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "ID");
-                    }
-                }
-            }
-            return nCountry;
+            return ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
         }
 
-        static public string CheckGeoBlockMedia(Int32 nGroupID, Int32 nMediaID, string sIP, out string ruleName)
+        static public string CheckGeoBlockMedia(Int32 nGroupID, Int32 nMediaID, string ip, out string ruleName)
         {
             string res = "Geo";
             Int32 nGeoBlockID = 0;
             int nProxyRule = 0;
             double dProxyLevel = 0.0;
 
-            ruleName = string.Empty;
-
-            Int32 nCountryID = GetIPCountryCode(sIP);
-
-            //call Dal layer 
-            DataTable dt = DAL.ApiDAL.Get_GeoBlockPerMedia(nGroupID, nMediaID);
-
-            if (dt != null)
+            ruleName = string.Empty;            
+            string key = DAL.UtilsDal.GetCheckGeoBlockMediaKey(nGroupID, nMediaID);
+            DataTable dt = null;            
+            // try to get from cache            
+            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", nGroupID },
+                                                                    { "mediaId", nMediaID } }, CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME);
+            if (cacheResult && dt != null)
             {
-                //       comment.m_nMediaID = Utils.GetIntSafeVal(ds.Tables[1].Rows[i], "MEDIA_ID");
                 bool bAllowed = false;
                 if (dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    ruleName = APILogic.Utils.GetSafeStr(dt.Rows[0], "NAME");
-                    nGeoBlockID = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "BLOCK_TEMPLATE_ID");
-                    bAllowed = true;
-                }
+                    Int32 nCountryID = GetIPCountryCode(ip);
+                    ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
+                    nGeoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
+                    int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
 
-                bool bExsitInRuleM2M = false;
-                log.Debug("Geo Blocks - Geo Block ID " + nGeoBlockID + " Country ID " + nCountryID);
-                if (nGeoBlockID != 0)
-                {
-                    Int32 nONLY_OR_BUT = 0;
-                    nONLY_OR_BUT = int.Parse(PageUtils.GetTableSingleVal("geo_block_types", "ONLY_OR_BUT", nGeoBlockID).ToString());
-                    bExsitInRuleM2M = PageUtils.DoesGeoBlockTypeIncludeCountry(nGeoBlockID, nCountryID);
+                    DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
+                    bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
+                    
+                    bAllowed = true;                                        
+                    log.Debug("Geo Blocks - Geo Block ID " + nGeoBlockID + " Country ID " + nCountryID);
 
-                    //No one except
-                    if (nONLY_OR_BUT == 0)
-                        bAllowed = bExsitInRuleM2M;
-                    //All except
-                    if (nONLY_OR_BUT == 1)
-                        bAllowed = !bExsitInRuleM2M;
-
-
-                    if (bAllowed) // then check what about the proxy - is it reliable 
+                    if (nGeoBlockID > 0)
                     {
-                        nProxyRule = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE");
-                        dProxyLevel = APILogic.Utils.GetDoubleSafeVal(dt.Rows[0], "PROXY_LEVEL");
-                        bAllowed = MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, sIP, nGroupID);
+                        //No one except
+                        if (nONLY_OR_BUT == 0)
+                            bAllowed = bExsitInRuleM2M;
+                        //All except
+                        if (nONLY_OR_BUT == 1)
+                            bAllowed = !bExsitInRuleM2M;
+
+                        if (bAllowed) // then check what about the proxy - is it reliable 
+                        {
+                            nProxyRule = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE");
+                            dProxyLevel = APILogic.Utils.GetDoubleSafeVal(dt.Rows[0], "PROXY_LEVEL");
+                            bAllowed = MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, ip, nGroupID);
+                        }
                     }
                 }
+
                 if (bAllowed)
                 {
                     res = "OK";
@@ -2318,17 +2299,36 @@ namespace Core.Api
             return res;
         }
 
-        static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid)
+        static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
         {
             bool result = true;
             int nUserTypeID = 0;
 
-            DataTable dtUserType = DAL.UsersDal.GetUserBasicData(nSiteGuid);
-            if (dtUserType != null && dtUserType.Rows.Count > 0)
+            try
             {
-                nUserTypeID = ODBCWrapper.Utils.GetIntSafeVal(dtUserType.Rows[0]["user_type_id"]);
+                Users.UserResponseObject response = Core.Users.Module.GetUserData(groupId, nSiteGuid.ToString(), string.Empty);
+                // Make sure response is OK
+                if (response != null && response.m_RespStatus == ResponseStatus.OK && response.m_user != null && response.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.OK
+                    && response.m_user.m_oBasicData != null && response.m_user.m_oBasicData.m_UserType.ID.HasValue)
+                {
+                    nUserTypeID = response.m_user.m_oBasicData.m_UserType.ID.Value;
+                }
             }
-            result = DAL.ApiDAL.Is_MediaExistsToUserType(nMediaID, nUserTypeID);
+            catch (Exception ex)
+            {
+                log.ErrorFormat(string.Format("CheckMediaUserType - Error when calling GetUserData, user {0} in group {1}. ex = {2}, ST = {3}", nSiteGuid, groupId, ex.Message, ex.StackTrace), ex);
+            }
+
+            string key = DAL.UtilsDal.GetIsMediaExistsToUserTypeKey(nMediaID, nUserTypeID);
+            bool? isMediaExistsToUserType = null;
+            // try go get from cache
+            bool cacheResult = LayeredCache.Instance.Get<bool?>(key, ref isMediaExistsToUserType, APILogic.Utils.GetIsMediaExistsToUserType,
+                                                                new Dictionary<string, object>() { { "mediaId", nMediaID }, { "userTypeId", nUserTypeID } });
+
+            if (cacheResult && isMediaExistsToUserType.HasValue)
+            {
+                result = isMediaExistsToUserType.Value;
+            }
 
             return result;
         }
@@ -2404,7 +2404,7 @@ namespace Core.Api
             }
 
             //Check if user type match media user types
-            if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)mediaId, int.Parse(siteGuid)) == false)
+            if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)mediaId, int.Parse(siteGuid), groupId) == false)
             {
                 groupRules.Add(new GroupRule()
                 {
@@ -3742,7 +3742,7 @@ namespace Core.Api
             }
 
             //Check if user type match media user types
-            if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid)) == false)
+            if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid), groupId) == false)
             {
                 groupRules.Add(new GroupRule()
                 {
@@ -3923,7 +3923,7 @@ namespace Core.Api
             }
 
             //Check if user type match media user types
-            if (nSiteGuid > 0 && CheckMediaUserType(nMediaId, nSiteGuid) == false)
+            if (nSiteGuid > 0 && CheckMediaUserType(nMediaId, nSiteGuid, nGroupID) == false)
             {
                 rules.Add(new GroupRule() { Name = "UserTypeBlock", BlockType = eBlockType.UserType });
             }
@@ -4963,7 +4963,7 @@ namespace Core.Api
                     }
 
                     //Check if user type match media user types
-                    if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)mediaId, int.Parse(siteGuid)) == false)
+                    if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)mediaId, int.Parse(siteGuid), groupId) == false)
                     {
                         response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
                     }
@@ -5081,7 +5081,7 @@ namespace Core.Api
                         }
 
                         //Check if user type match media user types
-                        if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid)) == false)
+                        if (!string.IsNullOrEmpty(siteGuid) && CheckMediaUserType((int)channelMediaId, int.Parse(siteGuid), groupId) == false)
                         {
                             response.Rules.Add(new GenericRule()
                             {
@@ -7346,6 +7346,7 @@ namespace Core.Api
                 DateTime eta = DateTime.UtcNow.AddMinutes(taskFrequency);
                 if (taskFrequency != 0)
                 {
+                    queue.storeForRecovery = true;
                     data = new ExportTaskData(groupId, taskId, version, eta);
                 }
                 else
