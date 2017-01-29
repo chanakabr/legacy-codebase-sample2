@@ -462,5 +462,39 @@ namespace WebAPI.Controllers
             }
             return null;
         }
+
+        /// <summary>        
+        /// Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
+        /// </summary>
+        /// <param name="currentProductId">Identifier for the current product package</param>
+        /// <param name="newProductId">Identifier for the new product package </param>
+        /// <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+        /// <remarks>Possible status codes: 
+        /// UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
+        ///,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
+        /// </remarks>
+        [Route("swap"), HttpPost]
+        [ApiAuthorize]       
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+
+        public bool Swap(int currentProductId, int newProductId, bool history)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().SwapEntitlements(groupId, userId, currentProductId, newProductId, history);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

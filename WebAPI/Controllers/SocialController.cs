@@ -31,12 +31,13 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Route("getByToken"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
+        [Throws(eResponseStatus.UserEmailIsMissing)]
         public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
@@ -65,12 +66,13 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Route("getByTokenOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
+        [Throws(eResponseStatus.UserEmailIsMissing)]
         public KalturaSocialResponse GetByTokenOldStandard(int partnerId, string token, KalturaSocialNetwork type)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
@@ -179,13 +181,15 @@ namespace WebAPI.Controllers
         /// <param name="token">social token</param>
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <param name="email">User email</param>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("register"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
-        public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type)
+        [Throws(eResponseStatus.UserEmailIsMissing)]
+        public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type, string email = null)
         {
             string ip = Utils.Utils.GetClientIP();
 
@@ -201,7 +205,12 @@ namespace WebAPI.Controllers
                 {
                     key = "domain", 
                     value = "0" 
-                } 
+                },
+                new KeyValuePair() 
+                {
+                    key = "email", 
+                    value = email 
+                }  
             };
 
             if (string.IsNullOrEmpty(token))
@@ -232,13 +241,15 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <param name="should_create_domain">New domain is created upon registration</param>
         /// <param name="subscribe_newsletter">Subscribes to newsletter</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <param name="email">User email</param>
+        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Route("registerOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
-        public KalturaSocialResponse RegisterOldStandard(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type)
+        [Throws(eResponseStatus.UserEmailIsMissing)]
+        public KalturaSocialResponse RegisterOldStandard(int partnerId, string token, bool should_create_domain, bool subscribe_newsletter, KalturaSocialNetwork type, string email = null)
         {
             KalturaSocialResponse response = new KalturaSocialResponse();
 
@@ -256,7 +267,12 @@ namespace WebAPI.Controllers
                 {
                     key = "domain", 
                     value = should_create_domain ? "1" : "0" 
-                } 
+                },
+                new KeyValuePair() 
+                {
+                    key = "email", 
+                    value = email 
+                }  
             };
 
             if (string.IsNullOrEmpty(token))
@@ -285,7 +301,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="token">social token</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("merge"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -326,7 +342,7 @@ namespace WebAPI.Controllers
         /// <param name="social_id">external social identifier</param>
         /// <param name="type">Social network type</param>
         /// <param name="partnerId">Partner identifier</param>
-        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("mergeOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
@@ -362,7 +378,7 @@ namespace WebAPI.Controllers
         /// Disconnect an existing user in the system from its external social network user
         /// </summary>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("unmerge"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -398,7 +414,7 @@ namespace WebAPI.Controllers
         /// <param name="username">Username</param>
         /// <param name="password">Password</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+        /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("unmergeOldStandard"), HttpPost]
         [ApiAuthorize]
         [Obsolete]

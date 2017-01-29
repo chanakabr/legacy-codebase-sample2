@@ -632,7 +632,10 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Managers\CouchbaseManager.cs" />
+    <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
+    <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
@@ -645,8 +648,16 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPpvEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRuleAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionEntitlement.cs" />
     <Compile Include="Models\DMS\KalturaConfigurations.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationsFilter.cs" />
@@ -1164,6 +1175,7 @@
     </Compile>
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
+    <Compile Include="Utils\DrmUtils.cs" />
     <Compile Include="Utils\EncryptionUtils.cs" />
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />

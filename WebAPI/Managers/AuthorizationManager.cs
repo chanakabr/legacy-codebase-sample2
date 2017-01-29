@@ -269,7 +269,15 @@ namespace WebAPI.Managers
             // 5. get token expiration:
 
             // the session duration will be the minimum between the token session duration and the token left expiration time
-            long sessionDuration = Math.Min(appToken.SessionDuration, appToken.Expiry - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
+            long sessionDuration = 0;
+            if (appToken.Expiry > 0)
+            {
+                sessionDuration = Math.Min(appToken.SessionDuration, appToken.Expiry - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
+            }
+            else
+            {
+                sessionDuration = appToken.SessionDuration;
+            }
 
             // if the minimum is < 0 - token is expired (not possible in our case - will be deleted from CB before)
             if (sessionDuration < 0)

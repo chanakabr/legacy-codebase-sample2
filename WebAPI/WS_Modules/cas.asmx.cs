@@ -3231,6 +3231,67 @@ namespace WS_ConditionalAccess
             }
             return response;
         }
+
+        [WebMethod]
+        public PlaybackContextResponse GetPlaybackContext(string sWSUserName, string sWSPassword, string userId, string udid, string ip, string assetId, eAssetTypes assetType, 
+            List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context)
+        {
+            PlaybackContextResponse response = new PlaybackContextResponse();
+            BaseConditionalAccess t = null;
+            Int32 groupId = Utils.GetGroupID(sWSUserName, sWSPassword, "GetUserEntitlements", ref t);
+            if (groupId != 0 && t != null)
+            {
+                MediaFileItemPricesContainer price;
+                response = t.GetPlaybackContext(userId, assetId, assetType, fileIds, streamerType, mediaProtocol, context, ip, udid, out price);
+            }
+            else
+            {
+                if (groupId == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        [WebMethod]
+        public Status SwapSubscription(string sWSUserName, string sWSPassword, string userId, int oldSubscription, int newSubscription, string ip, string udid, bool history)
+        {
+            Status response = new Status();
+           
+            BaseConditionalAccess t = null;
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword, "SwapSubscription", ref t);
+            if (nGroupID != 0 && t != null)
+            {
+                return t.SwapSubscription(userId, oldSubscription, newSubscription, ip, udid, history);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+
+        [WebMethod]
+        public PlayManifestResponse GetPlayManifest(string sWSUserName, string sWSPassword, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
+        {
+            PlayManifestResponse response = new PlayManifestResponse();
+            BaseConditionalAccess t = null;
+            Int32 groupId = Utils.GetGroupID(sWSUserName, sWSPassword, "GetUserEntitlements", ref t);
+            if (groupId != 0 && t != null)
+            {
+                response = t.GetPlayManifest(userId, assetId, assetType, fileId, ip, udid, playContextType);
+            }
+            else
+            {
+                if (groupId == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+            return response;
+        }
+        
         
     }
 }

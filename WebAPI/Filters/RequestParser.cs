@@ -115,13 +115,14 @@ namespace WebAPI.Filters
         public const string REQUEST_TIME = "requestTime";
         public const string REQUEST_TYPE = "requestType";
         public const string REQUEST_SERVE_CONTENT_TYPE = "requestServeContentType";
+        public const string REQUEST_PATH_DATA = "pathData";
 
         public static object GetRequestPayload()
         {
             return HttpContext.Current.Items[REQUEST_METHOD_PARAMETERS];
         }
 
-        public static MethodInfo createMethodInvoker(string serviceName, string actionName, Assembly asm)
+        public static MethodInfo createMethodInvoker(string serviceName, string actionName, Assembly asm, bool validateAuthorization = true)
         {
             MethodInfo methodInfo = null;
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
@@ -156,7 +157,11 @@ namespace WebAPI.Filters
                 throw new RequestParserException(RequestParserException.INVALID_ACTION, serviceName, actionName);
             }
 
-            DataModel.validateAuthorization(methodInfo, serviceName, actionName);
+            if (validateAuthorization)
+            {
+                DataModel.validateAuthorization(methodInfo, serviceName, actionName);
+            }
+
             string contentType = DataModel.getServeActionContentType(methodInfo);
             if (contentType != null)
             {
@@ -290,6 +295,7 @@ namespace WebAPI.Filters
         {
             string currentAction = null;
             string currentController = null;
+            string pathData = null;
 
             // version request
             if (actionContext.Request.GetRouteData().Route.RouteTemplate.Equals("api_v3/version"))
@@ -333,11 +339,16 @@ namespace WebAPI.Filters
                     currentAction = rd.Values["action_name"].ToString();
                 }
             }
+            else if (rd.Values.ContainsKey("pathData"))
+            {
+                pathData = rd.Values["pathData"].ToString();
+            }
             else if (actionContext.Request.Method == HttpMethod.Post)
             {
                 formData = await ParseFormData(actionContext);
                 currentController = formData.Get("service");
                 currentAction = formData.Get("action");
+                pathData = formData.Get("pathData");
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
@@ -351,6 +362,11 @@ namespace WebAPI.Filters
                         currentAction = pair.FirstOrDefault().Value;
                     }
                 }
+                pair = actionContext.Request.GetQueryNameValuePairs().Where(x => x.Key.ToLower() == "pathData");
+                if (pair != null)
+                {
+                    pathData = pair.FirstOrDefault().Value;
+                }
             }
             else
             {
@@ -358,25 +374,32 @@ namespace WebAPI.Filters
                 return;
             }
 
-            if(currentController == null)
+            if(currentController == null && pathData == null)
             {
                 createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Unknown Service");
                 return;
             }
 
+            if (currentController != null)
+            {
             HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
             if (currentAction != null)
             {
                 HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
+                }
             }
 
+            if (pathData != null)
+            {
+                HttpContext.Current.Items[REQUEST_PATH_DATA] = pathData;
+            }
             MethodInfo methodInfo = null;
             Assembly asm = Assembly.GetExecutingAssembly();
 
             if (actionContext.Request.Method == HttpMethod.Post)
             {
                 string result = await actionContext.Request.Content.ReadAsStringAsync();
-                if (HttpContext.Current.Request.ContentType == "application/json")
+                if (HttpContext.Current.Request.ContentType == "application/json" && HttpContext.Current.Request.ContentLength > 0)
                 {
                     using (var input = new StringReader(result))
                     {
@@ -436,8 +459,8 @@ namespace WebAPI.Filters
                         }
                     }
                 }
-                else if (HttpContext.Current.Request.ContentType == "text/xml" ||
-                    HttpContext.Current.Request.ContentType == "application/xml")
+                else if ((HttpContext.Current.Request.ContentType == "text/xml" || HttpContext.Current.Request.ContentType == "application/xml") 
+                    && HttpContext.Current.Request.ContentLength > 0)
                 {
                     //TODO
                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "XML is currently not supported");
@@ -469,6 +492,45 @@ namespace WebAPI.Filters
                     }
                     return;
                 }
+                else if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                {
+                    try
+                    {
+                        //Running on the expected method parameters
+                        var groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+
+                        methodInfo = createMethodInvoker(actionContext.ControllerContext.ControllerDescriptor.ControllerName, actionContext.ActionDescriptor.ActionName, asm, false);
+
+                        List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
+
+                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                    }
+                    catch (UnauthorizedException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (RequestParserException e)
+                    {
+                        createErrorResponse(actionContext, e.Code, e.Message);
+                        return;
+                    }
+                    catch (ApiException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (JsonReaderException)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        return;
+                    }
+                    catch (FormatException)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        return;
+                    }
+                }
                 else
                 {
                     createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid");
@@ -488,7 +550,8 @@ namespace WebAPI.Filters
 
                     HttpContext.Current.Items[REQUEST_VERSION] = version;
                 }
-
+                if (currentController != null)
+                {
                 try
                 {
                     //Running on the expected method parameters
@@ -507,9 +570,54 @@ namespace WebAPI.Filters
                     return;
                 }
                 catch (RequestParserException e)
+                    {
+                        createErrorResponse(actionContext, e.Code, e.Message);
+                        return;
+                    }
+                }
+                else if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
                 {
-                    createErrorResponse(actionContext, e.Code, e.Message);
-                    return;
+                    try
+                    {
+                        //Running on the expected method parameters
+                        var groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+
+                        methodInfo = createMethodInvoker(actionContext.ControllerContext.ControllerDescriptor.ControllerName, actionContext.ActionDescriptor.ActionName, asm, false);
+
+                        foreach (var rdv in rd.Values)
+                        {
+                            groupedParams.Add(rdv.Key, rdv.Value);
+                        }
+
+                        List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
+
+                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
+                    }
+                    catch (UnauthorizedException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (RequestParserException e)
+                    {
+                        createErrorResponse(actionContext, e.Code, e.Message);
+                        return;
+                    }
+                    catch (ApiException e)
+                    {
+                        createErrorResponse(actionContext, (int)e.Code, e.Message);
+                        return;
+                    }
+                    catch (JsonReaderException)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        return;
+                    }
+                    catch (FormatException)
+                    {
+                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        return;
+                    }
                 }
 
             }
@@ -741,6 +849,27 @@ namespace WebAPI.Filters
             {
                 string[] path = key.Replace(PARAMS_NESTED_PREFIX, PARAMS_PREFIX).Split(PARAMS_PREFIX);
                 setElementByPath(paramsDic, path.ToList(), tokens.Get(key));
+            }
+
+            return paramsDic;
+        }
+
+        private Dictionary<string, object> groupPathDataParams(string pathData)
+        {
+            Dictionary<string, object> paramsDic = new Dictionary<string, object>();
+
+            string[] pathDataTokens = pathData.Split(new char[] { '/' }, StringSplitOptions.None);
+            string key = null;
+            for (int i = 0; i < pathDataTokens.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    key = pathDataTokens[i];
+                }
+                else
+                {
+                    paramsDic.Add(key, pathDataTokens[i]);
+                }
             }
 
             return paramsDic;
@@ -986,51 +1115,21 @@ namespace WebAPI.Filters
                     ExceptionMessage = msg
                 }
             });
+
+            actionContext.Response.StatusCode = HttpStatusCode.OK;
+
+            IEnumerable<FailureHttpCodeAttribute> failureHttpCode = actionContext.ActionDescriptor.GetCustomAttributes<FailureHttpCodeAttribute>();
+            if (failureHttpCode != null && failureHttpCode.Count() > 0)
+            {
+                actionContext.Response.Headers.Add("X-Kaltura-App", string.Format("exiting on error {0} - {1}", errorCode, msg));
+                actionContext.Response.Headers.Add("X-Kaltura", string.Format("error-{0}", errorCode));
+                actionContext.Response.StatusCode = failureHttpCode.First().HttpStatusCode;
+            }
         }
 
         private static void parseKS(string ksVal)
         {
-            StringBuilder sb = new StringBuilder(ksVal);
-            sb = sb.Replace("-", "+");
-            sb = sb.Replace("_", "/");
-
-            int groupId = 0;
-            byte[] encryptedData = null;
-            string encryptedDataStr = null;
-            string[] ksParts = null;
-
-            try
-            {
-                encryptedData = System.Convert.FromBase64String(sb.ToString());
-                encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-                ksParts = encryptedDataStr.Split('|');
-            }
-            catch (Exception)
-            {
-                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
-            }
-
-            if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
-            {
-                throw new RequestParserException(RequestParserException.INVALID_KS_FORMAT);
-            }
-
-            Group group = null;
-            try
-            {
-                // get group secret
-                group = GroupsManager.GetGroup(groupId);
-            }
-            catch (ApiException ex)
-            {
-                throw new RequestParserException(ex);
-            }
-
-            string adminSecret = group.UserSecret;
-
-            // build KS
-            KS ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ksVal, KS.KSVersion.V2);
-
+            KS ks = KS.ParseKS(ksVal);
             ks.SaveOnRequest();
         }
 

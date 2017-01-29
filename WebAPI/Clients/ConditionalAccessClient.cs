@@ -1936,5 +1936,157 @@ namespace WebAPI.Clients
 
             return kalturaEntitlement;
         }
+
+        internal bool SwapEntitlements(int groupId, string userId, int currentProductId, int newProductId, bool history)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.ConditionalAccess.Module.SwapSubscription(groupId, userId,
+                        currentProductId, newProductId, Utils.Utils.GetClientIP(), string.Empty, history);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaPlaybackContext GetPlaybackContext(int groupId, string userId, string udid, string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            KalturaPlaybackContext kalturaPlaybackContext = null;
+            PlaybackContextResponse response = null;
+
+            contextDataParams.Validate();
+
+            PlayContextType wsContext = ConditionalAccessMappings.ConvertPlayContextType(contextDataParams.Context.Value);
+
+            StreamerType? streamerType = null;
+            if (!string.IsNullOrEmpty(contextDataParams.StreamerType))
+            {
+                StreamerType type;
+                if (!Enum.TryParse(contextDataParams.StreamerType, out type))
+                {
+                    throw new ClientException((int)StatusCode.Error, "Unknown streamerType");
+                }
+                streamerType = type;
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(),
+                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)eResponseStatus.OK && response.Status.Code != (int)eResponseStatus.ServiceNotAllowed && response.Status.Code != (int)eResponseStatus.NotEntitled &&
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation &&
+                response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+            else if (response.Status.Code != (int)eResponseStatus.OK)
+            {
+                kalturaPlaybackContext = new KalturaPlaybackContext()
+                {
+                    Messages = new List<KalturaAccessControlMessage>()
+                    {
+                        new KalturaAccessControlMessage() {
+                            Code = ((eResponseStatus)response.Status.Code).ToString(), Message = response.Status.Message
+                        }
+                    }
+                };
+            }
+
+            kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
+
+            if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
+            {
+                KalturaDrmPlaybackPluginData drmData;
+                foreach (var source in kalturaPlaybackContext.Sources)
+                {
+                    List<KalturaDrmSchemeName> schemes = DrmUtils.GetDrmSchemeName(source.Format);
+                    if (schemes != null && schemes.Count > 0)
+                    {
+                        source.DRM = new List<KalturaDrmPlaybackPluginData>();
+
+                        foreach (var scheme in schemes)
+                        {
+                            drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
+
+                            source.DRM.Add(drmData);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
+                kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });
+            }
+
+            return kalturaPlaybackContext;
+        }
+
+        internal string GetPlayManifest(int groupId, string userId, string assetId, KalturaAssetType assetType, long assetFileId, string udid, KalturaPlaybackContextType contextType)
+        {
+            PlayManifestResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetPlayManifest(groupId, userId, assetId, ApiMappings.ConvertAssetType(assetType),
+                        assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            return response.Url;
+        }
     }
 }
