@@ -87,7 +87,7 @@ namespace NPVR
             this.groupID = groupID;
         }
 
-        private bool IsCreateInputValid(NPVRParamsObj args)
+        private bool IsCreateOrUpdateInputValid(NPVRParamsObj args)
         {
             return args != null && args.Quota > 0 && !string.IsNullOrEmpty(args.EntityID);
         }
@@ -137,7 +137,7 @@ namespace NPVR
             NPVRUserActionResponse res = new NPVRUserActionResponse();
             try
             {
-                if (IsCreateInputValid(args))
+                if (IsCreateOrUpdateInputValid(args))
                 {
                     log.Debug("CreateAccount - " + string.Format("CreateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
@@ -156,6 +156,7 @@ namespace NPVR
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
                             GetCreateAccountResponse(responseJson, args, res);
+                            log.Debug(string.Format("CreateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
                         }
                         else
                         {
@@ -213,7 +214,7 @@ namespace NPVR
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
-                            GetDeleteAccountResponse(responseJson, args, res);
+                            GetAccountResponse(responseJson, args, res, "Delete");
                         }
                         else
                         {
@@ -242,36 +243,6 @@ namespace NPVR
             }
 
             return res;
-        }
-
-        private void GetDeleteAccountResponse(string responseJson, NPVRParamsObj args, NPVRUserActionResponse response)
-        {
-            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
-            if (unbeautified.Equals(EMPTY_JSON))
-            {
-                response.isOK = true;
-                response.quota = 0;
-                response.entityID = args.EntityID;
-            }
-            else
-            {
-                try
-                {
-                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
-                    response.entityID = args.EntityID;
-                    response.msg = error.Description;
-                    response.quota = 0;
-                    response.isOK = false;
-
-                    log.Error("Error - " + GetLogMsg(string.Format("Failed to delete account. Error resp: {0}", error != null ? error.ToString() : "generic failure response is null"), args, null));
-
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Exception - " + GetLogMsg(string.Format("Exception at GetDeleteAccountResponse. Resp JSON: {0}", responseJson), args, ex), ex);
-                    throw;
-                }
-            }
         }
 
         private string GetLogMsg(string msg, NPVRParamsObj obj, Exception ex)
@@ -1712,5 +1683,90 @@ namespace NPVR
             }
         }
 
+        public NPVRUserActionResponse UpdateAccount(NPVRParamsObj args)
+        {
+            NPVRUserActionResponse res = new NPVRUserActionResponse();
+            try
+            {
+                if (IsCreateOrUpdateInputValid(args))
+                {
+                    log.Debug("UpdateAccount - " + string.Format("UpdateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    string sAccountID = TVinciShared.WS_Utils.GetTcmGenericValue<string>(string.Format("ALU_ACCOUNT_ID_{0}", groupID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_ACCOUNT_ID_URL_PARAM, sAccountID));
+
+                    string url = BuildRestCommand(ALU_CREATE_ACCOUNT_COMMAND, ALU_ENDPOINT_USER, urlParams);
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetAccountResponse(responseJson, args, res, "Update");
+
+                            log.Debug(string.Format("UpdateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("UpdateAccount. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+                    }
+                    else
+                    {
+                        // log here the error. 
+                        log.Error(LOG_HEADER_ERROR + string.Format("UpdateAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        res.isOK = false;
+                        res.msg = "An error occurred. Refer to server log files.";
+                        res.quota = 0;
+                        res.entityID = string.Empty;
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null or domain id is empty or quota is non-positive.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at CreateAccount.", args, ex), ex);
+                throw;
+            }
+
+            return res;
+        }
+
+        private void GetAccountResponse(string responseJson, NPVRParamsObj args, NPVRUserActionResponse response, string action)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                response.isOK = true;
+                response.quota = args.Quota;
+                response.entityID = args.EntityID;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    response.entityID = args.EntityID;
+                    response.msg = error.Description;
+                    response.quota = 0;
+                    response.isOK = false;
+
+                    log.Error("Error - " + GetLogMsg(string.Format("Failed to {0} account. Error resp: {1}", action, error != null ? error.ToString() : "generic failure response is null"), args, null));
+
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Exception - " + GetLogMsg(string.Format("Exception at GetAccountResponse. Action: {0}, Resp JSON: {1}", action, responseJson), args, ex), ex);
+                    throw;
+                }
+            }
+        }
     }
 }

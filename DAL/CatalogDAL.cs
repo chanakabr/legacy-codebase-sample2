@@ -3044,23 +3044,50 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        public static DataSet Get_FileAndMediaBasicDetails(int[] mediaFiles)
+        public static DataTable Get_FileAndMediaBasicDetails(int[] mediaFiles)
         {
-            DataSet ds = null;
+            DataTable dt = null;
             try
             {
                 StoredProcedure sp = new StoredProcedure("Get_FileAndMediaBasicDetails");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                dt = sp.Execute();
 
-                ds = sp.ExecuteDataSet();
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
+            }
+            catch (Exception ex)
+            {                
+                log.Error(string.Empty, ex);
+            }
+            return dt;
+        }
+
+        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles)
+        {
+            DataTable dt = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_ValidateMediaFiles");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                dt = sp.Execute();
+
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Empty, ex);
             }
-            return ds;
+            return dt;
         }
+
 
         public static RecommendationEngine GetRecommendationEngine(int groupID, int engineId, int? isActive = null, int status = 1)
         {
@@ -4135,7 +4162,7 @@ namespace Tvinci.Core.DAL
             return null;
         }
 
-        public static int GetEpgPicsData(int groupId, string description)
+        public static int GetEpgPicsData(int groupId, string description, int pendingThresholdInMinutes = 0, int activeThresholdInMinutes = 0)
         {
             int picId = 0;
 
@@ -4145,6 +4172,10 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddParameter("@Description", description);
+                if( pendingThresholdInMinutes > 0)
+                    sp.AddParameter("@PendingThresholdInMinutes", pendingThresholdInMinutes);
+                if (activeThresholdInMinutes > 0)
+                    sp.AddParameter("@ActiveThresholdInMinutes", activeThresholdInMinutes);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)

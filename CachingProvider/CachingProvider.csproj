@@ -43,6 +43,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Couchbase.NetClient">
+      <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
+    </Reference>
     <Reference Include="CouchbaseManager, Version=3.4.118.16724, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
@@ -76,9 +79,17 @@
     <Compile Include="HybridCache.cs" />
     <Compile Include="ICachingService.cs" />
     <Compile Include="InMemoryCache.cs" />
+    <Compile Include="LayeredCache\Config\CbLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\InMemoryLayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheBucketSettings.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheTcmConfig.cs" />
+    <Compile Include="LayeredCache\LayeredCache.cs" />
+    <Compile Include="LayeredCache\LayeredCacheType.cs" />
     <Compile Include="OutOfProcessCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SingleInMemoryCache.cs" />
+    <Compile Include="SingleInMemoryCacheManager.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionModuleCache.cs" />
   </ItemGroup>

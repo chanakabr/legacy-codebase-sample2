@@ -34,7 +34,7 @@ namespace CachingProvider
 
         #region Ctors
 
-        public SingleInMemoryCache(string name, double defaultMinOffset)
+        internal SingleInMemoryCache(string name, double defaultMinOffset)
         {
             CacheName = name;
             DefaultMinOffset = defaultMinOffset;
@@ -42,6 +42,13 @@ namespace CachingProvider
         }
 
         #endregion
+
+        public bool Add<T>(string sKey, T value, uint expirationInSeconds)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60));
+        }
 
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
@@ -98,7 +105,7 @@ namespace CachingProvider
             BaseModuleCache baseModule = new BaseModuleCache();
             baseModule.result = cache.Remove(sKey);
             return baseModule;
-        }
+        }        
 
         public T Get<T>(string sKey) where T : class
         {
@@ -145,8 +152,6 @@ namespace CachingProvider
             bool bRes = false;
             try
             {
-                VersionModuleCache baseModule = (VersionModuleCache)oValue;
-
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 //lock 
@@ -157,13 +162,12 @@ namespace CachingProvider
                     try
                     {
                         mutex.WaitOne(-1);
-                        VersionModuleCache vModule = (VersionModuleCache)GetWithVersion<T>(sKey);
+                        BaseModuleCache vModule = GetWithVersion<T>(sKey);
                         // memory is empty for this key OR the object must have the same version 
-                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null && vModule.version != baseModule.version))
+                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null))
                         {                            
                             Guid versionGuid = Guid.NewGuid();
-                            baseModule.version = versionGuid.ToString();
-                            cache.Set(sKey, baseModule, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                            cache.Set(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
                             return true;
                         }                        
                     }
@@ -225,7 +229,6 @@ namespace CachingProvider
             return sb.ToString();
         }
 
-
         public IDictionary<string, object> GetValues(List<string> keys, bool asJson = false)
         {
             IDictionary<string, object> iDict = null;
@@ -265,5 +268,95 @@ namespace CachingProvider
             }
             return keys;
         }
+
+        public bool Get<T>(string key, ref T result)
+        {
+            result = default(T);
+            bool res = false;
+            try
+            {
+                if (!string.IsNullOrEmpty(key))
+                {
+                    object cacheResult = cache.Get(key);
+                    if (cacheResult != null)
+                    {
+                        result = (T) cacheResult;
+                        res = result != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Get<T> with key: {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        public bool GetWithVersion<T>(string key, out ulong version, ref T result)
+        {            
+            bool res = false;
+            version = 0;
+            try
+            {
+                res = Get<T>(key, ref result);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetWithVersion<T> with key: {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        public bool RemoveKey(string sKey)
+        {
+            bool? result = false;
+            result = cache.Remove(sKey) as bool?;
+            return result.HasValue && result.Value;
+        }
+
+        public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
+        {
+            bool bRes = false;
+            try
+            {
+                
+
+                //lock 
+                bool createdNew = false;
+                var mutexSecurity = CreateMutex();
+                using (Mutex mutex = new Mutex(false, string.Concat("Lock", key), out createdNew, mutexSecurity))
+                {
+                    try
+                    {
+                        mutex.WaitOne(-1);
+                        T getResult = default(T);
+                        if (!GetWithVersion<T>(key, out version, ref getResult) || getResult == null)
+                        {
+                            DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
+                            cache.Set(key, value, dtExpiresAt);
+                            return true;                        
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        //unlock
+                        mutex.ReleaseMutex();
+                    }
+                }
+                return bRes;
+            }
+            catch (Exception ex)
+            {
+                log.Error("SetWithVersion<T>", ex);
+                return false;
+            }            
+        }
     }
+
 }

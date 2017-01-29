@@ -1849,7 +1849,7 @@ namespace DAL
         }
 
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
-            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long householdId, string billingGuid)
+            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long householdId, string billingGuid, int purchaseStatus = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1875,6 +1875,7 @@ namespace DAL
             sp.AddParameter("@PreviewModuleID", previewModuleID);
             sp.AddParameter("@domainID", householdId);
             sp.AddParameter("@billingGuid", billingGuid);
+            sp.AddParameter("@PurchaseStatus", purchaseStatus);
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -2446,7 +2447,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() * 60;
         }
-
+        
         public static int GetTimeShiftedTVAdapterId(int groupId)
         {
             int adapterId = 0;

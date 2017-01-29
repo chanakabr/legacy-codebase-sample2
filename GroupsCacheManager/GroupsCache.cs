@@ -18,7 +18,7 @@ namespace GroupsCacheManager
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Constants
-        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 1440d; // 24 hours
+        private static readonly uint DEFAULT_TIME_IN_CACHE_SECONDS = 86400; // 24 hours
         private static readonly string DEFAULT_CACHE_NAME = "GroupsCache";
         protected const string GROUP_LOG_FILENAME = "Group";
         #endregion
@@ -35,7 +35,7 @@ namespace GroupsCacheManager
         #endregion
 
 
-        private readonly double dCacheTT;
+        private readonly uint dCacheTT;
         private string cacheGroupConfiguration;
         private string keyCachePrefix = string.Empty;
         private ICachingService groupCacheService = null;
@@ -65,14 +65,14 @@ namespace GroupsCacheManager
                     }
                 case "InnerCache":
                     {
-                        dCacheTT = GetDefaultCacheTimeInMinutes();
+                        dCacheTT = GetDefaultCacheTimeInSeconds();
                         InitializeCachingService(GetCacheName(), dCacheTT);
                         keyCachePrefix = "GroupCache_"; // the key for cache in the inner memory is an Integration between this string and groupID 
                         break;
                     }
                 case "Hybrid":
                     {
-                        dCacheTT = GetDefaultCacheTimeInMinutes();
+                        dCacheTT = GetDefaultCacheTimeInSeconds();
                         string cacheName = GetCacheName();
                         groupCacheService = HybridCache<Group>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
                         channelsCache = HybridCache<Channel>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
@@ -114,31 +114,39 @@ namespace GroupsCacheManager
             return DEFAULT_CACHE_NAME;
         }
 
-        private double GetDefaultCacheTimeInMinutes()
+        private uint GetDefaultCacheTimeInSeconds()
         {
-            double res = 0d;
+            uint res = 0;
             string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            {
+                res *= 60;
                 return res;
-            return DEFAULT_TIME_IN_CACHE_MINUTES;
+            }
+            return DEFAULT_TIME_IN_CACHE_SECONDS;
         }
 
-        private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
+        private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.groupCacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
-            this.channelsCache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.groupCacheService = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
+            this.channelsCache = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
         }
 
         #endregion
 
         #region Groups Cache
 
-        private static double GetDocTTLSettings()
+        private static uint GetDocTTLSettings()
         {
-            double nResult;
-            if (!double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out nResult))
+            uint nResult;
+            if (!uint.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out nResult))
             {
-                nResult = 1440.0;
+                nResult = DEFAULT_TIME_IN_CACHE_SECONDS;
+            }                
+            else
+            {
+                // convert to seconds (TCM config is in minutes)
+                nResult *= 60;
             }
 
             return nResult;

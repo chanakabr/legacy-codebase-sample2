@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
-using ApiObjects.Notification;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
@@ -2096,6 +2095,15 @@ namespace TvinciImporter
                 ratioID = ImageUtils.GetGroupDefaultEpgRatio(groupID);
             }
 
+            //check for epg_image default threshold value
+            int pendingThresholdInMinutes = 0;
+            var epgImagePendingThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImagePendingThresholdInMinutes");
+            int.TryParse(epgImagePendingThresholdInMinutes, out pendingThresholdInMinutes);
+
+            int activeThresholdInMinutes = 0;
+            var epgImageActiveThresholdInMinutes = WS_Utils.GetTcmConfigValue("epgImageActiveThresholdInMinutes");
+            int.TryParse(epgImageActiveThresholdInMinutes, out activeThresholdInMinutes);
+
             GetEpgPicNameAndId(thumb, groupID, channelID, ratioID, out picName, out picId);
 
             if (picId == 0)
@@ -2188,7 +2196,7 @@ namespace TvinciImporter
             }
         }
 
-        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, int ratioID, out string picName, out int picId)
+        private static void GetEpgPicNameAndId(string thumb, int groupID, int channelID, int ratioID, out string picName, out int picId, int pendingThresholdInMinutes = 0, int activeThresholdInMinutes = 0)
         {
             picName = getPictureFileName(thumb);
             picId = 0;
@@ -5211,7 +5219,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status AddMessageAnnouncement(int groupID, bool Enabled, string name, string message, int Recipients, DateTime date, string timezone, ref int id)
         {
-            Notification_WCF.AddMessageAnnouncementResponse response = null;
+            AddMessageAnnouncementResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5225,7 +5233,7 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-                Notification_WCF.MessageAnnouncement announcement = new Notification_WCF.MessageAnnouncement();
+                MessageAnnouncement announcement = new MessageAnnouncement();
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
@@ -5260,7 +5268,7 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-                Notification_WCF.MessageAnnouncement announcement = new Notification_WCF.MessageAnnouncement();
+                MessageAnnouncement announcement = new MessageAnnouncement();
                 announcement.Message = message;
                 announcement.Name = name;
                 announcement.Recipients = (eAnnouncementRecipientsType)Recipients;
@@ -5268,7 +5276,7 @@ namespace TvinciImporter
                 announcement.Timezone = timezone;
                 announcement.MessageAnnouncementId = id;
                 announcement.Enabled = Enabled;
-                Notification_WCF.MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
+                MessageAnnouncementResponse response = service.UpdateMessageAnnouncement(sWSUserName, sWSPass, id, announcement);
                 return response.Status;
             }
             catch (Exception)
@@ -5414,7 +5422,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
         {
-            MessageTemplateResponse response = null;
+            ApiObjects.Notification.MessageTemplateResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5429,7 +5437,7 @@ namespace TvinciImporter
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
 
-                MessageTemplate wcfMessageTemplate = new MessageTemplate()
+                ApiObjects.Notification.MessageTemplate wcfMessageTemplate = new ApiObjects.Notification.MessageTemplate()
                 {
                     AssetType = messageTemplate.AssetType,
                     Message = messageTemplate.Message,

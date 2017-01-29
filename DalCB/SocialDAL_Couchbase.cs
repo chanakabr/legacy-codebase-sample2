@@ -53,9 +53,10 @@ namespace DalCB
                         startKey = startKey,
                         endKey = endKey,
                         isDescending = true,
-                        skip = nSkip,
+                        skip = nSkip * nNumOfRecords,
                         limit = nNumOfRecords,
                         staleState = staleState
+
                     });
                 }
                 else

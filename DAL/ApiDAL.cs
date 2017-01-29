@@ -34,7 +34,18 @@ namespace DAL
 
             if (ds != null)
                 return ds.Tables[0];
-            return null;
+            return null;            
+        }
+
+        public static DataTable Get_GeoBlockRuleForMediaAndCountries(int nGroupID, int nMediaID)
+        {
+            ODBCWrapper.StoredProcedure sp_GeoBlockRuleForMediaAndCountries = new ODBCWrapper.StoredProcedure("Get_GeoBlockRuleForMediaAndCountries");
+            sp_GeoBlockRuleForMediaAndCountries.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp_GeoBlockRuleForMediaAndCountries.AddParameter("@GroupID", nGroupID);
+            sp_GeoBlockRuleForMediaAndCountries.AddParameter("@MediaID", nMediaID);
+            DataTable dt = sp_GeoBlockRuleForMediaAndCountries.Execute();
+
+            return dt != null ? dt : new DataTable();
         }
 
         public static DataSet Get_Operators_Info(int nGroupID, List<int> operatorIds)
@@ -79,19 +90,6 @@ namespace DAL
 
 
             DataSet ds = spUserSocialActionID.ExecuteDataSet();
-
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-        }
-
-        public static DataTable Get_IPCountryCode(Int64 nIP)
-        {
-            ODBCWrapper.StoredProcedure spIPCountryCode = new ODBCWrapper.StoredProcedure("Get_IPCountryCode");
-            spIPCountryCode.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spIPCountryCode.AddParameter("@IPVal", nIP);
-
-            DataSet ds = spIPCountryCode.ExecuteDataSet();
 
             if (ds != null)
                 return ds.Tables[0];
@@ -3941,6 +3939,41 @@ namespace DAL
             dt = sp.Execute();
 
             return dt;
+        }
+
+        public static List<MediaFile> GetMediaFiles(long mediaId)
+        {
+            List<MediaFile> files = null;
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFiles");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@mediaId", mediaId);
+            dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                files = new List<MediaFile>();
+                MediaFile file;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    file = new MediaFile()
+                    {
+                        Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
+                        ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
+                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"), 
+                        IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
+                        CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                        StreamerType = (StreamerType)ODBCWrapper.Utils.GetIntSafeVal(dr, "streamer_type"),
+                        Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                        DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
+                        MediaId = mediaId,
+                    };
+
+                    files.Add(file);
+                }
+            }
+            return files;
         }
     }
 }
