@@ -118,6 +118,7 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
     <Compile Include="CoreObject.cs" />
+    <Compile Include="MailRequests\GiftCardReminderMailRequest.cs" />
     <Compile Include="MailRequests\PurchaseViaGiftCardMailRequest.cs" />
     <Compile Include="MetaResponse.cs" />
     <Compile Include="DeviceBrand.cs" />

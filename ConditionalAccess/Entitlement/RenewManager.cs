@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using TVinciShared;
 using Users;
+using WS_API;
 using WS_Billing;
 using WS_Pricing;
 
@@ -801,10 +802,51 @@ namespace ConditionalAccess
 
             if (paymentDetail == null)
             {
-                // error while trying to get payment GW ID and external transaction ID
-                log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupId, householdId, billingGuid);
+                string itemName = ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "name", (int)productId, "pricing_connection").ToString();
+                API apiWS = null;
+                try
+                {
+                    apiWS = new API();
 
+                    //get HH from siteGuid
+                    User houseHoldUser = Billing.Utils.GetHHFromSiteGuid(siteguid, groupId);
+                    MailRequestObj baseMailRequest =
+                        BillingMailTemplateFactory.GetMailTemplate(groupId, houseHoldUser.m_sSiteGUID, string.Empty, 0,
+                        string.Empty, itemName, string.Empty, string.Empty, string.Empty, eMailTemplateType.GiftCardRenewReminder, 
+                        0, houseHoldUser, eTransactionType.Subscription);
 
+                    GiftCardReminderMailRequest giftCardRequest = baseMailRequest as GiftCardReminderMailRequest;
+
+                    if (giftCardRequest != null)
+                    {
+                        giftCardRequest.daysLeft = ((int)Math.Round((endDate - DateTime.UtcNow).TotalDays)).ToString();
+
+                        string dateEmailFormat = Billing.Utils.GetDateEmailFormat(groupId);
+                        giftCardRequest.endDate = endDate.ToString(dateEmailFormat);
+
+                        log.DebugFormat("params for gift card reminder mail ws_cas .m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}",
+                            baseMailRequest.m_sSubject, houseHoldUser.m_sSiteGUID, baseMailRequest.m_sTemplateName);
+
+                        if (giftCardRequest != null && !string.IsNullOrEmpty(giftCardRequest.m_sTemplateName))
+                        {
+                            string sWSUserName = string.Empty;
+                            string sWSPass = string.Empty;
+                            Utils.GetWSCredentials(groupId, eWSModules.API, ref sWSUserName, ref sWSPass);
+                            apiWS.SendMailTemplate(sWSUserName, sWSPass, giftCardRequest);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Send gift card reminder mail - " + String.Concat("Exception. ", siteguid, " | ", ex.Message, " | ", ex.StackTrace), ex);
+                }
+                finally
+                {
+                    if (apiWS != null)
+                    {
+                        apiWS.Dispose();
+                    }
+                }
             }
 
             success = true;
