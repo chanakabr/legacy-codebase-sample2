@@ -778,12 +778,28 @@ namespace ConditionalAccess
 
             log.DebugFormat("Renew details received. data: {0}", logString);
 
-            var paymentDetails = BasePaymentGateway.GetPaymentDetails(groupId, new List<string>() { billingGuid });
+            List<PaymentDetails> paymentDetails = null;
 
+            // call billing get payment details
+            string billingUserName = string.Empty;
+            string billingPassword = string.Empty;
+            module wsBillingService = null;
+            Utils.InitializeBillingModule(ref wsBillingService, groupId, ref billingUserName, ref billingPassword);
 
-            PaymentDetails pd = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+            try
+            {
+                paymentDetails = wsBillingService.GetPaymentDetails(billingUserName, billingPassword, new List<string>() { billingGuid });
+            }
+            catch (Exception ex)
+            {
+                // error while trying to process renew in billing
+                log.Error("Error while calling the billing GetPaymentDetails", ex);
+                return false;
+            }
 
-            if (pd == null)
+            PaymentDetails paymentDetail = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+
+            if (paymentDetail == null)
             {
                 // error while trying to get payment GW ID and external transaction ID
                 log.ErrorFormat("error while getting payment GW ID and external transaction ID. groupID: {0}, householdId: {1), billingGuid: {2}", groupId, householdId, billingGuid);
@@ -795,6 +811,7 @@ namespace ConditionalAccess
 
             return success;
         }
+
         #endregion
 
     }
