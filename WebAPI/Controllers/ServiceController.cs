@@ -173,14 +173,30 @@ namespace WebAPI.Controllers
             {
                 log.Error("Failed to perform action", ex);
 
+                var failureHttpCode = methodInfo.GetCustomAttribute(typeof(FailureHttpCodeAttribute));
+            
+
                 if (ex.InnerException is ApiException)
                 {
-                    ApiException apiEx = new ApiException((ApiException)ex.InnerException, System.Net.HttpStatusCode.NotFound);
+                    ApiException apiEx;
+                    if (failureHttpCode != null)
+                    {
+                        apiEx = new ApiException((ApiException)ex.InnerException, ((FailureHttpCodeAttribute)failureHttpCode).HttpStatusCode);
+                    }
+                    else
+                    {
+                        apiEx = (ApiException)ex.InnerException;
+
+                    }
                     throw apiEx;
                 }
-
-                ApiException generalErrorEx = new ApiException(ex, System.Net.HttpStatusCode.NotFound );
-                throw generalErrorEx;
+                ApiException generalErrorEx;
+                if (failureHttpCode != null)
+                {
+                    generalErrorEx = new ApiException(ex, ((FailureHttpCodeAttribute)failureHttpCode).HttpStatusCode);
+                    throw generalErrorEx;
+                }
+                throw ex;
             }
 
             return response;

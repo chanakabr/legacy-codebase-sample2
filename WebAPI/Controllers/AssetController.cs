@@ -870,11 +870,11 @@ namespace WebAPI.Controllers
                 {
                     if (!string.IsNullOrEmpty(userId) && userId != "0")
                     {
-                        source.Url = string.Format("{0}{1}/ks/{2}", baseUrl, source.Url, ks.ToString());
+                        source.Url = string.Format("{0}/{1}/ks/{2}", baseUrl, source.Url, ks.ToString());
                     }
                     else
                     {
-                        source.Url = string.Format("{0}{1}", baseUrl, source.Url);
+                        source.Url = string.Format("{0}/{1}", baseUrl, source.Url);
                     }
                 }
             }

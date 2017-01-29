@@ -61,7 +61,7 @@ namespace WebAPI.App_Start
                 content = prepareExceptionResponse(payload.code, message);
                 if (payload.failureHttpCode != System.Net.HttpStatusCode.OK)
                 {
-                    response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                    response.StatusCode = payload.failureHttpCode;
                     response.Headers.Add("X-Kaltura-App", string.Format("exiting on error {0} - {1}", payload.code, message));
                     response.Headers.Add("X-Kaltura", string.Format("error-{0}", payload.code));
                 }
