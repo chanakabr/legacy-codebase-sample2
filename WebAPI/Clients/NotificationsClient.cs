@@ -1,4 +1,8 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.Notification;
+using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using AutoMapper;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -12,7 +16,6 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
-using WebAPI.Notifications;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
 
@@ -27,41 +30,26 @@ namespace WebAPI.Clients
 
         }
 
-        #region Properties
-
-        protected WebAPI.Notifications.NotificationServiceClient Notification
-        {
-            get
-            {
-                return (Module as WebAPI.Notifications.NotificationServiceClient);
-            }
-        }
-
-        #endregion
-
         internal KalturaPartnerNotificationSettings Get(int groupId)
         {
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             NotificationPartnerSettingsResponse response = null;
             KalturaPartnerNotificationSettings settings = null;
 
             try
             {
-                log.Debug(string.Format("Username={0}, Password={1}", group.NotificationsCredentials.Username, group.NotificationsCredentials.Password));
+                log.Debug(string.Format("Username={0}, Password={1}", groupId));
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                    response = Core.Notification.Module.GetNotificationPartnerSettings(groupId);
                 }
                 log.Debug("return from Notification.GetNotificationPartnerSettings");
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling notification service. ws address: {0}, exception: {1}",
-                    Notification.Endpoint != null && Notification.Endpoint.Address != null &&
-                            Notification.Endpoint.Address.Uri != null ? Notification.Endpoint.Address.Uri.ToString() :
-                string.Empty, ex);
+                log.ErrorFormat("Exception received while calling notification service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -85,27 +73,24 @@ namespace WebAPI.Clients
         internal KalturaNotificationSettings Get(int groupId, string userId)
         {
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             NotificationSettingsResponse response = null;
             KalturaNotificationSettings settings = null;
 
             try
             {
-                log.Debug(string.Format("Username={0}, Password={1}", group.NotificationsCredentials.Username, group.NotificationsCredentials.Password));
+                log.Debug(string.Format("Username={0}, Password={1}", groupId));
                 int user_id = int.Parse(userId);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, user_id);
+                    response = Core.Notification.Module.GetNotificationSettings(groupId, user_id);
                 }
                 log.Debug("return from Notification.UpdateNotificationPartnerSettings");
 
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling notification service. ws address: {0}, exception: {1}",
-                    Notification.Endpoint != null && Notification.Endpoint.Address != null &&
-                            Notification.Endpoint.Address.Uri != null ? Notification.Endpoint.Address.Uri.ToString() :
-                string.Empty, ex);
+                log.ErrorFormat("Exception received while calling notification service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -136,19 +121,16 @@ namespace WebAPI.Clients
 
                 NotificationPartnerSettings settingsObj = null;
                 settingsObj = AutoMapper.Mapper.Map<NotificationPartnerSettings>(settings);
-                Group group = GroupsManager.GetGroup(groupId);
+                
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateNotificationPartnerSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, settingsObj);
+                    response = Core.Notification.Module.UpdateNotificationPartnerSettings(groupId, settingsObj);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling notification service. ws address: {0}, exception: {1}",
-                    Notification.Endpoint != null && Notification.Endpoint.Address != null &&
-                            Notification.Endpoint.Address.Uri != null ? Notification.Endpoint.Address.Uri.ToString() :
-                string.Empty, ex);
+                log.ErrorFormat("Exception received while calling notification service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -177,18 +159,15 @@ namespace WebAPI.Clients
             {
                 UserNotificationSettings settingsObj = null;
                 settingsObj = AutoMapper.Mapper.Map<UserNotificationSettings>(settings);
-                Group group = GroupsManager.GetGroup(groupId);
+                
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateNotificationSettings(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, settingsObj);
+                    response = Core.Notification.Module.UpdateNotificationSettings(groupId, userId, settingsObj);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception received while calling notification service. ws address: {0}, exception: {1}",
-                    Notification.Endpoint != null && Notification.Endpoint.Address != null &&
-                            Notification.Endpoint.Address.Uri != null ? Notification.Endpoint.Address.Uri.ToString() :
-                string.Empty, ex);
+                log.ErrorFormat("Exception received while calling notification service. exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -211,7 +190,7 @@ namespace WebAPI.Clients
         internal KalturaAnnouncement AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
             switch (announcement.Recipients)
@@ -263,7 +242,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.AddMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, messageAnnouncement);
+                    response = Core.Notification.Module.AddMessageAnnouncement(groupId, messageAnnouncement);
                 }
             }
             catch (Exception ex)
@@ -285,7 +264,7 @@ namespace WebAPI.Clients
         internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
         {
             MessageAnnouncementResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
             switch (announcement.Recipients)
@@ -337,7 +316,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, announcementId, messageAnnouncement);
+                    response = Core.Notification.Module.UpdateMessageAnnouncement(groupId, announcementId, messageAnnouncement);
                 }
             }
             catch (Exception ex)
@@ -359,13 +338,13 @@ namespace WebAPI.Clients
         internal bool UpdateAnnouncementStatus(int groupId, long id, bool status)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateMessageAnnouncementStatus(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id, status);
+                    response = Core.Notification.Module.UpdateMessageAnnouncementStatus(groupId, id, status);
                 }
             }
             catch (Exception ex)
@@ -386,13 +365,13 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncement(int groupId, long id)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.DeleteMessageAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id);
+                    response = Core.Notification.Module.DeleteMessageAnnouncement(groupId, id);
                 }
             }
             catch (Exception ex)
@@ -413,13 +392,13 @@ namespace WebAPI.Clients
         internal bool CreateSystemAnnouncement(int groupId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
 
-                    response = Notification.CreateSystemAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                    response = Core.Notification.Module.CreateSystemAnnouncement(groupId);
                 }
             }
             catch (Exception ex)
@@ -442,13 +421,13 @@ namespace WebAPI.Clients
             GetAllMessageAnnouncementsResponse response = null;
             KalturaAnnouncementListResponse ret;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetAllMessageAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                    response = Core.Notification.Module.GetAllMessageAnnouncements(groupId, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
@@ -475,13 +454,13 @@ namespace WebAPI.Clients
             GetAllMessageAnnouncementsResponse response = null;
             KalturaMessageAnnouncementListResponse ret;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetAllMessageAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                    response = Core.Notification.Module.GetAllMessageAnnouncements(groupId, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
@@ -503,14 +482,14 @@ namespace WebAPI.Clients
 
         internal bool SetPush(int groupId, string userId, string udid, string pushToken)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 eUserMessageAction action = string.IsNullOrEmpty(userId) || userId == "0" ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    Notification.InitiateNotificationActionAsync(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, action, int.Parse(userId), udid, pushToken);
+                    Core.Notification.Module.InitiateNotificationActionAsync(groupId, action, int.Parse(userId), udid, pushToken);
                 }
             }
             catch (Exception ex)
@@ -527,7 +506,7 @@ namespace WebAPI.Clients
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -536,7 +515,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.SetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
+                    response = Core.Notification.Module.SetMessageTemplate(groupId, apiFollowTemplate);
                 }
             }
             catch (Exception ex)
@@ -563,7 +542,7 @@ namespace WebAPI.Clients
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
                 order = OrderDir.ASC;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -574,7 +553,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetUserFollows(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order);
                 }
             }
             catch (Exception ex)
@@ -606,7 +585,7 @@ namespace WebAPI.Clients
             if (orderBy != null && orderBy.Value == KalturaOrder.oldest_first)
                 order = OrderDir.ASC;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -617,7 +596,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetUserFollows(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFollows(groupId, userId, pageSize, pageIndex, order);
                 }
             }
             catch (Exception ex)
@@ -641,7 +620,7 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -667,7 +646,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.Unfollow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followData);
+                    response = Core.Notification.Module.Unfollow(groupId, userId, followData);
                 }
             }
             catch (Exception ex)
@@ -691,7 +670,7 @@ namespace WebAPI.Clients
             KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
             followData.AssetId = asset_id;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -716,7 +695,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.Follow(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, followDataNotification);
+                    response = Core.Notification.Module.Follow(groupId, userId, followDataNotification);
                 }
             }
             catch (Exception ex)
@@ -739,13 +718,13 @@ namespace WebAPI.Clients
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, NotificationMapping.ConvertOTTAssetType(asset_Type));
+                    response = Core.Notification.Module.GetMessageTemplate(groupId, NotificationMapping.ConvertOTTAssetType(asset_Type));
                 }
             }
             catch (Exception ex)
@@ -769,7 +748,7 @@ namespace WebAPI.Clients
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -778,7 +757,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.SetMessageTemplate(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, apiFollowTemplate);
+                    response = Core.Notification.Module.SetMessageTemplate(groupId, apiFollowTemplate);
                 }
             }
             catch (Exception ex)
@@ -808,7 +787,7 @@ namespace WebAPI.Clients
             List<KalturaPersonalFeed> result = null;
             KalturaPersonalFeedListResponse ret = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -817,13 +796,13 @@ namespace WebAPI.Clients
             }
 
             // Create notifications order object
-            WebAPI.Notifications.OrderObj order = NotificationMapping.ConvertOrderToOrderObj(orderBy);
+            OrderObj order = NotificationMapping.ConvertOrderToOrderObj(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetUserFeeder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFeeder(groupId, userId, pageSize, pageIndex, order);
                 }
             }
             catch (Exception ex)
@@ -858,7 +837,7 @@ namespace WebAPI.Clients
             List<KalturaPersonalFollowFeed> result = null;
             KalturaPersonalFollowFeedResponse ret = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -867,10 +846,10 @@ namespace WebAPI.Clients
             }
 
             // Create notifications order object
-            WebAPI.Notifications.OrderObj order = new WebAPI.Notifications.OrderObj();
+            OrderObj order = new OrderObj();
             if (orderBy == null)
             {
-                order.m_eOrderBy = WebAPI.Notifications.OrderBy.NONE;
+                order.m_eOrderBy = OrderBy.NONE;
             }
             else
             {
@@ -881,7 +860,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetUserFeeder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserFeeder(groupId, userId, pageSize, pageIndex, order);
                 }
             }
             catch (Exception ex)
@@ -924,7 +903,7 @@ namespace WebAPI.Clients
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -936,7 +915,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetInboxMessages(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                    response = Core.Notification.Module.GetInboxMessages(groupId, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
                 }
             }
             catch (Exception ex)
@@ -980,7 +959,7 @@ namespace WebAPI.Clients
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -992,7 +971,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetInboxMessages(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                    response = Core.Notification.Module.GetInboxMessages(groupId, userId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
                 }
             }
             catch (Exception ex)
@@ -1023,7 +1002,7 @@ namespace WebAPI.Clients
         internal bool UpdateInboxMessage(int groupId, string userID, string messageId, KalturaInboxMessageStatus status)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1035,7 +1014,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateInboxMessage(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, messageId, NotificationMapping.ConvertInboxMessageStatus(status));
+                    response = Core.Notification.Module.UpdateInboxMessage(groupId, userId, messageId, NotificationMapping.ConvertInboxMessageStatus(status));
                 }
             }
             catch (Exception ex)
@@ -1058,7 +1037,7 @@ namespace WebAPI.Clients
             InboxMessageResponse response = null;
             KalturaInboxMessage result = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1070,7 +1049,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetInboxMessage(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, id);
+                    response = Core.Notification.Module.GetInboxMessage(groupId, userId, id);
                 }
             }
             catch (Exception ex)
@@ -1100,13 +1079,13 @@ namespace WebAPI.Clients
         internal bool UpdateTopic(int groupId, int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.UpdateAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id, NotificationMapping.ConvertAutomaticIssueNotification(automaticIssueNotification));
+                    response = Core.Notification.Module.UpdateAnnouncement(groupId, id, NotificationMapping.ConvertAutomaticIssueNotification(automaticIssueNotification));
                 }
             }
             catch (Exception ex)
@@ -1127,13 +1106,13 @@ namespace WebAPI.Clients
         internal bool DeleteTopic(int groupId, int id)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.DeleteAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id);
+                    response = Core.Notification.Module.DeleteAnnouncement(groupId, id);
                 }
             }
             catch (Exception ex)
@@ -1157,13 +1136,13 @@ namespace WebAPI.Clients
             AnnouncementsResponse response = null;
             KalturaTopic result = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetAnnouncement(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, id);
+                    response = Core.Notification.Module.GetAnnouncement(groupId, id);
                 }
             }
             catch (Exception ex)
@@ -1196,13 +1175,13 @@ namespace WebAPI.Clients
             List<KalturaTopic> result = null;
             KalturaTopicListResponse ret = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                    response = Core.Notification.Module.GetAnnouncements(groupId, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
@@ -1237,13 +1216,13 @@ namespace WebAPI.Clients
             List<KalturaTopic> result = null;
             KalturaTopicResponse ret = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetAnnouncements(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, pageSize, pageIndex);
+                    response = Core.Notification.Module.GetAnnouncements(groupId, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)
@@ -1274,13 +1253,13 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncementsOlderThan(int groupId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.DeleteAnnouncementsOlderThan(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password);
+                    response = Core.Notification.Module.DeleteAnnouncementsOlderThan(groupId);
                 }
             }
             catch (Exception ex)
@@ -1303,7 +1282,7 @@ namespace WebAPI.Clients
             RegistryResponse response = null;
             KalturaRegistryResponse ret = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1312,16 +1291,16 @@ namespace WebAPI.Clients
                     switch (type)
                     {
                         case KalturaNotificationType.announcement:
-                            response = Notification.RegisterPushAnnouncementParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);
+                            response = Core.Notification.Module.RegisterPushAnnouncementParameters(groupId, long.Parse(id), hash, ip);
                             break;
                         case KalturaNotificationType.system:
                             if (id.ToLower() == "login")
-                                response = Notification.RegisterPushSystemParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, hash, ip);
+                                response = Core.Notification.Module.RegisterPushSystemParameters(groupId, hash, ip);
                             else
                                 throw new NotImplementedException();
                             break;
                         case KalturaNotificationType.Reminder:
-                            response = Notification.RegisterPushReminderParameters(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, long.Parse(id), hash, ip);
+                            response = Core.Notification.Module.RegisterPushReminderParameters(groupId, long.Parse(id), hash, ip);
                             break;
                         default:
                             break;
@@ -1354,7 +1333,7 @@ namespace WebAPI.Clients
 
         internal KalturaReminder AddAssetReminder(int groupId, string userID, KalturaAssetReminder reminder)
         {
-            Notifications.RemindersResponse response = null;
+            RemindersResponse response = null;
             KalturaReminder kalturaReminder = null;
             DbReminder dbReminder = null;
 
@@ -1365,7 +1344,7 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1374,7 +1353,7 @@ namespace WebAPI.Clients
                     dbReminder = Mapper.Map<DbReminder>(reminder);
                     dbReminder.Reference = reminder.AssetId;
                     dbReminder.GroupId = groupId;
-                    response = Notification.AddUserReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, dbReminder);
+                    response = Core.Notification.Module.AddUserReminder(groupId, userId, dbReminder);
                 }
             }
             catch (Exception ex)
@@ -1414,13 +1393,13 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.DeleteUserReminder(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, reminderId);
+                    response = Core.Notification.Module.DeleteUserReminder(groupId, userId, reminderId);
                 }
             }
             catch (Exception ex)
@@ -1440,13 +1419,13 @@ namespace WebAPI.Clients
         internal bool RemoveUsersNotificationData(int groupId, List<string> userIds)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.RemoveUsersNotificationData(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userIds);
+                    response = Core.Notification.Module.RemoveUsersNotificationData(groupId, userIds);
                 }
             }
             catch (Exception ex)
@@ -1474,7 +1453,7 @@ namespace WebAPI.Clients
             List<KalturaReminder> result = null;
             KalturaReminderListResponse ret = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1489,7 +1468,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Notification.GetUserReminders(group.NotificationsCredentials.Username, group.NotificationsCredentials.Password, userId, filter, pageSize, pageIndex, order);
+                    response = Core.Notification.Module.GetUserReminders(groupId, userId, filter, pageSize, pageIndex, order);
                 }
             }
             catch (Exception ex)

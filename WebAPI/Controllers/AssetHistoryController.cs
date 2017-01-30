@@ -10,7 +10,6 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models.Catalog;
 using WebAPI.Utils;
-using WebAPI.Catalog;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;

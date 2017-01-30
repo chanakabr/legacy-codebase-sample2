@@ -5,7 +5,6 @@ using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Web;
 using WebAPI.Clients;
-using WebAPI.Notifications;
 
 namespace WebAPI.ClientManagers.Client
 {

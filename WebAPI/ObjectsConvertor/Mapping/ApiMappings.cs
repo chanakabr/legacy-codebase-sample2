@@ -30,16 +30,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
             //AssetType to Catalog.StatsType
-            Mapper.CreateMap<AssetType, WebAPI.Catalog.StatsType>().ConstructUsing((AssetType type) =>
+            Mapper.CreateMap<AssetType, StatsType>().ConstructUsing((AssetType type) =>
             {
-                WebAPI.Catalog.StatsType result;
+                StatsType result;
                 switch (type)
                 {
                     case AssetType.media:
-                        result = WebAPI.Catalog.StatsType.MEDIA;
+                        result = StatsType.MEDIA;
                         break;
                     case AssetType.epg:
-                        result = WebAPI.Catalog.StatsType.EPG;
+                        result = StatsType.EPG;
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown asset type");

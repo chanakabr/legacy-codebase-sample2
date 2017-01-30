@@ -6,7 +6,6 @@ using System.Web;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Catalog;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
