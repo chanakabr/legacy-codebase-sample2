@@ -2130,14 +2130,16 @@ namespace Catalog
 
                 if (statResult != null && statResult.Count > 0)
                 {
+                    var sortedStatsDictionary = statResult.OrderBy(o => o.Value).Reverse();
+
                     // We base this section on the assumption that aggregations request is sorted, descending
-                    foreach (string currentKey in statResult.Keys)
+                    foreach (var currentValue in sortedStatsDictionary)
                     {
-                        int count = statResult[currentKey];
+                        int count = statResult[currentValue.Key];
 
                         int currentId;
 
-                        if (int.TryParse(currentKey, out currentId))
+                        if (int.TryParse(currentValue.Key, out currentId))
                         {
                             // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
                             if (orderDirection == OrderDir.ASC)
