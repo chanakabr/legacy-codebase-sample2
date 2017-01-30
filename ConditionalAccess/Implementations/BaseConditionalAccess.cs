@@ -19016,14 +19016,7 @@ namespace ConditionalAccess
                 DateTime programEndTime = DateTime.ParseExact(program.END_DATE, "dd/MM/yyyy HH:mm:ss", null);
                 DateTime programStartTime = DateTime.ParseExact(program.START_DATE, "dd/MM/yyyy HH:mm:ss", null);
 
-                Dictionary<string, object> dURLParams = new Dictionary<string, object>();
-                dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_END, programEndTime);
                 eEPGFormatType formatType = Utils.GetEpgFormatTypeByPlayContextType(context);
-                dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.EPG_FORMAT_TYPE, formatType);
-                if (formatType == eEPGFormatType.Catchup || formatType == eEPGFormatType.StartOver)
-                {
-                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, programStartTime);
-                }
 
                 // if adapter response is not null and is adapter (has an adapter url) - call the adapter
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
@@ -19037,6 +19030,13 @@ namespace ConditionalAccess
                 }
                 else
                 {
+                    Dictionary<string, object> dURLParams = new Dictionary<string, object>();
+                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_END, programEndTime);
+                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.EPG_FORMAT_TYPE, formatType);
+                    if (formatType == eEPGFormatType.Catchup || formatType == eEPGFormatType.StartOver)
+                    {
+                        dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, programStartTime);
+                    }
                     string CdnStrID = string.Empty;
                     bool bIsDynamic = Utils.GetStreamingUrlType(file.CdnId, ref CdnStrID);
                     dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.IS_DYNAMIC, bIsDynamic);

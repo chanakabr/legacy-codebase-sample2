@@ -37,7 +37,7 @@ namespace CachingProvider.LayeredCache
             ICachingService cache = null;
             try
             {
-                cache = SingleInMemoryCacheManager.Instance(string.IsNullOrEmpty(this.CacheName) ? IN_MEMORY_CACHE_NAME : this.CacheName, this.TTL);
+                cache = new SingleInMemoryCache(this.TTL);
             }
             catch (Exception ex)
             {
