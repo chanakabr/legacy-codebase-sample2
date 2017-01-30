@@ -93,7 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddUserMailRequest.cs" />
+    <Compile Include="MailRequests\AddUserMailRequest.cs" />
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
@@ -118,6 +118,8 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
     <Compile Include="CoreObject.cs" />
+    <Compile Include="MailRequests\GiftCardReminderMailRequest.cs" />
+    <Compile Include="MailRequests\PurchaseViaGiftCardMailRequest.cs" />
     <Compile Include="MetaResponse.cs" />
     <Compile Include="DeviceBrand.cs" />
     <Compile Include="DeviceBrandResponse.cs" />
@@ -214,11 +216,11 @@
     <Compile Include="Ratio.cs" />
     <Compile Include="DRM\CencRequest.cs" />
     <Compile Include="DRM\CencResponse.cs" />
-    <Compile Include="ChangedPinMailRequest.cs" />
-    <Compile Include="ChangePasswordMailRequest.cs" />
-    <Compile Include="CinepolisPurchaseMailRequest.cs" />
-    <Compile Include="CinepolisRenewalFailMailRequest.cs" />
-    <Compile Include="AddDeviceMailRequest.cs" />
+    <Compile Include="MailRequests\ChangedPinMailRequest.cs" />
+    <Compile Include="MailRequests\ChangePasswordMailRequest.cs" />
+    <Compile Include="MailRequests\CinepolisPurchaseMailRequest.cs" />
+    <Compile Include="MailRequests\CinepolisRenewalFailMailRequest.cs" />
+    <Compile Include="MailRequests\AddDeviceMailRequest.cs" />
     <Compile Include="ClientResponseStatus.cs" />
     <Compile Include="CouchbaseWrapperObjects\CbDocumentBase.cs" />
     <Compile Include="CrowdsourceItems\Base\BaseCrowdsourceItem.cs" />
@@ -258,7 +260,7 @@
     <Compile Include="ExtraRequestObject.cs" />
     <Compile Include="FileRequestObject.cs" />
     <Compile Include="FileTypeContainer.cs" />
-    <Compile Include="ForgotPasswordMailRequest.cs" />
+    <Compile Include="MailRequests\ForgotPasswordMailRequest.cs" />
     <Compile Include="GenericWriteResponse.cs" />
     <Compile Include="GroupInfo.cs" />
     <Compile Include="GroupOperator.cs" />
@@ -270,7 +272,7 @@
     <Compile Include="Json\Converters\BaseTimeConverter.cs" />
     <Compile Include="LanguageObj.cs" />
     <Compile Include="LanguageRequestObject.cs" />
-    <Compile Include="MailRequestObj.cs" />
+    <Compile Include="MailRequests\MailRequestObj.cs" />
     <Compile Include="MCObjects.cs" />
     <Compile Include="MCResponseObject.cs" />
     <Compile Include="MediaAdObject.cs" />
@@ -311,7 +313,7 @@
     <Compile Include="QueueObjects\UpdateCacheData.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngine.cs" />
     <Compile Include="RecommendationEngine\RecommendationEngineSettings.cs" />
-    <Compile Include="RemoveDomainMailRequest.cs" />
+    <Compile Include="MailRequests\RemoveDomainMailRequest.cs" />
     <Compile Include="Response\IdListResponse.cs" />
     <Compile Include="Response\LongIdsResponse.cs" />
     <Compile Include="Response\IdsResponse.cs" />
@@ -337,7 +339,7 @@
     <Compile Include="PreviewModuleCancelOrRefundRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PurchaseFailRequest.cs" />
-    <Compile Include="PurchaseMailRequest.cs" />
+    <Compile Include="MailRequests\PurchaseMailRequest.cs" />
     <Compile Include="PurchaseWithPreviewModuleRequest.cs" />
     <Compile Include="RateMediaObject.cs" />
     <Compile Include="RateResponseObject.cs" />
@@ -383,8 +385,8 @@
     <Compile Include="SearchOrderByObject.cs" />
     <Compile Include="ChannelObject.cs" />
     <Compile Include="SendAdminTokenRequest.cs" />
-    <Compile Include="SendPasswordMailRequest.cs" />
-    <Compile Include="SendToFriendMailRequest.cs" />
+    <Compile Include="MailRequests\SendPasswordMailRequest.cs" />
+    <Compile Include="MailRequests\SendToFriendMailRequest.cs" />
     <Compile Include="SocialObjects.cs" />
     <Compile Include="Statistics\BuzzWeightedAverScore.cs" />
     <Compile Include="Statistics\ChannelBucket.cs" />
@@ -411,7 +413,7 @@
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="UserType.cs" />
-    <Compile Include="WelcomeMailRequest.cs" />
+    <Compile Include="MailRequests\WelcomeMailRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

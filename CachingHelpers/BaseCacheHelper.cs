@@ -85,7 +85,7 @@ namespace CachingHelpers
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.cacheService = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
+            this.cacheService = new SingleInMemoryCache(expirationInSeconds);
         }
 
         private string GetCacheName()
