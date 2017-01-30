@@ -6444,20 +6444,9 @@ namespace ConditionalAccess
                         (!string.IsNullOrEmpty(mediaProtocol) && !string.IsNullOrEmpty(f.Url) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
                         (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
                 }
-
-                if (files != null && files.Count > 0)
-                {
-                    files.ForEach(f => f.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, f.Id, context));
-                }
             }
 
             return files;
-        }
-
-        private static string BuildFilePlayManifestUrl(int groupId, string assetId, eAssetTypes assetType, long mediaFileId, PlayContextType playContextType)
-        {
-            return string.Format("api_v3/service/assetFile/action/playManifest/partnerId/{0}/assetId/{1}/assetType/{2}/assetFileId/{3}/contextType/{4}",
-                groupId, assetId, assetType, mediaFileId, playContextType);
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 

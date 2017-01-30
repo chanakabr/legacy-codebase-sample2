@@ -37,5 +37,8 @@ namespace CachingProvider
         bool Add<T>(string key, T value, uint expirationInSeconds);
 
         bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds);
+
+        bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false);
+
     }
 }
