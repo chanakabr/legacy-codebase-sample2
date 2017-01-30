@@ -776,6 +776,15 @@ namespace DAL
             return string.Format("media_group_file_type_{0}", mediaID.ToString());
         }
 
+        public static string GetGroupMediaConcurrencyRules(int groupID)
+        {
+            return string.Format("group_{0}_media_concurrency_rules", groupID);
+        }
+
+        public static string GetMediaConcurrencyRules(int mediaId)
+        {
+            return string.Format("media_{0}_concurrency_rules", mediaId);
+        }
 
 
         public static Tuple<int,bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)

@@ -24,6 +24,7 @@ using Users;
 using WS_Users;
 using CachingProvider.LayeredCache;
 using AdapterControllers;
+using TVinciShared;
 using NPVR;
 
 namespace ConditionalAccess
@@ -2943,6 +2944,48 @@ namespace ConditionalAccess
             return result;
         }
 
+        static public CouponData GetCouponData(int groupID, string couponCode)
+        {
+            CouponData result = null;
+            mdoule module = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    module = new mdoule();
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
+
+                    CouponDataResponse couponResponse = module.GetCouponStatus(sWSUserName, sWSPass, couponCode);
+
+                    if (couponResponse != null &&
+                        couponResponse.Status != null &&
+                        couponResponse.Status.Code == (int)eResponseStatus.OK &&
+                        couponResponse.Coupon != null &&
+                        couponResponse.Coupon.m_CouponStatus == CouponsStatus.Valid)
+                    {
+                        result = couponResponse.Coupon;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = null;
+                log.Error("GetCouponData - " + string.Format("Error on GetCouponData(), group id:{0}, coupon code:{1}, errorMessage:{2}", groupID, couponCode, ex.ToString()), ex);
+            }
+            finally
+            {
+                #region Disposing
+                if (module != null)
+                {
+                    module.Dispose();
+                }
+                #endregion
+            }
+
+            return result;
+        }
 
         internal static bool IsFirstDeviceEqualToCurrentDevice(int nMediaFileID, string sPPVCode, List<int> lUsersIds, string sCurrentDeviceName, ref string sFirstDeviceName)
         {
@@ -6304,6 +6347,67 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
+        internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
+        {
+            ApiObjects.Response.Status status = null;
+            switch (priceReason)
+            {
+                case PriceReason.PPVPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchasePPVPurchased, "PPV already purchased");
+                break;
+                case PriceReason.Free:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseFree, "Free");
+                break;
+                case PriceReason.ForPurchaseSubscriptionOnly:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly, "Subscription only");
+                break;
+                case PriceReason.SubscriptionPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, "Already purchased (subscription)");
+                break;
+                case PriceReason.NotForPurchase:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchase");
+                break;
+                case PriceReason.CollectionPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseCollectionPurchased, "Collection already purchased");
+                break;
+                default:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                break;
+            }
+
+            return status;
+        }
+
+        internal static ApiObjects.Response.Status SetResponseStatus(ResponseStatus userValidStatus)
+        {
+            ApiObjects.Response.Status status = null;
+            // user validation failed
+            switch (userValidStatus)
+            {
+                case ResponseStatus.UserDoesNotExist:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User doesn't exists");
+                break;
+                case ResponseStatus.UserSuspended:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "Suspended user");
+                break;
+                case ResponseStatus.UserNotIndDomain:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotInDomain, "User doesn't exist in household");
+                break;
+                default:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to validate user");
+                break;
+            }
+
+            return status;
+        }
+
+        internal static void InitializeBillingModule(ref WS_Billing.module bm, int groupId, ref string sWSUsername, ref string sWSPassword)
+        {
+            Utils.GetWSCredentials(groupId, eWSModules.BILLING, ref sWSUsername, ref sWSPassword);
+
+            bm = new WS_Billing.module();
+        }
+
         internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, string assetId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol, 
             PlayContextType context, List<long> fileIds, bool filterOnlyByIds = false)
         {
@@ -6340,20 +6444,9 @@ namespace ConditionalAccess
                         (!string.IsNullOrEmpty(mediaProtocol) && !string.IsNullOrEmpty(f.Url) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
                         (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
                 }
-
-                if (files != null && files.Count > 0)
-                {
-                    files.ForEach(f => f.PlayManifestUrl = BuildFilePlayManifestUrl(groupId, assetId, assetType, f.Id, context));
-                }
             }
 
             return files;
-        }
-
-        private static string BuildFilePlayManifestUrl(int groupId, string assetId, eAssetTypes assetType, long mediaFileId, PlayContextType playContextType)
-        {
-            return string.Format("api_v3/service/assetFile/action/playManifest/partnerId/{0}/assetId/{1}/assetType/{2}/assetFileId/{3}/contextType/{4}",
-                groupId, assetId, assetType, mediaFileId, playContextType);
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
@@ -6541,6 +6634,31 @@ namespace ConditionalAccess
             return res;
         }
 
+        public static void GetDataFromCustomData(int customDataId, string customData, ref double customDataPrice, ref string customDataCurrency, ref string userIP, ref string coupon, ref string udid)
+        {
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(customData);
+                XmlNode theRequest = doc.FirstChild;
+
+                customDataCurrency = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
+                userIP = XmlUtils.GetSafeValue(BaseConditionalAccess.USER_IP, ref theRequest);
+                coupon = XmlUtils.GetSafeValue(BaseConditionalAccess.COUPON_CODE, ref theRequest);
+                udid = XmlUtils.GetSafeValue(BaseConditionalAccess.DEVICE_NAME, ref theRequest);
+                if (!Double.TryParse(XmlUtils.GetSafeValue(BaseConditionalAccess.PRICE, ref theRequest), out customDataPrice))
+                {
+                    customDataPrice = 0.0;
+                }
+
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("SetEntitlement - error load custom data xml {0} Exception:{1}", customDataId, exc);
+                throw exc;
+            }
+        }
+
         public static NPVRUserActionResponse HandleNPVRQuota(int groupId, Subscription subscription, long householdId, bool isCreate)
         {
             NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();
@@ -6570,8 +6688,6 @@ namespace ConditionalAccess
 
             return userActionResponse;
         }
-
-
     }
 }
 

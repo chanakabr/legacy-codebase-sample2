@@ -589,7 +589,7 @@ namespace CachingProvider.LayeredCache
                 LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
                 if (layeredCacheTcmConfig != null)
                 {
-                    if (layeredCacheTcmConfig.LayeredCacheSettings != null && layeredCacheTcmConfig.LayeredCacheSettings.ContainsKey(configurationName))
+                    if (!string.IsNullOrEmpty(configurationName) && layeredCacheTcmConfig.LayeredCacheSettings != null && layeredCacheTcmConfig.LayeredCacheSettings.ContainsKey(configurationName))
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.LayeredCacheSettings[configurationName];
                     }

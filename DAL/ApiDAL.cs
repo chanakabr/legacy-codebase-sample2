@@ -1478,6 +1478,19 @@ namespace DAL
         }
 
 
+        public static DataSet Get_MCRulesByGroup(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MCRulesByGroup");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
+                return ds;
+            return null;
+        }
+
+
         public static DataSet GetMCRules(int bmID, int groupID, int type)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMCRulesByBM");

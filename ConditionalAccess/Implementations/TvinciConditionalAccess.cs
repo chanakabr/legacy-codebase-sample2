@@ -708,7 +708,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
+        protected internal override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,
                                                         PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, ref long purchaseId)
         {
@@ -759,7 +759,10 @@ namespace ConditionalAccess
                                     productId);           // {3}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                if (billingTransactionId > 0)
+                {
+                    ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                }
             }
             catch (Exception ex)
             {
@@ -769,10 +772,12 @@ namespace ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected override bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
-                                                                 string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
-                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate
-                                                                ,SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK )
+        protected internal override bool HandleSubscriptionBillingSuccess(
+            ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, 
+            string currency, string coupon, string userIP,
+            string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
+            bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate,
+            SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK)
         {
             purchaseId = 0;
             try
@@ -837,8 +842,10 @@ namespace ConditionalAccess
                                     productId);           // {2}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
-
+                if (billingTransactionId > 0)
+                {
+                    ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                }
             }
             catch (Exception ex)
             {
@@ -847,11 +854,12 @@ namespace ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
-                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                               int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseId)
+        protected internal override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, 
+            Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, 
+            long billingTransactionId, string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID)
         {
-            purchaseId = 0;
+            purchaseID = 0;
+            
             try
             {
                 // update coupon uses
@@ -870,12 +878,12 @@ namespace ConditionalAccess
                 }
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
+                purchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
                                                                          deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
                                                                          usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
                                                                          entitlementDate, collectionEndDate, entitlementDate, houseHoldID, billingGuid);
 
-                if (purchaseId < 1)
+                if (purchaseID < 1)
                 {
                     // entitlement failed
                     log.ErrorFormat("Failed to insert collection purchase. Billing transaction ID: {0} , Siteguid: {1} , Product ID: {2}",
@@ -884,13 +892,14 @@ namespace ConditionalAccess
                                     productID);           // {2}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseID);
             }
             catch (Exception ex)
             {
                 log.Error("fail HandleCollectionBillingSuccess ", ex);
             }
-            return purchaseId > 0;
+
+            return purchaseID > 0;
         }
     }
 }
