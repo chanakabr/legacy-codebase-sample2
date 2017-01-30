@@ -2033,18 +2033,22 @@ namespace WebAPI.Clients
             if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
             {
                 KalturaDrmPlaybackPluginData drmData;
+                List<KalturaDrmSchemeName> schemes;
                 foreach (var source in kalturaPlaybackContext.Sources)
                 {
-                    List<KalturaDrmSchemeName> schemes = DrmUtils.GetDrmSchemeName(source.Format);
-                    if (schemes != null && schemes.Count > 0)
+                    if (source.DrmId == (int)DrmType.UDRM)
                     {
-                        source.DRM = new List<KalturaDrmPlaybackPluginData>();
-
-                        foreach (var scheme in schemes)
+                        schemes = DrmUtils.GetDrmSchemeName(source.Format);
+                        if (schemes != null && schemes.Count > 0)
                         {
-                            drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
+                            source.Drm = new List<KalturaDrmPlaybackPluginData>();
 
-                            source.DRM.Add(drmData);
+                            foreach (var scheme in schemes)
+                            {
+                                drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
+
+                                source.Drm.Add(drmData);
+                            }
                         }
                     }
                 }

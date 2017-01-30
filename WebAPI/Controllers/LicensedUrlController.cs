@@ -134,13 +134,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (request is KalturaLicensedUrlMediaRequest)
-                {
-                    KalturaLicensedUrlMediaRequest mediaRequest = request as KalturaLicensedUrlMediaRequest;
-                    mediaRequest.Validate();
-                    response = ClientsManager.ConditionalAccessClient().GetLicensedLinks(groupId, userId, udid, mediaRequest.ContentId, mediaRequest.BaseUrl);
-                }
-                else if (request is KalturaLicensedUrlEpgRequest) 
+                
+                if (request is KalturaLicensedUrlEpgRequest) 
                 {
                     KalturaLicensedUrlEpgRequest epgRequest = request as KalturaLicensedUrlEpgRequest;
                     epgRequest.Validate();
@@ -152,6 +147,12 @@ namespace WebAPI.Controllers
                     KalturaLicensedUrlRecordingRequest recordingRequest = request as KalturaLicensedUrlRecordingRequest;
 
                     response = ClientsManager.ConditionalAccessClient().GetRecordingLicensedLink(groupId, userId, udid, recordingRequest.GetRecordingId(), recordingRequest.FileType);
+                }
+                else if (request is KalturaLicensedUrlMediaRequest)
+                {
+                    KalturaLicensedUrlMediaRequest mediaRequest = request as KalturaLicensedUrlMediaRequest;
+                    mediaRequest.Validate();
+                    response = ClientsManager.ConditionalAccessClient().GetLicensedLinks(groupId, userId, udid, mediaRequest.ContentId, mediaRequest.BaseUrl);
                 }
                 else
                 {

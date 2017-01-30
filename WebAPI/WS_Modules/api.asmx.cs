@@ -904,7 +904,7 @@ namespace WS_API
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Api.Module.CheckGeoBlockMedia(nGroupID, nMediaID, sIP);
+                return Core.Api.Module.CheckGeoBlockMediaOld(nGroupID, nMediaID, sIP);
             }
             else
             {
@@ -2700,7 +2700,7 @@ namespace WS_API
             {
                 response = Core.Api.Module.GetUserParentalRuleTags(groupId, siteGuid, domainId);
             }
-            else
+            else if (HttpContext.Current != null)
             {
                 HttpContext.Current.Response.StatusCode = 404;
             }

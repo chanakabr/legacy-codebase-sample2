@@ -35,6 +35,8 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "drm")]
         [JsonProperty("drm")]
         [XmlElement(ElementName = "drm")]
-        public List<KalturaDrmPlaybackPluginData> DRM { get; set; }
+        public List<KalturaDrmPlaybackPluginData> Drm { get; set; }
+
+        internal int DrmId;
     }
 }

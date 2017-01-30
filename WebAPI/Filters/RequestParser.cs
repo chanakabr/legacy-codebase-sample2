@@ -330,7 +330,7 @@ namespace WebAPI.Filters
 
                 return;
             }
-            
+
             if (rd.Values.ContainsKey("service_name"))
             {
                 currentController = rd.Values["service_name"].ToString();
@@ -338,10 +338,11 @@ namespace WebAPI.Filters
                 {
                     currentAction = rd.Values["action_name"].ToString();
                 }
-            }
-            else if (rd.Values.ContainsKey("pathData"))
-            {
-                pathData = rd.Values["pathData"].ToString();
+
+                if (rd.Values.ContainsKey("pathData"))
+                {
+                    pathData = rd.Values["pathData"].ToString();
+                }
             }
             else if (actionContext.Request.Method == HttpMethod.Post)
             {
@@ -382,10 +383,10 @@ namespace WebAPI.Filters
 
             if (currentController != null)
             {
-            HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
-            if (currentAction != null)
-            {
-                HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
+                HttpContext.Current.Items[REQUEST_SERVICE] = currentController;
+                if (currentAction != null)
+                {
+                    HttpContext.Current.Items[REQUEST_ACTION] = currentAction;
                 }
             }
 
@@ -393,6 +394,7 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items[REQUEST_PATH_DATA] = pathData;
             }
+
             MethodInfo methodInfo = null;
             Assembly asm = Assembly.GetExecutingAssembly();
 
@@ -424,12 +426,18 @@ namespace WebAPI.Filters
                                 HttpContext.Current.Items[REQUEST_VERSION] = version;
                             }
 
-                            Dictionary<string, object> requestParams = reqParams.ToObject<Dictionary<string, object>>();
+                            Dictionary<string, object> requestParams;
+                            if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                            {
+                                requestParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+                            }
+                            else
+                            {
+                                requestParams = reqParams.ToObject<Dictionary<string, object>>();
+                            }
                             setRequestContext(requestParams, currentController, currentAction);
-
                             methodInfo = createMethodInvoker(currentController, currentAction, asm);
                             List<Object> methodParams = buildActionArguments(methodInfo, requestParams);
-
                             HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
                         }
                         catch (UnauthorizedException e)
@@ -470,36 +478,19 @@ namespace WebAPI.Filters
                 {
                     try
                     {
-                        //Running on the expected method parameters
-                        var groupedParams = groupParams(formData);
+                        Dictionary<string, object> groupedParams;
+                        if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
+                        {
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
+                        }
+                        else
+                        {
+                            //Running on the expected method parameters
+                            groupedParams = groupParams(formData);
+                        }
 
                         setRequestContext(groupedParams, currentController, currentAction);
                         methodInfo = createMethodInvoker(currentController, currentAction, asm);
-
-                        List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
-
-                        HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
-                    }
-                    catch (UnauthorizedException e)
-                    {
-                        createErrorResponse(actionContext, (int)e.Code, e.Message);
-                        return;
-                    }
-                    catch (RequestParserException e)
-                    {
-                        createErrorResponse(actionContext, e.Code, e.Message);
-                        return;
-                    }
-                    return;
-                }
-                else if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
-                {
-                    try
-                    {
-                        //Running on the expected method parameters
-                        var groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
-
-                        methodInfo = createMethodInvoker(actionContext.ControllerContext.ControllerDescriptor.ControllerName, actionContext.ActionDescriptor.ActionName, asm, false);
 
                         List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
 
@@ -520,16 +511,8 @@ namespace WebAPI.Filters
                         createErrorResponse(actionContext, (int)e.Code, e.Message);
                         return;
                     }
-                    catch (JsonReaderException)
-                    {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
-                        return;
-                    }
-                    catch (FormatException)
-                    {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
-                        return;
-                    }
+                    return;
+
                 }
                 else
                 {
@@ -552,42 +535,21 @@ namespace WebAPI.Filters
                 }
                 if (currentController != null)
                 {
-                try
-                {
-                    //Running on the expected method parameters
-                    var groupedParams = groupParams(tokens);
-
-                    setRequestContext(groupedParams, currentController, currentAction);
-                    methodInfo = createMethodInvoker(currentController, currentAction, asm);
-
-                    List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
-
-                    HttpContext.Current.Items.Add(REQUEST_METHOD_PARAMETERS, methodParams);
-                }
-                catch (UnauthorizedException e)
-                {
-                    createErrorResponse(actionContext, (int)e.Code, e.Message);
-                    return;
-                }
-                catch (RequestParserException e)
-                    {
-                        createErrorResponse(actionContext, e.Code, e.Message);
-                        return;
-                    }
-                }
-                else if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
-                {
                     try
                     {
-                        //Running on the expected method parameters
-                        var groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
-
-                        methodInfo = createMethodInvoker(actionContext.ControllerContext.ControllerDescriptor.ControllerName, actionContext.ActionDescriptor.ActionName, asm, false);
-
-                        foreach (var rdv in rd.Values)
+                        Dictionary<string, object> groupedParams;
+                        if (HttpContext.Current.Items[REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams.Add(rdv.Key, rdv.Value);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[REQUEST_PATH_DATA]);
                         }
+                        else
+                        {
+                            //Running on the expected method parameters
+                            groupedParams = groupParams(tokens);
+                        }
+
+                        setRequestContext(groupedParams, currentController, currentAction);
+                        methodInfo = createMethodInvoker(currentController, currentAction, asm);
 
                         List<Object> methodParams = buildActionArguments(methodInfo, groupedParams);
 
@@ -608,18 +570,7 @@ namespace WebAPI.Filters
                         createErrorResponse(actionContext, (int)e.Code, e.Message);
                         return;
                     }
-                    catch (JsonReaderException)
-                    {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
-                        return;
-                    }
-                    catch (FormatException)
-                    {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
-                        return;
-                    }
                 }
-
             }
 
             base.OnActionExecuting(actionContext);
