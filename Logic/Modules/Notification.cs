@@ -621,7 +621,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static IdsResponse Get_FollowedAssetIdsFromAssets(int nGroupID, int groupId, int userId, List<int> assets)
+        public static IdsResponse Get_FollowedAssetIdsFromAssets(int nGroupID, int userId, List<int> assets)
         {
             IdsResponse response = null;
             try
