@@ -3442,7 +3442,8 @@ namespace ConditionalAccess
             {
                 if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
                 {
-                    if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, theSub.m_oCouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
+                    if (theSub.m_oCouponsGroup.couponGroupType != CouponGroupType.GiftCard &&
+                        IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, theSub.m_oCouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
                     {
                         string sCouponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID);
                         if (!string.IsNullOrEmpty(sCouponCode))
