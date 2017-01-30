@@ -50,5 +50,8 @@ namespace CachingProvider
         public abstract bool Add<T>(string key, T value, uint expirationInSeconds);
 
         public abstract bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds);
+
+        public abstract bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false);
+
     }
 }

@@ -368,6 +368,38 @@ namespace CachingProvider
                 return false;
             }            
         }
+
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
+        {
+            bool res = false;
+            try
+            {
+                IDictionary<string, object> getResults = null;
+                getResults = GetValues(keys, shouldAllowPartialQuery);
+                if (getResults != null && getResults.Count > 0)
+                {
+                    results = getResults.ToDictionary(x => x.Key, x => (T)x.Value);
+                    if (results != null)
+                    {
+                        if (shouldAllowPartialQuery)
+                        {
+                            res = results.Count > 0;
+                        }
+                        else
+                        {
+                            res = keys.Count == results.Count;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetValues<T> from InMemoryCache while getting the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return res;
+        }
+
     }
 
 }

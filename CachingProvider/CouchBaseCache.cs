@@ -255,5 +255,10 @@ namespace CachingProvider
             return new CouchbaseManager.CouchbaseManager(bucket).SetWithVersionWithRetry<T>(key, value, version, RETRY_LIMIT, RETRY_INTERVAL, expirationInSeconds);
         }
 
+        public override bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
+        {
+            return new CouchbaseManager.CouchbaseManager(bucket).GetValues<T>(keys, ref results, shouldAllowPartialQuery);
+        }
+
     }
 }
