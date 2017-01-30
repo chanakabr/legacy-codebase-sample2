@@ -48,7 +48,7 @@ namespace CachingProvider
 
         private string GetCacheName()
         {
-            string res = Utils.GetTcmGenericValue<string>("CACHE_NAME");
+            string res = Utils.GetTcmConfigValue("CACHE_NAME");
             if (res.Length > 0)
                 return res;
             return DEFAULT_CACHE_NAME;
