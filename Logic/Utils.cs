@@ -427,5 +427,59 @@ namespace APILogic
             return new Tuple<bool?, bool>(isMediaExistsToUserType, res);
         }
 
+        internal static Tuple<List<MediaConcurrencyRule>, bool> Get_MCRulesByGroup(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<MediaConcurrencyRule> result = new List<MediaConcurrencyRule>();
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId;
+                        groupId = funcParams["groupId"] as int?;
+                        if (groupId.HasValue)
+                        {
+                            DataSet ds = DAL.ApiDAL.Get_MCRulesByGroup(groupId.Value);
+                            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                            {
+                                if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+                                {
+                                    MediaConcurrencyRule rule = new MediaConcurrencyRule();
+                                    foreach (DataRow dr in ds.Tables[0].Rows)
+                                    {
+                                        int ruleID = APILogic.Utils.GetIntSafeVal(dr, "rule_id");
+                                        string name = APILogic.Utils.GetSafeStr(dr, "name");
+                                        int tagTypeID = APILogic.Utils.GetIntSafeVal(dr, "tag_type_id");
+                                        string tagType = APILogic.Utils.GetSafeStr(dr, "tag_type_name");
+                                        int MCLimitation = APILogic.Utils.GetIntSafeVal(dr, "media_concurrency_limit");
+                                        int bmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "BM_ID");
+                                        int bmType = ODBCWrapper.Utils.GetIntSafeVal(dr, "type");
+                                        rule = new MediaConcurrencyRule(ruleID, tagTypeID, tagType, name, 1, bmId, (eBusinessModule)bmType);
+                                        //get all tagValues
+                                        if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
+                                        {
+                                            DataRow[] drTags = ds.Tables[1].Select("rule_id=" + ruleID);
+
+                                            rule.TagValues.AddRange(drTags.Select(x => (int)x.Field<Int64>("TAG_ID")).ToList());
+                                            rule.AllTagValues.AddRange(drTags.Select(x => x.Field<string>("VALUE")).ToList());
+                                        }
+                                        result.Add(rule);
+                                    }
+                                    res = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MCRulesByGroup faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<MediaConcurrencyRule>, bool>(result, res);
+        }
+
     }
 }

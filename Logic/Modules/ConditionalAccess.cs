@@ -2894,10 +2894,9 @@ namespace Core.ConditionalAccess
 
             if (t != null)
             {
-                bool shouldUpdateTaskStatus = true;
                 try
                 {
-                    response = t.Renew(siteguid, purchaseId, billingGuid, endDate, ref shouldUpdateTaskStatus);
+                    response = t.GiftCardReminder(siteguid, purchaseId, billingGuid, endDate);
                 }
                 catch (Exception ex)
                 {

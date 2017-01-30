@@ -72,7 +72,9 @@ namespace ApiObjects
         PreviewModuleCancelOrRefund = 11,
         PurchaseWithPreviewModule = 12,
         AddDeviceToDomain = 13,
-        RemoveDomain = 14
+        RemoveDomain = 14,
+        PurchaseWithGiftCard = 15,
+        GiftCardRenewReminder = 16
     }
 
     public enum eGroupRuleType
@@ -856,5 +858,11 @@ namespace ApiObjects
     {
         UDRM = -1,
         NO_DRM = 0,
+    }
+
+    public enum eSubscriptionRenewRequestType
+    {
+        Renew = 0,
+        Reminder = 1
     }
 }

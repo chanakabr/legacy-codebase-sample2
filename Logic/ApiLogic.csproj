@@ -344,6 +344,8 @@
     <Compile Include="ConditionalAccess\Commands\RecordSeriesByProgramIdNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\Commands\RetrieveQuotaNPVRCommand.cs" />
     <Compile Include="ConditionalAccess\ConditionalAccessCache.cs" />
+    <Compile Include="ConditionalAccess\Entitlement\PurchaseManager.cs" />
+    <Compile Include="ConditionalAccess\Entitlement\RenewManager.cs" />
     <Compile Include="ConditionalAccess\Implementations\KangurooConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\Implementations\TikleConditionalAccess.cs" />
     <Compile Include="ConditionalAccess\ItemPriceContainer.cs" />

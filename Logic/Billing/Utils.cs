@@ -183,7 +183,7 @@ namespace Core.Billing
             }
         }
 
-        private static User GetHHFromSiteGuid(string siteGuid, int groupID)
+        public static User GetHHFromSiteGuid(string siteGuid, int groupID)
         {
             User hhUser = null;
 

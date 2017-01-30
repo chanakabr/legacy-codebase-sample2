@@ -58,7 +58,7 @@ namespace Core.Catalog.Cache
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.CacheService = SingleInMemoryCacheManager.Instance(cacheName, expirationInSeconds);
+            this.CacheService = new SingleInMemoryCache(expirationInSeconds);
         }
 
         private CatalogCache()

@@ -456,10 +456,10 @@ namespace Core.Api
             }
         }
 
-        public static string CheckGeoBlockMedia(int groupId, Int32 nMediaID, string sIP)
+        public static string CheckGeoBlockMediaOld(int groupId, Int32 nMediaID, string sIP)
         {
             string ruleName;
-            return Core.Api.api.CheckGeoBlockMedia(groupId, nMediaID, sIP, out ruleName);
+            return Core.Api.api.CheckGeoBlockMediaOld(groupId, nMediaID, sIP, out ruleName);
         }
 
         /// <summary>
@@ -713,7 +713,7 @@ namespace Core.Api
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            return Core.Api.api.GetUserStartedWatchingMedias(sSiteGuid, nNumOfItems).ToArray();
+            return Core.Api.api.GetUserStartedWatchingMedias(sSiteGuid, nNumOfItems, groupId).ToArray();
         }
 
         public static bool DoesMediaBelongToSubscription(int groupId, int nSubscriptionCode, int[] nFileTypeIDs,

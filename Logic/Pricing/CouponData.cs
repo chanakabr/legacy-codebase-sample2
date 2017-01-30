@@ -15,6 +15,7 @@ namespace Core.Pricing
         public long m_campID;
         public long m_ownerGUID;
         public long m_ownerMedia;
+        public string id;
 
         public CouponData() 
         {
@@ -34,6 +35,12 @@ namespace Core.Pricing
             m_campID = campaignID;
             m_ownerGUID = ownerGUID;
             m_ownerMedia = mediaID;
+        }
+
+        public void Initialize(string couponCode, CouponsGroup group, CouponsStatus status, CouponType couponType, long campaignID, long ownerGUID, long mediaID)
+        {
+            this.Initialize(group, status, couponType, campaignID, ownerGUID, mediaID);
+            id = couponCode;
         }
 
         public void Initialize(CouponsGroup theGroup, CouponsStatus theStatus)

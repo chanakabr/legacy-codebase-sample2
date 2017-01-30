@@ -78,6 +78,7 @@ namespace Core.ConditionalAccess
 
             log.Debug(sLogMessage);
         }
+
         protected virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode,
             string sSiteGUID, double dPrice, string sCurrency,
             Int32 nMediaFileID, string sCouponCode, string sUserIP,
@@ -196,7 +197,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        protected override string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
+        protected internal override string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
             string sSiteGUID, double dPrice, string sCurrency,
             Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)

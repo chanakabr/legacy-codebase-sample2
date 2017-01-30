@@ -29,6 +29,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using Tvinci.Core.DAL;
@@ -2244,9 +2245,9 @@ namespace Core.Api
             return ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
         }
 
-        static public string CheckGeoBlockMedia(Int32 nGroupID, Int32 nMediaID, string ip, out string ruleName)
+        static public bool CheckGeoBlockMedia(Int32 nGroupID, Int32 nMediaID, string ip, out string ruleName)
         {
-            string res = "Geo";
+            bool isBlocked = false;
             Int32 nGeoBlockID = 0;
             int nProxyRule = 0;
             double dProxyLevel = 0.0;
@@ -2259,7 +2260,6 @@ namespace Core.Api
                                                                     { "mediaId", nMediaID } }, CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME);
             if (cacheResult && dt != null)
             {
-                bool bAllowed = false;
                 if (dt.Rows != null && dt.Rows.Count > 0)
                 {
                     Int32 nCountryID = GetIPCountryCode(ip);
@@ -2270,33 +2270,40 @@ namespace Core.Api
                     DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
                     bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
                     
-                    bAllowed = true;                                        
                     log.Debug("Geo Blocks - Geo Block ID " + nGeoBlockID + " Country ID " + nCountryID);
 
                     if (nGeoBlockID > 0)
                     {
                         //No one except
                         if (nONLY_OR_BUT == 0)
-                            bAllowed = bExsitInRuleM2M;
+                            isBlocked = !bExsitInRuleM2M;
                         //All except
                         if (nONLY_OR_BUT == 1)
-                            bAllowed = !bExsitInRuleM2M;
+                            isBlocked = bExsitInRuleM2M;
 
-                        if (bAllowed) // then check what about the proxy - is it reliable 
+                        if (!isBlocked) // then check what about the proxy - is it reliable 
                         {
                             nProxyRule = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE");
                             dProxyLevel = APILogic.Utils.GetDoubleSafeVal(dt.Rows[0], "PROXY_LEVEL");
-                            bAllowed = MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, ip, nGroupID);
+                            isBlocked = !(MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, ip, nGroupID));
                         }
                     }
                 }
-
-                if (bAllowed)
-                {
-                    res = "OK";
-                }
             }
-            return res;
+
+            return isBlocked;
+        }
+
+        static public string CheckGeoBlockMediaOld(Int32 nGroupID, Int32 nMediaID, string ip, out string ruleName)
+        {
+            if (CheckGeoBlockMedia(nGroupID, nMediaID, ip, out ruleName))
+            {
+                return "Geo";
+            }
+            else
+            {
+                return "OK";
+            }
         }
 
         static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
@@ -2392,7 +2399,7 @@ namespace Core.Api
 
             //Check if geo-block applies
             string ruleName;
-            if (CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName) != "OK")
+            if (CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName))
             {
                 groupRules.Add(new GroupRule()
                 {
@@ -3598,17 +3605,27 @@ namespace Core.Api
             return sCoGuid;
         }
 
-        public static List<string> GetUserStartedWatchingMedias(string sSiteGuid, int nNumOfItems)
+        public static List<string> GetUserStartedWatchingMedias(string siteGuid, int numOfItems, int groupId)
         {
             List<string> medias = new List<string>();
-            if (!string.IsNullOrEmpty(sSiteGuid))
+
+            // build request
+            WatchHistoryRequest request = new WatchHistoryRequest()
             {
-                List<int> res = DAL.ApiDAL.GetUserStartedWatchingMedias(sSiteGuid, nNumOfItems);
-                if (res != null && res.Count > 0)
-                {
-                    medias = res.Select(x => x.ToString()).ToList<string>();
-                }
-            }
+                m_sSiteGuid = siteGuid,
+                m_nGroupID = groupId,
+                m_nPageIndex = 0,
+                m_nPageSize = numOfItems,
+                AssetTypes = null,
+                FilterStatus = eWatchStatus.Progress,
+                NumOfDays = 30,
+                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+            };
+
+            WatchHistoryResponse response = request.GetResponse(request) as WatchHistoryResponse;
+
+            if (response != null && response.result != null)
+                medias = response.result.Select(x => x.AssetId).ToList<string>();
 
             return medias;
         }
@@ -3730,7 +3747,7 @@ namespace Core.Api
 
             //Check if geo-block applies
             string ruleName;
-            if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName) != "OK")
+            if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
             {
                 groupRules.Add(new GroupRule()
                 {
@@ -3917,7 +3934,7 @@ namespace Core.Api
 
             //Check if geo-block applies
             string ruleName;
-            if (CheckGeoBlockMedia(nGroupID, nMediaId, sIP, out ruleName) != "OK")
+            if (CheckGeoBlockMedia(nGroupID, nMediaId, sIP, out ruleName))
             {
                 rules.Add(new GroupRule() { Name = "GeoBlock", BlockType = eBlockType.Geo });
             }
@@ -4066,67 +4083,108 @@ namespace Core.Api
             return epg;
         }
 
+
+
+        internal static Tuple<List<int>, bool> Get_MCRulesIdsByMediaId(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> ruleIds = new List<int>();
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("mcr"))
+                    {
+                        int? groupId, mediaId;
+                        List<MediaConcurrencyRule> mcr = new List<MediaConcurrencyRule>();
+                        UnifiedSearchResult[] medias;
+                        string filter = string.Empty;
+
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as int?;
+                        mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
+                        
+                        if (groupId.HasValue && mediaId.HasValue && mcr != null && mcr.Count > 0)
+                        {
+                            // find all asset ids that match the tag + tag value ==> if so save the rule id
+                            //build serach for each tag and tag values
+                                                        
+                            List<string> tempFilter = new List<string>();
+
+
+                            mcr = mcr.GroupBy(x => x.RuleID).Select(x => x.First()).ToList();
+                            Parallel.ForEach(mcr, (rule) =>
+                            {
+                                tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
+                                if (tempFilter.Count > 1)
+                                {
+                                    filter = string.Format("(and media_id = '{0}' (or {1}))", mediaId.Value, string.Join(" ", tempFilter));
+                                }
+                                else
+                                {
+                                    filter = string.Format("(and media_id = '{0}' {1})", mediaId.Value, tempFilter.First());
+                                }
+                                medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                                if (medias != null && medias.Count() > 0)// there is a match 
+                                {                                    
+                                    ruleIds.Add(rule.RuleID);
+                                }
+                            });                            
+                            
+                            res = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MCRulesIdsByMediaId faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
+        }
+
+
+
         /***************************************************************************************************************************
          * 
          This methode get mediaID and business Module id and return list of MediaConcurrencyRule rules that relevant to this media
          * 
          ***************************************************************************************************************************/
-        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int nMediaID, string sIP, int nGroupID, int bmID, eBusinessModule type)
+        public static List<MediaConcurrencyRule> GetMediaConcurrencyRules(int mediaId, string sIP, int groupId, int bmID, eBusinessModule type)
         {
             List<MediaConcurrencyRule> res = new List<MediaConcurrencyRule>();
-            MediaConcurrencyRule rule = null;
+            //MediaConcurrencyRule rule = null;
             try
             {
-                // Get All media Tags values from catalog service 
-                Dictionary<string, List<string>> tags = GetMediaTags(nMediaID, nGroupID);
+                // check if media concurrency rule exists for group
+                string key = DAL.UtilsDal.GetGroupMediaConcurrencyRules(groupId);
+                List<MediaConcurrencyRule> mcr = null;
+                List<int> ruleIds = null;
+                // try to get from cache  
 
-                DataSet dsBM = DAL.ApiDAL.GetMCRules(bmID, nGroupID, (int)type);
-
-                bool addToRule = false;
-
-                if (dsBM != null && dsBM.Tables != null && dsBM.Tables.Count > 0)
+                bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId} });
+                if (!cacheResult)
                 {
-                    if (dsBM.Tables[0] != null && dsBM.Tables[0].Rows != null && dsBM.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in dsBM.Tables[0].Rows)
-                        {
-                            addToRule = false;
-                            int nRuleID = APILogic.Utils.GetIntSafeVal(dr, "rule_id");
-                            string sName = APILogic.Utils.GetSafeStr(dr, "name");
-                            int tagTypeID = APILogic.Utils.GetIntSafeVal(dr, "tag_type_id");
-                            string tagType = APILogic.Utils.GetSafeStr(dr, "tag_type_name");
-                            int MCLimitation = APILogic.Utils.GetIntSafeVal(dr, "media_concurrency_limit");
-                            rule = new MediaConcurrencyRule(nRuleID, tagTypeID, tagType, sName, 1, bmID);
-                            //get  all tagValues
-                            if (dsBM.Tables.Count > 1 && dsBM.Tables[1] != null && dsBM.Tables[1].Rows != null && dsBM.Tables[1].Rows.Count > 0)
-                            {
-                                DataRow[] drTags = dsBM.Tables[1].Select("rule_id=" + nRuleID);
-                                foreach (DataRow drTag in drTags)
-                                {
-                                    int tagValueID = APILogic.Utils.GetIntSafeVal(drTag, "TAG_ID");
-                                    string tagValue = APILogic.Utils.GetSafeStr(drTag, "VALUE");
-                                    // if tagType exsit in media 
 
-                                    if (tags.ContainsKey(tagType.ToLower()))
-                                    {
-                                        foreach (string vTagValue in tags[tagType.ToLower()])
-                                        {
-                                            if (vTagValue.ToLower().Equals(tagValue.ToLower()))
-                                            {
-                                                addToRule = true;
-                                                rule.AllTagValues.Add(tagValue);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (addToRule)
-                            {
-                                res.Add(rule);
-                            }
-                        }
-                    }
+                    //to do return an error + write to log 
+                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
+                    return null;
                 }
+               
+                // get all related rules to media 
+                key = DAL.UtilsDal.GetMediaConcurrencyRules(mediaId);
+                cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, {"mediaId", mediaId}, {"mcr", mcr}});
+
+                if (!cacheResult)
+                {
+                    log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
+                    return null;
+                }
+                else if (ruleIds != null && ruleIds.Count > 0)
+                {
+                    res = mcr.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
+                }               
                 return res;
             }
             catch (Exception ex)
@@ -4957,7 +5015,7 @@ namespace Core.Api
                 {
                     //Check if geo-block applies
                     string ruleName;
-                    if (CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName) != "OK")
+                    if (CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName))
                     {
                         response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
                     }
@@ -5070,7 +5128,7 @@ namespace Core.Api
                     {
                         //Check if geo-block applies
                         string ruleName;
-                        if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName) != "OK")
+                        if (CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
                         {
                             response.Rules.Add(new GenericRule()
                             {

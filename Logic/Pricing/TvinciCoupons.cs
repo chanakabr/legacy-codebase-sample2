@@ -69,20 +69,20 @@ namespace Core.Pricing
 
         public override CouponData GetCouponStatus(string sCouponCode)
         {
-            Coupon t = new Coupon();
-            if (t.Initialize(sCouponCode, m_nGroupID) == true)
+            CouponData data = new CouponData();
+            Coupon coupon = new Coupon();
+
+            if (coupon.Initialize(sCouponCode, m_nGroupID))
             {
-                CouponsGroup g = t.GetCouponGroup(m_nGroupID);
-                CouponData d = new CouponData();
-                d.Initialize(g, t.GetCouponStatus(), t.m_couponType, t.m_campaignID, t.m_ownerGUID, t.m_ownerMedia);
-                return d;
+                CouponsGroup couponsGroup = coupon.GetCouponGroup(m_nGroupID);
+                data.Initialize(sCouponCode, couponsGroup, coupon.GetCouponStatus(), coupon.m_couponType, coupon.m_campaignID, coupon.m_ownerGUID, coupon.m_ownerMedia);
             }
             else
             {
-                CouponData d = new CouponData();
-                d.m_CouponStatus = CouponsStatus.NotExists;
-                return d;
+                data.m_CouponStatus = CouponsStatus.NotExists;
             }
+
+            return data;
         }
 
         public override CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode)

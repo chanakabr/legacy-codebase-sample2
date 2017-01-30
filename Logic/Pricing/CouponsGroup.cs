@@ -32,7 +32,8 @@ namespace Core.Pricing
         }
 
         public bool Initialize(string sGroupName , string sGroupCode , DiscountModule oDiscountCode, LanguageContainer[] sDescription,
-            DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon)
+            DateTime dStartDate, DateTime dEndDate, Int32 nMaxUseCountForCoupon, Int32 nFinancilaEntityID, Int32 nMaxRecurringUsesCountForCoupon, 
+            CouponGroupType couponType = CouponGroupType.Coupon)
         {
             m_sGroupCode = sGroupCode;
             m_sDescription = sDescription;
@@ -43,6 +44,7 @@ namespace Core.Pricing
             m_sGroupName = sGroupName;
             m_nFinancialEntityID = nFinancilaEntityID;
             m_nMaxRecurringUsesCountForCoupon = nMaxRecurringUsesCountForCoupon;
+            this.couponGroupType = couponType;
             return true;
         }
 
@@ -114,7 +116,9 @@ namespace Core.Pricing
                         string sGroupName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "CODE", 0);
                         Int32 nFinancilaEntityID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "FINANCIAL_ENTITY_ID", 0);
                         Int32 nMaxRecurringUsesCountForCoupon = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "MAX_RECURRING_USES", 0);
-                        Initialize(sGroupName, nCouponGroupID.ToString(), d, GetCouponGroupDescription(nCouponGroupID), dStart, dEnd, nMaxUseForCoupon, nFinancilaEntityID, nMaxRecurringUsesCountForCoupon);
+                        CouponGroupType couponGroupType = (CouponGroupType)ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "COUPON_GROUP_TYPE", 0);
+                        Initialize(sGroupName, nCouponGroupID.ToString(), d, GetCouponGroupDescription(nCouponGroupID),
+                            dStart, dEnd, nMaxUseForCoupon, nFinancilaEntityID, nMaxRecurringUsesCountForCoupon, couponGroupType);
                         bOK = true;
                     }
                 }
@@ -140,6 +144,13 @@ namespace Core.Pricing
         public Int32 m_nFinancialEntityID;
         public Int32 m_nMaxRecurringUsesCountForCoupon;
         public string alias;
+        public CouponGroupType couponGroupType;
+    }
 
+    [Serializable]
+    public enum CouponGroupType
+    {
+        Coupon = 0,
+        GiftCard = 1
     }
 }
