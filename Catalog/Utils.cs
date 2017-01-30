@@ -1113,27 +1113,6 @@ namespace Catalog
             }
         }
 
-        /// <summary>
-        /// Finds the country name of a given ip, using special elastic search index
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
-        public static string GetCountryNameByIp(string ip)
-        {
-            string result = string.Empty;
-
-            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
-
-            object value = ODBCWrapper.Utils.GetTableSingleVal("countries", "country_name", countryId);
-
-            if (value != DBNull.Value)
-            {
-                result = Convert.ToString(value);
-            }
-
-            return result;
-        }
-
         internal static Dictionary<string, long> GetEpgChannelIdToLinearMediaIdMap(int groupId, List<string> epgChannelIds)
         {
             Dictionary<string, long> epgChannelIdToLinearMediaIdMap = new Dictionary<string, long>();
@@ -1152,6 +1131,64 @@ namespace Catalog
             }
 
             return epgChannelIdToLinearMediaIdMap;
+        }
+
+        public static void GetWSCredentials(int nGroupID, eWSModules eWSModule, ref string sUN, ref string sPass)
+        {
+            Credentials uc = TvinciCache.WSCredentials.GetWSCredentials(eWSModules.CATALOG, nGroupID, eWSModule);
+            sUN = uc.m_sUsername;
+            sPass = uc.m_sPassword;
+        }
+
+        internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
+        {
+            ApiObjects.Country res = null;
+            try
+            {
+                WS_API.API api = new WS_API.API();
+                string sAPIWSUserName = string.Empty;
+                string sAPIWSPass = string.Empty;
+                Utils.GetWSCredentials(groupId, eWSModules.API, ref sAPIWSUserName, ref sAPIWSPass);
+                res = api.GetCountryByIp(sAPIWSUserName, sAPIWSPass, ip);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetCountryByIp with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static string GetIP2CountryCode(int groupId, string ip)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Code : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static int GetIP2CountryId(int groupId, string ip)
+        {
+            int res = 0;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Id : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryId with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
         }
 
     }

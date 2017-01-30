@@ -294,13 +294,13 @@ namespace CachingProvider.LayeredCache
                     {
                         foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                         {
-                            if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig))
+                            if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig) && tupleResults != null)
                             {
                                 foreach (KeyValuePair<string, Tuple<T, long>> pair in tupleResults)
                                 {
                                     // if inValidationKeysResult.Max() we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
                                     long maxInValidationKey = inValidationKeysResultMap != null && inValidationKeysResultMap.Count > 0 && inValidationKeysResultMap.ContainsKey(pair.Key) ? inValidationKeysResultMap[pair.Key].Max() + 1 : 0;
-                                    if (pair.Value == null || pair.Value.Item2 <= maxInValidationKey)
+                                    if (pair.Value == null || pair.Value.Item1 == null || pair.Value.Item2 <= maxInValidationKey)
                                     {
                                         if (insertToCacheConfig.ContainsKey(cacheConfig))
                                         {
@@ -371,9 +371,11 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    List<string> keys = new List<string>() { key };
-                    AddVersionOnKeys(ref keys);
-                    res = cache.Get<Tuple<T, long>>(keys.First(), ref tupleResult);                    
+                    Dictionary<string, string> keysMapping = GetVersionToOriginalKeyMap(new List<string>() { key });
+                    if (keysMapping != null && keysMapping.Count > 0)
+                    {
+                        res = cache.Get<Tuple<T, long>>(keysMapping.Keys.First(), ref tupleResult);
+                    }
                 }
             }
 
@@ -392,13 +394,16 @@ namespace CachingProvider.LayeredCache
             {
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
-                {                    
-                    AddVersionOnKeys(ref keys);
-                    IDictionary<string, Tuple<T, long>> getResults = null;
-                    res = cache.GetValues<Tuple<T, long>>(keys, ref getResults, true);
-                    if (getResults != null)
+                {
+                    Dictionary<string, string> keysMapping = GetVersionToOriginalKeyMap(keys);
+                    if (keysMapping != null && keysMapping.Count > 0)
                     {
-                        tupleResultsMap = getResults.ToDictionary(x => GetOriginalKeyValue(x.Key), x => x.Value);
+                        IDictionary<string, Tuple<T, long>> getResults = null;
+                        res = cache.GetValues<Tuple<T, long>>(keysMapping.Keys.ToList(), ref getResults, true);
+                        if (getResults != null)
+                        {
+                            tupleResultsMap = getResults.ToDictionary(x => keysMapping[x.Key], x => x.Value);
+                        }
                     }
                 }
             }
@@ -418,19 +423,21 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();                                
                 if (cache != null)
                 {
-                    List<string> keys = new List<string>() { key };
-                    AddVersionOnKeys(ref keys);
-                    key = keys.First();
-                    ulong version = 0;
-                    if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
+                    Dictionary<string, string> keyMappings = GetVersionToOriginalKeyMap(new List<string>() { key });
+                    if (keyMappings != null && keyMappings.Count > 0)
                     {
-                        
-                        Tuple<T, long> getResult = default(Tuple<T, long>);
-                        cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        
+                        string keyToInsert = keyMappings.Keys.First();
+                        ulong version = 0;
+                        if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
+                        {
+
+                            Tuple<T, long> getResult = default(Tuple<T, long>);
+                            cache.GetWithVersion<Tuple<T, long>>(keyToInsert, out version, ref getResult);
+
+                        }
+
+                        res = cache.SetWithVersion<Tuple<T, long>>(keyToInsert, tuple, version, cacheConfig.TTL);
                     }
-                    
-                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
                 }
             }
 
@@ -453,9 +460,11 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    List<string> keys = new List<string>() { key };
-                    AddVersionOnKeys(ref keys, version);                    
-                    res = cache.RemoveKey(keys.First());
+                    Dictionary<string, string> keyMappings = GetVersionToOriginalKeyMap(new List<string>() { key });
+                    if (keyMappings != null && keyMappings.Count > 0)
+                    {
+                        res = cache.RemoveKey(keyMappings.Keys.First());
+                    }
                 }
 
                 return res;
@@ -608,38 +617,34 @@ namespace CachingProvider.LayeredCache
             return layeredCacheConfig != null;
         }        
 
-        private void AddVersionOnKeys(ref List<string> keys, string versionToAdd = null)
+        private Dictionary<string, string> GetVersionToOriginalKeyMap(List<string> keys, string versionToAdd = null)
         {
+            Dictionary<string, string> res = new Dictionary<string, string>();
             string versionValue = string.Empty;
-            if (!string.IsNullOrEmpty(versionToAdd))
+            try
             {
-                versionValue = versionToAdd;
+                if (!string.IsNullOrEmpty(versionToAdd))
+                {
+                    versionValue = versionToAdd;
+                }
+                else
+                {
+                    LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
+                    versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
+                }
+
+                if (!string.IsNullOrEmpty(versionValue))
+                {
+                    res = keys.ToDictionary(x => x, x => string.Format("{0}_V{1}", x, versionValue));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
-                versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;               
+                log.Error(string.Format("Failed AddVersionOnKeysMap for the following keys: {0}", string.Join(",", keys)), ex);
             }
 
-            if (!string.IsNullOrEmpty(versionValue))
-            {
-                keys = keys.Select(x => string.Format("{0}_V{1}", x, versionValue)).ToList();
-            }
-        }
-
-        private string GetOriginalKeyValue(string key)
-        {
-            string originalKey = key;
-            string versionValue = string.Empty;
-            LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
-            versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
-            if (!string.IsNullOrEmpty(versionValue))
-            {
-                originalKey.Replace(string.Format("_V{1}", versionValue), "");
-            }
-
-            return originalKey;
-        }
+            return res;
+        }        
 
         private string GetLayeredCacheConfigTypesForLog(List<LayeredCacheConfig> layeredCacheConfig)
         {

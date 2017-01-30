@@ -273,7 +273,7 @@ namespace ConditionalAccess
 
                         if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                         {
-                            sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
+                            sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
                         }
 
                         //Create the Custom Data
@@ -805,7 +805,7 @@ namespace ConditionalAccess
 
             if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
             {
-                sCountryCd = TVinciShared.WS_Utils.GetIP2CountryCode(sUserIP);
+                sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
             }
 
             //Create the Custom Data

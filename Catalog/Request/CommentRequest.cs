@@ -49,7 +49,7 @@ namespace Catalog.Request
 
             if (string.IsNullOrEmpty(cr.m_sCountry))
             {
-                cr.m_sCountry = TVinciShared.WS_Utils.GetIP2CountryCode(cr.m_sUserIP);
+                cr.m_sCountry = Utils.GetIP2CountryCode(cr.m_nGroupID, cr.m_sUserIP);
             }
 
 

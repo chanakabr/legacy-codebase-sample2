@@ -771,21 +771,26 @@ namespace DAL
         {
             return string.Format("fileCoGuid_{0}", coGuid);
         }
+
         public static string MediaIdGroupFileTypesKey(int mediaID)
         {
             return string.Format("media_group_file_type_{0}", mediaID.ToString());
         }
 
-        public static string GetGroupMediaConcurrencyRules(int groupID)
+        public static string GetGroupMediaConcurrencyRulesKey(int groupID)
         {
             return string.Format("group_{0}_media_concurrency_rules", groupID);
         }
 
-        public static string GetMediaConcurrencyRules(int mediaId)
+        public static string GetMediaConcurrencyRulesKey(int mediaId)
         {
             return string.Format("media_{0}_concurrency_rules", mediaId);
         }
 
+        public static string GetKeyForIp(string ip)
+        {
+            return string.Format("ip_{0}", ip);
+        }
 
         public static Tuple<int,bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
         {
@@ -815,7 +820,6 @@ namespace DAL
             }
             return new Tuple<int,bool>(mediaFileID, res);
         }
-
 
         public static Tuple<Dictionary<string, int>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
         {

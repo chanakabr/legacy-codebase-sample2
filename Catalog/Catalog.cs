@@ -1127,7 +1127,7 @@ namespace Catalog
         /// <returns></returns>
         private static List<int> GetGeoBlockRules(int groupId, string ip)
         {
-            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+            int countryId =  Utils.GetIP2CountryId(groupId,ip);
 
             //GroupsCache.Instance().
             List<int> result = GeoBlockRulesCache.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
