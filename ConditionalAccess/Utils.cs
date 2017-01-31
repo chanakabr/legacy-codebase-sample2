@@ -3188,16 +3188,14 @@ namespace ConditionalAccess
                         if (dt != null && dt.Rows != null)
                         {
                             foreach (DataRow dr in dt.Rows)
-                            {
-                                key = DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id"));
-                                result.Add(key, dr);
+                            {                               
+                                result.Add(ODBCWrapper.Utils.GetSafeStr(dr, "media_file_id"), dr);
                             }
                         }
 
                         List<int> missingKeys = fileIDs.Where(x => !result.ContainsKey(x.ToString())).ToList();
                         if (missingKeys != null)
                         {
-
                             foreach (int missingKey in missingKeys)
                             {
                                 result.Add(DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(missingKey), new DataTable().NewRow());
@@ -3205,6 +3203,8 @@ namespace ConditionalAccess
                         }
                     } 
                     res = result.Keys.Count() == fileIDs.Count();
+
+                    result = result.ToDictionary(x => DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key)) , x=> x.Value );
                 }
             }
             catch (Exception ex)
@@ -3484,18 +3484,30 @@ namespace ConditionalAccess
                     mediaIDsToMap[i] = mapper[i].m_nMediaID;
                 }
 
-                // Get mappings dictionary<mediaID_groupFileType, mediaFileID>
-
-                // TO DO implament Cache here 
-                Dictionary<string, int> mediaIdGroupFileTypeMapper = null;
+                Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
                 List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
 
-                bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } });
+                bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } });
                 if (!cacheResult)
                 {
                     log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
                 }
-                userPpvEntitlements.MediaIdGroupFileTypeMapper = mediaIdGroupFileTypeMapper;                
+
+                Dictionary<string, int> mapping = new Dictionary<string,int>();
+
+                // combain all the results (all dictionarys that return to ONE dictionary)
+                foreach (Dictionary<string, int> val in mediaIdGroupFileTypeMapper.Values)
+                {
+                    foreach (KeyValuePair<string, int> item in val)
+                    {
+                        if (!mapping.ContainsKey(item.Key))
+                        {
+                            mapping.Add(item.Key, item.Value);
+                        }
+                    }
+                }
+
+                userPpvEntitlements.MediaIdGroupFileTypeMapper = mapping;
             }
         }
 
