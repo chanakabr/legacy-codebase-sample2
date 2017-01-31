@@ -843,6 +843,17 @@ namespace DAL
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
-        }    
+        }
+
+        public static string GetUserRolesKey(string userId)
+        {
+            return string.Format("roles_userId_{0}", userId);
+        }
+
+        public static string GetAddRoleInvalidationKey(string userId)
+        {
+            return string.Format("add_role_userId_{0}", userId);
+        }
+
     }
 }

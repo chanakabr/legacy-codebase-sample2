@@ -609,7 +609,11 @@ namespace Users
                         long roleId;
                         if (long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId))
                         {
-                            DAL.UsersDal.Insert_UserRole(nGroupID, userID.ToString(), roleId, true);
+                            if (DAL.UsersDal.Insert_UserRole(nGroupID, userID.ToString(), roleId, true) > 0)
+                            {
+                                // add invalidation key for user roles cache
+                                CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetAddRoleInvalidationKey(userID.ToString()));
+                            }
                         }
                         else
                         {

@@ -1108,6 +1108,35 @@ namespace Users
             sUN = uc.m_sUsername;
             sPass = uc.m_sPassword;
         }
+
+        public static Tuple<List<long>, bool> Get_UserRoleIds(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<long> roleIds = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("userId"))
+                    {
+                        int? groupId;
+                        string userId;
+                        groupId = funcParams["groupId"] as int?;
+                        userId = funcParams["userId"] as string;
+                        if (groupId.HasValue && !string.IsNullOrEmpty(userId))
+                        {
+                            roleIds = UsersDal.Get_UserRoleIds(groupId.Value, userId);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetUserRoleIds failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(roleIds, res);
+        }
     }
 
 }

@@ -91,9 +91,11 @@ namespace Users
 
                             // set user role to master 
                             long roleId;
-                            if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId))
-                                DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true);
-
+                            if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)
+                            {
+                                // add invalidation key for user roles cache
+                                CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetAddRoleInvalidationKey(nMasterUserGuid.ToString()));
+                            }
                             break;
                         case DomainStatus.UserExistsInOtherDomains:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);
