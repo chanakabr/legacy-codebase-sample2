@@ -4188,11 +4188,11 @@ namespace Catalog
         }
 
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
-            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
+            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, int groupId)
         {
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {
-                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                countryID = Utils.GetIP2CountryId(groupId, userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
 
@@ -4244,7 +4244,7 @@ namespace Catalog
             {
                 log.DebugFormat("GetMediaMarkHitInitialData, try getting countryID from ES, if it fails get countryID from DB");
 
-                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                countryID = Utils.GetIP2CountryId(groupId, userIP);
                 //getting from ES failed
                 if (countryID == 0)
                 {
@@ -5525,7 +5525,7 @@ namespace Catalog
                         {
                             try
                             {
-                                string coutnryCode = ElasticSearch.Utilities.IpToCountry.GetCountryCodeByIp(request.m_sUserIP);
+                                string coutnryCode = Utils.GetIP2CountryCode(request.m_nGroupID, request.m_sUserIP);
 
                                 dictionary["client_location"] = coutnryCode;
                             }
