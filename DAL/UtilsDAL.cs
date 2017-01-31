@@ -817,10 +817,10 @@ namespace DAL
         }
 
 
-        public static Tuple<Dictionary<string, int>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
+        public static Tuple<Dictionary<string, Dictionary<string, int>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, int> result = new Dictionary<string, int>();
+            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
             try
             {
                 if (funcParams.ContainsKey("mediaIDs"))
@@ -830,7 +830,7 @@ namespace DAL
                     if (mediaIDs != null)
                     {
                         result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
-                        res = true;                        
+                        res = true;
                     }
                 }
             }
@@ -838,7 +838,8 @@ namespace DAL
             {
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            return new Tuple<Dictionary<string, int>, bool>(result, res);
-        }    
+            return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
+        }     
+
     }
 }
