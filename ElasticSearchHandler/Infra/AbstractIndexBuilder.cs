@@ -110,8 +110,28 @@ namespace ElasticSearchHandler.IndexBuilders
             secondBuilder.EndDate = this.EndDate;
 
             // Build the two indexes
-            bool oldSuccess = firstBuilder.BuildIndex();
-            bool newSuccess = secondBuilder.BuildIndex();
+            bool oldSuccess = false;
+            bool newSuccess = false;
+
+            try
+            {
+                oldSuccess = firstBuilder.BuildIndex();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ElasticSearchHandler - Dual build error in old builder. groupId = {0}, ex = {1}",
+                    groupId, ex);
+            }
+
+            try
+            {
+                newSuccess = secondBuilder.BuildIndex();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ElasticSearchHandler - Dual build error in new builder. groupId = {0}, ex = {1}",
+                    groupId, ex);
+            }
 
             success = oldSuccess && newSuccess;
 
