@@ -1402,7 +1402,7 @@ namespace CouchbaseManager
             return result;
         }
 
-        public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false, bool asJson = false, bool shouldCheckItemValueException = true)
+        public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false, bool asJson = false)
         {
             IDictionary<string, T> result = null;
 
@@ -1437,7 +1437,7 @@ namespace CouchbaseManager
                 foreach (var item in getResult)
                 {
                     // Throw exception if there is one
-                    if (shouldCheckItemValueException && item.Value.Exception != null)
+                    if (item.Value.Exception != null)
                         throw item.Value.Exception;
 
                     // If any of the rows wasn't successful, maybe we need to break - depending if we allow partials or not
@@ -1535,7 +1535,7 @@ namespace CouchbaseManager
             bool res = false;
             try
             {
-                results = GetValues<T>(keys, shouldAllowPartialQuery, false, false);
+                results = GetValues<T>(keys, shouldAllowPartialQuery);
                 if (results != null)
                 {
                     if (shouldAllowPartialQuery)
