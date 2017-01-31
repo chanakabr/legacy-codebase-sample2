@@ -119,6 +119,8 @@ namespace EpgIngest
         public string SaveChannelPrograms(ref IngestResponse ingestResponse)
         {
             bool success = true;
+            DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
+
             if (ingestResponse == null)
             {
                 ingestResponse = new IngestResponse()
@@ -154,7 +156,7 @@ namespace EpgIngest
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
 
-                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ref ingestResponse);
+                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ref ingestResponse, dPublishDate);
                         if (success)
                         {
                             success = returnSuccess;
@@ -176,7 +178,7 @@ namespace EpgIngest
             return success.ToString();
         }
 
-        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, ref IngestResponse ingestResponse)
+        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, ref IngestResponse ingestResponse, DateTime dPublishDate)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
@@ -200,8 +202,6 @@ namespace EpgIngest
             var languages = GroupsCacheManager.GroupsCache.Instance().GetGroup(m_Channels.groupid).GetLangauges();
 
             #region each program  create CB objects
-
-            DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
             List<DateTime> deletedDays = new List<DateTime>();
             IngestAssetStatus ingestAssetStatus = null;
 
