@@ -40,9 +40,11 @@ namespace ConditionalAccess
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
-
         private const string MEDIA_FILES_CACHE_KEY_FORMAT = "MediaFiles_{0}";
 
+        private const string MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME = "GetMediaFileIDByCoGuid";
+        private const string VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME = "ValidateMediaFiles";
+        private const string USER_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME = "ValidateMediaFiles";
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -54,7 +56,7 @@ namespace ConditionalAccess
         private static readonly string BASIC_LINK_COUNTRY_CODE = "!--COUNTRY_CD--";
         private static readonly string BASIC_LINK_HASH = "!--hash--";
         private static readonly string BASIC_LINK_GROUP = "!--group--";
-        private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
+        private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";        
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess t, Int32 nGroupID)
         {
@@ -1534,7 +1536,7 @@ namespace ConditionalAccess
 
             // check if file is avilable             
             Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode);
+            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode, nGroupID);
             if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
             {
                 theReason = PriceReason.NotForPurchase;
@@ -3027,7 +3029,8 @@ namespace ConditionalAccess
         internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
             string key = DAL.UtilsDal.GetFileCoGuidKey(coGuid);
-            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref mediaFileID, DAL.UtilsDal.Get_MediaFileIDByCoGuid, new Dictionary<string, object>() { { "groupID", groupID }, { "coGuid", coGuid } });
+            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref mediaFileID, DAL.UtilsDal.Get_MediaFileIDByCoGuid, new Dictionary<string, object>() { { "groupID", groupID }, { "coGuid", coGuid } },
+                                                              groupID, MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME);
 
             if (!cacheResult)
             {
@@ -3215,7 +3218,7 @@ namespace ConditionalAccess
         }
 
         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode)
+        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode, int groupId)
         {
 
             Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int, MediaFileStatus>();
@@ -3241,7 +3244,7 @@ namespace ConditionalAccess
                 List<string> keys = nMediaFiles.Select(x => DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(x)).ToList();
 
                 // try to get from cache            
-                bool cacheResult = LayeredCache.Instance.GetValues<DataRow>(keys, ref fileDr, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles } });
+                bool cacheResult = LayeredCache.Instance.GetValues<DataRow>(keys, ref fileDr, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles } }, groupId, VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
                 int mediaFileID;
                 int mediaIsActive = 0, mediaFileIsActive = 0;
@@ -3471,7 +3474,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)
+        internal static void InitializeUsersEntitlements(int groupId, int domainID, List<int> allUsersInDomain, MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)
         {
             // Get all user entitlements
             userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
@@ -3487,7 +3490,8 @@ namespace ConditionalAccess
                 Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
                 List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
 
-                bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } });
+                bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings,
+                                                                                            new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } }, groupId, USER_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME);
                 if (!cacheResult)
                 {
                     log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
