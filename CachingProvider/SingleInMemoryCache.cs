@@ -19,8 +19,7 @@ namespace CachingProvider
          * 2. MemoryCache should be properly disposed.
          */
 
-        private static readonly string DEFAULT_CACHE_NAME = "Cache";
-        private static readonly uint DEFAULT_CACHE_TTL_IN_SECONDS = 7200;
+        private static readonly string DEFAULT_CACHE_NAME = "Cache";        
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private MemoryCache cache = null;
 

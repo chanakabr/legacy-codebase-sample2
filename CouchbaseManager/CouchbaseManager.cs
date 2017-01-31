@@ -1535,7 +1535,7 @@ namespace CouchbaseManager
             bool res = false;
             try
             {
-                results = GetValues<T>(keys, shouldAllowPartialQuery);
+                results = GetValues<T>(keys, shouldAllowPartialQuery, false, false);
                 if (results != null)
                 {
                     if (shouldAllowPartialQuery)

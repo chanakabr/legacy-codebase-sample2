@@ -183,7 +183,7 @@ namespace CachingProvider.LayeredCache
                 LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
                 if (layeredCacheTcmConfig != null && layeredCacheTcmConfig.BucketSettings != null && layeredCacheTcmConfig.BucketSettings.Count > 0)
                 {
-                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType.HasFlag(cacheType)).FirstOrDefault();
+                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType == cacheType).FirstOrDefault();
                     if (bucketSettings != null && bucketSettings.Bucket != eCouchbaseBucket.DEFAULT)
                     {
                         bucketName = bucketSettings.Bucket.ToString();
@@ -434,7 +434,7 @@ namespace CachingProvider.LayeredCache
                 if (cache != null)
                 {                    
                     ulong version = 0;
-                    if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
+                    if (cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache)
                     {
 
                         Tuple<T, long> getResult = default(Tuple<T, long>);
@@ -679,15 +679,15 @@ namespace CachingProvider.LayeredCache
                 string groupVersion = GetGroupVersion(groupId);
                 if (!string.IsNullOrEmpty(versionValue) && !string.IsNullOrEmpty(groupVersion))
                 {
-                    res = keys.ToDictionary(x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupVersion), x => x);
+                    res = keys.ToDictionary(x=> x, x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupVersion));
                 }
                 else if (!string.IsNullOrEmpty(versionValue))
                 {
-                    res = keys.ToDictionary(x => string.Format("{0}_V{1}", x, versionValue), x => x);
+                    res = keys.ToDictionary(x => x, x => string.Format("{0}_V{1}", x, versionValue));
                 }
                 else if (!string.IsNullOrEmpty(groupVersion))
                 {
-                    res = keys.ToDictionary(x => string.Format("{0}_GV{1}", x, groupVersion), x => x);
+                    res = keys.ToDictionary(x => x, x => string.Format("{0}_GV{1}", x, groupVersion));
                 }
             }
             catch (Exception ex)
