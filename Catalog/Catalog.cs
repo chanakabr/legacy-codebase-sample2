@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿using AdapterControllers;
 using ApiObjects;
+using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
+using ApiObjects.PlayCycle;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
+using CachingHelpers;
 using Catalog.Cache;
 using Catalog.Request;
 using Catalog.Response;
@@ -23,21 +16,25 @@ using ElasticSearch.Searcher;
 using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
 using StatisticsBL;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using CachingHelpers;
-using AdapterControllers;
-using KlogMonitorHelper;
-using System.IO;
-using ApiObjects.PlayCycle;
-using ApiObjects.Epg;
-using System.Net;
-using WS_API;
 using Users;
+using WS_API;
 using WS_Users;
 
 namespace Catalog
@@ -1127,7 +1124,7 @@ namespace Catalog
         /// <returns></returns>
         private static List<int> GetGeoBlockRules(int groupId, string ip)
         {
-            int countryId =  Utils.GetIP2CountryId(groupId,ip);
+            int countryId = Utils.GetIP2CountryId(groupId, ip);
 
             //GroupsCache.Instance().
             List<int> result = GeoBlockRulesCache.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
@@ -1868,7 +1865,7 @@ namespace Catalog
 
                 if (ds.Tables.Count == 4)
                 {
-                    if (ds.Tables[1] != null) // basic details
+                    if (ds.Tables[1] != null && ds.Tables[1].Rows.Count > 0) // basic details
                     {
                         oMediasRequest.m_sName = Utils.GetStrSafeVal(ds.Tables[1].Rows[0], "NAME");
                         oMediasRequest.m_nMediaTypes = new List<int>();
@@ -1882,6 +1879,11 @@ namespace Catalog
                             oMediasRequest.m_nMediaTypes = nMediaTypes;
                         }
                         oFilter.m_sDeviceId = filterRequest.m_sDeviceId;
+                    }
+                    else
+                    {
+                        return null;
+
                     }
                     if (ds.Tables[2] != null) //TAGS
                     {
@@ -5876,7 +5878,13 @@ namespace Catalog
             group = groupManager.GetGroup(parentGroupID);
 
             // Build search object
-            UnifiedSearchDefinitions unifiedSearchDefinitions = BuildRelatedObject(request, group);
+            UnifiedSearchDefinitions unifiedSearchDefinitions = null;
+            status = BuildRelatedObject(request, group, out unifiedSearchDefinitions);
+
+            if (status.Code != (int)eResponseStatus.OK)
+            {
+                return status;
+            }
 
             int pageIndex = request.m_nPageIndex;
             int pageSize = request.m_nPageSize;
@@ -5912,9 +5920,10 @@ namespace Catalog
             return status;
         }
 
-        private static UnifiedSearchDefinitions BuildRelatedObject(MediaRelatedRequest request, Group group)
+        private static ApiObjects.Response.Status BuildRelatedObject(MediaRelatedRequest request, Group group, out UnifiedSearchDefinitions definitions)
         {
-            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            definitions = new UnifiedSearchDefinitions();
             definitions.shouldSearchEpg = true;
             definitions.shouldSearchMedia = true;
 
@@ -5924,6 +5933,11 @@ namespace Catalog
 
             MediaSearchRequest mediaSearchRequest =
                 BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid, request.OrderObj);
+
+            if (mediaSearchRequest == null)
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetDoseNotExists, ApiObjects.Response.eResponseStatus.AssetDoseNotExists.ToString());
+            }
 
             LanguageObj language = null;
 
@@ -6087,9 +6101,9 @@ namespace Catalog
             {
                 string filterExpression = HttpUtility.HtmlDecode(request.m_sFilter).ToLower();
 
-                // Build boolean phrase tree based on filter expression
+                // Build Boolean phrase tree based on filter expression
                 BooleanPhraseNode filterTree = null;
-                var status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
+                status = BooleanPhraseNode.ParseSearchExpression(filterExpression, ref filterTree);
 
                 if (status.Code != (int)eResponseStatus.OK)
                 {
@@ -6122,7 +6136,7 @@ namespace Catalog
 
             #endregion
 
-            return definitions;
+            return status;
         }
 
         /// <summary>
