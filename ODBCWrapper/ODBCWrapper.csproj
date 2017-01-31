@@ -119,10 +119,6 @@
     <Reference Include="Couchbase.NetClient">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseManager, Version=3.4.118.25100, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -220,6 +216,10 @@
     <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
