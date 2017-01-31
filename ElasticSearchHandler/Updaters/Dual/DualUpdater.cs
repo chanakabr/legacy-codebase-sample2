@@ -85,7 +85,7 @@ namespace ElasticSearchHandler.Updaters
 
             try
             {
-                oldUpdater.Start();
+                oldSuccess = oldUpdater.Start();
             }
             catch (Exception ex)
             {
@@ -97,7 +97,7 @@ namespace ElasticSearchHandler.Updaters
 
             try
             {
-                newUpdater.Start();
+                newSuccess = newUpdater.Start();
             }
             catch (Exception ex)
             {
