@@ -635,7 +635,7 @@ namespace CachingProvider.LayeredCache
 
                 if (!string.IsNullOrEmpty(versionValue))
                 {
-                    res = keys.ToDictionary(x => x, x => string.Format("{0}_V{1}", x, versionValue));
+                    res = keys.ToDictionary(x => string.Format("{0}_V{1}", x, versionValue), x => x);
                 }
             }
             catch (Exception ex)
