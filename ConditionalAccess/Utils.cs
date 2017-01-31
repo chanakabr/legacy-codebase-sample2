@@ -3174,11 +3174,12 @@ namespace ConditionalAccess
         internal static Tuple<Dictionary<string, DataRow>, bool> Get_FileAndMediaBasicDetails(Dictionary<string, object> funcParams)
         {
             bool res = false;           
-            Dictionary<string, DataRow> result = new Dictionary<string, DataRow>();
+            Dictionary<string, DataRow> result = new Dictionary<string, DataRow>();            
             try
             {
                 if (funcParams.ContainsKey("fileIDs"))
                 {
+                    string key = string.Empty;
                     int[] fileIDs;
                     fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
                     if (fileIDs != null)
@@ -3188,7 +3189,8 @@ namespace ConditionalAccess
                         {
                             foreach (DataRow dr in dt.Rows)
                             {
-                                result.Add(ODBCWrapper.Utils.GetSafeStr(dr, "media_file_id"), dr);
+                                key = DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id"));
+                                result.Add(key, dr);
                             }
                         }
 
@@ -3196,9 +3198,9 @@ namespace ConditionalAccess
                         if (missingKeys != null)
                         {
 
-                            foreach (int key in missingKeys)
+                            foreach (int missingKey in missingKeys)
                             {
-                                result.Add(key.ToString(), new DataTable().NewRow());
+                                result.Add(DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(missingKey), new DataTable().NewRow());
                             }
                         }
                     } 
