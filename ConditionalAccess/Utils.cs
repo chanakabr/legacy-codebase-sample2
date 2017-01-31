@@ -3194,7 +3194,7 @@ namespace ConditionalAccess
                             foreach (DataRow dr in dt.Rows)
                             {
                                 tempDt.Clear();
-                                tempDt.Rows.Add(dr);
+                                tempDt.ImportRow(dr);
                                 result.Add(ODBCWrapper.Utils.GetSafeStr(dr, "media_file_id"), tempDt);
                             }
                         }
