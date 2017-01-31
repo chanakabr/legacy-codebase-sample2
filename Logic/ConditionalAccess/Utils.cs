@@ -3152,18 +3152,30 @@ namespace Core.ConditionalAccess
                     mediaIDsToMap[i] = mapper[i].m_nMediaID;
                 }
 
-                // Get mappings dictionary<mediaID_groupFileType, mediaFileID>
-
-                // TO DO implament Cache here 
-                Dictionary<string, int> mediaIdGroupFileTypeMapper = null;
+                Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
                 List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
 
-                bool cacheResult = LayeredCache.Instance.GetValues<int>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } });
+                bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings, new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } });
                 if (!cacheResult)
                 {
                     log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
                 }
-                userPpvEntitlements.MediaIdGroupFileTypeMapper = mediaIdGroupFileTypeMapper;                
+
+                Dictionary<string, int> mapping = new Dictionary<string, int>();
+
+                // combain all the results (all dictionarys that return to ONE dictionary)
+                foreach (Dictionary<string, int> val in mediaIdGroupFileTypeMapper.Values)
+                {
+                    foreach (KeyValuePair<string, int> item in val)
+                    {
+                        if (!mapping.ContainsKey(item.Key))
+                        {
+                            mapping.Add(item.Key, item.Value);
+                        }
+                    }
+                }
+
+                userPpvEntitlements.MediaIdGroupFileTypeMapper = mapping;
             }
         }
 
