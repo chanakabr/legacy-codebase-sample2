@@ -1,6 +1,8 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,6 +10,8 @@ namespace ElasticSearchHandler.Updaters
 {
     public abstract class DualUpdater : IElasticSearchUpdater
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         protected IElasticSearchUpdater newUpdater;
         protected IElasticSearchUpdater oldUpdater;
 
@@ -77,8 +81,29 @@ namespace ElasticSearchHandler.Updaters
 
         public bool Start()
         {
-            bool oldSuccess = oldUpdater.Start();
-            bool newSuccess = newUpdater.Start();
+            bool oldSuccess = false;
+
+            try
+            {
+                oldUpdater.Start();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ElasticSearchHandler - DualUpdater error in old updater. Ids = {0}, ex = {1}",
+                    IDs != null ? string.Join(",", IDs) : string.Empty, ex);
+            }
+
+            bool newSuccess = false;
+
+            try
+            {
+                newUpdater.Start();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("ElasticSearchHandler - DualUpdater error in new updater. Ids = {0}, ex = {1}",
+                    IDs != null ? string.Join(",", IDs) : string.Empty, ex);
+            }
 
             bool success = oldSuccess && newSuccess;
             return success;
