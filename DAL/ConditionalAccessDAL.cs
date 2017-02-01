@@ -2691,5 +2691,27 @@ namespace DAL
             }
             return null;
         }
+
+        public static DataRow Get_SubscriptionPurchaseForReminder(int groupId, long purchaseId)
+        {
+            DataRow result = null;
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseForReminder");
+            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@PurchaseId", purchaseId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null &&
+                dataSet.Tables != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows != null &&
+                dataSet.Tables[0].Rows.Count > 0)
+            {
+                result = dataSet.Tables[0].Rows[0];
+            }
+
+            return result;            
+        }
     }
 }

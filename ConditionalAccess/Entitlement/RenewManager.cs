@@ -206,7 +206,7 @@ namespace ConditionalAccess
             }
 
             log.DebugFormat("Renew details received. data: {0}", logString);
-            
+
             #region Get Subscription data
 
             string wsUsername = string.Empty;
@@ -322,7 +322,7 @@ namespace ConditionalAccess
                     transactionResponse.Status.Code == (int)eResponseStatus.PaymentGatewayNotExist)
                 {
                     // renew subscription failed! pass 0 as failReasonCode since we don't get it on the transactionResponse
-                    return HandleRenewSubscriptionFailed(cas, groupId, 
+                    return HandleRenewSubscriptionFailed(cas, groupId,
                         siteguid, purchaseId, logString, productId, subscription, householdId, 0, transactionResponse.Status.Message);
                 }
                 else
@@ -342,7 +342,7 @@ namespace ConditionalAccess
                 case eTransactionState.Pending:
                 {
                     // renew subscription pending!
-                    return HandleRenewSubscriptionPending(cas, groupId, 
+                    return HandleRenewSubscriptionPending(cas, groupId,
                         siteguid, purchaseId, billingGuid, logString, productId, endDate, householdId, shouldSwitchToMasterUser, price, currency,
                         billingUserName, billingPassword, wsBillingService);
                 }
@@ -350,7 +350,7 @@ namespace ConditionalAccess
                 case eTransactionState.Failed:
                 {
                     // renew subscription failed!
-                    return HandleRenewSubscriptionFailed(cas, groupId, 
+                    return HandleRenewSubscriptionFailed(cas, groupId,
                         siteguid, purchaseId, logString, productId, subscription, householdId, transactionResponse.FailReasonCode);
                 }
                 default:
@@ -361,7 +361,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string siteguid, string billingGuid, 
+        protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string siteguid, string billingGuid,
             string logString, long householdId, string userIp, long productId, XmlNode theRequest)
         {
             bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
@@ -413,8 +413,8 @@ namespace ConditionalAccess
             }
         }
 
-        protected internal static bool HandleRenewSubscriptionFailed(BaseConditionalAccess cas, int groupId, 
-            string siteguid, long purchaseId, string logString, long productId, 
+        protected internal static bool HandleRenewSubscriptionFailed(BaseConditionalAccess cas, int groupId,
+            string siteguid, long purchaseId, string logString, long productId,
             Subscription subscription, long domainId, int failReasonCode, string billingSettingError = null)
         {
             log.DebugFormat("Transaction renew failed. data: {0}", logString);
@@ -454,8 +454,8 @@ namespace ConditionalAccess
             return true;
         }
 
-        protected internal static bool HandleRenewSubscriptionPending(BaseConditionalAccess cas, int groupId, 
-            string siteguid, long purchaseId, string billingGuid, string logString, long productId, DateTime endDate, 
+        protected internal static bool HandleRenewSubscriptionPending(BaseConditionalAccess cas, int groupId,
+            string siteguid, long purchaseId, string billingGuid, string logString, long productId, DateTime endDate,
             long householdId, bool shouldSwitchToMasterUser, double price, string currency, string billingUserName, string billingPassword, module wsBillingService)
         {
             log.DebugFormat("Transaction renew pending. data: {0}", logString);
@@ -622,19 +622,16 @@ namespace ConditionalAccess
             return true;
         }
 
-        internal static bool GiftCardReminder(BaseConditionalAccess cas, int groupId, string siteguid, long purchaseId, string billingGuid, long nextEndDate)
+        internal static bool GiftCardReminder(BaseConditionalAccess cas, int groupId, string userId, long purchaseId, string billingGuid, long nextEndDate)
         {
             bool success = false;
 
             // log request
-            string logString = string.Format("GiftCardReminder request: siteguid {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", siteguid, purchaseId, billingGuid, nextEndDate);
+            string logString = string.Format("GiftCardReminder request: userId {0}, purchaseId {1}, billingGuid {2}, endDateLong {3}", userId, purchaseId, billingGuid, nextEndDate);
 
             log.DebugFormat("Starting GiftCardReminder process. data: {0}", logString);
 
-            string customData = string.Empty;
             long householdId = 0;
-
-            string userIp = "1.1.1.1";
 
             // validate purchaseId
             if (purchaseId <= 0 || string.IsNullOrEmpty(billingGuid))
@@ -646,8 +643,11 @@ namespace ConditionalAccess
 
             #region Get subscription purchase
 
-            // get subscription purchase 
-            DataRow subscriptionPurchaseRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForRenewal(groupId, purchaseId, billingGuid);
+            // get subscription purchase data
+            List<string> subscriptionPurchaseColumns = new List<string>(){};
+
+            DataRow subscriptionPurchaseRow = 
+                DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseForReminder(groupId, purchaseId);
 
             // validate subscription received
             if (subscriptionPurchaseRow == null)
@@ -661,37 +661,19 @@ namespace ConditionalAccess
 
             // get product ID
             long productId = ODBCWrapper.Utils.ExtractInteger(subscriptionPurchaseRow, "SUBSCRIPTION_CODE"); // AKA subscription ID/CODE
-            string couponCode = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "COUPON_CODE");
 
-            ResponseStatus userValidStatus = ResponseStatus.OK;
-            userValidStatus = Utils.ValidateUser(groupId, siteguid, ref householdId);
+            Domain domain;
+            User user;
+            var userValidStatus = Utils.ValidateUserAndDomain(groupId, userId, ref householdId, out domain, out user);
 
-            #region Dummy
-
-            try
+            // validate household
+            if ((userValidStatus == null || userValidStatus.Code != (int)eResponseStatus.OK) &&
+                householdId <= 0)
             {
-                customData = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "CUSTOMDATA"); // AKA subscription ID/CODE
-
-                if (userValidStatus == ResponseStatus.OK && !string.IsNullOrEmpty(customData))
-                {
-                    XmlDocument doc = new XmlDocument();
-                    doc.LoadXml(customData);
-                    XmlNode theRequest = doc.FirstChild;
-
-                    bool isDummy = XmlUtils.IsNodeExists(ref theRequest, DUMMY);
-                    if (isDummy)
-                    {
-                        return HandleDummySubsciptionRenewal(cas, groupId, siteguid, billingGuid, logString, householdId, userIp, productId, theRequest);
-                    }
-                }
+                // illegal household ID
+                log.ErrorFormat("Error: Illegal household, data: {0}", logString);
+                return true;
             }
-            catch (Exception exc)
-            {
-                log.ErrorFormat("Renew: Error while getting data from xml, data: {0}, error: {1}", logString, exc);
-                return false;
-            }
-
-            #endregion
 
             // get end date
             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(subscriptionPurchaseRow, "END_DATE");
@@ -706,90 +688,17 @@ namespace ConditionalAccess
                 return true;
             }
 
-            // validate user ID
-            string purchaseSiteguid = ODBCWrapper.Utils.ExtractString(subscriptionPurchaseRow, "SITE_USER_GUID");
-            if (purchaseSiteguid != siteguid)
-            {
-                // siteguid not equal to purchase siteguid
-                log.ErrorFormat("siteguid {0} not equal to purchase siteguid {1}. data: {2}", siteguid, purchaseSiteguid, logString);
-                return true;
-            }
-
-            log.DebugFormat("subscription purchase found and validated. data: {0}", logString);
-
-            // validate user object               
-            bool shouldSwitchToMasterUser = true;
-
-            // check if we need to set shouldSwitchToMasterUser = true so we will update subscription details to master user instead of user where needed
-
-            #region shouldSwitchToMasterUser
-
-            householdId = ODBCWrapper.Utils.GetLongSafeVal(subscriptionPurchaseRow, "DOMAIN_ID");
-            string masterSiteGuid = string.Empty;
-            if (householdId > 0)
-            {
-                Domain domain = Utils.GetDomainInfo((int)householdId, groupId);
-                if (domain != null && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
-                {
-                    masterSiteGuid = domain.m_masterGUIDs.First().ToString();
-                }
-            }
-
-            if (string.IsNullOrEmpty(masterSiteGuid))
-            {
-                // could not find a master user to replace the deleted user                   
-                log.ErrorFormat("User validation failed: UserDoesNotExist and no MasterUser to replace in renew, data: {0}", logString);
-                return true;
-            }
-            else
-            {
-                log.WarnFormat("SiteGuid: {0} does not exist, changing renew SiteGuid value to MasterSiteGuid: {1}", siteguid, masterSiteGuid);
-                siteguid = masterSiteGuid;
-            }
-
-            // check if response OK only if we know response is not UserDoesNotExist, shouldSwitchToMasterUser is set to false by default
-            if (userValidStatus != ResponseStatus.OK && userValidStatus != ResponseStatus.UserDoesNotExist)
-            {
-                // user validation failed
-                ApiObjects.Response.Status status = Utils.SetResponseStatus(userValidStatus);
-                log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
-                return true;
-            }
-
-            #endregion
-
-            // validate household
-            if (householdId <= 0)
-            {
-                // illegal household ID
-                log.ErrorFormat("Error: Illegal household, data: {0}", logString);
-                return true;
-            }
-
-            // get transaction details
-            //--------------------------------------------
-            DataRow renewDetailsRow = DAL.ConditionalAccessDAL.Get_RenewDetails(groupId, purchaseId, billingGuid);
-
-            if (renewDetailsRow == null)
-            {
-                // transaction details weren't found
-                log.ErrorFormat("Transaction details weren't found. Product ID: {0}, billing GUID: {1}, data: {2}", productId, billingGuid, logString);
-                return false;
-            }
-
-            log.DebugFormat("Renew details received. data: {0}", logString);
-
-            List<PaymentDetails> paymentDetails = null;
+            PaymentDetails paymentDetail = null;
 
             // call billing get payment details
             string billingUserName = string.Empty;
             string billingPassword = string.Empty;
             module wsBillingService = null;
             Utils.InitializeBillingModule(ref wsBillingService, groupId, ref billingUserName, ref billingPassword);
-
             try
             {
-                paymentDetails = wsBillingService.GetPaymentDetails(billingUserName, billingPassword, new List<string>() { billingGuid });
+                List<PaymentDetails> paymentDetails = wsBillingService.GetPaymentDetails(billingUserName, billingPassword, new List<string>() { billingGuid });
+                paymentDetail = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
             }
             catch (Exception ex)
             {
@@ -798,34 +707,39 @@ namespace ConditionalAccess
                 return false;
             }
 
-            PaymentDetails paymentDetail = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
-
+            // we will send a reminder mail only if we don't have a payment method set for this user/household/billing guid
             if (paymentDetail == null)
             {
-                string itemName = ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "name", (int)productId, "pricing_connection").ToString();
+                string pricingUserName = string.Empty;
+                string pricingPassword = string.Empty;
+                Subscription subscription = null;
+                try
+                {
+                    using (mdoule m = new mdoule())
+                    {
+                        Utils.GetWSCredentials(groupId, eWSModules.PRICING, ref pricingUserName, ref pricingPassword);
+                        subscription = m.GetSubscriptionData(pricingUserName, pricingPassword, productId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Error while trying to fetch subscription data. data: {0}", logString), ex);
+                    return false;
+                }
+
+                string itemName = subscription.m_sObjectVirtualName;
                 API apiWS = null;
                 try
                 {
                     apiWS = new API();
 
-                    //get HH from siteGuid
-                    User houseHoldUser = Billing.Utils.GetHHFromSiteGuid(siteguid, groupId);
-                    MailRequestObj baseMailRequest =
-                        BillingMailTemplateFactory.GetMailTemplate(groupId, houseHoldUser.m_sSiteGUID, string.Empty, 0,
-                        string.Empty, itemName, string.Empty, string.Empty, string.Empty, eMailTemplateType.GiftCardRenewReminder, 
-                        0, houseHoldUser, eTransactionType.Subscription);
-
-                    GiftCardReminderMailRequest giftCardRequest = baseMailRequest as GiftCardReminderMailRequest;
+                    GiftCardReminderMailRequest giftCardRequest =
+                        GetGiftCardReminderTemplate(groupId, user, itemName, endDate);
 
                     if (giftCardRequest != null)
                     {
-                        giftCardRequest.daysLeft = ((int)Math.Round((endDate - DateTime.UtcNow).TotalDays)).ToString();
-
-                        string dateEmailFormat = Billing.Utils.GetDateEmailFormat(groupId);
-                        giftCardRequest.endDate = endDate.ToString(dateEmailFormat);
-
                         log.DebugFormat("params for gift card reminder mail ws_cas .m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}",
-                            baseMailRequest.m_sSubject, houseHoldUser.m_sSiteGUID, baseMailRequest.m_sTemplateName);
+                            giftCardRequest.m_sSubject, userId, giftCardRequest.m_sTemplateName);
 
                         if (giftCardRequest != null && !string.IsNullOrEmpty(giftCardRequest.m_sTemplateName))
                         {
@@ -838,7 +752,7 @@ namespace ConditionalAccess
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Send gift card reminder mail - " + String.Concat("Exception. ", siteguid, " | ", ex.Message, " | ", ex.StackTrace), ex);
+                    log.Error("Send gift card reminder mail - " + String.Concat("Exception. ", userId, " | ", ex.Message, " | ", ex.StackTrace), ex);
                 }
                 finally
                 {
@@ -856,5 +770,35 @@ namespace ConditionalAccess
 
         #endregion
 
+        public static GiftCardReminderMailRequest GetGiftCardReminderTemplate(int groupId, User user, string itemName, DateTime endDate)
+        {
+            GiftCardReminderMailRequest reminderTemplate = new GiftCardReminderMailRequest();
+
+            reminderTemplate.itemName = itemName;
+
+            // user info
+            reminderTemplate.m_sSenderTo = user.m_oBasicData.m_sEmail;
+            reminderTemplate.m_sLastName = user.m_oBasicData.m_sLastName;
+            reminderTemplate.m_sFirstName = user.m_oBasicData.m_sFirstName;
+
+            // days left and end date
+            reminderTemplate.daysLeft = ((int)Math.Round((endDate - DateTime.UtcNow).TotalDays)).ToString();
+            string dateEmailFormat = Billing.Utils.GetDateEmailFormat(groupId);
+            reminderTemplate.endDate = endDate.ToString(dateEmailFormat);
+
+            // get template data from groups parameters table
+            List<string> columns = new List<string>(){ "GIFT_CARD_REMINDER_MAIL_SUBJECT", "GIFT_CARD_REMINDER_MAIL_TEMPLATE_NAME", "MAIL_FROM_NAME", "MAIL_FROM_ADD"};
+            var groupsParameters = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("groups_parameters", "ID", groupId.ToString(), columns, "BILLING_CONNECTION_STRING");
+
+            if (groupsParameters != null)
+            {
+                reminderTemplate.m_sTemplateName = ODBCWrapper.Utils.ExtractString(groupsParameters, "GIFT_CARD_REMINDER_MAIL_TEMPLATE_NAME");
+                reminderTemplate.m_sSubject = ODBCWrapper.Utils.ExtractString(groupsParameters, "GIFT_CARD_REMINDER_MAIL_SUBJECT");
+                reminderTemplate.m_sSenderFrom = ODBCWrapper.Utils.ExtractString(groupsParameters, "MAIL_FROM_ADD");
+                reminderTemplate.m_sSenderName = ODBCWrapper.Utils.ExtractString(groupsParameters, "MAIL_FROM_NAME");
+            }
+
+            return reminderTemplate;
+        }
     }
 }
