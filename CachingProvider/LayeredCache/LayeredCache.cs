@@ -502,8 +502,8 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
                 if (cache != null)
                 {
-                    IDictionary<string, object> resultMap = cache.GetValues(keys);
-                    if (resultMap != null)
+                    IDictionary<string, long> resultMap = null;
+                    if (cache.GetValues<long>(keys, ref resultMap, true) && resultMap != null)
                     {
                         inValidationKeys = new List<long>();
                         foreach (object obj in resultMap.Values)

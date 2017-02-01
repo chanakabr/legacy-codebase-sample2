@@ -14503,7 +14503,7 @@ namespace ConditionalAccess
                 return response;
             }
             
-            ConditionalAccess.DomainEntitlements.BundleEntitlements bundleEntitlements = Utils.InitializeDomainBundles(domainID, m_nGroupID, new List<int>());            
+            ConditionalAccess.DomainEntitlements.BundleEntitlements bundleEntitlements = Utils.InitializeDomainBundles(domainID, m_nGroupID, new List<int>(), true);            
             if (bundleEntitlements != null)
             {
                 // Get all subscriptions
