@@ -785,7 +785,11 @@ namespace DAL
         {
             return string.Format("media_{0}_concurrency_rules", mediaId);
         }
-
+        
+        public static string GetChannelsContainingMediaKey(int mediaId)
+        {
+            return string.Format("channels_containing_media_{0}", mediaId);
+        }
 
         public static Tuple<int,bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
         {
