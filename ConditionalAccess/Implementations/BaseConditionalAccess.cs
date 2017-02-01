@@ -1767,6 +1767,9 @@ namespace ConditionalAccess
             Subscription theSub = null;
             try
             {
+                long domainId = 0;
+                Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
+
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
                 using (mdoule m = new WS_Pricing.mdoule())
@@ -1787,6 +1790,7 @@ namespace ConditionalAccess
                         {
                             WriteToUserLog(sSiteGUID,
                                 String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
+                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelSubscriptionInvalidationKey(domainId));
                         }
                         else
                         {
@@ -11579,6 +11583,8 @@ namespace ConditionalAccess
                     // Report to user log
                     WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
+
+                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelTransactionInvalidationKey((long)domainid));
                 }
 
 

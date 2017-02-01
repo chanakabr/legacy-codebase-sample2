@@ -6831,7 +6831,12 @@ namespace ConditionalAccess
 
         private static List<string> GetDomainEntitlementInvalidationKeys(int domainId)
         {
-            return new List<string>();
+            return new List<string>()
+            {
+                UtilsDal.GetCancelSubscriptionInvalidationKey(domainId),
+                UtilsDal.GetCancelTransactionInvalidationKey(domainId),
+                UtilsDal.GetPurchaseInvalidationKey(domainId)
+            };
         }
 
         private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
