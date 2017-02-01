@@ -187,7 +187,7 @@ namespace Users
 
                 Domain domain = DomainInitializer(m_nGroupID, domainId, false);
 
-                if (domain == null)
+                if (domain == null || domain.m_DomainStatus == DomainStatus.DomainNotExists)
                     return DomainResponseStatus.DomainNotExists;
  
                 //cjeck if  send mail = true
