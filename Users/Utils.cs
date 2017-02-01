@@ -1127,6 +1127,7 @@ namespace Users
                         if (groupId.HasValue && !string.IsNullOrEmpty(userId))
                         {
                             roleIds = UsersDal.Get_UserRoleIds(groupId.Value, userId);
+                            res = true;
                         }
                     }
                 }
