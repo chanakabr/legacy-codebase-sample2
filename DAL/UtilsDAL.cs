@@ -879,5 +879,20 @@ namespace DAL
         {
             return string.Format("group_{0}_cdn_default_adapter_{1}", groupId, defaultAdapterId);
         }
+
+        public static string GetCancelSubscriptionInvalidationKey(long domainId)
+        {
+            return string.Format("cancel_subscription_domainId_{0}", domainId);
+        }
+
+        public static string GetCancelTransactionInvalidationKey(long domainId)
+        {
+            return string.Format("cancel_transaction_domainId_{0}", domainId);
+        }
+
+        public static string GetPurchaseInvalidationKey(long domainId)
+        {
+            return string.Format("purchase_domainId_{0}", domainId);
+        }
     }
 }
