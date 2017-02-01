@@ -464,6 +464,10 @@ namespace Core.Social
 
                 if (socialPlatformFeed != null)
                 {
+                    // filter create date
+                    socialPlatformFeed = socialPlatformFeed.Where(x => x.CreateDate > createDateSince).ToList();
+
+                    // paging/indexing
                     response.TotalCount = socialPlatformFeed.Count;
                     response.SocialFeeds = GetPagedSocialFeed(socialPlatformFeed, pageSize, pageIndex, orderBy, socialPlatform);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
