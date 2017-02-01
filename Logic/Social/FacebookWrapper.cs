@@ -1432,64 +1432,69 @@ namespace Core.Social
 
         public FacebookResponse FBUserUnmerge(string sToken, string sUsername, string sPassword)
         {
-            FacebookResponse res = InitializeFacebookResponseObj();
+            FacebookResponse facebookResponse = InitializeFacebookResponseObj();
 
             try
             {
-                UserResponseObject uro = null;
+                UserResponseObject user = null;
 
                 if (!string.IsNullOrEmpty(sToken))
                 {
-                    FacebookResponse facebookResponse = FBUserData(sToken, ref uro);
+                    facebookResponse = FBUserData(sToken, ref user);
 
-                    if (facebookResponse != null && !string.IsNullOrEmpty(facebookResponse.ResponseData.data) && !string.IsNullOrEmpty(facebookResponse.ResponseData.siteGuid) && facebookResponse.ResponseData.fbUser != null
-                    && !string.IsNullOrEmpty(facebookResponse.ResponseData.fbUser.email) && uro != null && uro.m_RespStatus == ResponseStatus.OK
-                    && uro.m_user != null && uro.m_user.m_oBasicData != null && uro.m_user.m_oDynamicData != null)
+                    if (facebookResponse == null || facebookResponse.Status == null || facebookResponse.ResponseData == null)
                     {
-                        if (!IsUnmergeCredentialsValid(sUsername, sPassword, facebookResponse))
-                        {
-                            log.Debug("FBUserUnmerge - " + string.Format("Failed to unmerge. Credentials are not correct. Username: {0} ", sUsername));
-                        }
+                        return InitializeFacebookResponseObj();
                     }
-                    else
+
+                    if (facebookResponse.Status.Code != (int)eResponseStatus.OK || !facebookResponse.ResponseData.status.Equals(FacebookResponseStatus.OK.ToString()))
                     {
-                        // data returned from facebook is invalid. log and return error
-                        log.Debug("FBUserUnmerge - " + string.Format("Failed to unmerge. Data returned from FB is incorrect or user response status is not ok. Username: {0}", sUsername));
+                        return facebookResponse;
+                    }
+
+                    if (user == null || user.m_user == null || user.m_user.m_oBasicData == null)
+                    {
+                        facebookResponse.ResponseData.status = FacebookResponseStatus.WRONGPASSWORDORUSERNAME.ToString();
+                        facebookResponse.Status.Code = (int)eResponseStatus.WrongPasswordOrUserName;
+                        facebookResponse.Status.Message = eResponseStatus.WrongPasswordOrUserName.ToString();
+
+                        return facebookResponse;
                     }
                 }
                 else
                 {
-                    uro = Utils.CheckUserPassword(m_nGroupID, sUsername, sPassword, false);
+                    user = Utils.CheckUserPassword(m_nGroupID, sUsername, sPassword, false);
 
-                    if (uro != null && (uro.m_RespStatus == ResponseStatus.WrongPasswordOrUserName || uro.m_RespStatus == ResponseStatus.UserDoesNotExist))
+                    if (user != null && (user.m_RespStatus == ResponseStatus.WrongPasswordOrUserName || user.m_RespStatus == ResponseStatus.UserDoesNotExist))
                     {
-                        res.ResponseData.status = FacebookResponseStatus.WRONGPASSWORDORUSERNAME.ToString();
-                        res.Status.Code = (int)eResponseStatus.WrongPasswordOrUserName;
-                        return res;
+                        facebookResponse.ResponseData.status = FacebookResponseStatus.WRONGPASSWORDORUSERNAME.ToString();
+                        facebookResponse.Status.Code = (int)eResponseStatus.WrongPasswordOrUserName;
+                        facebookResponse.Status.Message = eResponseStatus.WrongPasswordOrUserName.ToString();
+                        return facebookResponse;
                     }
                 }
 
-                if (uro != null && uro.m_user != null && uro.m_user.m_oBasicData != null)
+                if (user != null && user.m_user != null && user.m_user.m_oBasicData != null)
                 {
 
                     /* Unmerging means deleting the following from users table:
                              * 1. Facebook Token. 2. Facebook ID. 3. Facebook Pic.
                              */
-                    uro.m_user.m_oBasicData.m_sFacebookID = string.Empty;
-                    uro.m_user.m_oBasicData.m_sFacebookImage = string.Empty;
-                    uro.m_user.m_oBasicData.m_sFacebookToken = string.Empty;
-                    UserResponseObject resp = Utils.SetUserData(m_nGroupID, uro.m_user.m_sSiteGUID, uro.m_user.m_oBasicData, uro.m_user.m_oDynamicData);
+                    user.m_user.m_oBasicData.m_sFacebookID = string.Empty;
+                    user.m_user.m_oBasicData.m_sFacebookImage = string.Empty;
+                    user.m_user.m_oBasicData.m_sFacebookToken = string.Empty;
+                    UserResponseObject resp = Utils.SetUserData(m_nGroupID, user.m_user.m_sSiteGUID, user.m_user.m_oBasicData, user.m_user.m_oDynamicData);
                     if (resp != null && resp.m_RespStatus == ResponseStatus.OK)
                     {
-                        res.ResponseData.status = FacebookResponseStatus.UNMERGEOK.ToString();
-                        res.Status.Code = (int)eResponseStatus.OK;
-                        res.ResponseData.siteGuid = uro.m_user.m_sSiteGUID;
-                        WriteMergeToQueue(uro.m_user.m_sSiteGUID, "delete");
-                        Utils.TryWriteToUserLog("FB Unmerged successfully.", m_nGroupID, uro.m_user.m_sSiteGUID);
+                        facebookResponse.ResponseData.status = FacebookResponseStatus.UNMERGEOK.ToString();
+                        facebookResponse.Status.Code = (int)eResponseStatus.OK;
+                        facebookResponse.ResponseData.siteGuid = user.m_user.m_sSiteGUID;
+                        WriteMergeToQueue(user.m_user.m_sSiteGUID, "delete");
+                        Utils.TryWriteToUserLog("FB Unmerged successfully.", m_nGroupID, user.m_user.m_sSiteGUID);
                     }
                     else
                     {
-                        Utils.TryWriteToUserLog("FB Unmerge failed.", m_nGroupID, uro.m_user.m_sSiteGUID);
+                        Utils.TryWriteToUserLog("FB Unmerge failed.", m_nGroupID, user.m_user.m_sSiteGUID);
                     }
                 }
             }
@@ -1505,7 +1510,7 @@ namespace Core.Social
                 #endregion
             }
 
-            return res;
+            return facebookResponse;
         }
 
         public FacebookResponse FBUserUnmergeByUserId(string sUserId)
