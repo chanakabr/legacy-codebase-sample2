@@ -1594,7 +1594,7 @@ namespace Core.Api
 
         public static ApiObjects.CDNAdapter.CDNAdapterResponse GetCDNAdapter(int groupId, int adapterId)
         {
-            return Core.Api.api.GetCdnAdapter(adapterId);
+            return Core.Api.api.GetCdnAdapter(groupId, adapterId);
         }
 
         public static ApiObjects.CDNAdapter.CDNAdapterResponse GetGroupDefaultCDNAdapter(int groupId, eAssetTypes assetType)

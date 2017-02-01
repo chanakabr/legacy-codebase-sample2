@@ -87,6 +87,9 @@ namespace Core.Api
         protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";
 
         protected const string QUEUE_ASSEMBLY_NAME = "QueueWrapper";
+
+        private const string GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME = "groupCDNSettings";
+        private const string CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "cdnAdapter";
         #endregion
 
         protected api() { }
@@ -7982,8 +7985,14 @@ namespace Core.Api
                 }
 
                 //check Adapter exists
-                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter(adapterId, false);
-                if (adapter == null || adapter.ID <= 0)
+                CDNAdapter adapter = null;
+
+                // get the adapter                   
+                string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterId);
+                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId }, { "shouldGetOnlyActive", false } },
+                    /*groupID, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+
+                if (!cacheResult || adapter == null || adapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
@@ -8112,8 +8121,11 @@ namespace Core.Api
                 }
 
                 //check CDN Adapter exists
-                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter(adapterId);
-                if (adapter == null || adapter.ID <= 0)
+                CDNAdapter adapter = null;
+                string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterId);
+                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
+                    /*groupID, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+                if (!cacheResult && adapter == null || adapter.ID <= 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
@@ -8208,9 +8220,13 @@ namespace Core.Api
 
                 if (responseAdpater == null)
                 {
-                    //check adapter exists 
-                    responseAdpater = DAL.ApiDAL.GetCDNAdapter(adapterId, false);
-                    if (responseAdpater == null)
+
+                    //check adapter exists                     
+                    string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterId);
+                    bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref responseAdpater, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId }, { "shouldGetOnlyActive", false } },
+                        /*groupID, */ CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+
+                    if (!cacheResult || responseAdpater == null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                         return response;
@@ -8270,9 +8286,12 @@ namespace Core.Api
                 }
                 // get adapter from DB 
                 //check alias uniqueness 
-                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter(adapterID);
+                CDNAdapter adapter = null;
+                string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterID);
+                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterID } },
+                    /*groupID, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
 
-                if (adapter == null)
+                if (!cacheResult || adapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
@@ -8334,13 +8353,21 @@ namespace Core.Api
 
             try
             {
-                response.CDNPartnerSettings = DAL.ApiDAL.GetCdnSettings(groupId);
-                if (response.CDNPartnerSettings == null)
+                CDNPartnerSettings settings = new CDNPartnerSettings();
+                // get group cdn settings
+                string key = DAL.UtilsDal.GetGroupCdnSettingsKey(groupId);
+                bool cacheResult = LayeredCache.Instance.Get<CDNPartnerSettings>(key, ref settings, GetCdnSettings, new Dictionary<string, object>() { { "groupId", groupId } },
+                    /*groupId, */GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
+
+                response.CDNPartnerSettings = settings;
+
+                if (!cacheResult || settings == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CDNPartnerSettingsNotFound, eResponseStatus.CDNPartnerSettingsNotFound.ToString());
                 }
                 else
                 {
+                    response.CDNPartnerSettings = settings;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
 
@@ -8400,22 +8427,26 @@ namespace Core.Api
             return response;
         }
 
-        public static CDNAdapterResponse GetCdnAdapter(int adapterId)
+        public static CDNAdapterResponse GetCdnAdapter(int groupId , int adapterId)
         {
             CDNAdapterResponse response = new CDNAdapterResponse();
 
             try
             {
-                response.Adapter = DAL.ApiDAL.GetCDNAdapter(adapterId);
-                if (response.Adapter == null)
+                CDNAdapter adapter = null;
+                string key = DAL.UtilsDal.GetCDNAdapterKey(groupId, adapterId);
+                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
+                    /*groupId, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+
+                if (!cacheResult || adapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, eResponseStatus.AdapterNotExists.ToString());
                 }
                 else
                 {
+                    response.Adapter = adapter;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
-
             }
             catch (Exception ex)
             {
@@ -8431,9 +8462,13 @@ namespace Core.Api
 
             try
             {
+                CDNPartnerSettings settings = new CDNPartnerSettings();
                 // get group cdn settings
-                var settings = DAL.ApiDAL.GetCdnSettings(groupId);
-                if (settings != null)
+                string key = DAL.UtilsDal.GetGroupCdnSettingsKey(groupId);
+                bool cacheResult = LayeredCache.Instance.Get<CDNPartnerSettings>(key, ref settings, GetCdnSettings, new Dictionary<string, object>() { { "groupId", groupId } },
+                    /*groupId, */GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
+
+                if (cacheResult && settings != null)
                 {
                     int defaultAdapterId;
 
@@ -8461,15 +8496,19 @@ namespace Core.Api
                         return response;
                     }
 
-                    // get the adapter
-                    response.Adapter = DAL.ApiDAL.GetCDNAdapter(defaultAdapterId);
+                    // get the adapter                   
+                    key = DAL.UtilsDal.GetCDNAdapterKey(groupId, defaultAdapterId);
+                    CDNAdapter cdnAdapter = new CDNAdapter();
+                    cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref cdnAdapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", defaultAdapterId } },
+                        /*groupId, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
 
-                    if (response.Adapter == null)
+                    if (!cacheResult || cdnAdapter == null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, eResponseStatus.AdapterNotExists.ToString());
                     }
                     else
                     {
+                        response.Adapter = cdnAdapter;
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
@@ -8944,5 +8983,58 @@ namespace Core.Api
             }
             return response;
         }
+
+        private static Tuple<CDNAdapter, bool> GetCdnAdapter(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            CDNAdapter result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count >= 1)
+                {
+                    bool shouldGetOnlyActive = true;
+                    if (funcParams.ContainsKey("shouldGetOnlyActive"))
+                    {
+                        shouldGetOnlyActive = (bool)funcParams["shouldGetOnlyActive"];
+                    }
+                    if (funcParams.ContainsKey("adapterId"))
+                    {
+                        int? adapterId;
+                        adapterId = funcParams["adapterId"] as int?;
+                        result = DAL.ApiDAL.GetCDNAdapter(adapterId.Value, shouldGetOnlyActive);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCdnAdapter faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<CDNAdapter, bool>(result, res);
+        }
+
+        private static Tuple<CDNPartnerSettings, bool> GetCdnSettings(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            CDNPartnerSettings result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId;
+                        groupId = funcParams["groupId"] as int?;
+                        result = DAL.ApiDAL.GetCdnSettings(groupId.Value);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCdnSettings faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<CDNPartnerSettings, bool>(result, res);
+        }    
     }
 }
