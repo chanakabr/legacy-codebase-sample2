@@ -2,6 +2,7 @@
 using ApiObjects.Billing;
 using ApiObjects.Response;
 using Billing;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using Pricing;
@@ -330,35 +331,41 @@ namespace ConditionalAccess
                     return false;
                 }
             }
-
+            bool res = false;
             switch (transactionResponse.State)
             {
                 case eTransactionState.OK:
                 {
-                    return HandleRenewSubscriptionSuccess(cas, groupId, siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
+                    res = HandleRenewSubscriptionSuccess(cas, groupId, siteguid, purchaseId, billingGuid, logString, productId, ref endDate, householdId, price, currency, paymentNumber,
                         totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, billingUserName, billingPassword, wsBillingService, transactionResponse);
+                    if (res)
+                    {
+                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetRenewInvalidationKey(householdId));
+                    }
                 }
-
+                break;
                 case eTransactionState.Pending:
                 {
                     // renew subscription pending!
-                    return HandleRenewSubscriptionPending(cas, groupId,
+                    res = HandleRenewSubscriptionPending(cas, groupId,
                         siteguid, purchaseId, billingGuid, logString, productId, endDate, householdId, shouldSwitchToMasterUser, price, currency,
                         billingUserName, billingPassword, wsBillingService);
                 }
-
+                break;
                 case eTransactionState.Failed:
                 {
                     // renew subscription failed!
-                    return HandleRenewSubscriptionFailed(cas, groupId,
+                    res = HandleRenewSubscriptionFailed(cas, groupId,
                         siteguid, purchaseId, logString, productId, subscription, householdId, transactionResponse.FailReasonCode);
                 }
+                break;
                 default:
                 {
                     log.Error("Transaction state is unknown");
-                    return false;
                 }
+                break;
             }
+            return res;
         }
 
         protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string siteguid, string billingGuid,
