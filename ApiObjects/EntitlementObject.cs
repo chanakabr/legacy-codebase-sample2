@@ -5,6 +5,7 @@ using System.Text;
 
 namespace ApiObjects
 {
+    [Serializable]
     public class EntitlementObject
     {
         public int ID;
@@ -31,5 +32,7 @@ namespace ApiObjects
             startDate = p_startDate;
             endDate = p_endDate;
         }
+
+        public EntitlementObject() { }
     }
 }

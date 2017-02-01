@@ -7623,7 +7623,7 @@ namespace ConditionalAccess
                     int domainID = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
-                    DomainEntitlements userEntitlements = null;
+                    DomainEntitlements domainEntitlements = null;
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == DomainSuspentionStatus.OK)
@@ -7631,12 +7631,10 @@ namespace ConditionalAccess
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         // Get all user entitlements
-                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, sPricingUsername, sPricingPassword, userEntitlements))
+                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, sPricingUsername, sPricingPassword, ref domainEntitlements))
                         {
-                            log.DebugFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
+                            log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
                         }
-
-
                     }
                     // set sUserGUID to empty for Utils.GetMediaFileFinalPrice logic
                     else
@@ -7706,7 +7704,7 @@ namespace ConditionalAccess
                                 Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID,
                                     ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
                                     sClientIP, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
-                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, userEntitlements, mediaID, userSuspendStatus, false);
+                                    ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, domainEntitlements, mediaID, userSuspendStatus, false);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
 
@@ -14498,11 +14496,8 @@ namespace ConditionalAccess
                 response.status.Message = eResponseStatus.NotEntitled.ToString();
                 return response;
             }
-
-            string sPricingUsername = string.Empty;
-            string sPricingPassword = string.Empty;
-            Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
-            ConditionalAccess.DomainEntitlements.BundleEntitlements bundleEntitlements = Utils.InitializeDomainBundles(domainID, m_nGroupID, new List<int>(), sPricingUsername, sPricingPassword);            
+            
+            ConditionalAccess.DomainEntitlements.BundleEntitlements bundleEntitlements = Utils.InitializeDomainBundles(domainID, m_nGroupID, new List<int>());            
             if (bundleEntitlements != null)
             {
                 // Get all subscriptions

@@ -860,9 +860,9 @@ namespace DAL
             return string.Format("channels_containing_media_{0}", mediaId);
         }
 
-        public static string GetDomainEntitlementsKey(int domainID)
+        public static string GetDomainEntitlementsKey(int groupId, int domainId)
         {
-            return string.Format("domain_Entitlement_{0}", domainID);
+            return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetFileCdnDataKey(int fileId)
