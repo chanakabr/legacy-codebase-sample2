@@ -6787,6 +6787,35 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        internal static Tuple<DataTable, bool> GetFileUrlLinks(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DataTable dt = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaFileId"))
+                    {
+                        int? mediaFileId;
+                        mediaFileId = funcParams["mediaFileId"] as int?;
+
+                        if (mediaFileId.HasValue)
+                        {
+                            dt = ConditionalAccessDAL.GetFileCdnData(mediaFileId.Value);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetFileUrlLinks failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<DataTable, bool>(dt, res);
+        }
     }
 }
 

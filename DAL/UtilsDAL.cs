@@ -855,5 +855,15 @@ namespace DAL
             return string.Format("add_role_userId_{0}", userId);
         }
 
+        public static string GetChannelsContainingMediaKey(int mediaId)
+        {
+            return string.Format("channels_containing_media_{0}", mediaId);
+        }
+
+        public static string GetFileCdnDataKey(int fileId)
+        {
+            return string.Format("cdn_fileId_{0}", fileId);
+        }
+
     }
 }

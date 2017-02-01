@@ -36,6 +36,7 @@ using WS_Pricing;
 using WS_Users;
 using EventManager;
 using NPVR;
+using CachingProvider.LayeredCache;
 
 namespace ConditionalAccess
 {
@@ -85,6 +86,8 @@ namespace ConditionalAccess
         private const string ERROR_SUBSCRIPTION_NOT_EXSITS = "Subscription \\{0} not exists";
         private const string ERROR_SUBSCRIPTION_NOT_RENEWABLE = "Subscription \\{0} not renewable";
         private const string ERROR_SUBSCRIPTION_ALREADY_PURCHASED = "Subscription \\{0} already purchased";
+
+        private const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
 
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
@@ -11716,50 +11719,26 @@ namespace ConditionalAccess
             return status;
         }
 
-        private bool TryGetFileUrlLinks(int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
-            ref int mainStreamingCoID, ref int altStreamingCoID, ref int nMediaID)
+        private bool TryGetFileUrlLinks(int groupId, int mediaFileID, string userIP, string siteGuid, ref string mainUrl, ref string altUrl,
+            ref int mainStreamingCoID, ref int altStreamingCoID, ref int mediaID)
         {
             bool res = false;
 
-            // True - use DAL, with "our" slim stored procedure; false - use Catalog, with its full stored procedure
-            bool shouldUseDalOrCatalog = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldGetMediaFileDetailsDirectly");
-
-            if (shouldUseDalOrCatalog)
+            string key = DAL.UtilsDal.GetFileCdnDataKey(mediaFileID);
+            DataTable dt = null;
+            // try to get from cache            
+            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, Utils.GetFileUrlLinks, new Dictionary<string, object>() { { "mediaFileId", mediaFileID } }, groupId, FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME);
+            if (cacheResult && dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                res = ConditionalAccessDAL.GetFileUrlLinks(mediaFileID, siteGuid, m_nGroupID, ref mainUrl, ref altUrl, ref mainStreamingCoID, ref altStreamingCoID, ref nMediaID);
-            }
-            else
-            {
-                WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
-                request.m_lMediaFileIDs = new int[1] { mediaFileID };
-                request.m_nGroupID = m_nGroupID;
-                request.m_oFilter = new WS_Catalog.Filter();
-                request.m_sSiteGuid = siteGuid;
-                request.m_sUserIP = userIP;
-                request.m_sSignString = Guid.NewGuid().ToString();
-                request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-                request.m_lCoGuids = new string[0];
-                using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
-                {
-                    catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(Utils.GetWSURL("WS_Catalog"));
-                    WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
+                DataRow dr = dt.Rows[0];
 
-                    if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
-                    {
-                        WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
-                        if (mf != null && mf.m_oFile != null)
-                        {
-                            res = true;
-                            mainUrl = mf.m_oFile.m_sUrl;
-                            altUrl = mf.m_oFile.m_sAltUrl;
-                            mainStreamingCoID = mf.m_oFile.m_nCdnID;
-                            altStreamingCoID = mf.m_oFile.m_nAltCdnID;
-                            nMediaID = mf.m_oFile.m_nMediaID;
-                        }
-                    }
-                }
+                mainUrl = ODBCWrapper.Utils.GetSafeStr(dr, "mainUrl");
+                altUrl = ODBCWrapper.Utils.GetSafeStr(dr, "altUrl");
+                mainStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "CdnID");
+                altStreamingCoID = ODBCWrapper.Utils.GetIntSafeVal(dr, "AltCdnID");
+                mediaID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_id");
+                res = true;
             }
-
             return res;
         }
 
@@ -11828,7 +11807,7 @@ namespace ConditionalAccess
                     }
 
                     // validate file parameters
-                    if (!TryGetFileUrlLinks(nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, ref fileAltStreamingCoID, ref nMediaID))
+                    if (!TryGetFileUrlLinks(m_nGroupID, nMediaFileID, sUserIP, sSiteGuid, ref fileMainUrl, ref fileAltUrl, ref fileMainStreamingCoID, ref fileAltStreamingCoID, ref nMediaID))
                     {
                         log.Debug("GetLicensedLinks - " + string.Format("Failed to retrieve data from Catalog, user:{0}, MFID:{1}, link:{2}", sSiteGuid, nMediaFileID, sBasicLink));
                         res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidFileData.ToString(), (int)eResponseStatus.Error, eResponseStatus.Error.ToString());

@@ -2711,7 +2711,25 @@ namespace DAL
                 result = dataSet.Tables[0].Rows[0];
             }
 
-            return result;            
+            return result;
+        }
+        
+        public static DataTable GetFileCdnData(int mediaFileId)
+        {
+            DataTable response = null;
+
+            StoredProcedure sp = new StoredProcedure("Get_FileUrlLinks");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", mediaFileId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                response = ds.Tables[0];
+            }
+
+            return response;
         }
     }
 }
