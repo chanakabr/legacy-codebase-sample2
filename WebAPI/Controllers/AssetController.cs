@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -868,14 +869,16 @@ namespace WebAPI.Controllers
                 string baseUrl = string.Format("{0}://{1}{2}", HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Authority, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
                 foreach (var source in response.Sources)
                 {
+                    StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+
                     if (!string.IsNullOrEmpty(userId) && userId != "0")
                     {
-                        source.Url = string.Format("{0}/{1}/ks/{2}", baseUrl, source.Url, ks.ToString());
+                        url.AppendFormat("/ks/{0}", ks.ToString());
                     }
-                    else
-                    {
-                        source.Url = string.Format("{0}/{1}", baseUrl, source.Url);
-                    }
+                    source.Url = url.ToString();
+                    source.Protocols = !string.IsNullOrEmpty(source.Url) ? (source.Url.ToLower().StartsWith("https") ? "https" : "http") : string.Empty;
+
                 }
             }
             catch (ClientException ex)
