@@ -884,7 +884,6 @@ namespace ConditionalAccess
                         m_sTemplateName = dummyRequest.m_sTemplateName,
                         m_sItemName = itemName,
                         offerType = transactionType.ToString(),
-                        m_sPrice = dummyRequest.m_sPrice,
                         m_sPurchaseDate = purchaseDateString
                     };
 
