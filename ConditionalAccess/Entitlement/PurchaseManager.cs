@@ -445,69 +445,67 @@ namespace ConditionalAccess
 
                                     if (subscription.m_bIsRecurring)
                                     {
-                                        
-                                            DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
+                                        DateTime nextRenewalDate = endDate.Value.AddMinutes(-5); // default  
 
-                                            long endDateUnix = 0;
+                                        long endDateUnix = 0;
 
-                                            if (endDate != null && endDate.HasValue)
+                                        if (endDate != null && endDate.HasValue)
+                                        {
+                                            endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
+                                        }
+
+                                        if (!isGiftCard)
+                                        {
+                                            // call billing process renewal
+                                            string billingUserName = string.Empty;
+                                            string billingPassword = string.Empty;
+                                            module wsBillingService = null;
+
+                                            try
                                             {
-                                                endDateUnix = TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate);
-                                            }
+                                                cas.InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
+                                                PaymentGateway paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
 
-                                            if (!isGiftCard)
-                                            {
-                                                // call billing process renewal
-                                                string billingUserName = string.Empty;
-                                                string billingPassword = string.Empty;
-                                                module wsBillingService = null;
-
-                                                try
+                                                if (paymentGatewayResponse == null)
                                                 {
-                                                    cas.InitializeBillingModule(ref wsBillingService, ref billingUserName, ref billingPassword);
-                                                    PaymentGateway paymentGatewayResponse = wsBillingService.GetPaymentGatewayByBillingGuid(billingUserName, billingPassword, householdId, billingGuid);
-
-                                                    if (paymentGatewayResponse == null)
-                                                    {
-                                                        // error getting PG
-                                                        log.Error("Error getting the PG - GetPaymentGatewayByBillingGuid");
-                                                    }
-                                                    else
-                                                    {
-                                                        nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
-                                                    }
-
+                                                    // error getting PG
+                                                    log.Error("Error getting the PG - GetPaymentGatewayByBillingGuid");
                                                 }
-                                                catch (Exception ex)
+                                                else
                                                 {
-                                                    log.Error("Error while trying to get the PG", ex);
+                                                    nextRenewalDate = endDate.Value.AddMinutes(paymentGatewayResponse.RenewalStartMinutes);
                                                 }
+
                                             }
-                                            else
+                                            catch (Exception ex)
                                             {
-                                                PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, purchaseID, billingGuid);
+                                                log.Error("Error while trying to get the PG", ex);
                                             }
+                                        }
+                                        else
+                                        {
+                                            PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, householdId, purchaseID, billingGuid);
+                                        }
 
-                                            // enqueue renew transaction
-                                            #region Renew transaction message in queue
+                                        // enqueue renew transaction
+                                        #region Renew transaction message in queue
 
-                                            RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
 
-                                            RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
-                                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                                        RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
+                                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
 
-                                            if (!enqueueSuccessful)
-                                            {
-                                                log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                                            }
-                                            else
-                                            {
-                                                log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", 
-                                                    nextRenewalDate, data);
-                                            }
+                                        if (!enqueueSuccessful)
+                                        {
+                                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
+                                        }
+                                        else
+                                        {
+                                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}",
+                                                nextRenewalDate, data);
+                                        }
 
-                                            #endregion
-                                       
+                                        #endregion
                                     }
 
                                     // build notification message
@@ -570,31 +568,37 @@ namespace ConditionalAccess
         }
 
         private static void SendReminderEmails(BaseConditionalAccess cas, int groupId, long endDate, DateTime renewDate,
-            string siteGuid, long purchaseId, string billingGuid)
+            string siteGuid, long householdId, long purchaseId, string billingGuid)
         {
             List<int> remindersDays = PricingDAL.GetGiftCardReminders(groupId);
 
             if (remindersDays != null && remindersDays.Count > 0)
             {
-                RenewTransactionsQueue queue = new RenewTransactionsQueue();
+                var domain = Utils.GetDomainInfo((int)householdId, groupId);
 
-                foreach (var reminder in remindersDays)
+                if (domain != null && domain.m_nStatus == 0 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                 {
-                    DateTime eta = renewDate.AddDays(-1 * reminder);
+                    string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
 
-                    RenewTransactionData data = new RenewTransactionData(groupId, siteGuid, purchaseId, billingGuid,
-                        endDate, eta, eSubscriptionRenewRequestType.Reminder);
-                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
 
-                    if (!enqueueSuccessful)
+                    foreach (var reminder in remindersDays)
                     {
-                        log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
-                    }
-                    else
-                    {
-                        log.DebugFormat("New task created (upon Gift card subscription purchase success). next reminder date: {0}, data: {1}", eta, data);
-                    }
+                        DateTime eta = renewDate.AddDays(-1 * reminder);
 
+                        RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
+                            endDate, eta, eSubscriptionRenewRequestType.Reminder);
+                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+
+                        if (!enqueueSuccessful)
+                        {
+                            log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                        }
+                        else
+                        {
+                            log.DebugFormat("New task created (upon Gift card subscription purchase success). next reminder date: {0}, data: {1}", eta, data);
+                        }
+                    }
                 }
             }
         }
@@ -880,7 +884,6 @@ namespace ConditionalAccess
                         m_sTemplateName = dummyRequest.m_sTemplateName,
                         m_sItemName = itemName,
                         offerType = transactionType.ToString(),
-                        m_sPrice = dummyRequest.m_sPrice,
                         m_sPurchaseDate = purchaseDateString
                     };
 

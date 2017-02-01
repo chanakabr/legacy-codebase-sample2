@@ -3332,7 +3332,6 @@ namespace ConditionalAccess
             return mediaFilesStatus;
         }
 
-
         /// <summary>
         /// Validates that a user exists and belongs to a given domain
         /// </summary>
@@ -3342,6 +3341,21 @@ namespace ConditionalAccess
         /// <returns></returns>
         public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID)
         {
+            Users.User user;
+
+            return ValidateUser(groupId, siteGuid, ref houseHoldID, out user);
+        }
+
+        /// <summary>
+        /// Validates that a user exists and belongs to a given domain
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="siteGuid"></param>
+        /// <param name="domainId"></param>
+        /// <returns></returns>
+        public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID, out Users.User user)
+        {
+            user = null;
             ResponseStatus status = ResponseStatus.InternalError;
             long lSiteGuid = 0;
             if (siteGuid.Length == 0 || !Int64.TryParse(siteGuid, out lSiteGuid) || lSiteGuid == 0)
@@ -3359,7 +3373,7 @@ namespace ConditionalAccess
             try
             {
                 UserResponseObject response = userService.GetUserData(username, password, siteGuid, string.Empty);
-
+   
                 // Make sure response is OK
                 if (response != null)
                 {
@@ -3370,6 +3384,8 @@ namespace ConditionalAccess
                         //check Domain and suspend
                         if (response.m_user != null)
                         {
+                            user = response.m_user;
+
                             if (houseHoldID != 0 && houseHoldID != response.m_user.m_domianID)
                             {
                                 status = ResponseStatus.UserNotIndDomain;
@@ -4027,9 +4043,16 @@ namespace ConditionalAccess
 
         internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
         {
+            Users.User user;
+            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+        }
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
+        {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             status.Code = -1;
             domain = null;
+            user = null;
 
             // If no user - go immediately to domain validation
             if (string.IsNullOrEmpty(siteGuid))
@@ -4039,7 +4062,7 @@ namespace ConditionalAccess
             else
             {
                 // Get response from users WS
-                ResponseStatus userStatus = ValidateUser(groupId, siteGuid, ref householdId);
+                ResponseStatus userStatus = ValidateUser(groupId, siteGuid, ref householdId, out user);
                 if (householdId == 0)
                 {
                     status.Code = (int)eResponseStatus.UserWithNoDomain;
@@ -6835,6 +6858,34 @@ namespace ConditionalAccess
             return new Tuple<DomainEntitlements, bool>(domainEntitlements, res);
         }
 
+        internal static Tuple<DataTable, bool> GetFileUrlLinks(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DataTable dt = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaFileId"))
+                    {
+                        int? mediaFileId;
+                        mediaFileId = funcParams["mediaFileId"] as int?;
+
+                        if (mediaFileId.HasValue)
+                        {
+                            dt = ConditionalAccessDAL.GetFileCdnData(mediaFileId.Value);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetFileUrlLinks failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<DataTable, bool>(dt, res);
+        }
+
     }
 }
-

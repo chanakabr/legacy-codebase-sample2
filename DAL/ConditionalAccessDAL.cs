@@ -2691,5 +2691,45 @@ namespace DAL
             }
             return null;
         }
+
+        public static DataRow Get_SubscriptionPurchaseForReminder(int groupId, long purchaseId)
+        {
+            DataRow result = null;
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseForReminder");
+            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@PurchaseId", purchaseId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null &&
+                dataSet.Tables != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows != null &&
+                dataSet.Tables[0].Rows.Count > 0)
+            {
+                result = dataSet.Tables[0].Rows[0];
+            }
+
+            return result;
+        }
+        
+        public static DataTable GetFileCdnData(int mediaFileId)
+        {
+            DataTable response = null;
+
+            StoredProcedure sp = new StoredProcedure("Get_FileUrlLinks");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", mediaFileId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                response = ds.Tables[0];
+            }
+
+            return response;
+        }
     }
 }

@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
-    public class GiftCardReminderMailRequest : PurchaseMailRequest
+    public class GiftCardReminderMailRequest : MailRequestObj
     {
         public string daysLeft;
         public string endDate;
+        public string itemName;
 
         public override List<MCGlobalMergeVars> getRequestMergeObj()
         {
-            List<MCGlobalMergeVars> result = base.getRequestMergeObj();
+            List<MCGlobalMergeVars> result = new List<MCGlobalMergeVars>();
 
             MCGlobalMergeVars mergeDaysLeft = new MCGlobalMergeVars()
             {
@@ -34,7 +35,7 @@ namespace ApiObjects
             MCGlobalMergeVars mergeOfferName = new MCGlobalMergeVars()
             {
                 name = "subscriptionName",
-                content = this.m_sItemName
+                content = this.itemName
             };
 
             result.Add(mergeOfferName);
