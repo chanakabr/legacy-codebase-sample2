@@ -6819,6 +6819,66 @@ namespace ConditionalAccess
                 }
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "usersInDomain", usersInDomain }, { "mapper", mapper } };
                 res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId, GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
+                if (res && domainEntitlements != null)
+                {
+                    // remove expired PPV's
+                    if (domainEntitlements.DomainPpvEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
+                    {
+                        List<string> keysToRemove = new List<string>();
+                        foreach (KeyValuePair<string, EntitlementObject> pair in domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary)
+                        {
+                            if (pair.Value.endDate.HasValue && pair.Value.endDate.Value <= DateTime.UtcNow)
+                            {
+                                keysToRemove.Add(pair.Key);
+                            }
+                        }
+
+                        foreach (string keyToRemove in keysToRemove)
+                        {
+                            domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary.Remove(keyToRemove);
+                        }
+                    }
+
+                    // remove expired Bundles
+                    if (domainEntitlements.DomainBundleEntitlements != null)
+                    {
+                        // remove expired subscriptions
+                        if (domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null)
+                        {
+                            List<string> keysToRemove = new List<string>();
+                            foreach (KeyValuePair<string, UserBundlePurchase> pair in domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions)
+                            {
+                                if ((pair.Value.dtEndDate != null && pair.Value.dtEndDate <= DateTime.UtcNow) || pair.Value.nNumOfUses >= pair.Value.nMaxNumOfUses)
+                                {
+                                    keysToRemove.Add(pair.Key);
+                                }
+                            }
+
+                            foreach (string keyToRemove in keysToRemove)
+                            {
+                                domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Remove(keyToRemove);
+                            }
+                        }
+
+                        // remove expired collections
+                        if (domainEntitlements.DomainBundleEntitlements.EntitledCollections != null)
+                        {
+                            List<string> keysToRemove = new List<string>();
+                            foreach (KeyValuePair<string, UserBundlePurchase> pair in domainEntitlements.DomainBundleEntitlements.EntitledCollections)
+                            {
+                                if ((pair.Value.dtEndDate != null && pair.Value.dtEndDate <= DateTime.UtcNow) || pair.Value.nNumOfUses >= pair.Value.nMaxNumOfUses)
+                                {
+                                    keysToRemove.Add(pair.Key);
+                                }
+                            }
+
+                            foreach (string keyToRemove in keysToRemove)
+                            {
+                                domainEntitlements.DomainBundleEntitlements.EntitledCollections.Remove(keyToRemove);
+                            }
+                        }
+                    }
+                }
             }
 
             catch (Exception ex)
