@@ -6835,7 +6835,10 @@ namespace ConditionalAccess
             {
                 UtilsDal.GetCancelSubscriptionInvalidationKey(domainId),
                 UtilsDal.GetCancelTransactionInvalidationKey(domainId),
-                UtilsDal.GetPurchaseInvalidationKey(domainId)
+                UtilsDal.GetPurchaseInvalidationKey(domainId),
+                UtilsDal.GetGrantEntitlementInvalidationKey(domainId),
+                UtilsDal.GetCancelServiceNowInvalidationKey(domainId),
+                UtilsDal.GetRenewInvalidationKey(domainId)
             };
         }
 

@@ -11429,6 +11429,8 @@ namespace ConditionalAccess
 
                                         EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
                                     }
+
+                                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelServiceNowInvalidationKey(p_nDomainID));
                                 }
                                 else
                                 {
@@ -13363,6 +13365,11 @@ namespace ConditionalAccess
                         status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product Type");
                         log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                         break;
+                }
+
+                if (status != null && status.Code == (int)eResponseStatus.OK)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetGrantEntitlementInvalidationKey(householdId));
                 }
             }
             catch (Exception ex)

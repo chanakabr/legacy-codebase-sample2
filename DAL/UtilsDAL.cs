@@ -894,5 +894,21 @@ namespace DAL
         {
             return string.Format("purchase_domainId_{0}", domainId);
         }
+
+        public static string GetGrantEntitlementInvalidationKey(long domainId)
+        {
+            return string.Format("grant_domainId_{0}", domainId);
+        }
+
+
+        public static string GetCancelServiceNowInvalidationKey(int domainId)
+        {
+            return string.Format("cancel_now_domainId_{0}", domainId);
+        }
+
+        public static string GetRenewInvalidationKey(long domainId)
+        {
+            return string.Format("renew_domainId_{0}", domainId);
+        }
     }
 }
