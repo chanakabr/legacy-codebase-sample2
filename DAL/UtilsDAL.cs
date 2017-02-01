@@ -704,7 +704,7 @@ namespace DAL
         public static string GetPlayCycleKey(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
-        }        
+        }
 
         public static string GetDomainQuotaKey(long domainId)
         {
@@ -741,7 +741,7 @@ namespace DAL
                         int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
                         groupFeatures.Add(groupFeature, status == 1);
                     }
-                }               
+                }
             }
 
             return groupFeatures;
@@ -785,15 +785,26 @@ namespace DAL
         {
             return string.Format("media_{0}_concurrency_rules", mediaId);
         }
-        
+
         public static string GetChannelsContainingMediaKey(int mediaId)
         {
             return string.Format("channels_containing_media_{0}", mediaId);
         }
 
-        public static Tuple<int,bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
+        public static string GetGroupCdnSettingsKey(int groupId)
         {
-            bool res = false;    
+            return string.Format("group_{0}_cdn_settings", groupId);
+        }
+
+        public static string GetCDNAdapterKey(int groupId, int defaultAdapterId)
+        {
+            return string.Format("group_{0}_cdn_default_adapter_{1}", groupId, defaultAdapterId);
+        }
+
+
+        public static Tuple<int, bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
             int mediaFileID = 0;
             Dictionary<string, int> result = new Dictionary<string, int>();
             try
@@ -817,7 +828,7 @@ namespace DAL
             {
                 log.Error(string.Format("Get_MediaFileIDByCoGuid faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            return new Tuple<int,bool>(mediaFileID, res);
+            return new Tuple<int, bool>(mediaFileID, res);
         }
 
 
@@ -843,7 +854,7 @@ namespace DAL
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
-        }     
+        }
 
     }
 }
