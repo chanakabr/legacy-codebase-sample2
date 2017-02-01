@@ -2008,7 +2008,7 @@ namespace DAL
             dt = spGet_AllUsersEntitlements.Execute();
 
             if (dt != null && dt.Rows.Count > 0)
-            {
+            {                
                 int ppvmTagLength = 6;
                 foreach (DataRow dr in dt.Rows)
                 {

@@ -116,7 +116,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="UserEntitlementsObject.cs" />
+    <Compile Include="DomainEntitlements.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
     <Compile Include="BillingTransactionContainer.cs" />

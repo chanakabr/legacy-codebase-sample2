@@ -7620,17 +7620,20 @@ namespace ConditionalAccess
                     int domainID = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
-                    UserEntitlementsObject userEntitlements = new UserEntitlementsObject();
+                    DomainEntitlements userEntitlements = null;
 
                     // check if user is valid
                     if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == DomainSuspentionStatus.OK)
                     {
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
-                        //Get all user PPV entitlements
-                        Utils.InitializeUsersEntitlements(m_nGroupID, domainID, allUsersInDomain, mapper, userEntitlements.userPpvEntitlements);
-                        //Get all user bundle entitlements
-                        Utils.InitializeUsersBundles(domainID, m_nGroupID, allUsersInDomain, sPricingUsername, sPricingPassword, userEntitlements.userBundleEntitlements);
+                        // Get all user entitlements
+                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, sPricingUsername, sPricingPassword, userEntitlements))
+                        {
+                            log.DebugFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
+                        }
+
+
                     }
                     // set sUserGUID to empty for Utils.GetMediaFileFinalPrice logic
                     else
@@ -14520,8 +14523,7 @@ namespace ConditionalAccess
             string sPricingUsername = string.Empty;
             string sPricingPassword = string.Empty;
             Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
-            ConditionalAccess.UserEntitlementsObject.BundleEntitlements bundleEntitlements = new UserEntitlementsObject.BundleEntitlements();
-            Utils.InitializeUsersBundles(domainID, m_nGroupID, new List<int>(), sPricingUsername, sPricingPassword, bundleEntitlements);
+            ConditionalAccess.DomainEntitlements.BundleEntitlements bundleEntitlements = Utils.InitializeDomainBundles(domainID, m_nGroupID, new List<int>(), sPricingUsername, sPricingPassword);            
             if (bundleEntitlements != null)
             {
                 // Get all subscriptions

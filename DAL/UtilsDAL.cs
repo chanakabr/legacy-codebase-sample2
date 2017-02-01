@@ -860,5 +860,10 @@ namespace DAL
         {
             return string.Format("channels_containing_media_{0}", mediaId);
         }
+
+        public static string GetDomainEntitlementsKey(int domainID)
+        {
+            return string.Format("domain_Entitlement_{0}", domainID);
+        }
     }
 }

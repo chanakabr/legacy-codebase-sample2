@@ -8,23 +8,23 @@ using System.Text;
 namespace ConditionalAccess
 {
 
-    public class UserEntitlementsObject
+    public class DomainEntitlements
     {
 
-        internal PPVEntitlements userPpvEntitlements { get; set; }
-        internal BundleEntitlements userBundleEntitlements { get; set; }
+        internal PPVEntitlements domainPpvEntitlements { get; set; }
+        internal BundleEntitlements domainBundleEntitlements { get; set; }
 
         /// <summary>
-        /// represents all the user entitlements
+        /// represents all the domain entitlements
         /// </summary>
-        public UserEntitlementsObject()
+        public DomainEntitlements()
         {
-            userPpvEntitlements = new PPVEntitlements();
-            userBundleEntitlements = new BundleEntitlements();
+            domainPpvEntitlements = new PPVEntitlements();
+            domainBundleEntitlements = new BundleEntitlements();
         }
 
         /// <summary>
-        ///  represents the user ppv entitlements object
+        ///  represents the domain ppv entitlements object
         /// </summary>
         internal class PPVEntitlements
         {
@@ -42,7 +42,7 @@ namespace ConditionalAccess
 
 
         /// <summary>
-        /// represents the user bundle (subscriptions and collections) entitlements object
+        /// represents the domain bundle (subscriptions and collections) entitlements object
         /// </summary>
         internal class BundleEntitlements
         {
