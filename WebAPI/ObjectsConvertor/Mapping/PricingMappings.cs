@@ -30,7 +30,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sGroupName))
                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
                .ForMember(dest => dest.MaxUsesNumber, opt => opt.MapFrom(src => src.m_nMaxUseCountForCoupon))
-               .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon));
+               .ForMember(dest => dest.MaxUsesNumberOnRenewableSub, opt => opt.MapFrom(src => src.m_nMaxRecurringUsesCountForCoupon))
+               .ForMember(dest => dest.CouponGroupType, opt => opt.MapFrom(src => ConvertCouponGroupType(src.couponGroupType)))
+               ;
 
             // Price
             Mapper.CreateMap<Price, KalturaPrice>()
@@ -235,6 +237,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        private static KalturaCouponGroupType ConvertCouponGroupType(CouponGroupType couponType)
+        {
+            KalturaCouponGroupType result = KalturaCouponGroupType.COUPON;
+
+            switch (couponType)
+            {
+                case CouponGroupType.Coupon:
+                {
+                    result = KalturaCouponGroupType.COUPON;
+                    break;
+                }
+                case CouponGroupType.GiftCard:
+                {
+                    result = KalturaCouponGroupType.GIFT_CARD;
+                    break;
+                }
+                default:
+                break;
+            }
+
+            return result;
+        }
         private static KalturaPurchaseStatus ConvertPriceReasonToPurchaseStatus(PriceReason priceReason)
         {
             KalturaPurchaseStatus result;

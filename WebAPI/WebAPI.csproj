@@ -986,6 +986,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaCouponGroupType.cs" />
     <Compile Include="Models\Pricing\KalturaPpvPrice.cs" />
     <Compile Include="Models\Pricing\KalturaProductPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionFilter.cs" />

@@ -7582,6 +7582,11 @@
             Maximum number of uses for each coupon in the group on a renewable subscription
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.CouponGroupType">
+            <summary>
+            Type of the coupon group
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">
             <summary>
             Discount module
