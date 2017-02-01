@@ -611,11 +611,21 @@ namespace ConditionalAccess
             // get the time span between now and the first period end date
             var timeSpan = initialEndDate - entitlementDate;
 
-            // expand (multiply) this period by the coupon's recurring cound
-            var newTimeSpan = new TimeSpan(timeSpan.Ticks * coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon);
+            DateTime endDate;
 
-            // new end date is now + X times the initial period
-            DateTime endDate = initialEndDate + newTimeSpan;
+            if (coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon > 0)
+            {
+                // expand (multiply) this period by the coupon's recurring cound
+                var newTimeSpan = new TimeSpan(timeSpan.Ticks * coupon.m_oCouponGroup.m_nMaxRecurringUsesCountForCoupon);
+
+                // new end date is now + X times the initial period
+                endDate = DateTime.UtcNow + newTimeSpan;
+            }
+            else
+            {
+                // if it is not recurring, simply use first, inital end date
+                endDate = initialEndDate;
+            }
 
             return endDate;
         }
