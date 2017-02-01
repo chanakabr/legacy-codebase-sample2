@@ -204,7 +204,7 @@ namespace ElasticSearch.Utilities
 
                     if (totalItems > 0)
                     {
-                        // get country from first (and hopefully only) result
+                        // get country from first (and hopefully only) result 
                         JObject jObj = jsonObj.SelectToken("hits.hits").First().SelectToken("fields") as JObject;
                         if (jObj != null && jObj.HasValues)
                         {
