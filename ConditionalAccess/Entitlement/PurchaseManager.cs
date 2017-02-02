@@ -350,6 +350,14 @@ namespace ConditionalAccess
                     subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
                 {
                     isGiftCard = true;
+                    priceResponse = new Price()
+                    {
+                        m_dPrice = 0.0,
+                        m_oCurrency = new Currency()
+                        {
+                            m_sCurrencyCD3 = currency
+                        }
+                    };
                 }
 
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;

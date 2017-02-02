@@ -1152,6 +1152,12 @@ namespace ConditionalAccess
                             p = GetPriceAfterDiscount(p, voucherDiscount, 1);
                         }
                     }
+                    // If it is a gift card - it should be free
+                    else if (theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
+                        theCouponData.Coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard)
+                    {
+                        p.m_dPrice = 0;
+                    }
                     else if (theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
                             theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
                     {
