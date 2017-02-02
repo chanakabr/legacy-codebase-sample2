@@ -3265,7 +3265,7 @@ namespace ConditionalAccess
                 DateTime? mediaEndDate, mediaFileEndDate, mediaFinalEndDate;
                 DateTime currentDate;
 
-                if (cacheResult)
+                if (cacheResult && fileDatatables != null)
                 {
                     foreach (DataTable dt in fileDatatables.Values)
                     {

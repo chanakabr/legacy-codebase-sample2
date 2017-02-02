@@ -383,7 +383,7 @@ namespace CachingProvider.LayeredCache
                     {
                         foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                         {
-                            if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig, groupId) && tupleResults != null)
+                            if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig, groupId) && tupleResults != null && tupleResults.Count > 0)
                             {
                                 foreach (KeyValuePair<string, Tuple<T, long>> pair in tupleResults)
                                 {
