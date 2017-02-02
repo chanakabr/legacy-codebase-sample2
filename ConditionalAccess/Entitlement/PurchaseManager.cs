@@ -564,7 +564,7 @@ namespace ConditionalAccess
             {
                 var domain = Utils.GetDomainInfo((int)householdId, groupId);
 
-                if (domain != null && domain.m_nStatus == 0 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
+                if (domain != null && domain.m_nStatus == 1 && domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
                 {
                     string masterSiteGuid = domain.m_masterGUIDs.First().ToString();
 
