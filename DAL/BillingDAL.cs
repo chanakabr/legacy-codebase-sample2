@@ -1707,12 +1707,13 @@ namespace DAL
         }
 
         public static bool GetPendingPaymentGatewayTransactionDetails(int paymentGatewayId, string externalTransactionId, out string billingGuid, out int productType,
-            out int transactionState, out int pendingTransactionState)
+            out int transactionState, out int pendingTransactionState, out int domainId)
         {
             billingGuid = string.Empty;
             productType = 0;
             transactionState = 0;
             pendingTransactionState = 0;
+            domainId = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PendingPaymentGatewayTransactionDetails");
@@ -1730,6 +1731,7 @@ namespace DAL
                         productType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_type"]);
                         transactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["state"]);
                         pendingTransactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["pgpState"]);
+                        domainId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["domain_id"]);
                         return true;
                     }
                 }
