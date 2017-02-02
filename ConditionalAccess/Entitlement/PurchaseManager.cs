@@ -2,6 +2,7 @@
 using ApiObjects.Billing;
 using ApiObjects.Response;
 using Billing;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using Pricing;
@@ -145,28 +146,7 @@ namespace ConditionalAccess
 
                 if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                 {
-                    string type = string.Empty;
-
-                    switch (transactionType)
-                    {
-                        case eTransactionType.PPV:
-                            {
-                                type = "ppv_purchase";
-                                break;
-                            }
-                        case eTransactionType.Subscription:
-                            {
-                                type = "subscription_purchase";
-                                break;
-                            }
-                        case eTransactionType.Collection:
-                            {
-                                type = "collection_purchase";
-                                break;
-                            }
-                        default:
-                            break;
-                    }
+                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(household));
                 }
             }
             catch (Exception ex)

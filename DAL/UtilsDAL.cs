@@ -704,7 +704,7 @@ namespace DAL
         public static string GetPlayCycleKey(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
-        }        
+        }
 
         public static string GetDomainQuotaKey(long domainId)
         {
@@ -741,7 +741,7 @@ namespace DAL
                         int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
                         groupFeatures.Add(groupFeature, status == 1);
                     }
-                }               
+                }
             }
 
             return groupFeatures;
@@ -792,9 +792,9 @@ namespace DAL
             return string.Format("ip_{0}", ip);
         }
 
-        public static Tuple<int,bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
+        public static Tuple<int, bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
         {
-            bool res = false;    
+            bool res = false;
             int mediaFileID = 0;
             Dictionary<string, int> result = new Dictionary<string, int>();
             try
@@ -818,7 +818,7 @@ namespace DAL
             {
                 log.Error(string.Format("Get_MediaFileIDByCoGuid faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
-            return new Tuple<int,bool>(mediaFileID, res);
+            return new Tuple<int, bool>(mediaFileID, res);
         }
 
         public static Tuple<Dictionary<string, Dictionary<string, int>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
@@ -834,7 +834,7 @@ namespace DAL
                     if (mediaIDs != null)
                     {
                         result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
-                        res = true;                        
+                        res = true;
                     }
                 }
             }
@@ -870,5 +870,45 @@ namespace DAL
             return string.Format("cdn_fileId_{0}", fileId);
         }
 
+        public static string GetGroupCdnSettingsKey(int groupId)
+        {
+            return string.Format("group_{0}_cdn_settings", groupId);
+        }
+
+        public static string GetCDNAdapterKey(int groupId, int defaultAdapterId)
+        {
+            return string.Format("group_{0}_cdn_default_adapter_{1}", groupId, defaultAdapterId);
+        }
+
+        public static string GetCancelSubscriptionInvalidationKey(long domainId)
+        {
+            return string.Format("cancel_subscription_domainId_{0}", domainId);
+        }
+
+        public static string GetCancelTransactionInvalidationKey(long domainId)
+        {
+            return string.Format("cancel_transaction_domainId_{0}", domainId);
+        }
+
+        public static string GetPurchaseInvalidationKey(long domainId)
+        {
+            return string.Format("purchase_domainId_{0}", domainId);
+        }
+
+        public static string GetGrantEntitlementInvalidationKey(long domainId)
+        {
+            return string.Format("grant_domainId_{0}", domainId);
+        }
+
+
+        public static string GetCancelServiceNowInvalidationKey(int domainId)
+        {
+            return string.Format("cancel_now_domainId_{0}", domainId);
+        }
+
+        public static string GetRenewInvalidationKey(long domainId)
+        {
+            return string.Format("renew_domainId_{0}", domainId);
+        }
     }
 }

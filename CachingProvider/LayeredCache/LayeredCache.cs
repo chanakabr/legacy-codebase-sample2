@@ -41,9 +41,9 @@ namespace CachingProvider.LayeredCache
         #region Public Methods
 
         public bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
-                            int groupId, string layeredCacheConfigName = null, List<string> inValidationKeys = null)
+                            int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null)
         {
-            bool result = false;            
+            bool result = false;
             List<LayeredCacheConfig> insertToCacheConfig = null;
             try
             {
@@ -80,7 +80,7 @@ namespace CachingProvider.LayeredCache
         }
 
         public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string,T>, bool>> fillObjectsMethod,
-                                    Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName = null, Dictionary<string, List<string>> inValidationKeysMap = null)
+                                    Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
             bool res = false;
             Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfigMappings = null;
@@ -502,8 +502,8 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
                 if (cache != null)
                 {
-                    IDictionary<string, object> resultMap = cache.GetValues(keys);
-                    if (resultMap != null)
+                    IDictionary<string, long> resultMap = null;
+                    if (cache.GetValues<long>(keys, ref resultMap, true) && resultMap != null)
                     {
                         inValidationKeys = new List<long>();
                         foreach (object obj in resultMap.Values)
