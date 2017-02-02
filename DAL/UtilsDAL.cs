@@ -805,9 +805,9 @@ namespace DAL
                 {
                     groupID = funcParams["groupID"] as int?;
                 }
-                if (funcParams.ContainsKey(coGuid))
+                if (funcParams.ContainsKey("coGuid"))
                 {
-                    coGuid = funcParams["coGuid"].ToString();
+                    coGuid = funcParams["coGuid"] as string;
                 }
                 if (groupID > 0 && !string.IsNullOrEmpty(coGuid))
                 {
