@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -56,6 +57,11 @@ namespace ApiObjects
 
         [JsonProperty()]
         public eRuleLevel level;
+
+        public string mediaTagType;
+
+        
+        public string epgTagType;
 
         #endregion
 

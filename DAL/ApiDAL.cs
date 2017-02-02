@@ -1758,7 +1758,6 @@ namespace DAL
 
             DataTable dt = sp.Execute();
             Dictionary<long, eRuleLevel> rules = CreateUserParentalRules(dt);
-               
             return rules;
         }
 
