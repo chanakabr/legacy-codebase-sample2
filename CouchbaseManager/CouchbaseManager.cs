@@ -1540,7 +1540,7 @@ namespace CouchbaseManager
                 {
                     if (shouldAllowPartialQuery)
                     {
-                        res = results.Count > 0;
+                        res = true;
                     }
                     else
                     {
