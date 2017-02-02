@@ -174,36 +174,48 @@ namespace ElasticSearchHandler.IndexBuilders
                     foreach (Channel currentChannel in allChannels)
                     {
                         if (currentChannel == null || currentChannel.m_nIsActive != 1)
+                        {
+                            log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
                             continue;
+                        }
 
                         string channelQuery = string.Empty;
 
-                        if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
+                        try
                         {
-                            try
-                            {
-                                UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+                            log.DebugFormat("BuildChannelQueries - Current channel  = {0}", currentChannel.m_nChannelID);
 
-                                unifiedQueryBuilder.SearchDefinitions = definitions;
-                                channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
-                            }
-                            catch (KalturaException ex)
+
+                            if (currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL)
                             {
-                                log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                                try
+                                {
+                                    UnifiedSearchDefinitions definitions = ElasticsearchTasksCommon.Utils.BuildSearchDefinitions(currentChannel, true);
+
+                                    unifiedQueryBuilder.SearchDefinitions = definitions;
+                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
+                                }
+                                catch (KalturaException ex)
+                                {
+                                    log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw ex;
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                throw ex;
+                                mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
+                                MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
+
+                                mediaQueryParser.oSearchObject = mediaSearchObject;
+                                channelQuery = mediaQueryParser.BuildSearchQueryString(true);
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-
-                            mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                            MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
-
-                            mediaQueryParser.oSearchObject = mediaSearchObject;
-                            channelQuery = mediaQueryParser.BuildSearchQueryString(true);
+                            log.ErrorFormat("BuildChannelQueries - building query for channel {0} has failed, ex = {1}", currentChannel.m_nChannelID, ex);
                         }
 
                         if (!string.IsNullOrEmpty(channelQuery))
