@@ -489,50 +489,43 @@ namespace ElasticsearchTasksCommon
             definitions.shouldUseStartDate = false;
             definitions.shouldUseFinalEndDate = false;
 
-            BooleanPhraseNode filterTree = null;
-            var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
-
-            if (parseStatus.Code != (int)eResponseStatus.OK)
+            if (!string.IsNullOrEmpty(channel.filterQuery))
             {
-                throw new KalturaException(parseStatus.Message, parseStatus.Code);
+                BooleanPhraseNode filterTree = null;
+                var parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
+
+                if (parseStatus.Code != (int)eResponseStatus.OK)
+                {
+                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
+                }
+                else
+                {
+                    definitions.filterPhrase = filterTree;
+                }
+
+                GroupManager groupManager = new GroupManager();
+
+                Group group = groupManager.GetGroup(channel.m_nParentGroupID);
+
+                if (group == null)
+                {
+                    log.Error("Error - Could not load group from cache in GetGroupMedias");
+                }
+
+                var dummyRequest = new Catalog.Request.BaseRequest()
+                {
+                    domainId = 0,
+                    m_nGroupID = channel.m_nParentGroupID,
+                    m_nPageIndex = 0,
+                    m_nPageSize = 0,
+                    m_oFilter = new Filter(),
+                    m_sSiteGuid = string.Empty,
+                    m_sUserIP = string.Empty
+                };
+
+                Catalog.Catalog.UpdateNodeTreeFields(dummyRequest,
+                    ref definitions.filterPhrase, definitions, group);
             }
-            else
-            {
-                definitions.filterPhrase = filterTree;
-            }
-
-            GroupManager groupManager = new GroupManager();
-
-            Group group = groupManager.GetGroup(channel.m_nParentGroupID);
-
-            if (group == null)
-            {
-                log.Error("Error - Could not load group from cache in GetGroupMedias");
-            }
-
-            //Catalog.Request.InternalChannelRequest dummyChannelRequet = new Catalog.Request.InternalChannelRequest(
-            //    channel.m_nChannelID.ToString(),
-            //    string.Empty,
-            //    channel.m_nGroupID,
-            //    0, 0, string.Empty, string.Empty, string.Empty,
-            //    new Filter(),
-            //    string.Empty,
-            //    new OrderObj());
-            //Catalog.Catalog.BuildInternalChannelSearchObject(channel, dummyChannelRequet, group);
-
-            var dummyRequest = new Catalog.Request.BaseRequest()
-            {
-                domainId = 0,
-                m_nGroupID = channel.m_nParentGroupID,
-                m_nPageIndex = 0,
-                m_nPageSize = 0,
-                m_oFilter = new Filter(),
-                m_sSiteGuid = string.Empty,
-                m_sUserIP = string.Empty
-            };
-
-            Catalog.Catalog.UpdateNodeTreeFields(dummyRequest,
-                ref definitions.filterPhrase, definitions, group);
 
             return definitions;
         }
