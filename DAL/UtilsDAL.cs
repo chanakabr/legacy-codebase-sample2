@@ -900,7 +900,6 @@ namespace DAL
             return string.Format("grant_domainId_{0}", domainId);
         }
 
-
         public static string GetCancelServiceNowInvalidationKey(int domainId)
         {
             return string.Format("cancel_now_domainId_{0}", domainId);
@@ -909,6 +908,11 @@ namespace DAL
         public static string GetRenewInvalidationKey(long domainId)
         {
             return string.Format("renew_domainId_{0}", domainId);
+        }
+
+        public static string GetMediaFilesKey(long mediaId)
+        {
+            return string.Format("files_mediaId_{0}", mediaId);
         }
     }
 }

@@ -46,6 +46,7 @@ namespace ConditionalAccess
         private const string VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME = "ValidateMediaFiles";
         private const string GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME = "mediaIdGroupFileTypeMapper";
         private const string GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME = "TryGetDomainEntitlementsFromCache";
+        private const string MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME = "GetMediaFiles";
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -6478,21 +6479,10 @@ namespace ConditionalAccess
         {
             List<MediaFile> files = null;
 
-            // cache
             List<MediaFile> allMediafiles = null;
-            string mediaFilesCacheKey = string.Format(MEDIA_FILES_CACHE_KEY_FORMAT, mediaId);
-            if (!ConditionalAccessCache.GetItem<List<MediaFile>>(mediaFilesCacheKey, out allMediafiles) || allMediafiles == null)
-            {
-                allMediafiles = ApiDAL.GetMediaFiles(mediaId);
-                if (allMediafiles != null)
-                {
-                    foreach (MediaFile mediaFile in allMediafiles)
-                    {
-                        mediaFile.Url = GetAssetUrl(groupId, assetType, mediaFile.Url, mediaFile.CdnId);
-                    }
-                    ConditionalAccessCache.AddItem(mediaFilesCacheKey, allMediafiles);
-                }
-            }
+            string key = UtilsDal.GetMediaFilesKey(mediaId);
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>()
+            { { "mediaId", mediaId }, { "groupId", groupId }, { "assetType", assetType } }, groupId, MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
@@ -6961,6 +6951,43 @@ namespace ConditionalAccess
                 log.Error(string.Format("GetFileUrlLinks failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<DataTable, bool>(dt, res);
+        }
+
+        internal static Tuple<List<MediaFile>, bool> GetMediaFiles(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<MediaFile> mediaFiles = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
+                    {
+                        long? mediaId = funcParams["mediaId"] as long?;
+                        int? groupId = funcParams["groupId"] as int?;
+                        eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
+
+                        if (mediaId.HasValue && groupId.HasValue && assetType.HasValue)
+                        {
+                            mediaFiles = ApiDAL.GetMediaFiles(mediaId.Value);
+                            if (mediaFiles != null)
+                            {
+                                foreach (MediaFile mediaFile in mediaFiles)
+                                {
+                                    mediaFile.Url = GetAssetUrl(groupId.Value, assetType.Value, mediaFile.Url, mediaFile.CdnId);
+                                }
+                            }
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaFiles failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<MediaFile>, bool>(mediaFiles, res);
         }
 
     }
