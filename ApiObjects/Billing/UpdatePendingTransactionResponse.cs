@@ -14,5 +14,7 @@ namespace ApiObjects.Billing
         public eTransactionType ProductType { get; set; }
 
         public eTransactionState TransactionState { get; set; }
+
+        public long DomainId { get; set; }
     }
 }

@@ -12771,6 +12771,7 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelTransactionInvalidationKey(billingResponse.DomainId));
                     }
                     else
                     {
