@@ -13,6 +13,11 @@ namespace ApiObjects
         public string m_sPurchaseDate;
         public string m_sUserEmail;
 
+        public PurchaseViaGiftCardMailRequest() : base()
+        {
+            this.m_eMailType = eMailTemplateType.PurchaseWithGiftCard;
+        }
+
         public override List<MCGlobalMergeVars> getRequestMergeObj()
         {
             List<MCGlobalMergeVars> result = new List<MCGlobalMergeVars>();
