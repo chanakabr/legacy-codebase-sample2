@@ -165,6 +165,11 @@ namespace ConditionalAccess
                     //TODO: **************IRA HAS TO LOOK*******************
                     //HandleCollectionPlayUse(cas, userId, mediaFileId, ip, countryCode, languageCode, udid, couponCode, domainId, groupId, itemPriceContainer, releventCollectionID, nRelPP, purchasingUserId);
                 }
+
+                if (tasks != null && tasks.Count > 0)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                }
             }
         }
 
