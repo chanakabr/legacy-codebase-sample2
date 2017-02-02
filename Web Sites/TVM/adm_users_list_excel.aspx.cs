@@ -45,31 +45,48 @@ public partial class adm_users_list_excel : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         DataTable dtUsers = new DataTable();
-        Dictionary<int, string> dUserDD = new Dictionary<int, string>();
+        Dictionary<int, List<string>> dUserDD = new Dictionary<int, List<string>>();
 
         int page = dropSectionsList.SelectedIndex;
         string sFreeText = txtFree.Text;
 
         int gap_between_user_ids = WS_Utils.GetTcmIntValue("gap_between_user_ids");
 
+        log.DebugFormat("GetExcel - Get_UsersListByBulk group:{0}, top:{1}, page:{2}", nGroupID, gap_between_user_ids, page);
+
         DataSet ds = DAL.UsersDal.Get_UsersListByBulk(nGroupID, sFreeText, gap_between_user_ids, page);
 
-        if (ds != null && ds.Tables != null && ds.Tables.Count >= 1)
+        if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
         {
             dtUsers = ds.Tables[0];
 
-            if (ds.Tables.Count == 2)
+            log.DebugFormat("GetExcel - Get_UsersListByBulk users tabel row count:{0}", dtUsers.Rows.Count);
+
+            if (ds.Tables.Count == 2 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
             {
+                log.DebugFormat("GetExcel - Get_UsersListByBulk dynamic data tabel row count:{0}", ds.Tables[1].Rows.Count);
+
                 foreach (DataRow dr in ds.Tables[1].Rows)
                 {
                     int nUserID = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_id");
                     string sKey = ODBCWrapper.Utils.GetSafeStr(dr, "DATA_TYPE");
                     string sVal = ODBCWrapper.Utils.GetSafeStr(dr, "DATA_VALUE");
+
+                    if (string.IsNullOrEmpty(sKey) || string.IsNullOrEmpty(sVal))
+                    {
+                        continue;
+                    }
+
+                    string ddvalue = string.Format("<{0}:{1}>", sKey, sVal);
+
                     if (!dUserDD.ContainsKey(nUserID))
                     {
-                        dUserDD.Add(nUserID, string.Empty);
+                        dUserDD.Add(nUserID, new List<string>() { ddvalue });
                     }
-                    dUserDD[nUserID] += string.Format("<{0}:{1}> ", sKey, sVal);
+                    else
+                    {
+                        dUserDD[nUserID].Add(ddvalue);
+                    }
                 }
 
                 for (int i = 0; i < dtUsers.Rows.Count; i++)
@@ -77,7 +94,7 @@ public partial class adm_users_list_excel : System.Web.UI.Page
                     int nUserID = int.Parse(dtUsers.Rows[i]["id"].ToString());
                     if (dUserDD.ContainsKey(nUserID))
                     {
-                        dtUsers.Rows[i]["Dynamic_Data"] = dUserDD[nUserID];
+                        dtUsers.Rows[i]["Dynamic_Data"] = string.Join(" ", dUserDD[nUserID]);
                     }
                 }
             }
