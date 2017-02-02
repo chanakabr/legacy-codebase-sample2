@@ -5739,6 +5739,11 @@ namespace ConditionalAccess
                             }
 
                         }
+
+                        if (oResponse.m_oStatus == BillingResponseStatus.Success)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID));
+                        }
                     }
                 }
             }
@@ -6801,6 +6806,10 @@ namespace ConditionalAccess
                                     }
                             }
                         }
+                        if (ret.m_oStatus == BillingResponseStatus.Success)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID));
+                        }
                     }
                 } // end else siteguid == ""
             }
@@ -6844,6 +6853,7 @@ namespace ConditionalAccess
                 }
                 #endregion
             }
+
             return ret;
         }
 
