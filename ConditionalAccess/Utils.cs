@@ -6997,7 +6997,7 @@ namespace ConditionalAccess
 
             try
             {
-                if (funcParams != null && funcParams.Count == 1)
+                if (funcParams != null && funcParams.Count == 3)
                 {
                     if (funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
                     {
