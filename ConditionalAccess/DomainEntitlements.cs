@@ -39,8 +39,8 @@ namespace ConditionalAccess
 
             public PPVEntitlements()
             {
-                EntitlementsDictionary = null;
-                MediaIdGroupFileTypeMapper = null;
+                EntitlementsDictionary = new Dictionary<string,EntitlementObject>();
+                MediaIdGroupFileTypeMapper = new Dictionary<string,int>();
             }
 
         }
@@ -54,25 +54,28 @@ namespace ConditionalAccess
         {
             [JsonProperty("EntitledSubscriptions")]
             public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledSubscriptions { get; set; }
-            [JsonProperty("FileTypeIdToSubscriptionMappings")]
+            [JsonIgnore]
             public Dictionary<int, List<Subscription>> FileTypeIdToSubscriptionMappings { get; set; }
-            [JsonProperty("ChannelsToSubscriptionMappings")]
+            [JsonIgnore]
             public Dictionary<int, List<Subscription>> ChannelsToSubscriptionMappings { get; set; }
-            [JsonProperty("ChannelsToCollectionsMappings")]
-            public Dictionary<int, List<Collection>> ChannelsToCollectionsMappings { get; set; }       
-            public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledCollections { get; set; }     
-            public Dictionary<int, Subscription> SubscriptionsData { get; set; }            
+            [JsonIgnore]
+            public Dictionary<int, List<Collection>> ChannelsToCollectionsMappings { get; set; }
+            [JsonProperty("EntitledCollections")]
+            public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledCollections { get; set; }
+            [JsonIgnore]
+            public Dictionary<int, Subscription> SubscriptionsData { get; set; }
+            [JsonIgnore]
             public Dictionary<int, Collection> CollectionsData { get; set; }
 
             public BundleEntitlements()
             {
-                EntitledSubscriptions = null;
-                EntitledCollections = null;
-                FileTypeIdToSubscriptionMappings = null;
-                ChannelsToSubscriptionMappings = null;
-                ChannelsToCollectionsMappings = null;
-                SubscriptionsData = null;
-                CollectionsData = null;                
+                EntitledSubscriptions = new Dictionary<string,Utils.UserBundlePurchase>();
+                EntitledCollections = new Dictionary<string,Utils.UserBundlePurchase>();
+                FileTypeIdToSubscriptionMappings = new Dictionary<int,List<Subscription>>();
+                ChannelsToSubscriptionMappings = new Dictionary<int,List<Subscription>>();
+                ChannelsToCollectionsMappings = new Dictionary<int,List<Collection>>();
+                SubscriptionsData = new Dictionary<int,Subscription>();
+                CollectionsData = new Dictionary<int,Collection>();                
             }
         }
 
