@@ -7026,5 +7026,55 @@ namespace ConditionalAccess
             }
             return new Tuple<List<MediaFile>, bool>(mediaFiles, res);
         }
+
+        internal static List<int> GetRelatedMediaFiles(ItemPriceContainer price, int mediaFileID)
+        {
+            List<int> lRelatedMediaFiles = new List<int>();
+
+            if (price != null && price.m_lRelatedMediaFileIDs != null && price.m_lRelatedMediaFileIDs.Length > 0)
+            {
+                lRelatedMediaFiles.AddRange(price.m_lRelatedMediaFileIDs.ToList());
+            }
+            if (!lRelatedMediaFiles.Contains(mediaFileID))
+            {
+                lRelatedMediaFiles.Add(mediaFileID);
+            }
+            return lRelatedMediaFiles;
+        }
+
+        /// <summary>
+        /// Returns the start date of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        internal static DateTime? GetStartDate(ItemPriceContainer price)
+        {
+            DateTime? dtStartDate = null;
+
+            if (price != null)
+            {
+                dtStartDate = price.m_dtStartDate;
+            }
+
+            return (dtStartDate);
+        }
+
+        /// <summary>
+        /// Returns the end date of the price container, if it has one
+        /// </summary>
+        /// <param name="p_objPrice"></param>
+        /// <returns></returns>
+        internal static DateTime? GetEndDate(ItemPriceContainer price)
+        {
+            DateTime? dtEndDate = null;
+
+            if (price != null)
+            {
+                dtEndDate = price.m_dtEndDate;
+            }
+
+            return (dtEndDate);
+        }
+
     }
 }
