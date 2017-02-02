@@ -26,12 +26,15 @@ using CachingProvider.LayeredCache;
 using AdapterControllers;
 using TVinciShared;
 using NPVR;
+using KlogMonitorHelper;
 
 namespace ConditionalAccess
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger offlinePpvUsesLog = new KLogger("OfflinePpvUsesLogger", true);
+        private static readonly KLogger offlineSubscriptionUsesLog = new KLogger("OfflineSubscriptionUsesLogger", true);
         private static object lck = new object();
 
         public const string SERIES_ID = "seriesId";
@@ -569,10 +572,11 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, List<int> usersInDomain, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string productCode, string userId, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
         {
+            //TODO: **************IRA HAS TO LOOK*******************
             bool bIsSub = true;
-            bool nIsCreditDownloaded = true;
+            bool isCreditDownloaded = false;
 
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
@@ -590,7 +594,7 @@ namespace ConditionalAccess
                         {
                             Subscription theSub = null;
                             Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
+                            theSub = m.GetSubscriptionData(sWSUserName, sWSPass, productCode, String.Empty, String.Empty, String.Empty, false);
                             u = theSub.m_oSubscriptionUsageModule;
                             theBundle = theSub;
                             bIsSub = true;
@@ -601,7 +605,7 @@ namespace ConditionalAccess
                         {
                             Collection theCol = null;
                             Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            theCol = m.GetCollectionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
+                            theCol = m.GetCollectionData(sWSUserName, sWSPass, productCode, String.Empty, String.Empty, String.Empty, false);
                             u = theCol.m_oCollectionUsageModule;
                             theBundle = theCol;
                             bIsSub = false;
@@ -614,17 +618,26 @@ namespace ConditionalAccess
                 DateTime dtCreateDateOfLatestBundleUse = ODBCWrapper.Utils.FICTIVE_DATE;
                 DateTime dtNow = ODBCWrapper.Utils.FICTIVE_DATE;
 
-                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(sBundleCd, groupID, usersInDomain, relatedMediaFiles, bIsSub,
-                    ref dtCreateDateOfLatestBundleUse, ref dtNow)
-                    && !dtCreateDateOfLatestBundleUse.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                    && !dtNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                    && ((dtNow - dtCreateDateOfLatestBundleUse).TotalMinutes < nViewLifeCycle))
+                if (u.m_nMaxNumberOfViews > 0)
                 {
-                    nIsCreditDownloaded = false;
+                    int domainId = 0;
+                    List<int> allUsersInDomain = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(userId, groupID, ref domainId);
+                    if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(productCode, groupID, allUsersInDomain, relatedMediaFiles, bIsSub,
+                        ref dtCreateDateOfLatestBundleUse, ref dtNow)
+                        && !dtCreateDateOfLatestBundleUse.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+                        && !dtNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+                        && ((dtNow - dtCreateDateOfLatestBundleUse).TotalMinutes < nViewLifeCycle))
+                    {
+                        isCreditDownloaded = false;
+                    }
+                    else
+                    {
+                        isCreditDownloaded = true;
+                    }
                 }
             }
 
-            return nIsCreditDownloaded;
+            return isCreditDownloaded;
         }
 
         internal static void FillCatalogSignature(WS_Catalog.BaseRequest request)
@@ -665,7 +678,6 @@ namespace ConditionalAccess
         {
             return maxNumOfUses == 0 || numOfUses < maxNumOfUses;
         }
-
 
         private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, MediaFileStatus eMediaFileStatus, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword, List<int> relatedMediaFiles,
@@ -1089,7 +1101,6 @@ namespace ConditionalAccess
             }
             return retVal;
         }
-
 
         internal static Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, Price pModule,
             DiscountModule discModule, CouponsGroup oCouponsGroup, string sSiteGUID,
@@ -2798,7 +2809,6 @@ namespace ConditionalAccess
 
             return url;
         }
-
 
         /*
          * 1. The user is entitled to preview module iff 
@@ -7041,12 +7051,7 @@ namespace ConditionalAccess
             }
             return lRelatedMediaFiles;
         }
-
-        /// <summary>
-        /// Returns the start date of the price container, if it has one
-        /// </summary>
-        /// <param name="p_objPrice"></param>
-        /// <returns></returns>
+        
         internal static DateTime? GetStartDate(ItemPriceContainer price)
         {
             DateTime? dtStartDate = null;
@@ -7059,11 +7064,6 @@ namespace ConditionalAccess
             return (dtStartDate);
         }
 
-        /// <summary>
-        /// Returns the end date of the price container, if it has one
-        /// </summary>
-        /// <param name="p_objPrice"></param>
-        /// <returns></returns>
         internal static DateTime? GetEndDate(ItemPriceContainer price)
         {
             DateTime? dtEndDate = null;
@@ -7074,6 +7074,38 @@ namespace ConditionalAccess
             }
 
             return (dtEndDate);
+        }
+
+        internal static void InsertOfflinePpvUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, int releventCollectionID, ContextData context)
+        {
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the offlinePpvUsesLog row data
+                string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID });
+                offlinePpvUsesLog.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format(@"Error in InsertOfflinePpvUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7},
+                                            releventCollectionID: {8}", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID), ex);
+            }
+        }
+
+        internal static void InsertOfflineSubscriptionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        {
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the offlineSubscriptionUsesLog row data
+                string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP });
+                offlineSubscriptionUsesLog.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOfflinePpvUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7}",
+                                        groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP), ex);
+            }
         }
 
     }
