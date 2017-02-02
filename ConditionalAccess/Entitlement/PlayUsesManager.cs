@@ -32,12 +32,17 @@ namespace ConditionalAccess
                 return;
             }
 
+            int mediaId = GetMediaIdByFildId(groupId, mediaFileId);
+            if (mediaId == 0)
+            {
+                return;
+            }
+
             countryCode = string.IsNullOrEmpty(countryCode) ? Utils.GetIP2CountryCode(groupId, ip) : countryCode;
             ItemPriceContainer itemPriceContainer = price.m_oItemPrices[0];            
-            int releventCollectionID = ExtractRelevantCollectionID(itemPriceContainer);            
+            int releventCollectionID = ExtractRelevantCollectionID(itemPriceContainer);
             cas.HandleCouponUses(itemPriceContainer.m_relevantSub, itemPriceContainer.m_sPPVModuleCode, userId, itemPriceContainer.m_oPrice.m_dPrice,
                                 itemPriceContainer.m_oPrice.m_oCurrency.m_sCurrencyCD3, mediaFileId, couponCode, ip, countryCode, languageCode, udid, false, 0, releventCollectionID);
-
             Int32 nRelPP = ExtractRelevantPrePaidID(itemPriceContainer);
             List<Task> tasks = new List<Task>();
             ContextData contextData = new ContextData();
@@ -45,7 +50,8 @@ namespace ConditionalAccess
             {
                 string sPPVMCd = itemPriceContainer.m_sPPVModuleCode;
 
-                Int32 isCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId);
+                Int32 isCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId),
+                                                                            domainId, mediaFileId, groupId, mediaId);
                 if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && domainId > 0)
                 {
                     CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
@@ -61,7 +67,15 @@ namespace ConditionalAccess
                 }
                 if (isCreditDownloaded > 0)
                 {
-                    if (!ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
+                    if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
+                    {
+                        string invalidationKey = UtilsDal.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                        }
+                    }
+                    else
                     {
                         // failed to insert ppv use.
                         throw new Exception(GetPPVUseInsertionFailureExMsg(mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, nRelPP, releventCollectionID));
@@ -129,10 +143,19 @@ namespace ConditionalAccess
 
                     string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(itemPriceContainer.m_relevantSub.m_sObjectCode, eTransactionType.Subscription);
 
-                    Int32 isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, itemPriceContainer.m_relevantSub, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId);
+                    Int32 isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, itemPriceContainer.m_relevantSub, null, countryCode, languageCode, udid,
+                                                                                Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId, mediaId);
                     if (isPpvCreditDownloaded > 0)
                     {
-                        if (!ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
+                        if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
+                        {
+                            string invalidationKey = UtilsDal.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
+                            }
+                        }
+                        else
                         {
                             // failed to insert ppv use
                             throw new Exception(GetPPVUseInsertionFailureExMsg(mediaFileId, modifiedPPVModuleCode, userId, nRelPP, releventCollectionID));
@@ -273,7 +296,7 @@ namespace ConditionalAccess
         }
 
         private static int PPV_DoesCreditNeedToDownloaded(string productCode, Subscription subscription, Collection collection, string countryCode, string languageCode, string udid,
-                                                            List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId)
+                                                            List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId, int mediaId)
         {
             Int32 nIsCreditDownloaded = 1;
             Int32 nViewLifeCycle = 0;
@@ -326,7 +349,7 @@ namespace ConditionalAccess
                     transactionType = eTransactionType.Collection;
                 }
 
-                DateTime? lastUseWithCredit = GetDomainLastUseWithCredit(groupId, domainId, mediaFileId, mediaFileIDs, productCode);
+                DateTime? lastUseWithCredit = GetDomainLastUseWithCredit(groupId, domainId, mediaFileId, mediaFileIDs, productCode, mediaId);
 
                 if (lastUseWithCredit.HasValue)
                 {
@@ -363,20 +386,19 @@ namespace ConditionalAccess
             return nIsCreditDownloaded;
         }
 
-        private static DateTime? GetDomainLastUseWithCredit(int groupId, long domainId, int mediaFileId, List<int> mediaFileIDs, string productCode)
+        private static DateTime? GetDomainLastUseWithCredit(int groupId, long domainId, int mediaFileId, List<int> mediaFileIDs, string productCode, int mediaId)
         {
             DateTime? lastUseWithCredit = null;
             try
-            {
-                MeidaMaper[] mapper = Utils.GetMediaMapper(groupId, new int[1] { mediaFileId });
-                if (mapper != null && mapper.Length == 1)
+            {                
+                if (mediaId > 0)
                 {
-                    int mediaId = mapper[0].m_nMediaID;
                     string key = DAL.UtilsDal.GetLastUseWithCreditForDomainKey(groupId, domainId, mediaId);
                     List<FileCreditUsedDetails> filesCreditUsedDetails = null;
                     // try to get from cache            
                     bool cacheResult = LayeredCache.Instance.Get<List<FileCreditUsedDetails>>(key, ref filesCreditUsedDetails, GetFilesCreditUsedDetails, new Dictionary<string, object>() { { "groupId", groupId },
-                                                                                            { "domainId", (int)domainId }, { "mediaId", mediaId } }, groupId, GET_DOMAIN_LAST_USE_WITH_CREDIT_LAYERED_CACHE_CONFIG_NAME);
+                                            { "domainId", (int)domainId }, { "mediaId", mediaId } }, groupId, GET_DOMAIN_LAST_USE_WITH_CREDIT_LAYERED_CACHE_CONFIG_NAME,
+                                            GetDomainLastUseWithCreditInvalidationKeys(groupId, domainId, mediaId));
                     if (cacheResult && filesCreditUsedDetails != null)
                     {
                         // get the file with the latest date used
@@ -398,6 +420,33 @@ namespace ConditionalAccess
             }
 
             return lastUseWithCredit;
+        }
+
+        private static int GetMediaIdByFildId(int groupId, int mediaFileId)
+        {
+            int mediaId = 0;
+            try
+            {
+                MeidaMaper[] mapper = Utils.GetMediaMapper(groupId, new int[1] { mediaFileId });
+                if (mapper != null && mapper.Length == 1)
+                {
+                    mediaId = mapper[0].m_nMediaID;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaIdByFildId for groupId: {0}, mediaFileId: {1}", groupId, mediaFileId), ex);
+            }
+
+            return mediaId;
+        }
+
+        private static List<string> GetDomainLastUseWithCreditInvalidationKeys(int groupId, long domainId, int mediaId)
+        {
+            return new List<string>()
+            {
+                UtilsDal.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId)
+            };
         }
 
         private static Tuple<List<FileCreditUsedDetails>, bool> GetFilesCreditUsedDetails(Dictionary<string, object> funcParams)
