@@ -1682,6 +1682,8 @@ namespace DAL
             newRule.epgTagTypeId = ODBCWrapper.Utils.ExtractInteger(row, "EPG_TAG_TYPE_ID");
             newRule.blockAnonymousAccess = ODBCWrapper.Utils.ExtractBoolean(row, "BLOCK_ANONYMOUS_ACCESS");
             newRule.ruleType = (eParentalRuleType)ODBCWrapper.Utils.ExtractInteger(row, "RULE_TYPE");
+            newRule.mediaTagType = ODBCWrapper.Utils.ExtractString(row, "media_tag_type_name");
+            newRule.epgTagType = ODBCWrapper.Utils.ExtractString(row, "epg_tag_type_name");
 
             int level = ODBCWrapper.Utils.ExtractInteger(row, "RULE_LEVEL");
 
@@ -1744,6 +1746,57 @@ namespace DAL
 
             return newId;
         }
+
+        public static Dictionary<long, eRuleLevel> Get_UserParentalRules(int groupId, string siteGuid)
+        {
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserParentalRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@SiteGuid", siteGuid);
+
+            DataTable dt = sp.Execute();
+            Dictionary<long, eRuleLevel> rules = CreateUserParentalRules(dt);
+            return rules;
+        }
+
+        private static Dictionary<long, eRuleLevel> CreateUserParentalRules(DataTable dt)
+        {
+            Dictionary<long, eRuleLevel> result = new Dictionary<long,eRuleLevel>();
+
+            // Validate tables count
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                List<KeyValuePair<long, eRuleLevel>> listResult = dt.AsEnumerable().Select(x => CreateUserParentalRuleIdAndLevel(x)).ToList();
+                if (listResult != null && listResult.Count > 0)
+                {
+                    result = listResult.ToDictionary(pair => pair.Key, pair => pair.Value);
+                }
+            }
+            return result;
+        }
+
+        private static KeyValuePair<long, eRuleLevel> CreateUserParentalRuleIdAndLevel(DataRow row)
+        {
+            if (row != null)
+            {
+                eRuleLevel eLevel = eRuleLevel.Group;
+
+                long id = ODBCWrapper.Utils.ExtractValue<long>(row, "id");
+                int level = ODBCWrapper.Utils.ExtractInteger(row, "RULE_LEVEL");
+
+                if (level != 0)
+                {
+                    eLevel = (eRuleLevel)level; 
+                    return new KeyValuePair<long, eRuleLevel>(id, eLevel);
+                }               
+            }
+            return new KeyValuePair<long, eRuleLevel>();
+        }
+
+             
+
 
         public static int Set_DomainParentalRule(int groupId, int domainId, long ruleId, int isActive)
         {
