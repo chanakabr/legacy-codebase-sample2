@@ -1566,50 +1566,48 @@ namespace DAL
             return res;
         }
 
-        public static long Insert_NewPPVUse(long groupID, long mediaFileID, string ppvModuleCode, string siteGuid, bool isCreditDownloaded,
-            string countryCode, string langCode, string deviceName, int relPp, int relBoxSet)
+        public static bool Insert_NewPPVUse(long groupID, long mediaFileID, string ppvModuleCode, string siteGuid, string countryCode, string langCode, string deviceName, int relPp, int relBoxSet)
         {
-            StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
-            sp.SetConnectionKey("CA_CONNECTION_STRING");
-            sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@MediaFileID", mediaFileID);
-            sp.AddParameter("@PPVModuleCode", ppvModuleCode);
-            sp.AddParameter("@SiteGuid", siteGuid);
-            sp.AddParameter("@IsCreditDownloaded", isCreditDownloaded ? 1 : 0);
-            sp.AddParameter("@IsActive", 1);
-            sp.AddParameter("@Status", 1);
-            if (countryCode == null)
-            {
-                sp.AddParameter("@CountryCode", string.Empty);
-            }
-            else
-            {
-                sp.AddParameter("@CountryCode", countryCode);
-            }
-            if (langCode == null)
-            {
-                sp.AddParameter("@LangCode", string.Empty);
-            }
-            else
-            {
-                sp.AddParameter("@LangCode", langCode);
-            }
-            if (deviceName == null)
-            {
-                sp.AddParameter("@DeviceName", string.Empty);
-            }
-            else
-            {
-                sp.AddParameter("@DeviceName", deviceName);
-            }
-            sp.AddParameter("@RelPP", relPp);
-            sp.AddParameter("@RelBoxSet", relBoxSet);
+                StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@MediaFileID", mediaFileID);
+                sp.AddParameter("@PPVModuleCode", ppvModuleCode);
+                sp.AddParameter("@SiteGuid", siteGuid);
+                sp.AddParameter("@IsCreditDownloaded", 1);
+                sp.AddParameter("@IsActive", 1);
+                sp.AddParameter("@Status", 1);
+                if (countryCode == null)
+                {
+                    sp.AddParameter("@CountryCode", string.Empty);
+                }
+                else
+                {
+                    sp.AddParameter("@CountryCode", countryCode);
+                }
+                if (langCode == null)
+                {
+                    sp.AddParameter("@LangCode", string.Empty);
+                }
+                else
+                {
+                    sp.AddParameter("@LangCode", langCode);
+                }
+                if (deviceName == null)
+                {
+                    sp.AddParameter("@DeviceName", string.Empty);
+                }
+                else
+                {
+                    sp.AddParameter("@DeviceName", deviceName);
+                }
+                sp.AddParameter("@RelPP", relPp);
+                sp.AddParameter("@RelBoxSet", relBoxSet);
 
-            return sp.ExecuteReturnValue<long>();
+                return sp.ExecuteReturnValue<long>() > 0;            
         }
 
-        public static long Insert_NewSubscriptionUse(long groupID, string subCode, long mediaFileID, string siteGuid, bool isCreditDownloaded,
-            string countryCode, string langCode, string deviceName, int relPP)
+        public static bool Insert_NewSubscriptionUse(long groupID, string subCode, long mediaFileID, string siteGuid, string countryCode, string langCode, string deviceName, int relPP)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewSubscriptionUse");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1617,7 +1615,7 @@ namespace DAL
             sp.AddParameter("@SubCode", subCode);
             sp.AddParameter("@MediaFileID", mediaFileID);
             sp.AddParameter("@SiteGuid", siteGuid);
-            sp.AddParameter("@IsCreditDownloaded", isCreditDownloaded ? 1 : 0);
+            sp.AddParameter("@IsCreditDownloaded", 1);
             sp.AddParameter("@IsActive", 1);
             sp.AddParameter("@Status", 1);
             if (countryCode == null)
@@ -1646,7 +1644,7 @@ namespace DAL
             }
             sp.AddParameter("@RelPP", relPP);
 
-            return sp.ExecuteReturnValue<long>();
+            return sp.ExecuteReturnValue<long>() > 0;
         }
 
         public static bool Update_SubPurchaseNumOfUses(long groupID, string siteGuid, string subCode)
@@ -2731,5 +2729,24 @@ namespace DAL
 
             return response;
         }
+
+        public static DataTable GetFilesCreditUsedDetails(int groupId, int domainId, int mediaId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp_GetFilesCreditUsedDetails = new ODBCWrapper.StoredProcedure("GetFilesCreditUsedDetails");
+            sp_GetFilesCreditUsedDetails.SetConnectionKey("CA_CONNECTION_STRING");
+            sp_GetFilesCreditUsedDetails.AddParameter("@GroupId", groupId);
+            sp_GetFilesCreditUsedDetails.AddParameter("@DomainId", domainId);
+            sp_GetFilesCreditUsedDetails.AddParameter("@MediaId", mediaId);
+
+            dt = sp_GetFilesCreditUsedDetails.Execute();
+            if (dt == null)
+            {
+                dt = new DataTable();
+            }
+
+            return dt;
+        }
+
     }
 }

@@ -929,5 +929,11 @@ namespace DAL
         {
             return string.Format("parental_rules_media_{0}_group_{1}", mediaId, groupId);
         }
+
+        public static string GetLastUseWithCreditForDomainKey(int groupId, long domainId, int mediaId)
+        {
+            return string.Format("domainPlayUses_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
+        }
+
     }
 }

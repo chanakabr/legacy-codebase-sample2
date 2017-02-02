@@ -307,11 +307,11 @@ namespace CachingProvider.LayeredCache
                                                 int groupId, List<string> inValidationKeys = null)
         {
             bool result = false;
-            List<LayeredCacheConfig> layeredCacheConfig = null;
+            List<LayeredCacheConfig> layeredCacheConfig = null;            
             insertToCacheConfig = new List<LayeredCacheConfig>();
             try
             {
-                if (TryGetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig))
+                if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
                     List<long> inValidationKeysResult = null;
                     if (TryGetInValidationKeys(inValidationKeys, ref inValidationKeysResult))
@@ -332,28 +332,33 @@ namespace CachingProvider.LayeredCache
                             // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
                             insertToCacheConfig.Add(cacheConfig);
                         }
-
-                        if (!result)
-                        {
-                            Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
-                            if (tuple != null)
-                            {
-                                tupleResult = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
-                                result = tuple.Item2;
-                            }
-
-                            if (!result)
-                            {
-                                log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", key,
-                                                fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-                                                funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
-                            }
-                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Didn't go to cache because of InvalidationKeys for key: {0}, layeredCacheConfigName: {1}, groupId: {2}, invalidationKeys: {3}",
+                            key, layeredCacheConfigName, groupId, inValidationKeys != null ? string.Join(",", inValidationKeys) : "null");
                     }
                 }
                 else
                 {
-                    log.ErrorFormat("Failed getting LayeredCacheConfig for configName: {0}", layeredCacheConfigName);
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", key, layeredCacheConfigName, groupId);
+                }
+
+                if (!result)
+                {
+                    Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
+                    if (tuple != null)
+                    {
+                        tupleResult = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
+                        result = tuple.Item2;
+                    }
+
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", key,
+                                        fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
+                    }
                 }
             }
 
@@ -372,11 +377,11 @@ namespace CachingProvider.LayeredCache
                                                         Dictionary<string, object> funcParameters, int groupId, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
             bool result = false;
-            List<LayeredCacheConfig> layeredCacheConfig = null;
+            List<LayeredCacheConfig> layeredCacheConfig = null;            
             insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
             try
             {
-                if (TryGetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig))
+                if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
                     Dictionary<string, List<long>> inValidationKeysResultMap = null;
                     if (TryGetInValidationKeysMapping(inValidationKeysMap, ref inValidationKeysResultMap))
@@ -414,31 +419,35 @@ namespace CachingProvider.LayeredCache
                                 insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
                             }
                         }
-
-                        if (!result)
-                        {
-                            Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
-                            if (tuple != null)
-                            {
-                                result = tuple.Item2;
-                                if (tuple.Item1 != null)
-                                {
-                                    tupleResults = tuple.Item1.ToDictionary(x => x.Key, x => new Tuple<T, long>(x.Value, Utils.UnixTimeStampNow()));
-                                }
-                            }
-                                                        
-                            if (!result)
-                            {
-                                log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", string.Join(",", keys),
-                                                fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
-                                                funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
-                            }
-                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Didn't go to cache because of InvalidationKeys for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keys), layeredCacheConfigName, groupId);
                     }
                 }
                 else
                 {
-                    log.ErrorFormat("Failed getting LayeredCacheConfig for configName: {0}", layeredCacheConfigName);
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keys), layeredCacheConfigName, groupId);
+                }
+
+                if (!result)
+                {
+                    Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
+                    if (tuple != null)
+                    {
+                        result = tuple.Item2;
+                        if (tuple.Item1 != null)
+                        {
+                            tupleResults = tuple.Item1.ToDictionary(x => x.Key, x => new Tuple<T, long>(x.Value, Utils.UnixTimeStampNow()));
+                        }
+                    }
+
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", string.Join(",", keys),
+                                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
+                    }
                 }
             }
 
@@ -450,7 +459,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;            
-        }
+        }        
 
         private bool TryGetFromICachingService<T>(string key, ref Tuple<T, long> tupleResult, LayeredCacheConfig cacheConfig, int groupId)
         {
@@ -882,6 +891,31 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region Other
+        
+        private bool ShouldGoToCache(string layeredCacheConfigName, int groupId, ref List<LayeredCacheConfig> layeredCacheConfig)
+        {
+            bool res = false;
+            try
+            {
+                LayeredCacheGroupConfig layeredCacheGroupConfig;
+                res = TryGetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig) && TryGetLayeredCacheGroupConfig(groupId, out layeredCacheGroupConfig)
+                        && !layeredCacheGroupConfig.DisableLayeredCache && !layeredCacheGroupConfig.LayeredCacheSettingsToExclude.Contains(layeredCacheConfigName);
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed ShouldGoToCache with layeredCacheConfigName {0}, groupId {1}", layeredCacheConfigName, groupId), ex);
+            }
+
+            // TODO : CHANGE back to res, for now it's always true until Ira/Tantan will decide
+            //return res;
+
+            return true;
         }
 
         #endregion

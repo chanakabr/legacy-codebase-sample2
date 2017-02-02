@@ -120,6 +120,7 @@
     <Compile Include="CoreObject.cs" />
     <Compile Include="MailRequests\GiftCardReminderMailRequest.cs" />
     <Compile Include="MailRequests\PurchaseViaGiftCardMailRequest.cs" />
+    <Compile Include="FileCreditUsedDetails.cs" />
     <Compile Include="MetaResponse.cs" />
     <Compile Include="DeviceBrand.cs" />
     <Compile Include="DeviceBrandResponse.cs" />
