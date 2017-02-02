@@ -82,6 +82,7 @@
     <Compile Include="LayeredCache\Config\InMemoryLayeredCacheConfig.cs" />
     <Compile Include="LayeredCache\Config\LayeredCacheBucketSettings.cs" />
     <Compile Include="LayeredCache\Config\LayeredCacheConfig.cs" />
+    <Compile Include="LayeredCache\Config\LayeredCacheGroupConfig.cs" />
     <Compile Include="LayeredCache\LayeredCache.cs" />
     <Compile Include="LayeredCache\Config\LayeredCacheTcmConfig.cs" />
     <Compile Include="LayeredCache\LayeredCacheType.cs" />
