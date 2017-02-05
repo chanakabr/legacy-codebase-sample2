@@ -1790,7 +1790,10 @@ namespace ConditionalAccess
                         {
                             WriteToUserLog(sSiteGUID,
                                 String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
-                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelSubscriptionInvalidationKey(domainId));
+                            if (!LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelSubscriptionInvalidationKey(domainId)))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on CancelSubscription for domainId = {0}");
+                            }
                         }
                         else
                         {
@@ -2590,7 +2593,11 @@ namespace ConditionalAccess
                             long domainId = 0;
                             Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetRenewInvalidationKey(domainId));
+                            string invalidationKey = UtilsDal.GetRenewInvalidationKey(domainId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on InApp_RenewSubscription key = {0}", invalidationKey);
+                            }
                         }
                         else
                         {
@@ -2879,7 +2886,11 @@ namespace ConditionalAccess
                         long domainId = 0;
                         Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetRenewInvalidationKey(domainId));
+                        string invalidationKey = UtilsDal.GetRenewInvalidationKey(domainId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on DD_BaseRenewMultiUsageSubscription key = {0}", invalidationKey);
+                        }
 
                     }
                     else
@@ -5752,7 +5763,11 @@ namespace ConditionalAccess
 
                         if (oResponse.m_oStatus == BillingResponseStatus.Success)
                         {
-                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID));
+                            string invalidationKey = UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForMediaFile key = {0}", invalidationKey);
+                            }
                         }
                     }
                 }
@@ -6818,7 +6833,11 @@ namespace ConditionalAccess
                         }
                         if (ret.m_oStatus == BillingResponseStatus.Success)
                         {
-                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID));
+                            string invalidationKey = UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForBundle key = {0}", invalidationKey);
+                            }
                         }
                     }
                 } // end else siteguid == ""
@@ -11019,7 +11038,11 @@ namespace ConditionalAccess
                                         EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
                                     }
 
-                                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelServiceNowInvalidationKey(p_nDomainID));
+                                    string invalidationKey = UtilsDal.GetCancelServiceNowInvalidationKey(p_nDomainID);
+                                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                    {
+                                        log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
+                                    }
                                 }
                                 else
                                 {
@@ -11175,7 +11198,11 @@ namespace ConditionalAccess
                     WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
-                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelTransactionInvalidationKey((long)domainid));
+                    string invalidationKey = UtilsDal.GetCancelTransactionInvalidationKey((long)domainid);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on CancelTransaction key = {0}", invalidationKey);
+                    }
                 }
 
 
@@ -12781,7 +12808,11 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelTransactionInvalidationKey(billingResponse.DomainId));
+                        string invalidationKey = UtilsDal.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on UpdatePendingTransaction key = {0}", invalidationKey);
+                        }
                     }
                     else
                     {
@@ -12879,7 +12910,11 @@ namespace ConditionalAccess
                         WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
                             billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
 
-                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelTransactionInvalidationKey(domainId));
+                        string invalidationKey = UtilsDal.GetCancelTransactionInvalidationKey(domainId);
+                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
+                        }
                     }
                     else
                     {
@@ -12961,7 +12996,11 @@ namespace ConditionalAccess
 
                 if (status != null && status.Code == (int)eResponseStatus.OK)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetGrantEntitlementInvalidationKey(householdId));
+                    string invalidationKey = UtilsDal.GetGrantEntitlementInvalidationKey(householdId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on GrantEntitlements key = {0}", invalidationKey);
+                    }
                 }
             }
             catch (Exception ex)

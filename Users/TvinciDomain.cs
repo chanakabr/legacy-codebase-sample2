@@ -94,7 +94,11 @@ namespace Users
                             if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)
                             {
                                 // add invalidation key for user roles cache
-                                CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetAddRoleInvalidationKey(nMasterUserGuid.ToString()));
+                                string invalidationKey = UtilsDal.GetAddRoleInvalidationKey(nMasterUserGuid.ToString());
+                                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                {
+                                    log.ErrorFormat("Failed to set invalidation key on AddDomain key = {0}", invalidationKey);
+                                }
                             }
                             break;
                         case DomainStatus.UserExistsInOtherDomains:

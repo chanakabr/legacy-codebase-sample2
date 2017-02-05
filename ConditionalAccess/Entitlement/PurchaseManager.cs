@@ -146,7 +146,12 @@ namespace ConditionalAccess
 
                 if (response != null && response.Status != null && response.Status.Code == (int)eResponseStatus.OK)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(household));
+                    string invalidationKey = UtilsDal.GetPurchaseInvalidationKey(household);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
+                    }
+
                 }
             }
             catch (Exception ex)

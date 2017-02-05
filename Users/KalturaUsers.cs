@@ -270,11 +270,7 @@ namespace Users
 
                 if (roleId != 0)
                 {
-                    if (DAL.UsersDal.Insert_UserRole(GroupId, nUserID.ToString(), roleId, true) > 0)
-                    {
-                        // add invalidation key for user roles cache
-                        CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetAddRoleInvalidationKey(nUserID.ToString()));
-                    }
+                    DAL.UsersDal.Insert_UserRole(GroupId, nUserID.ToString(), roleId, true);
                 }
                 else
                 {

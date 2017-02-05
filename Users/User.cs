@@ -612,7 +612,11 @@ namespace Users
                             if (DAL.UsersDal.Insert_UserRole(nGroupID, userID.ToString(), roleId, true) > 0)
                             {
                                 // add invalidation key for user roles cache
-                                CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetAddRoleInvalidationKey(userID.ToString()));
+                                string invalidationKey = UtilsDal.GetAddRoleInvalidationKey(userID.ToString());
+                                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                {
+                                    log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                                }
                             }
                         }
                         else

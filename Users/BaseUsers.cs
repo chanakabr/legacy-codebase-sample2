@@ -1380,7 +1380,11 @@ namespace Users
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     
                     // add invalidation key for user roles cache
-                    LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetAddRoleInvalidationKey(userId));
+                    string invalidationKey = UtilsDal.GetAddRoleInvalidationKey(userId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);
+                    }
                 }
             }
             catch (Exception ex)
