@@ -762,6 +762,9 @@ namespace ConditionalAccess
                             string sWSPass = string.Empty;
                             Utils.GetWSCredentials(groupId, eWSModules.API, ref sWSUserName, ref sWSPass);
                             success = apiWS.SendMailTemplate(sWSUserName, sWSPass, giftCardRequest);
+
+                            log.DebugFormat("Gift card reminder, WS_API.SendMailTemplate result: {0}. For: siteGuid={1}, itemName={2}, purchaseId={3}",
+                                success, user, itemName, purchaseId);
                         }
                         else
                         {

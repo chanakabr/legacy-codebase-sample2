@@ -7277,7 +7277,7 @@ namespace ConditionalAccess
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         // Get all user entitlements
-                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, sPricingUsername, sPricingPassword, ref domainEntitlements))
+                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, ref domainEntitlements))
                         {
                             log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
                         }
@@ -11444,7 +11444,11 @@ namespace ConditionalAccess
                     // validate prices
                     if (!IsFreeItem(prices[0]) && !IsItemPurchased(prices[0]))
                     {
-                        log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", sSiteGuid, nMediaFileID, prices[0].m_oItemPrices[0].m_PriceReason.ToString(), prices[0].m_oItemPrices[0].m_oPrice.m_dPrice));
+                        log.Debug("GetLicensedLinks - " + string.Format("Price not valid, user:{0}, MFID:{1}, priceReason:{2}, price:{3}", 
+                            sSiteGuid, 
+                            nMediaFileID, 
+                            prices[0].m_oItemPrices[0].m_PriceReason.ToString(), 
+                            prices[0].m_oItemPrices[0].m_oPrice != null? prices[0].m_oItemPrices[0].m_oPrice.m_dPrice.ToString(): string.Empty));
                         res = new LicensedLinkResponse(string.Empty, string.Empty, eLicensedLinkStatus.InvalidPrice.ToString(), (int)eResponseStatus.NotEntitled, "Not entitled");
                         return res;
                     }

@@ -571,7 +571,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool Bundle_DoesCreditNeedToDownloaded(string productCode, string userId, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string productCode, string userId, List<int> relatedMediaFiles, int groupID, eBundleType bundleType, int numOfUses)
         {
             //TODO: **************IRA HAS TO LOOK*******************
             bool bIsSub = true;
@@ -617,7 +617,7 @@ namespace ConditionalAccess
                 DateTime dtCreateDateOfLatestBundleUse = ODBCWrapper.Utils.FICTIVE_DATE;
                 DateTime dtNow = ODBCWrapper.Utils.FICTIVE_DATE;
 
-                if (u.m_nMaxNumberOfViews > 0)
+                if (u.m_nMaxNumberOfViews > 0 && numOfUses == 0)
                 {
                     int domainId = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(userId, groupID, ref domainId);
@@ -3328,11 +3328,12 @@ namespace ConditionalAccess
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if ((mediaFinalEndDate != null && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate != null && mediaFileEndDate.Value < currentDate))
+                            else if ((mediaFinalEndDate.HasValue && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate.HasValue && mediaFileEndDate.Value < currentDate))
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if ((mediaEndDate == null || mediaEndDate.Value < currentDate) && (mediaFinalEndDate == null || mediaFinalEndDate.Value > currentDate)) // cun see only if purchased
+                            else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) && 
+                                (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // cun see only if purchased
                             {
                                 eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
                             }
@@ -6812,8 +6813,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, List<int> usersInDomain, MeidaMaper[] mapper, string pricingUsername,
-                                                                string pricingPassword, ref DomainEntitlements domainEntitlements)
+        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, List<int> usersInDomain, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
         {
             bool res = false;
             try
