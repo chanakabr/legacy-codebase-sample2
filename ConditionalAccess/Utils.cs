@@ -571,7 +571,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool Bundle_DoesCreditNeedToDownloaded(string productCode, string userId, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string productCode, string userId, List<int> relatedMediaFiles, int groupID, eBundleType bundleType, int numOfUses)
         {
             //TODO: **************IRA HAS TO LOOK*******************
             bool bIsSub = true;
@@ -617,7 +617,7 @@ namespace ConditionalAccess
                 DateTime dtCreateDateOfLatestBundleUse = ODBCWrapper.Utils.FICTIVE_DATE;
                 DateTime dtNow = ODBCWrapper.Utils.FICTIVE_DATE;
 
-                if (u.m_nMaxNumberOfViews > 0)
+                if (u.m_nMaxNumberOfViews > 0 && numOfUses == 0)
                 {
                     int domainId = 0;
                     List<int> allUsersInDomain = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(userId, groupID, ref domainId);
