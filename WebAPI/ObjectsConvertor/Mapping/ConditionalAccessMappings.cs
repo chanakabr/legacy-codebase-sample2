@@ -356,6 +356,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.PlayManifestUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
+              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("http") ? "http" : src.Url.StartsWith("https") ? "https" : string.Empty))
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()));
 
             Mapper.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()

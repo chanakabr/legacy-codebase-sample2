@@ -877,8 +877,6 @@ namespace WebAPI.Controllers
                         url.AppendFormat("/ks/{0}", ks.ToString());
                     }
                     source.Url = url.ToString();
-                    source.Protocols = !string.IsNullOrEmpty(source.Url) ? (source.Url.ToLower().StartsWith("https") ? "https" : "http") : string.Empty;
-
                 }
             }
             catch (ClientException ex)
