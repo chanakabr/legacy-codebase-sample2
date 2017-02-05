@@ -7258,7 +7258,7 @@ namespace ConditionalAccess
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         // Get all user entitlements
-                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, sPricingUsername, sPricingPassword, ref domainEntitlements))
+                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, ref domainEntitlements))
                         {
                             log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
                         }
