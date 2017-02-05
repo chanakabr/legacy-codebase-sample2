@@ -715,7 +715,11 @@ namespace ConditionalAccess
             }
 
             // we will send a reminder mail only if we don't have a payment method set for this user/household/billing guid
-            if (paymentDetail == null)
+            if (paymentDetail != null)
+            {
+                log.DebugFormat("GiftCardReminder - user {0} set payment method for billing guid {1}, not sending reminder email", userId, billingGuid);
+            }
+            else
             {
                 string pricingUserName = string.Empty;
                 string pricingPassword = string.Empty;
@@ -753,7 +757,7 @@ namespace ConditionalAccess
                             string sWSUserName = string.Empty;
                             string sWSPass = string.Empty;
                             Utils.GetWSCredentials(groupId, eWSModules.API, ref sWSUserName, ref sWSPass);
-                            apiWS.SendMailTemplate(sWSUserName, sWSPass, giftCardRequest);
+                            success = apiWS.SendMailTemplate(sWSUserName, sWSPass, giftCardRequest);
                         }
                     }
                 }
@@ -795,7 +799,7 @@ namespace ConditionalAccess
 
             // get template data from groups parameters table
             List<string> columns = new List<string>(){ "GIFT_CARD_REMINDER_MAIL_SUBJECT", "GIFT_CARD_REMINDER_MAIL_TEMPLATE_NAME", "MAIL_FROM_NAME", "MAIL_FROM_ADD"};
-            var groupsParameters = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("groups_parameters", "ID", groupId.ToString(), columns, "BILLING_CONNECTION_STRING");
+            var groupsParameters = ODBCWrapper.Utils.GetTableSingleRowColumnsByParamValue("groups_parameters", "GROUP_ID", groupId.ToString(), columns, "BILLING_CONNECTION_STRING");
 
             if (groupsParameters != null)
             {
