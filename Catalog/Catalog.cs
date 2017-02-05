@@ -5964,7 +5964,8 @@ namespace Catalog
 
             #region Order
 
-            if (request.m_nMediaID > 0)
+            if (request.OrderObj == null &&
+                request.m_nMediaID > 0)
             {
                 definitions.order = new OrderObj()
                 {
@@ -6150,7 +6151,7 @@ namespace Catalog
         /// <param name="group"></param>
         public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
-            if (group != null)
+            if (group != null && filterTree != null)
             {
                 Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
 
