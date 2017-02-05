@@ -752,13 +752,22 @@ namespace ConditionalAccess
                         log.DebugFormat("params for gift card reminder mail ws_cas .m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}",
                             giftCardRequest.m_sSubject, userId, giftCardRequest.m_sTemplateName);
 
-                        if (giftCardRequest != null && !string.IsNullOrEmpty(giftCardRequest.m_sTemplateName))
+                        if (!string.IsNullOrEmpty(giftCardRequest.m_sTemplateName))
                         {
                             string sWSUserName = string.Empty;
                             string sWSPass = string.Empty;
                             Utils.GetWSCredentials(groupId, eWSModules.API, ref sWSUserName, ref sWSPass);
                             success = apiWS.SendMailTemplate(sWSUserName, sWSPass, giftCardRequest);
                         }
+                        else
+                        {
+                            log.ErrorFormat("Gift card reminder email for site guid {0} anda purchase id {1} failed because template name is empty", userId, purchaseId);
+                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Gift card reminder email for site guid {0} anda purchase id {1} failed because gift card mail request wasn't created properly", 
+                            userId, purchaseId);
                     }
                 }
                 catch (Exception ex)
