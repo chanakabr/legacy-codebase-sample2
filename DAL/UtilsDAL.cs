@@ -801,6 +801,31 @@ namespace DAL
             return string.Format("group_{0}_cdn_default_adapter_{1}", groupId, defaultAdapterId);
         }
 
+        public static string GetGroupParentalRulesKey(int groupId)
+        {
+            return string.Format("parental_rules_group_{0}", groupId);
+        }
+
+        public static string GetUserParentalRulesKey(int groupId, string siteGuid)
+        {
+            return string.Format("parental_rules_user_{0}_group_{1}", siteGuid, groupId);
+        }
+
+        public static string GetMediaParentalRulesKey(int groupId, long mediaId)
+        {
+            return string.Format("parental_rules_media_{0}_group_{1}", mediaId, groupId);
+        }
+
+        public static string GetLastUseWithCreditForDomainKey(int groupId, long domainId, int mediaId)
+        {
+            return string.Format("domainPlayUses_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
+        }
+
+        public static string GetLastUseWithCreditForDomainInvalidationKey(int groupId, long domainId, int mediaId)
+        {
+            return string.Format("domainPlayUses_InvalidationKey_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
+        }
+
 
         public static Tuple<int, bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
         {

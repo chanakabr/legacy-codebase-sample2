@@ -3988,5 +3988,54 @@ namespace DAL
             }
             return files;
         }
+
+        public static Dictionary<long, eRuleLevel> Get_UserParentalRules(int groupId, string siteGuid)
+        {
+            // Perform stored procedure
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_UserParentalRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@SiteGuid", siteGuid);
+
+            DataTable dt = sp.Execute();
+            Dictionary<long, eRuleLevel> rules = CreateUserParentalRules(dt);
+            return rules;
+        }
+
+        private static Dictionary<long, eRuleLevel> CreateUserParentalRules(DataTable dt)
+        {
+            Dictionary<long, eRuleLevel> result = new Dictionary<long, eRuleLevel>();
+
+            // Validate tables count
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                List<KeyValuePair<long, eRuleLevel>> listResult = dt.AsEnumerable().Select(x => CreateUserParentalRuleIdAndLevel(x)).ToList();
+                if (listResult != null && listResult.Count > 0)
+                {
+                    result = listResult.ToDictionary(pair => pair.Key, pair => pair.Value);
+                }
+            }
+            return result;
+        }
+
+        private static KeyValuePair<long, eRuleLevel> CreateUserParentalRuleIdAndLevel(DataRow row)
+        {
+            if (row != null)
+            {
+                eRuleLevel eLevel = eRuleLevel.Group;
+
+                long id = ODBCWrapper.Utils.ExtractValue<long>(row, "id");
+                int level = ODBCWrapper.Utils.ExtractInteger(row, "RULE_LEVEL");
+
+                if (level != 0)
+                {
+                    eLevel = (eRuleLevel)level;
+                    return new KeyValuePair<long, eRuleLevel>(id, eLevel);
+                }
+            }
+            return new KeyValuePair<long, eRuleLevel>();
+        }
+
     }
 }
