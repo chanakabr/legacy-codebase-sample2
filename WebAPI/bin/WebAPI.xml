@@ -2812,7 +2812,7 @@
             <returns></returns><remarks>Possible status codes: 
             Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdDeviceController.GetStatus">
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.GetStatus(System.String)">
             <summary>
             Returns device registration status to the supplied household
             </summary>
