@@ -5891,12 +5891,21 @@ namespace Catalog
 
             #region Order
 
-            if (request.m_nMediaID > 0)
+            if (request.OrderObj == null &&
+                request.m_nMediaID > 0)
             {
                 definitions.order = new OrderObj()
                 {
                     m_eOrderBy = OrderBy.RELATED,
                     m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                };
+            }
+            else
+            {
+                definitions.order = new OrderObj()
+                {
+                    m_eOrderBy = request.OrderObj.m_eOrderBy,
+                    m_eOrderDir = request.OrderObj.m_eOrderDir
                 };
             }
 
