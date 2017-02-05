@@ -10,7 +10,6 @@ namespace CachingProvider.LayeredCache
     [Serializable]
     public class LayeredCacheGroupConfig
     {
-
         [JsonProperty("GroupId")]
         public int GroupId { get; set; }
 

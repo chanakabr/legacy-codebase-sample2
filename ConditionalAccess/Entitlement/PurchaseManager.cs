@@ -574,17 +574,20 @@ namespace ConditionalAccess
                     {
                         DateTime eta = renewDate.AddDays(-1 * reminder);
 
-                        RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
-                            endDate, eta, eSubscriptionRenewRequestType.Reminder);
-                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
+                        if (eta > DateTime.UtcNow)
+                        {
+                            RenewTransactionData data = new RenewTransactionData(groupId, masterSiteGuid, purchaseId, billingGuid,
+                                endDate, eta, eSubscriptionRenewRequestType.Reminder);
+                            bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
 
-                        if (!enqueueSuccessful)
-                        {
-                            log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
-                        }
-                        else
-                        {
-                            log.DebugFormat("New task created (upon Gift card subscription purchase success). next reminder date: {0}, data: {1}", eta, data);
+                            if (!enqueueSuccessful)
+                            {
+                                log.ErrorFormat("Failed enqueue of reminder transaction {0}", data);
+                            }
+                            else
+                            {
+                                log.DebugFormat("New task created (upon Gift card subscription purchase success). next reminder date: {0}, data: {1}", eta, data);
+                            }
                         }
                     }
                 }
