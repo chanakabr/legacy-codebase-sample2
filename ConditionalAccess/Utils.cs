@@ -3536,41 +3536,6 @@ namespace ConditionalAccess
             {
                 // Get all user entitlements
                 domainPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainId, allUsersInDomain);
-                // Get mappings of mediaFileIDs - MediaIDs
-                if (mapper != null && mapper.Length > 0)
-                {
-                    int[] mediaIDsToMap = new int[mapper.Length];
-                    for (int i = 0; i < mediaIDsToMap.Length; i++)
-                    {
-                        mediaIDsToMap[i] = mapper[i].m_nMediaID;
-                    }
-
-                    Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
-                    List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
-
-                    bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings,
-                                                                                                new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } }, groupId, GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME);
-                    if (!cacheResult)
-                    {
-                        log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
-                    }
-
-                    Dictionary<string, int> mapping = new Dictionary<string, int>();
-
-                    // combine all the results (all dictionaries that return to ONE dictionary)
-                    foreach (Dictionary<string, int> val in mediaIdGroupFileTypeMapper.Values)
-                    {
-                        foreach (KeyValuePair<string, int> item in val)
-                        {
-                            if (!mapping.ContainsKey(item.Key))
-                            {
-                                mapping.Add(item.Key, item.Value);
-                            }
-                        }
-                    }
-
-                    domainPpvEntitlements.MediaIdGroupFileTypeMapper = mapping;
-                }
             }
 
             catch (Exception ex)
@@ -6859,8 +6824,10 @@ namespace ConditionalAccess
                 {
                     mapper = new MeidaMaper[0];
                 }
+
                 Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "usersInDomain", usersInDomain }, { "mapper", mapper } };
                 res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId, GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
+                
                 if (res && domainEntitlements != null)
                 {
                     // remove expired PPV's
@@ -6879,6 +6846,42 @@ namespace ConditionalAccess
                         {
                             domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary.Remove(keyToRemove);
                         }
+                    }
+
+                    // Get mappings of mediaFileIDs - MediaIDs
+                    if (mapper != null && mapper.Length > 0)
+                    {
+                        int[] mediaIDsToMap = new int[mapper.Length];
+                        for (int i = 0; i < mediaIDsToMap.Length; i++)
+                        {
+                            mediaIDsToMap[i] = mapper[i].m_nMediaID;
+                        }
+
+                        Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
+                        List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
+
+                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings,
+                                                                                                    new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } }, groupId, GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME);
+                        if (!cacheResult)
+                        {
+                            log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
+                        }
+
+                        Dictionary<string, int> mapping = new Dictionary<string, int>();
+
+                        // combine all the results (all dictionaries that return to ONE dictionary)
+                        foreach (Dictionary<string, int> val in mediaIdGroupFileTypeMapper.Values)
+                        {
+                            foreach (KeyValuePair<string, int> item in val)
+                            {
+                                if (!mapping.ContainsKey(item.Key))
+                                {
+                                    mapping.Add(item.Key, item.Value);
+                                }
+                            }
+                        }
+
+                        domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper = mapping;
                     }
 
                     // remove expired Bundles
