@@ -18,8 +18,10 @@ namespace ApiObjects
         public DateTime createDate;
         public DateTime? startDate;
         public DateTime? endDate;
+        public int numOfUses;
 
-        public EntitlementObject(int p_ID, string p_subscriptionCode, string p_relPP, int p_waiver, string p_purchasedBySiteGuid, int p_purchasedAsMediaFileID, int p_ppvCode, DateTime p_createDate, DateTime? p_startDate, DateTime? p_endDate)
+        public EntitlementObject(int p_ID, string p_subscriptionCode, string p_relPP, int p_waiver, string p_purchasedBySiteGuid, 
+            int p_purchasedAsMediaFileID, int p_ppvCode, DateTime p_createDate, DateTime? p_startDate, DateTime? p_endDate, int uses)
         {
             ID = p_ID;
             subscriptionCode = p_subscriptionCode;
@@ -31,6 +33,7 @@ namespace ApiObjects
             createDate = p_createDate;
             startDate = p_startDate;
             endDate = p_endDate;
+            numOfUses = uses;
         }
 
         public EntitlementObject() { }
