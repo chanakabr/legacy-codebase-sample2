@@ -2586,6 +2586,11 @@ namespace ConditionalAccess
                                 log.ErrorFormat("Error while enqueue subscription purchase record: subCode = {0}" +
                                 "siteGuid = {1}", sSubscriptionCode, sSiteGUID);
                             }
+
+                            long domainId = 0;
+                            Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
+
+                            LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetRenewInvalidationKey(domainId));
                         }
                         else
                         {
@@ -2870,6 +2875,11 @@ namespace ConditionalAccess
                         HandleMPPRenewalBillingSuccess(sSiteGUID, sSubscriptionCode, dtCurrentEndDate, bIsPurchasedWithPreviewModule,
                            nPurchaseID, sCurrency, dPrice, nPaymentNumber, oBillingResponse.m_sRecieptCode, nMaxVLCOfSelectedUsageModule,
                            bIsMPPRecurringInfinitely, nRecPeriods);
+
+                        long domainId = 0;
+                        Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
+
+                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetRenewInvalidationKey(domainId));
 
                     }
                     else
@@ -12868,6 +12878,8 @@ namespace ConditionalAccess
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                         WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
                             billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
+
+                        LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelTransactionInvalidationKey(domainId));
                     }
                     else
                     {
