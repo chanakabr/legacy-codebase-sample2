@@ -95,6 +95,8 @@
           <s:element minOccurs="1" maxOccurs="1" name="nextRenewalDate" type="s:dateTime" />
           <s:element minOccurs="1" maxOccurs="1" name="recurringStatus" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="isRenewable" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsInGracePeriod" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="mediaID" type="s:int" />
         </s:sequence>
@@ -417,8 +419,15 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_nFinancialEntityID" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nMaxRecurringUsesCountForCoupon" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="alias" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="couponGroupType" type="tns:CouponGroupType" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="CouponGroupType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Coupon" />
+          <s:enumeration value="GiftCard" />
+        </s:restriction>
+      </s:simpleType>
       <s:complexType name="Collection">
         <s:complexContent mixed="false">
           <s:extension base="tns:PPVModule">
@@ -485,6 +494,15 @@
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="NpvrServiceObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:ServiceObject">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="Quota" type="s:long" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:complexType name="PrePaidModule">
         <s:sequence>
@@ -1518,6 +1536,157 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetRecordingByDomainRecordingId">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:long" />
+            <s:element minOccurs="1" maxOccurs="1" name="domainRecordingID" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordingByDomainRecordingIdResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRecordingByDomainRecordingIdResult" type="tns:Recording" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPlaybackContext">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="assetId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
+            <s:element minOccurs="0" maxOccurs="1" name="fileIds" type="tns:ArrayOfLong" />
+            <s:element minOccurs="1" maxOccurs="1" name="streamerType" nillable="true" type="tns:StreamerType" />
+            <s:element minOccurs="0" maxOccurs="1" name="mediaProtocol" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="context" type="tns:PlayContextType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="StreamerType">
+        <s:restriction base="s:string">
+          <s:enumeration value="applehttp" />
+          <s:enumeration value="mpegdash" />
+          <s:enumeration value="url" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="PlayContextType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Trailer" />
+          <s:enumeration value="CatchUp" />
+          <s:enumeration value="StartOver" />
+          <s:enumeration value="Playback" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetPlaybackContextResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPlaybackContextResult" type="tns:PlaybackContextResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PlaybackContextResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="AssetId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Files" type="tns:ArrayOfMediaFile" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMediaFile">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MediaFile" nillable="true" type="tns:MediaFile" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MediaFile">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="MediaId" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="Type" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="PlayManifestUrl" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Duration" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="StreamerType" nillable="true" type="tns:StreamerType" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsTrailer" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="CdnId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="DrmId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="SwapSubscription">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="oldSubscription" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="newSubscription" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="history" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SwapSubscriptionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SwapSubscriptionResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPlayManifest">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="assetId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
+            <s:element minOccurs="1" maxOccurs="1" name="fileId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="ip" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="playContextType" type="tns:PlayContextType" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPlayManifestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPlayManifestResult" type="tns:PlayManifestResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PlayManifestResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GiftCardReminder">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="siteguid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="purchaseId" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="billingGuid" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="endDate" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GiftCardReminderResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GiftCardReminderResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetUserPermittedItems">
         <s:complexType>
           <s:sequence>
@@ -1802,6 +1971,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bCancelWindow" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bIsInGracePeriod" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="paymentGatewayId" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="paymentMethodId" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserPermittedSubscriptions">
@@ -3626,6 +3797,11 @@
           <s:element minOccurs="0" maxOccurs="1" name="assetID" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="DeleteSeriesNPVRCommand">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseNPVRCommand" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="RecordSeriesByNameNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
@@ -3636,7 +3812,7 @@
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="CancelSeriesNPVRCommand">
+      <s:complexType name="RecordNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -3682,12 +3858,7 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="DeleteSeriesNPVRCommand">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseNPVRCommand" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="RecordNPVRCommand">
+      <s:complexType name="CancelSeriesNPVRCommand">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseNPVRCommand" />
         </s:complexContent>
@@ -3805,19 +3976,24 @@
         </s:complexType>
       </s:element>
       <s:complexType name="TransactionResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="TransactionID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PGResponseCode" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="CreatedAt" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="StartDateSeconds" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="EndDateSeconds" type="s:long" />
-          <s:element minOccurs="1" maxOccurs="1" name="AutoRenewing" type="s:boolean" />
-        </s:sequence>
+        <s:complexContent mixed="false">
+          <s:extension base="tns:CoreObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+              <s:element minOccurs="0" maxOccurs="1" name="TransactionID" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="PGReferenceID" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="PGResponseCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="State" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="FailReasonCode" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="CreatedAt" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="StartDateSeconds" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="EndDateSeconds" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="AutoRenewing" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
+      <s:complexType name="CoreObject" />
       <s:element name="ProcessReceipt">
         <s:complexType>
           <s:sequence>
@@ -3903,6 +4079,7 @@
       <s:element name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
       <s:element name="ArrayOfSearchableRecording" nillable="true" type="tns:ArrayOfSearchableRecording" />
       <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="PlayManifestResponse" nillable="true" type="tns:PlayManifestResponse" />
       <s:element name="ArrayOfPermittedMediaContainer" nillable="true" type="tns:ArrayOfPermittedMediaContainer" />
       <s:element name="PermittedMediaContainerResponse" nillable="true" type="tns:PermittedMediaContainerResponse" />
       <s:element name="UserCAStatus" type="tns:UserCAStatus" />
@@ -4239,6 +4416,36 @@
   </wsdl:message>
   <wsdl:message name="BulkRecoveryForRenewSubscriptionsSoapOut">
     <wsdl:part name="parameters" element="tns:BulkRecoveryForRenewSubscriptionsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByDomainRecordingIdSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRecordingByDomainRecordingId" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByDomainRecordingIdSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRecordingByDomainRecordingIdResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPlaybackContextSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPlaybackContext" />
+  </wsdl:message>
+  <wsdl:message name="GetPlaybackContextSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPlaybackContextResponse" />
+  </wsdl:message>
+  <wsdl:message name="SwapSubscriptionSoapIn">
+    <wsdl:part name="parameters" element="tns:SwapSubscription" />
+  </wsdl:message>
+  <wsdl:message name="SwapSubscriptionSoapOut">
+    <wsdl:part name="parameters" element="tns:SwapSubscriptionResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPlayManifestSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPlayManifest" />
+  </wsdl:message>
+  <wsdl:message name="GetPlayManifestSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPlayManifestResponse" />
+  </wsdl:message>
+  <wsdl:message name="GiftCardReminderSoapIn">
+    <wsdl:part name="parameters" element="tns:GiftCardReminder" />
+  </wsdl:message>
+  <wsdl:message name="GiftCardReminderSoapOut">
+    <wsdl:part name="parameters" element="tns:GiftCardReminderResponse" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsSoapIn">
     <wsdl:part name="parameters" element="tns:GetUserPermittedItems" />
@@ -5167,6 +5374,53 @@
   </wsdl:message>
   <wsdl:message name="BulkRecoveryForRenewSubscriptionsHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByDomainRecordingIdHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="domainID" type="s:string" />
+    <wsdl:part name="domainRecordingID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordingByDomainRecordingIdHttpPostOut">
+    <wsdl:part name="Body" element="tns:Recording" />
+  </wsdl:message>
+  <wsdl:message name="SwapSubscriptionHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="oldSubscription" type="s:string" />
+    <wsdl:part name="newSubscription" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="history" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SwapSubscriptionHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetPlayManifestHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="assetId" type="s:string" />
+    <wsdl:part name="assetType" type="s:string" />
+    <wsdl:part name="fileId" type="s:string" />
+    <wsdl:part name="ip" type="s:string" />
+    <wsdl:part name="udid" type="s:string" />
+    <wsdl:part name="playContextType" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPlayManifestHttpPostOut">
+    <wsdl:part name="Body" element="tns:PlayManifestResponse" />
+  </wsdl:message>
+  <wsdl:message name="GiftCardReminderHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="siteguid" type="s:string" />
+    <wsdl:part name="purchaseId" type="s:string" />
+    <wsdl:part name="billingGuid" type="s:string" />
+    <wsdl:part name="endDate" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GiftCardReminderHttpPostOut">
+    <wsdl:part name="Body" element="tns:boolean" />
   </wsdl:message>
   <wsdl:message name="GetUserPermittedItemsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -6439,6 +6693,26 @@
       <wsdl:input message="tns:BulkRecoveryForRenewSubscriptionsSoapIn" />
       <wsdl:output message="tns:BulkRecoveryForRenewSubscriptionsSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <wsdl:input message="tns:GetRecordingByDomainRecordingIdSoapIn" />
+      <wsdl:output message="tns:GetRecordingByDomainRecordingIdSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPlaybackContext">
+      <wsdl:input message="tns:GetPlaybackContextSoapIn" />
+      <wsdl:output message="tns:GetPlaybackContextSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <wsdl:input message="tns:SwapSubscriptionSoapIn" />
+      <wsdl:output message="tns:SwapSubscriptionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <wsdl:input message="tns:GetPlayManifestSoapIn" />
+      <wsdl:output message="tns:GetPlayManifestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <wsdl:input message="tns:GiftCardReminderSoapIn" />
+      <wsdl:output message="tns:GiftCardReminderSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsSoapIn" />
       <wsdl:output message="tns:GetUserPermittedItemsSoapOut" />
@@ -6952,6 +7226,22 @@
     <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
       <wsdl:input message="tns:BulkRecoveryForRenewSubscriptionsHttpPostIn" />
       <wsdl:output message="tns:BulkRecoveryForRenewSubscriptionsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <wsdl:input message="tns:GetRecordingByDomainRecordingIdHttpPostIn" />
+      <wsdl:output message="tns:GetRecordingByDomainRecordingIdHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <wsdl:input message="tns:SwapSubscriptionHttpPostIn" />
+      <wsdl:output message="tns:SwapSubscriptionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <wsdl:input message="tns:GetPlayManifestHttpPostIn" />
+      <wsdl:output message="tns:GetPlayManifestHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <wsdl:input message="tns:GiftCardReminderHttpPostIn" />
+      <wsdl:output message="tns:GiftCardReminderHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <wsdl:input message="tns:GetUserPermittedItemsHttpPostIn" />
@@ -7701,6 +7991,51 @@
     </wsdl:operation>
     <wsdl:operation name="BulkRecoveryForRenewSubscriptions">
       <soap:operation soapAction="http://ca.tvinci.com/BulkRecoveryForRenewSubscriptions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <soap:operation soapAction="http://ca.tvinci.com/GetRecordingByDomainRecordingId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlaybackContext">
+      <soap:operation soapAction="http://ca.tvinci.com/GetPlaybackContext" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <soap:operation soapAction="http://ca.tvinci.com/SwapSubscription" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <soap:operation soapAction="http://ca.tvinci.com/GetPlayManifest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <soap:operation soapAction="http://ca.tvinci.com/GiftCardReminder" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8917,6 +9252,51 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetRecordingByDomainRecordingId" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlaybackContext">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetPlaybackContext" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <soap12:operation soapAction="http://ca.tvinci.com/SwapSubscription" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <soap12:operation soapAction="http://ca.tvinci.com/GetPlayManifest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <soap12:operation soapAction="http://ca.tvinci.com/GiftCardReminder" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <soap12:operation soapAction="http://ca.tvinci.com/GetUserPermittedItems" style="document" />
       <wsdl:input>
@@ -10072,6 +10452,42 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetRecordingByDomainRecordingId">
+      <http:operation location="/GetRecordingByDomainRecordingId" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SwapSubscription">
+      <http:operation location="/SwapSubscription" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPlayManifest">
+      <http:operation location="/GetPlayManifest" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GiftCardReminder">
+      <http:operation location="/GiftCardReminder" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetUserPermittedItems">
       <http:operation location="/GetUserPermittedItems" />
       <wsdl:input>
@@ -10795,13 +11211,13 @@
   </wsdl:binding>
   <wsdl:service name="module">
     <wsdl:port name="moduleSoap" binding="tns:moduleSoap">
-      <soap:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
+      <soap:address location="http://localhost/CAS_V4_2/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleSoap12" binding="tns:moduleSoap12">
-      <soap12:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
+      <soap12:address location="http://localhost/CAS_V4_2/module.asmx" />
     </wsdl:port>
     <wsdl:port name="moduleHttpPost" binding="tns:moduleHttpPost">
-      <http:address location="http://localhost/WS_ConditionalAccess/module.asmx" />
+      <http:address location="http://localhost/CAS_V4_2/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
