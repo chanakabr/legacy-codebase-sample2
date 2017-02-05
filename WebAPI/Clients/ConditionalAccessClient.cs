@@ -2026,8 +2026,10 @@ namespace WebAPI.Clients
             }
 
             if (response.Status.Code != (int)eResponseStatus.OK && response.Status.Code != (int)eResponseStatus.ServiceNotAllowed && response.Status.Code != (int)eResponseStatus.NotEntitled &&
-                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation &&
-                response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && 
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel &&
+                response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && 
+                response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
