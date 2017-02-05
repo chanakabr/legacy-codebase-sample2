@@ -940,5 +940,10 @@ namespace DAL
             return string.Format("domainPlayUses_InvalidationKey_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
         }
 
+        public static string GetEpgParentalRulesKey(int groupId, long epgId)
+        {
+            return string.Format("parental_rules_epg_{0}_group_{1}", epgId, groupId);
+        }
+
     }
 }
