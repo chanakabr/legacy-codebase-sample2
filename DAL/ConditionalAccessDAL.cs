@@ -2022,7 +2022,8 @@ namespace DAL
                         {
                             EntitlementObject entitlement = new EntitlementObject(Utils.GetIntSafeVal(dr["ID"]), Utils.GetSafeStr(dr["subscription_code"]), Utils.GetSafeStr(dr["rel_pp"]),
                                                     Utils.GetIntSafeVal(dr, "WAIVER"), Utils.GetSafeStr(dr["SITE_USER_GUID"]), mediaFileID,
-                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"), Utils.ExtractNullableDateTime(dr, "END_DATE"));
+                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"),
+                                                    Utils.ExtractNullableDateTime(dr, "END_DATE"), Utils.GetIntSafeVal(dr, "NUM_OF_USES"));
                             allEntitlments.Add(entitlementKey, entitlement);
                         }
                     }

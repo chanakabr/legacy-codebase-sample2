@@ -6813,8 +6813,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, List<int> usersInDomain, MeidaMaper[] mapper, string pricingUsername,
-                                                                string pricingPassword, ref DomainEntitlements domainEntitlements)
+        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, List<int> usersInDomain, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
         {
             bool res = false;
             try

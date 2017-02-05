@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCache
-    {                
+    {
         private const string LAYERED_CACHE_TCM_CONFIG = "LayeredCache";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -56,7 +56,7 @@ namespace CachingProvider.LayeredCache
                     Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
                     Dictionary<string, string> keyMappings = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
                     if (keyMappings != null && keyMappings.Count > 0)
-                    {                        
+                    {
                         foreach (LayeredCacheConfig cacheConfig in insertToCacheConfig)
                         {
                             if (!TryInsert<T>(keyMappings.Keys.First(), tupleToInsert, cacheConfig))
@@ -79,14 +79,14 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string,T>, bool>> fillObjectsMethod,
+        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
                                     Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
             bool res = false;
             Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfigMappings = null;
             Dictionary<string, Tuple<T, long>> resultsMapping = null;
             try
-            {                
+            {
                 res = TryGetValuesFromCacheByConfig<T>(keys, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod, funcParameters, groupId, inValidationKeysMap);
                 results = resultsMapping != null && resultsMapping.Count > 0 ? resultsMapping.ToDictionary(x => x.Key, x => x.Value.Item1) : null;
                 if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null)
@@ -123,7 +123,7 @@ namespace CachingProvider.LayeredCache
                                         string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
-            }            
+            }
 
             return res;
         }
@@ -144,7 +144,7 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed SetInvalidationKey, key: {0}, updatedAt: {1}", key, updatedAt.HasValue? updatedAt.Value.ToString() : "null"), ex);
+                log.Error(string.Format("Failed SetInvalidationKey, key: {0}, updatedAt: {1}", key, updatedAt.HasValue ? updatedAt.Value.ToString() : "null"), ex);
             }
 
             return res;
@@ -294,7 +294,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return layeredCacheTcmConfig;
-        }        
+        }
 
         #endregion
 
@@ -307,7 +307,7 @@ namespace CachingProvider.LayeredCache
                                                 int groupId, List<string> inValidationKeys = null)
         {
             bool result = false;
-            List<LayeredCacheConfig> layeredCacheConfig = null;            
+            List<LayeredCacheConfig> layeredCacheConfig = null;
             insertToCacheConfig = new List<LayeredCacheConfig>();
             try
             {
@@ -377,7 +377,7 @@ namespace CachingProvider.LayeredCache
                                                         Dictionary<string, object> funcParameters, int groupId, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
             bool result = false;
-            List<LayeredCacheConfig> layeredCacheConfig = null;            
+            List<LayeredCacheConfig> layeredCacheConfig = null;
             insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
             try
             {
@@ -458,8 +458,8 @@ namespace CachingProvider.LayeredCache
                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
             }
 
-            return result;            
-        }        
+            return result;
+        }
 
         private bool TryGetFromICachingService<T>(string key, ref Tuple<T, long> tupleResult, LayeredCacheConfig cacheConfig, int groupId)
         {
@@ -511,7 +511,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
-        }                
+        }
 
         private bool TryGetInValidationKeys(List<string> keys, ref List<long> inValidationKeys)
         {
@@ -589,10 +589,10 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
-        }        
+        }
 
         private bool TryGetLayeredCacheConfig(string configurationName, out List<LayeredCacheConfig> layeredCacheConfig)
-        {            
+        {
             layeredCacheConfig = null;
             try
             {
@@ -616,7 +616,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return layeredCacheConfig != null;
-        }        
+        }
 
         private bool TryGetLayeredCacheGroupConfig(int groupId, out LayeredCacheGroupConfig groupConfig)
         {
@@ -632,16 +632,29 @@ namespace CachingProvider.LayeredCache
                     return res;
                 }
 
-                ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
-                if (cache != null)
+                SingleInMemoryCache inMemoryCache = new SingleInMemoryCache(0);
+
+                // First let's try to get the configuration from the in memory cache
+                bool inMemoryResult = inMemoryCache.Get<LayeredCacheGroupConfig>(key, ref groupConfig);
+
+                // If we didn't fine the group's config in the in memory cache, let's get it from the Couchbase
+                // The couchbase is identical to the invalidation keys cache
+                if (!inMemoryResult || groupConfig == null)
                 {
-                    if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
+                    ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
+
+                    if (cache != null)
                     {
-                        res = true;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed getting LayeredCacheGroupConfig from cache, groupId: {0}, cacheType: {1}", groupId, invalidationKeyCacheConfigSettings.Type);
+                        if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
+                        {
+                            // If we successfully got the config from CB, let's store it in the in memory cache for 24 hours
+                            inMemoryCache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, 0, 86400);
+                            res = true;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Failed getting LayeredCacheGroupConfig from cache, groupId: {0}, cacheType: {1}", groupId, invalidationKeyCacheConfigSettings.Type);
+                        }
                     }
                 }
             }
@@ -651,8 +664,8 @@ namespace CachingProvider.LayeredCache
                 log.Error(string.Format("Failed TryGetLayeredCacheGroupConfig for groupId: {0}", groupId), ex);
             }
 
-            return res;            
-        }        
+            return res;
+        }
 
         private Dictionary<string, string> GetVersionKeyToOriginalKeyMap(List<string> keys, int groupId, string versionToAdd = null)
         {
@@ -736,7 +749,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
-        }        
+        }
 
         private string GetLayeredCacheConfigTypesForLog(List<LayeredCacheConfig> layeredCacheConfig)
         {
@@ -860,7 +873,7 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
-        }        
+        }
 
         #endregion
 
@@ -896,7 +909,7 @@ namespace CachingProvider.LayeredCache
         #endregion
 
         #region Other
-        
+
         private bool ShouldGoToCache(string layeredCacheConfigName, int groupId, ref List<LayeredCacheConfig> layeredCacheConfig)
         {
             bool res = false;
