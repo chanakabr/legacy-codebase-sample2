@@ -1036,7 +1036,7 @@ namespace ConditionalAccess
 
         internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, string sCouponCode, int nGroupID)
         {
-            Price p = CopyPrice(pModule);
+            Price price = CopyPrice(pModule);
             if (!string.IsNullOrEmpty(sCouponCode) && sCouponCode.Length > 0)
             {
 
@@ -1058,13 +1058,21 @@ namespace ConditionalAccess
                         theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
                         theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
                     {
-                        //Coupon discount should take place
-                        DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
-                        p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
+                        // if it is a valid gift card, set price to be 0
+                        if (theCouponData.Coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard)
+                        {
+                            price.m_dPrice = 0.0;
+                        }
+                        else
+                        {
+                            //Coupon discount should take place
+                            DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
+                            price = GetPriceAfterDiscount(price, dCouponDiscount, 0);
+                        }
                     }
                 }
             }
-            return p;
+            return price;
         }
 
         private static bool IsVoucherValid(int nLifeCycle, long nOwnerGuid, long campaignID)
