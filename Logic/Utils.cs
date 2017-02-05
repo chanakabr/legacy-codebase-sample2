@@ -481,5 +481,66 @@ namespace APILogic
             return new Tuple<List<MediaConcurrencyRule>, bool>(result, res);
         }
 
+
+        internal static Tuple<List<ParentalRule>, bool> GetGroupParentalRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ParentalRule> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        result = DAL.ApiDAL.Get_Group_ParentalRules(groupId.Value);
+
+                        res = result != null ? true : false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupParentalRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<ParentalRule>, bool>(result, res);
+        }
+
+        internal static Tuple<Dictionary<long, eRuleLevel>, bool> GetUserParentalRules(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<long, eRuleLevel> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    int? groupId;
+                    string userId = string.Empty;
+
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        groupId = funcParams["groupId"] as int?;
+
+                        if (funcParams.ContainsKey("userId"))
+                        {
+                            userId = funcParams["userId"].ToString();
+                        }
+                        if (groupId.HasValue && !string.IsNullOrEmpty(userId))
+                        {
+                            result = DAL.ApiDAL.Get_UserParentalRules(groupId.Value, userId);
+
+                            res = result != null ? true : false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupParentalRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<long, eRuleLevel>, bool>(result, res);
+        }
     }
 }

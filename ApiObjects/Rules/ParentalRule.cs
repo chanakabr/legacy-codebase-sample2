@@ -57,6 +57,11 @@ namespace ApiObjects
         [JsonProperty()]
         public eRuleLevel level;
 
+        [JsonProperty()]
+        public string mediaTagType;
+
+        [JsonProperty()]
+        public string epgTagType;
         #endregion
 
         #region Ctor

@@ -90,6 +90,10 @@ namespace Core.Api
 
         private const string GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME = "groupCDNSettings";
         private const string CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME = "cdnAdapter";
+        private const string GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "groupParentalRules";
+        private const string USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "userParentalRules";
+        private const string MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "mediaParentalRules";
+
         #endregion
 
         protected api() { }
@@ -4970,6 +4974,7 @@ namespace Core.Api
 
         public static ParentalRulesResponse GetParentalMediaRules(int groupId, string siteGuid, long mediaId, long domainId)
         {
+            List<ParentalRule> rules = new List<ParentalRule>();
             ParentalRulesResponse response = new ParentalRulesResponse()
             {
                 rules = new List<ParentalRule>()
@@ -4982,17 +4987,84 @@ namespace Core.Api
             {
                 try
                 {
-                    response.rules = DAL.ApiDAL.Get_ParentalMediaRules(groupId, siteGuid, mediaId, domainId);
+                    List<ParentalRule> groupsParentalRules = null;
+                    List<long> mediaRuleIds = new List<long>();
+                    Dictionary<long, eRuleLevel> userParentalRules = null;
 
-                    if (response.rules == null)
+                    // group rules                 
+                    string key = DAL.UtilsDal.GetGroupParentalRulesKey(groupId);
+                    // try to get from cache  
+                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref groupsParentalRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                            /*groupId, */GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                    if (!cacheResult || groupsParentalRules == null)
                     {
-                        response.rules = new List<ParentalRule>();
+                        log.Error(string.Format("GetParentalMediaRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
+                        return null;
                     }
+
+                    if (groupsParentalRules.Count == 0)
+                    {
+                        return response;
+                    }
+
+                    // media rules id 
+                    key = DAL.UtilsDal.GetMediaParentalRulesKey(groupId, mediaId);
+                    cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
+                        new Dictionary<string, object>() 
+                            { 
+                                { "groupId", groupId }, 
+                                { "mediaId", mediaId }, 
+                                { "groupsParentalRules", groupsParentalRules } 
+                            },
+                        /*groupId,*/ MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+
+                    if (!cacheResult)
+                    {
+                        log.Error(string.Format("GetParentalMediaRules - GetMediaParentalRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
+                        return null;
+                    }
+                    else if (mediaRuleIds != null && mediaRuleIds.Count > 0)
+                    {
+                        // user rules 
+                        key = DAL.UtilsDal.GetUserParentalRulesKey(groupId, siteGuid);
+                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules,
+                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", siteGuid } },
+                            /*groupId,*/ USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+
+                        if (!cacheResult || userParentalRules == null)
+                        {
+                            log.Error(string.Format("GetParentalMediaRules - GetUserParentalRules - Failed get data from cache groupId = {0}, userId = {1}", groupId, siteGuid));
+                            return null;
+                        }
+
+                        // if user has at least one rule applied on him on user or domain level
+                        if (userParentalRules.Count > 0)
+                        {
+                            // If user ignored group's default rules - and if this is the only one - user has 0 parental rules for this media, he's free.
+                            if (userParentalRules.Count == 1 && userParentalRules.FirstOrDefault().Key < 0)
+                            {
+                                response.rules = new List<ParentalRule>();
+                            }
+                            else
+                            {
+                                // User does have rules. Let's see which of the rules that are relevant to the media are also relevant to the user (intersection)
+                                rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
+                            }
+                        }
+                        else if (groupsParentalRules.Count > 0) // check on group rules 
+                        {
+                            // check if media related to user parental rules - if needed 
+                            rules = groupsParentalRules.Where(x => mediaRuleIds.Contains(x.id) && x.isDefault).ToList();
+                        }
+                    }
+
+                    response.rules = rules != null ? rules : new List<ParentalRule>();
 
                     response.status = new ApiObjects.Response.Status()
                     {
                         Code = (int)eResponseStatus.OK
                     };
+
                 }
                 catch (Exception ex)
                 {
@@ -9035,6 +9107,72 @@ namespace Core.Api
                 log.Error(string.Format("GetCdnSettings faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<CDNPartnerSettings, bool>(result, res);
-        }    
+        }
+
+        private static Tuple<List<long>, bool> GetMediaParentalRules(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> ruleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupsParentalRules"))
+                    {
+                        int? groupId;
+                        long? mediaId;
+                        List<ParentalRule> groupsParentalRules = new List<ParentalRule>();
+                        Core.Catalog.Response.UnifiedSearchResult[] medias;
+                        string filter = string.Empty;
+
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as long?;
+                        groupsParentalRules = funcParams["groupsParentalRules"] as List<ParentalRule>;
+
+                        if (groupId.HasValue && mediaId.HasValue && groupsParentalRules != null && groupsParentalRules.Count > 0)
+                        {
+                            // find all asset ids that match the tag + tag value ==> if so save the rule id
+                            //build serach for each tag and tag values
+
+                            List<string> tempFilter = new List<string>();
+
+
+                            groupsParentalRules = groupsParentalRules.Where(x => !string.IsNullOrEmpty(x.mediaTagType)).ToList();
+                            Parallel.ForEach(groupsParentalRules, (rule) =>
+                            {
+                                tempFilter = rule.mediaTagValues.Select(x => string.Format("{0}='{1}'", rule.mediaTagType, x)).ToList();
+
+                                if (tempFilter != null && tempFilter.Count > 0)
+                                {
+                                    if (tempFilter.Count > 1)
+                                    {
+                                        filter = string.Format("(and media_id='{0}' (or {1}))", mediaId.Value, string.Join(" ", tempFilter));
+                                    }
+                                    else
+                                    {
+                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, tempFilter.First());
+                                    }
+
+                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                                    if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                        ruleIds.Add(rule.id);
+                                    }
+                                }
+                            });
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaParentalRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
+        }      
     }
 }
