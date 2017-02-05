@@ -34,7 +34,8 @@ namespace ConditionalAccess
         {
             [JsonProperty("EntitlementsDictionary")]
             public Dictionary<string, EntitlementObject> EntitlementsDictionary { get; set; }
-            [JsonProperty("MediaIdGroupFileTypeMapper")]
+            
+            [JsonIgnore]
             public Dictionary<string, int> MediaIdGroupFileTypeMapper { get; set; }            
 
             public PPVEntitlements()
@@ -54,14 +55,15 @@ namespace ConditionalAccess
         {
             [JsonProperty("EntitledSubscriptions")]
             public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledSubscriptions { get; set; }
+            [JsonProperty("EntitledCollections")]
+            public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledCollections { get; set; }
+
             [JsonIgnore]
             public Dictionary<int, List<Subscription>> FileTypeIdToSubscriptionMappings { get; set; }
             [JsonIgnore]
             public Dictionary<int, List<Subscription>> ChannelsToSubscriptionMappings { get; set; }
             [JsonIgnore]
             public Dictionary<int, List<Collection>> ChannelsToCollectionsMappings { get; set; }
-            [JsonProperty("EntitledCollections")]
-            public Dictionary<string, ConditionalAccess.Utils.UserBundlePurchase> EntitledCollections { get; set; }
             [JsonIgnore]
             public Dictionary<int, Subscription> SubscriptionsData { get; set; }
             [JsonIgnore]

@@ -344,7 +344,7 @@ namespace CachingProvider.LayeredCache
                     log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", key, layeredCacheConfigName, groupId);
                 }
 
-                if (!result)
+                if (!result && fillObjectMethod != null)
                 {
                     Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
                     if (tuple != null)
