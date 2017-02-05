@@ -3328,11 +3328,12 @@ namespace ConditionalAccess
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if ((mediaFinalEndDate != null && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate != null && mediaFileEndDate.Value < currentDate))
+                            else if ((mediaFinalEndDate.HasValue && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate.HasValue && mediaFileEndDate.Value < currentDate))
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if ((mediaEndDate != null && mediaEndDate.Value < currentDate) || (mediaFinalEndDate != null && mediaFinalEndDate.Value > currentDate)) // cun see only if purchased
+                            else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) && 
+                                (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // cun see only if purchased
                             {
                                 eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
                             }
