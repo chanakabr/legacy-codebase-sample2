@@ -6130,6 +6130,8 @@ namespace Catalog
             else
             {
                 root = phrase;
+                status.Code = (int)eResponseStatus.OK;
+                status.Message = eResponseStatus.OK.ToString();
             }
 
             definitions.filterPhrase = root;
