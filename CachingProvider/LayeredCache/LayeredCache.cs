@@ -843,27 +843,33 @@ namespace CachingProvider.LayeredCache
 
         private bool TrySetLayeredGroupCacheConfig(string key, LayeredCacheGroupConfig groupConfig)
         {
-            bool res = false;
+            bool result = false;
+
             try
             {
                 if (string.IsNullOrEmpty(key))
                 {
-                    return res;
+                    return result;
                 }
 
                 LayeredCacheConfig invalidationKeyCacheConfigSettings = GetLayeredCacheTcmConfig().InvalidationKeySettings;
                 if (invalidationKeyCacheConfigSettings == null)
                 {
-                    return res;
+                    return result;
                 }
 
                 ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
+
                 if (cache != null)
                 {
                     ulong version = 0;
                     LayeredCacheGroupConfig getResult = null;
                     cache.GetWithVersion<LayeredCacheGroupConfig>(key, out version, ref getResult);
-                    res = cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, version, invalidationKeyCacheConfigSettings.TTL);
+                    result = cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, version, invalidationKeyCacheConfigSettings.TTL);
+
+                    // When setting, remove from in-memory cache
+                    SingleInMemoryCache inMemoryCache = new SingleInMemoryCache(0);
+                    inMemoryCache.RemoveKey(key);
                 }
             }
 
@@ -872,7 +878,7 @@ namespace CachingProvider.LayeredCache
                 log.Error(string.Format("Failed TrySetLayeredGroupCacheConfig with key {0}", key), ex);
             }
 
-            return res;
+            return result;
         }
 
         #endregion
