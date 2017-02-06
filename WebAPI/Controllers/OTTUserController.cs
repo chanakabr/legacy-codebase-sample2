@@ -366,7 +366,7 @@ namespace WebAPI.Controllers
                     AuthorizationManager.RevokeSessions(partnerId, usersList.Users[0].Id);
                 else
                     throw new InternalServerErrorException();
-                
+
             }
             catch (ClientException ex)
             {
@@ -387,10 +387,10 @@ namespace WebAPI.Controllers
         /// <param name="password">new password</param>
         /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Route("updatePassword"), HttpPost]
-        [ApiAuthorize(true)]          
+        [ApiAuthorize(true)]
         [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
         public void updatePassword(int userId, string password)
-        {            
+        {
             int groupId = KS.GetFromRequest().GroupId;
 
             if (userId <= 0)
@@ -406,9 +406,9 @@ namespace WebAPI.Controllers
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
-            }         
+            }
         }
-        
+
         /// <summary>
         /// Returns the user associated with a temporary reset token.
         /// </summary>        
@@ -533,7 +533,10 @@ namespace WebAPI.Controllers
                 throw new InternalServerErrorException();
             }
 
-            return response.First();
+            if (response != null && response.Count > 0)
+                return response.First();
+            else
+                return null;
         }
 
         /// <summary>
@@ -585,7 +588,7 @@ namespace WebAPI.Controllers
             KalturaOTTUser response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            
+
             try
             {
                 // call client
@@ -761,7 +764,7 @@ namespace WebAPI.Controllers
         public KalturaStringValue GetEncryptedUserId()
         {
             KalturaStringValue response = null;
-            
+
             try
             {
                 string userId = KS.GetFromRequest().UserId;
@@ -831,7 +834,7 @@ namespace WebAPI.Controllers
                     response.Users = ClientsManager.UsersClient().GetUsersData(groupId, householdUserIds);
                     if (response.Users != null)
                     {
-                        response.TotalCount = response.Users.Count();                        
+                        response.TotalCount = response.Users.Count();
                     }
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdEqual))
@@ -853,11 +856,11 @@ namespace WebAPI.Controllers
                         usersToGet = new List<string>();
                         var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
                         foreach (var userId in filter.GetIdIn())
-	                    {
-		                     if (householdUsers.Contains(userId))
-                             {
-                                 usersToGet.Add(userId);
-                             }
+                        {
+                            if (householdUsers.Contains(userId))
+                            {
+                                usersToGet.Add(userId);
+                            }
                         }
                     }
                     // operator +
@@ -867,7 +870,7 @@ namespace WebAPI.Controllers
                     }
                     else
                     {
-                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ), 
+                        throw new UnauthorizedException(UnauthorizedException.PROPERTY_ACTION_FORBIDDEN, Enum.GetName(typeof(WebAPI.Filters.RequestType), WebAPI.Filters.RequestType.READ),
                             "KalturaOTTUserFilter", "idIn");
                     }
                     response = new KalturaOTTUserListResponse();
@@ -876,7 +879,7 @@ namespace WebAPI.Controllers
                     {
                         response.TotalCount = response.Users.Count();
                     }
-                }      
+                }
             }
             catch (ClientException ex)
             {
