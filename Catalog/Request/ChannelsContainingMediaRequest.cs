@@ -47,6 +47,10 @@ namespace Catalog.Request
                 CheckSignature(request);
 
                 List<int> channels = null;
+                List<string> invalidationKeys = new List<string>()
+                {
+                    Catalog.CHANNELS_INVALIDATION_KEY
+                };
 
                 string key = DAL.UtilsDal.GetChannelsContainingMediaKey(m_nMediaID);
 

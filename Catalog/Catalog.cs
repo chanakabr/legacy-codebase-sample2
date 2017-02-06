@@ -74,6 +74,8 @@ namespace Catalog
 
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
+        public static const int CHANNELS_INVALIDATION_KEY = "channels_updated";
+
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
 			            "name",
@@ -2516,7 +2518,7 @@ namespace Catalog
                 }
                 
                 // Set invalidation keys - for all channels and for specific channel
-                LayeredCache.Instance.SetInvalidationKey("channels_updated");
+                LayeredCache.Instance.SetInvalidationKey(CHANNELS_INVALIDATION_KEY);
 
                 foreach (var id in ids)
                 {
