@@ -133,15 +133,8 @@ namespace Recordings
         }
 
         public bool DecreaseDomainUsedQuota(int groupId, long domainId, int quotaToDecrease)
-        {
-            DomainQuota domainQuota = GetDomainQuota(groupId, domainId);
-            if (domainQuota != null)
-            {
-                domainQuota.Used -= quotaToDecrease;
-
-                return RecordingsDAL.UpdateDomainQuota(domainId, domainQuota);
-            }
-            return false;            
+        {         
+            return RecordingsDAL.UpdateDomainQuota(domainId, (-1)*quotaToDecrease);         
         }
 
         /// <summary>
@@ -153,16 +146,9 @@ namespace Recordings
         /// <param name="shouldForceIncrease">If true - decrease the quota to 0 if not enough quota</param>
         /// <returns></returns>
         public bool IncreaseDomainUsedQuota(int groupId, long domainId, int quotaToIncrease, bool shouldForceIncrease = false)
-        { 
-            DomainQuota domainQuota = GetDomainQuota(groupId, domainId);
-
-            if (domainQuota != null && (domainQuota.Total - domainQuota.Used >= quotaToIncrease || shouldForceIncrease))
-            {
-                domainQuota.Used += quotaToIncrease;
-                return RecordingsDAL.UpdateDomainQuota(domainId, domainQuota);
-            }
-            
-            return false;
+        {
+            // no check for shouldForceIncrease ==> always increase 
+            return RecordingsDAL.UpdateDomainQuota(domainId, quotaToIncrease);
         }
 
         internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
