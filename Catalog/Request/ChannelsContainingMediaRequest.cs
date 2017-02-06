@@ -55,7 +55,7 @@ namespace Catalog.Request
                 string key = DAL.UtilsDal.GetChannelsContainingMediaKey(m_nMediaID);
 
                 bool cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref channels, GetMediaChannels, new Dictionary<string, object>() { { "groupId", request.m_nGroupID }, { "mediaId", request.m_nMediaID } },
-                    request.m_nGroupID, CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME);
+                    request.m_nGroupID, CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys);
 
                 if (cacheResult && channels != null && channels.Count > 0)
                 {
