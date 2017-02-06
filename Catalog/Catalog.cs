@@ -7,6 +7,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingHelpers;
+using CachingProvider.LayeredCache;
 using Catalog.Cache;
 using Catalog.Request;
 using Catalog.Response;
@@ -72,6 +73,8 @@ namespace Catalog
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+
+        public static readonly string CHANNELS_INVALIDATION_KEY = "channels_updated";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -2512,6 +2515,14 @@ namespace Catalog
                     ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, updatedObjectType, action);
 
                     legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
+                }
+                
+                // Set invalidation keys - for all channels and for specific channel
+                LayeredCache.Instance.SetInvalidationKey(CHANNELS_INVALIDATION_KEY);
+
+                foreach (var id in ids)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(string.Format("channel_{0}", id));
                 }
             }
 
@@ -5981,7 +5992,7 @@ namespace Catalog
 
                 Catalog.GetOrderValues(ref order, request.OrderObj);
 
-                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue)) 
                 {
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
                     order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
