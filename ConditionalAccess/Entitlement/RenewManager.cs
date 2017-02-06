@@ -398,7 +398,7 @@ namespace ConditionalAccess
 
             }
 
-            if (numOfPayments > 0 && recurringNumber >= numOfPayments)
+            if (numOfPayments > 0 && recurringNumber > numOfPayments)
             {
                 // Subscription ended
                 log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, recurringNumber, numOfPayments);
