@@ -625,6 +625,7 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Handlers\ExtWsPagesHendler.cs" />
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
