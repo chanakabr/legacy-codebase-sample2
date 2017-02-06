@@ -3222,10 +3222,10 @@ namespace ConditionalAccess
                         DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs);
                         if (dt != null && dt.Rows != null)
                         {
-                            DataTable tempDt = dt.Clone();
+                            DataTable tempDt;
                             foreach (DataRow dr in dt.Rows)
                             {
-                                tempDt.Clear();
+                                tempDt = dt.Clone();
                                 tempDt.ImportRow(dr);
                                 result.Add(ODBCWrapper.Utils.GetSafeStr(dr, "media_file_id"), tempDt);
                             }
