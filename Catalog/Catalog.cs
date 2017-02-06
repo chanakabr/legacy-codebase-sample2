@@ -74,7 +74,7 @@ namespace Catalog
 
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
-        public static const int CHANNELS_INVALIDATION_KEY = "channels_updated";
+        public static readonly string CHANNELS_INVALIDATION_KEY = "channels_updated";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
