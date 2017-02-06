@@ -5981,7 +5981,7 @@ namespace Catalog
 
                 Catalog.GetOrderValues(ref order, request.OrderObj);
 
-                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue))
+                if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(order.m_sOrderValue)) 
                 {
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
                     order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
