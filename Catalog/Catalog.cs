@@ -7,6 +7,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingHelpers;
+using CachingProvider.LayeredCache;
 using Catalog.Cache;
 using Catalog.Request;
 using Catalog.Response;
@@ -2512,6 +2513,14 @@ namespace Catalog
                     ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, group.m_nParentGroupID, updatedObjectType, action);
 
                     legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
+                }
+                
+                // Set invalidation keys - for all channels and for specific channel
+                LayeredCache.Instance.SetInvalidationKey("channels_updated");
+
+                foreach (var id in ids)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(string.Format("channel_{0}", id));
                 }
             }
 
