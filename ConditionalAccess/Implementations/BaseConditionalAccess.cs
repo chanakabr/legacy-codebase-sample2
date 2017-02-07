@@ -11870,32 +11870,33 @@ namespace ConditionalAccess
         {
             return string.Empty;
         }
+
         public ConditionalAccess.Response.DomainServicesResponse GetDomainServices(int domainID)
         {
-            DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);
-            PermittedSubscriptionContainer[] domainSubscriptions = GetDomainPermittedSubscriptions(domainID);
-
-            if (domainSubscriptions != null)
+            DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);            
+            DomainEntitlements domainEntitlements = null;
+            // Get all user entitlements
+            if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, null, ref domainEntitlements))
             {
-                List<long> subscriptionIDs = domainSubscriptions.Select(s => long.Parse(s.m_sSubscriptionCode)).ToList();
-                DataTable subscriptionServices = PricingDAL.Get_SubscriptionsServices(m_nGroupID, subscriptionIDs);
-                if (subscriptionServices != null && subscriptionServices.Rows != null && subscriptionServices.Rows.Count > 0)
+                log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
+                return domainServicesResponse;
+            }
+
+            if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null
+                && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count > 0)
+            {
+                List<string> subscriptionIDs = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => x.Value.sBundleCode).ToList();
+                string userName = string.Empty, pass = string.Empty;
+                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref userName, ref pass);
+                if (!string.IsNullOrEmpty(userName) && !string.IsNullOrEmpty(pass))
                 {
-                    HashSet<int> uniqueIds = new HashSet<int>();
-
-                    foreach (DataRow row in subscriptionServices.Rows)
+                    Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(subscriptionIDs, userName, pass, m_nGroupID);                    
+                    if (subs != null && subs.Length > 0)
                     {
-                        int serviceId = ODBCWrapper.Utils.ExtractInteger(row, "service_id");
-
-                        if (!uniqueIds.Contains(serviceId))
+                        List<ServiceObject> services = subs.SelectMany(x => x.m_lServices).Distinct().ToList();
+                        if (services != null && services.Count > 0)
                         {
-                            domainServicesResponse.Services.Add(new ServiceObject()
-                            {
-                                ID = serviceId,
-                                Name = ODBCWrapper.Utils.GetSafeStr(row["description"])
-                            });
-
-                            uniqueIds.Add(serviceId);
+                            domainServicesResponse.Services.AddRange(services);
                         }
                     }
                 }

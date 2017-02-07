@@ -151,7 +151,7 @@ namespace CachingProvider.LayeredCache
         }
 
         public bool SetLayeredCacheGroupConfig(int groupId, string version = null, bool? shouldDisableLayeredCache = null,
-                                                List<string> layeredCacheSettingsToExclude = null, bool shouldOverrideExistingExludeSettings = false)
+                                                List<string> layeredCacheSettingsToExclude = null, bool? shouldOverrideExistingExludeSettings = false)
         {
             bool res = false;
             try
@@ -172,7 +172,7 @@ namespace CachingProvider.LayeredCache
 
                     if (layeredCacheSettingsToExclude != null)
                     {
-                        if (shouldOverrideExistingExludeSettings)
+                        if (shouldOverrideExistingExludeSettings.HasValue && shouldOverrideExistingExludeSettings.Value)
                         {
                             groupConfig.LayeredCacheSettingsToExclude = new HashSet<string>(layeredCacheSettingsToExclude);
                         }
@@ -204,6 +204,26 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
+        }
+
+        public LayeredCacheGroupConfig GetLayeredCacheGroupConfig(int groupId)
+        {
+            LayeredCacheGroupConfig groupConfig = null;
+            try
+            {
+                string key = GetLayeredCacheGroupConfigKey(groupId);                
+                if (!TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
+                {
+                    log.DebugFormat("Failed getting GetLayeredCacheGroupConfig for groupId: {0}", groupId);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetLayeredCacheGroupConfig, groupId: {0}", groupId), ex);
+            }
+
+            return groupConfig;
         }
 
         // Is it needed? or we will just change version value

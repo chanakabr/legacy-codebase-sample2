@@ -346,8 +346,9 @@ namespace CachingProvider
                         {
                             DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
                             cache.Set(key, value, dtExpiresAt);
-                            return true;                        
                         }
+
+                        bRes = true;
                     }
                     catch
                     {
@@ -358,14 +359,16 @@ namespace CachingProvider
                         //unlock
                         mutex.ReleaseMutex();
                     }
-                }
-                return bRes;
+                }                
             }
+
             catch (Exception ex)
             {
                 log.Error("SetWithVersion<T>", ex);
                 return false;
-            }            
+            }
+
+            return bRes;
         }
 
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)

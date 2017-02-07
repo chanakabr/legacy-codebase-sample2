@@ -30,5 +30,15 @@ namespace CachingProvider.LayeredCache
             DisableLayeredCache = false;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder(string.Format("LayeredCacheGroupConfig for groupId: {0}, ", GroupId));
+            sb.AppendFormat("Version: {0}, ", string.IsNullOrEmpty(Version) ? string.Empty : Version);            
+            sb.AppendFormat("DisableLayeredCache: {0}, ", DisableLayeredCache.ToString());
+            sb.AppendFormat("LayeredCacheSettingsToExclude: {0} ", string.Join(",", LayeredCacheSettingsToExclude));
+
+            return sb.ToString();
+        }
+
     }
 }
