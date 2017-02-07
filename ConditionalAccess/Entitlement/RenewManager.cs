@@ -107,7 +107,7 @@ namespace ConditionalAccess
                     bool isDummy = XmlUtils.IsNodeExists(ref theRequest, DUMMY);
                     if (isDummy)
                     {
-                        return HandleDummySubsciptionRenewal(cas, groupId, siteguid, billingGuid, logString, householdId, userIp, productId, theRequest);
+                        return HandleDummySubsciptionRenewal(cas, groupId, siteguid, purchaseId, billingGuid, logString, householdId, userIp, productId, theRequest);
                     }
                 }
             }
@@ -372,7 +372,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string siteguid, string billingGuid,
+        protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string siteguid, long purchaseId, string billingGuid,
             string logString, long householdId, string userIp, long productId, XmlNode theRequest)
         {
             bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
@@ -397,8 +397,8 @@ namespace ConditionalAccess
                 return false;
 
             }
-
-            if (numOfPayments > 0 && recurringNumber >= numOfPayments)
+            recurringNumber = Utils.CalcPaymentNumber(numOfPayments, recurringNumber, false);
+            if (numOfPayments > 0 && recurringNumber > numOfPayments)
             {
                 // Subscription ended
                 log.ErrorFormat("Subscription ended. numOfPayments={0}, paymentNumber={1}, numOfPayments={2}", numOfPayments, recurringNumber, numOfPayments);
@@ -415,6 +415,18 @@ namespace ConditionalAccess
             if (res.Code == (int)eResponseStatus.OK)
             {
                 log.DebugFormat("Renew Dummy GrantSubscription Succeeded, data: {0}", logString);
+
+                // Try to cancel subscription
+                if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, groupId, siteguid, productId.ToString()) == 0)
+                {
+                    log.Error("Error while trying to update subscription");
+                    return false;
+                }
+                else
+                {
+                    log.Debug("Subscription was updated");
+                }
+
                 return true;
             }
             else
