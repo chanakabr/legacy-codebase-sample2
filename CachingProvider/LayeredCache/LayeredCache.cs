@@ -625,36 +625,34 @@ namespace CachingProvider.LayeredCache
             string key = GetLayeredCacheGroupConfigKey(groupId);
             try
             {
-                // LayeredCacheGroupConfig will be created on the same place as invalidation keys
-                LayeredCacheConfig invalidationKeyCacheConfigSettings = GetLayeredCacheTcmConfig().InvalidationKeySettings;
-                if (invalidationKeyCacheConfigSettings == null)
+                List<LayeredCacheConfig> GroupCacheSettings = GetLayeredCacheTcmConfig().GroupCacheSettings;
+                List<LayeredCacheConfig> insertToCacheConfig = new List<LayeredCacheConfig>();
+                if (GroupCacheSettings == null)
                 {
                     return res;
                 }
 
-                SingleInMemoryCache inMemoryCache = new SingleInMemoryCache(0);
-
-                // First let's try to get the configuration from the in memory cache
-                bool inMemoryResult = inMemoryCache.Get<LayeredCacheGroupConfig>(key, ref groupConfig);
-
-                // If we didn't fine the group's config in the in memory cache, let's get it from the Couchbase
-                // The couchbase is identical to the invalidation keys cache
-                if (!inMemoryResult || groupConfig == null)
+                foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
-                    ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
-
+                    ICachingService cache = cacheConfig.GetICachingService();
                     if (cache != null)
-                    {
+                    {                        
                         if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
                         {
-                            // If we successfully got the config from CB, let's store it in the in memory cache for 24 hours
-                            inMemoryCache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, 0, 86400);
                             res = true;
+                            break;
                         }
-                        else
-                        {
-                            log.ErrorFormat("Failed getting LayeredCacheGroupConfig from cache, groupId: {0}, cacheType: {1}", groupId, invalidationKeyCacheConfigSettings.Type);
-                        }
+
+                        // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
+                        insertToCacheConfig.Add(cacheConfig);
+                    }
+                }
+
+                if (res && groupConfig != null && insertToCacheConfig != null && insertToCacheConfig.Count > 0)
+                {
+                    if (!TrySetLayeredGroupCacheConfig(key, groupConfig, insertToCacheConfig))
+                    {
+                        log.ErrorFormat("Failed inserting LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
                     }
                 }
             }
@@ -803,7 +801,7 @@ namespace CachingProvider.LayeredCache
 
             return res;
 
-        }
+        }        
 
         #endregion
 
@@ -843,36 +841,43 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TrySetLayeredGroupCacheConfig(string key, LayeredCacheGroupConfig groupConfig)
+        private bool TrySetLayeredGroupCacheConfig(string key, LayeredCacheGroupConfig groupConfig, List<LayeredCacheConfig> layeredCacheConfig = null)
         {
-            bool result = false;
+            bool res = false;
 
             try
             {
                 if (string.IsNullOrEmpty(key))
                 {
-                    return result;
+                    return res;
                 }
 
-                LayeredCacheConfig invalidationKeyCacheConfigSettings = GetLayeredCacheTcmConfig().InvalidationKeySettings;
-                if (invalidationKeyCacheConfigSettings == null)
+                List<LayeredCacheConfig> GroupCacheSettings = layeredCacheConfig == null || layeredCacheConfig.Count == 0 ? GetLayeredCacheTcmConfig().GroupCacheSettings : layeredCacheConfig;
+                if (GroupCacheSettings == null)
                 {
-                    return result;
+                    return res;
                 }
 
-                ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
-
-                if (cache != null)
+                bool insertResult = true;
+                foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
                 {
-                    ulong version = 0;
-                    LayeredCacheGroupConfig getResult = null;
-                    cache.GetWithVersion<LayeredCacheGroupConfig>(key, out version, ref getResult);
-                    result = cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, version, invalidationKeyCacheConfigSettings.TTL);
+                    ICachingService cache = cacheConfig.GetICachingService();
+                    if (cache != null)
+                    {
+                        ulong version = 0;
+                        if (cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache)
+                        {
 
-                    // When setting, remove from in-memory cache
-                    SingleInMemoryCache inMemoryCache = new SingleInMemoryCache(0);
-                    inMemoryCache.RemoveKey(key);
+                            LayeredCacheGroupConfig getResult = null;
+                            cache.GetWithVersion<LayeredCacheGroupConfig>(key, out version, ref getResult);
+
+                        }
+
+                        insertResult = insertResult && cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, version, cacheConfig.TTL);
+                    }
                 }
+
+                res = insertResult;
             }
 
             catch (Exception ex)
@@ -880,7 +885,7 @@ namespace CachingProvider.LayeredCache
                 log.Error(string.Format("Failed TrySetLayeredGroupCacheConfig with key {0}", key), ex);
             }
 
-            return result;
+            return res;
         }
 
         #endregion
