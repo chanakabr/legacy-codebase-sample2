@@ -1334,7 +1334,7 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateDomainQuota(long domainId, int quota, int defaultQuota , bool shouldForceUpdate = true)
+        public static bool UpdateDomainUsedQuota(long domainId, int quota, int defaultQuota, bool shouldForceUpdate = true)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
@@ -1366,10 +1366,9 @@ namespace DAL
                     }
                     else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        domainQuota = new DomainQuota(0, 0, true);
-                        if (shouldForceUpdate || defaultQuota - domainQuota.Used >= quota)
+                        if (shouldForceUpdate || defaultQuota >= quota)
                         {
-                            domainQuota.Used += quota;
+                            domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
                             result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
                         }
                     }
