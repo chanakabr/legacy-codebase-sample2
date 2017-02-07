@@ -40,7 +40,7 @@ namespace WebAPI.Utils
 
             response = JsonConvert.SerializeObject(customData);
 
-            return HttpUtility.UrlEncode((Convert.ToBase64String(Encoding.ASCII.GetBytes(response)));
+            return HttpUtility.UrlEncode((Convert.ToBase64String(Encoding.ASCII.GetBytes(response))));
         }
 
         public static string BuildCencSignatureString(string customDataString)
