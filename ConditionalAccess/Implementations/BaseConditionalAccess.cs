@@ -83,9 +83,6 @@ namespace ConditionalAccess
         internal const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
         internal const string ADAPTER_ALIAS_REQUIRED = "Adapter Alias must have a value";
         internal const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";
-        internal const string ERROR_SUBSCRIPTION_NOT_EXSITS = "Subscription \\{0} not exists";
-        internal const string ERROR_SUBSCRIPTION_NOT_RENEWABLE = "Subscription \\{0} not renewable";
-        internal const string ERROR_SUBSCRIPTION_ALREADY_PURCHASED = "Subscription \\{0} already purchased";
 
         protected const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
 
