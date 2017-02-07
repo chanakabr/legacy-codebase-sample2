@@ -1357,7 +1357,7 @@ namespace DAL
                     DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
                     if (status == Couchbase.IO.ResponseStatus.Success)
                     {
-                        int total = domainQuota.IsDefaultQuota ? defaultQuota : domainQuota.Total;
+                        int total = domainQuota.Total == 0 ? defaultQuota : domainQuota.Total;
                         if (shouldForceUpdate || total - domainQuota.Used >= quota)
                         {
                             domainQuota.Used += quota;

@@ -189,16 +189,6 @@ namespace CachingProvider.LayeredCache
                     }
 
                 }
-                else
-                {
-                    groupConfig = new LayeredCacheGroupConfig()
-                    {
-                        GroupId = groupId,
-                        Version = !string.IsNullOrEmpty(version) ? version : string.Empty,
-                        DisableLayeredCache = shouldDisableLayeredCache.HasValue ? shouldDisableLayeredCache.Value : false,
-                        LayeredCacheSettingsToExclude = layeredCacheSettingsToExclude != null ? new HashSet<string>(layeredCacheSettingsToExclude) : new HashSet<string>()
-                    };
-                }
 
                 if (groupConfig != null)
                 {
@@ -618,7 +608,7 @@ namespace CachingProvider.LayeredCache
             return layeredCacheConfig != null;
         }
 
-        private bool TryGetLayeredCacheGroupConfig(int groupId, out LayeredCacheGroupConfig groupConfig)
+        private bool TryGetLayeredCacheGroupConfig(int groupId, out LayeredCacheGroupConfig groupConfig, bool shouldCreateIfnoneExists = false)
         {
             bool res = false;
             groupConfig = null;
@@ -655,6 +645,23 @@ namespace CachingProvider.LayeredCache
                         log.ErrorFormat("Failed inserting LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
                     }
                 }
+
+                if (shouldCreateIfnoneExists && !res && groupConfig == null)
+                {
+                    groupConfig = new LayeredCacheGroupConfig()
+                    {
+                        GroupId = groupId,
+                        Version = string.Empty,
+                        DisableLayeredCache = false,
+                        LayeredCacheSettingsToExclude = new HashSet<string>()
+                    };
+
+                    if (!TrySetLayeredGroupCacheConfig(key, groupConfig, insertToCacheConfig))
+                    {
+                        log.ErrorFormat("Failed inserting Default LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
+                    }
+                }
+
             }
 
             catch (Exception ex)
