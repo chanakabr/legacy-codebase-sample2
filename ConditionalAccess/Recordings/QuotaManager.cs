@@ -139,8 +139,8 @@ namespace Recordings
             int defaultQuota = 0;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
              if (domainQuota != null)
-             {   
-                 return RecordingsDAL.UpdateDomainQuota(domainId, (-1) * quotaToDecrease, defaultQuota);
+             {
+                 return RecordingsDAL.UpdateDomainUsedQuota(domainId, (-1) * quotaToDecrease, defaultQuota);
              }
              return false;
         }
@@ -159,8 +159,8 @@ namespace Recordings
             int defaultQuota = 0;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             if (domainQuota != null)
-            {   
-                return RecordingsDAL.UpdateDomainQuota(domainId, quotaToIncrease, defaultQuota, shouldForceIncrease);
+            {
+                return RecordingsDAL.UpdateDomainUsedQuota(domainId, quotaToIncrease, defaultQuota, shouldForceIncrease);
             }
             return false;
         }
