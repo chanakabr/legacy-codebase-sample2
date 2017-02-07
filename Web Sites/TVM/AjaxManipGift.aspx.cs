@@ -35,7 +35,7 @@ public partial class AjaxManipGift : System.Web.UI.Page
         */
     }
 
-    protected ca_ws.BillingResponseStatus GiveFreeSub(string sSiteGUID, string sGiftCode, string sRemarks, ref string sError)
+    protected ca_ws.BillingResponseStatus GiveFreeSubOld(string sSiteGUID, string sGiftCode, string sRemarks, ref string sError)
     {
         Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
         ca_ws.module p = new ca_ws.module();
@@ -52,7 +52,28 @@ public partial class AjaxManipGift : System.Web.UI.Page
         return ret.m_oStatus;
     }
 
-    protected ca_ws.BillingResponseStatus GiveFreePPV(string sSiteGUID, string sGiftCode, string sRemarks, ref string sError)
+    protected ca_ws.BillingResponseStatus GiveFreeSub(string sSiteGUID, string sGiftCode, string sRemarks, ref string sError)
+    {
+        ca_ws.BillingResponseStatus ret = ca_ws.BillingResponseStatus.Fail;
+
+        Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
+        ca_ws.module p = new ca_ws.module();
+        string sIP = "1.1.1.1";
+        string sWSUserName = "";
+        string sWSPass = "";
+        TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CC_DummyChargeUserForSubscription", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
+        string sWSURL = GetWSURL("conditionalaccess_ws");
+        if (sWSURL != "")
+            p.Url = sWSURL;
+
+        var res = p.GrantEntitlements(sWSUserName, sWSPass, sSiteGUID, 0, 0, int.Parse(sGiftCode), ca_ws.eTransactionType.Subscription, "1.1.1.1", string.Empty, true);
+        sError = res.Message;
+        ret = res.Code == 0 ? ca_ws.BillingResponseStatus.Success : ca_ws.BillingResponseStatus.Fail;
+
+        return ret;
+    }
+
+    protected ca_ws.BillingResponseStatus GiveFreePPVOld(string sSiteGUID, string sGiftCode, string sRemarks, ref string sError)
     {
         ca_ws.BillingResponseStatus ret = ca_ws.BillingResponseStatus.Fail;
 
@@ -87,6 +108,49 @@ public partial class AjaxManipGift : System.Web.UI.Page
             }
             selectQuery.Finish();
             selectQuery = null;
+
+        }
+        return ret;
+    }
+
+    protected ca_ws.BillingResponseStatus GiveFreePPV(string sSiteGUID, string sGiftCode, string sRemarks, ref string sError)
+    {
+        ca_ws.BillingResponseStatus ret = ca_ws.BillingResponseStatus.Fail;
+
+        Int32 nGroupID = TVinciShared.LoginManager.GetLoginGroupID();
+        ca_ws.module p = new ca_ws.module();
+        string sIP = "1.1.1.1";
+        string sWSUserName = "";
+        string sWSPass = "";
+        TVinciShared.WS_Utils.GetWSUNPass(nGroupID, "CC_DummyChargeUserForSubscription", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
+        string sWSURL = GetWSURL("conditionalaccess_ws");
+        if (sWSURL != "")
+            p.Url = sWSURL;
+        int mediaFileId = 0;
+        if (int.TryParse(sGiftCode, out mediaFileId))
+        {
+            int productId = 0;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("pricing_connection_string");
+            selectQuery += " select ppv_module_id from ppv_modules_media_files where is_active = 1 and status = 1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_file_id", "=", mediaFileId);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                int count = selectQuery.Table("query").DefaultView.Count;
+                if (count > 0)
+                {
+                    productId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "ppv_module_id", 0);
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            if (productId > 0)
+            {
+                var res = p.GrantEntitlements(sWSUserName, sWSPass, sSiteGUID, 0, mediaFileId, productId, ca_ws.eTransactionType.PPV, "1.1.1.1", string.Empty, true);
+                sError = res.Message;
+                ret = res.Code == 0 ? ca_ws.BillingResponseStatus.Success : ca_ws.BillingResponseStatus.Fail;
+            }
 
         }
         return ret;
