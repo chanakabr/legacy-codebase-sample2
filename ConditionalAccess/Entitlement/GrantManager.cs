@@ -26,8 +26,8 @@ namespace ConditionalAccess
         internal const string ERROR_SUBSCRIPTION_NOT_RENEWABLE = "Subscription \\{0} not renewable";
         internal const string ERROR_SUBSCRIPTION_ALREADY_PURCHASED = "Subscription \\{0} already purchased";
 
-        public static ApiObjects.Response.Status GrantEntitlements(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, eTransactionType transactionType,
-            string ip, string udid, bool history)
+        public static ApiObjects.Response.Status GrantEntitlements(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, 
+                                                                    eTransactionType transactionType, string ip, string udid, bool history)
         {
             ApiObjects.Response.Status status = null;
             // log request
@@ -105,8 +105,8 @@ namespace ConditionalAccess
             return status;
         }
 
-        internal static ApiObjects.Response.Status GrantPPV(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, string ip, string udid, bool saveHistory,
-            DateTime? startDate = null, DateTime? endDate = null)
+        internal static ApiObjects.Response.Status GrantPPV(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, string ip, 
+                                                            string udid, bool saveHistory, DateTime? startDate = null, DateTime? endDate = null)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -257,8 +257,8 @@ namespace ConditionalAccess
             return status;
         }
 
-        internal static ApiObjects.Response.Status GrantSubscription(BaseConditionalAccess cas, int groupId, string userId, long householdId, int productId, string ip, string udid, bool saveHistory,
-                                                                                int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, GrantContext context = GrantContext.Grant)
+        internal static ApiObjects.Response.Status GrantSubscription(BaseConditionalAccess cas, int groupId, string userId, long householdId, int productId, string ip, string udid, bool saveHistory, 
+                                                                    int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, GrantContext context = GrantContext.Grant)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -315,7 +315,7 @@ namespace ConditionalAccess
                 //validate that user have no DLM or Quota - FOR GRANT ONLY 
                 if (context == GrantContext.Grant)
                 {
-                    status = CheckSubscriptionOverlap(cas, groupId, subscription, userId);
+                    status = CheckSubscriptionOverlap(cas, groupId, subscription, userId, (int)householdId);
                     if (status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
@@ -567,7 +567,6 @@ namespace ConditionalAccess
             return status;
         }
 
-
         internal static Status SwapSubscription(BaseConditionalAccess cas, int groupId, string userId, int oldSubscriptionCode, int newSubscriptionCode, string ip, string udid, bool history)          
         {   
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
@@ -591,7 +590,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                PermittedSubscriptionContainer[] userSubsArray = cas.GetUserPermittedSubscriptions(userId);//get all the valid subscriptions that this user has
+                PermittedSubscriptionContainer[] userSubsArray = cas.GetUserPermittedSubscriptions(new List<int>() { int.Parse(userId) }, false, 0, domainID); //get all the valid subscriptions that this user has
                 Subscription userSubNew = null;
                 PermittedSubscriptionContainer userSubOld = new PermittedSubscriptionContainer();
                 //check if old sub exists
@@ -647,7 +646,7 @@ namespace ConditionalAccess
 
                 if (subCodes.Count > 0)
                 {
-                    response = CheckSubscriptionOverlap(cas, groupId, userSubNew, userId, subCodes);
+                    response = CheckSubscriptionOverlap(cas, groupId, userSubNew, userId, domainID, subCodes);
 
                     if (response.Code != (int)eResponseStatus.OK)
                     {
@@ -713,7 +712,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private static ApiObjects.Response.Status CheckSubscriptionOverlap(BaseConditionalAccess cas, int groupId, Subscription subscription, string userId, List<string> SubCodes = null)
+        private static ApiObjects.Response.Status CheckSubscriptionOverlap(BaseConditionalAccess cas, int groupId, Subscription subscription, string userId, int domainId, List<string> SubCodes = null)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
@@ -738,7 +737,7 @@ namespace ConditionalAccess
                 //get all permitted subscription (if didn't get) 
                 if (SubCodes == null || SubCodes.Count == 0)
                 {
-                    PermittedSubscriptionContainer[] userSubsArray = cas.GetUserPermittedSubscriptions(userId);
+                    PermittedSubscriptionContainer[] userSubsArray = cas.GetUserPermittedSubscriptions(new List<int>() { int.Parse(userId) }, false, 0, domainId);
                     if (userSubsArray == null || userSubsArray.Count() == 0)
                     {
                         return status;
