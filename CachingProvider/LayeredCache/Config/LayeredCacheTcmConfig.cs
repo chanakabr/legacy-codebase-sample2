@@ -16,6 +16,9 @@ namespace CachingProvider.LayeredCache
         [JsonProperty("Version")]
         public string Version { get; set; }
 
+        [JsonProperty("GroupCacheSettings")]
+        public List<LayeredCacheConfig> GroupCacheSettings { get; set; }
+
         [JsonProperty("InvalidationKeySettings")]
         public LayeredCacheConfig InvalidationKeySettings { get; set; }
 
@@ -31,6 +34,7 @@ namespace CachingProvider.LayeredCache
         public LayeredCacheTcmConfig()
         {
             Version = string.Empty;
+            GroupCacheSettings = new List<LayeredCacheConfig>();
             InvalidationKeySettings = null;
             BucketSettings = new List<LayeredCacheBucketSettings>();
             DefaultSettings = new List<LayeredCacheConfig>();

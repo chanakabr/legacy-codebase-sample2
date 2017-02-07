@@ -1355,13 +1355,22 @@ namespace DAL
                     ulong version;
                     Couchbase.IO.ResponseStatus status;
                     DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
-                    if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         int total = domainQuota.IsDefaultQuota ? defaultQuota : domainQuota.Total;
                         if (shouldForceUpdate || total - domainQuota.Used >= quota)
                         {
                             domainQuota.Used += quota;
                             result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
+                        }
+                    }
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        domainQuota = new DomainQuota(0, 0, true);
+                        if (shouldForceUpdate || defaultQuota - domainQuota.Used >= quota)
+                        {
+                            domainQuota.Used += quota;
+                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
                         }
                     }
 
