@@ -177,7 +177,8 @@ namespace QueueWrapper
                         // If failed, retry until we reach limit - with a new connection
                         catch (OperationInterruptedException ex)
                         {
-                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}", message, ex);
+                            log.ErrorFormat("Failed publishing message to rabbit on m_Connection.CreateModel(). Message = {0}, EX = {1}, fail counter = {2}", 
+                                message, ex, this.m_FailCounter);
                             ClearConnection();
                             IncreaseFailCounter();
                             return Publish(configuration, message);
