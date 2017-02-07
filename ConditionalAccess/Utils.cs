@@ -33,7 +33,8 @@ namespace ConditionalAccess
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly KLogger offlineLog = new KLogger("OfflineLogger", true);        
+        private static readonly KLogger offlinePpvLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflinePpvLogger");
+        private static readonly KLogger offlineSubscriptionLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflineSubscriptionLogger");
         private static object lck = new object();
 
         public const string SERIES_ID = "seriesId";
@@ -7101,7 +7102,7 @@ namespace ConditionalAccess
                 context.Load();
                 // We write an empty string as the first parameter to split the start of the log from the offlinePpvUsesLog row data
                 string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID });
-                offlineLog.Debug(infoToLog);
+                offlinePpvLogger.Info(infoToLog);
             }
             catch (Exception ex)
             {
@@ -7117,7 +7118,7 @@ namespace ConditionalAccess
                 context.Load();
                 // We write an empty string as the first parameter to split the start of the log from the offlineSubscriptionUsesLog row data
                 string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP });
-                offlineLog.Info(infoToLog);
+                offlineSubscriptionLogger.Info(infoToLog);
             }
             catch (Exception ex)
             {

@@ -158,7 +158,7 @@ namespace CachingProvider.LayeredCache
             {
                 string key = GetLayeredCacheGroupConfigKey(groupId);
                 LayeredCacheGroupConfig groupConfig;
-                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig))
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
                 {
                     if (!string.IsNullOrEmpty(version))
                     {
@@ -608,7 +608,7 @@ namespace CachingProvider.LayeredCache
             return layeredCacheConfig != null;
         }
 
-        private bool TryGetLayeredCacheGroupConfig(int groupId, out LayeredCacheGroupConfig groupConfig, bool shouldCreateIfnoneExists = false)
+        private bool TryGetLayeredCacheGroupConfig(int groupId, out LayeredCacheGroupConfig groupConfig, bool shouldCreateIfNoneExists = true)
         {
             bool res = false;
             groupConfig = null;
@@ -646,7 +646,7 @@ namespace CachingProvider.LayeredCache
                     }
                 }
 
-                if (shouldCreateIfnoneExists && !res && groupConfig == null)
+                if (shouldCreateIfNoneExists && !res && groupConfig == null)
                 {
                     groupConfig = new LayeredCacheGroupConfig()
                     {
@@ -656,7 +656,8 @@ namespace CachingProvider.LayeredCache
                         LayeredCacheSettingsToExclude = new HashSet<string>()
                     };
 
-                    if (!TrySetLayeredGroupCacheConfig(key, groupConfig, insertToCacheConfig))
+                    res = TrySetLayeredGroupCacheConfig(key, groupConfig, insertToCacheConfig);
+                    if (!res)
                     {
                         log.ErrorFormat("Failed inserting Default LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
                     }
@@ -690,13 +691,13 @@ namespace CachingProvider.LayeredCache
 
                 List<string> distinctKeys = keys.Distinct().ToList();
                 LayeredCacheGroupConfig groupConfig;
-                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig))
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null && !string.IsNullOrEmpty(groupConfig.Version))
                 {                    
-                    if (!string.IsNullOrEmpty(versionValue) && !string.IsNullOrEmpty(groupConfig.Version))
+                    if (!string.IsNullOrEmpty(versionValue))
                     {
                         res = distinctKeys.ToDictionary(x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version), x => x);
                     }
-                    else if (!string.IsNullOrEmpty(groupConfig.Version))
+                    else
                     {
                         res = distinctKeys.ToDictionary(x => string.Format("{0}_GV{1}", x, groupConfig.Version), x => x);
                     }
@@ -733,13 +734,13 @@ namespace CachingProvider.LayeredCache
 
                 List<string> distinctKeys = keys.Distinct().ToList();
                 LayeredCacheGroupConfig groupConfig;
-                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig))
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null && !string.IsNullOrEmpty(groupConfig.Version))
                 {
-                    if (!string.IsNullOrEmpty(versionValue) && !string.IsNullOrEmpty(groupConfig.Version))
+                    if (!string.IsNullOrEmpty(versionValue))
                     {
                         res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version));
                     }
-                    else if (!string.IsNullOrEmpty(groupConfig.Version))
+                    else
                     {
                         res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_GV{1}", x, groupConfig.Version));
                     }
@@ -793,10 +794,12 @@ namespace CachingProvider.LayeredCache
 
                         Tuple<T, long> getResult = default(Tuple<T, long>);
                         cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-
+                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
                     }
-
-                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
+                    else
+                    {
+                        res = cache.Add<Tuple<T, long>>(key, tuple, cacheConfig.TTL);
+                    }
                 }
             }
 
