@@ -3358,45 +3358,48 @@ namespace Catalog
 
                         if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
                         {
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs,
+                                new DateTime(1970, 1, 1), DateTime.UtcNow.AddDays(1),
+                                StatsType.MEDIA, assetIdToAssetStatsMapping);
                             /*
-                             * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
-                             */
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
+                            // * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
+                            // */
+                            //Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
 
-                            if (dict.Count > 0)
-                            {
-                                foreach (KeyValuePair<int, int[]> kvp in dict)
-                                {
-                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
-                                    {
-                                        int votesCount = kvp.Value[ASSET_STATS_VOTES_INDEX];
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nVotes = votesCount;
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nLikes = kvp.Value[ASSET_STATS_LIKES_INDEX];
-                                        if (votesCount > 0)
-                                        {
-                                            assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double)kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
-                                        }
-                                        if (isBuzzNotEmpty)
-                                        {
-                                            string strAssetID = kvp.Key.ToString();
-                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                                            {
-                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                            }
-                                            else
-                                            {
-                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                                            }
-                                        }
-                                    }
-                                } // foreach
-                            } // end if dict is not empty
-                            else
-                            {
-                                // log here no data retrieved from media table.
-                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                            }
+                            //if (dict.Count > 0)
+                            //{
+                            //    foreach (KeyValuePair<int, int[]> kvp in dict)
+                            //    {
+                            //        if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                            //        {
+                            //            int votesCount = kvp.Value[ASSET_STATS_VOTES_INDEX];
+                            //            assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                            //            assetIdToAssetStatsMapping[kvp.Key].m_nVotes = votesCount;
+                            //            assetIdToAssetStatsMapping[kvp.Key].m_nLikes = kvp.Value[ASSET_STATS_LIKES_INDEX];
+                            //            if (votesCount > 0)
+                            //            {
+                            //                assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double)kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
+                            //            }
+                            //            if (isBuzzNotEmpty)
+                            //            {
+                            //                string strAssetID = kvp.Key.ToString();
+                            //                if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
+                            //                {
+                            //                    assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                            //                }
+                            //                else
+                            //                {
+                            //                    log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                            //                }
+                            //            }
+                            //        }
+                            //    } // foreach
+                            //} // end if dict is not empty
+                            //else
+                            //{
+                            //    // log here no data retrieved from media table.
+                            //    log.Error("Error - " + GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                            //}
                         }
                         else
                         {
