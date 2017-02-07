@@ -683,21 +683,22 @@ namespace CachingProvider.LayeredCache
                     versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
                 }
 
+                List<string> distinctKeys = keys.Distinct().ToList();
                 LayeredCacheGroupConfig groupConfig;
                 if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig))
-                {
+                {                    
                     if (!string.IsNullOrEmpty(versionValue) && !string.IsNullOrEmpty(groupConfig.Version))
                     {
-                        res = keys.Distinct().ToDictionary(x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version), x => x);
+                        res = distinctKeys.ToDictionary(x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version), x => x);
                     }
                     else if (!string.IsNullOrEmpty(groupConfig.Version))
                     {
-                        res = keys.Distinct().ToDictionary(x => string.Format("{0}_GV{1}", x, groupConfig.Version), x => x);
+                        res = distinctKeys.ToDictionary(x => string.Format("{0}_GV{1}", x, groupConfig.Version), x => x);
                     }
                 }
                 else if (!string.IsNullOrEmpty(versionValue))
                 {
-                    res = keys.Distinct().ToDictionary(x => string.Format("{0}_V{1}", x, versionValue), x => x);
+                    res = distinctKeys.ToDictionary(x => string.Format("{0}_V{1}", x, versionValue), x => x);
                 }
 
             }
@@ -725,21 +726,22 @@ namespace CachingProvider.LayeredCache
                     versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
                 }
 
+                List<string> distinctKeys = keys.Distinct().ToList();
                 LayeredCacheGroupConfig groupConfig;
                 if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig))
                 {
                     if (!string.IsNullOrEmpty(versionValue) && !string.IsNullOrEmpty(groupConfig.Version))
                     {
-                        res = keys.Distinct().ToDictionary(x => x, x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version));
+                        res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version));
                     }
                     else if (!string.IsNullOrEmpty(groupConfig.Version))
                     {
-                        res = keys.Distinct().ToDictionary(x => x, x => string.Format("{0}_GV{1}", x, groupConfig.Version));
+                        res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_GV{1}", x, groupConfig.Version));
                     }
                 }
                 else if (!string.IsNullOrEmpty(versionValue))
                 {
-                    res = keys.Distinct().ToDictionary(x => x, x => string.Format("{0}_V{1}", x, versionValue));
+                    res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_V{1}", x, versionValue));
                 }
 
             }
