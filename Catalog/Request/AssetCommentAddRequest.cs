@@ -57,7 +57,7 @@ namespace Catalog.Request
 
                 if (!string.IsNullOrEmpty(request.m_sUserIP))
                 {
-                    country = Utils.GetIP2CountryCode(request.m_nGroupID, request.m_sUserIP);
+                    country = Utils.GetIP2CountryName(request.m_nGroupID, request.m_sUserIP);
                 }
 
                 // insert comment

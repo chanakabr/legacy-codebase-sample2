@@ -171,7 +171,7 @@ namespace ConditionalAccess
                 if (!string.IsNullOrEmpty(ip))
                 {
                     // get country by user IP
-                    country = Utils.GetIP2CountryCode(groupId, ip);
+                    country = Utils.GetIP2CountryName(groupId, ip);
                 }
 
                 // create custom data
@@ -271,7 +271,7 @@ namespace ConditionalAccess
                 if (!string.IsNullOrEmpty(ip))
                 {
                     // get country by user IP
-                    country = Utils.GetIP2CountryCode(groupId, ip);
+                    country = Utils.GetIP2CountryName(groupId, ip);
                 }
 
                 // validate price
@@ -449,7 +449,7 @@ namespace ConditionalAccess
                 if (!string.IsNullOrEmpty(ip))
                 {
                     // get country by user IP
-                    country = Utils.GetIP2CountryCode(groupId, ip);
+                    country = Utils.GetIP2CountryName(groupId, ip);
                 }
 
                 // validate price

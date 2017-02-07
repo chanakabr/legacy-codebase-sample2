@@ -575,7 +575,7 @@ namespace ConditionalAccess
                                             Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
                                             if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                             {
-                                                sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                                sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                             }
 
                                             //Create the Custom Data
@@ -949,7 +949,7 @@ namespace ConditionalAccess
 
                                     if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                     {
-                                        sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                        sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                     }
 
                                     //Create the Custom Data
@@ -1219,7 +1219,7 @@ namespace ConditionalAccess
 
                                 if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                 {
-                                    sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                    sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                 }
                                 //Create the Custom Data
                                 sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
@@ -3648,7 +3648,7 @@ namespace ConditionalAccess
         {
             string res = countryCode;
             if (!string.IsNullOrEmpty(userIP) && string.IsNullOrEmpty(countryCode))
-                res = Utils.GetIP2CountryCode(m_nGroupID, userIP);
+                res = Utils.GetIP2CountryName(m_nGroupID, userIP);
 
             return res;
         }
@@ -5675,7 +5675,7 @@ namespace ConditionalAccess
                                 InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
                                 if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                 {
-                                    sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                    sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                 }
                                 //Create the Custom Data
                                 sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
@@ -6758,7 +6758,7 @@ namespace ConditionalAccess
                             {
                                 if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                 {
-                                    sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                    sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                 }
 
                                 switch (bundleType)
@@ -8316,7 +8316,7 @@ namespace ConditionalAccess
                 sb.Append("<lcc>" + sCountryCd + "</lcc>");
             else
             {
-                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryCode(m_nGroupID, sUserIP));
+                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryName(m_nGroupID, sUserIP));
             }
             if (String.IsNullOrEmpty(sLANGUAGE_CODE) == false)
                 sb.Append("<llc>" + sLANGUAGE_CODE + "</llc>");
@@ -8406,7 +8406,7 @@ namespace ConditionalAccess
             }
             else
             {
-                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryCode(m_nGroupID, sUserIP));
+                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryName(m_nGroupID, sUserIP));
             }
 
             if (String.IsNullOrEmpty(sLANGUAGE_CODE) == false)
@@ -8494,7 +8494,7 @@ namespace ConditionalAccess
             }
             else
             {
-                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryCode(m_nGroupID, sUserIP));
+                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryName(m_nGroupID, sUserIP));
             }
             if (String.IsNullOrEmpty(sLANGUAGE_CODE) == false)
             {
@@ -8585,7 +8585,7 @@ namespace ConditionalAccess
             }
             else
             {
-                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryCode(m_nGroupID, sUserIP));
+                sb.AppendFormat("<lcc>{0}</lcc>", Utils.GetIP2CountryName(m_nGroupID, sUserIP));
             }
             if (String.IsNullOrEmpty(sLANGUAGE_CODE) == false)
             {
@@ -8756,7 +8756,7 @@ namespace ConditionalAccess
 
                                         if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
-                                            sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                            sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                         }
 
                                         //Create the Custom Data
@@ -9075,7 +9075,7 @@ namespace ConditionalAccess
 
                                         if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                         {
-                                            sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                            sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                         }
 
                                         HandleCouponUses(theSub, string.Empty, sSiteGUID, dPrice, sCurrency, 0, sCouponCode, sUserIP,
@@ -10277,7 +10277,7 @@ namespace ConditionalAccess
                                     InitializeBillingModule(ref bm, ref sWSUserName, ref sWSPass);
                                     if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                     {
-                                        sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                        sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                     }
                                     //Create the Custom Data
                                     sCustomData = GetCustomData(relevantSub, thePPVModule, null, sSiteGUID, dPrice, sCurrency,
@@ -10482,7 +10482,7 @@ namespace ConditionalAccess
 
                                 if (string.IsNullOrEmpty(sCountryCd) && !string.IsNullOrEmpty(sUserIP))
                                 {
-                                    sCountryCd = Utils.GetIP2CountryCode(m_nGroupID, sUserIP);
+                                    sCountryCd = Utils.GetIP2CountryName(m_nGroupID, sUserIP);
                                 }
                                 //Create the Custom Data
                                 sCustomData = GetCustomDataForSubscription(theSub, null, sSubscriptionCode, string.Empty, sSiteGUID, dPrice, sCurrency,
@@ -12376,7 +12376,7 @@ namespace ConditionalAccess
                     if (!string.IsNullOrEmpty(userIp))
                     {
                         // get country by user IP
-                        country = Utils.GetIP2CountryCode(m_nGroupID, userIp);
+                        country = Utils.GetIP2CountryName(m_nGroupID, userIp);
                     }
 
                     // create custom data
@@ -12498,7 +12498,7 @@ namespace ConditionalAccess
                 if (!string.IsNullOrEmpty(userIp))
                 {
                     // get country by user IP
-                    country = Utils.GetIP2CountryCode(m_nGroupID, userIp);
+                    country = Utils.GetIP2CountryName(m_nGroupID, userIp);
                 }
 
                 // validate item is for purchased
@@ -13803,7 +13803,7 @@ namespace ConditionalAccess
                 if (!string.IsNullOrEmpty(userIP))
                 {
                     // get country by user IP
-                    country = Utils.GetIP2CountryCode(m_nGroupID, userIP);
+                    country = Utils.GetIP2CountryName(m_nGroupID, userIP);
                 }
 
                 // validate price
@@ -14054,7 +14054,7 @@ namespace ConditionalAccess
                             if (!string.IsNullOrEmpty(userIP))
                             {
                                 // get country by user IP
-                                country = Utils.GetIP2CountryCode(m_nGroupID, userIP);
+                                country = Utils.GetIP2CountryName(m_nGroupID, userIP);
                             }
                             // purchase passed
                             long purchaseId = 0;

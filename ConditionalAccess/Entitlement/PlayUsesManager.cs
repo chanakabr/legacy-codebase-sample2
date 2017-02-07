@@ -39,7 +39,7 @@ namespace ConditionalAccess
                 return;
             }
 
-            countryCode = string.IsNullOrEmpty(countryCode) ? Utils.GetIP2CountryCode(groupId, ip) : countryCode;
+            countryCode = string.IsNullOrEmpty(countryCode) ? Utils.GetIP2CountryName(groupId, ip) : countryCode;
 
             int releventCollectionID = ExtractRelevantCollectionID(itemPriceContainer);
             cas.HandleCouponUses(itemPriceContainer.m_relevantSub, itemPriceContainer.m_sPPVModuleCode, userId, itemPriceContainer.m_oPrice.m_dPrice,
