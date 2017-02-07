@@ -108,7 +108,8 @@ namespace Recordings
         {
             ApiObjects.TimeShiftedTv.DomainQuotaResponse response = new DomainQuotaResponse();
 
-            DomainQuota domainQuota = GetDomainQuota(groupId, domainId);
+            int defaultQuota = 0;
+            DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             if (domainQuota != null)
             {
                 response = new DomainQuotaResponse()
@@ -128,13 +129,20 @@ namespace Recordings
          
         public int GetDomainAvailableQuota(int groupId, long domainId)
         {
-            DomainQuota domainQuota = GetDomainQuota(groupId, domainId);
+            int defaultQuota = 0;
+            DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
             return domainQuota.Total - domainQuota.Used;
         }
 
         public bool DecreaseDomainUsedQuota(int groupId, long domainId, int quotaToDecrease)
-        {         
-            return RecordingsDAL.UpdateDomainQuota(domainId, (-1)*quotaToDecrease);         
+        {
+            int defaultQuota = 0;
+            DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
+             if (domainQuota != null)
+             {   
+                 return RecordingsDAL.UpdateDomainQuota(domainId, (-1) * quotaToDecrease, defaultQuota, true);
+             }
+             return false;
         }
 
         /// <summary>
@@ -147,8 +155,14 @@ namespace Recordings
         /// <returns></returns>
         public bool IncreaseDomainUsedQuota(int groupId, long domainId, int quotaToIncrease, bool shouldForceIncrease = false)
         {
-            // no check for shouldForceIncrease ==> always increase 
-            return RecordingsDAL.UpdateDomainQuota(domainId, quotaToIncrease);
+            // increase if shouldForceIncrease == true or domainQuota.Total - domainQuota.Used >= quotaToIncrease 
+            int defaultQuota = 0;
+            DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
+            if (domainQuota != null)
+            {   
+                return RecordingsDAL.UpdateDomainQuota(domainId, quotaToIncrease, defaultQuota, shouldForceIncrease);
+            }
+            return false;
         }
 
         internal Status CheckQuotaByTotalSeconds(int groupId, long householdId, int totalSeconds, bool isAggregative, List<Recording> newRecordings, List<Recording> currentRecordings)
@@ -214,10 +228,10 @@ namespace Recordings
             return status;
         }
 
-        private DomainQuota GetDomainQuota(int groupId, long domainId)
+        private DomainQuota GetDomainQuota(int groupId, long domainId, ref int defaultQuota)
         {
             DomainQuota domainQuota;
-            int defaultQuota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
+            defaultQuota = ConditionalAccess.Utils.GetDomainDefaultQuota(groupId, domainId);
 
             if (!RecordingsDAL.GetDomainQuota(groupId, domainId, out domainQuota, defaultQuota))
             {
