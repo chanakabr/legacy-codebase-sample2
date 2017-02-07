@@ -1795,9 +1795,6 @@ namespace DAL
             return new KeyValuePair<long, eRuleLevel>();
         }
 
-             
-
-
         public static int Set_DomainParentalRule(int groupId, int domainId, long ruleId, int isActive)
         {
             int newId = 0;
