@@ -20,7 +20,7 @@ namespace WebAPI.Utils
         private const string WIDEVINE = "widevine";
         private const string FAIRPLAY = "fps";
 
-        public static string BuildCencCustomDataString(int fileId)
+        public static string BuildCencCustomDataString(string fileExternalId)
         {
             string response = null;
 
@@ -29,11 +29,13 @@ namespace WebAPI.Utils
 
             CencCustomData customData = new CencCustomData()
             {
-                AccountId = ks.GroupId,
+                AccountId = group.MediaPrepAccountId,
                 CaSystem = "OTT",
                 Files = string.Empty,
                 UserToken = ks.ToString(),
-                ContentId = fileId,
+                ContentId = fileExternalId.ToString(),
+                AdditionalCasSystem = ks.GroupId,
+                UDID = KSUtils.ExtractKSPayload().UDID
             };
 
             response = JsonConvert.SerializeObject(customData);
@@ -122,7 +124,7 @@ namespace WebAPI.Utils
                     drmData = new KalturaDrmPlaybackPluginData();
                     break;
             }
-            var customDataString = DrmUtils.BuildCencCustomDataString(source.Id.HasValue ? source.Id.Value : 0);
+            var customDataString = DrmUtils.BuildCencCustomDataString(source.ExternalId);
             var signature = DrmUtils.BuildCencSignatureString(customDataString);
             drmData.Scheme = scheme;
             drmData.LicenseURL = DrmUtils.BuildUDrmUrl(scheme, customDataString, signature);
