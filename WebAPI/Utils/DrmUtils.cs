@@ -40,7 +40,7 @@ namespace WebAPI.Utils
 
             response = JsonConvert.SerializeObject(customData);
 
-            return Convert.ToBase64String(Encoding.ASCII.GetBytes(response));
+            return HttpUtility.UrlEncode((Convert.ToBase64String(Encoding.ASCII.GetBytes(response)));
         }
 
         public static string BuildCencSignatureString(string customDataString)
@@ -52,7 +52,7 @@ namespace WebAPI.Utils
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
 
-            return Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
+            return HttpUtility.UrlEncode(Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response))));
         }
 
         internal static string BuildUDrmUrl(KalturaDrmSchemeName schemeName, string customDataString, string signature)
@@ -78,7 +78,7 @@ namespace WebAPI.Utils
                     break;
             }
 
-            return HttpUtility.UrlEncode(response);
+            return response;
         }
 
         internal static List<KalturaDrmSchemeName> GetDrmSchemeName(string fileFormat)
