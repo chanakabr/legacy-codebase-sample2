@@ -945,10 +945,7 @@ namespace CachingProvider.LayeredCache
                 log.Error(string.Format("Failed ShouldGoToCache with layeredCacheConfigName {0}, groupId {1}", layeredCacheConfigName, groupId), ex);
             }
 
-            // TODO : CHANGE back to res, for now it's always true until Ira/Tantan will decide
-            //return res;
-
-            return true;
+            return res;
         }
 
         #endregion
