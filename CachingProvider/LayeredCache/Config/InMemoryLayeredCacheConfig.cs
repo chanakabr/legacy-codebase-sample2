@@ -14,30 +14,31 @@ namespace CachingProvider.LayeredCache
     public class InMemoryLayeredCacheConfig : LayeredCacheConfig
     {
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static object locker = new object();
+        private static SingleInMemoryCache cache;
         private const string IN_MEMORY_CACHE_NAME = "LayeredInMemoryCache";
 
-        [JsonProperty("CacheName")]
-        public string CacheName { get; set; }
-
         public InMemoryLayeredCacheConfig()
-            : base()
-        {
-            this.CacheName = string.Empty; ;
-        }
+            : base() { }
 
-        public InMemoryLayeredCacheConfig(LayeredCacheType type, uint ttl, string cacheName)
-            : base(type, ttl)
-        {
-            this.CacheName = cacheName;
-        }
+        public InMemoryLayeredCacheConfig(LayeredCacheType type, uint ttl)
+            : base(type, ttl) { }        
 
         public override ICachingService GetICachingService()
-        {
-            ICachingService cache = null;
+        {      
             try
             {
-                cache = new SingleInMemoryCache(this.TTL);
+                if (cache == null)
+                {
+                    lock (locker)
+                    {
+                        if (cache == null)
+                        {
+                            cache = new SingleInMemoryCache(this.TTL);
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
