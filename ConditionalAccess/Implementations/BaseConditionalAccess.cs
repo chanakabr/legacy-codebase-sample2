@@ -17558,7 +17558,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                ApiObjects.Response.Status status = GrantManager.GrantSubscription(this, m_nGroupID, userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, false);
+                ApiObjects.Response.Status status = GrantManager.GrantSubscription(this, m_nGroupID, userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, GrantContext.Swap);
                
                 if (status.Code != (int)eResponseStatus.OK)
                 {

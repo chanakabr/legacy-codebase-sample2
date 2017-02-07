@@ -20,7 +20,7 @@ namespace ConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static ApiObjects.Response.Status GrantEntitlements(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, eTransactionType transactionType, 
+        public static ApiObjects.Response.Status GrantEntitlements(BaseConditionalAccess cas, int groupId, string userId, long householdId, int contentId, int productId, eTransactionType transactionType,
             string ip, string udid, bool history)
         {
             ApiObjects.Response.Status status = null;
@@ -250,9 +250,9 @@ namespace ConditionalAccess
             }
             return status;
         }
-        
+
         internal static ApiObjects.Response.Status GrantSubscription(BaseConditionalAccess cas, int groupId, string userId, long householdId, int productId, string ip, string udid, bool saveHistory,
-                                                                                int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, bool isGrant = true)
+                                                                                int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, GrantContext context = GrantContext.Grant)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -307,7 +307,7 @@ namespace ConditionalAccess
                 }
 
                 //validate that user have no DLM or Quota - FOR GRANT ONLY 
-                if (isGrant)
+                if (context == GrantContext.Grant)
                 {
                     status = cas.CheckSubscriptionOverlap(subscription, userId);
                     if (status.Code != (int)eResponseStatus.OK)
@@ -365,28 +365,28 @@ namespace ConditionalAccess
                 // grant entitlement
                 var result = cas.HandleSubscriptionBillingSuccess(ref response, userId, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
                     ip, country, udid, lBillingTransactionID, customData, productId, billingGuid.ToString(),
-                    entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate, isGrant ? SubscriptionPurchaseStatus.OK : SubscriptionPurchaseStatus.Switched_To);
+                    entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate, context == GrantContext.Grant ? SubscriptionPurchaseStatus.OK : SubscriptionPurchaseStatus.Switched_To);
 
                 if (result)
                 {
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
-                    if (subscription.m_nDomainLimitationModule != 0)
+                    if (context != GrantContext.Renew && subscription.m_nDomainLimitationModule != 0)
                     {
                         cas.UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
                     }
 
                     // update Quota
-                    if (subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
+                    if (context != GrantContext.Renew && subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
                     {
-                        Utils.HandleNPVRQuota(groupId, subscription, householdId, isGrant);
+                        Utils.HandleNPVRQuota(groupId, subscription, householdId, context == GrantContext.Grant);
                     }
 
                     if (subscription.m_bIsRecurring)
                     {
 
-                        DateTime nextRenewalDate = endDate.Value.AddMinutes(1); // default                                           
+                        DateTime nextRenewalDate = endDate.Value.AddMinutes(0); // default                                           
 
                         // enqueue renew transaction
                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
@@ -562,4 +562,5 @@ namespace ConditionalAccess
         }
 
     }
+
 }

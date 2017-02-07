@@ -863,4 +863,11 @@ namespace ApiObjects
         Renew = 0,
         Reminder = 1
     }
+
+    public enum GrantContext
+    {
+        Grant = 0,
+        Swap = 1,
+        Renew = 2
+    }
 }
