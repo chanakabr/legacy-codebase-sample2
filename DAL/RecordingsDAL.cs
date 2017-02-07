@@ -1334,7 +1334,7 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateDomainQuota(long domainId, int quota, int defaultQuota , bool shouldForceUpdate = false)
+        public static bool UpdateDomainQuota(long domainId, int quota, int defaultQuota , bool shouldForceUpdate = true)
         {
             bool result = false;
             CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);

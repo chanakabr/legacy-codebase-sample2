@@ -140,7 +140,7 @@ namespace Recordings
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
              if (domainQuota != null)
              {   
-                 return RecordingsDAL.UpdateDomainQuota(domainId, (-1) * quotaToDecrease, defaultQuota, true);
+                 return RecordingsDAL.UpdateDomainQuota(domainId, (-1) * quotaToDecrease, defaultQuota);
              }
              return false;
         }
