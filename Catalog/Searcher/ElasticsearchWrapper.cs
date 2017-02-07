@@ -2107,7 +2107,7 @@ namespace Catalog
 
                 if (statResult != null && statResult.Count > 0)
                 {
-                    var sortedStatsDictionary = statResult.OrderBy(o => o.Value).Reverse();
+                    var sortedStatsDictionary = statResult.OrderBy(o => o.Value).ThenBy(o => o.Key).Reverse();
 
                     // We base this section on the assumption that aggregations request is sorted, descending
                     foreach (var currentValue in sortedStatsDictionary)
