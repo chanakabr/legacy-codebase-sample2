@@ -793,13 +793,10 @@ namespace CachingProvider.LayeredCache
                     {
 
                         Tuple<T, long> getResult = default(Tuple<T, long>);
-                        cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
+                        cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);                        
                     }
-                    else
-                    {
-                        res = cache.Add<Tuple<T, long>>(key, tuple, cacheConfig.TTL);
-                    }
+
+                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
                 }
             }
 
