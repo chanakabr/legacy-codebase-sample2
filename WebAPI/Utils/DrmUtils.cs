@@ -78,7 +78,7 @@ namespace WebAPI.Utils
                     break;
             }
 
-            return HttpUtility.UrlDecode(response);
+            return HttpUtility.UrlEncode(response);
         }
 
         internal static List<KalturaDrmSchemeName> GetDrmSchemeName(string fileFormat)
