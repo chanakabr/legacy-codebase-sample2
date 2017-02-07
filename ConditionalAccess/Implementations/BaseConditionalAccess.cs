@@ -1790,7 +1790,7 @@ namespace ConditionalAccess
                         {
                             WriteToUserLog(sSiteGUID,
                                 String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
-                            if (!LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetCancelSubscriptionInvalidationKey(domainId)))
+                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId)))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CancelSubscription for domainId = {0}");
                             }
@@ -2593,7 +2593,7 @@ namespace ConditionalAccess
                             long domainId = 0;
                             Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                            string invalidationKey = UtilsDal.GetRenewInvalidationKey(domainId);
+                            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on InApp_RenewSubscription key = {0}", invalidationKey);
@@ -2886,7 +2886,7 @@ namespace ConditionalAccess
                         long domainId = 0;
                         Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                        string invalidationKey = UtilsDal.GetRenewInvalidationKey(domainId);
+                        string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on DD_BaseRenewMultiUsageSubscription key = {0}", invalidationKey);
@@ -5763,7 +5763,7 @@ namespace ConditionalAccess
 
                         if (oResponse.m_oStatus == BillingResponseStatus.Success)
                         {
-                            string invalidationKey = UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForMediaFile key = {0}", invalidationKey);
@@ -6833,7 +6833,7 @@ namespace ConditionalAccess
                         }
                         if (ret.m_oStatus == BillingResponseStatus.Success)
                         {
-                            string invalidationKey = UtilsDal.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForBundle key = {0}", invalidationKey);
@@ -7277,7 +7277,7 @@ namespace ConditionalAccess
                         // create mapper
                         mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
                         // Get all user entitlements
-                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, allUsersInDomain, mapper, ref domainEntitlements))
+                        if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, mapper, ref domainEntitlements))
                         {
                             log.ErrorFormat("Utils.GetUserEntitlements, groupId: {0}, domainId: {1}", m_nGroupID, domainID);
                         }
@@ -11038,7 +11038,7 @@ namespace ConditionalAccess
                                         EnqueueCancelServiceRecord(p_nDomainID, p_nAssetID, p_enmTransactionType, dtEndDate);
                                     }
 
-                                    string invalidationKey = UtilsDal.GetCancelServiceNowInvalidationKey(p_nDomainID);
+                                    string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(p_nDomainID);
                                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                     {
                                         log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
@@ -11198,7 +11198,7 @@ namespace ConditionalAccess
                     WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
-                    string invalidationKey = UtilsDal.GetCancelTransactionInvalidationKey((long)domainid);
+                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey((long)domainid);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on CancelTransaction key = {0}", invalidationKey);
@@ -11349,7 +11349,7 @@ namespace ConditionalAccess
         {
             bool res = false;
 
-            string key = DAL.UtilsDal.GetFileCdnDataKey(mediaFileID);
+            string key = LayeredCacheKeys.GetFileCdnDataKey(mediaFileID);
             DataTable dt = null;
             // try to get from cache            
             bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, Utils.GetFileUrlLinks, new Dictionary<string, object>() { { "mediaFileId", mediaFileID } }, groupId, FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME);
@@ -12812,7 +12812,7 @@ namespace ConditionalAccess
                     if (isUpdated)
                     {
                         response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        string invalidationKey = UtilsDal.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
+                        string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on UpdatePendingTransaction key = {0}", invalidationKey);
@@ -12914,7 +12914,7 @@ namespace ConditionalAccess
                         WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
                             billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
 
-                        string invalidationKey = UtilsDal.GetCancelTransactionInvalidationKey(domainId);
+                        string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
@@ -13000,7 +13000,7 @@ namespace ConditionalAccess
 
                 if (status != null && status.Code == (int)eResponseStatus.OK)
                 {
-                    string invalidationKey = UtilsDal.GetGrantEntitlementInvalidationKey(householdId);
+                    string invalidationKey = LayeredCacheKeys.GetGrantEntitlementInvalidationKey(householdId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on GrantEntitlements key = {0}", invalidationKey);

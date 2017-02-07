@@ -1345,11 +1345,11 @@ namespace Users
 
             try
             {
-                string key = DAL.UtilsDal.GetUserRolesKey(userId);
+                string key = LayeredCacheKeys.GetUserRolesKey(userId);
                 List<long> roleIds = null;
                 // try to get from cache            
                 bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
-                    groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { UtilsDal.GetAddRoleInvalidationKey(userId) });
+                    groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAddRoleInvalidationKey(userId) });
                 if (cacheResult && roleIds != null)
                 {
                     response.Ids = roleIds;
@@ -1380,7 +1380,7 @@ namespace Users
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     
                     // add invalidation key for user roles cache
-                    string invalidationKey = UtilsDal.GetAddRoleInvalidationKey(userId);
+                    string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(userId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);

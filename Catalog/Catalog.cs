@@ -72,9 +72,7 @@ namespace Catalog
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
-        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
-
-        public static readonly string CHANNELS_INVALIDATION_KEY = "channels_updated";
+        private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");        
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -2518,7 +2516,7 @@ namespace Catalog
                 }
                 
                 // Set invalidation keys - for all channels and for specific channel
-                LayeredCache.Instance.SetInvalidationKey(CHANNELS_INVALIDATION_KEY);
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.CHANNELS_INVALIDATION_KEY);
 
                 foreach (var id in ids)
                 {

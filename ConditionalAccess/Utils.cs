@@ -44,12 +44,6 @@ namespace ConditionalAccess
         private const string EPISODE_ALIAS = "episode_number";
         private const string MEDIA_FILES_CACHE_KEY_FORMAT = "MediaFiles_{0}";
 
-        private const string MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME = "GetMediaFileIDByCoGuid";
-        private const string VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME = "ValidateMediaFiles";
-        private const string GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME = "mediaIdGroupFileTypeMapper";
-        private const string GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME = "TryGetDomainEntitlementsFromCache";
-        private const string MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME = "GetMediaFiles";
-
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
         // table groups_parameters, column FAIL_COUNT under ConditionalAccess DB.
@@ -2187,6 +2181,15 @@ namespace ConditionalAccess
             return lDomainsUsers;
         }
 
+        internal static List<int> GetAllUsersInDomain(int groupID, int domainId)
+        {
+            List<int> lDomainsUsers = GetDomainsUsers(domainId, groupID);
+            //change the user pending to users without (-1)
+            lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
+
+            return lDomainsUsers;
+        }
+
         internal static List<int> GetAllUsersInDomainBySiteGUIDIncludeDeleted(string sSiteGUID, Int32 nGroupID, ref int domainID)
         {
             List<int> lDomainsUsers = new List<int>();
@@ -3063,10 +3066,9 @@ namespace ConditionalAccess
 
         internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
-            string key = DAL.UtilsDal.GetFileCoGuidKey(coGuid);
-            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref mediaFileID, DAL.UtilsDal.Get_MediaFileIDByCoGuid, new Dictionary<string, object>() { { "groupID", groupID }, { "coGuid", coGuid } },
-                                                              groupID, MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME);
-
+            string key = LayeredCacheKeys.GetFileCoGuidKey(coGuid);
+            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref mediaFileID, Get_MediaFileIDByCoGuid, new Dictionary<string, object>() { { "groupID", groupID }, { "coGuid", coGuid } },
+                                                              groupID, LayeredCacheConfigNames.MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME);
             if (!cacheResult)
             {
                 log.ErrorFormat("fails Get Media FileID By CoGuid groupID:{0}, siteGuid:{1} ", groupID, siteGuid);
@@ -3239,14 +3241,14 @@ namespace ConditionalAccess
                         {
                             DataTable tempDt = dt != null ? dt.Clone() : new DataTable();
                             foreach (int missingKey in missingKeys)
-                            {                                                                
-                                result.Add(DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(missingKey), tempDt);
+                            {
+                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey), tempDt);
                             }
                         }
                     } 
                     res = result.Keys.Count() == fileIDs.Count();
 
-                    result = result.ToDictionary(x => DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key)) , x=> x.Value );
+                    result = result.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key)), x => x.Value);
                 }
             }
             catch (Exception ex)
@@ -3279,10 +3281,11 @@ namespace ConditionalAccess
 
                 // get basic file details from cach / DB                 
                 Dictionary<string, DataTable> fileDatatables = null;
-                List<string> keys = nMediaFiles.Select(x => DAL.UtilsDal.GetFileAndMediaBasicDetailsKey(x)).ToList();
+                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x)).ToList();
 
                 // try to get from cache            
-                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles } }, groupId, VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
+                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails,new Dictionary<string, object>() { { "fileIDs", nMediaFiles } },
+                                                                                groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
                 int mediaFileID;
                 int mediaIsActive = 0, mediaFileIsActive = 0;
@@ -6502,8 +6505,9 @@ namespace ConditionalAccess
             List<MediaFile> files = null;
 
             List<MediaFile> allMediafiles = null;
-            string key = UtilsDal.GetMediaFilesKey(mediaId);
-            bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId }, { "assetType", assetType } }, groupId, MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
+            string key = LayeredCacheKeys.GetMediaFilesKey(mediaId);
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
+                                                                        { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
@@ -6816,21 +6820,22 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, List<int> usersInDomain, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
+        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
         {
             bool res = false;
             try
             {
-                string key = UtilsDal.GetDomainEntitlementsKey(groupId, domainId);
+                string key = LayeredCacheKeys.GetDomainEntitlementsKey(groupId, domainId);
                 // if mapper is null init it to empty for passing validation in InitializeDomainEntitlements
                 if (mapper == null)
                 {
                     mapper = new MeidaMaper[0];
                 }
 
-                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "usersInDomain", usersInDomain }, { "mapper", mapper } };
-                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams, groupId, GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
-                
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapper } };
+                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams,
+                                                                    groupId, LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
+
                 if (res && domainEntitlements != null)
                 {
                     // remove expired PPV's
@@ -6863,11 +6868,12 @@ namespace ConditionalAccess
                         Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
                         List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
 
-                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, UtilsDal.Get_AllMediaIdGroupFileTypesMappings,
-                                                                                                    new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } }, groupId, GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME);
+                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
+                                                                                                    new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } },
+                                                                                                    groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME);
                         if (!cacheResult)
                         {
-                            log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file tpes mappings from cache keys: {0}", string.Join(",", keys)));
+                            log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file types mappings from cache keys: {0}", string.Join(",", keys)));
                         }
 
                         Dictionary<string, int> mapping = new Dictionary<string, int>();
@@ -6943,12 +6949,12 @@ namespace ConditionalAccess
         {
             return new List<string>()
             {
-                UtilsDal.GetCancelSubscriptionInvalidationKey(domainId),
-                UtilsDal.GetCancelTransactionInvalidationKey(domainId),
-                UtilsDal.GetPurchaseInvalidationKey(domainId),
-                UtilsDal.GetGrantEntitlementInvalidationKey(domainId),
-                UtilsDal.GetCancelServiceNowInvalidationKey(domainId),
-                UtilsDal.GetRenewInvalidationKey(domainId)
+                LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId),
+                LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId),
+                LayeredCacheKeys.GetPurchaseInvalidationKey(domainId),
+                LayeredCacheKeys.GetGrantEntitlementInvalidationKey(domainId),
+                LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId),
+                LayeredCacheKeys.GetRenewInvalidationKey(domainId)
             };
         }
 
@@ -6957,14 +6963,13 @@ namespace ConditionalAccess
             DomainEntitlements domainEntitlements = null;
             try
             {
-                if (funcParams != null && funcParams.Count == 4 && funcParams.ContainsKey("groupId") &&
-                    funcParams.ContainsKey("domainId") && funcParams.ContainsKey("usersInDomain") && funcParams.ContainsKey("mapper"))
+                if (funcParams != null && funcParams.Count == 3 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId") && funcParams.ContainsKey("mapper"))
                 {
-                    int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;
-                    List<int> usersInDomain = funcParams["usersInDomain"] as List<int>;
+                    int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;                    
                     MeidaMaper[] mapper = funcParams["mapper"] as MeidaMaper[];                    
-                    if (groupId.HasValue && domainId.HasValue && usersInDomain != null && mapper != null)
+                    if (groupId.HasValue && domainId.HasValue != null && mapper != null)
                     {
+                        List<int> usersInDomain = Utils.GetAllUsersInDomain(groupId.Value, domainId.Value);
                         domainEntitlements = new DomainEntitlements();
                         //Get domain PPV entitlements
                         domainEntitlements.DomainPpvEntitlements = InitializeDomainPpvs(groupId.Value, domainId.Value, usersInDomain, mapper);
@@ -7119,6 +7124,59 @@ namespace ConditionalAccess
                 log.Error(string.Format("Error in InsertOfflinePpvUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7}",
                                         groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP), ex);
             }
+        }
+
+        private static Tuple<int, bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int mediaFileID = 0;
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            try
+            {
+                int? groupID = 0;
+                string coGuid = string.Empty;
+                if (funcParams.ContainsKey("groupID"))
+                {
+                    groupID = funcParams["groupID"] as int?;
+                }
+                if (funcParams.ContainsKey("coGuid"))
+                {
+                    coGuid = funcParams["coGuid"] as string;
+                }
+                if (groupID > 0 && !string.IsNullOrEmpty(coGuid))
+                {
+                    res = ConditionalAccessDAL.Get_MediaFileIDByCoGuid(coGuid, groupID.Value, ref mediaFileID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MediaFileIDByCoGuid faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<int, bool>(mediaFileID, res);
+        }
+
+        private static Tuple<Dictionary<string, Dictionary<string, int>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
+            try
+            {
+                if (funcParams.ContainsKey("mediaIDs"))
+                {
+                    int[] mediaIDs;
+                    mediaIDs = funcParams["mediaIDs"] != null ? funcParams["mediaIDs"] as int[] : null;
+                    if (mediaIDs != null)
+                    {
+                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
         }
 
     }

@@ -340,7 +340,7 @@ namespace ConditionalAccess
                         totalNumOfPayments, subscription, customData, maxVLCOfSelectedUsageModule, billingUserName, billingPassword, wsBillingService, transactionResponse);
                     if (res)
                     {
-                        string invalidationKey = UtilsDal.GetRenewInvalidationKey(householdId);
+                        string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);

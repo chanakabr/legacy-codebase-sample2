@@ -71,14 +71,14 @@ namespace ConditionalAccess
                     if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
                     {
                         //last use updated - update "LastUseWithCredit" validation key 
-                        string invalidationKey = UtilsDal.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId);
+                        string invalidationKey = LayeredCacheKeys.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
                         }
 
                         DomainEntitlements domainEntitlements = null;
-                        if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, new List<int>() { }, null, ref domainEntitlements))
+                        if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, null, ref domainEntitlements))
                         {
                             if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                             {
@@ -91,7 +91,7 @@ namespace ConditionalAccess
                                     if (UpdatePPVPurchases(purchaseId, itemPriceContainer.m_sPPVModuleCode, countryCode, languageCode, udid, groupId, numOfUses, endDate.Value))
                                     {
                                         //PPV Purchases updated - update purchase validation key
-                                        if (!LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(domainId)))
+                                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
                                         {
                                             //log
                                         }
@@ -122,7 +122,7 @@ namespace ConditionalAccess
                     int numOfUses = 0;
 
                     DomainEntitlements domainEntitlements = null;
-                    if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, new List<int>() { }, null, ref domainEntitlements))
+                    if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, null, ref domainEntitlements))
                     {
                         if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null)
                         {
@@ -149,7 +149,7 @@ namespace ConditionalAccess
                         if (ConditionalAccessDAL.Update_SubPurchaseNumOfUses(groupId, purchasingUserId, itemPriceContainer.m_relevantSub.m_sObjectCode))
                         {
                             //Subscription Purchases updated - update purchase validation key
-                            if (!LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(domainId)))
+                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
                             {
                                 //log
                             }
@@ -183,7 +183,7 @@ namespace ConditionalAccess
                         if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
                         {
                             //last use updated - update "LastUseWithCredit" validation key 
-                            string invalidationKey = UtilsDal.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId);
+                            string invalidationKey = LayeredCacheKeys.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
@@ -200,7 +200,7 @@ namespace ConditionalAccess
                                     if (UpdatePPVPurchases(purchaseId, itemPriceContainer.m_sPPVModuleCode, countryCode, languageCode, udid, groupId, PPVnumOfUses, endDate.Value))
                                     {
                                         //PPV Purchases updated - update purchase validation key
-                                        if (!LayeredCache.Instance.SetInvalidationKey(UtilsDal.GetPurchaseInvalidationKey(domainId)))
+                                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
                                         {
                                             //log
                                         }
@@ -429,7 +429,7 @@ namespace ConditionalAccess
             {
                 if (mediaId > 0)
                 {
-                    string key = DAL.UtilsDal.GetLastUseWithCreditForDomainKey(groupId, domainId, mediaId);
+                    string key = LayeredCacheKeys.GetLastUseWithCreditForDomainKey(groupId, domainId, mediaId);
                     List<FileCreditUsedDetails> filesCreditUsedDetails = null;
                     // try to get from cache            
                     bool cacheResult = LayeredCache.Instance.Get<List<FileCreditUsedDetails>>(key, ref filesCreditUsedDetails, GetFilesCreditUsedDetails, new Dictionary<string, object>() { { "groupId", groupId },
@@ -481,7 +481,7 @@ namespace ConditionalAccess
         {
             return new List<string>()
             {
-                UtilsDal.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId)
+                LayeredCacheKeys.GetLastUseWithCreditForDomainInvalidationKey(groupId, domainId, mediaId)
             };
         }
 

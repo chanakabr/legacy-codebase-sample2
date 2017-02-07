@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -900,7 +901,7 @@ namespace Users
                 if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
                 {
                     // add invalidation key for user roles cache
-                    string invalidationKey = UtilsDal.GetAddRoleInvalidationKey(nUserID.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(nUserID.ToString());
                     if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
