@@ -411,7 +411,7 @@ namespace ConditionalAccess
             recurringNumber++;
 
             /// call GrantSubsription
-            var res = cas.GrantSubscription(siteguid, householdId, (int)productId, userIp, deviceName, saveHistory, recurringNumber);
+            var res = GrantManager.GrantSubscription(cas, groupId, siteguid, householdId, (int)productId, userIp, deviceName, saveHistory, recurringNumber);
             if (res.Code == (int)eResponseStatus.OK)
             {
                 log.DebugFormat("Renew Dummy GrantSubscription Succeeded, data: {0}", logString);
