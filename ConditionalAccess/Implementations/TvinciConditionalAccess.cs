@@ -278,7 +278,7 @@ namespace ConditionalAccess
 
             bool bUsageModuleExists = (theSub != null && theSub.m_oUsageModule != null);
             DateTime dtUtcNow = DateTime.UtcNow;
-            DateTime dtSubEndDate = CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
+            DateTime dtSubEndDate = Utils.CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
 
             lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode,
                 sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
@@ -800,7 +800,7 @@ namespace ConditionalAccess
 
                 if (!subscriptionEndDate.HasValue)
                 {
-                    subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
+                    subscriptionEndDate = Utils.CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
                 }
 
                 DateTime transactionStartDate = entitlementDate.Value;

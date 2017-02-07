@@ -7217,5 +7217,28 @@ namespace ConditionalAccess
             }
         }
 
+        internal static DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)
+        {
+            DateTime res = dtToInitializeWith;
+            if (sub != null)
+            {
+                if (bIsEntitledToPreviewModule && sub.m_oPreviewModule != null && sub.m_oPreviewModule.m_tsFullLifeCycle > 0)
+                {
+                    // calc end date according to preview module life cycle
+                    res = Utils.GetEndDateTime(res, sub.m_oPreviewModule.m_tsFullLifeCycle);
+                }
+                else
+                {
+                    if (sub.m_oSubscriptionUsageModule != null)
+                    {
+                        // calc end date as before.
+                        res = Utils.GetEndDateTime(res, sub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    }
+                }
+            }
+
+            return res;
+        }
+
     }
 }

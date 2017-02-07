@@ -602,7 +602,7 @@ namespace ConditionalAccess
         private static DateTime? CalculateGiftCardEndDate(BaseConditionalAccess cas, CouponData coupon, Subscription subscription, DateTime entitlementDate)
         {
             // Calculate first end date with normal rules
-            var initialEndDate = cas.CalcSubscriptionEndDate(subscription, false, entitlementDate);
+            var initialEndDate = Utils.CalcSubscriptionEndDate(subscription, false, entitlementDate);
 
             // get the time span between now and the first period end date
             var timeSpan = initialEndDate - entitlementDate;

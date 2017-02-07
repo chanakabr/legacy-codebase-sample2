@@ -1114,32 +1114,7 @@ namespace ConditionalAccess
             }
             return InAppRes.m_oBillingResponse;
         }
-
-
-
-        protected internal DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)
-        {
-            DateTime res = dtToInitializeWith;
-            if (sub != null)
-            {
-                if (bIsEntitledToPreviewModule && sub.m_oPreviewModule != null && sub.m_oPreviewModule.m_tsFullLifeCycle > 0)
-                {
-                    // calc end date according to preview module life cycle
-                    res = Utils.GetEndDateTime(res, sub.m_oPreviewModule.m_tsFullLifeCycle);
-                }
-                else
-                {
-                    if (sub.m_oSubscriptionUsageModule != null)
-                    {
-                        // calc end date as before.
-                        res = Utils.GetEndDateTime(res, sub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    }
-                }
-            }
-
-            return res;
-        }
-
+        
         protected DateTime CalcCollectionEndDate(Collection col, DateTime dtToInitializeWith)
         {
             DateTime res = dtToInitializeWith;
@@ -4591,7 +4566,7 @@ namespace ConditionalAccess
                 //Get Iteration Rows according page size and index
                 IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allPPVModules);
 
-                Entitlement entitlement = null;
+                ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
                     entitlement = CreatePPVEntitelment(dr);
@@ -4608,7 +4583,7 @@ namespace ConditionalAccess
                 MeidaMaper[] mapper = Utils.GetMediaMapper(m_nGroupID, mediaFileIds.ToArray());
 
 
-                foreach (Entitlement entitlementRes in entitlementsResponse.entitelments)
+                foreach (ConditionalAccess.Response.Entitlement entitlementRes in entitlementsResponse.entitelments)
                 {
                     int mediaID = mapper.Where(x => x.m_nMediaFileID == entitlementRes.mediaFileID).FirstOrDefault().m_nMediaID;
                     entitlementRes.mediaID = mediaID;
@@ -4654,10 +4629,10 @@ namespace ConditionalAccess
             return iterationRows;
         }
 
-        private Entitlement CreatePPVEntitelment(DataRow dataRow)
+        private ConditionalAccess.Response.Entitlement CreatePPVEntitelment(DataRow dataRow)
         {
             UsageModule oUsageModule = null;
-            Entitlement entitlement = new Entitlement();
+            ConditionalAccess.Response.Entitlement entitlement = new ConditionalAccess.Response.Entitlement();
 
             entitlement.type = eTransactionType.PPV;
             entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "ppv");
@@ -5056,9 +5031,9 @@ namespace ConditionalAccess
                     module bm = new module();
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUserName, ref sWSPass);
                     renewPaymentDetails = bm.GetPaymentDetails(sWSUserName, sWSPass, billingGuids);
-                }            
+                }
 
-                Entitlement entitlement = null;
+                ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
                     entitlement = CreateSubscriptionEntitelment(dr, isExpired, renewPaymentDetails);
@@ -5078,10 +5053,10 @@ namespace ConditionalAccess
             return entitlementsResponse;
         }
 
-        private Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<PaymentDetails> renewPaymentDetails)
+        private ConditionalAccess.Response.Entitlement CreateSubscriptionEntitelment(DataRow dataRow, bool isExpired, List<PaymentDetails> renewPaymentDetails)
         {
             UsageModule oUsageModule = null;
-            Entitlement entitlement = new Entitlement();
+            ConditionalAccess.Response.Entitlement entitlement = new ConditionalAccess.Response.Entitlement();
             PaymentDetails paymentDetails = null;
 
             entitlement.type = eTransactionType.Subscription;
@@ -12023,10 +11998,10 @@ namespace ConditionalAccess
                 {
                     // fill Entitlement object
                     response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, "OK");
-                    response.entitelments = new List<Entitlement>();
+                    response.entitelments = new List<ConditionalAccess.Response.Entitlement>();
                     foreach (PermittedSubscriptionContainer item in psc)
                     {
-                        Entitlement ent = new Entitlement(item);
+                        ConditionalAccess.Response.Entitlement ent = new ConditionalAccess.Response.Entitlement(item);
                         response.entitelments.Add(ent);
                     }
                 }
@@ -12116,7 +12091,7 @@ namespace ConditionalAccess
                 //Get Iteration Rows according page size and index
                 IEnumerable<DataRow> iterationRows = GetIterationRows(pageSize, pageIndex, allCollectionsPurchases);
 
-                Entitlement entitlement = null;
+                ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
                     entitlement = CreateCollectionEntitelment(dr, isExpired);
@@ -12138,10 +12113,10 @@ namespace ConditionalAccess
             return entitlementsResponse;
         }
 
-        private Entitlement CreateCollectionEntitelment(DataRow dataRow, bool isExpired)
+        private ConditionalAccess.Response.Entitlement CreateCollectionEntitelment(DataRow dataRow, bool isExpired)
         {
             UsageModule oUsageModule = null;
-            Entitlement entitlement = new Entitlement();
+            ConditionalAccess.Response.Entitlement entitlement = new ConditionalAccess.Response.Entitlement();
 
             entitlement.type = eTransactionType.Collection;
             entitlement.entitlementId = ODBCWrapper.Utils.GetSafeStr(dataRow, "COLLECTION_CODE");
@@ -13039,460 +13014,7 @@ namespace ConditionalAccess
 
         public ApiObjects.Response.Status ReconcileEntitlements(string userId)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            // validate user
-            long householdId = 0;
-            var userValidStatus = Utils.ValidateUser(m_nGroupID, userId, ref householdId);
-
-            if (userValidStatus != ResponseStatus.OK)
-            {
-                // user validation failed
-                response = Utils.SetResponseStatus(userValidStatus);
-                log.ErrorFormat("User validation failed: {0}, userId: {1}", response.Message, userId);
-                return response;
-            }
-
-            // validate household
-            if (householdId < 1)
-            {
-                response.Message = "Illegal household";
-                log.ErrorFormat("Error: {0}, userId: {1}", response.Message, userId);
-                return response;
-            }
-
-            // frequency (tcm)
-            long frequency = TVinciShared.WS_Utils.GetTcmIntValue("reconciliation_frequency_seconds");
-            if (frequency == 0)
-            {
-                frequency = DEFAULT_RECONCILIATION_FREQUENCY_SECONDS;
-            }
-
-            // get household last reconciliation date
-            DateTime? householdLastReconciliationDate = null;
-            var householdLastReconciliation = ODBCWrapper.Utils.GetTableSingleVal("domains", "LAST_RECONCILIATION_DATE", "ID", "=", householdId, "USERS_CONNECTION_STRING");
-            if (!(householdLastReconciliation is DBNull))
-            {
-                householdLastReconciliationDate = Convert.ToDateTime(householdLastReconciliation);
-            }
-
-            // check if reconciliation is allowed for the household now
-            if (householdLastReconciliationDate != null && householdLastReconciliationDate.HasValue && DateTime.UtcNow <= householdLastReconciliationDate.Value.AddSeconds(frequency))
-            {
-                log.ErrorFormat("Entitlements reconciliation was not done due to frequency. userId = {0}, householdId = {1}, groupId = {2}, householdLastReconciliation = {3}",
-                    userId, householdId, m_nGroupID, householdLastReconciliationDate);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.ReconciliationFrequencyLimitation, "reconciliation too frequent");
-                return response;
-            }
-
-            // call oss adapter through ws api to get the entitlements
-            OSSAdapterEntitlementsResponse entitlementsResponse = null;
-
-            using (API wsApi = new API())
-            {
-                string wsApiUsername = string.Empty;
-                string wsApiPass = string.Empty;
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref wsApiUsername, ref wsApiPass);
-
-                if (string.IsNullOrEmpty(wsApiUsername) || string.IsNullOrEmpty(wsApiPass))
-                {
-                    log.ErrorFormat("ReconcileEntitlements: failed to get WS API credentials. groupId = {0}, userId = {1}", m_nGroupID, userId);
-                    return response;
-                }
-
-                try
-                {
-                    entitlementsResponse = wsApi.GetExternalEntitlements(wsApiUsername, wsApiPass, userId);
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Format("ReconcileEntitlements: Error while calling WS API GetExternalEntitlements. groupId = {0}, userId = {1}", m_nGroupID, userId), ex);
-                    return response;
-                }
-            }
-
-            // validate response
-            if (entitlementsResponse == null || entitlementsResponse.Status == null)
-            {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to get entitlements");
-                return response;
-            }
-
-            if (entitlementsResponse.Status.Code != (int)eResponseStatus.OK)
-            {
-                response = new ApiObjects.Response.Status(entitlementsResponse.Status.Code, entitlementsResponse.Status.Message);
-                return response;
-            }
-
-            if (entitlementsResponse.Entitlements != null && entitlementsResponse.Entitlements.Count > 0)
-            {
-                // handle subscriptions entitlements
-                ReconcileSubscriptions(userId, householdId, entitlementsResponse.Entitlements);
-
-                // handle ppv entitlements
-                ReconcilePPVs(userId, householdId, entitlementsResponse.Entitlements);
-            }
-
-            DomainDal.Set_DomainLastReconciliationDate(m_nGroupID, householdId, DateTime.UtcNow);
-
-            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            return response;
-        }
-
-        private void ReconcilePPVs(string userId, long householdId, List<ExternalEntitlement> entitlements)
-        {
-            var ppvEntitlementsToInsert = entitlements.Where(e => e.EntitlementType == eTransactionType.PPV).ToList();
-            List<EntitlementObject> ppvEntitlementsToDelete = new List<EntitlementObject>();
-
-            // get ppvs ids by product codes if there are external ppv entitlements
-            Dictionary<long, PPVModule> ppvsModulesDictionary = GetPpvModulesDataForExternalEntitlements(userId, ref ppvEntitlementsToInsert);
-
-            var ppvDictionary = DAL.ConditionalAccessDAL.Get_AllUsersEntitlements((int)householdId, null);
-            if (ppvDictionary != null && ppvDictionary.Count > 0)
-            {
-                ExternalEntitlement ppvEntitlement;
-
-                foreach (var ppv in ppvDictionary.Values)
-                {
-                    ppvEntitlement = ppvEntitlementsToInsert.Where(p => p.ProductId == ppv.ppvCode && p.ContentId == ppv.purchasedAsMediaFileID.ToString()).FirstOrDefault();
-                    if (ppvEntitlement != null)
-                    {
-                        if (DateUtils.UnixTimeStampToDateTime(ppvEntitlement.EndDateSeconds) != ppv.endDate || DateUtils.UnixTimeStampToDateTime(ppvEntitlement.StartDateSeconds) != ppv.startDate)
-                        {
-                            ppvEntitlement.PurchaseId = ppv.ID;
-
-                            // update ppv
-                            UpdateReconciledPPVEntitlement(householdId, ppvEntitlement, ppvsModulesDictionary);
-                        }
-
-                        ppvEntitlementsToInsert.Remove(ppvEntitlement);
-                    }
-                    else
-                    {
-                        ppvEntitlementsToDelete.Add(ppv);
-                    }
-                }
-            }
-
-            // insert ppvs
-            InsertReconciledPPVEntitlements(userId, householdId, ppvEntitlementsToInsert);
-
-            // delete ppvs
-            DeleteReconciledPPVEntitlements(householdId, ppvEntitlementsToDelete);
-        }
-
-        private Dictionary<long, PPVModule> GetPpvModulesDataForExternalEntitlements(string userId, ref List<ExternalEntitlement> ppvEntitlementsToInsert)
-        {
-            Dictionary<long, PPVModule> ppvsModulesDictionary = new Dictionary<long, PPVModule>();
-
-            if (ppvEntitlementsToInsert.Count > 0)
-            {
-                using (mdoule wsPricing = new mdoule())
-                {
-                    string wsPricingUsername = string.Empty;
-                    string wsPricingPass = string.Empty;
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref wsPricingUsername, ref wsPricingPass);
-
-                    if (string.IsNullOrEmpty(wsPricingUsername) || string.IsNullOrEmpty(wsPricingPass))
-                    {
-                        log.ErrorFormat("ReconcilePPVs: failed to get WS Pricing credentials or URL. groupId = {0}, userId = {1}", m_nGroupID, userId);
-                    }
-
-                    try
-                    {
-                        // get the ppv modules
-                        var ppvModules = wsPricing.GetPPVModulesByProductCodes(wsPricingUsername, wsPricingPass, ppvEntitlementsToInsert.Select(pe => pe.ProductCode).ToArray());
-
-                        if (ppvModules != null)
-                        {
-                            // set the ppv module for each entitlement
-                            foreach (var ppvEntitlement in ppvEntitlementsToInsert)
-                            {
-                                var ppvModule = ppvModules.Where(pm => pm.m_Product_Code == ppvEntitlement.ProductCode).FirstOrDefault();
-                                if (ppvModule != null)
-                                {
-                                    ppvEntitlement.ProductId = int.Parse(ppvModule.m_sObjectCode);
-                                    if (!ppvsModulesDictionary.ContainsKey(ppvEntitlement.ProductId))
-                                    {
-                                        ppvsModulesDictionary.Add(ppvEntitlement.ProductId, ppvModule);
-                                    }
-                                }
-                                else
-                                {
-                                    ppvEntitlementsToInsert.Remove(ppvEntitlement);
-                                    log.ErrorFormat("ReconcilePPVs: subscription with productCode = {0} was not found for userId = {1} and will be ignored.", ppvEntitlement.ProductCode, userId);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(string.Format("ReconcilePPVs: Error while calling WSPricing GetPPVModulesByProductCodes. groupId = {0}, userId = {1}", m_nGroupID, userId), ex);
-                    }
-                }
-            }
-
-            return ppvsModulesDictionary;
-        }
-
-        private void DeleteReconciledPPVEntitlements(long householdId, List<EntitlementObject> ppvsToDelete)
-        {
-            if (ppvsToDelete.Count > 0)
-            {
-                if (ConditionalAccessDAL.Delete_PPVPurchases(ppvsToDelete.Select(pi => pi.ID).ToList()))
-                {
-                    log.ErrorFormat("ReconcileEntitlements: failed to delete PPV entitlements for household = {0}", householdId);
-                }
-            }
-        }
-
-        private void UpdateReconciledPPVEntitlement(long householdId, ExternalEntitlement ppvToUpdate, Dictionary<long, PPVModule> ppvs)
-        {
-            if (ppvToUpdate != null)
-            {
-                DateTime startDate, endDate;
-                startDate = ppvToUpdate.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(ppvToUpdate.StartDateSeconds) : DateTime.UtcNow;
-
-                if (ppvToUpdate.EndDateSeconds == 0)
-                {
-                    // get the end date for the ppv module
-                    if (ppvs.ContainsKey(ppvToUpdate.ProductId))
-                    {
-                        endDate = Utils.GetEndDateTime(startDate, ppvs[ppvToUpdate.ProductId].m_oUsageModule.m_tsMaxUsageModuleLifeCycle);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("ReconcileEntitlements: trying to update dates for PPV module with invalid productId or contentId. productCode = {0}, contentId = {1}, for household = {2}",
-                                ppvToUpdate.ProductCode, ppvToUpdate.ContentId, householdId);
-                        return;
-                    }
-                }
-                else
-                {
-                    endDate = DateUtils.UnixTimeStampToDateTime(ppvToUpdate.EndDateSeconds);
-                }
-
-                if (!ConditionalAccessDAL.Update_PPVPurchaseDates(ppvToUpdate.PurchaseId, startDate, endDate))
-                {
-                    log.ErrorFormat("ReconcileEntitlements: failed to update dates for PPV entitlement. ppv purchase id = {0}, for household = {1}",
-                                ppvToUpdate.ProductId, householdId);
-                }
-            }
-        }
-
-        private void InsertReconciledPPVEntitlements(string userId, long householdId, List<ExternalEntitlement> ppvsToInsert)
-        {
-            if (ppvsToInsert.Count != 0)
-            {
-                //grant entitlements
-                int contentId = 0;
-
-                foreach (var ppv in ppvsToInsert)
-                {
-                    if (ppv != null && int.TryParse(ppv.ContentId, out contentId))
-                    {
-                        DateTime? startDate = null;
-                        if (ppv.StartDateSeconds != 0)
-                            startDate = DateUtils.UnixTimeStampToDateTime(ppv.StartDateSeconds);
-
-                        DateTime? endDate = null;
-                        if (ppv.EndDateSeconds != 0)
-                            endDate = DateUtils.UnixTimeStampToDateTime(ppv.EndDateSeconds);
-
-                        var res = GrantManager.GrantPPV(this, m_nGroupID, userId, householdId, contentId, (int)ppv.ProductId, string.Empty, string.Empty, false, startDate, endDate);
-                        string logString = string.Format("userId = {0}, ppv productCode = {1}, ppv contentId = {2}", userId, ppv.ProductCode, ppv.ContentId);
-                        if (res.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("failed to reconcile external PPV entitlement for {0}", logString);
-                        }
-                        else
-                        {
-                            log.DebugFormat("Reconciled external PPV entitlement for {0}", logString);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ReconcileSubscriptions(string userId, long householdId, List<ExternalEntitlement> entitlements)
-        {
-            var subscriptionEntitlementsToInsert = entitlements.Where(e => e.EntitlementType == eTransactionType.Subscription).ToList();
-            List<int> subscriptionEntitlementsToDelete = new List<int>();
-
-            // get subscriptions ids by product codes if there are external subscription entitlements
-            Dictionary<long, Subscription> subscriptionsDictionary = GetSubscriptionsDataForExternalEntitlements(userId, ref subscriptionEntitlementsToInsert);
-
-            DataTable dt = DAL.ConditionalAccessDAL.Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID((int)householdId, null, m_nGroupID);
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                string subscriptionCode;
-                ExternalEntitlement subscription;
-                DateTime startDate, endDate;
-
-                foreach (DataRow dr in dt.Rows)
-                {
-                    subscriptionCode = ODBCWrapper.Utils.GetSafeStr(dr["SUBSCRIPTION_CODE"]);
-                    if (!string.IsNullOrEmpty(subscriptionCode))
-                    {
-                        subscription = subscriptionEntitlementsToInsert.Where(s => s.ProductId.ToString() == subscriptionCode).FirstOrDefault();
-
-                        if (subscription != null)
-                        {
-                            subscription.PurchaseId = ODBCWrapper.Utils.GetIntSafeVal(dr["ID"]);
-                            startDate = ODBCWrapper.Utils.GetDateSafeVal(dr["START_DATE"]);
-                            endDate = ODBCWrapper.Utils.GetDateSafeVal(dr["END_DATE"]);
-
-                            if (DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds) != endDate || DateUtils.UnixTimeStampToDateTime(subscription.StartDateSeconds) != startDate)
-                            {
-                                // update subscription
-                                UpdateReconciledSubscriptionEntitlement(householdId, subscription, subscriptionsDictionary);
-                            }
-                            subscriptionEntitlementsToInsert.Remove(subscription);
-                        }
-                        else
-                        {
-                            subscriptionEntitlementsToDelete.Add(ODBCWrapper.Utils.GetIntSafeVal(dr["ID"]));
-                        }
-                    }
-                }
-            }
-
-            // insert subscriptions
-            InsertReconciledSubscriptionEntitlements(userId, householdId, subscriptionEntitlementsToInsert);
-
-            // delete subscriptions 
-            DeleteReconciledSubscriptionEntitlements(householdId, subscriptionEntitlementsToDelete);
-        }
-
-        private void UpdateReconciledSubscriptionEntitlement(long householdId, ExternalEntitlement subscriptionEntitlementToUpdate, Dictionary<long, Subscription> subscriptions)
-        {
-            if (subscriptionEntitlementToUpdate != null)
-            {
-                DateTime startDate, endDate;
-                startDate = subscriptionEntitlementToUpdate.StartDateSeconds != 0 ? DateUtils.UnixTimeStampToDateTime(subscriptionEntitlementToUpdate.StartDateSeconds) : DateTime.UtcNow;
-
-                if (subscriptionEntitlementToUpdate.EndDateSeconds == 0)
-                {
-                    // get the end date for the ppv module
-                    if (subscriptions.ContainsKey(subscriptionEntitlementToUpdate.ProductId))
-                    {
-                        endDate = CalcSubscriptionEndDate(subscriptions[subscriptionEntitlementToUpdate.ProductId], false, startDate);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("ReconcileEntitlements: trying to update dates for subscription but subscription not found. productCode = {0}, contentId = {1}, for household = {2}",
-                            subscriptionEntitlementToUpdate.ProductCode, subscriptionEntitlementToUpdate.ContentId, householdId);
-                        return;
-                    }
-                }
-                else
-                {
-                    endDate = DateUtils.UnixTimeStampToDateTime(subscriptionEntitlementToUpdate.EndDateSeconds);
-                }
-
-                if (!ConditionalAccessDAL.Update_SubscriptionPurchaseDates(subscriptionEntitlementToUpdate.PurchaseId, startDate, endDate))
-                {
-                    log.ErrorFormat("ReconcileEntitlements: failed to update dates for subscription. subscription purchase id = {0}, for household = {1}",
-                                subscriptionEntitlementToUpdate.ProductId, householdId);
-                }
-            }
-        }
-
-        private Dictionary<long, Subscription> GetSubscriptionsDataForExternalEntitlements(string userId, ref List<ExternalEntitlement> subscriptionEntitlementsToInsert)
-        {
-            Dictionary<long, Subscription> subscriptionsDictionary = new Dictionary<long, Subscription>();
-
-            if (subscriptionEntitlementsToInsert.Count > 0)
-            {
-                using (mdoule wsPricing = new mdoule())
-                {
-                    string wsPricingUsername = string.Empty;
-                    string wsPricingPass = string.Empty;
-                    Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref wsPricingUsername, ref wsPricingPass);
-
-                    if (string.IsNullOrEmpty(wsPricingUsername) || string.IsNullOrEmpty(wsPricingPass))
-                    {
-                        log.ErrorFormat("ReconcileSubscriptions: failed to get WS Pricing credentials or URL. groupId = {0}, userId = {1}", m_nGroupID, userId);
-                    }
-
-                    try
-                    {
-                        // get the subscriptions modules
-                        var subscriptions = wsPricing.GetSubscriptionsByProductCodes(wsPricingUsername, wsPricingPass, subscriptionEntitlementsToInsert.Select(se => se.ProductCode).ToArray());
-
-                        if (subscriptions != null)
-                        {
-                            // set the subscription for each entitlement
-                            foreach (var entitlement in subscriptionEntitlementsToInsert)
-                            {
-                                var subscription = subscriptions.Where(s => s.m_ProductCode == entitlement.ProductCode).FirstOrDefault();
-                                if (subscription != null)
-                                {
-                                    entitlement.ProductId = int.Parse(subscription.m_SubscriptionCode);
-                                    if (!subscriptionsDictionary.ContainsKey(entitlement.ProductId))
-                                    {
-                                        subscriptionsDictionary.Add(entitlement.ProductId, subscription);
-                                    }
-                                }
-                                else
-                                {
-                                    subscriptionEntitlementsToInsert.Remove(entitlement);
-                                    log.ErrorFormat("ReconcileSubscriptions: subscription with productCode = {0} was not found for userId = {1} and will be ignored.", entitlement.ProductCode, userId);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(string.Format("ReconcileSubscriptions: Error while calling WSPricing GetPPVModulesByProductCodes. groupId = {0}, userId = {1}", m_nGroupID, userId), ex);
-                    }
-                }
-            }
-
-            return subscriptionsDictionary;
-        }
-
-        private void DeleteReconciledSubscriptionEntitlements(long householdId, List<int> subscriptionsToDelete)
-        {
-            if (subscriptionsToDelete.Count > 0)
-            {
-                if (ConditionalAccessDAL.Delete_SubscriptionPurchases(subscriptionsToDelete))
-                {
-                    log.ErrorFormat("ReconcileEntitlements: failed to delete subscription entitlements for household = {0}", householdId);
-                }
-            }
-        }
-
-        private void InsertReconciledSubscriptionEntitlements(string userId, long householdId, List<ExternalEntitlement> subscriptionsToInsert)
-        {
-            if (subscriptionsToInsert.Count > 0)
-            {
-                //grant entitlements            
-                foreach (var subscription in subscriptionsToInsert)
-                {
-                    if (subscription != null)
-                    {
-                        DateTime? startDate = null;
-                        if (subscription.StartDateSeconds != 0)
-                            startDate = DateUtils.UnixTimeStampToDateTime(subscription.StartDateSeconds);
-
-                        DateTime? endDate = null;
-                        if (subscription.EndDateSeconds != 0)
-                            endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
-                        var res = GrantManager.GrantSubscription(this, m_nGroupID, userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate);
-                        string logString = string.Format("userId = {0}, subscriptionId = {1}, subscriptionproductCode = {2}", userId, subscription.ProductId, subscription.ProductCode);
-                        if (res.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("failed to reconcile external subscription entitlement for {0}", logString);
-                        }
-                        else
-                        {
-                            log.DebugFormat("Reconciled external subscription entitlement for {0}", logString);
-                        }
-                    }
-                }
-            }
+            return ConditionalAccess.Entitlement.ReconciliationManager.ReconcileEntitlements(this, m_nGroupID, userId);
         }
 
         public UserBundlesResponse GetUserBundles(int domainID, int[] fileTypeIDs)
@@ -17355,7 +16877,7 @@ namespace ConditionalAccess
             //}
         }
 
-        public Entitlements UpdateEntitlement(long domainID, Entitlement entitlement)
+        public Entitlements UpdateEntitlement(long domainID, ConditionalAccess.Response.Entitlement entitlement)
         {
             Entitlements response = new Entitlements(new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()));
             try
@@ -17416,7 +16938,7 @@ namespace ConditionalAccess
                 // comlete entitelment details 
                 if (changeStatus.Code == (int)eResponseStatus.OK)
                 {
-                    Entitlement subscriptionEntitlement = CreateSubscriptionEntitelment(dr, false, null);
+                    ConditionalAccess.Response.Entitlement subscriptionEntitlement = CreateSubscriptionEntitelment(dr, false, null);
                     subscriptionEntitlement.paymentGatewayId = entitlement.paymentGatewayId;
                     subscriptionEntitlement.paymentMethodId = entitlement.paymentMethodId;
                     response.entitelments.Add(subscriptionEntitlement);
