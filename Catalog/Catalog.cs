@@ -45,8 +45,8 @@ namespace Catalog
     public class Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly KLogger statisticsLog = new KLogger("MediaEohLogger", true);
-        private static readonly KLogger newWatcherMediaActionLog = new KLogger("NewWatcherMediaActionLogger", true);
+        private static readonly KLogger statisticsLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "MediaEohLogger");
+        private static readonly KLogger newWatcherMediaActionLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "NewWatcherMediaActionLogger");
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
