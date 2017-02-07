@@ -675,7 +675,7 @@ namespace ConditionalAccess
 
                 // validate PPV 
                 PPVModule ppvModule = null;
-                ApiObjects.Response.Status status = cas.ValidatePPVModuleCode(productId, contentId, ref ppvModule);
+                ApiObjects.Response.Status status = Utils.ValidatePPVModuleCode(groupId, productId, contentId, ref ppvModule);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = status;

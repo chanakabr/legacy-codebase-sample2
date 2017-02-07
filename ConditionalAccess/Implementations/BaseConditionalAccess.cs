@@ -42,52 +42,52 @@ namespace ConditionalAccess
 {
     public abstract class BaseConditionalAccess
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        protected string m_sPurchaseMailTemplate;
-        protected string m_sMailFromName;
-        protected string m_sMailFromAdd;
-        protected string m_sMailServer;
-        protected string m_sMailServerUN;
-        protected string m_sMailServerPass;
-        protected string m_sPurchaseMailSubject;
-        protected bool m_bIsInitialized;
-        protected Int32 m_nGroupID;
+        internal string m_sPurchaseMailTemplate;
+        internal string m_sMailFromName;
+        internal string m_sMailFromAdd;
+        internal string m_sMailServer;
+        internal string m_sMailServerUN;
+        internal string m_sMailServerPass;
+        internal string m_sPurchaseMailSubject;
+        internal bool m_bIsInitialized;
+        internal Int32 m_nGroupID;
 
-        private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
-        private const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
-        private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
-        private const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
-        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-        protected const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
-        private const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
-        private const double RECORDING_CLEANUP_INTERVAL_SEC = 86400;
-        private const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
-        private const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";
-        private const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
-        private const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
-        private const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
-        private const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
-        private const double MAX_SERVER_TIME_DIF = 5;
+        internal const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+        internal const long DEFAULT_RECONCILIATION_FREQUENCY_SECONDS = 7200;
+        internal const string ILLEGAL_CONTENT_ID = "Illegal content ID";
+        internal const string CONTENT_ID_WITH_A_RELATED_MEDIA = "Content ID with a related media";
+        internal const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
+        internal const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION";
+        internal const string ROUTING_KEY_RECORDINGS_CLEANUP = "PROCESS_RECORDINGS_CLEANUP";
+        internal const double RECORDING_CLEANUP_INTERVAL_SEC = 86400;
+        internal const double HANDLE_RECORDINGS_LIFETIME_INTERVAL_SEC = 3600;
+        internal const string RECORDINGS_LIFETIME_ROUTING_KEY = "PROCESS_RECORDINGS_LIFETIME";
+        internal const double HANDLE_RECORDINGS_SCHEDULED_TASKS_INTERVAL_SEC = 60;
+        internal const string RECORDING_TASKS_ROUTING_KEY = "PROCESS_RECORDING_SCHEDULED_TASKS";
+        internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
+        internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
+        internal const double MAX_SERVER_TIME_DIF = 5;
 
         //errors
-        private const string CONFLICTED_PARAMS = "Conflicted params";
-        private const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
-        private const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
-        private const string NAME_REQUIRED = "Name must have a value";
-        private const string ADAPTER_SHARED_SECRET_REQUIRED = "Shared secret must have a value";
-        private const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";
-        private const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
-        private const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
-        private const string ADAPTER_NOT_EXIST = "Adapter not exist";
-        private const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
-        private const string ADAPTER_ALIAS_REQUIRED = "Adapter Alias must have a value";
-        private const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";
-        private const string ERROR_SUBSCRIPTION_NOT_EXSITS = "Subscription \\{0} not exists";
-        private const string ERROR_SUBSCRIPTION_NOT_RENEWABLE = "Subscription \\{0} not renewable";
-        private const string ERROR_SUBSCRIPTION_ALREADY_PURCHASED = "Subscription \\{0} already purchased";
+        internal const string CONFLICTED_PARAMS = "Conflicted params";
+        internal const string NO_ADAPTER_TO_INSERT = "No adapter to insert";
+        internal const string NO_ADAPTER_TO_UPDATE = "No adapter to update";
+        internal const string NAME_REQUIRED = "Name must have a value";
+        internal const string ADAPTER_SHARED_SECRET_REQUIRED = "Shared secret must have a value";
+        internal const string EXTERNAL_IDENTIFIER_REQUIRED = "External identifier must have a value";
+        internal const string ERROR_EXT_ID_ALREADY_IN_USE = "External identifier must be unique";
+        internal const string ADAPTER_ID_REQUIRED = "Adapter identifier is required";
+        internal const string ADAPTER_NOT_EXIST = "Adapter not exist";
+        internal const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
+        internal const string ADAPTER_ALIAS_REQUIRED = "Adapter Alias must have a value";
+        internal const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";
+        internal const string ERROR_SUBSCRIPTION_NOT_EXSITS = "Subscription \\{0} not exists";
+        internal const string ERROR_SUBSCRIPTION_NOT_RENEWABLE = "Subscription \\{0} not renewable";
+        internal const string ERROR_SUBSCRIPTION_ALREADY_PURCHASED = "Subscription \\{0} already purchased";
 
-        private const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
+        protected const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
 
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
@@ -109,7 +109,7 @@ namespace ConditionalAccess
             bool bIsPurchasedWithPreviewModule, long lPurchaseID, string sCurrency, double dPrice, int nPaymentNumber,
             string sBillingTransactionID, int nUsageModuleMaxVLC, bool bIsMPPRecurringInfinitely, int nNumOfRecPeriods);
 
-        protected abstract BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
+        protected internal abstract BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
             double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments,
             string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule,
             ref module bm);
@@ -127,7 +127,7 @@ namespace ConditionalAccess
             string sDeviceName, BillingResponse br, string sCollectionCode,
             string sCustomData, ref long lBillingTransactionID, ref long lPurchaseID, ref module wsBillingService);
 
-        protected abstract bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, Subscription relevantSub,
+        protected internal abstract bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID, Subscription relevantSub,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode,
             string sDeviceName, BillingResponse br, string sCustomData, PPVModule thePPVModule,
             long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref module wsBillingService,
@@ -11292,7 +11292,7 @@ namespace ConditionalAccess
                 ResponseStatus responseStatus = Utils.ValidateUser(m_nGroupID, sSiteGuid, ref domainid);
                 if (responseStatus != ResponseStatus.OK || domainid == 0)
                 {
-                    status = SetResponseStatus(responseStatus);
+                    status = Utils.SetResponseStatus(responseStatus);
                     log.ErrorFormat("User validation failed: {0}, sSiteGuid: {1}", status.Message, sSiteGuid);
                     return status;
                 }
@@ -12275,7 +12275,7 @@ namespace ConditionalAccess
                 if (userValidStatus != ResponseStatus.OK)
                 {
                     // user validation failed
-                    response.Status = SetResponseStatus(userValidStatus);
+                    response.Status = Utils.SetResponseStatus(userValidStatus);
                     log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
@@ -12350,7 +12350,7 @@ namespace ConditionalAccess
 
                 // validate PPV 
                 PPVModule ppv = null;
-                ApiObjects.Response.Status status = ValidatePPVModuleCode(productId, contentId, ref ppv);
+                ApiObjects.Response.Status status = Utils.ValidatePPVModuleCode(m_nGroupID, productId, contentId, ref ppv);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response.Status = status;
@@ -12466,7 +12466,7 @@ namespace ConditionalAccess
                 else
                 {
                     // not for purchase
-                    response.Status = SetResponseStatus(ePriceReason);
+                    response.Status = Utils.SetResponseStatus(ePriceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }
@@ -12651,7 +12651,7 @@ namespace ConditionalAccess
                 else
                 {
                     // item not for purchase
-                    response.Status = SetResponseStatus(priceReason);
+                    response.Status = Utils.SetResponseStatus(priceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }
@@ -12709,45 +12709,6 @@ namespace ConditionalAccess
             }
 
             return response;
-        }
-
-
-        protected internal ApiObjects.Response.Status ValidatePPVModuleCode(int productID, int contentID, ref PPVModule thePPVModule)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
-            try
-            {
-                string userName = string.Empty;
-                string password = string.Empty;
-                mdoule wsPricingService = new mdoule();
-                Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref userName, ref password);
-                long ppvModuleCode = 0;
-                long.TryParse(productID.ToString(), out ppvModuleCode);
-
-                thePPVModule = wsPricingService.ValidatePPVModuleForMediaFile(userName, password, contentID, ppvModuleCode);
-
-                if (thePPVModule == null)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "The ppv module is unknown");
-                    return response;
-                }
-
-                if (!thePPVModule.m_sObjectCode.Equals(productID.ToString()))
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "This PPVModule does not belong to item");
-                    return response;
-                }
-
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                return response;
-            }
-            catch (Exception ex)
-            {
-                log.Error("ValidateModuleCode  ", ex);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error ValidateModuleCode");
-                return response;
-            }
         }
 
         public ApiObjects.Response.Status UpdatePendingTransaction(string paymentGatewayId, int adapterTransactionState, string externalTransactionId, string externalStatus,
@@ -12851,7 +12812,7 @@ namespace ConditionalAccess
                 if (validateUser != ResponseStatus.OK && validateUser != ResponseStatus.UserSuspended)
                 {
                     // user validation failed
-                    response = SetResponseStatus(validateUser);
+                    response = Utils.SetResponseStatus(validateUser);
                     return response;
                 }
 
@@ -12936,603 +12897,11 @@ namespace ConditionalAccess
         }
 
 
-        public ApiObjects.Response.Status GrantEntitlements(string siteguid, long householdId, int contentId, int productId, eTransactionType transactionType, string userIp,
-            string deviceName, bool history)
+        public ApiObjects.Response.Status GrantEntitlements(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string ip,
+            string udid, bool history)
         {
-            ApiObjects.Response.Status status = null;
-            // log request
-            string logString = string.Format("GrantEntitlements request: siteguid {0}, contentId {1}, productId {2}, productType {3}, userIp {4}, deviceName {5}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                contentId,                                                     // {1}
-                productId,                                                     // {2}   
-                transactionType.ToString(),                                    // {3}                
-                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {4}
-                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty  // {5}
-                );
-
-            log.Debug(logString);
-
-            // validate siteguid
-            if (string.IsNullOrEmpty(siteguid))
-            {
-                status.Message = "Illegal user ID";
-                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                return status;
-            }
-
-            // validate productId
-            if (productId < 1)
-            {
-                status.Message = "Illegal product ID";
-                log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                return status;
-            }
-
-            try
-            {
-                // validate user
-                ResponseStatus userValidStatus = ResponseStatus.OK;
-                userValidStatus = Utils.ValidateUser(m_nGroupID, siteguid, ref householdId);
-
-                if (userValidStatus != ResponseStatus.OK)
-                {
-                    status = SetResponseStatus(userValidStatus);
-                    log.ErrorFormat("User validation failed: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                switch (transactionType)
-                {
-                    case eTransactionType.PPV:
-                        status = GrantPPV(siteguid, householdId, contentId, productId, userIp, deviceName, history);
-                        break;
-                    case eTransactionType.Subscription:
-                        status = GrantSubscription(siteguid, householdId, productId, userIp, deviceName, history, 1);
-                        break;
-                    case eTransactionType.Collection:
-                        status = GrantCollection(siteguid, householdId, productId, userIp, deviceName, history);
-                        break;
-                    default:
-                        status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Illegal product Type");
-                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                        break;
-                }
-
-                if (status != null && status.Code == (int)eResponseStatus.OK)
-                {
-                    string invalidationKey = LayeredCacheKeys.GetGrantEntitlementInvalidationKey(householdId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                    {
-                        log.ErrorFormat("Failed to set invalidation key on GrantEntitlements key = {0}", invalidationKey);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GrantEntitlements Error. data: {0}", logString, ex));
-            }
-
-            return status;
+            return GrantManager.GrantEntitlements(this, this.m_nGroupID, userId, householdId, contentId, productId, transactionType, ip, udid, history);
         }
-
-
-
-        private static ApiObjects.Response.Status SetResponseStatus(ResponseStatus userValidStatus)
-        {
-            ApiObjects.Response.Status status = null;
-            // user validation failed
-            switch (userValidStatus)
-            {
-                case ResponseStatus.UserDoesNotExist:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User doesn't exists");
-                    break;
-                case ResponseStatus.UserSuspended:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "Suspended user");
-                    break;
-                case ResponseStatus.UserNotIndDomain:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotInDomain, "User doesn't exist in household");
-                    break;
-                default:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to validate user");
-                    break;
-            }
-
-            return status;
-        }
-
-        private static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
-        {
-            ApiObjects.Response.Status status = null;
-            switch (priceReason)
-            {
-                case PriceReason.PPVPurchased:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchasePPVPurchased, "PPV already purchased");
-                    break;
-                case PriceReason.Free:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseFree, "Free");
-                    break;
-                case PriceReason.ForPurchaseSubscriptionOnly:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly, "Subscription only");
-                    break;
-                case PriceReason.SubscriptionPurchased:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, "Already purchased (subscription)");
-                    break;
-                case PriceReason.NotForPurchase:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchase");
-                    break;
-                case PriceReason.CollectionPurchased:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseCollectionPurchased, "Collection already purchased");
-                    break;
-                default:
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    break;
-            }
-
-            return status;
-        }
-
-        private ApiObjects.Response.Status GrantPPV(string siteguid, long householdId, int contentId, int productId, string userIp, string deviceName, bool saveHistory,
-            DateTime? startDate = null, DateTime? endDate = null)
-        {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, contentId {2}, productId {3}, userIp {4}, deviceName {5}, saveHistory {6}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                householdId,                                                   // {1}
-                contentId,                                                     // {2}
-                productId,                                                     // {3}   
-                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {4}
-                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {5}
-                saveHistory);                                                  // {6}
-
-            try
-            {
-                // validate content ID
-                if (contentId < 1)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ILLEGAL_CONTENT_ID);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                // validate content ID related media
-                int mediaID = ConditionalAccess.Utils.GetMediaIDFromFileID(contentId, m_nGroupID);
-                if (mediaID < 1)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, CONTENT_ID_WITH_A_RELATED_MEDIA);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                // validate PPV 
-                PPVModule thePPVModule = null;
-                status = ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
-                if (status.Code != (int)eResponseStatus.OK)
-                {
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                // validate price
-                PriceReason ePriceReason = PriceReason.UnKnown;
-                Subscription relevantSub = null;
-                Collection relevantCol = null;
-                PrePaidModule relevantPP = null;
-                Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, siteguid, string.Empty, m_nGroupID,
-                                                                                              ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, deviceName, true);
-
-                if (ePriceReason != PriceReason.ForPurchase && !(ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
-                {
-                    // not for purchase
-                    status = SetResponseStatus(ePriceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                if (oPrice == null)
-                {
-
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                string country = string.Empty;
-                if (!string.IsNullOrEmpty(userIp))
-                {
-                    // get country by user IP
-                    country = Utils.GetIP2CountryCode(m_nGroupID, userIp);
-                }
-
-                // create custom data
-                string customData = GetCustomData(relevantSub, thePPVModule, null, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, contentId,
-                    mediaID, productId.ToString(), string.Empty, string.Empty, userIp, country, string.Empty, deviceName);
-
-                string billingGuid = Guid.NewGuid().ToString();
-
-                // purchase
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                module wsBillingService = null;
-                BillingResponse oResponse = new BillingResponse();
-                oResponse.m_oStatus = BillingResponseStatus.UnKnown;
-
-                if (saveHistory)
-                {
-
-                    InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
-
-                    oResponse = HandleCCChargeUser(sWSUserName, sWSPass, siteguid, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                        1, 1, string.Empty, string.Empty, string.Empty, true, false, ref wsBillingService);
-                }
-                else
-                {
-                    oResponse.m_oStatus = BillingResponseStatus.Success;
-                    oResponse.m_sRecieptCode = string.Empty;
-                }
-
-                if (oResponse == null || oResponse.m_oStatus != BillingResponseStatus.Success)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    WriteToUserLog(siteguid, "While trying to purchase media file id(CC): " + contentId.ToString() + " error returned: " + oResponse.m_sStatusDescription);
-                    return status;
-                }
-
-                long lBillingTransactionID = 0;
-                long lPurchaseID = 0;
-
-                var result = HandleChargeUserForMediaFileBillingSuccess(sWSUserName, sWSPass, siteguid, Convert.ToInt32(householdId), relevantSub, oPrice.m_dPrice, oPrice.m_oCurrency.m_sCurrencyCD3,
-                    string.Empty, userIp, country, string.Empty, deviceName, oResponse, customData,
-                    thePPVModule, contentId, ref lBillingTransactionID, ref lPurchaseID, true, ref wsBillingService, billingGuid, startDate, endDate);
-
-                if (result)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-
-                if (saveHistory)
-                {
-                    // Enqueue notification for PS so they know a media file was charged
-                    var dicData = new Dictionary<string, object>()
-                                    {
-                                        {"MediaFileID", contentId},
-                                        {"BillingTransactionID", lBillingTransactionID},
-                                        {"PPVModuleCode", productId},
-                                        {"SiteGUID", siteguid},
-                                        {"CouponCode", string.Empty},
-                                        {"CustomData", customData},
-                                        {"PurchaseID", lPurchaseID}
-                                    };
-
-                    // notify purchase
-                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedMediaFile, dicData))
-                    {
-                        log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
-                log.Error("Exception occurred. data: " + logString, ex);
-            }
-            return status;
-        }
-
-        protected internal ApiObjects.Response.Status GrantSubscription(string siteguid, long householdId, int productId, string userIp, string deviceName, bool saveHistory,
-             int recurringNumber, DateTime? startDate = null, DateTime? endDate = null, bool isGrant = true)
-        {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-          
-            // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, saveHistory {5}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                householdId,                                                   // {1}                
-                productId,                                                     // {2}   
-                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {3}
-                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {4}
-                saveHistory);                                                  // {5}
-
-            try
-            {
-                string country = string.Empty;
-                if (!string.IsNullOrEmpty(userIp))
-                {
-                    // get country by user IP
-                    country = Utils.GetIP2CountryCode(m_nGroupID, userIp);
-                }
-
-                // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
-                Subscription subscription = null;
-                Price priceResponse = Utils.GetSubscriptionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty,
-                    ref priceReason, ref subscription, country, string.Empty, deviceName);
-
-                if (priceReason == PriceReason.UnKnown)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "The subscription is unknown");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
-
-                if (priceReason != PriceReason.ForPurchase && !entitleToPreview)
-                {
-                    // item not for purchase
-                    status = SetResponseStatus(priceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
-                    return status;
-                }
-
-                // item is for purchase
-                if (priceResponse == null)
-                {
-                    // incorrect price
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                //validate that user have no DLM or Quota - FOR GRANT ONLY 
-                if (isGrant)
-                {
-                    status = CheckSubscriptionOverlap(subscription, siteguid);
-                    if (status.Code != (int)eResponseStatus.OK)
-                    {
-                        log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                        return status;
-                    }                   
-                }
-
-
-                // price is validated, create custom data
-                string customData = GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
-                                                                 string.Empty, userIp, country, string.Empty, deviceName, string.Empty,
-                                                                 entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
-                                                                 entitleToPreview, true, recurringNumber, saveHistory);
-
-                // create new GUID for billing transaction
-                string billingGuid = Guid.NewGuid().ToString();
-
-                // purchase
-                module wsBillingService = null;
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                BillingResponse billingResponse = new BillingResponse();
-                billingResponse.m_oStatus = BillingResponseStatus.UnKnown;
-                long lBillingTransactionID = 0;
-                if (saveHistory)
-                {
-                    InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
-
-                    billingResponse = HandleCCChargeUser(sWSUserName, sWSPass, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                       1, 1, string.Empty, string.Empty, string.Empty, true, false, ref wsBillingService);
-
-                }
-                else
-                {
-                    billingResponse.m_oStatus = BillingResponseStatus.Success;
-                    billingResponse.m_sRecieptCode = string.Empty;
-                }
-
-                if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
-                {
-                    // no status error
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                // purchase passed
-                long.TryParse(billingResponse.m_sRecieptCode, out lBillingTransactionID);
-                long purchaseID = 0;
-
-                TransactionResponse response = null;
-
-                // grant entitlement
-                var result = HandleSubscriptionBillingSuccess(ref response, siteguid, householdId, subscription, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
-                    userIp, country, deviceName, lBillingTransactionID, customData, productId, billingGuid.ToString(),
-                    entitleToPreview, subscription.m_bIsRecurring, startDate, ref purchaseID, ref endDate, isGrant? SubscriptionPurchaseStatus.OK : SubscriptionPurchaseStatus.Switched_To);
-
-                if (result)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-                    // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
-                    if (subscription.m_nDomainLimitationModule != 0)
-                    {
-                        UpdateDLM(householdId, subscription.m_nDomainLimitationModule);
-                    }
-
-                    // update Quota
-                    if (subscription.m_lServices != null && subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).Count() > 0)
-                    {
-                        Utils.HandleNPVRQuota(m_nGroupID, subscription, householdId, isGrant);
-                    }
-
-                    if (subscription.m_bIsRecurring)
-                    {
-
-                        DateTime nextRenewalDate = endDate.Value.AddMinutes(1); // default                                           
-
-                        // enqueue renew transaction
-                        RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                        RenewTransactionData data = new RenewTransactionData(m_nGroupID, siteguid, purchaseID, billingGuid,
-                            TVinciShared.DateUtils.DateTimeToUnixTimestamp((DateTime)endDate), nextRenewalDate);
-                        bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, m_nGroupID));
-                        if (!enqueueSuccessful)
-                        {
-                            log.ErrorFormat("Failed enqueue of renew transaction {0}", data);
-                        }
-                        else
-                            log.DebugFormat("New task created (upon subscription purchase success). next renewal date: {0}, data: {1}", nextRenewalDate, data);
-                    }
-                }
-
-                if (saveHistory)
-                {
-                    // build notification message
-                    var dicData = new Dictionary<string, object>()
-                                {
-                                    {"SubscriptionCode", productId},
-                                    {"BillingTransactionID", lBillingTransactionID},
-                                    {"SiteGUID", siteguid},
-                                    {"PurchaseID", purchaseID},
-                                    {"CouponCode", string.Empty},
-                                    {"CustomData", customData}
-                                };
-
-                    // notify purchase
-                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedSubscription, dicData))
-                    {
-                        log.ErrorFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Empty, ex);
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            }
-            return status;
-        }
-
-        private ApiObjects.Response.Status GrantCollection(string siteguid, long householdId, int productId, string userIp, string deviceName, bool saveHistory)
-        {
-            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
-            // log request
-            string logString = string.Format("Purchase request: siteguid {0}, household {1}, productId {2}, userIp {3}, deviceName {4}, saveHistory {5}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                householdId,                                                   // {1}                
-                productId,                                                     // {2}   
-                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {3}
-                !string.IsNullOrEmpty(deviceName) ? deviceName : string.Empty, // {4}
-                saveHistory);                                                  // {5}
-
-            try
-            {
-                string country = string.Empty;
-                if (!string.IsNullOrEmpty(userIp))
-                {
-                    // get country by user IP
-                    country = Utils.GetIP2CountryCode(m_nGroupID, userIp);
-                }
-
-                // validate price
-                PriceReason priceReason = PriceReason.UnKnown;
-                Price priceResponse = null;
-                Collection collection = null;
-                priceResponse = Utils.GetCollectionFinalPrice(m_nGroupID, productId.ToString(), siteguid, string.Empty, ref priceReason,
-                                                              ref collection, country, string.Empty, deviceName, string.Empty);
-
-                if (priceReason == PriceReason.UnKnown)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "The collection is unknown");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                bool isEntitledToPreviewModule = priceReason == PriceReason.EntitledToPreviewModule;
-
-                if (priceReason != PriceReason.ForPurchase && !isEntitledToPreviewModule)
-                {
-                    // not for purchase
-                    status = SetResponseStatus(priceReason);
-                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
-                    return status;
-                }
-
-                if (priceResponse == null)
-                {
-                    // incorrect price
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                    log.ErrorFormat("Error: {0}, data: {1}", !string.IsNullOrEmpty(status.Message) ? status.Message : string.Empty, logString);
-
-                    return status;
-                }
-
-                // price validated, create the Custom Data
-                string customData = GetCustomDataForCollection(collection, productId.ToString(), siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty,
-                                                               userIp, country, string.Empty, deviceName, string.Empty);
-
-                // create new GUID for billing_transaction
-                string billingGuid = Guid.NewGuid().ToString();
-
-                // purchase
-                module wsBillingService = null;
-                string sWSUserName = string.Empty;
-                string sWSPass = string.Empty;
-                BillingResponse billingResponse = new BillingResponse();
-                billingResponse.m_oStatus = BillingResponseStatus.UnKnown;
-
-                if (saveHistory)
-                {
-                    InitializeBillingModule(ref wsBillingService, ref sWSUserName, ref sWSPass);
-                    billingResponse = HandleCCChargeUser(sWSUserName, sWSPass, siteguid, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-                      1, 1, string.Empty, string.Empty, string.Empty, true, false, ref wsBillingService);
-                }
-                else
-                {
-                    billingResponse.m_oStatus = BillingResponseStatus.Success;
-                    billingResponse.m_sRecieptCode = string.Empty;
-                }
-
-                if (billingResponse == null || billingResponse.m_oStatus != BillingResponseStatus.Success)
-                {
-                    // purchase failed - no status error
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "purchase failed");
-                    log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
-                    return status;
-                }
-
-                // purchase passed, update entitlement date
-                DateTime entitlementDate = DateTime.UtcNow;
-                TransactionResponse response = null;
-
-                // grant entitlement
-                long lBillingTransactionID = 0;
-                long purchaseID = 0;
-                var result = HandleCollectionBillingSuccess(ref response, siteguid, householdId, collection, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, string.Empty, userIp,
-                                                                          country, deviceName, lBillingTransactionID, customData, productId,
-                                                                          billingGuid, isEntitledToPreviewModule, entitlementDate, ref purchaseID);
-                if (result)
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-
-                if (saveHistory)
-                {
-                    // entitlement passed - build notification message
-                    var dicData = new Dictionary<string, object>() 
-                    { {"CollectionCode", productId},
-                      {"BillingTransactionID", lBillingTransactionID},
-                      {"SiteGUID", siteguid},
-                      {"PurchaseID", purchaseID},
-                      {"CouponCode", string.Empty},
-                      {"CustomData", customData}
-                    };
-
-                    // notify purchase
-                    if (!this.EnqueueEventRecord(NotifiedAction.ChargedCollection, dicData))
-                    {
-                        log.DebugFormat("Error while enqueue purchase record: {0}, data: {1}", status.Message, logString);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Exception occurred. data: " + logString, ex);
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error);
-            }
-            return status;
-        }
-
 
         public virtual bool GiftCardReminder(string siteguid, long purchaseId, string billingGuid, long endDate)
         {
@@ -13682,7 +13051,7 @@ namespace ConditionalAccess
             if (userValidStatus != ResponseStatus.OK)
             {
                 // user validation failed
-                response = SetResponseStatus(userValidStatus);
+                response = Utils.SetResponseStatus(userValidStatus);
                 log.ErrorFormat("User validation failed: {0}, userId: {1}", response.Message, userId);
                 return response;
             }
@@ -13934,7 +13303,7 @@ namespace ConditionalAccess
                         if (ppv.EndDateSeconds != 0)
                             endDate = DateUtils.UnixTimeStampToDateTime(ppv.EndDateSeconds);
 
-                        var res = GrantPPV(userId, householdId, contentId, (int)ppv.ProductId, string.Empty, string.Empty, false, startDate, endDate);
+                        var res = GrantManager.GrantPPV(this, m_nGroupID, userId, householdId, contentId, (int)ppv.ProductId, string.Empty, string.Empty, false, startDate, endDate);
                         string logString = string.Format("userId = {0}, ppv productCode = {1}, ppv contentId = {2}", userId, ppv.ProductCode, ppv.ContentId);
                         if (res.Code != (int)eResponseStatus.OK)
                         {
@@ -14114,7 +13483,7 @@ namespace ConditionalAccess
                         DateTime? endDate = null;
                         if (subscription.EndDateSeconds != 0)
                             endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
-                        var res = GrantSubscription(userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate);
+                        var res = GrantManager.GrantSubscription(this, m_nGroupID, userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate);
                         string logString = string.Format("userId = {0}, subscriptionId = {1}, subscriptionproductCode = {2}", userId, subscription.ProductId, subscription.ProductCode);
                         if (res.Code != (int)eResponseStatus.OK)
                         {
@@ -14582,7 +13951,7 @@ namespace ConditionalAccess
                 else
                 {
                     // item not for purchase
-                    status = SetResponseStatus(priceReason);
+                    status = Utils.SetResponseStatus(priceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 }
             }
@@ -14629,7 +13998,7 @@ namespace ConditionalAccess
 
                 // validate PPV 
                 PPVModule thePPVModule = null;
-                status = ValidatePPVModuleCode(productId, contentId, ref thePPVModule);
+                status = Utils.ValidatePPVModuleCode(m_nGroupID, productId, contentId, ref thePPVModule);
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     log.ErrorFormat("Error: {0}, productId: {1}, contentId: {2}", status.Message, productId, contentId);
@@ -14748,7 +14117,7 @@ namespace ConditionalAccess
                 else
                 {
                     // not for purchase
-                    status = SetResponseStatus(priceReason);
+                    status = Utils.SetResponseStatus(priceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", status.Message, logString);
                 }
             }
@@ -18189,7 +17558,7 @@ namespace ConditionalAccess
                     return response;
                 }
 
-                ApiObjects.Response.Status status = GrantSubscription(userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, false);
+                ApiObjects.Response.Status status = GrantManager.GrantSubscription(this, m_nGroupID, userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, false);
                
                 if (status.Code != (int)eResponseStatus.OK)
                 {
@@ -18213,7 +17582,7 @@ namespace ConditionalAccess
             return response;
         }
 
-        private ApiObjects.Response.Status CheckSubscriptionOverlap(Subscription subscription, string userId, List<string> SubCodes = null)
+        internal ApiObjects.Response.Status CheckSubscriptionOverlap(Subscription subscription, string userId, List<string> SubCodes = null)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try

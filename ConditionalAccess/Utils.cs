@@ -7179,5 +7179,43 @@ namespace ConditionalAccess
             return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
         }
 
+        internal static ApiObjects.Response.Status ValidatePPVModuleCode(int groupId, int productId, int contentId, ref PPVModule thePPVModule)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                mdoule wsPricingService = new mdoule();
+                Utils.GetWSCredentials(groupId, eWSModules.PRICING, ref userName, ref password);
+                long ppvModuleCode = 0;
+                long.TryParse(productId.ToString(), out ppvModuleCode);
+
+                thePPVModule = wsPricingService.ValidatePPVModuleForMediaFile(userName, password, contentId, ppvModuleCode);
+
+                if (thePPVModule == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "The ppv module is unknown");
+                    return response;
+                }
+
+                if (!thePPVModule.m_sObjectCode.Equals(productId.ToString()))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "This PPVModule does not belong to item");
+                    return response;
+                }
+
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error("ValidateModuleCode  ", ex);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error ValidateModuleCode");
+                return response;
+            }
+        }
+
     }
 }
