@@ -127,12 +127,13 @@ public partial class adm_users_log : System.Web.UI.Page
         else
             theTable += " order by id desc";
         theTable.AddHiddenField("id");
-        if (LoginManager.IsActionPermittedOnPage("adm_users_list.aspx" , LoginManager.PAGE_PERMISION_TYPE.EDIT))
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_users_log_new.aspx", "Edit", "");
-            linkColumn1.AddQueryStringValue("user_log_id", "field=id");
-            theTable.AddLinkColumn(linkColumn1);
-        }
+        
+        //if (LoginManager.IsActionPermittedOnPage("adm_users_list.aspx" , LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        //{
+        //    DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_users_log_new.aspx", "Edit", "");
+        //    linkColumn1.AddQueryStringValue("user_log_id", "field=id");
+        //    theTable.AddLinkColumn(linkColumn1);
+        //}
 
     }
 
@@ -142,7 +143,7 @@ public partial class adm_users_log : System.Web.UI.Page
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
 
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("users_connection");
         FillTheTableEditor(ref theTable, sOrderBy);
 
