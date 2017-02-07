@@ -19,8 +19,7 @@ namespace KLogMonitor
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private bool disposed = false;
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
-        private static ILog separateLogeer;
-        private bool isSeparateLog;
+        private static Dictionary<string, ILog> separateLogsMap = null;             
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
@@ -34,19 +33,30 @@ namespace KLogMonitor
         public string IPAddress { get; set; }
         public string MethodName { get; set; }
         public string Topic { get; set; }
+        public string LoggerName { get; set; }
 
         private List<LogEvent> logs;
 
-        public KLogger(string className, bool shouldUseSeparateLogger = false)
+        public KLogger(string className, string separateLoggerName = null)
         {
             this.logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
             this.ClassName = className;
-            if (shouldUseSeparateLogger)
+            if (separateLogsMap == null)
             {
-                separateLogeer = log4net.LogManager.GetLogger(className);
+                separateLogsMap = new Dictionary<string, ILog>();
             }
-            isSeparateLog = shouldUseSeparateLogger;
+
+            if (!string.IsNullOrEmpty(separateLoggerName))
+            {
+                separateLogsMap.Add(separateLoggerName, log4net.LogManager.GetLogger(separateLoggerName));
+                this.LoggerName = separateLoggerName;
+            }
+            else
+            {
+                this.LoggerName = string.Empty;
+            }
+            
         }
 
         public KLogger(string className)
@@ -54,7 +64,11 @@ namespace KLogMonitor
             this.logs = new List<LogEvent>();
             this.Server = Environment.MachineName;
             this.ClassName = className;
-            isSeparateLog = false;
+            this.LoggerName = string.Empty;
+            if (separateLogsMap == null)
+            {
+                separateLogsMap = new Dictionary<string, ILog>();
+            }
         }
 
 
@@ -219,9 +233,13 @@ namespace KLogMonitor
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.DebugFormat(logEvent.Message, logEvent.args);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.DebugFormat(logEvent.Message, logEvent.args);
+                            }
                         }
                         else
                         {
@@ -230,9 +248,13 @@ namespace KLogMonitor
                     }
                     else
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.Debug(logEvent.Message, logEvent.Exception);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.Debug(logEvent.Message, logEvent.Exception);
+                            }
                         }
                         else
                         {
@@ -245,9 +267,13 @@ namespace KLogMonitor
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.WarnFormat(logEvent.Message, logEvent.args);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.WarnFormat(logEvent.Message, logEvent.args);
+                            }
                         }
                         else
                         {
@@ -256,9 +282,13 @@ namespace KLogMonitor
                     }
                     else
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.Warn(logEvent.Message, logEvent.Exception);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.Warn(logEvent.Message, logEvent.Exception);
+                            }
                         }
                         else
                         {
@@ -271,9 +301,13 @@ namespace KLogMonitor
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.ErrorFormat(logEvent.Message, logEvent.args);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.ErrorFormat(logEvent.Message, logEvent.args);
+                            }
                         }
                         else
                         {
@@ -282,9 +316,13 @@ namespace KLogMonitor
                     }
                     else
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.Error(logEvent.Message, logEvent.Exception);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.Error(logEvent.Message, logEvent.Exception);
+                            }
                         }
                         else
                         {
@@ -297,9 +335,13 @@ namespace KLogMonitor
 
                     if (logEvent.args != null && logEvent.args.Count() > 0)
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.InfoFormat(logEvent.Message, logEvent.args);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.InfoFormat(logEvent.Message, logEvent.args);
+                            }
                         }
                         else
                         {
@@ -308,9 +350,13 @@ namespace KLogMonitor
                     }
                     else
                     {
-                        if (isSeparateLog)
+                        if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            separateLogeer.Info(logEvent.Message, logEvent.Exception);
+                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
+                            if (separateLogeer != null)
+                            {
+                                separateLogeer.Info(logEvent.Message, logEvent.Exception);
+                            }
                         }
                         else
                         {
