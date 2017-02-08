@@ -200,7 +200,7 @@ namespace WebAPI.Controllers
         [Route("getStatus"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaDeviceRegistrationStatusHolder GetStatus(string udid)
+        public KalturaDeviceRegistrationStatusHolder GetStatus(string udid = null)
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
 
