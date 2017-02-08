@@ -100,6 +100,12 @@ namespace WebAPI.Utils
                 case "url":
                     response.Add(KalturaDrmSchemeName.WIDEVINE);
                     break;
+                case "smothstreaming":
+                    {
+                        response.Add(KalturaDrmSchemeName.PLAYREADY_CENC);
+                        response.Add(KalturaDrmSchemeName.PLAYREADY);
+                    }
+                    break;
             }
 
             return response;
