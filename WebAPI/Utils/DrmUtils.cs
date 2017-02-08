@@ -59,7 +59,7 @@ namespace WebAPI.Utils
         {
             string response = null;
             string baseUdrmUrl = TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
-            customDataString = HttpUtility.UrlEncode(customDataString);
+            customDataString = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.ASCII.GetBytes(customDataString)));
             signature = HttpUtility.UrlEncode(signature);
             switch (schemeName)
             {
