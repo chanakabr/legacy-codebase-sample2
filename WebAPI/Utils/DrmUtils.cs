@@ -40,7 +40,7 @@ namespace WebAPI.Utils
 
             response = JsonConvert.SerializeObject(customData);
 
-            return HttpUtility.UrlEncode((Convert.ToBase64String(Encoding.ASCII.GetBytes(response))));
+            return response;
         }
 
         public static string BuildCencSignatureString(string customDataString)
@@ -52,14 +52,15 @@ namespace WebAPI.Utils
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
 
-            return HttpUtility.UrlEncode(Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response))));
+            return Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
         }
 
         internal static string BuildUDrmUrl(KalturaDrmSchemeName schemeName, string customDataString, string signature)
         {
             string response = null;
             string baseUdrmUrl = TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
-
+            customDataString = HttpUtility.UrlEncode(customDataString);
+            signature = HttpUtility.UrlEncode(signature);
             switch (schemeName)
             {
                 case KalturaDrmSchemeName.PLAYREADY_CENC:
