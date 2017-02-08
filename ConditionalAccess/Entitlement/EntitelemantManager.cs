@@ -156,7 +156,7 @@ namespace ConditionalAccess
                                         fullLifeCycleLeft = new TimeSpan();
                                     }
 
-                                    response.ViewLifeCycle = viewLifeCycleLeft.ToString();
+                                    response.ViewLifeCycle = viewLifeCycleLeft.TotalMilliseconds > fullLifeCycleLeft.TotalMilliseconds ? fullLifeCycleLeft.ToString() : viewLifeCycleLeft.ToString();
                                     response.FullLifeCycle = fullLifeCycleLeft.ToString();
                                 }
 
@@ -228,25 +228,25 @@ namespace ConditionalAccess
                                     }
                                 }
 
+                                TimeSpan tsViewLeftSpan = new TimeSpan();
                                 // If we found the view cycle (and there was a view), calculate what's left of it
                                 // Base date is the view date
                                 if (nViewLifeCycle > 0)
                                 {
                                     DateTime dtViewEndDate = Utils.GetEndDateTime(dtViewDate, nViewLifeCycle);
-                                    TimeSpan tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
+                                    tsViewLeftSpan = dtViewEndDate.Subtract(dtNow);
                                     if (tsViewLeftSpan.TotalMilliseconds < 0)
-                                        tsViewLeftSpan = new TimeSpan();
-                                    strViewLifeCycle = tsViewLeftSpan.ToString();
+                                        tsViewLeftSpan = new TimeSpan();                                    
                                 }
 
                                 eTransactionType eBusinessModuleType = Utils.GetBusinessModuleType(sPPVMCode);
-
+                                TimeSpan tsFullLeftSpan = new TimeSpan();
                                 // If it is a subscription, use the end date that is saved in the DB and that was gotten in GetItemPrice
                                 if (eBusinessModuleType == eTransactionType.Subscription || eBusinessModuleType == eTransactionType.Collection)
                                 {
                                     if (dtEntitlementEndDate.HasValue)
                                     {
-                                        TimeSpan tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
+                                        tsFullLeftSpan = dtEntitlementEndDate.Value.Subtract(dtNow);
                                         if (tsFullLeftSpan.TotalMilliseconds < 0)
                                             tsFullLeftSpan = new TimeSpan();
                                         strFullLifeCycle = tsFullLeftSpan.ToString();
@@ -259,12 +259,14 @@ namespace ConditionalAccess
                                     if (nFullLifeCycle > 0 && dtEntitlementStartDate.HasValue)
                                     {
                                         DateTime dtSubscriptionEndDate = Utils.GetEndDateTime(dtEntitlementStartDate.Value, nFullLifeCycle);
-                                        TimeSpan tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
+                                        tsFullLeftSpan = dtSubscriptionEndDate.Subtract(dtNow);
                                         if (tsFullLeftSpan.TotalMilliseconds < 0)
                                             tsFullLeftSpan = new TimeSpan();
                                         strFullLifeCycle = tsFullLeftSpan.ToString();
                                     }
                                 }
+
+                                strViewLifeCycle = tsViewLeftSpan.TotalMilliseconds > tsFullLeftSpan.TotalMilliseconds ? tsFullLeftSpan.ToString() : tsViewLeftSpan.ToString();
                             }
                         }
                     }

@@ -77,7 +77,7 @@ namespace ConditionalAccess
                         status = GrantPPV(cas, groupId, userId, householdId, contentId, productId, ip, udid, history);
                         break;
                     case eTransactionType.Subscription:
-                        status = GrantSubscription(cas, groupId, userId, householdId, productId, ip, udid, history, 1);
+                        status = GrantSubscription(cas, groupId, userId, householdId, productId, ip, udid, history, 1, null, null, GrantContext.Grant);
                         break;
                     case eTransactionType.Collection:
                         status = GrantCollection(cas, groupId, userId, householdId, productId, ip, udid, history);

@@ -52,20 +52,7 @@ namespace ConditionalAccess
                 string sPPVMCd = itemPriceContainer.m_sPPVModuleCode;
 
                 Int32 isCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId),
-                                                                            domainId, mediaFileId, groupId, mediaId);
-                if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && domainId > 0)
-                {
-                    CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
-                    if (cachedEntitlementResults != null)
-                    {
-                        cachedEntitlementResults.EntitlementStartDate = Utils.GetStartDate(itemPriceContainer);
-                        cachedEntitlementResults.EntitlementEndDate = Utils.GetEndDate(itemPriceContainer);
-                        if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
-                        {
-                            log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainId, mediaFileId);
-                        }
-                    }
-                }
+                                                                            domainId, mediaFileId, groupId, mediaId, Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
                 if (isCreditDownloaded > 0)
                 {
                     if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
@@ -177,7 +164,8 @@ namespace ConditionalAccess
                     string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(itemPriceContainer.m_relevantSub.m_sObjectCode, eTransactionType.Subscription);
 
                     Int32 isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, itemPriceContainer.m_relevantSub, null, countryCode, languageCode, udid,
-                                                                                Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId, mediaId);
+                                                                                Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId, mediaId,
+                                                                                Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
                     if (isPpvCreditDownloaded > 0)
                     {
                         if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
@@ -332,7 +320,7 @@ namespace ConditionalAccess
         }
 
         private static int PPV_DoesCreditNeedToDownloaded(string productCode, Subscription subscription, Collection collection, string countryCode, string languageCode, string udid,
-                                                            List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId, int mediaId)
+                                                            List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId, int mediaId, DateTime? startDate, DateTime? endDate)
         {
             Int32 nIsCreditDownloaded = 1;
             Int32 nViewLifeCycle = 0;
@@ -398,18 +386,23 @@ namespace ConditionalAccess
 
                     DateTime dEndDate = Utils.GetEndDateTime(lastUseWithCredit.Value, nViewLifeCycle);
 
-                    if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
-                    {
-                        CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, lastUseWithCredit.Value, false, isOfflinePlayback, transactionType);
-                        if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
-                        {
-                            log.DebugFormat("Failed to insert CachedEntitlementResults: {0}, domainId: {1}, mediaFileId: {2}", cachedEntitlementResults.ToString(), domainId, mediaFileId);
-                        }
-                    }
-
                     if (dNow < dEndDate)
+                    {
                         nIsCreditDownloaded = 0;
+                    }
                 }
+
+                if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
+                {
+                    // update lastUseWithCredit value according to nIsCreditDownloaded
+                    lastUseWithCredit = nIsCreditDownloaded == 1 ? DateTime.UtcNow : lastUseWithCredit;
+                    CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, lastUseWithCredit.Value, false, isOfflinePlayback, transactionType, startDate, endDate);
+                    if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
+                    {
+                        log.DebugFormat("Failed to insert CachedEntitlementResults: {0}, domainId: {1}, mediaFileId: {2}", cachedEntitlementResults.ToString(), domainId, mediaFileId);
+                    }
+                }
+
             }
             finally
             {

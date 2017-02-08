@@ -2573,7 +2573,7 @@ namespace DAL
                         if (!result)
                         {
                             numOfRetries++;
-                            log.ErrorFormat("Error while updating CachedEntitlementResults. domainId: {0}, mediaFileId: {1}", domainId, mediaFileId, cachedEntitlementResults);
+                            log.ErrorFormat("Error while updating CachedEntitlementResults. domainId: {0}, mediaFileId: {1}, cachedEntitlementResults: {2}", domainId, mediaFileId, cachedEntitlementResults.ToString());
                             System.Threading.Thread.Sleep(r.Next(50));
                         }
                     }
@@ -2610,7 +2610,7 @@ namespace DAL
                     response = cbClient.Get<CachedEntitlementResults>(cachedEntitlementKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {1}", cachedEntitlementKey);
+                        log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {0}", cachedEntitlementKey);
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
