@@ -2610,7 +2610,7 @@ namespace DAL
                     response = cbClient.Get<CachedEntitlementResults>(cachedEntitlementKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {1}", cachedEntitlementKey);
+                        log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {0}", cachedEntitlementKey);
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
