@@ -7240,6 +7240,104 @@ namespace ConditionalAccess
 
             return res;
         }
+        
+        internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle)
+        {
+            // Default is 2 days
+            TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+
+            // Get the group's configuration for free view life cycle
+            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", groupId));
+
+            if (!string.IsNullOrEmpty(sFreeLeftView))
+            {
+                DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
+                ts = dEndDate.Subtract(DateTime.UtcNow);
+            }
+
+            p_strViewLifeCycle = ts.ToString();
+            // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
+            p_strFullLifeCycle = ts.ToString();
+        }
+
+        public static bool IsFreeItem(MediaFileItemPricesContainer container)
+        {
+            return container != null && (container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free);
+        }
+        
+        internal static eTransactionType GetBusinessModuleType(string moduleCode)
+        {
+            if (!string.IsNullOrEmpty(moduleCode))
+            {
+                if (moduleCode.Contains("s:"))
+                    return eTransactionType.Subscription;
+                if (moduleCode.Contains("c:"))
+                    return eTransactionType.Collection;
+            }
+            return eTransactionType.PPV;
+        }
+
+        internal static string GetDeviceName(string deviceUDID)
+        {
+            return DAL.ConditionalAccessDAL.GetDeviceName(deviceUDID);            
+        }
+
+        /// <summary>
+        /// Get Billing Trans Method
+        /// </summary>
+        internal static PaymentMethod GetBillingTransMethod(int billingTransID, string billingGuid)
+        {
+            PaymentMethod retVal = PaymentMethod.Unknown;
+
+            if (billingTransID <= 0 && string.IsNullOrEmpty(billingGuid))
+            {
+                return retVal;
+            }
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += " select BILLING_METHOD from billing_transactions with (nolock) where status=1 and";
+                if (billingTransID > 0)
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
+                }
+                else
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("billing_guid", "=", billingGuid);
+                }
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        if (selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"] != null)
+                        {
+                            int billingInt = int.Parse(selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"].ToString());
+                            if (billingInt > 0)
+                            {
+                                if (Enum.IsDefined(typeof(PaymentMethod), ((PaymentMethod)billingInt).ToString()))
+                                    retVal = (PaymentMethod)billingInt;
+                            }
+                        }
+                    }
+                    else if (count == 0)
+                    {
+                        retVal = PaymentMethod.Gift;
+                    }
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
+            return retVal;
+        }
 
     }
 }

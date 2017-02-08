@@ -2749,5 +2749,25 @@ namespace DAL
             return dt;
         }
 
+
+        public static string GetDeviceName(string deviceUDID)
+        {
+            string deviceName = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select name from devices where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", deviceUDID);
+            selectQuery.SetConnectionKey("users_connection");
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    deviceName = selectQuery.Table("query").DefaultView[0].Row["name"].ToString();
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return deviceName;
+        }
     }
 }

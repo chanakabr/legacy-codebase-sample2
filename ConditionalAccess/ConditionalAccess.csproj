@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseCampaignActionImpl.cs" />
+    <Compile Include="Entitlement\EntitelemantManager.cs" />
     <Compile Include="Entitlement\GrantManager.cs" />
     <Compile Include="Entitlement\PlayUsesManager.cs" />
     <Compile Include="Entitlement\ReconciliationManager.cs" />

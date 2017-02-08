@@ -120,7 +120,7 @@ namespace ConditionalAccess
                                     {
                                         foreach (var price in prices)
                                         {
-                                            if (IsFreeItem(price) || Utils.IsItemPurchased(price))
+                                            if (Utils.IsFreeItem(price) || Utils.IsItemPurchased(price))
                                             {
                                                 priceValidationPassed = true;
                                                 break;
