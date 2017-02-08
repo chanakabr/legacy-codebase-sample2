@@ -841,6 +841,7 @@ namespace ApiObjects
         applehttp = 0, 
         mpegdash = 1,
         url = 2,
+        smothstreaming = 3
     }
 
     public enum eService
