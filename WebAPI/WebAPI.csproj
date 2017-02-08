@@ -159,6 +159,7 @@
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
+    <Content Include="clientlibs\web.config" />
     <Content Include="clear_cache.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
