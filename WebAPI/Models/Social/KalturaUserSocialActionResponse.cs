@@ -33,16 +33,16 @@ namespace WebAPI.Models.Social
     public class KalturaNetworkActionStatus : KalturaOTTObject
     {
         /// <summary>
-        /// SocialNetwork 
-        /// </summary
+        /// Status 
+        /// </summary>
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
         public KalturaSocialStatus Status { get; set; }
 
         /// <summary>
-        /// SocialNetwork 
-        /// </summary
+        /// Social network 
+        /// </summary>
         [DataMember(Name = "network")]
         [JsonProperty("network")]
         [XmlElement(ElementName = "network", IsNullable = true)]

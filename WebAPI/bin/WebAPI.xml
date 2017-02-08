@@ -284,14 +284,17 @@
             <summary>
             This action delivers all data relevant for player
             </summary>
+            <param name="assetId">Asset identifier</param>
+            <param name="assetType">Asset type</param>
+            <param name="contextDataParams">Parameters for the request</param>
         </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
-             <summary>
-             get KalturaAssetFileContext
-             </summary>
-             <param name="id">Asset file identifier</param>
-            <param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
-             <remarks></remarks>
+            <summary>
+            get KalturaAssetFileContext
+            </summary>
+            <param name="id">Asset file identifier</param>
+            <param name="contextType">Kaltura Context Type (none = 0, recording = 1)</param>
+            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetFileController.PlayManifest(System.Int32,System.String,WebAPI.Models.Catalog.KalturaAssetType,System.Int64,WebAPI.Models.ConditionalAccess.KalturaPlaybackContextType,System.String)">
             <summary>
@@ -965,7 +968,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
             <summary>
-            
+            Messages
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
@@ -3924,9 +3927,6 @@
             </summary>
             <remarks></remarks>
         </member>
-        <member name="F:WebAPI.Exceptions.ApiException.NO_MEDIA_RELATED_TO_FILE">
-            
-        </member>
         <member name="F:WebAPI.Exceptions.ApiException.NO_PRODUCT_ID">
             
         </member>
@@ -5129,6 +5129,11 @@
             <summary>
             Holder object for channel enrichment enum
             </summary>    
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaChannelEnrichmentHolder.type">
+            <summary>
+            Enrichment type
+            </summary>
         </member>
         <member name="T:WebAPI.Models.API.KalturaExternalChannelProfileListResponse">
             <summary>
@@ -7202,6 +7207,11 @@
             Holder object for channel enrichment enum
             </summary>    
         </member>
+        <member name="P:WebAPI.Models.Partner.KalturaPartnerConfigurationHolder.type">
+            <summary>
+            Partner configuration type
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">
             <summary>
             PPV price details
@@ -8619,8 +8629,16 @@
             List of action permission items
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaNetworkActionStatus.Status" -->
-        <!-- Badly formed XML comment ignored for member "P:WebAPI.Models.Social.KalturaNetworkActionStatus.Network" -->
+        <member name="P:WebAPI.Models.Social.KalturaNetworkActionStatus.Status">
+            <summary>
+            Status 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Social.KalturaNetworkActionStatus.Network">
+            <summary>
+            Social network 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Users.KalturaFavoriteFilter">
             <summary>
             Favorite request filter 

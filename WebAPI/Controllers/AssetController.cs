@@ -848,6 +848,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// This action delivers all data relevant for player
         /// </summary>
+        /// <param name="assetId">Asset identifier</param>
+        /// <param name="assetType">Asset type</param>
+        /// <param name="contextDataParams">Parameters for the request</param>
         [Route("getPlaybackContext"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]

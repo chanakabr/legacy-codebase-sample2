@@ -476,7 +476,7 @@ namespace Validator.Managers.Scheme
             description = description.Trim();
             if (string.IsNullOrEmpty(description))
             {
-                logError("Warning", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) has no description", param.Name, serviceId, actionId, controller.Name));
+                logError("Error", controller, string.Format("Parameter {0} in method {1}.{2} ({3}) has no description", param.Name, serviceId, actionId, controller.Name));
             }
 
             string errorDescription = string.Format("Parameter {0} in method {1}.{2} ({3})", param.Name, serviceId, actionId, controller.Name);
@@ -662,7 +662,7 @@ namespace Validator.Managers.Scheme
             description = description.Trim();
             if (string.IsNullOrEmpty(description))
             {
-                logError("Warning", controller, string.Format("Action {0}.{1} ({2}) has no description", serviceId, actionId, controller.Name));
+                logError("Error", controller, string.Format("Action {0}.{1} ({2}) has no description", serviceId, actionId, controller.Name));
             }
 
             foreach (var param in parameters)
