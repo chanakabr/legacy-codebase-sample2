@@ -151,6 +151,7 @@
     <Content Include="bin\WebAPI.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="clear_cache.aspx" />
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
@@ -160,7 +161,6 @@
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
     <Content Include="clientlibs\web.config" />
-    <Content Include="clear_cache.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -597,8 +597,9 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
-    <Compile Include="clear_cache.ashx.cs">
-      <DependentUpon>clear_cache.ashx</DependentUpon>
+    <Compile Include="clear_cache.aspx.cs">
+      <DependentUpon>clear_cache.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
