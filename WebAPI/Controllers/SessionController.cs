@@ -35,36 +35,7 @@ namespace WebAPI.Controllers
 
             if (session != null)
             {
-                StringBuilder sb = new StringBuilder(session);
-                sb = sb.Replace("-", "+");
-                sb = sb.Replace("_", "/");
-
-                int groupId = 0;
-                byte[] encryptedData = null;
-                string encryptedDataStr = null;
-                string[] ksParts = null;
-
-                try
-                {
-                    encryptedData = System.Convert.FromBase64String(sb.ToString());
-                    encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-                    ksParts = encryptedDataStr.Split('|');
-                }
-                catch (Exception)
-                {
-                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
-                }
-
-                if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
-                {
-                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
-                }
-
-                Group group = GroupsManager.GetGroup(groupId);
-                string adminSecret = group.UserSecret;
-
-                // build KS
-                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, session, KS.KSVersion.V2);
+                ks = KS.ParseKS(session);
             }
             else
             {
@@ -100,36 +71,7 @@ namespace WebAPI.Controllers
 
             if (session != null)
             {
-                StringBuilder sb = new StringBuilder(session);
-                sb = sb.Replace("-", "+");
-                sb = sb.Replace("_", "/");
-
-                int groupId = 0;
-                byte[] encryptedData = null;
-                string encryptedDataStr = null;
-                string[] ksParts = null;
-
-                try
-                {
-                    encryptedData = System.Convert.FromBase64String(sb.ToString());
-                    encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
-                    ksParts = encryptedDataStr.Split('|');
-                }
-                catch (Exception)
-                {
-                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
-                }
-
-                if (ksParts.Length < 3 || ksParts[0] != "v2" || !int.TryParse(ksParts[1], out groupId))
-                {
-                    throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
-                }
-
-                Group group = GroupsManager.GetGroup(groupId);
-                string adminSecret = group.UserSecret;
-
-                // build KS
-                ks = KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, session, KS.KSVersion.V2);
+                ks = KS.ParseKS(session);
             }
             else
             {

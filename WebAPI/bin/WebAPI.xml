@@ -280,6 +280,11 @@
             BadSearchRequest = 4002, IndexMissing = 4003, SyntaxError = 4004, InvalidSearchField = 4005, 
             RecommendationEngineNotExist = 4007, ExternalChannelNotExist = 4011</remarks>
         </member>
+        <member name="M:WebAPI.Controllers.AssetController.GetPlaybackContext(System.String,WebAPI.Models.Catalog.KalturaAssetType,WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions)">
+            <summary>
+            This action delivers all data relevant for player
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
              <summary>
              get KalturaAssetFileContext
@@ -287,6 +292,18 @@
              <param name="id">Asset file identifier</param>
             <param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
              <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.AssetFileController.PlayManifest(System.Int32,System.String,WebAPI.Models.Catalog.KalturaAssetType,System.Int64,WebAPI.Models.ConditionalAccess.KalturaPlaybackContextType,System.String)">
+            <summary>
+            Redirects to play manifest
+            </summary>
+            <param name="assetId">Asset identifier</param>
+            <param name="assetFileId">Asset file identifier</param>
+            <param name="assetType">Asset type</param>
+            <param name="contextType">Playback context type</param>
+            <param name="ks">Kaltura session for the user, not mandatory for anonymous user</param>
+            <param name="partnerId">Partner identifier</param>
+            <remarks></remarks>
         </member>
         <member name="M:WebAPI.Controllers.AssetStatisticsController.Query(WebAPI.Models.Catalog.KalturaAssetStatisticsQuery)">
             <summary>
@@ -806,6 +823,16 @@
             A list of OSS adapter-profiles
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
+            <summary>
+            Message
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Code">
+            <summary>
+            Code
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlement">
             <summary>
             Entitlement
@@ -911,6 +938,131 @@
             Indicates whether the user is currently in his grace period entitlement (only for subscription)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">
+            <summary>
+            Scheme
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.LicenseURL">
+            <summary>
+            License URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
+            <summary>
+            Custom data string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Sources">
+            <summary>
+            Sources
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Actions">
+            <summary>
+            Actions
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContext.Messages">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.MediaProtocol">
+            <summary>
+            Protocol of the specific media object (http / https).
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.StreamerType">
+            <summary>
+            Playback streamer type: applehttp, mpegdash, url.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.AssetFileIds">
+            <summary>
+            List of comma separated media file IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackContextOptions.Context">
+            <summary>
+            Playback context type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
+            <summary>
+            Media file details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AssetId">
+            <summary>
+            Unique identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Id">
+            <summary>
+            File unique identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
+            <summary>
+            Device types as defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
+            <summary>
+            URL of the media file to be played
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
+            <summary>
+            Duration of the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
+            <summary>
+            External identifier for the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
+            <summary>
+            Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Protocols">
+            <summary>
+            Comma separated string according to deliveryProfile media protocols ('http,https' etc.)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Drm">
+            <summary>
+            DRM data object containing relevant license URL ,scheme name and certificate
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService">
+            <summary>
+            Npvr Premium Service
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
+            <summary>
+            Premium service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
+            <summary>
+            Service identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
+            <summary>
+            Service name / description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService.QuotaInMinutes">
+            <summary>
+            Quota in minutes
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
             <summary>
             KalturaPpvEntitlement
@@ -925,6 +1077,11 @@
              <summary>
             Media identifier
              </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaRuleAction.Type">
+            <summary>
+            The type of the action
+            </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement">
             <summary>
@@ -2655,7 +2812,7 @@
             <returns></returns><remarks>Possible status codes: 
             Device does not exist = 1019, Device not in household = 1003, Device exists in other household = 1016</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.HouseholdDeviceController.GetStatus">
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.GetStatus(System.String)">
             <summary>
             Returns device registration status to the supplied household
             </summary>
@@ -3116,6 +3273,18 @@
             PaymentGatewayNotSetForHousehold = 6007,PaymentGatewayTransactionNotFound = 6038,
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.Swap(System.Int32,System.Int32,System.Boolean)">
+             <summary>        
+             Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
+             </summary>
+             <param name="currentProductId">Identifier for the current product package</param>
+             <param name="newProductId">Identifier for the new product package </param>
+             <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
+             <remarks>Possible status codes: 
+             UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
+            ,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
+             </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>
             Add media to user's favorite list
@@ -3344,7 +3513,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="token">Social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetByTokenOldStandard(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3353,7 +3522,7 @@
             <param name="partnerId">Partner identifier</param>
             <param name="token">Social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001</remarks>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Get(WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3374,16 +3543,17 @@
             User does not exist = 2000
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.Register(System.Int32,System.String,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
             <param name="token">social token</param>
             <param name="partnerId">Partner identifier</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <param name="email">User email</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork)">
+        <member name="M:WebAPI.Controllers.SocialController.RegisterOldStandard(System.Int32,System.String,System.Boolean,System.Boolean,WebAPI.Models.Social.KalturaSocialNetwork,System.String)">
             <summary>
             Create a new user in the system using a provided external social token
             </summary>
@@ -3392,7 +3562,8 @@
             <param name="type">Social network type</param>
             <param name="should_create_domain">New domain is created upon registration</param>
             <param name="subscribe_newsletter">Subscribes to newsletter</param>
-            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <param name="email">User email</param>
+            <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Merge(System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3400,7 +3571,7 @@
             </summary>
             <param name="token">social token</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.MergeOldStandard(System.Int32,System.String,System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3412,14 +3583,14 @@
             <param name="social_id">external social identifier</param>
             <param name="type">Social network type</param>
             <param name="partnerId">Partner identifier</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.Unmerge(WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
             Disconnect an existing user in the system from its external social network user
             </summary>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.UnmergeOldStandard(System.String,System.String,System.String,WebAPI.Models.Social.KalturaSocialNetwork)">
             <summary>
@@ -3429,7 +3600,7 @@
             <param name="username">Username</param>
             <param name="password">Password</param>
             <param name="type">Social network type</param>
-            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitationBad - 7001,,         </remarks>
+            <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialController.GetConfiguration(System.Nullable{WebAPI.Models.Social.KalturaSocialNetwork},System.Nullable{System.Int32})">
             <summary>
@@ -4743,21 +4914,6 @@
             Houshold premium service
             </summary>
         </member>
-        <member name="T:WebAPI.Models.ConditionalAccess.KalturaPremiumService">
-            <summary>
-            Premium service
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Id">
-            <summary>
-            Service identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPremiumService.Name">
-            <summary>
-            Service name / description
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaHouseholdPremiumServiceListResponse">
             <summary>
             Premium services list
@@ -5749,7 +5905,7 @@
         <member name="T:WebAPI.Models.Catalog.KalturaPersonalAssetWithHolder">
             <summary>
             Holder object for personal asset with enum
-            </summary>    
+            </summary>  
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetsBookmarksResponse">
             <summary>
@@ -7424,6 +7580,11 @@
         <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.MaxUsesNumberOnRenewableSub">
             <summary>
             Maximum number of uses for each coupon in the group on a renewable subscription
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaCouponsGroup.CouponGroupType">
+            <summary>
+            Type of the coupon group
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaDiscountModule">
@@ -9519,41 +9680,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaBuzzScore.AvgScore">
             <summary>
             Average score
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaMediaFile">
-            <summary>
-            Media file details
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AssetId">
-            <summary>
-            Unique identifier for the asset
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Id">
-            <summary>
-            File unique identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Type">
-            <summary>
-            Device types as defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Url">
-            <summary>
-            URL of the media file to be played
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Duration">
-            <summary>
-            Duration of the media file
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
-            <summary>
-            External identifier for the media file
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaMediaImage">

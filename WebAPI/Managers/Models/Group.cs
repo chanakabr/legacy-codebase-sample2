@@ -99,6 +99,12 @@ namespace WebAPI.Managers.Models
         [JsonProperty("revoked_ks_max_ttl_seconds")]
         public int RevokedKsMaxTtlSeconds { get; set; }
 
+        [JsonProperty("account_private_key")]
+        public string AccountPrivateKey { get; set; }
+
+        [JsonProperty("media_prep_account_id")]
+        public int MediaPrepAccountId { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 

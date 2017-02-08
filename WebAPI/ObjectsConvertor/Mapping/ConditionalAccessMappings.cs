@@ -45,7 +45,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))               
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
-               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
+               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
                .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
                .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
                .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
@@ -63,7 +63,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
-               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
+               .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.mediaID)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
@@ -346,8 +346,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<EntitlementResponse, KalturaAssetFileContext>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
-            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+              .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
 
+            Mapper.CreateMap<MediaFile, KalturaPlaybackSource>()
+              .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.MediaId.ToString()))
+              .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
+              .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+              .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.PlayManifestUrl))
+              .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
+              .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))
+              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()));
+
+            Mapper.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
+              .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))
+              .ForMember(dest => dest.Messages, opt => opt.MapFrom(src => new List<ApiObjects.Response.Status>() { src.Status }));
+
+            Mapper.CreateMap<ApiObjects.Response.Status, KalturaAccessControlMessage>()
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => ((ApiObjects.Response.eResponseStatus)src.Code).ToString()))
+              .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
         }
 
         private static int? GetNullableInt(int p)
@@ -712,6 +730,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;                
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown ConditionalAccess.PaymentMethod type");
+            }
+
+            return result;
+        }
+
+        public static PlayContextType ConvertPlayContextType(KalturaPlaybackContextType type)
+        {
+            PlayContextType result;
+            switch (type)
+            {
+                case KalturaPlaybackContextType.TRAILER:
+                    result = PlayContextType.Trailer;
+                    break;
+                case KalturaPlaybackContextType.CATCHUP:
+                    result = PlayContextType.CatchUp;
+                    break;
+                case KalturaPlaybackContextType.START_OVER:
+                    result = PlayContextType.StartOver;
+                    break;
+                case KalturaPlaybackContextType.PLAYBACK:
+                    result = PlayContextType.Playback;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaContextType type");
+                    break;
             }
 
             return result;
