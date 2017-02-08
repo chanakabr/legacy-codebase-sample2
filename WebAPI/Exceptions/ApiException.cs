@@ -32,13 +32,13 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType Domain_CREATED_WITHOUT_NPVRACCOUNT = new ClientExceptionType(eResponseStatus.DomainCreatedWithoutNPVRAccount, "Domain Created Without NPVRAccount", "The household was created without an external NPVR account");
         public static ClientExceptionType Domain_SUSPENDED = new ClientExceptionType(eResponseStatus.DomainSuspended, "Domain Suspended", "Unable to perform the action requested because the household has been suspended");
         public static ClientExceptionType DLM_NOT_EXIST = new ClientExceptionType(eResponseStatus.DlmNotExist, "Dlm Not Exist", "The device limitation module (DLM) you entered does not exist in the system");
-        public static ClientExceptionType WRONG_PASSWORD_OR_USER_NAME = new ClientExceptionType(eResponseStatus.WrongPasswordOrUserName, "Wrong Password Or User Name", 
+        public static ClientExceptionType WRONG_PASSWORD_OR_USER_NAME = new ClientExceptionType(eResponseStatus.WrongPasswordOrUserName, "Wrong Password Or User Name",
             "Unable to authenticate this user - the user name or password are incorrect. Please re-enter this information");
         public static ClientExceptionType Domain_ALREADY_SUSPENDED = new ClientExceptionType(eResponseStatus.DomainAlreadySuspended, "Domain Already Suspended", "This household has already been suspended");
         public static ClientExceptionType Domain_ALREADY_ACTIVE = new ClientExceptionType(eResponseStatus.DomainAlreadyActive, "Domain Already Active", "This household has already been activated");
         public static ClientExceptionType LIMITATION_PERIOD = new ClientExceptionType(eResponseStatus.LimitationPeriod, "Limitation Period", "Unable to remove the device or user from the household because of the limitation period");
         public static ClientExceptionType DEVICE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.DeviceAlreadyExists, "Device Already Exists", "The device you are trying to add already exists");
-        public static ClientExceptionType DEVICE_EXISTS_IN_OTHER_DomainS = new ClientExceptionType(eResponseStatus.DeviceExistsInOtherDomains, "Device Exists In Other Domains", 
+        public static ClientExceptionType DEVICE_EXISTS_IN_OTHER_DomainS = new ClientExceptionType(eResponseStatus.DeviceExistsInOtherDomains, "Device Exists In Other Domains",
             "Unable to add this device to this household because the device is already associated with another household");
         public static ClientExceptionType NO_USERS_IN_Domain = new ClientExceptionType(eResponseStatus.NoUsersInDomain, "No Users In Domain", "There are no users associated with this household");
         public static ClientExceptionType USER_EXISTS_IN_OTHER_DomainS = new ClientExceptionType(eResponseStatus.UserExistsInOtherDomains, "User Exists In Other Domains", "Unable to add this user to this household because the user is already associated with another household");
@@ -136,7 +136,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ALREADY_RECORDED_AS_SERIES_OR_SEASON = new ClientExceptionType(eResponseStatus.AlreadyRecordedAsSeriesOrSeason, "Already Recorded As Series Or Season", "This program has already been recorded as part of a series/season recording");
         public static ClientExceptionType SERIES_RECORDING_NOT_FOUND = new ClientExceptionType(eResponseStatus.SeriesRecordingNotFound, "Series Recording Not Found", "Unable to find the requested series recording");
         public static ClientExceptionType EPG_ID_NOT_PART_OF_SERIES = new ClientExceptionType(eResponseStatus.EpgIdNotPartOfSeries, "Epg Id Not Part Of Series", "The EPG program is not part of the series");
-        public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NON_EXISTING_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording Playback Not Allowed For Non Existing Epg Channel","");//??
+        public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NON_EXISTING_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording Playback Not Allowed For Non Existing Epg Channel", "");//??
         public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NOT_ENTITLED_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording Playback Not Allowed For Not Entitled Epg Channel", "");//??
         public static ClientExceptionType SEASON_NUMBER_NOT_MATCH = new ClientExceptionType(eResponseStatus.SeasonNumberNotMatch, "Season Number Not Match", "The season number you entered doesn't match the season number was record");
 
@@ -150,7 +150,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_SEARCH_FIELD = new ClientExceptionType(eResponseStatus.InvalidSearchField, "Invalid Search Field", "");//??
         public static ClientExceptionType NO_RECOMMENDATION_ENGINE_TO_INSERT = new ClientExceptionType(eResponseStatus.NoRecommendationEngineToInsert, "No Recommendation Engine To Insert", "There's no available recommendation engine to connect");
         public static ClientExceptionType RECOMMENDATION_ENGINE_NOT_EXIST = new ClientExceptionType(eResponseStatus.RecommendationEngineNotExist, "Recommendation Engine Not Exist", "The recommendation engine specified doesn't exist");
-        public static ClientExceptionType RECOMMENDATION_ENGINE_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.RecommendationEngineIdentifierRequired, "Recommendation Engine Identifier Required", 
+        public static ClientExceptionType RECOMMENDATION_ENGINE_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.RecommendationEngineIdentifierRequired, "Recommendation Engine Identifier Required",
             "The mandatory recommendation engine identifier field is missing from the request");
         public static ClientExceptionType RECOMMENDATION_ENGINE_PARAMS_REQUIRED = new ClientExceptionType(eResponseStatus.RecommendationEngineParamsRequired, "Recommendation Engine Params Required", "The mandatory recommendation engine parameter fields are missing from the request");
         public static ClientExceptionType NO_EXTERNAL_CHANNEL_TO_INSERT = new ClientExceptionType(eResponseStatus.NoExternalChannelToInsert, "No External Channel To Insert", "There's no external channel to connect");
@@ -194,7 +194,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType USER_PARENTAL_RULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.UserParentalRuleNotExists, "User Parental Rule Not Exists", "There is no parental rule associated with this user");
         public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNotFound, "Time Shifted Tv Partner Settings Not Found", "The system did not find TimeShiftedTvPartner settings");
         public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NOT_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNotSent, "Time Shifted Tv Partner Settings Not Sent", "The TimeShiftedTvPartner Settings were not sent");
-        public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NEGATIVE_BUFFER_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent, "Time Shifted Tv Partner Settings Negative Buffer Sent", 
+        public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NEGATIVE_BUFFER_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent, "Time Shifted Tv Partner Settings Negative Buffer Sent",
             "You've configured a negative buffer value in the TimeShiftedTvPartnerr settings");
         public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find CDN partner settings");
 
@@ -319,7 +319,7 @@ namespace WebAPI.Exceptions
         new public string Message { get; set; }
 
         private HttpStatusCode FailureHttpCode;
-        
+
         public class ExceptionType
         {
         }
@@ -374,7 +374,7 @@ namespace WebAPI.Exceptions
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     token = string.Format("@{0}@", parameters[i]);
-                    value = values[i].ToString();
+                    value = values[i] != null ? values[i].ToString() : string.Empty;
                     ret = ret.Replace(token, value);
                 }
 
@@ -384,8 +384,8 @@ namespace WebAPI.Exceptions
 
         public class ExceptionPayload
         {
-            public ExceptionPayload() 
-            { 
+            public ExceptionPayload()
+            {
 
             }
             public int code { get; set; }
