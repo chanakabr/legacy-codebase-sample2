@@ -150,7 +150,7 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        public bool SetLayeredCacheGroupConfig(int groupId, string version = null, bool? shouldDisableLayeredCache = null,
+        public bool SetLayeredCacheGroupConfig(int groupId, int? version = null, bool? shouldDisableLayeredCache = null,
                                                 List<string> layeredCacheSettingsToExclude = null, bool? shouldOverrideExistingExludeSettings = false)
         {
             bool res = false;
@@ -160,9 +160,9 @@ namespace CachingProvider.LayeredCache
                 LayeredCacheGroupConfig groupConfig;
                 if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
                 {
-                    if (!string.IsNullOrEmpty(version))
+                    if (version.HasValue)
                     {
-                        groupConfig.Version = version;
+                        groupConfig.Version = version.Value;
                     }
 
                     if (shouldDisableLayeredCache.HasValue)
@@ -199,8 +199,8 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed SetLayeredCacheGroupConfig, groupId: {0}, version: {1}, shouldDisableLayeredCache: {2}, layeredCacheSettingsToExclude: {3}", groupId,
-                    string.IsNullOrEmpty(version) ? "null" : version, shouldDisableLayeredCache, layeredCacheSettingsToExclude != null ? string.Join(",", layeredCacheSettingsToExclude) : "null"), ex);
+                log.Error(string.Format("Failed SetLayeredCacheGroupConfig, groupId: {0}, version: {1}, shouldDisableLayeredCache: {2}, layeredCacheSettingsToExclude: {3}", groupId, version,
+                                            shouldDisableLayeredCache, layeredCacheSettingsToExclude != null ? string.Join(",", layeredCacheSettingsToExclude) : "null"), ex);
             }
 
             return res;
@@ -671,7 +671,7 @@ namespace CachingProvider.LayeredCache
                     groupConfig = new LayeredCacheGroupConfig()
                     {
                         GroupId = groupId,
-                        Version = string.Empty,
+                        Version = 0,
                         DisableLayeredCache = false,
                         LayeredCacheSettingsToExclude = new HashSet<string>()
                     };
@@ -711,20 +711,20 @@ namespace CachingProvider.LayeredCache
 
                 List<string> distinctKeys = keys.Distinct().ToList();
                 LayeredCacheGroupConfig groupConfig;
-                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null && !string.IsNullOrEmpty(groupConfig.Version))
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null)
                 {                    
                     if (!string.IsNullOrEmpty(versionValue))
                     {
-                        res = distinctKeys.ToDictionary(x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version), x => x);
+                        res = distinctKeys.ToDictionary(x => string.Format("{0}_GV{1}_V{2}", x, groupConfig.Version, versionValue), x => x);
                     }
                     else
                     {
                         res = distinctKeys.ToDictionary(x => string.Format("{0}_GV{1}", x, groupConfig.Version), x => x);
                     }
                 }
-                else if (!string.IsNullOrEmpty(versionValue))
+                else
                 {
-                    res = distinctKeys.ToDictionary(x => string.Format("{0}_V{1}", x, versionValue), x => x);
+                    res = distinctKeys.ToDictionary(x => x, x => x);
                 }
 
             }
@@ -754,20 +754,20 @@ namespace CachingProvider.LayeredCache
 
                 List<string> distinctKeys = keys.Distinct().ToList();
                 LayeredCacheGroupConfig groupConfig;
-                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null && !string.IsNullOrEmpty(groupConfig.Version))
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null)
                 {
                     if (!string.IsNullOrEmpty(versionValue))
                     {
-                        res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_V{1}_GV{2}", x, versionValue, groupConfig.Version));
+                        res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_GV{1}_V{2}", x, groupConfig.Version, versionValue));
                     }
                     else
                     {
                         res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_GV{1}", x, groupConfig.Version));
                     }
                 }
-                else if (!string.IsNullOrEmpty(versionValue))
+                else 
                 {
-                    res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_V{1}", x, versionValue));
+                    res = distinctKeys.ToDictionary(x => x, x => x);
                 }
 
             }

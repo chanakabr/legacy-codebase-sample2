@@ -14,7 +14,7 @@ namespace CachingProvider.LayeredCache
         public int GroupId { get; set; }
 
         [JsonProperty("Version")]
-        public string Version { get; set; }
+        public int Version { get; set; }
 
         [JsonProperty("DisableLayeredCache")]
         public bool DisableLayeredCache { get; set; }
@@ -25,7 +25,7 @@ namespace CachingProvider.LayeredCache
         public LayeredCacheGroupConfig()
         {
             GroupId = 0;
-            Version = string.Empty;
+            Version = 0;
             LayeredCacheSettingsToExclude = new HashSet<string>();
             DisableLayeredCache = false;
         }
@@ -33,7 +33,7 @@ namespace CachingProvider.LayeredCache
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("LayeredCacheGroupConfig for groupId: {0}, ", GroupId));
-            sb.AppendFormat("Version: {0}, ", string.IsNullOrEmpty(Version) ? string.Empty : Version);            
+            sb.AppendFormat("Version: {0}, ", Version);            
             sb.AppendFormat("DisableLayeredCache: {0}, ", DisableLayeredCache.ToString());
             sb.AppendFormat("LayeredCacheSettingsToExclude: {0} ", string.Join(",", LayeredCacheSettingsToExclude));
 
