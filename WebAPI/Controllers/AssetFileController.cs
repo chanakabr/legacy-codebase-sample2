@@ -130,6 +130,7 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(response))
                 {
+                    HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                     HttpContext.Current.Response.Redirect(response);
                 }
             }

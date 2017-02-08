@@ -871,7 +871,7 @@ namespace WebAPI.Controllers
                 log.DebugFormat("X-Forwarded-Proto = {0}", xForwardedProtoHeader);
 
                 string baseUrl = string.Format("{0}://{1}{2}", !string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https" ? 
-                    xForwardedProtoHeader : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Authority, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+                    xForwardedProtoHeader : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
                 foreach (var source in response.Sources)
                 {
                     StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
@@ -881,7 +881,8 @@ namespace WebAPI.Controllers
                     {
                         url.AppendFormat("/ks/{0}", ks.ToString());
                     }
-                    source.Url = url.ToString();
+
+                    source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
                 }
             }
             catch (ClientException ex)
