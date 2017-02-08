@@ -201,17 +201,19 @@ namespace ElasticSearch.Utilities
                             esApi.PartialUpdate(statisticsIndex, "media", assetId.ToString(), partialUpdate);
                         }
 
-                        if (!string.IsNullOrEmpty(fieldToUpdate))
-                        {
-                            if (shouldIncrement)
-                            {
-                                esApi.IncrementField(statisticsIndex, "media", assetId.ToString(), fieldToUpdate);
-                            }
-                            else
-                            {
-                                esApi.DecrementField(statisticsIndex, "media", assetId.ToString(), fieldToUpdate);
-                            }
-                        }
+                        // Sunny: this currently doesn't work well and causes many errors. I comment these lines for now, 
+                        // but I believe we should have a total number of likes/views/whatever on the document itself
+                        //if (!string.IsNullOrEmpty(fieldToUpdate))
+                        //{
+                        //    if (shouldIncrement)
+                        //    {
+                        //        esApi.IncrementField(normalIndex, "media", assetId.ToString(), fieldToUpdate);
+                        //    }
+                        //    else
+                        //    {
+                        //        esApi.DecrementField(normalIndex, "media", assetId.ToString(), fieldToUpdate);
+                        //    }
+                        //}
                     }
                 }
                 catch (Exception ex)
