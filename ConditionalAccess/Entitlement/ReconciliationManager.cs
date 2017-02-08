@@ -465,7 +465,7 @@ namespace ConditionalAccess.Entitlement
                         DateTime? endDate = null;
                         if (subscription.EndDateSeconds != 0)
                             endDate = DateUtils.UnixTimeStampToDateTime(subscription.EndDateSeconds);
-                        var res = GrantManager.GrantSubscription(cas, groupId, userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate);
+                        var res = GrantManager.GrantSubscription(cas, groupId, userId, householdId, (int)subscription.ProductId, string.Empty, string.Empty, false, 0, startDate, endDate, GrantContext.Grant);
                         string logString = string.Format("userId = {0}, subscriptionId = {1}, subscriptionproductCode = {2}", userId, subscription.ProductId, subscription.ProductCode);
                         if (res.Code != (int)eResponseStatus.OK)
                         {
