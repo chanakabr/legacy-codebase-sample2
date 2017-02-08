@@ -123,6 +123,12 @@ namespace WebAPI
                         break;
                 }
             }
+            else if (!string.IsNullOrEmpty(context.Request.ApplicationPath) && context.Request.AppRelativeCurrentExecutionFilePath.ToLower().Contains("clear_cache"))
+            {
+                Page clearCache = new clear_cache();
+                clearCache.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
+                clearCache.ProcessRequest(context);
+            }
         }
     }
 }
