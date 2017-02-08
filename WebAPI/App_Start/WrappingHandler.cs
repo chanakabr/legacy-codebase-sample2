@@ -93,6 +93,7 @@ namespace WebAPI.App_Start
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
             newResponse.Headers.Add("X-Kaltura-Session", reqID.ToString());
+            newResponse.Headers.Add("Access-Control-Allow-Origin", "*");
 
             foreach (var header in response.Headers)
             {
