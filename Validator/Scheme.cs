@@ -559,6 +559,7 @@ namespace Validator.Managers.Scheme
                         ApiException.ClientExceptionType exceptionType = type as ApiException.ClientExceptionType;
                         writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
                         writer.WriteAttributeString("code", exceptionType.statusCode.GetHashCode().ToString());
+                        writer.WriteAttributeString("description", exceptionType.description);
                     }
 
                     writer.WriteEndElement(); // error
