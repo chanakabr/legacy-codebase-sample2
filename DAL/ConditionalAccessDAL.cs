@@ -2573,7 +2573,7 @@ namespace DAL
                         if (!result)
                         {
                             numOfRetries++;
-                            log.ErrorFormat("Error while updating CachedEntitlementResults. domainId: {0}, mediaFileId: {1}", domainId, mediaFileId, cachedEntitlementResults);
+                            log.ErrorFormat("Error while updating CachedEntitlementResults. domainId: {0}, mediaFileId: {1}, cachedEntitlementResults: {2}", domainId, mediaFileId, cachedEntitlementResults.ToString());
                             System.Threading.Thread.Sleep(r.Next(50));
                         }
                     }
