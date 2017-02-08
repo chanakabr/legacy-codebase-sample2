@@ -279,14 +279,14 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType USER_INBOX_MESSAGES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInboxMessagesNotExist, "User Inbox Messages Not Exist");
 
         //Pricing 9000-9999
-        public static ClientExceptionType INVALID_PRICE_CODE = new ClientExceptionType(eResponseStatus.InvalidPriceCode, "Invalid Price Code");
-        public static ClientExceptionType INVALID_VALUE = new ClientExceptionType(eResponseStatus.InvalidValue, "Invalid Value");
-        public static ClientExceptionType INVALID_DISCOUNT_CODE = new ClientExceptionType(eResponseStatus.InvalidDiscountCode, "Invalid Discount Code");
-        public static ClientExceptionType INVALID_PRICE_PLAN = new ClientExceptionType(eResponseStatus.InvalidPricePlan, "Invalid Price Plan");
-        public static ClientExceptionType CODE_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.CodeMustBeUnique, "Code Must Be Unique");
-        public static ClientExceptionType CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CodeNotExist, "Code Not Exist");
-        public static ClientExceptionType INVALID_CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.InvalidCodeNotExist, "Invalid Code Not Exist");
-        public static ClientExceptionType INVALID_CHANNELS = new ClientExceptionType(eResponseStatus.InvalidChannels, "Invalid Channels");
+        public static ClientExceptionType INVALID_PRICE_CODE = new ClientExceptionType(eResponseStatus.InvalidPriceCode, "Invalid Price Code", "Invalid price code: The price code entered doesn't exist for this account");
+        public static ClientExceptionType INVALID_VALUE = new ClientExceptionType(eResponseStatus.InvalidValue, "Invalid Value", "Invalid value");
+        public static ClientExceptionType INVALID_DISCOUNT_CODE = new ClientExceptionType(eResponseStatus.InvalidDiscountCode, "Invalid Discount Code", "Invalid discount code: The discount code entered doesn't exist for this account");
+        public static ClientExceptionType INVALID_PRICE_PLAN = new ClientExceptionType(eResponseStatus.InvalidPricePlan, "Invalid Price Plan", "Invalid price plan: The price plan entered isn't in use with this account");
+        public static ClientExceptionType CODE_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.CodeMustBeUnique, "Code Must Be Unique", "The code entered code must be unique");
+        public static ClientExceptionType CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CodeNotExist, "Code Not Exist", "The code entered doesn't exist");
+        public static ClientExceptionType INVALID_CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.InvalidCodeNotExist, "Invalid Code Not Exist", "The code entered is invalid");
+        public static ClientExceptionType INVALID_CHANNELS = new ClientExceptionType(eResponseStatus.InvalidChannels, "Invalid Channels", "");
         public static ClientExceptionType INVALID_FILE_TYPES = new ClientExceptionType(eResponseStatus.InvalidFileTypes, "Invalid File Types");
         public static ClientExceptionType INVALID_PREVIEW_MODULE = new ClientExceptionType(eResponseStatus.InvalidPreviewModule, "Invalid Preview Module");
         public static ClientExceptionType MANDATORY_FIELD = new ClientExceptionType(eResponseStatus.MandatoryField, "Mandatory Field");
@@ -303,10 +303,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType NO_ADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoAdapterToInsert, "No Adapter To Insert");
 
         // Ingest 11000-11999
-        public static ClientExceptionType ILLEGAL_XML = new ClientExceptionType(eResponseStatus.IllegalXml, "Illegal XML");
-        public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier");
-        public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type");
-        public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error");
+        public static ClientExceptionType ILLEGAL_XML = new ClientExceptionType(eResponseStatus.IllegalXml, "Illegal XML", "The XML is formatted incorrectly. Please check the file for format errors");
+        public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier", "The external ID is missing");
+        public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type", "The Ingest type is not known");
+        public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error", "An error has occurred with the EPG program dates");
 
         [DataMember(Name = "code")]
         [JsonProperty("code")]
