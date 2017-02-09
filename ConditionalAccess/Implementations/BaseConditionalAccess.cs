@@ -11246,7 +11246,7 @@ namespace ConditionalAccess
                     Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(subscriptionIDs, userName, pass, m_nGroupID);                    
                     if (subs != null && subs.Length > 0)
                     {
-                        List<ServiceObject> services = subs.SelectMany(x => x.m_lServices).Distinct().ToList();
+                        List<ServiceObject> services = subs.Where(x => x.m_lServices != null).SelectMany(x => x.m_lServices).Distinct().ToList();
                         if (services != null && services.Count > 0)
                         {
                             domainServicesResponse.Services.AddRange(services);
