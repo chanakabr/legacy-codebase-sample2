@@ -101,7 +101,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CHARGE_STATUS_UNKNOWN = new ClientExceptionType(eResponseStatus.ChargeStatusUnknown, "Charge Status Unknown"); //??
         public static ClientExceptionType CONTENT_IDMISSING = new ClientExceptionType(eResponseStatus.ContentIDMissing, "Content IDMissing");   //??
         public static ClientExceptionType NO_MEDIA_RELATED_TO_FILE = new ClientExceptionType(eResponseStatus.NoMediaRelatedToFile, "No Media Related To File", "There is no media for the file you requested.");
-        public static ClientExceptionType NO_CONTENT_ID = new ClientExceptionType(eResponseStatus.NoContentID, "No Content ID", "Please enter the content ID and try again"); 
+        public static ClientExceptionType NO_CONTENT_ID = new ClientExceptionType(eResponseStatus.NoContentID, "No Content ID", "Please enter the content ID and try again");
         public static ClientExceptionType NO_PRODUCT_ID = new ClientExceptionType(eResponseStatus.NoProductID, "No Product ID", "Please enter the product ID and try again");
         public static ClientExceptionType COUPON_NOT_VALID = new ClientExceptionType(eResponseStatus.CouponNotValid, "Coupon Not Valid", "The coupon you entered is not valid");
         public static ClientExceptionType UNABLE_TO_PURCHASE_PPVPURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchasePPVPurchased, "Unable To Purchase PPVPurchased", "Pay-Per-View was already purchased by this household");
@@ -256,27 +256,27 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MIN_FRIENDS_LIMITATION = new ClientExceptionType(eResponseStatus.MinFriendsLimitation, "Min Friends Limitation");
 
         // notification 8000-8999
-        public static ClientExceptionType NO_NOTIFICATION_SETTINGS_SENT = new ClientExceptionType(eResponseStatus.NoNotificationSettingsSent, "No Notification Settings Sent");
-        public static ClientExceptionType PUSH_NOTIFICATION_FALSE = new ClientExceptionType(eResponseStatus.PushNotificationFalse, "Push notification false can't combine with push system announcements true");
-        public static ClientExceptionType NO_NOTIFICATION_PARTNER_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationPartnerSettings, "No Notification Partner Settings");
-        public static ClientExceptionType NO_NOTIFICATION_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationSettings, "No Notification Settings");
-        public static ClientExceptionType ANNOUNCEMENT_MESSAGE_IS_EMPTY = new ClientExceptionType(eResponseStatus.AnnouncementMessageIsEmpty, "Announcement Message Is Empty");
-        public static ClientExceptionType ANNOUNCEMENT_INVALID_START_TIME = new ClientExceptionType(eResponseStatus.AnnouncementInvalidStartTime, "Announcement Invalid Start Time");
-        public static ClientExceptionType ANNOUNCEMENT_NOT_FOUND = new ClientExceptionType(eResponseStatus.AnnouncementNotFound, "Announcement Not Found");
-        public static ClientExceptionType ANNOUNCEMENT_UPDATE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.AnnouncementUpdateNotAllowed, "Announcement Update Not Allowed");
-        public static ClientExceptionType ANNOUNCEMENT_INVALID_TIMEZONE = new ClientExceptionType(eResponseStatus.AnnouncementInvalidTimezone, "Announcement Invalid Timezone");
-        public static ClientExceptionType FEATURE_DISABLED = new ClientExceptionType(eResponseStatus.FeatureDisabled, "Feature Disabled");
-        public static ClientExceptionType ANNOUNCEMENT_MESSAGE_TOO_LONG = new ClientExceptionType(eResponseStatus.AnnouncementMessageTooLong, "Announcement Message Too Long");
-        public static ClientExceptionType FAIL_CREATE_ANNOUNCEMENT = new ClientExceptionType(eResponseStatus.FailCreateAnnouncement, "Fail Create Announcement");
-        public static ClientExceptionType USER_NOT_FOLLOWING = new ClientExceptionType(eResponseStatus.UserNotFollowing, "User Not Following");
-        public static ClientExceptionType USER_ALREADY_FOLLOWING = new ClientExceptionType(eResponseStatus.UserAlreadyFollowing, "User Already Following");
-        public static ClientExceptionType MESSAGE_PLACEHOLDERS_INVALID = new ClientExceptionType(eResponseStatus.MessagePlaceholdersInvalid, "Message Placeholders Invalid");
-        public static ClientExceptionType DATETIME_FORMAT_IS_INVALID = new ClientExceptionType(eResponseStatus.DatetimeFormatIsInvalid, "Datetime Format Is Invalid");
-        public static ClientExceptionType MESSAGE_TEMPLATE_NOT_FOUND = new ClientExceptionType(eResponseStatus.MessageTemplateNotFound, "Message Template Not Found");
-        public static ClientExceptionType URLPLACEHOLDERS_INVALID = new ClientExceptionType(eResponseStatus.URLPlaceholdersInvalid, "URLPlaceholders Invalid");
-        public static ClientExceptionType INVALID_MESSAGE_TTL = new ClientExceptionType(eResponseStatus.InvalidMessageTTL, "Invalid Message TTL");
-        public static ClientExceptionType MESSAGE_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.MessageIdentifierRequired, "Message Identifier Required");
-        public static ClientExceptionType USER_INBOX_MESSAGES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInboxMessagesNotExist, "User Inbox Messages Not Exist");
+        public static ClientExceptionType NO_NOTIFICATION_SETTINGS_SENT = new ClientExceptionType(eResponseStatus.NoNotificationSettingsSent, "Internal error occurred", "Internal error occurred.");
+        public static ClientExceptionType PUSH_NOTIFICATION_FALSE = new ClientExceptionType(eResponseStatus.PushNotificationFalse, "Push notification false can't combine with push system announcements true", "Push notifications are disabled.");
+        public static ClientExceptionType NO_NOTIFICATION_PARTNER_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationPartnerSettings, "No Notification Partner Settings", "Internal error occurred.");
+        public static ClientExceptionType NO_NOTIFICATION_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationSettings, "No Notification Settings", "Internal error occurred.﻿");
+        public static ClientExceptionType ANNOUNCEMENT_MESSAGE_IS_EMPTY = new ClientExceptionType(eResponseStatus.AnnouncementMessageIsEmpty, "Announcement Message Is Empty", "The mandatory message field in the announcement message Is empty.");
+        public static ClientExceptionType ANNOUNCEMENT_INVALID_START_TIME = new ClientExceptionType(eResponseStatus.AnnouncementInvalidStartTime, "Announcement Invalid Start Time", "The announcement start time is invalid. Please check and try again.");
+        public static ClientExceptionType ANNOUNCEMENT_NOT_FOUND = new ClientExceptionType(eResponseStatus.AnnouncementNotFound, "Announcement Not Found", "The announcement requested couldn't be found.");
+        public static ClientExceptionType ANNOUNCEMENT_UPDATE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.AnnouncementUpdateNotAllowed, "Announcement Update Not Allowed", "Unable to update the announcement; the announcement was already sent.");
+        public static ClientExceptionType ANNOUNCEMENT_INVALID_TIMEZONE = new ClientExceptionType(eResponseStatus.AnnouncementInvalidTimezone, "Announcement Invalid Timezone", "The announcement time zone is invalid (for example \"UTC\" or \"Pacific Standard Time\").");
+        public static ClientExceptionType FEATURE_DISABLED = new ClientExceptionType(eResponseStatus.FeatureDisabled, "Feature Disabled", "Relevant feature is disabled.");
+        public static ClientExceptionType ANNOUNCEMENT_MESSAGE_TOO_LONG = new ClientExceptionType(eResponseStatus.AnnouncementMessageTooLong, "Announcement Message Too Long", "The announcement message exceeds the permitted message length.");
+        public static ClientExceptionType FAIL_CREATE_ANNOUNCEMENT = new ClientExceptionType(eResponseStatus.FailCreateAnnouncement, "Fail Create Announcement", "An error occurred while creating the announcement.");
+        public static ClientExceptionType USER_NOT_FOLLOWING = new ClientExceptionType(eResponseStatus.UserNotFollowing, "User Not Following", "The user is not following this series.");
+        public static ClientExceptionType USER_ALREADY_FOLLOWING = new ClientExceptionType(eResponseStatus.UserAlreadyFollowing, "User Already Following", "The user is already following the requested series.");
+        public static ClientExceptionType MESSAGE_PLACEHOLDERS_INVALID = new ClientExceptionType(eResponseStatus.MessagePlaceholdersInvalid, "Message Placeholders Invalid", "The message placeholder is invalid.");
+        public static ClientExceptionType DATETIME_FORMAT_IS_INVALID = new ClientExceptionType(eResponseStatus.DatetimeFormatIsInvalid, "Datetime Format Is Invalid", "The message date-time format Is Invalid.");
+        public static ClientExceptionType MESSAGE_TEMPLATE_NOT_FOUND = new ClientExceptionType(eResponseStatus.MessageTemplateNotFound, "Message Template Not Found", "Unable to find the message template.");
+        public static ClientExceptionType URLPLACEHOLDERS_INVALID = new ClientExceptionType(eResponseStatus.URLPlaceholdersInvalid, "URLPlaceholders Invalid", "The URL placeholder specified is invalid.");
+        public static ClientExceptionType INVALID_MESSAGE_TTL = new ClientExceptionType(eResponseStatus.InvalidMessageTTL, "Invalid Message TTL", "Invalid message TTL");
+        public static ClientExceptionType MESSAGE_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.MessageIdentifierRequired, "Message Identifier Required","The mandatory message ID field is missing in the request.");
+        public static ClientExceptionType USER_INBOX_MESSAGES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInboxMessagesNotExist, "User Inbox Messages Not Exist","Requested inbox message was not found.");
 
         //Pricing 9000-9999
         public static ClientExceptionType INVALID_PRICE_CODE = new ClientExceptionType(eResponseStatus.InvalidPriceCode, "Invalid Price Code", "Invalid price code: The price code entered doesn't exist for this account");
