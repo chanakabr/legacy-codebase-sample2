@@ -196,5 +196,66 @@ namespace ElasticSearch.Common
 
             return result;
         }
+
+        public static T ExtractValueFromToken<T>(JToken item, string fieldName)
+        {
+            T result = default(T);
+
+            JToken tempToken = null;
+
+            try
+            {
+                tempToken = item[fieldName];
+            }
+            catch
+            {
+            }
+
+            if (tempToken == null)
+            {
+                tempToken = item.SelectToken(fieldName);
+            }
+
+            result = ExtractValueFromToken<T>(tempToken);
+
+            return result;
+        }
+
+        public static T ExtractValueFromToken<T>(JToken tempToken)
+        {
+            T result = default(T);
+
+            JArray tempArray = null;
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    result = tempArray[0].ToObject<T>();
+                }
+                else
+                {
+                    result = tempToken.ToObject<T>();
+                }
+            }
+
+            return result;
+        }
+
+        public static DateTime ExtractDateFromToken(JToken item, string fieldName)
+        {
+            DateTime result = new DateTime(1970, 1, 1, 0, 0, 0);
+            string dateString = ExtractValueFromToken<string>(item, fieldName);
+
+            if (!string.IsNullOrEmpty(dateString))
+            {
+                result = DateTime.ParseExact(dateString, ES_DATE_FORMAT, null);
+            }
+
+            return result;
+        }
+
     }
 }
