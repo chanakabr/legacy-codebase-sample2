@@ -107,7 +107,7 @@ namespace ConditionalAccess
                 if (IsPurchasedAsPartOfSub(itemPriceContainer))
                 {
                     int numOfUses = 0;
-
+                    bool setPurchaseInvalidationKey = false;
                     DomainEntitlements domainEntitlements = null;
                     if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, null, ref domainEntitlements))
                     {
@@ -136,10 +136,7 @@ namespace ConditionalAccess
                         if (ConditionalAccessDAL.Update_SubPurchaseNumOfUses(groupId, purchasingUserId, itemPriceContainer.m_relevantSub.m_sObjectCode))
                         {
                             //Subscription Purchases updated - update purchase validation key
-                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
-                            {
-                                //log
-                            }
+                            setPurchaseInvalidationKey = true;
                         }
                         else
                         {
@@ -188,10 +185,7 @@ namespace ConditionalAccess
                                     if (UpdatePPVPurchases(purchaseId, itemPriceContainer.m_sPPVModuleCode, countryCode, languageCode, udid, groupId, PPVnumOfUses, endDate.Value))
                                     {
                                         //PPV Purchases updated - update purchase validation key
-                                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
-                                        {
-                                            //log
-                                        }
+                                        setPurchaseInvalidationKey = true;
                                     }
                                 }
                             }
@@ -205,6 +199,11 @@ namespace ConditionalAccess
                     else
                     {
                         tasks.Add(Task.Factory.StartNew(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID, contextData)));
+                    }
+
+                    if (setPurchaseInvalidationKey && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
+                    {
+                        log.DebugFormat("Failed SetInvalidationKey for setPurchaseInvalidationKey, domainId: {0}", domainId);
                     }
                 }
                 else
