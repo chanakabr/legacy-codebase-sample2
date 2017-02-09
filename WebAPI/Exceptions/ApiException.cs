@@ -65,19 +65,19 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PIN_NOT_EXISTS = new ClientExceptionType(eResponseStatus.PinNotExists, "Pin Not Exists", "The PIN provided does not exist in the system");
         public static ClientExceptionType PIN_EXPIRED = new ClientExceptionType(eResponseStatus.PinExpired, "Pin Expired", "The PIN provided has expired");
         public static ClientExceptionType NO_VALID_PIN = new ClientExceptionType(eResponseStatus.NoValidPin, "No Valid Pin", "The PIN provided is not valid");
-        public static ClientExceptionType MISSING_SECURITY_PARAMETER = new ClientExceptionType(eResponseStatus.MissingSecurityParameter, "Missing Security Parameter", "");//??????
+        public static ClientExceptionType MISSING_SECURITY_PARAMETER = new ClientExceptionType(eResponseStatus.MissingSecurityParameter, "Missing Security Parameter");//??????
         public static ClientExceptionType SECRET_IS_WRONG = new ClientExceptionType(eResponseStatus.SecretIsWrong, "Secret Is Wrong", "The adapter application secret provided is incorrect. Please re-enter");
         public static ClientExceptionType LOGIN_VIA_PIN_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.LoginViaPinNotAllowed, "Login Via Pin Not Allowed", "Log in using a PIN is not enabled for accoun");
         public static ClientExceptionType PIN_NOT_IN_THE_RIGHT_LENGTH = new ClientExceptionType(eResponseStatus.PinNotInTheRightLength, "Pin Not In The Right Length", "The PIN provided is not valid.(does not match the required number of digits).");
         public static ClientExceptionType PIN_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.PinAlreadyExists, "Pin Already Exists", "The PIN that you entered already exists in the system");
         public static ClientExceptionType USER_EXISTS = new ClientExceptionType(eResponseStatus.UserExists, "User Exists", "The user you are trying to add already exists");
-        public static ClientExceptionType INSIDE_LOCK_TIME = new ClientExceptionType(eResponseStatus.InsideLockTime, "Inside Lock Time", ""); //????
+        public static ClientExceptionType INSIDE_LOCK_TIME = new ClientExceptionType(eResponseStatus.InsideLockTime, "Inside Lock Time"); //????
         public static ClientExceptionType USER_NOT_ACTIVATED = new ClientExceptionType(eResponseStatus.UserNotActivated, "User Not Activated", "The user must be activated to log in");
         public static ClientExceptionType USER_ALLREADY_LOGGED_IN = new ClientExceptionType(eResponseStatus.UserAllreadyLoggedIn, "User Allready Logged In", "This user is already logged in");
-        public static ClientExceptionType USER_DOUBLE_LOG_IN = new ClientExceptionType(eResponseStatus.UserDoubleLogIn, "User Double Log In", ""); // ???
+        public static ClientExceptionType USER_DOUBLE_LOG_IN = new ClientExceptionType(eResponseStatus.UserDoubleLogIn, "User Double Log In"); // ???
         public static ClientExceptionType DEVICE_NOT_REGISTERED = new ClientExceptionType(eResponseStatus.DeviceNotRegistered, "Device Not Registered", "The device you are trying to connect is not registered");
         //public static ClientExceptionType NOT_ACTIVATED = new ClientExceptionType(eResponseStatus.NotActivated, "Not Activated");
-        public static ClientExceptionType ERROR_ON_INIT_USER = new ClientExceptionType(eResponseStatus.ErrorOnInitUser, "Error On Init User", "");// ???
+        public static ClientExceptionType ERROR_ON_INIT_USER = new ClientExceptionType(eResponseStatus.ErrorOnInitUser, "Error On Init User");// ???
         public static ClientExceptionType USER_NOT_MASTER_APPROVED = new ClientExceptionType(eResponseStatus.UserNotMasterApproved, "User Not Master Approved", "The user must be approved by the household master");
         public static ClientExceptionType USER_WITH_NO_Domain = new ClientExceptionType(eResponseStatus.UserWithNoDomain, "User With No Domain", "This user is not associated with any household.");
         public static ClientExceptionType USER_TYPE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserTypeDoesNotExist, "User Type Does Not Exist", "The specified user type does not exist");
@@ -86,11 +86,11 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType LOGIN_SERVER_DOWN = new ClientExceptionType(eResponseStatus.LoginServerDown, "Login Server Down", "The login server is not available. Please try again");
         public static ClientExceptionType ROLE_ALREADY_ASSIGNED_TO_USER = new ClientExceptionType(eResponseStatus.RoleAlreadyAssignedToUser, "Role Already Assigned To User", "This role has already been associated with this user");
         public static ClientExceptionType DEFAULT_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultUserCannotBeDeleted, "Default User Cannot Be Deleted", "Unable to delete the default household user");
-        public static ClientExceptionType EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.ExclusiveMasterUserCannotBeDeleted, "Exclusive Master User Cannot Be Deleted", "");//??
-        public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found", "");//??
+        public static ClientExceptionType EXCLUSIVE_MASTER_USER_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.ExclusiveMasterUserCannotBeDeleted, "Exclusive Master User Cannot Be Deleted");//??
+        public static ClientExceptionType ITEM_NOT_FOUND = new ClientExceptionType(eResponseStatus.ItemNotFound, "Item Not Found");//??
 
         // CAS Section 3000 - 3999
-        public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase", ""); //??
+        public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase"); //??
         public static ClientExceptionType CANCELATION_WINDOW_PERIOD_EXPIRED = new ClientExceptionType(eResponseStatus.CancelationWindowPeriodExpired, "Cancelation Window Period Expired",
             "Unable to cancel the product request because the cancellation window has expired.");
         public static ClientExceptionType SUBSCRIPTION_NOT_RENEWABLE = new ClientExceptionType(eResponseStatus.SubscriptionNotRenewable, "Subscription Not Renewable", "Unable to perform this action on subscription which is not renewable");
@@ -98,10 +98,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_BASE_LINK = new ClientExceptionType(eResponseStatus.InvalidBaseLink, "Invalid Base Link", "The CDN code that was provided is incorrect");
         public static ClientExceptionType CONTENT_ALREADY_CONSUMED = new ClientExceptionType(eResponseStatus.ContentAlreadyConsumed, "Content Already Consumed", "Unable to complete this request - content cannot be cancelled after being viewed.");
         public static ClientExceptionType REASON_UNKNOWN = new ClientExceptionType(eResponseStatus.ReasonUnknown, "Reason Unknown", "The request failed for an unknown reason");
-        public static ClientExceptionType CHARGE_STATUS_UNKNOWN = new ClientExceptionType(eResponseStatus.ChargeStatusUnknown, "Charge Status Unknown", ""); //??
-        public static ClientExceptionType CONTENT_IDMISSING = new ClientExceptionType(eResponseStatus.ContentIDMissing, "Content IDMissing", "");   //??
+        public static ClientExceptionType CHARGE_STATUS_UNKNOWN = new ClientExceptionType(eResponseStatus.ChargeStatusUnknown, "Charge Status Unknown"); //??
+        public static ClientExceptionType CONTENT_IDMISSING = new ClientExceptionType(eResponseStatus.ContentIDMissing, "Content IDMissing");   //??
         public static ClientExceptionType NO_MEDIA_RELATED_TO_FILE = new ClientExceptionType(eResponseStatus.NoMediaRelatedToFile, "No Media Related To File", "There is no media for the file you requested.");
-        public static ClientExceptionType NO_CONTENT_ID = new ClientExceptionType(eResponseStatus.NoContentID, "No Content ID", "Please enter the content ID and try again"); /// 
+        public static ClientExceptionType NO_CONTENT_ID = new ClientExceptionType(eResponseStatus.NoContentID, "No Content ID", "Please enter the content ID and try again"); 
         public static ClientExceptionType NO_PRODUCT_ID = new ClientExceptionType(eResponseStatus.NoProductID, "No Product ID", "Please enter the product ID and try again");
         public static ClientExceptionType COUPON_NOT_VALID = new ClientExceptionType(eResponseStatus.CouponNotValid, "Coupon Not Valid", "The coupon you entered is not valid");
         public static ClientExceptionType UNABLE_TO_PURCHASE_PPVPURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchasePPVPurchased, "Unable To Purchase PPVPurchased", "Pay-Per-View was already purchased by this household");
@@ -288,17 +288,17 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.InvalidCodeNotExist, "Invalid Code Not Exist", "The code entered is invalid");
         public static ClientExceptionType INVALID_CHANNELS = new ClientExceptionType(eResponseStatus.InvalidChannels, "Invalid Channels", "Invalid channel: This channel doesn't exist in this account");
         public static ClientExceptionType INVALID_FILE_TYPES = new ClientExceptionType(eResponseStatus.InvalidFileTypes, "Invalid File Types", "Invalid file type: This file type doesn't exist in this account.");
-        public static ClientExceptionType INVALID_PREVIEW_MODULE = new ClientExceptionType(eResponseStatus.InvalidPreviewModule, "Invalid Preview Module");
-        public static ClientExceptionType MANDATORY_FIELD = new ClientExceptionType(eResponseStatus.MandatoryField, "Mandatory Field");
+        public static ClientExceptionType INVALID_PREVIEW_MODULE = new ClientExceptionType(eResponseStatus.InvalidPreviewModule, "Invalid Preview Module", "Invalid preview module: The preview module doesn't exist in this account");
+        public static ClientExceptionType MANDATORY_FIELD = new ClientExceptionType(eResponseStatus.MandatoryField, "Mandatory Field", "Mandatory fields in a request must be completed");
         public static ClientExceptionType UNIQUE_FILED = new ClientExceptionType(eResponseStatus.UniqueFiled, "Unique Filed");
-        public static ClientExceptionType INVALID_USAGE_MODULE = new ClientExceptionType(eResponseStatus.InvalidUsageModule, "Invalid Usage Module");
-        public static ClientExceptionType INVALID_COUPON_GROUP = new ClientExceptionType(eResponseStatus.InvalidCouponGroup, "Invalid Coupon Group");
-        public static ClientExceptionType INVALID_CURRENCY = new ClientExceptionType(eResponseStatus.InvalidCurrency, "Invalid Currency");
-        public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists");
+        public static ClientExceptionType INVALID_USAGE_MODULE = new ClientExceptionType(eResponseStatus.InvalidUsageModule, "Invalid Usage Module", "Invalid usage module: The usage module specified doesn't exist in this account");
+        public static ClientExceptionType INVALID_COUPON_GROUP = new ClientExceptionType(eResponseStatus.InvalidCouponGroup, "Invalid Coupon Group", "Invalid coupon group: The coupon group specified doesn't exist in this account");
+        public static ClientExceptionType INVALID_CURRENCY = new ClientExceptionType(eResponseStatus.InvalidCurrency, "Invalid Currency", "Invalid currency: The currency specified is not configured for this account");
+        public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists", "PPV Module doesn't exists");
 
         // Adapters 10000-10999
-        public static ClientExceptionType ADAPTER_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AdapterNotExists, "Adapter Not Exists");
-        public static ClientExceptionType ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIdentifierRequired, "Adapter Identifier Required");
+        public static ClientExceptionType ADAPTER_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AdapterNotExists, "Adapter Not Exists", "The adapter you're trying to connect doesn't exist");
+        public static ClientExceptionType ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIdentifierRequired, "Adapter Identifier Required", "The mandatory adapter ID field is missing from the request");
         public static ClientExceptionType ADAPTER_IS_REQUIRED = new ClientExceptionType(eResponseStatus.AdapterIsRequired, "Adapter Is Required");
         public static ClientExceptionType NO_ADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoAdapterToInsert, "No Adapter To Insert");
 
