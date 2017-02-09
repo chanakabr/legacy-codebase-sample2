@@ -155,51 +155,51 @@ namespace ElasticSearch.Utilities
                                 statisticsIndex, ElasticSearch.Common.Utils.ES_STATS_TYPE, actionStatsJson));
                         }
 
-                        string fieldToUpdate = string.Empty;
-                        bool shouldIncrement = true;
+                        //string fieldToUpdate = string.Empty;
+                        //bool shouldIncrement = true;
 
-                        switch (action)
-                        {
-                            case eUserAction.LIKE:
-                            {
-                                fieldToUpdate = "likes";
-                                break;
-                            }
-                            case eUserAction.UNLIKE:
-                            {
-                                fieldToUpdate = "likes";
-                                shouldIncrement = false;
-                                break;
-                            }
-                            case eUserAction.SHARE:
-                            {
-                                fieldToUpdate = "shares";
-                                break;
-                            }
-                            case eUserAction.RATES:
-                            {
-                                fieldToUpdate = "votes";
-                                break;
-                            }
-                            case eUserAction.UNKNOWN:
-                            case eUserAction.POST:
-                            case eUserAction.WATCHES:
-                            case eUserAction.WANTS_TO_WATCH:
-                            case eUserAction.FOLLOWS:
-                            case eUserAction.UNFOLLOW:
-                            default:
-                            {
-                                break;
-                            }
-                        }
+                        //switch (action)
+                        //{
+                        //    case eUserAction.LIKE:
+                        //    {
+                        //        fieldToUpdate = "likes";
+                        //        break;
+                        //    }
+                        //    case eUserAction.UNLIKE:
+                        //    {
+                        //        fieldToUpdate = "likes";
+                        //        shouldIncrement = false;
+                        //        break;
+                        //    }
+                        //    case eUserAction.SHARE:
+                        //    {
+                        //        fieldToUpdate = "shares";
+                        //        break;
+                        //    }
+                        //    case eUserAction.RATES:
+                        //    {
+                        //        fieldToUpdate = "votes";
+                        //        break;
+                        //    }
+                        //    case eUserAction.UNKNOWN:
+                        //    case eUserAction.POST:
+                        //    case eUserAction.WATCHES:
+                        //    case eUserAction.WANTS_TO_WATCH:
+                        //    case eUserAction.FOLLOWS:
+                        //    case eUserAction.UNFOLLOW:
+                        //    default:
+                        //    {
+                        //        break;
+                        //    }
+                        //}
 
-                        // Recalculate rating of document
-                        if (action == eUserAction.RATES)
-                        {
-                            string partialUpdate = string.Concat(
-                                "{ \"script\": \"ctx._source.rating=(((ctx._source.rating * ctx._source.votes) + ", rateValue ,") / (ctx._source.votes + 1))\" }");
-                            esApi.PartialUpdate(statisticsIndex, "media", assetId.ToString(), partialUpdate);
-                        }
+                        //// Recalculate rating of document
+                        //if (action == eUserAction.RATES)
+                        //{
+                        //    string partialUpdate = string.Concat(
+                        //        "{ \"script\": \"ctx._source.rating=(((ctx._source.rating * ctx._source.votes) + ", rateValue, ") / (ctx._source.votes + 1))\" }");
+                        //    esApi.PartialUpdate(statisticsIndex, "media", assetId.ToString(), partialUpdate);
+                        //}
 
                         // Sunny: this currently doesn't work well and causes many errors. I comment these lines for now, 
                         // but I believe we should have a total number of likes/views/whatever on the document itself
