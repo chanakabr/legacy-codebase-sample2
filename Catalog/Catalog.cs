@@ -3298,8 +3298,6 @@ namespace Catalog
                         res.Add(response.ToString());
                     }
                 }
-
-
             }
 
             return res;
@@ -3356,131 +3354,83 @@ namespace Catalog
 
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
-                        if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
-                        {
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs,
-                                new DateTime(1970, 1, 1), DateTime.UtcNow.AddDays(1),
-                                StatsType.MEDIA, assetIdToAssetStatsMapping);
-                            /*
-                            // * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
-                            // */
-                            //Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
 
-                            //if (dict.Count > 0)
-                            //{
-                            //    foreach (KeyValuePair<int, int[]> kvp in dict)
-                            //    {
-                            //        if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
-                            //        {
-                            //            int votesCount = kvp.Value[ASSET_STATS_VOTES_INDEX];
-                            //            assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                            //            assetIdToAssetStatsMapping[kvp.Key].m_nVotes = votesCount;
-                            //            assetIdToAssetStatsMapping[kvp.Key].m_nLikes = kvp.Value[ASSET_STATS_LIKES_INDEX];
-                            //            if (votesCount > 0)
-                            //            {
-                            //                assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double)kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
-                            //            }
-                            //            if (isBuzzNotEmpty)
-                            //            {
-                            //                string strAssetID = kvp.Key.ToString();
-                            //                if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                            //                {
-                            //                    assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                            //                }
-                            //                else
-                            //                {
-                            //                    log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                            //                }
-                            //            }
-                            //        }
-                            //    } // foreach
-                            //} // end if dict is not empty
-                            //else
-                            //{
-                            //    // log here no data retrieved from media table.
-                            //    log.Error("Error - " + GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                            //}
-                        }
-                        else
-                        {
-                            /*
-                             * When we have valid dates in Media Asset Stats request we fetch the data as follows:
-                             * 1. Views Rating and Likes from ES statistics index.
-                             * 
-                             *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                             */
+                        /*
+                         * When we have valid dates in Media Asset Stats request we fetch the data as follows:
+                         * 1. Views Rating and Likes from ES statistics index.
+                         * 
+                         *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
+                         */
 
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                        if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                        {
+                            #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
+
+                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
+                            if (dict.Count > 0)
                             {
-                                #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
-
-                                Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
-                                if (dict.Count > 0)
+                                foreach (KeyValuePair<int, int[]> kvp in dict)
                                 {
-                                    foreach (KeyValuePair<int, int[]> kvp in dict)
+                                    if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
                                     {
-                                        if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
+                                        assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
+                                        if (isBuzzNotEmpty)
                                         {
-                                            assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                            if (isBuzzNotEmpty)
+                                            string strAssetID = kvp.Key.ToString();
+                                            if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
                                             {
-                                                string strAssetID = kvp.Key.ToString();
-                                                if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                                                {
-                                                    assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                                }
-                                                else
-                                                {
-                                                    log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                                                }
+                                                assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
+                                            }
+                                            else
+                                            {
+                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                                             }
                                         }
-                                    } // foreach
-                                }
-                                else
-                                {
-                                    log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                                }
-
-                                // save monitor and logs context data
-                                ContextData contextData = new ContextData();
-
-                                // bring social actions from CB social bucket
-                                Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                                for (int i = 0; i < lAssetIDs.Count; i++)
-                                {
-                                    tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                    {
-                                        // load monitor and logs context data
-                                        contextData.Load();
-
-                                        return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
                                     }
-                                        , lAssetIDs[i]);
-                                }
-                                Task.WaitAll(tasks);
-                                for (int i = 0; i < tasks.Length; i++)
-                                {
-                                    if (tasks[i] != null)
-                                    {
-                                        AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                        if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                        {
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
-                                        }
-                                    }
-                                    tasks[i].Dispose();
-                                }
-                                #endregion
+                                } // foreach
                             }
                             else
                             {
-                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
 
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
+                            // bring social actions from CB social bucket
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
+                            #endregion
+                        }
+                        else
+                        {
+                            /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
                         }
 
                         break;
@@ -4458,8 +4408,11 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 1
+                PageSize = 0
             };
+
+            filteredQuery.ReturnFields.Clear();
+
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -4470,15 +4423,29 @@ namespace Catalog
             });
 
             #region define date filter
-            ESRange dateRange = new ESRange(false)
+
+            if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
             {
-                Key = "action_date"
-            };
-            string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            filter.AddChild(dateRange);
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+                string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+
+                if (!startDate.Equals(DateTime.MinValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                }
+
+                if (!endDate.Equals(DateTime.MaxValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+                }
+
+                filter.AddChild(dateRange);
+            }
+
             #endregion
 
             #region define action filter
@@ -4509,7 +4476,8 @@ namespace Catalog
             {
                 Field = "media_id",
                 Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
-                Type = eElasticAggregationType.terms
+                Type = eElasticAggregationType.terms,
+                ShardSize = 0
             };
 
             filteredQuery.Aggregations.Add(aggregation);
@@ -4610,7 +4578,7 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 1
+                PageSize = 0
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -4622,15 +4590,29 @@ namespace Catalog
             });
 
             #region define date filter
-            ESRange dateRange = new ESRange(false)
+
+            if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
             {
-                Key = "action_date"
-            };
-            string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            filter.AddChild(dateRange);
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+                string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+
+                if (!startDate.Equals(DateTime.MinValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                }
+
+                if (!endDate.Equals(DateTime.MaxValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+                }
+
+                filter.AddChild(dateRange);
+            }
+
             #endregion
 
             #region define action filter
@@ -4660,6 +4642,7 @@ namespace Catalog
                 Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
                 Field = "media_id",
                 Type = eElasticAggregationType.terms,
+                ShardSize = 0
             };
 
             aggregation.SubAggrgations.Add(new ESBaseAggsItem()
