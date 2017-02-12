@@ -17,6 +17,11 @@ namespace ElasticSearch.Searcher
         public List<string> ReturnFields { get; protected set; }
         public List<ESOrderObj> ESSort { get; protected set; }
         public bool m_bIsRoot { get; set; }
+        public bool ZeroSize
+        {
+            get;
+            set;
+        }
         public List<ESBaseAggsItem> Aggregations
         {
             get;
@@ -37,6 +42,8 @@ namespace ElasticSearch.Searcher
 
             if (!int.TryParse(sMaxResults, out MAX_RESULTS))
                 MAX_RESULTS = 10000;
+
+            ZeroSize = false;
         }
 
         public override string ToString()
@@ -45,8 +52,17 @@ namespace ElasticSearch.Searcher
 
             StringBuilder sbFilteredQuery = new StringBuilder();
 
-            if (PageSize <= 0)
-                PageSize = MAX_RESULTS;
+            if (this.PageSize <= 0)
+            {
+                if (ZeroSize)
+                {
+                    this.PageSize = 0;
+                }
+                else
+                {
+                    PageSize = MAX_RESULTS;
+                }
+            }
 
             int fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
 

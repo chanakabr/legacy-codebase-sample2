@@ -4315,7 +4315,8 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 0,
+                ZeroSize = true
             };
 
             filteredQuery.ReturnFields.Clear();
@@ -4485,7 +4486,8 @@ namespace Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 0
+                PageSize = 0,
+                ZeroSize = true
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
