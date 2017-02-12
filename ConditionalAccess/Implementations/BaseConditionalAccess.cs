@@ -69,6 +69,7 @@ namespace ConditionalAccess
         internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
         internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
         internal const double MAX_SERVER_TIME_DIF = 5;
+        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
 
         //errors
         internal const string CONFLICTED_PARAMS = "Conflicted params";
@@ -14881,7 +14882,17 @@ namespace ConditionalAccess
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingScheduledTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
-                    queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY);
+                    for (int i = 0; i < RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT; i++)
+                    {
+                        if (queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            log.DebugFormat("Retrying to enqueue RecordingScheduledTasks");
+                        }
+                    }
                 }
             }
 
