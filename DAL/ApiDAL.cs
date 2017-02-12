@@ -4038,5 +4038,23 @@ namespace DAL
             }
             return files;
         }
+
+        public static string GetUserIdByBillingTransactionId(long billingTransactionId, out int groupId)
+        {
+            string res = null;
+            groupId = 0;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetUserIdByBillingTransactionId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@billingTransactionId", billingTransactionId);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                res = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "SITE_GUID");
+                groupId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "GROUP_ID");
+            }
+            return res;
+        }
     }
 }
