@@ -412,7 +412,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
         int picId = 0;
         int ratioId = 0;
 
-        if (string.IsNullOrWhiteSpace(epgIdentifierSession.ToString()))
+        if (epgIdentifierSession == null || string.IsNullOrWhiteSpace(epgIdentifierSession.ToString()))
         {
             log.Error("UpdateEpgChannelSchedulePics epgIdentifier is null");
             return 0;
