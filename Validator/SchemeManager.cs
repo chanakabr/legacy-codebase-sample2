@@ -217,7 +217,7 @@ namespace Validator.Managers.Scheme
             description = description.Trim();
             if (string.IsNullOrEmpty(description))
             {
-                logError("Warning", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) has no description", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
+                logError("Error", property.DeclaringType, string.Format("Property {0}.{1} ({2}) data member ({3}) has no description", property.ReflectedType.Name, property.Name, property.PropertyType.Name, apiName));
             }
 
             string errorDescription = string.Format("Property {0}.{1} ({2})", property.ReflectedType.Name, property.Name, property.PropertyType.Name);
