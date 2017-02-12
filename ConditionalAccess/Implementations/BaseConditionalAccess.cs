@@ -69,6 +69,7 @@ namespace ConditionalAccess
         internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
         internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
         internal const double MAX_SERVER_TIME_DIF = 5;
+        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
 
         //errors
         internal const string CONFLICTED_PARAMS = "Conflicted params";
@@ -10982,8 +10983,12 @@ namespace ConditionalAccess
                 sPlayCycleKey = Guid.NewGuid().ToString();
             }
 
-            int nCountryID = Utils.GetIP2CountryId(m_nGroupID, sUserIP);
-            Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
+            /************* For versions (Joker and before) that want to use DB for getting view stats (first_play), we have to insert the playCycleKey **********/
+            if (Utils.IsGroupIDContainedInConfig(m_nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+            {
+                int nCountryID = Utils.GetIP2CountryId(m_nGroupID, sUserIP);
+                Tvinci.Core.DAL.CatalogDAL.InsertPlayCycleKey(sSiteGuid, nMediaID, nMediaFileID, sDeviceName, 0, nCountryID, ruleID, m_nGroupID, sPlayCycleKey);
+            }
         }
 
         private DomainResponseStatus CheckMediaConcurrency(string sSiteGuid, Int32 nMediaFileID, string sDeviceName, MediaFileItemPricesContainer[] prices,
@@ -11246,7 +11251,7 @@ namespace ConditionalAccess
                     Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(subscriptionIDs, userName, pass, m_nGroupID);                    
                     if (subs != null && subs.Length > 0)
                     {
-                        List<ServiceObject> services = subs.SelectMany(x => x.m_lServices).Distinct().ToList();
+                        List<ServiceObject> services = subs.Where(x => x.m_lServices != null).SelectMany(x => x.m_lServices).Distinct().ToList();
                         if (services != null && services.Count > 0)
                         {
                             domainServicesResponse.Services.AddRange(services);
@@ -14877,7 +14882,17 @@ namespace ConditionalAccess
                     DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
                     SetupTasksQueue queue = new SetupTasksQueue();
                     CelerySetupTaskData data = new CelerySetupTaskData(0, eSetupTask.RecordingScheduledTasks, new Dictionary<string, object>()) { ETA = nextExecutionDate };
-                    queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY);
+                    for (int i = 0; i < RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT; i++)
+                    {
+                        if (queue.Enqueue(data, RECORDING_TASKS_ROUTING_KEY))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            log.DebugFormat("Retrying to enqueue RecordingScheduledTasks");
+                        }
+                    }
                 }
             }
 

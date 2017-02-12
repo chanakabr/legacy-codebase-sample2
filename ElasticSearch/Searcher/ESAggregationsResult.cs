@@ -26,35 +26,41 @@ namespace ElasticSearch.Searcher
                     var jObject = JObject.Parse(json);
                     var aggregations = jObject["aggregations"];
 
-                    foreach (JToken token in aggregations)
+                    if (aggregations != null)
                     {
-                        var aggregationKey = token.Value<JProperty>();
-                        var fkey = aggregationKey.Name;
-                        var fvalue = aggregationKey.Value;
-
-                        var buckets = fvalue["buckets"];
-
-                        Dictionary<T, int> currentDictionary = new Dictionary<T, int>();
-                        foreach (JToken bucket in buckets)
+                        foreach (JToken token in aggregations)
                         {
-                            try
+                            var aggregationKey = token.Value<JProperty>();
+                            var fkey = aggregationKey.Name;
+                            var fvalue = aggregationKey.Value;
+
+                            var buckets = fvalue["buckets"];
+
+                            if (buckets != null)
                             {
-                                var key = bucket["key"];
-                                var count = bucket["doc_count"];
-                                currentDictionary[key.Value<T>()] = count.Value<int>();
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error("Error - " + string.Format("search aggregations json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
+                                Dictionary<T, int> currentDictionary = new Dictionary<T, int>();
+                                foreach (JToken bucket in buckets)
+                                {
+                                    try
+                                    {
+                                        var key = bucket["key"];
+                                        var count = bucket["doc_count"];
+                                        currentDictionary[key.Value<T>()] = count.Value<int>();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.Error(string.Format("Error - search aggregations json parse failure. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
+                                    }
+                                }
+
+                                result[fkey] = currentDictionary;
                             }
                         }
-
-                        result[fkey] = currentDictionary;
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error - " + string.Format("Could not parse aggregations results. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
+                    log.Error(string.Format("Error - Could not parse aggregations results. ex={0}; stack={1}", ex.Message, ex.StackTrace), ex);
                 }
             }
 
