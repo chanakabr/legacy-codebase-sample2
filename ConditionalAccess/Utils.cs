@@ -1444,23 +1444,6 @@ namespace ConditionalAccess
             return sb.ToString();
         }
 
-        //public static Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
-        //{
-        //    Int32[] nMediaFilesIDs = { nMediaFileID };
-        //    MeidaMaper[] mapper = null;
-        //    string nMediaFilesIDsForCache = ConvertArrayIntToStr(nMediaFilesIDs);
-
-        //    mapper = GetMediaMapper(nGroupID, nMediaFilesIDs);
-
-        //    if (mapper == null || mapper.Length == 0)
-        //        return 0;
-
-        //    if (mapper[0].m_nMediaFileID == nMediaFileID)
-        //        return mapper[0].m_nMediaID;
-
-        //    return 0;
-        //}
-
         public static Int32 GetMediaIDFromFileID(Int32 nMediaFileID, Int32 nGroupID)
         {
             Int32[] nMediaFilesIDs = { nMediaFileID };
@@ -3211,7 +3194,6 @@ namespace ConditionalAccess
             return changeDLMObj;
         }
 
-
         internal static Tuple<Dictionary<string, DataTable>, bool> Get_FileAndMediaBasicDetails(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -3254,7 +3236,7 @@ namespace ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("Get_FileAndMediaBasicDetails failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<Dictionary<string, DataTable>, bool>(result, res);
         }
@@ -6045,6 +6027,60 @@ namespace ConditionalAccess
             return media;
         }
 
+        internal static bool GetRecordingPlaybackSettingsByLinearMediaIdFromCache(int groupId, int mediaId)
+        {            
+            string key = LayeredCacheKeys.GetRecordingPlaybackSettingsKey(groupId, mediaId);
+            bool? enableRecordingPlaybackNonEntitledChannel = null;
+            bool res = false;
+            try
+            {
+                bool cacheResult = LayeredCache.Instance.Get<bool?>(key, ref enableRecordingPlaybackNonEntitledChannel, GetRecordingPlaybackSettingsByLinearMediaId, new Dictionary<string, object>()
+                { { "groupId", groupId }, { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.GET_RECORDING_PLAYBACK_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
+
+                if (cacheResult && enableRecordingPlaybackNonEntitledChannel.HasValue)
+                {
+                    res = enableRecordingPlaybackNonEntitledChannel.Value;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetRecordingPlaybackSettingsByLinearMediaIdFromCache, groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return res;
+        }
+
+        internal static Tuple<bool?, bool> GetRecordingPlaybackSettingsByLinearMediaId(Dictionary<string, object> funcParams)
+        {
+            bool? enableRecordingPlaybackNonEntitledChannel = null;
+            bool res = false;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? mediaId = funcParams["mediaId"] as int?;
+                    if (groupId.HasValue && mediaId.HasValue)
+                    {
+                        MediaObj media = GetMediaById(groupId.Value, mediaId.Value);
+                        if (media != null && !string.IsNullOrEmpty(media.AssetId))
+                        {
+                            enableRecordingPlaybackNonEntitledChannel = media.EnableRecordingPlaybackNonEntitledChannel;
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetRecordingPlaybackSettingsByLinearMediaId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool?, bool>(enableRecordingPlaybackNonEntitledChannel, res);
+        }
+
         internal static bool IsDeviceInDomain(Domain domain, string udid)
         {
             if (domain != null && domain.m_deviceFamilies != null && domain.m_deviceFamilies.Count > 0)
@@ -6537,18 +6573,27 @@ namespace ConditionalAccess
             mediaId = 0;
             recording = null;
             program = null;
-            Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResult = null;
+            Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResult = null;            
             string key = LayeredCacheKeys.GetMediaIdForAssetKey(assetId, assetType.ToString());
-            bool cacheResult = LayeredCache.Instance.Get<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>>(key, ref tupleResult, GetMediaIdForAssetFromCache,
-            new Dictionary<string, object>() { { "assetId", assetId }, { "groupId", groupId }, { "assetType", assetType }, { "userId", userId },  { "domain", domain },  { "udid", udid } },
-            groupId, LayeredCacheConfigNames.MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME);
 
-            if (cacheResult && tupleResult != null)
+            try
             {
-                mediaId = tupleResult.Item1;
-                recording = tupleResult.Item2;
-                program = tupleResult.Item3;
-                status = tupleResult.Item4;
+                bool cacheResult = LayeredCache.Instance.Get<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>>(key, ref tupleResult, GetMediaIdForAssetFromCache,
+                new Dictionary<string, object>() { { "assetId", assetId }, { "groupId", groupId }, { "assetType", assetType }, { "userId", userId }, { "domain", domain }, { "udid", udid } },
+                groupId, LayeredCacheConfigNames.MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME);
+
+                if (cacheResult && tupleResult != null)
+                {
+                    mediaId = tupleResult.Item1;
+                    recording = tupleResult.Item2;
+                    program = tupleResult.Item3;
+                    status = tupleResult.Item4;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetMediaIdForAsset, groupId: {0}, assetId: {1}, assetType: {2}", groupId, assetId, assetType.ToString()), ex);
             }
 
             return status;
@@ -6566,22 +6611,23 @@ namespace ConditionalAccess
             {
                 if (funcParams != null && funcParams.Count == 6)
                 {
-                    if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
+                    if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType") && funcParams.ContainsKey("userId"))
                     {
-                        long? assetId = funcParams["assetId"] as long?;
+                        long id;
+                        string assetId = funcParams["assetId"] as string;
                         int? groupId = funcParams["groupId"] as int?;
                         eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
                         string userId = funcParams["userId"] as string;
-                        Domain domain = funcParams["domain"] as Domain;
-                        string udid = funcParams["udid"] as string;
-                        if (assetId.HasValue && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId) && domain != null && !string.IsNullOrEmpty(udid))
+                        if (!string.IsNullOrEmpty(assetId) && long.TryParse(assetId, out id) && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId))
                         {
                             switch (assetType)
                             {
                                 case eAssetTypes.NPVR:
                                     {
+                                        Domain domain = funcParams.ContainsKey("domain") ? funcParams["domain"] as Domain : null;
+                                        string udid = funcParams.ContainsKey("groupId") ? funcParams["udid"] as string : string.Empty;
                                         // check recording valid
-                                        var recordingStatus = ValidateRecording(groupId.Value, domain, udid, userId, assetId.Value, ref recording);
+                                        var recordingStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording);
 
                                         if (recordingStatus.Code != (int)eResponseStatus.OK)
                                         {
@@ -6603,7 +6649,7 @@ namespace ConditionalAccess
                                     break;
                                 case eAssetTypes.EPG:
                                     {
-                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { assetId.Value });
+                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { id });
                                         if (epgs != null && epgs.Count > 0)
                                         {
                                             program = epgs[0];
@@ -6616,7 +6662,7 @@ namespace ConditionalAccess
                                     }
                                     break;
                                 case eAssetTypes.MEDIA:
-                                    mediaId = assetId.Value;
+                                    mediaId = id;
                                     break;
                                 default:
                                     break;
@@ -7223,6 +7269,7 @@ namespace ConditionalAccess
             {
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
+
             return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
         }
 
@@ -7407,6 +7454,7 @@ namespace ConditionalAccess
             }
 
             return res;
-        }
+        }        
+
     }
 }

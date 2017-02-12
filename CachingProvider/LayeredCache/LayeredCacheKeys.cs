@@ -149,5 +149,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("mediaIdForAsset_assetId_{0}_assetType_{1}", assetId, assetType);
         }
 
+        public static string GetRecordingPlaybackSettingsKey(int groupId, int mediaId)
+        {
+            return string.Format("recordingPlayBackSettings_groupId_{0}mediaId_{1}", groupId, mediaId);
+        }
+
     }
 }
