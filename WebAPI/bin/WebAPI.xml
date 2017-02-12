@@ -601,6 +601,13 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.LastPositionController.List(WebAPI.Models.Catalog.KalturaLastPositionFilter)">
+            <summary>
+            Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
+            </summary>
+            <param name="filter">Filter option for the last position</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.ReminderController.Add(WebAPI.Models.Notifications.KalturaReminder)">
             <summary>
             Add a new future reminder
@@ -824,6 +831,46 @@
         <member name="P:WebAPI.Models.API.KalturaOSSAdapterProfileListResponse.OSSAdapterProfiles">
             <summary>
             A list of OSS adapter-profiles
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaLastPositionListResponse">
+            <summary>
+            List of last positions
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaLastPosition">
+            <summary>
+            Representing the last position in a media or nPVR asset until which a user watched   
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLastPosition.UserId">
+             <summary>
+            User identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLastPosition.Position">
+             <summary>
+            The position in the media duration in seconds
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLastPosition.PositionOwner">
+             <summary>
+            Indicates who is the owner of this position
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLastPositionFilter.Ids">
+            <summary>
+            Assets identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLastPositionFilter.Type">
+            <summary>
+            Assets type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaLastPositionFilter.By">
+            <summary>
+            Reference type to filter by
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaAccessControlMessage.Message">
@@ -3926,9 +3973,6 @@
             Retrieving user roles by identifiers, if filter is empty, returns all partner roles
             </summary>
             <remarks></remarks>
-        </member>
-        <member name="F:WebAPI.Exceptions.ApiException.NO_PRODUCT_ID">
-            
         </member>
         <member name="M:WebAPI.Managers.Models.AppToken.CalcHash">
             <summary>

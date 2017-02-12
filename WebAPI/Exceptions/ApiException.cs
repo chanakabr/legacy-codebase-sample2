@@ -365,7 +365,7 @@ namespace WebAPI.Exceptions
 
             public string Format(params object[] values)
             {
-                if (parameters.Length == 0)
+                if (parameters == null || parameters.Length == 0)
                     return message;
 
                 string ret = message;
