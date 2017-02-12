@@ -295,7 +295,7 @@ public partial class adm_tvp_menu_items_new : System.Web.UI.Page
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
          
-        DataRecordShortTextField dr_link = new DataRecordShortTextField("ltr", true, 60, 128);
+        DataRecordShortTextField dr_link = new DataRecordShortTextField("ltr", true, 100, 512);
         dr_link.Initialize("Link", "adm_table_header_nbg", "FormInput", "", true);
         if (Session["tvp_menu_item_id"] != null && Session["tvp_menu_item_id"].ToString() != "0")
         {
