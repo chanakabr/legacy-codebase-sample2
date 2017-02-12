@@ -6519,10 +6519,10 @@ namespace ConditionalAccess
                 }
                 else
                 {
-                    files = allMediafiles.Where(f => (streamerType.HasValue && streamerType.Value == f.StreamerType) &&
+                    files = allMediafiles.Where(f => (!streamerType.HasValue || streamerType.Value == f.StreamerType) &&
                         ((context == PlayContextType.Trailer && f.IsTrailer) ||
-                        ((context == PlayContextType.Playback || context == PlayContextType.CatchUp || context == PlayContextType.CatchUp) && !f.IsTrailer)) &&
-                        (!string.IsNullOrEmpty(mediaProtocol) && !string.IsNullOrEmpty(f.Url) && f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
+                        ((context == PlayContextType.Playback || context == PlayContextType.CatchUp || context == PlayContextType.StartOver) && !f.IsTrailer)) &&
+                        (string.IsNullOrEmpty(mediaProtocol) || string.IsNullOrEmpty(f.Url) || f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
                         (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
                 }
             }
