@@ -109,9 +109,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("renew_domainId_{0}", domainId);
         }
 
-        public static string GetMediaFilesKey(long mediaId)
+        public static string GetMediaFilesKey(long mediaId, string assetType)
         {
-            return string.Format("files_mediaId_{0}", mediaId);
+            return string.Format("files_mediaId_{0}_assetType_{1}", mediaId, assetType);
         }
 
         public static string GetGroupParentalRulesKey(int groupId)
@@ -142,6 +142,11 @@ namespace CachingProvider.LayeredCache
         public static string GetEpgParentalRulesKey(int groupId, long epgId)
         {
             return string.Format("parental_rules_epg_{0}_group_{1}", epgId, groupId);
+        }
+
+        public static string GetMediaIdForAssetKey(string assetId, string assetType)
+        {
+            return string.Format("mediaIdForAsset_assetId_{0}_assetType_{1}", assetId, assetType);
         }
 
     }
