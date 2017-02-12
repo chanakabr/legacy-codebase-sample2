@@ -51,9 +51,9 @@ namespace ConditionalAccess
             {
                 string sPPVMCd = itemPriceContainer.m_sPPVModuleCode;
 
-                Int32 isCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId),
+                bool isCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId),
                                                                             domainId, mediaFileId, groupId, mediaId, Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
-                if (isCreditDownloaded > 0)
+                if (isCreditDownloaded)
                 {
                     if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
                     {
@@ -80,7 +80,7 @@ namespace ConditionalAccess
                                         //PPV Purchases updated - update purchase validation key
                                         if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))
                                         {
-                                            //log
+                                            log.DebugFormat("Failed to set invalidationKey, key: {0}", invalidationKey);
                                         }
                                     }
                                 }
@@ -160,10 +160,10 @@ namespace ConditionalAccess
 
                     string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(itemPriceContainer.m_relevantSub.m_sObjectCode, eTransactionType.Subscription);
 
-                    Int32 isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, itemPriceContainer.m_relevantSub, null, countryCode, languageCode, udid,
+                    bool isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, itemPriceContainer.m_relevantSub, null, countryCode, languageCode, udid,
                                                                                 Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId, mediaId,
                                                                                 Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
-                    if (isPpvCreditDownloaded > 0)
+                    if (isPpvCreditDownloaded)
                     {
                         if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
                         {
@@ -318,10 +318,10 @@ namespace ConditionalAccess
             return price.m_relevantCol == null;
         }
 
-        private static int PPV_DoesCreditNeedToDownloaded(string productCode, Subscription subscription, Collection collection, string countryCode, string languageCode, string udid,
+        private static bool PPV_DoesCreditNeedToDownloaded(string productCode, Subscription subscription, Collection collection, string countryCode, string languageCode, string udid,
                                                             List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId, int mediaId, DateTime? startDate, DateTime? endDate)
         {
-            Int32 nIsCreditDownloaded = 1;
+            bool isCreditDownloaded = false;
             Int32 nViewLifeCycle = 0;
             int fullLifeCycle = 0;
             bool isOfflinePlayback = false;
@@ -385,16 +385,16 @@ namespace ConditionalAccess
 
                     DateTime dEndDate = Utils.GetEndDateTime(lastUseWithCredit.Value, nViewLifeCycle);
 
-                    if (dNow < dEndDate)
+                    if (dNow >= dEndDate)
                     {
-                        nIsCreditDownloaded = 0;
+                        isCreditDownloaded = true;
                     }
                 }
 
                 if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
                 {
                     // update lastUseWithCredit value according to nIsCreditDownloaded
-                    lastUseWithCredit = nIsCreditDownloaded == 1 ? DateTime.UtcNow : lastUseWithCredit;
+                    lastUseWithCredit = isCreditDownloaded ? DateTime.UtcNow : lastUseWithCredit;
                     CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, lastUseWithCredit.Value, false, isOfflinePlayback, transactionType, startDate, endDate);
                     if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
                     {
@@ -411,7 +411,7 @@ namespace ConditionalAccess
                 }
             }
 
-            return nIsCreditDownloaded;
+            return isCreditDownloaded;
         }
 
         private static DateTime? GetDomainLastUseWithCredit(int groupId, long domainId, int mediaFileId, List<int> mediaFileIDs, string productCode, int mediaId)
