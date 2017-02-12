@@ -6506,7 +6506,7 @@ namespace ConditionalAccess
             List<MediaFile> files = null;
 
             List<MediaFile> allMediafiles = null;
-            string key = LayeredCacheKeys.GetMediaFilesKey(mediaId);
+            string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
             bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
                                                                         { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
@@ -6533,61 +6533,107 @@ namespace ConditionalAccess
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
             out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
         {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             mediaId = 0;
             recording = null;
             program = null;
-            long id;
+            Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResult = null;
+            string key = LayeredCacheKeys.GetMediaIdForAssetKey(assetId, assetType.ToString());
+            bool cacheResult = LayeredCache.Instance.Get<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>>(key, ref tupleResult, GetMediaIdForAssetFromCache,
+            new Dictionary<string, object>() { { "assetId", assetId }, { "groupId", groupId }, { "assetType", assetType }, { "userId", userId },  { "domain", domain },  { "udid", udid } },
+            groupId, LayeredCacheConfigNames.MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME);
 
-            if (long.TryParse(assetId, out id))
+            if (cacheResult && tupleResult != null)
             {
-                switch (assetType)
-                {
-                    case eAssetTypes.NPVR:
-                        {
-                            // check recording valid
-                            var recordingStatus = ValidateRecording(groupId, domain, udid, userId, id, ref recording);
-
-                            if (recordingStatus.Code != (int)eResponseStatus.OK)
-                            {
-                                log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
-                                return new ApiObjects.Response.Status(recordingStatus.Code, recordingStatus.Message);
-                            }
-
-                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { recording.EpgId });
-                            if (epgs != null && epgs.Count > 0)
-                            {
-                                program = epgs[0];
-                                mediaId = program.LINEAR_MEDIA_ID;
-                            }
-                            else
-                            {
-                                return new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
-                            }
-                        }
-                        break;
-                    case eAssetTypes.EPG:
-                        {
-                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId, new List<long> { id });
-                            if (epgs != null && epgs.Count > 0)
-                            {
-                                program = epgs[0];
-                                mediaId = program.LINEAR_MEDIA_ID;
-                            }
-                            else
-                            {
-                                return new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
-                            }
-                        }
-                        break;
-                    case eAssetTypes.MEDIA:
-                        mediaId = id;
-                        break;
-                    default:
-                        break;
-                }
+                mediaId = tupleResult.Item1;
+                recording = tupleResult.Item2;
+                program = tupleResult.Item3;
+                status = tupleResult.Item4;
             }
 
-            return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            return status;
+        }
+
+        private static Tuple<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>, bool> GetMediaIdForAssetFromCache(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResults = null;
+            long mediaId = 0;
+            Recording recording = null;
+            EPGChannelProgrammeObject program = null;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                if (funcParams != null && funcParams.Count == 6)
+                {
+                    if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
+                    {
+                        long? assetId = funcParams["assetId"] as long?;
+                        int? groupId = funcParams["groupId"] as int?;
+                        eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
+                        string userId = funcParams["userId"] as string;
+                        Domain domain = funcParams["domain"] as Domain;
+                        string udid = funcParams["udid"] as string;
+                        if (assetId.HasValue && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId) && domain != null && !string.IsNullOrEmpty(udid))
+                        {
+                            switch (assetType)
+                            {
+                                case eAssetTypes.NPVR:
+                                    {
+                                        // check recording valid
+                                        var recordingStatus = ValidateRecording(groupId.Value, domain, udid, userId, assetId.Value, ref recording);
+
+                                        if (recordingStatus.Code != (int)eResponseStatus.OK)
+                                        {
+                                            log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
+                                            status = new ApiObjects.Response.Status(recordingStatus.Code, recordingStatus.Message);
+                                        }
+
+                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { recording.EpgId });
+                                        if (epgs != null && epgs.Count > 0)
+                                        {
+                                            program = epgs[0];
+                                            mediaId = program.LINEAR_MEDIA_ID;
+                                        }
+                                        else
+                                        {
+                                            status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                                        }
+                                    }
+                                    break;
+                                case eAssetTypes.EPG:
+                                    {
+                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { assetId.Value });
+                                        if (epgs != null && epgs.Count > 0)
+                                        {
+                                            program = epgs[0];
+                                            mediaId = program.LINEAR_MEDIA_ID;
+                                        }
+                                        else
+                                        {
+                                            status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                                        }
+                                    }
+                                    break;
+                                case eAssetTypes.MEDIA:
+                                    mediaId = assetId.Value;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            tupleResults = new Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>(mediaId, recording, program, status);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaIdForAssetFromCache failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>, bool>(tupleResults, res);
         }
 
         internal static eService GetServiceByPlayContextType(PlayContextType contextType)

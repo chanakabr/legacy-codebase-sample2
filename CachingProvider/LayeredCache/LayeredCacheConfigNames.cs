@@ -16,6 +16,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME = "mediaIdGroupFileTypeMapper";
         public const string GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME = "TryGetDomainEntitlementsFromCache";
         public const string MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME = "GetMediaFiles";
+        public const string MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME = "GetMediaIdForAsset";
         public const string COUNTRY_BY_IP_LAYERED_CACHE_CONFIG_NAME = "GetCountryByIp";
         public const string CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME = "CheckGeoBlockMedia";
         public const string MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME = "CheckMediaUserType";
