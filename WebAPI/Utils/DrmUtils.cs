@@ -14,6 +14,7 @@ namespace WebAPI.Utils
     {
         private const string BASE_UDRM_URL_TCM_KEY = "UDRM_URL";
         private const string FAIRPLAY_CERTIFICATE_TCM_KEY = "FAIRPLAY_CERTIFICATE";
+        private const string CA_SYSTEM_TCM_KEY = "UDRM_CA_SYSTEM";
         private const string UDRM_CENC_LICENSED_URL_FORMAT = "{0}/cenc/{1}/license?custom_data={2}&signature={3}";
         private const string UDRM_LICENSED_URL_FORMAT = "{0}/{1}/license?custom_data={2}&signature={3}";
         private const string PLAYREADY = "playready";
@@ -30,7 +31,7 @@ namespace WebAPI.Utils
             CencCustomData customData = new CencCustomData()
             {
                 AccountId = group.MediaPrepAccountId,
-                CaSystem = "OTT",
+                CaSystem = TCMClient.Settings.Instance.GetValue<string>(CA_SYSTEM_TCM_KEY),
                 Files = string.Empty,
                 UserToken = ks.ToString(),
                 ContentId = fileExternalId.ToString(),
