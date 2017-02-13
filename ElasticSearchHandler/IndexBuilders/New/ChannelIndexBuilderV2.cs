@@ -206,7 +206,6 @@ namespace ElasticSearchHandler.IndexBuilders
                             }
                             else
                             {
-
                                 mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
                                 MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
 

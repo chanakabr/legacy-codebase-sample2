@@ -130,7 +130,7 @@ namespace SetupTaskHandler
             int countryId = ODBCWrapper.Utils.ExtractInteger(row, "COUNTRY_ID");
             string code = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_CD2");
             string name = ODBCWrapper.Utils.ExtractString(row, "COUNTRY_NAME");
-            name = ElasticSearch.Common.Utils.ReplaceDocumentReservedCharacters(ref name);
+            name = ElasticSearch.Common.Utils.ReplaceDocumentReservedCharacters(ref name, false);
 
             result = string.Concat("{",
                 string.Format("\"ip_from\": {0}, \"ip_to\": {1}, \"country_id\": {2}, \"code\": \"{3}\", \"name\": \"{4}\" ", 
