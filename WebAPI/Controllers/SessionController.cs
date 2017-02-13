@@ -86,7 +86,8 @@ namespace WebAPI.Controllers
                 privileges = ks.Privileges != null && ks.Privileges.Count > 0 ? string.Join(",", ks.Privileges.Select(p => string.Join(":", p.key, p.value))) : string.Empty,
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
-                udid = KSUtils.ExtractKSPayload(ks).UDID
+                udid = KSUtils.ExtractKSPayload(ks).UDID,
+                createDate = payload.CreateDate,
             };
         }
 
