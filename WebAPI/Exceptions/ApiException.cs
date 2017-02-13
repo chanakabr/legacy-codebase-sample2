@@ -256,16 +256,16 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MIN_FRIENDS_LIMITATION = new ClientExceptionType(eResponseStatus.MinFriendsLimitation, "Min Friends Limitation");
 
         // notification 8000-8999
-        public static ClientExceptionType NO_NOTIFICATION_SETTINGS_SENT = new ClientExceptionType(eResponseStatus.NoNotificationSettingsSent, "Internal error occurred", "Internal error occurred.");
+        public static ClientExceptionType NO_NOTIFICATION_SETTINGS_SENT = new ClientExceptionType(eResponseStatus.NoNotificationSettingsSent, "Internal error occurred", "The updated or new notification settings weren't received by the Web service because of an internal error."); 
         public static ClientExceptionType PUSH_NOTIFICATION_FALSE = new ClientExceptionType(eResponseStatus.PushNotificationFalse, "Push notification false can't combine with push system announcements true", "Push notifications are disabled.");
-        public static ClientExceptionType NO_NOTIFICATION_PARTNER_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationPartnerSettings, "No Notification Partner Settings", "Internal error occurred.");
-        public static ClientExceptionType NO_NOTIFICATION_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationSettings, "No Notification Settings", "Internal error occurred.﻿");
+        public static ClientExceptionType NO_NOTIFICATION_PARTNER_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationPartnerSettings, "No Notification Partner Settings", "The updated or new partner notification settings weren't received by the Web service because of an internal error.");
+        public static ClientExceptionType NO_NOTIFICATION_SETTINGS = new ClientExceptionType(eResponseStatus.NoNotificationSettings, "No Notification Settings", "The updated or new notification settings weren't received by the Web service because of an internal error.");
         public static ClientExceptionType ANNOUNCEMENT_MESSAGE_IS_EMPTY = new ClientExceptionType(eResponseStatus.AnnouncementMessageIsEmpty, "Announcement Message Is Empty", "The mandatory message field in the announcement message Is empty.");
         public static ClientExceptionType ANNOUNCEMENT_INVALID_START_TIME = new ClientExceptionType(eResponseStatus.AnnouncementInvalidStartTime, "Announcement Invalid Start Time", "The announcement start time is invalid. Please check and try again.");
         public static ClientExceptionType ANNOUNCEMENT_NOT_FOUND = new ClientExceptionType(eResponseStatus.AnnouncementNotFound, "Announcement Not Found", "The announcement requested couldn't be found.");
         public static ClientExceptionType ANNOUNCEMENT_UPDATE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.AnnouncementUpdateNotAllowed, "Announcement Update Not Allowed", "Unable to update the announcement; the announcement was already sent.");
         public static ClientExceptionType ANNOUNCEMENT_INVALID_TIMEZONE = new ClientExceptionType(eResponseStatus.AnnouncementInvalidTimezone, "Announcement Invalid Timezone", "The announcement time zone is invalid (for example \"UTC\" or \"Pacific Standard Time\").");
-        public static ClientExceptionType FEATURE_DISABLED = new ClientExceptionType(eResponseStatus.FeatureDisabled, "Feature Disabled", "Relevant feature is disabled.");
+        public static ClientExceptionType FEATURE_DISABLED = new ClientExceptionType(eResponseStatus.FeatureDisabled, "Feature Disabled", "The requested feature is disabled.");
         public static ClientExceptionType ANNOUNCEMENT_MESSAGE_TOO_LONG = new ClientExceptionType(eResponseStatus.AnnouncementMessageTooLong, "Announcement Message Too Long", "The announcement message exceeds the permitted message length.");
         public static ClientExceptionType FAIL_CREATE_ANNOUNCEMENT = new ClientExceptionType(eResponseStatus.FailCreateAnnouncement, "Fail Create Announcement", "An error occurred while creating the announcement.");
         public static ClientExceptionType USER_NOT_FOLLOWING = new ClientExceptionType(eResponseStatus.UserNotFollowing, "User Not Following", "The user is not following this series.");
