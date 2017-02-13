@@ -1530,7 +1530,7 @@ namespace Catalog
 
             return (searchResultsList);
         }
-
+        
         private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
             int groupId, OrderDir orderDirection,
             Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
@@ -1797,7 +1797,8 @@ namespace Catalog
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <returns></returns>
-        private List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
+        public List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection,
+            DateTime? startDate = null, DateTime? endDate = null)
         {
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
@@ -1824,6 +1825,33 @@ namespace Catalog
                 Key = "group_id",
                 Value = groupId.ToString()
             });
+
+            #region define date filter
+
+            if ((startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue)) || 
+                (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue)))
+            {
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+
+                if (startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue))
+                {
+                    string sMin = startDate.Value.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                }
+
+                if (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue))
+                {
+                    string sMax = endDate.Value.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+                }
+
+                filter.AddChild(dateRange);
+            }
+
+            #endregion
 
             #region define action filter
 

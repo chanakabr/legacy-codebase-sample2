@@ -63,10 +63,10 @@ namespace Catalog
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         internal const int FINISHED_PERCENT_THRESHOLD = 95;
         private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
-        internal static readonly string STAT_ACTION_MEDIA_HIT = "mediahit";
-        internal static readonly string STAT_ACTION_FIRST_PLAY = "firstplay";
-        internal static readonly string STAT_ACTION_LIKE = "like";
-        internal static readonly string STAT_ACTION_RATES = "rates";
+        internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
+        internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
+        internal const string STAT_ACTION_LIKE = "like";
+        internal const string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
@@ -4501,37 +4501,75 @@ namespace Catalog
         internal static List<int> SlidingWindowCountAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action)
         {
-            List<int> result = new List<int>();
+            List<int> result = new List<int>(lMediaIds);
+            
+            var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
 
-            // if no ordering is specified to BuildSlidingWindowCountAggregationsRequest function then default is order by count descending
-            string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
-
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-            if (!string.IsNullOrEmpty(retval))
+            // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
+            if (searcher != null)
             {
-                //Get aggregations results
-                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
+                var assetIds = lMediaIds.Select(id => (long)id).ToList();
+                OrderBy orderBy = OrderBy.ID;
 
-                if (aggregationResults != null && aggregationResults.Count > 0)
+                switch (action)
                 {
-                    Dictionary<string, int> aggregationResult;
-                    //retrieve channel_views aggregations results
-                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                    if (aggregationResult != null && aggregationResult.Count > 0)
+                    case STAT_ACTION_FIRST_PLAY:
                     {
-                        foreach (string key in aggregationResult.Keys)
-                        {
-                            int count = aggregationResult[key];
+                        orderBy = OrderBy.VIEWS;
+                        break;
+                    }
+                    case STAT_ACTION_LIKE:
+                    {
+                        orderBy = OrderBy.LIKE_COUNTER;
+                        break;
+                    }
+                    case STAT_ACTION_RATES:
+                    {
+                        orderBy = OrderBy.RATING;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
 
-                            int nMediaId;
-                            if (int.TryParse(key, out nMediaId))
+                var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
+
+                result = orderedList.Select(id => (int)id).ToList();
+            }
+            else
+            {
+                // if no ordering is specified to BuildSlidingWindowCountAggregationsRequest function then default is order by count descending
+                string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+
+                //Search
+                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+                string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
+
+                if (!string.IsNullOrEmpty(retval))
+                {
+                    //Get aggregations results
+                    Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
+
+                    if (aggregationResults != null && aggregationResults.Count > 0)
+                    {
+                        Dictionary<string, int> aggregationResult;
+                        //retrieve channel_views aggregations results
+                        aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
+
+                        if (aggregationResult != null && aggregationResult.Count > 0)
+                        {
+                            foreach (string key in aggregationResult.Keys)
                             {
-                                result.Add(nMediaId);
+                                int count = aggregationResult[key];
+
+                                int nMediaId;
+                                if (int.TryParse(key, out nMediaId))
+                                {
+                                    result.Add(nMediaId);
+                                }
                             }
                         }
                     }
@@ -4673,40 +4711,79 @@ namespace Catalog
         internal static List<int> SlidingWindowStatisticsAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action, string valueField, AggregationsComparer.eCompareType compareType)
         {
-            List<int> result = new List<int>();
 
-            string aggregationsQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
-                action, valueField);
+            List<int> result = new List<int>(lMediaIds);
 
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
+            var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
 
-            if (!string.IsNullOrEmpty(retval))
+            // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
+            if (searcher != null)
             {
-                //Get aggregation results
-                Dictionary<string, List<StatisticsAggregationResult>> aggregationResults =
-                    ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
+                var assetIds = lMediaIds.Select(id => (long)id).ToList();
+                OrderBy orderBy = OrderBy.ID;
 
-                if (aggregationResults != null && aggregationResults.Count > 0)
+                switch (action)
                 {
-                    List<StatisticsAggregationResult> aggregationResult;
-                    //retrieve channel_views aggregation results
-                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                    if (aggregationResult != null && aggregationResult.Count > 0)
+                    case STAT_ACTION_FIRST_PLAY:
                     {
-                        int mediaId;
+                        orderBy = OrderBy.VIEWS;
+                        break;
+                    }
+                    case STAT_ACTION_LIKE:
+                    {
+                        orderBy = OrderBy.LIKE_COUNTER;
+                        break;
+                    }
+                    case STAT_ACTION_RATES:
+                    {
+                        orderBy = OrderBy.RATING;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
 
-                        // sorts order by descending
-                        aggregationResult.Sort(new AggregationsComparer(compareType));
+                var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
 
-                        foreach (var stats in aggregationResult)
+                result = orderedList.Select(id => (int)id).ToList();
+            }
+            else
+            {
+                string aggregationsQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
+                    action, valueField);
+
+                //Search
+                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+                string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
+
+                if (!string.IsNullOrEmpty(retval))
+                {
+                    //Get aggregation results
+                    Dictionary<string, List<StatisticsAggregationResult>> aggregationResults =
+                        ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
+
+                    if (aggregationResults != null && aggregationResults.Count > 0)
+                    {
+                        List<StatisticsAggregationResult> aggregationResult;
+                        //retrieve channel_views aggregation results
+                        aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
+
+                        if (aggregationResult != null && aggregationResult.Count > 0)
                         {
-                            if (int.TryParse(stats.key, out mediaId))
+                            int mediaId;
+
+                            // sorts order by descending
+                            aggregationResult.Sort(new AggregationsComparer(compareType));
+
+                            foreach (var stats in aggregationResult)
                             {
-                                result.Add(mediaId);
+                                if (int.TryParse(stats.key, out mediaId))
+                                {
+                                    result.Add(mediaId);
+                                }
                             }
                         }
                     }
