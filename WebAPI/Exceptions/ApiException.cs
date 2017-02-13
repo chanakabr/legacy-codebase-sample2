@@ -199,7 +199,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find CDN partner settings");
 
         // Billing 6000 - 6999
-        public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price of the request is not the actual price");
+        public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price shown for the item in the request is not the actual price.");
         public static ClientExceptionType UN_KNOWN_PPVMODULE = new ClientExceptionType(eResponseStatus.UnKnownPPVModule, "Un Known PPVModule", "This PPVModule does not belong to item ");
         public static ClientExceptionType EXPIRED_CARD = new ClientExceptionType(eResponseStatus.ExpiredCard, "Expired Card", "The specified credit card has expired.");
         public static ClientExceptionType CELLULAR_PERMISSIONS_ERROR = new ClientExceptionType(eResponseStatus.CellularPermissionsError, "Cellular Permissions Error", "Cellular Permissions Error");
@@ -225,7 +225,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType Domain_NOT_SET_TO_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.HouseholdNotSetToPaymentGateway, "Domain Not Set To Payment Gateway", "There's no Payment Gateway set for this household.");
         public static ClientExceptionType PAYMENT_GATEWAY_SELECTION_IS_DISABLED = new ClientExceptionType(eResponseStatus.PaymentGatewaySelectionIsDisabled, "Payment Gateway Selection Is Disabled", "The multiple Payment Gateway selection feature is disabled.");
         public static ClientExceptionType NO_RESPONSE_FROM_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.NoResponseFromPaymentGateway, "No Response From Payment Gateway", "The Payment Gateway failed to respond to the request because of a problem with the Payment Gateway adapter.");
-        public static ClientExceptionType INVALID_ACCOUNT = new ClientExceptionType(eResponseStatus.InvalidAccount, "Invalid Account");
+        public static ClientExceptionType INVALID_ACCOUNT = new ClientExceptionType(eResponseStatus.InvalidAccount, "Invalid Account", "The account specified is invalid: there is a problem with the Payment Gateway adapter.");
         public static ClientExceptionType INSUFFICIENT_FUNDS = new ClientExceptionType(eResponseStatus.InsufficientFunds, "Insufficient Funds", "The payment method selected doesn't have sufficient funds for the transaction requested.");
         public static ClientExceptionType UNKNOWN_PAYMENT_GATEWAY_RESPONSE = new ClientExceptionType(eResponseStatus.UnknownPaymentGatewayResponse, "Unknown Payment Gateway Response", "An unknown error occurred with the Payment Gateway adapter.");
         public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_USER_KNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterUserKnown, "Payment Gateway Adapter User Known", "");
@@ -239,7 +239,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType UNKNOWN_TRANSACTION_STATE = new ClientExceptionType(eResponseStatus.UnknownTransactionState, "Unknown Transaction State");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_VALID = new ClientExceptionType(eResponseStatus.PaymentGatewayNotValid, "Payment Gateway Not Valid", "The specified Payment Gateway is not valid.");
         public static ClientExceptionType Domain_REQUIRED = new ClientExceptionType(eResponseStatus.HouseholdRequired, "Domain Required", "The mandatory household field is missing from the request.");
-        public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_FAIL_REASON_UNKNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, "Payment Gateway Adapter Fail Reason Unknown");
+        public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_FAIL_REASON_UNKNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, "Payment Gateway Adapter Fail Reason Unknown", "The Payment Gateway adapter failed for an unknown reason.");
         public static ClientExceptionType NO_PARTNER_CONFIGURATION_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoPartnerConfigurationToUpdate, "No Partner Configuration To Update", "No partner configuration to update.");
         public static ClientExceptionType NO_CONFIGURATION_VALUE_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoConfigurationValueToUpdate, "No Configuration Value To Update", "No configuration value to update.");
         public static ClientExceptionType PAYMENT_METHOD_NOT_SET_FOR_Domain = new ClientExceptionType(eResponseStatus.PaymentMethodNotSetForHousehold, "Payment Method Not Set For Domain", "No payment method was set for this household.");
