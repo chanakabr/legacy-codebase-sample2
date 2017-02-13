@@ -685,6 +685,7 @@ namespace Tvinci.Core.DAL
             }
 
             umm.LastMark = userMediaMark;
+            umm.devices = new List<UserMediaMark>();
 
             bool result = couchbaseManager.SetWithVersion(mmKey, JsonConvert.SerializeObject(umm, Formatting.None), version);
 
@@ -2413,10 +2414,12 @@ namespace Tvinci.Core.DAL
                 ulong version;
                 var data = manager.GetWithVersion<string>(mmKey, out version);
 
-                MediaMarkLog umm = new MediaMarkLog();
-
-                //For quick last position access
-                umm.LastMark = dev;
+                MediaMarkLog umm = new MediaMarkLog()
+                {
+                    //For quick last position access
+                    LastMark = dev,
+                    devices = new List<UserMediaMark>()
+                };
 
                 TimeSpan? epgDocExpiry = null;
 
