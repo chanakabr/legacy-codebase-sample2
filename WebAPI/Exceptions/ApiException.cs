@@ -113,7 +113,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType NOT_FOR_PURCHASE = new ClientExceptionType(eResponseStatus.NotForPurchase, "Not For Purchase", "The Content ID entered is not available for purchase.");
         public static ClientExceptionType FAIL = new ClientExceptionType(eResponseStatus.Fail, "Fail"); //??
         public static ClientExceptionType UNABLE_TO_PURCHASE_COLLECTION_PURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchaseCollectionPurchased, "Unable To Purchase Collection Purchased", "This collection has already been purchased by this household");
-        public static ClientExceptionType FILE_TO_MEDIA_MISMATCH = new ClientExceptionType(eResponseStatus.FileToMediaMismatch, "File To Media Mismatch", "The file and media don't match"); 
+        public static ClientExceptionType FILE_TO_MEDIA_MISMATCH = new ClientExceptionType(eResponseStatus.FileToMediaMismatch, "File To Media Mismatch", "The file and media don't match");
         public static ClientExceptionType RECONCILIATION_FREQUENCY_LIMITATION = new ClientExceptionType(eResponseStatus.ReconciliationFrequencyLimitation, "Reconciliation Frequency Limitation", "");
         public static ClientExceptionType INVALID_CUSTOM_DATA_IDENTIFIER = new ClientExceptionType(eResponseStatus.InvalidCustomDataIdentifier, "Invalid Custom Data Identifier", "The custom data identifier you entered is invalid");
         public static ClientExceptionType INVALID_FILE_TYPE = new ClientExceptionType(eResponseStatus.InvalidFileType, "Invalid File Type", "The file type provided is invalid");
@@ -200,7 +200,7 @@ namespace WebAPI.Exceptions
 
         // Billing 6000 - 6999
         public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price shown for the item in the request is not the actual price.");
-        public static ClientExceptionType UN_KNOWN_PPVMODULE = new ClientExceptionType(eResponseStatus.UnKnownPPVModule, "Un Known PPVModule", "This PPVModule does not belong to item ");
+        public static ClientExceptionType UN_KNOWN_PPVMODULE = new ClientExceptionType(eResponseStatus.UnKnownPPVModule, "Un Known PPVModule", "This PPVModule does not belong to the item.");
         public static ClientExceptionType EXPIRED_CARD = new ClientExceptionType(eResponseStatus.ExpiredCard, "Expired Card", "The specified credit card has expired.");
         public static ClientExceptionType CELLULAR_PERMISSIONS_ERROR = new ClientExceptionType(eResponseStatus.CellularPermissionsError, "Cellular Permissions Error", "Cellular Permissions Error");
         public static ClientExceptionType UN_KNOWN_BILLING_PROVIDER = new ClientExceptionType(eResponseStatus.UnKnownBillingProvider, "Un Known Billing Provider", "The billing provider specified is not a recognized provider.");
@@ -236,12 +236,12 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PAYMENT_GATEWAY_TRANSACTION_IS_NOT_PENDING = new ClientExceptionType(eResponseStatus.PaymentGatewayTransactionIsNotPending, "Payment Gateway Transaction Is Not Pending", "There's no pending Payment Gateway transaction.");
         public static ClientExceptionType EXTERNAL_IDENTIFIER_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.ExternalIdentifierMustBeUnique, "External Identifier Must Be Unique", "External identifier must be unique.");
         public static ClientExceptionType NO_PAYMENT_GATEWAY_TO_INSERT = new ClientExceptionType(eResponseStatus.NoPaymentGatewayToInsert, "No Payment Gateway To Insert", "Unable to complete the request: there's no new Payment Gateway to insert.");
-        public static ClientExceptionType UNKNOWN_TRANSACTION_STATE = new ClientExceptionType(eResponseStatus.UnknownTransactionState, "Unknown Transaction State");
+        public static ClientExceptionType UNKNOWN_TRANSACTION_STATE = new ClientExceptionType(eResponseStatus.UnknownTransactionState, "Unknown Transaction State", "An error occurred while updating a pending transaction. The transaction's status is currently unknown.");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_VALID = new ClientExceptionType(eResponseStatus.PaymentGatewayNotValid, "Payment Gateway Not Valid", "The specified Payment Gateway is not valid.");
         public static ClientExceptionType Domain_REQUIRED = new ClientExceptionType(eResponseStatus.HouseholdRequired, "Domain Required", "The mandatory household field is missing from the request.");
         public static ClientExceptionType PAYMENT_GATEWAY_ADAPTER_FAIL_REASON_UNKNOWN = new ClientExceptionType(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown, "Payment Gateway Adapter Fail Reason Unknown", "The Payment Gateway adapter failed for an unknown reason.");
-        public static ClientExceptionType NO_PARTNER_CONFIGURATION_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoPartnerConfigurationToUpdate, "No Partner Configuration To Update", "No partner configuration to update.");
-        public static ClientExceptionType NO_CONFIGURATION_VALUE_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoConfigurationValueToUpdate, "No Configuration Value To Update", "No configuration value to update.");
+        public static ClientExceptionType NO_PARTNER_CONFIGURATION_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoPartnerConfigurationToUpdate, "No Partner Configuration To Update", "The partner configuration pair (type and configuration value) you've asked to update is an empty pair.");
+        public static ClientExceptionType NO_CONFIGURATION_VALUE_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoConfigurationValueToUpdate, "No Configuration Value To Update", "The configuration value being updated is empty.");
         public static ClientExceptionType PAYMENT_METHOD_NOT_SET_FOR_Domain = new ClientExceptionType(eResponseStatus.PaymentMethodNotSetForHousehold, "Payment Method Not Set For Domain", "No payment method was set for this household.");
         public static ClientExceptionType PAYMENT_METHOD_NOT_EXIST = new ClientExceptionType(eResponseStatus.PaymentMethodNotExist, "Payment Method Not Exist", "The selected payment method doesn't exist.");
         public static ClientExceptionType PAYMENT_METHOD_ID_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentMethodIdRequired, "Payment Method Id Required", "The mandatory payment method ID field is missing from the request.");
