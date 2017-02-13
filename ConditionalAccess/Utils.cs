@@ -3387,8 +3387,7 @@ namespace ConditionalAccess
 
             string username = string.Empty;
             string password = string.Empty;
-
-            TVinciShared.WS_Utils.GetWSUNPass(groupId, "GetUserData", "users", "1.1.1.1", ref username, ref password);
+            GetWSCredentials(groupId, eWSModules.USERS, ref username, ref password);            
             UsersService userService = new UsersService();
 
             try
@@ -3452,7 +3451,7 @@ namespace ConditionalAccess
             string username = string.Empty;
             string password = string.Empty;
 
-            TVinciShared.WS_Utils.GetWSUNPass(groupId, "...", "domains", "1.1.1.1", ref username, ref password);
+            Utils.GetWSCredentials(groupId, eWSModules.DOMAINS, ref username, ref password);
             WS_Domains.module domainsService = new WS_Domains.module();
 
             try
