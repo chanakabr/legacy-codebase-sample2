@@ -78,9 +78,9 @@ namespace ElasticSearch.Common
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static string ReplaceDocumentReservedCharacters(ref string values)
+        public static string ReplaceDocumentReservedCharacters(ref string values, bool toLower = true)
         {
-            return Replace(ref values, m_dicDocumentReservedCharacters);
+            return Replace(ref values, m_dicDocumentReservedCharacters, toLower);
         }
 
         /// <summary>
@@ -93,21 +93,28 @@ namespace ElasticSearch.Common
             return Replace(ref values, m_dicQueryReservedCharacters);
         }
 
-        private static string Replace(ref string p_sValue, Dictionary<string, string> p_dicReplacements)
+        private static string Replace(ref string value, Dictionary<string, string> replacements, bool toLower = true)
         {
-            if (string.IsNullOrEmpty(p_sValue))
+            if (string.IsNullOrEmpty(value))
             {
-                return p_sValue;
+                return value;
             }
 
-            StringBuilder sb = new StringBuilder(p_sValue, p_sValue.Length * 2);
+            StringBuilder stringBuilder = new StringBuilder(value, value.Length * 2);
 
-            foreach (var kvpEscapeChar in p_dicReplacements)
+            foreach (var escapeChar in replacements)
             {
-                sb.Replace(kvpEscapeChar.Key, kvpEscapeChar.Value);
+                stringBuilder.Replace(escapeChar.Key, escapeChar.Value);
             }
 
-            return sb.ToString().ToLower();
+            string result = stringBuilder.ToString();
+            
+            if (toLower)
+            {
+                result = result.ToLower();
+            }
+
+            return result;
         }
 
         public static string GetKeyNameWithPrefix(string sKey, string sPrefix)
