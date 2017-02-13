@@ -7453,7 +7453,50 @@ namespace ConditionalAccess
             }
 
             return res;
-        }        
+        }
 
+        internal static ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(DomainResponseStatus mediaConcurrencyResponse)
+        {
+            ApiObjects.Response.Status res;
+
+            switch (mediaConcurrencyResponse)
+            {
+                case DomainResponseStatus.LimitationPeriod:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.LimitationPeriod, "Limitation period");
+                    break;
+                case DomainResponseStatus.Error:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+                case DomainResponseStatus.ExceededLimit:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
+                    break;
+                case DomainResponseStatus.DeviceTypeNotAllowed:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
+                    break;
+                case DomainResponseStatus.DeviceNotInDomain:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household");
+                    break;
+                case DomainResponseStatus.DeviceAlreadyExists:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
+                    break;
+                case DomainResponseStatus.OK:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    break;
+                case DomainResponseStatus.DeviceExistsInOtherDomains:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
+                    break;
+                case DomainResponseStatus.ConcurrencyLimitation:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
+                    break;
+                case DomainResponseStatus.MediaConcurrencyLimitation:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.MediaConcurrencyLimitation, "Media concurrency limitation");
+                    break;
+                default:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return res;
+        }
     }
 }

@@ -14,7 +14,7 @@ using TVinciShared;
 using WS_API;
 using WS_Pricing;
 
-namespace ConditionalAccess.Entitlement
+namespace ConditionalAccess
 {
     public class ReconciliationManager
     {

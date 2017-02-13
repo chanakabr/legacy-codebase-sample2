@@ -35,7 +35,7 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
+        internal override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
         {
             string response = null;
 

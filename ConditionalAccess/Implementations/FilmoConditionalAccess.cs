@@ -23,7 +23,7 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
+        internal override string GetLicensedLink(int nStreamingCompany, Dictionary<string, string> dParams)
         {
             string sBasicLink;
 
