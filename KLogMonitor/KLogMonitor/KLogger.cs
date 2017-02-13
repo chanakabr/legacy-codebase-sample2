@@ -240,8 +240,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.DebugFormat(logEvent.Message, logEvent.args);
                             }
@@ -255,8 +255,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.Debug(logEvent.Message, logEvent.Exception);
                             }
@@ -274,8 +274,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))                            
                             {
                                 separateLogeer.WarnFormat(logEvent.Message, logEvent.args);
                             }
@@ -289,8 +289,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.Warn(logEvent.Message, logEvent.Exception);
                             }
@@ -308,8 +308,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.ErrorFormat(logEvent.Message, logEvent.args);
                             }
@@ -323,8 +323,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.Error(logEvent.Message, logEvent.Exception);
                             }
@@ -342,8 +342,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.InfoFormat(logEvent.Message, logEvent.args);
                             }
@@ -357,8 +357,8 @@ namespace KLogMonitor
                     {
                         if (!string.IsNullOrEmpty(this.LoggerName))
                         {
-                            ILog separateLogeer = separateLogsMap.ContainsKey(this.LoggerName) ? separateLogsMap[this.LoggerName] : null;
-                            if (separateLogeer != null)
+                            ILog separateLogeer;
+                            if (separateLogsMap.TryGetValue(this.LoggerName, out separateLogeer))
                             {
                                 separateLogeer.Info(logEvent.Message, logEvent.Exception);
                             }
