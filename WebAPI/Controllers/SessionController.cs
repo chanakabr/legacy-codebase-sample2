@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
                 sessionType = ks.SessionType,
                 userId = ks.UserId,
                 udid = KSUtils.ExtractKSPayload(ks).UDID,
-                createDate = payload.CreateDate,
+                createDate = KSUtils.ExtractKSPayload(ks).CreateDate,
             };
         }
 
