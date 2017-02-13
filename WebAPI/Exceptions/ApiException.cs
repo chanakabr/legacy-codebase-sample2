@@ -29,15 +29,15 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType USER_NOT_IN_Domain = new ClientExceptionType(eResponseStatus.UserNotInDomain, "User Not In Domain", "The user you selected is not part of the current household");
         public static ClientExceptionType Domain_NOT_EXISTS = new ClientExceptionType(eResponseStatus.DomainNotExists, "Domain Not Exists", "The household you selected does not exist");
         public static ClientExceptionType Domain_USER_FAILED = new ClientExceptionType(eResponseStatus.HouseholdUserFailed, "Domain User Failed", "The system was unable to register this household user");
-        public static ClientExceptionType Domain_CREATED_WITHOUT_NPVRACCOUNT = new ClientExceptionType(eResponseStatus.DomainCreatedWithoutNPVRAccount, "Domain Created Without NPVRAccount", "The household was created without an external NPVR account");
+        public static ClientExceptionType Domain_CREATED_WITHOUT_NPVRACCOUNT = new ClientExceptionType(eResponseStatus.DomainCreatedWithoutNPVRAccount, "Domain Created Without NPVRAccount", "The household was created without an external NPVR (network personal video recorder) account");
         public static ClientExceptionType Domain_SUSPENDED = new ClientExceptionType(eResponseStatus.DomainSuspended, "Domain Suspended", "Unable to perform the action requested because the household has been suspended");
         public static ClientExceptionType DLM_NOT_EXIST = new ClientExceptionType(eResponseStatus.DlmNotExist, "Dlm Not Exist", "The device limitation module (DLM) you entered does not exist in the system");
         public static ClientExceptionType WRONG_PASSWORD_OR_USER_NAME = new ClientExceptionType(eResponseStatus.WrongPasswordOrUserName, "Wrong Password Or User Name",
             "Unable to authenticate this user - the user name or password are incorrect. Please re-enter this information");
         public static ClientExceptionType Domain_ALREADY_SUSPENDED = new ClientExceptionType(eResponseStatus.DomainAlreadySuspended, "Domain Already Suspended", "This household has already been suspended");
         public static ClientExceptionType Domain_ALREADY_ACTIVE = new ClientExceptionType(eResponseStatus.DomainAlreadyActive, "Domain Already Active", "This household has already been activated");
-        public static ClientExceptionType LIMITATION_PERIOD = new ClientExceptionType(eResponseStatus.LimitationPeriod, "Limitation Period", "Unable to remove the device or user from the household because of the limitation period");
-        public static ClientExceptionType DEVICE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.DeviceAlreadyExists, "Device Already Exists", "The device you are trying to add already exists");
+        public static ClientExceptionType LIMITATION_PERIOD = new ClientExceptionType(eResponseStatus.LimitationPeriod, "Limitation Period", "Unable to remove the device or user from the household at this time because of the limitation period. Please try again later");
+        public static ClientExceptionType DEVICE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.DeviceAlreadyExists, "Device Already Exists", "The device you are trying to add already exists in the system");
         public static ClientExceptionType DEVICE_EXISTS_IN_OTHER_DomainS = new ClientExceptionType(eResponseStatus.DeviceExistsInOtherDomains, "Device Exists In Other Domains",
             "Unable to add this device to this household because the device is already associated with another household");
         public static ClientExceptionType NO_USERS_IN_Domain = new ClientExceptionType(eResponseStatus.NoUsersInDomain, "No Users In Domain", "There are no users associated with this household");
@@ -47,17 +47,17 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ACTION_USER_NOT_MASTER = new ClientExceptionType(eResponseStatus.ActionUserNotMaster, "Action User Not Master", "Unable to perform this action: the user is not the household master");
         public static ClientExceptionType EXCEEDED_USER_LIMIT = new ClientExceptionType(eResponseStatus.ExceededUserLimit, "Exceeded User Limit", "Unable to perform this action: you have exceeded the number of users for this household");
         public static ClientExceptionType Domain_NOT_INITIALIZED = new ClientExceptionType(eResponseStatus.DomainNotInitialized, "Domain Not Initialized", "This household has not been initialized");
-        public static ClientExceptionType DEVICE_NOT_CONFIRMED = new ClientExceptionType(eResponseStatus.DeviceNotConfirmed, "Device Not Confirmed", "Unable to confirm this device");
-        public static ClientExceptionType REQUEST_FAILED = new ClientExceptionType(eResponseStatus.RequestFailed, "Request Failed", "");
+        public static ClientExceptionType DEVICE_NOT_CONFIRMED = new ClientExceptionType(eResponseStatus.DeviceNotConfirmed, "Device Not Confirmed", "Unable to verify this device");
+        public static ClientExceptionType REQUEST_FAILED = new ClientExceptionType(eResponseStatus.RequestFailed, "Request Failed");
         public static ClientExceptionType INVALID_USER = new ClientExceptionType(eResponseStatus.InvalidUser, "Invalid User", "The user you selected for this action is not a valid user");
         public static ClientExceptionType USER_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.UserNotAllowed, "User Not Allowed", "The user you selected for this action is not allowed for it");
         public static ClientExceptionType DUPLICATE_PIN = new ClientExceptionType(eResponseStatus.DuplicatePin, "Duplicate Pin", "The PIN number you entered is already being used in this household");
         public static ClientExceptionType USER_ALREADY_IN_Domain = new ClientExceptionType(eResponseStatus.UserAlreadyInDomain, "User Already In Domain", "Unable to add a user to the same household twice");
-        public static ClientExceptionType NOT_ALLOWED_TO_DELETE = new ClientExceptionType(eResponseStatus.NotAllowedToDelete, "Not Allowed To Delete", "Account not permitted to delete user");
-        public static ClientExceptionType HOME_NETWORK_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.HomeNetworkAlreadyExists, "Home Network Already Exists", "Unable to add an home network to the same household twice");
-        public static ClientExceptionType HOME_NETWORK_LIMITATION = new ClientExceptionType(eResponseStatus.HomeNetworkLimitation, "Home Network Limitation", "The home network amount in the household has been exceeded");
+        public static ClientExceptionType NOT_ALLOWED_TO_DELETE = new ClientExceptionType(eResponseStatus.NotAllowedToDelete, "Not Allowed To Delete", "Unable to delete this user from the account due to permission limitations");
+        public static ClientExceptionType HOME_NETWORK_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.HomeNetworkAlreadyExists, "Home Network Already Exists", "Unable to add a home network to the same household twice");
+        public static ClientExceptionType HOME_NETWORK_LIMITATION = new ClientExceptionType(eResponseStatus.HomeNetworkLimitation, "Home Network Limitation", "The number of home networks in the household has been exceeded");
         public static ClientExceptionType HOME_NETWORK_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.HomeNetworkDoesNotExist, "Home Network Does Not Exist", "The home network you specified does not exis");
-        public static ClientExceptionType HOME_NETWORK_FREQUENCY = new ClientExceptionType(eResponseStatus.HomeNetworkFrequency, "Home Network Frequency", "Uable to remove the home network from the household because of the frequency limitation");
+        public static ClientExceptionType HOME_NETWORK_FREQUENCY = new ClientExceptionType(eResponseStatus.HomeNetworkFrequency, "Home Network Frequency", "Unable to remove the home network from the household because of the frequency limitation. Please try again later");
 
         // User Section 2000 - 2999
         public static ClientExceptionType USER_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserDoesNotExist, "User Does Not Exist", "This user does not exist");
@@ -67,7 +67,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType NO_VALID_PIN = new ClientExceptionType(eResponseStatus.NoValidPin, "No Valid Pin", "The PIN provided is not valid");
         public static ClientExceptionType MISSING_SECURITY_PARAMETER = new ClientExceptionType(eResponseStatus.MissingSecurityParameter, "Missing Security Parameter");//??????
         public static ClientExceptionType SECRET_IS_WRONG = new ClientExceptionType(eResponseStatus.SecretIsWrong, "Secret Is Wrong", "The adapter application secret provided is incorrect. Please re-enter");
-        public static ClientExceptionType LOGIN_VIA_PIN_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.LoginViaPinNotAllowed, "Login Via Pin Not Allowed", "Log in using a PIN is not enabled for accoun");
+        public static ClientExceptionType LOGIN_VIA_PIN_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.LoginViaPinNotAllowed, "Login Via Pin Not Allowed", "Log in using a PIN is not enabled for this account");
         public static ClientExceptionType PIN_NOT_IN_THE_RIGHT_LENGTH = new ClientExceptionType(eResponseStatus.PinNotInTheRightLength, "Pin Not In The Right Length", "The PIN provided is not valid.(does not match the required number of digits).");
         public static ClientExceptionType PIN_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.PinAlreadyExists, "Pin Already Exists", "The PIN that you entered already exists in the system");
         public static ClientExceptionType USER_EXISTS = new ClientExceptionType(eResponseStatus.UserExists, "User Exists", "The user you are trying to add already exists");
@@ -93,7 +93,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_PURCHASE = new ClientExceptionType(eResponseStatus.InvalidPurchase, "Invalid Purchase"); //??
         public static ClientExceptionType CANCELATION_WINDOW_PERIOD_EXPIRED = new ClientExceptionType(eResponseStatus.CancelationWindowPeriodExpired, "Cancelation Window Period Expired",
             "Unable to cancel the product request because the cancellation window has expired.");
-        public static ClientExceptionType SUBSCRIPTION_NOT_RENEWABLE = new ClientExceptionType(eResponseStatus.SubscriptionNotRenewable, "Subscription Not Renewable", "Unable to perform this action on subscription which is not renewable");
+        public static ClientExceptionType SUBSCRIPTION_NOT_RENEWABLE = new ClientExceptionType(eResponseStatus.SubscriptionNotRenewable, "Subscription Not Renewable", "Unable to perform this action on a subscription that is not renewable");
         public static ClientExceptionType SERVICE_NOT_ALLOWED = new ClientExceptionType(eResponseStatus.ServiceNotAllowed, "Service Not Allowed", "The user is not entitled to the premium service that he or she is trying to access");
         public static ClientExceptionType INVALID_BASE_LINK = new ClientExceptionType(eResponseStatus.InvalidBaseLink, "Invalid Base Link", "The CDN code that was provided is incorrect");
         public static ClientExceptionType CONTENT_ALREADY_CONSUMED = new ClientExceptionType(eResponseStatus.ContentAlreadyConsumed, "Content Already Consumed", "Unable to complete this request - content cannot be cancelled after being viewed.");
@@ -110,7 +110,7 @@ namespace WebAPI.Exceptions
             "The product you are trying to purchase is restricted to subscription purchases only");
         public static ClientExceptionType UNABLE_TO_PURCHASE_SUBSCRIPTION_PURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchaseSubscriptionPurchased, "Unable To Purchase Subscription Purchased",
             "This subscription was already purchased by this household.");
-        public static ClientExceptionType NOT_FOR_PURCHASE = new ClientExceptionType(eResponseStatus.NotForPurchase, "Not For Purchase", "This file is not available for purchase");
+        public static ClientExceptionType NOT_FOR_PURCHASE = new ClientExceptionType(eResponseStatus.NotForPurchase, "Not For Purchase", "This media file is not available for purchase");
         public static ClientExceptionType FAIL = new ClientExceptionType(eResponseStatus.Fail, "Fail", ""); //??
         public static ClientExceptionType UNABLE_TO_PURCHASE_COLLECTION_PURCHASED = new ClientExceptionType(eResponseStatus.UnableToPurchaseCollectionPurchased, "Unable To Purchase Collection Purchased", "This collection has already been purchased by this household");
         public static ClientExceptionType FILE_TO_MEDIA_MISMATCH = new ClientExceptionType(eResponseStatus.FileToMediaMismatch, "File To Media Mismatch", ""); //??
@@ -127,18 +127,18 @@ namespace WebAPI.Exceptions
             "This program cannot be recorded because it is not in the recording schedule window");
         public static ClientExceptionType RECORDING_NOT_FOUND = new ClientExceptionType(eResponseStatus.RecordingNotFound, "Recording Not Found", "The program ID provided is invalid");
         public static ClientExceptionType RECORDING_FAILED = new ClientExceptionType(eResponseStatus.RecordingFailed, "Recording Failed", "The program recording failed");
-        public static ClientExceptionType PAYMENT_METHOD_IS_USED_BY_Domain = new ClientExceptionType(eResponseStatus.PaymentMethodIsUsedByHousehold, "Payment Method Is Used By Domain", "The payment method entered is already being used by the household");
+        public static ClientExceptionType PAYMENT_METHOD_IS_USED_BY_Domain = new ClientExceptionType(eResponseStatus.PaymentMethodIsUsedByHousehold, "The payment method you're trying to remove is already being used by the household");
         public static ClientExceptionType EXCEEDED_QUOTA = new ClientExceptionType(eResponseStatus.ExceededQuota, "Exceeded Quota", "You've reached the maximum quote buffer for your household");
-        public static ClientExceptionType RECORDING_STATUS_NOT_VALID = new ClientExceptionType(eResponseStatus.RecordingStatusNotValid, "Recording Status Not Valid", "Recording status is not valid (the only permitted status are: Recorded, Recording, Scheduled).");
+        public static ClientExceptionType RECORDING_STATUS_NOT_VALID = new ClientExceptionType(eResponseStatus.RecordingStatusNotValid, "Recording Status Not Valid", "Unable to perform the action requested because of the current recording status. Actions are only allowed for these statuses:Recorded, Recording, Scheduled");
         public static ClientExceptionType EXCEEDED_PROTECTION_QUOTA = new ClientExceptionType(eResponseStatus.ExceededProtectionQuota, "Exceeded Protection Quota", "You've reached the maximum quota on protected programs, and can't protect any additional programs");
         public static ClientExceptionType ACCOUNT_PROTECT_RECORD_NOT_ENABLED = new ClientExceptionType(eResponseStatus.AccountProtectRecordNotEnabled, "Account Protect Record Not Enabled", "The account recording protection feature is disabled");
         public static ClientExceptionType ACCOUNT_SERIES_RECORDING_NOT_ENABLED = new ClientExceptionType(eResponseStatus.AccountSeriesRecordingNotEnabled, "Account Series Recording Not Enabled", "The account series recording feature is disabled");
         public static ClientExceptionType ALREADY_RECORDED_AS_SERIES_OR_SEASON = new ClientExceptionType(eResponseStatus.AlreadyRecordedAsSeriesOrSeason, "Already Recorded As Series Or Season", "This program has already been recorded as part of a series/season recording");
         public static ClientExceptionType SERIES_RECORDING_NOT_FOUND = new ClientExceptionType(eResponseStatus.SeriesRecordingNotFound, "Series Recording Not Found", "Unable to find the requested series recording");
-        public static ClientExceptionType EPG_ID_NOT_PART_OF_SERIES = new ClientExceptionType(eResponseStatus.EpgIdNotPartOfSeries, "Epg Id Not Part Of Series", "The EPG program is not part of the series");
-        public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NON_EXISTING_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording Playback Not Allowed For Non Existing Epg Channel", "");//??
-        public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NOT_ENTITLED_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording Playback Not Allowed For Not Entitled Epg Channel", "");//??
-        public static ClientExceptionType SEASON_NUMBER_NOT_MATCH = new ClientExceptionType(eResponseStatus.SeasonNumberNotMatch, "Season Number Not Match", "The season number you entered doesn't match the season number was record");
+        public static ClientExceptionType EPG_ID_NOT_PART_OF_SERIES = new ClientExceptionType(eResponseStatus.EpgIdNotPartOfSeries, "Epg Id Not Part Of Series", "Unable to cancel or delete an EPG program that is not part of the series");
+        public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NON_EXISTING_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording Playback Not Allowed For Non Existing Epg Channel", "Recording playback is not allowed for a non-existing EPG channel");
+        public static ClientExceptionType RECORDING_PLAYBACK_NOT_ALLOWED_FOR_NOT_ENTITLED_EPG_CHANNEL = new ClientExceptionType(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel, "Recording Playback Not Allowed For Not Entitled Epg Channel", "Recording playback is not allowed for EPG channels to which you're not subscribed");
+        public static ClientExceptionType SEASON_NUMBER_NOT_MATCH = new ClientExceptionType(eResponseStatus.SeasonNumberNotMatch, "Season Number Not Match", "The season number you entered doesn't match the season number that was recorded");
 
 
         //Catalog 4000 - 4999
@@ -159,22 +159,22 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType EXTERNAL_CHANNEL_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.ExternalChannelIdentifierRequired, "External Channel Identifier Required", "The mandatory external channel identifier field is missing from the request");
         public static ClientExceptionType EXTERNAL_CHANNEL_HAS_NO_RECOMMENDATION_ENGINE = new ClientExceptionType(eResponseStatus.ExternalChannelHasNoRecommendationEngine, "External Channel Has No Recommendation Engine", "The external channel isn't connected to a recommendation engine");
         public static ClientExceptionType NO_RECOMMENDATION_ENGINE_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoRecommendationEngineToUpdate, "No Recommendation Engine To Update", "There's no recommendation engine to update");
-        public static ClientExceptionType INACTIVE_EXTERNAL_CHANNEL_ENRICHMENT = new ClientExceptionType(eResponseStatus.InactiveExternalChannelEnrichment, "Inactive External Channel Enrichment", "Inactive external channel enrichment");
-        public static ClientExceptionType IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.IdentifierRequired, "Identifier Required", "Identifier is required");
+        public static ClientExceptionType INACTIVE_EXTERNAL_CHANNEL_ENRICHMENT = new ClientExceptionType(eResponseStatus.InactiveExternalChannelEnrichment, "Inactive External Channel Enrichment", "The specified external channel enrichment is not available");
+        public static ClientExceptionType IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.IdentifierRequired, "Identifier Required", "Please specify the channel ID identifier");
         public static ClientExceptionType OBJECT_NOT_EXIST = new ClientExceptionType(eResponseStatus.ObjectNotExist, "Object Not Exist", "The object requested doesn't exist");
         public static ClientExceptionType NO_OBJECT_TO_INSERT = new ClientExceptionType(eResponseStatus.NoObjectToInsert, "No Object To Insert", "No object to insert");
         public static ClientExceptionType INVALID_MEDIA_TYPE = new ClientExceptionType(eResponseStatus.InvalidMediaType, "Invalid Media Type", "The asset type does not match one of the group asset types");
         public static ClientExceptionType INVALID_ASSET_TYPE = new ClientExceptionType(eResponseStatus.InvalidAssetType, "Invalid Asset Type", "The asset requested is not a valid asset type");
         public static ClientExceptionType PROGRAM_DOESNT_EXIST = new ClientExceptionType(eResponseStatus.ProgramDoesntExist, "Program Doesnt Exist", "The EPG program requested doesn't exist");
-        public static ClientExceptionType ACTION_NOT_RECOGNIZED = new ClientExceptionType(eResponseStatus.ActionNotRecognized, "Action Not Recognized", "Action is not recognized");
+        public static ClientExceptionType ACTION_NOT_RECOGNIZED = new ClientExceptionType(eResponseStatus.ActionNotRecognized, "Action Not Recognized", "Unable to recognize the action you specified");
         public static ClientExceptionType INVALID_ASSET_ID = new ClientExceptionType(eResponseStatus.InvalidAssetId, "Invalid Asset Id", "The specified asset ID is invalid");
         public static ClientExceptionType COUNTRY_NOT_FOUND = new ClientExceptionType(eResponseStatus.CountryNotFound, "Country Not Found", "Unable to find the country code specified");
 
         // Api 5000 - 5999
         public static ClientExceptionType NO_PIN_DEFINED = new ClientExceptionType(eResponseStatus.NoPinDefined, "No Pin Defined", "No parental PIN was defined for this user/household");
         public static ClientExceptionType PIN_MISMATCH = new ClientExceptionType(eResponseStatus.PinMismatch, "Pin Mismatch", "The parental PIN provided doesn't match the user/household PIN");
-        public static ClientExceptionType RULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RuleNotExists, "Rule Not Exists", "Rule doesn't exists"); // ?? add details 
-        public static ClientExceptionType NO_OSSADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoOSSAdapterToInsert, "No OSSAdapter To Insert", "There's no OSS adapter to insert");
+        public static ClientExceptionType RULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.RuleNotExists, "Rule Not Exists", "This rule doesn't exist in the system");
+        public static ClientExceptionType NO_OSSADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoOSSAdapterToInsert, "No OSSAdapter To Insert", "There's no OSS Adapater Profile to add to the system");
         public static ClientExceptionType NAME_REQUIRED = new ClientExceptionType(eResponseStatus.NameRequired, "Name Required", "The mandatory name field is missing from the request");
         public static ClientExceptionType SHARED_SECRET_REQUIRED = new ClientExceptionType(eResponseStatus.SharedSecretRequired, "Shared Secret Required", "The mandatory shared secret field is missing from the request");
         public static ClientExceptionType OSSADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.OSSAdapterIdentifierRequired, "OSSAdapter Identifier Required", "The mandatory OSS adapter identifier field is missing from the request");
@@ -188,15 +188,15 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PURCHASE_SETTINGS_TYPE_INVALID = new ClientExceptionType(eResponseStatus.PurchaseSettingsTypeInvalid, "Purchase Settings Type Invalid", "The specified purchase settings type is Invalid");
         public static ClientExceptionType EXPORT_TASK_NOT_FOUND = new ClientExceptionType(eResponseStatus.ExportTaskNotFound, "Export Task Not Found", "The requested export task wasn't found");
         public static ClientExceptionType EXPORT_NOTIFICATION_URL_REQUIRED = new ClientExceptionType(eResponseStatus.ExportNotificationUrlRequired, "Export Notification Url Required", "The mandatory export notification URL field is missing from the request");
-        public static ClientExceptionType EXPORT_FREQUENCY_MIN_VALUE = new ClientExceptionType(eResponseStatus.ExportFrequencyMinValue, "Export Frequency Min Value", "Export frequency Minimum value");
+        public static ClientExceptionType EXPORT_FREQUENCY_MIN_VALUE = new ClientExceptionType(eResponseStatus.ExportFrequencyMinValue, "Export Frequency Min Value", "The export frequency set is below the minimum allowed");
         public static ClientExceptionType ALIAS_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.AliasMustBeUnique, "Alias Must Be Unique", "Invalid entry: the alias value must be unique");
         public static ClientExceptionType ALIAS_REQUIRED = new ClientExceptionType(eResponseStatus.AliasRequired, "Alias Required", "The mandatory alias value field is missing from the request");
         public static ClientExceptionType USER_PARENTAL_RULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.UserParentalRuleNotExists, "User Parental Rule Not Exists", "There is no parental rule associated with this user");
-        public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNotFound, "Time Shifted Tv Partner Settings Not Found", "The system did not find TimeShiftedTvPartner settings");
-        public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NOT_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNotSent, "Time Shifted Tv Partner Settings Not Sent", "The TimeShiftedTvPartner Settings were not sent");
+        public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNotFound, "Time Shifted Tv Partner Settings Not Found", "The system did not find any TimeShiftedTvPartner-related settings");
+        public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NOT_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNotSent, "Time Shifted Tv Partner Settings Not Sent", "The TimeShiftedTvPartner settings specified are null");
         public static ClientExceptionType TIME_SHIFTED_TV_PARTNER_SETTINGS_NEGATIVE_BUFFER_SENT = new ClientExceptionType(eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent, "Time Shifted Tv Partner Settings Negative Buffer Sent",
             "You've configured a negative buffer value in the TimeShiftedTvPartnerr settings");
-        public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find CDN partner settings");
+        public static ClientExceptionType CDNPARTNER_SETTINGS_NOT_FOUND = new ClientExceptionType(eResponseStatus.CDNPartnerSettingsNotFound, "CDNPartner Settings Not Found", "The system didn't find any CDN partner -related settings for the group account");
 
         // Billing 6000 - 6999
         public static ClientExceptionType INCORRECT_PRICE = new ClientExceptionType(eResponseStatus.IncorrectPrice, "Incorrect Price", "The price shown for the item in the request is not the actual price.");
@@ -280,21 +280,21 @@ namespace WebAPI.Exceptions
 
         //Pricing 9000-9999
         public static ClientExceptionType INVALID_PRICE_CODE = new ClientExceptionType(eResponseStatus.InvalidPriceCode, "Invalid Price Code", "Invalid price code: The price code entered doesn't exist for this account");
-        public static ClientExceptionType INVALID_VALUE = new ClientExceptionType(eResponseStatus.InvalidValue, "Invalid Value", "Invalid value");
+        public static ClientExceptionType INVALID_VALUE = new ClientExceptionType(eResponseStatus.InvalidValue, "Invalid Value", "The value specified, such as FullLifeCycle/ ViewLifeCycle, is invalid");
         public static ClientExceptionType INVALID_DISCOUNT_CODE = new ClientExceptionType(eResponseStatus.InvalidDiscountCode, "Invalid Discount Code", "Invalid discount code: The discount code entered doesn't exist for this account");
         public static ClientExceptionType INVALID_PRICE_PLAN = new ClientExceptionType(eResponseStatus.InvalidPricePlan, "Invalid Price Plan", "Invalid price plan: The price plan entered isn't in use with this account");
-        public static ClientExceptionType CODE_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.CodeMustBeUnique, "Code Must Be Unique", "The code entered code must be unique");
-        public static ClientExceptionType CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CodeNotExist, "Code Not Exist", "The code entered doesn't exist");
+        public static ClientExceptionType CODE_MUST_BE_UNIQUE = new ClientExceptionType(eResponseStatus.CodeMustBeUnique, "Code Must Be Unique", "The billing code entered must be unique");
+        public static ClientExceptionType CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.CodeNotExist, "Code Not Exist", "The billing code entered doesn't exist");
         public static ClientExceptionType INVALID_CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.InvalidCodeNotExist, "Invalid Code Not Exist", "The code entered is invalid");
         public static ClientExceptionType INVALID_CHANNELS = new ClientExceptionType(eResponseStatus.InvalidChannels, "Invalid Channels", "Invalid channel: This channel doesn't exist in this account");
-        public static ClientExceptionType INVALID_FILE_TYPES = new ClientExceptionType(eResponseStatus.InvalidFileTypes, "Invalid File Types", "Invalid file type: This file type doesn't exist in this account.");
+        public static ClientExceptionType INVALID_FILE_TYPES = new ClientExceptionType(eResponseStatus.InvalidFileTypes, "Invalid File Types", "Invalid file type: This file type doesn't exist for this account");
         public static ClientExceptionType INVALID_PREVIEW_MODULE = new ClientExceptionType(eResponseStatus.InvalidPreviewModule, "Invalid Preview Module", "Invalid preview module: The preview module doesn't exist in this account");
         public static ClientExceptionType MANDATORY_FIELD = new ClientExceptionType(eResponseStatus.MandatoryField, "Mandatory Field", "Mandatory fields in a request must be completed");
         public static ClientExceptionType UNIQUE_FILED = new ClientExceptionType(eResponseStatus.UniqueFiled, "Unique Filed");
-        public static ClientExceptionType INVALID_USAGE_MODULE = new ClientExceptionType(eResponseStatus.InvalidUsageModule, "Invalid Usage Module", "Invalid usage module: The usage module specified doesn't exist in this account");
+        public static ClientExceptionType INVALID_USAGE_MODULE = new ClientExceptionType(eResponseStatus.InvalidUsageModule, "Invalid Usage Module", "The usage module specified related to PPV doesn't exist in this account");
         public static ClientExceptionType INVALID_COUPON_GROUP = new ClientExceptionType(eResponseStatus.InvalidCouponGroup, "Invalid Coupon Group", "Invalid coupon group: The coupon group specified doesn't exist in this account");
         public static ClientExceptionType INVALID_CURRENCY = new ClientExceptionType(eResponseStatus.InvalidCurrency, "Invalid Currency", "Invalid currency: The currency specified is not configured for this account");
-        public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists", "PPV Module doesn't exists");
+        public static ClientExceptionType MODULE_NOT_EXISTS = new ClientExceptionType(eResponseStatus.ModuleNotExists, "Module Not Exists", "The PPV module doesn't exist in the database");
 
         // Adapters 10000-10999
         public static ClientExceptionType ADAPTER_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AdapterNotExists, "Adapter Not Exists", "The adapter you're trying to connect doesn't exist");
@@ -306,7 +306,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ILLEGAL_XML = new ClientExceptionType(eResponseStatus.IllegalXml, "Illegal XML", "The XML is formatted incorrectly. Please check the file for format errors");
         public static ClientExceptionType MISSING_EXTERNAL_IDENTIFIER = new ClientExceptionType(eResponseStatus.MissingExternalIdentifier, "Missing External Identifier", "The external ID is missing");
         public static ClientExceptionType UNKNOWN_INGEST_TYPE = new ClientExceptionType(eResponseStatus.UnknownIngestType, "Unknown Ingest Type", "The Ingest type is not known");
-        public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error", "An error has occurred with the EPG program dates");
+        public static ClientExceptionType EPG_PROGRAM_DATES_ERROR = new ClientExceptionType(eResponseStatus.EPGSProgramDatesError, "EPG Program Dates Error", "The EPG program dates specified are incorrectly formatted");
 
         [DataMember(Name = "code")]
         [JsonProperty("code")]
