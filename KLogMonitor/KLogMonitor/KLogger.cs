@@ -9,6 +9,7 @@ using System.Text;
 using System.Web;
 using log4net;
 using Microsoft.Win32.SafeHandles;
+using System.Collections.Concurrent;
 
 
 namespace KLogMonitor
@@ -19,7 +20,7 @@ namespace KLogMonitor
         private static readonly ILog logger = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private bool disposed = false;
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
-        private static Dictionary<string, ILog> separateLogsMap = null;             
+        private static ConcurrentDictionary<string, ILog> separateLogsMap = null;             
 
         public static KLogEnums.AppType AppType { get; set; }
         public static string UniqueStaticId { get; set; }
@@ -44,12 +45,16 @@ namespace KLogMonitor
             this.ClassName = className;
             if (separateLogsMap == null)
             {
-                separateLogsMap = new Dictionary<string, ILog>();
+                separateLogsMap = new ConcurrentDictionary<string, ILog>();
             }
 
             if (!string.IsNullOrEmpty(separateLoggerName))
             {
-                separateLogsMap.Add(separateLoggerName, log4net.LogManager.GetLogger(separateLoggerName));
+                if (!separateLogsMap.TryAdd(separateLoggerName, log4net.LogManager.GetLogger(separateLoggerName)))
+                {
+                    throw new Exception(string.Format("Failed adding ILog with LoggerName: {0} to separateLogsMap", separateLoggerName));
+                }
+
                 this.LoggerName = separateLoggerName;
             }
             else
@@ -67,7 +72,7 @@ namespace KLogMonitor
             this.LoggerName = string.Empty;
             if (separateLogsMap == null)
             {
-                separateLogsMap = new Dictionary<string, ILog>();
+                separateLogsMap = new ConcurrentDictionary<string, ILog>();
             }
         }
 
