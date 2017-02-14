@@ -144,7 +144,7 @@ namespace WebAPI.Exceptions
         //Catalog 4000 - 4999
         public static ClientExceptionType MEDIA_CONCURRENCY_LIMITATION = new ClientExceptionType(eResponseStatus.MediaConcurrencyLimitation, "Media Concurrency Limitation", "Media concurrency limitation (according to DLM configuration)");
         public static ClientExceptionType CONCURRENCY_LIMITATION = new ClientExceptionType(eResponseStatus.ConcurrencyLimitation, "Concurrency Limitation", "Concurrency limitation (according to DLM configuration)");
-        public static ClientExceptionType BAD_SEARCH_REQUEST = new ClientExceptionType(eResponseStatus.BadSearchRequest, "Unified Search request has something invalid, either one of the data parameters or one of the field values in KSQL query.", ""); //??
+        public static ClientExceptionType BAD_SEARCH_REQUEST = new ClientExceptionType(eResponseStatus.BadSearchRequest, "Unified Search request has something invalid, either one of the data parameters or one of the field values in KSQL query.", ""); 
         public static ClientExceptionType INDEX_MISSING = new ClientExceptionType(eResponseStatus.IndexMissing, "Index Missing", "Relevant ElasticSearch index doesn't exist, either because it wasn't built or some other error.");
         public static ClientExceptionType SYNTAX_ERROR = new ClientExceptionType(eResponseStatus.SyntaxError, "Syntax Error", "KSQL query string contains a syntax error. It is not in the correct and expected format.");
         public static ClientExceptionType INVALID_SEARCH_FIELD = new ClientExceptionType(eResponseStatus.InvalidSearchField, "KSQL - at least one field name doesn't exist as a meta, tag or reserved keyword", "");
