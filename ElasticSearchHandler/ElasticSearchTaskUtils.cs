@@ -75,6 +75,11 @@ namespace ElasticSearchHandler
             return string.Format("{0}_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
+        public static string GetNewUtilsIndexString()
+        {
+            return string.Format("utils_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));        
+        }
+
         public static string GetTanslationType(string sType, LanguageObj oLanguage)
         {
             if (oLanguage.IsDefault)

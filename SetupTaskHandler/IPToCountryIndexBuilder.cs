@@ -52,7 +52,7 @@ namespace SetupTaskHandler
                 }
             }
 
-            string newIndex = "utils";
+            string newIndexName = ElasticSearchTaskUtils.GetNewUtilsIndexString();
             string type = "iptocountry";
 
             string numberOfShards = ElasticSearchTaskUtils.GetTcmConfigValue("ES_NUM_OF_SHARDS");
@@ -66,11 +66,11 @@ namespace SetupTaskHandler
 
             try
             {
-                bool indexExists = api.IndexExists(newIndex);
+                bool indexExists = api.IndexExists(newIndexName);
 
                 if (!indexExists)
                 {
-                    indexExists = api.BuildIndex(newIndex, numOfShards, numOfReplicas, new List<string>(), new List<string>());
+                    indexExists = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, new List<string>(), new List<string>());
                 }
 
                 DataTable mappingTable = DAL.ApiDAL.Get_IPToCountryTable();
@@ -88,7 +88,7 @@ namespace SetupTaskHandler
                         bulkObjects.Add(new ESBulkRequestObj<int>()
                         {
                             docID = id,
-                            index = newIndex,
+                            index = newIndexName,
                             type = type,
                             document = serializedMapping
                         });
@@ -106,6 +106,45 @@ namespace SetupTaskHandler
                         Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(bulkObjects));
                         t.Wait();
                     }
+                }
+
+                // Switch index alias + Delete old indices handling
+
+                string alias = "utils";
+                bool currentIndexExists = api.IndexExists(alias);
+
+                List<string> oldIndices = null;
+
+                try
+                {
+                    oldIndices = api.GetAliases(alias);
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error when getting aliases of {0}, ex={1}", alias, ex);
+                }
+
+                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
+                {
+                    return api.SwitchIndex(newIndexName, alias, oldIndices);
+                });
+
+                taskSwitchIndex.Wait();
+
+                if (!taskSwitchIndex.Result)
+                {
+                    log.ErrorFormat("Failed switching index for new index name = {0}, index alias = {1}", newIndexName, alias);
+                    result = false;
+                }
+
+                if (taskSwitchIndex.Result && oldIndices != null && oldIndices.Count > 0)
+                {
+                    Task t = Task.Factory.StartNew(() =>
+                    {
+                        api.DeleteIndices(oldIndices);
+                    });
+
+                    t.Wait();
                 }
 
                 result = true;
