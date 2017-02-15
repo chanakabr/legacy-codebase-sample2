@@ -13,7 +13,6 @@ namespace WebAPI.Utils
     public static class DrmUtils
     {
         private const string BASE_UDRM_URL_TCM_KEY = "UDRM_URL";
-        private const string FAIRPLAY_CERTIFICATE_TCM_KEY = "FAIRPLAY_CERTIFICATE";
         private const string CA_SYSTEM_TCM_KEY = "UDRM_CA_SYSTEM";
         private const string UDRM_CENC_LICENSED_URL_FORMAT = "{0}/cenc/{1}/license?custom_data={2}&signature={3}";
         private const string UDRM_LICENSED_URL_FORMAT = "{0}/{1}/license?custom_data={2}&signature={3}";
@@ -112,7 +111,7 @@ namespace WebAPI.Utils
             return response;
         }
 
-        internal static KalturaDrmPlaybackPluginData GetDrmPlaybackPluginData(KalturaDrmSchemeName scheme, KalturaPlaybackSource source)
+        internal static KalturaDrmPlaybackPluginData GetDrmPlaybackPluginData(Group group, KalturaDrmSchemeName scheme, KalturaPlaybackSource source)
         {
             KalturaDrmPlaybackPluginData drmData;
             switch (scheme)
@@ -120,7 +119,7 @@ namespace WebAPI.Utils
                 case KalturaDrmSchemeName.FAIRPLAY:
                     {
                         drmData = new KalturaFairPlayPlaybackPluginData();
-                        ((KalturaFairPlayPlaybackPluginData)drmData).Certificate = TCMClient.Settings.Instance.GetValue<string>(FAIRPLAY_CERTIFICATE_TCM_KEY);
+                        ((KalturaFairPlayPlaybackPluginData)drmData).Certificate = group.FairplayCertificate;
                     }
                     break;
                 case KalturaDrmSchemeName.PLAYREADY_CENC:

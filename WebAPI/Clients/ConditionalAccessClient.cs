@@ -2063,7 +2063,7 @@ namespace WebAPI.Clients
 
                             foreach (var scheme in schemes)
                             {
-                                drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
+                                drmData = DrmUtils.GetDrmPlaybackPluginData(group, scheme, source);
 
                                 source.Drm.Add(drmData);
                             }
