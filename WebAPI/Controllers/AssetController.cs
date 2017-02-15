@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiObjects;
+using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
 using WebAPI.Catalog;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -861,31 +863,57 @@ namespace WebAPI.Controllers
         public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaPlaybackContext response = null;
-           
+
             KS ks = KS.GetFromRequest();
             string userId = ks.UserId;
 
             try
             {
                 response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
-                // build manifest url
-                string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
 
-                log.DebugFormat("X-Forwarded-Proto = {0}", xForwardedProtoHeader);
-
-                string baseUrl = string.Format("{0}://{1}{2}", !string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https" ? 
-                    xForwardedProtoHeader : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
-                foreach (var source in response.Sources)
+                if (response.Sources != null && response.Sources.Count > 0)
                 {
-                    StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
-                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+                    KalturaDrmPlaybackPluginData drmData;
+                    List<KalturaDrmSchemeName> schemes;
+                    Group group = GroupsManager.GetGroup(ks.GroupId);
 
-                    if (!string.IsNullOrEmpty(userId) && userId != "0")
+                    string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
+                    string baseUrl = string.Format("{0}://{1}{2}", !string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https" ?
+                        xForwardedProtoHeader : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+
+                    string caSystemUrl = string.Format("{0}/api_v3/service/assetFile/action/getContext?ks={1}&contextType={2}", baseUrl, ks.ToString(),
+                        assetType == KalturaAssetType.recording ? WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.recording :
+                        WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.none);
+
+                    foreach (var source in response.Sources)
                     {
-                        url.AppendFormat("/ks/{0}", ks.ToString());
+                        StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                            baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+
+                        if (!string.IsNullOrEmpty(userId) && userId != "0")
+                        {
+                            url.AppendFormat("/ks/{0}", ks.ToString());
+                        }
+
+                        source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+
+                        if (source.DrmId == (int)DrmType.UDRM)
+                        {
+                            schemes = DrmUtils.GetDrmSchemeName(source.Format);
+                            if (schemes != null && schemes.Count > 0)
+                            {
+                                source.Drm = new List<KalturaDrmPlaybackPluginData>();
+
+                                foreach (var scheme in schemes)
+                                {
+
+                                    drmData = DrmUtils.GetDrmPlaybackPluginData(group, scheme, source, string.Format("{0}&id={1}", caSystemUrl, source.Id));
+                                    source.Drm.Add(drmData);
+                                }
+                            }
+                        }
                     }
 
-                    source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
                 }
             }
             catch (ClientException ex)

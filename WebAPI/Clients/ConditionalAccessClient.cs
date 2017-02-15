@@ -2048,30 +2048,7 @@ namespace WebAPI.Clients
 
             kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
 
-            if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
-            {
-                KalturaDrmPlaybackPluginData drmData;
-                List<KalturaDrmSchemeName> schemes;
-                foreach (var source in kalturaPlaybackContext.Sources)
-                {
-                    if (source.DrmId == (int)DrmType.UDRM)
-                    {
-                        schemes = DrmUtils.GetDrmSchemeName(source.Format);
-                        if (schemes != null && schemes.Count > 0)
-                        {
-                            source.Drm = new List<KalturaDrmPlaybackPluginData>();
-
-                            foreach (var scheme in schemes)
-                            {
-                                drmData = DrmUtils.GetDrmPlaybackPluginData(group, scheme, source);
-
-                                source.Drm.Add(drmData);
-                            }
-                        }
-                    }
-                }
-            }
-            else
+            if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
                 kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
                 kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });

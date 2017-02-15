@@ -20,7 +20,7 @@ namespace WebAPI.Utils
         private const string WIDEVINE = "widevine";
         private const string FAIRPLAY = "fps";
 
-        public static string BuildCencCustomDataString(string fileExternalId)
+        public static string BuildCencCustomDataString(string fileExternalId, string caSystemUrl)
         {
             string response = null;
 
@@ -30,7 +30,7 @@ namespace WebAPI.Utils
             CencCustomData customData = new CencCustomData()
             {
                 AccountId = group.MediaPrepAccountId,
-                CaSystem = TCMClient.Settings.Instance.GetValue<string>(CA_SYSTEM_TCM_KEY),
+                CaSystem = caSystemUrl,
                 Files = string.Empty,
                 UserToken = ks.ToString(),
                 ContentId = fileExternalId.ToString(),
@@ -111,7 +111,7 @@ namespace WebAPI.Utils
             return response;
         }
 
-        internal static KalturaDrmPlaybackPluginData GetDrmPlaybackPluginData(Group group, KalturaDrmSchemeName scheme, KalturaPlaybackSource source)
+        internal static KalturaDrmPlaybackPluginData GetDrmPlaybackPluginData(Group group, KalturaDrmSchemeName scheme, KalturaPlaybackSource source, string caSystemUrl)
         {
             KalturaDrmPlaybackPluginData drmData;
             switch (scheme)
@@ -129,7 +129,7 @@ namespace WebAPI.Utils
                     drmData = new KalturaDrmPlaybackPluginData();
                     break;
             }
-            var customDataString = DrmUtils.BuildCencCustomDataString(source.ExternalId);
+            var customDataString = DrmUtils.BuildCencCustomDataString(source.ExternalId, caSystemUrl);
             var signature = DrmUtils.BuildCencSignatureString(customDataString);
             drmData.Scheme = scheme;
             drmData.LicenseURL = DrmUtils.BuildUDrmUrl(scheme, customDataString, signature);
