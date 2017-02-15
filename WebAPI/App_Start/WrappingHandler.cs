@@ -31,7 +31,7 @@ namespace WebAPI.App_Start
             // log request body
             log.DebugFormat("API Request - {0} {1}",
                             request.RequestUri.OriginalString,            // 0
-                            await request.Content.ReadAsStringAsync());   // 1
+                            await request.Content.ReadAsStringAsync());   // 1 
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
@@ -59,6 +59,12 @@ namespace WebAPI.App_Start
                 subCode = payload.code;
                 message = HandleError(payload.error.ExceptionMessage, payload.error.StackTrace);
                 content = prepareExceptionResponse(payload.code, message);
+                if (payload.failureHttpCode != System.Net.HttpStatusCode.OK && payload.failureHttpCode != 0)
+                {
+                    response.StatusCode = payload.failureHttpCode;
+                    response.Headers.Add("X-Kaltura-App", string.Format("exiting on error {0} - {1}", payload.code, message));
+                    response.Headers.Add("X-Kaltura", string.Format("error-{0}", payload.code));
+                }
             }
             else if (response.IsSuccessStatusCode)
             {
@@ -78,12 +84,16 @@ namespace WebAPI.App_Start
                 message = HandleError("Unknown error", "");
             }
 
-            //We never return 500. even on errors/warning
-            response.StatusCode = System.Net.HttpStatusCode.OK;
+            if (!response.Headers.Contains("X-Kaltura"))
+            {
+                //We never return 500. even on errors/warning. update - only if specifically changed
+                response.StatusCode = System.Net.HttpStatusCode.OK;
+            }
             Guid reqID = request.GetCorrelationId();
             var newResponse = request.CreateResponse(response.StatusCode, new StatusWrapper(subCode, reqID, executionTime, content, message));
 
             newResponse.Headers.Add("X-Kaltura-Session", reqID.ToString());
+            newResponse.Headers.Add("Access-Control-Allow-Origin", "*");
 
             foreach (var header in response.Headers)
             {

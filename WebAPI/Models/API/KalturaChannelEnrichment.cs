@@ -30,6 +30,9 @@ namespace WebAPI.Models.API
     /// </summary>    
     public class KalturaChannelEnrichmentHolder : KalturaOTTObject
     {
+        /// <summary>
+        /// Enrichment type
+        /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement("type")]

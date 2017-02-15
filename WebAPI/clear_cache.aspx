@@ -1,0 +1,1 @@
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="clear_cache.aspx.cs" Inherits="WebAPI.clear_cache" %>

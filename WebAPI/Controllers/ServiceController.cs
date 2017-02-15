@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace WebAPI.Controllers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private void createMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out ApiController classInstance)
+        public static void CreateMethodInvoker(string serviceName, string actionName, out MethodInfo methodInfo, out ApiController classInstance)
         {
             Assembly asm = Assembly.GetExecutingAssembly();
             Type controller = asm.GetType(string.Format("WebAPI.Controllers.{0}Controller", serviceName), false, true);
@@ -96,7 +97,7 @@ namespace WebAPI.Controllers
             ApiController classInstance = null;
             object response = null;
 
-            createMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
+            CreateMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
 
             try
             {                
@@ -140,6 +141,65 @@ namespace WebAPI.Controllers
             string service = (string) HttpContext.Current.Items[RequestParser.REQUEST_SERVICE];
             string action = (string) HttpContext.Current.Items[RequestParser.REQUEST_ACTION];
             return await Action(service, action);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Route("service/{service_name}/action/{action_name}/{*pathData}"), HttpPost, HttpGet]
+        [FailureHttpCode(System.Net.HttpStatusCode.NotFound)]
+        public async Task<object> ActionWithParams(string service_name, string action_name, string pathData)
+        {
+            MethodInfo methodInfo = null;
+            ApiController classInstance = null;
+            object response = null;
+
+            ServiceController.CreateMethodInvoker(service_name, action_name, out methodInfo, out classInstance);
+
+            try
+            {
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[WebAPI.Filters.RequestParser.REQUEST_METHOD_PARAMETERS];
+                response = methodInfo.Invoke(classInstance, methodParams.ToArray());
+            }
+            catch (ApiException ex)
+            {
+                ApiException apiEx = new ApiException(ex, System.Net.HttpStatusCode.NotFound);
+                throw apiEx;
+            }
+            catch (TargetParameterCountException ex)
+            {
+                ApiException apiEx = new ApiException(new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS), System.Net.HttpStatusCode.NotFound);
+                throw apiEx;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed to perform action", ex);
+
+                var failureHttpCode = methodInfo.GetCustomAttribute(typeof(FailureHttpCodeAttribute));
+            
+
+                if (ex.InnerException is ApiException)
+                {
+                    ApiException apiEx;
+                    if (failureHttpCode != null)
+                    {
+                        apiEx = new ApiException((ApiException)ex.InnerException, ((FailureHttpCodeAttribute)failureHttpCode).HttpStatusCode);
+                    }
+                    else
+                    {
+                        apiEx = (ApiException)ex.InnerException;
+
+                    }
+                    throw apiEx;
+                }
+                ApiException generalErrorEx;
+                if (failureHttpCode != null)
+                {
+                    generalErrorEx = new ApiException(ex, ((FailureHttpCodeAttribute)failureHttpCode).HttpStatusCode);
+                    throw generalErrorEx;
+                }
+                throw ex;
+            }
+
+            return response;
         }
     }
 }

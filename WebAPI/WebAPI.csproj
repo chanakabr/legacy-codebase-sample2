@@ -151,6 +151,7 @@
     <Content Include="bin\WebAPI.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="clear_cache.aspx" />
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
@@ -159,6 +160,7 @@
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
+    <Content Include="clientlibs\web.config" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -595,6 +597,10 @@
   <ItemGroup>
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="clear_cache.aspx.cs">
+      <DependentUpon>clear_cache.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
@@ -614,6 +620,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
@@ -635,7 +642,10 @@
     <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
+    <Compile Include="Handlers\ExtWsPagesHendler.cs" />
+    <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
+    <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
@@ -648,8 +658,17 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPpvEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaRuleAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionEntitlement.cs" />
     <Compile Include="Models\DMS\KalturaConfigurations.cs" />
     <Compile Include="Models\DMS\KalturaConfigurationsFilter.cs" />
@@ -986,6 +1005,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaCouponGroupType.cs" />
     <Compile Include="Models\Pricing\KalturaPpvPrice.cs" />
     <Compile Include="Models\Pricing\KalturaProductPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionFilter.cs" />
@@ -1167,6 +1187,7 @@
     </Compile>
     <Compile Include="Utils\CatalogUtils.cs" />
     <Compile Include="Utils\CommonStrings.cs" />
+    <Compile Include="Utils\DrmUtils.cs" />
     <Compile Include="Utils\EncryptionUtils.cs" />
     <Compile Include="Utils\ErrorUtils.cs" />
     <Compile Include="Exceptions\GatewayTimeoutException.cs" />
@@ -1214,6 +1235,10 @@
     <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingManager\CachingManager.csproj">
+      <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
+      <Name>CachingManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\ConditionalAccess\ConditionalAccess.csproj">
       <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>

@@ -220,8 +220,7 @@ namespace WebAPI.Managers
                 }
             }
             catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
+            {               
             }
 
             if (user == null)

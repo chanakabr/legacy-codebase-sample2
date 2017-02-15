@@ -200,13 +200,16 @@ namespace WebAPI.Controllers
         [Route("getStatus"), HttpPost]
         [ApiAuthorize]
         [Obsolete]
-        public KalturaDeviceRegistrationStatusHolder GetStatus()
+        public KalturaDeviceRegistrationStatusHolder GetStatus(string udid = null)
         {
             KalturaDeviceRegistrationStatus status = KalturaDeviceRegistrationStatus.not_registered;
 
             int groupId = KS.GetFromRequest().GroupId;
-            string udid = KSUtils.ExtractKSPayload().UDID;
 
+            if (string.IsNullOrEmpty(udid))
+            {
+                udid = KSUtils.ExtractKSPayload().UDID;
+            }
             if (string.IsNullOrEmpty(udid))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "udid");

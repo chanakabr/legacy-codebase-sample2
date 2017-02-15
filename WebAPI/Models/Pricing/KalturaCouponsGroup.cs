@@ -76,5 +76,18 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxUsesNumberOnRenewableSub")]
         [XmlElement(ElementName = "maxUsesNumberOnRenewableSub", IsNullable = true)]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
+
+
+        /// <summary>
+        /// Type of the coupon group
+        /// </summary>
+        [DataMember(Name = "couponGroupType")]
+        [JsonProperty("couponGroupType")]
+        [XmlElement(ElementName = "couponGroupType", IsNullable = true)]
+        public KalturaCouponGroupType? CouponGroupType
+        {
+            get;
+            set;
+        }
     }
 }

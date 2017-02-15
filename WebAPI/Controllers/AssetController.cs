@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -49,6 +50,7 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
+
             string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)
@@ -842,6 +844,56 @@ namespace WebAPI.Controllers
 
             return response;
         }
-               
+
+        /// <summary>
+        /// This action delivers all data relevant for player
+        /// </summary>
+        /// <param name="assetId">Asset identifier</param>
+        /// <param name="assetType">Asset type</param>
+        /// <param name="contextDataParams">Parameters for the request</param>
+        [Route("getPlaybackContext"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.ProgramDoesntExist)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
+        {
+            KalturaPlaybackContext response = null;
+           
+            KS ks = KS.GetFromRequest();
+            string userId = ks.UserId;
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);
+                // build manifest url
+                string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
+
+                log.DebugFormat("X-Forwarded-Proto = {0}", xForwardedProtoHeader);
+
+                string baseUrl = string.Format("{0}://{1}{2}", !string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https" ? 
+                    xForwardedProtoHeader : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+                foreach (var source in response.Sources)
+                {
+                    StringBuilder url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
+                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
+
+                    if (!string.IsNullOrEmpty(userId) && userId != "0")
+                    {
+                        url.AppendFormat("/ks/{0}", ks.ToString());
+                    }
+
+                    source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+                }
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }

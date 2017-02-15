@@ -19,6 +19,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ACTION_ARGUMENT_FORBIDDEN = new ApiExceptionType(StatusCode.ActionArgumentForbidden, StatusCode.ServiceForbidden, "Argument [@argument@] in action [@service@].[@action@] is forbidden", "argument", "service", "action");
         public static ApiExceptionType INVALID_KS_FORMAT = new ApiExceptionType(StatusCode.InvalidKS, "Invalid KS format");
         public static ApiExceptionType KS_EXPIRED = new ApiExceptionType(StatusCode.ExpiredKS, "KS expired");
+        public static ApiExceptionType PARTNER_INVALID = new ApiExceptionType(StatusCode.PartnerInvalid, "Partner invalid");
         public static ApiExceptionType INVALID_REFRESH_TOKEN = new ApiExceptionType(StatusCode.InvalidRefreshToken, "Invalid refresh token");
         public static ApiExceptionType REFRESH_TOKEN_FAILED = new ApiExceptionType(StatusCode.RefreshTokenFailed, StatusCode.Error, "Refresh token failed");
         public static ApiExceptionType INVALID_USER_ID = new ApiExceptionType(StatusCode.UnauthorizedUser, StatusCode.Unauthorized, "Invalid user [@id@]", "id");
@@ -46,7 +47,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType ARGUMENT_MIN_LENGTH_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinLengthCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum length is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENT_MAX_VALUE_CROSSED = new ApiExceptionType(StatusCode.ArgumentMaxValueCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] maximum value is [@value@]", "argument", "value");
         public static ApiExceptionType ARGUMENT_MIN_VALUE_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinValueCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum value is [@value@]", "argument", "value");
-
+        public static ApiExceptionType ARGUMENTS_VALUES_CONFLICT_EACH_OTHER = new ApiExceptionType(StatusCode.ArgumentsConflictEachOther, StatusCode.BadRequest, "Argument [@argument1@] value conflicts Argument [@argument2@] value", "argument1", "argument2");
 
         public static ApiExceptionType MEDIA_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.MediaIdsMustBeNumeric, StatusCode.BadRequest, "Media ids must be numeric");
         public static ApiExceptionType EPG_INTERNAL_IDS_MUST_BE_NUMERIC = new ApiExceptionType(StatusCode.EpgInternalIdsMustBeNumeric, StatusCode.BadRequest, "EPG internal ids must be numeric");
