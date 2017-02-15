@@ -48,6 +48,11 @@ namespace Users
             return copy;
         }
 
+        public override CoreObject CoreClone()
+        {
+            return this.Clone();
+        }
+
         public static User GetUser(int nUserID, int nGroupID)
         {
             User user = new User(nUserID, nGroupID);
