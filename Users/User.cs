@@ -17,7 +17,7 @@ namespace Users
     /// </summary>
     [Serializable]
     [JsonObject(Id = "User")]
-    public class User
+    public class User : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -571,119 +571,156 @@ namespace Users
             return (Save(nGroupID, false));
         }
 
-        public int Save(Int32 nGroupID, bool bIsSetUserActive, bool isRemoveFromCache = true)
+        public int Save(Int32 groupId, bool bIsSetUserActive, bool isRemoveFromCache = true)
         {
-            int userID = -1;
-
             try
             {
+                this.GroupId = groupId;
+                this.shouldRemoveFromCache = isRemoveFromCache;
+                this.shouldSetUserActive = bIsSetUserActive;
+
                 // New user - Insert
                 if (string.IsNullOrEmpty(m_sSiteGUID))
                 {
-                    UpdateUserTypeOnBasicData(nGroupID);
-
-                    int bIsFacebookImagePermitted = m_oBasicData.m_bIsFacebookImagePermitted ? 1 : 0;
-
-                    string sActivationToken = bIsSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
-
-                    int countryID = 0, stateID = 0;
-                    if (m_oBasicData.m_Country != null)
-                    {
-                        countryID = m_oBasicData.m_Country.m_nObjecrtID;
-                    }
-                    if (m_oBasicData.m_State != null && countryID > 0)
-                    {
-                        stateID = m_oBasicData.m_State.m_nObjecrtID;
-                    }
-
-                    userID = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
-                                                     m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted, m_oBasicData.m_sEmail, (bIsSetUserActive ? 1 : 0), sActivationToken,
-                                                     m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity,
-                                                     countryID, stateID, m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode,
-                                                     m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, nGroupID);
-
-                    if (userID > 0)
-                    {
-                        m_sSiteGUID = userID.ToString();
-
-                        // add user role
-                        long roleId;
-                        if (long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId))
-                        {
-                            if (DAL.UsersDal.Insert_UserRole(nGroupID, userID.ToString(), roleId, true) > 0)
-                            {
-                                // add invalidation key for user roles cache
-                                string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(userID.ToString());
-                                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                                {
-                                    log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            log.ErrorFormat("User created with no role. userId = {0}", userID);
-                        }
-                    }
-                    else
-                    {
-                        return (-1);
-                    }
-
-                    if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(userID)))
-                    {
-                        return (-1);
-                    }
-
-                    return userID;
+                    this.Insert();
                 }
-
-                // Existing user - Remove & Update from cache
-                if (int.TryParse(m_sSiteGUID, out userID))
-                {
-                    if (isRemoveFromCache)
+                else
+                    // Existing user - Remove & Update from cache
+                    if (int.TryParse(m_sSiteGUID, out this.userId))
                     {
-                        UsersCache usersCache = UsersCache.Instance();
-                        usersCache.RemoveUser(userID, nGroupID);
+                        this.Update();
                     }
-
-                    bool saved = m_oBasicData.Save(userID);
-
-                    if (!saved) { return (-1); }
-
-                    if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
-                    {
-                        saved = m_oDynamicData.Save(userID);
-
-                        if (!saved) { return (-2); }
-                    }
-
-
-                    try
-                    {
-                        Notifiers.BaseUsersNotifier t = null;
-                        Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, nGroupID);
-
-                        if (t != null)
-                        {
-                            t.NotifyChange(m_sSiteGUID);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
-
-                    }
-                }
-
-                return userID;
-
             }
             catch
             {
-                return (-1);
+                this.userId = -1;
             }
 
+            return this.userId;
+        }
+
+        protected override bool DoInsert()
+        {
+            bool success = false;
+
+            UpdateUserTypeOnBasicData(this.GroupId);
+
+            int bIsFacebookImagePermitted = m_oBasicData.m_bIsFacebookImagePermitted ? 1 : 0;
+
+            string sActivationToken = this.shouldSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
+
+            int countryID = 0, stateID = 0;
+            if (m_oBasicData.m_Country != null)
+            {
+                countryID = m_oBasicData.m_Country.m_nObjecrtID;
+            }
+            if (m_oBasicData.m_State != null && countryID > 0)
+            {
+                stateID = m_oBasicData.m_State.m_nObjecrtID;
+            }
+
+            this.userId = DAL.UsersDal.InsertUser(m_oBasicData.m_sUserName, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
+                                             m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted,
+                                             m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
+                                             m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity,
+                                             countryID, stateID, m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode,
+                                             m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, this.GroupId);
+
+            if (this.userId > 0)
+            {
+                m_sSiteGUID = this.userId.ToString();
+
+                // add user role
+                long roleId;
+                if (long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId))
+                {
+                    if (DAL.UsersDal.Insert_UserRole(this.GroupId, m_sSiteGUID, roleId, true) > 0)
+                    {
+                        // add invalidation key for user roles cache
+                        string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(m_sSiteGUID);
+                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        {
+                            log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                        }
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("User created with no role. userId = {0}", m_sSiteGUID);
+                }
+
+                success = true;
+            }
+            else
+            {
+                this.userId = -1;
+                return success;
+            }
+
+            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null && (!m_oDynamicData.Save(this.userId)))
+            {
+                this.userId = -1;
+                return success;
+            }
+
+            return success;
+        }
+
+        protected override bool DoUpdate()
+        {
+            bool success = false;
+
+            if (this.shouldRemoveFromCache)
+            {
+                UsersCache usersCache = UsersCache.Instance();
+                usersCache.RemoveUser(this.userId, this.GroupId);
+            }
+
+            bool saved = m_oBasicData.Save(this.userId);
+
+            if (!saved)
+            {
+                this.userId = -1;
+                return success;
+            }
+
+            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
+            {
+                saved = m_oDynamicData.Save(this.userId);
+
+                if (!saved)
+                {
+                    this.userId = -2;
+                    return success;
+                }
+            }
+
+            try
+            {
+                Notifiers.BaseUsersNotifier t = null;
+                Notifiers.Utils.GetBaseUsersNotifierImpl(ref t, this.GroupId);
+
+                if (t != null)
+                {
+                    t.NotifyChange(m_sSiteGUID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("exception - " + m_sSiteGUID + " : " + ex.Message, ex);
+            }
+
+            if (this.userId > 0)
+            {
+                success = true;
+            }
+
+            return success;
+        }
+
+        protected override bool DoDelete()
+        {
+            throw new NotImplementedException();
         }
 
         public bool SaveDynamicData(int nGroupID)
@@ -1160,5 +1197,17 @@ namespace Users
         public bool m_isDomainMaster;
         public int m_nSSOOperatorID;
         public bool IsActivationGracePeriod;
+
+        // Save method members
+
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
+        protected bool shouldSetUserActive;
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
+        protected bool shouldRemoveFromCache;
+        [System.Xml.Serialization.XmlIgnore]
+        [JsonIgnore()]
+        protected int userId;
     }
 }
