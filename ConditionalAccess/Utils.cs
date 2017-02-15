@@ -22,12 +22,19 @@ using ApiObjects.CDNAdapter;
 using WS_API;
 using Users;
 using WS_Users;
+using CachingProvider.LayeredCache;
+using AdapterControllers;
+using TVinciShared;
+using NPVR;
+using KlogMonitorHelper;
 
 namespace ConditionalAccess
 {
     public class Utils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger offlinePpvLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflinePpvLogger");
+        private static readonly KLogger offlineSubscriptionLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflineSubscriptionLogger");
         private static object lck = new object();
 
         public const string SERIES_ID = "seriesId";
@@ -36,6 +43,7 @@ namespace ConditionalAccess
         private const string SERIES_ALIAS = "series_id";
         private const string SEASON_ALIAS = "season_number";
         private const string EPISODE_ALIAS = "episode_number";
+        private const string MEDIA_FILES_CACHE_KEY_FORMAT = "MediaFiles_{0}";
 
         internal const double DEFAULT_MIN_PRICE_FOR_PREVIEW_MODULE = 0.2;
         public const int DEFAULT_MPP_RENEW_FAIL_COUNT = 10; // to be group specific override this value in the 
@@ -47,7 +55,7 @@ namespace ConditionalAccess
         private static readonly string BASIC_LINK_COUNTRY_CODE = "!--COUNTRY_CD--";
         private static readonly string BASIC_LINK_HASH = "!--hash--";
         private static readonly string BASIC_LINK_GROUP = "!--group--";
-        private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
+        private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";        
 
         static public void GetBaseConditionalAccessImpl(ref ConditionalAccess.BaseConditionalAccess t, Int32 nGroupID)
         {
@@ -157,7 +165,7 @@ namespace ConditionalAccess
             WhenAlgo whenAlgo = disc.m_oWhenAlgo;
             if (whenAlgo.m_eAlgoType == WhenAlgoType.N_FIRST_TIMES && whenAlgo.m_nNTimes != 0 &&
                 nUseTime >= whenAlgo.m_nNTimes)
-                return price;
+                return price;            
 
             if (whenAlgo.m_eAlgoType == WhenAlgoType.EVERY_N_TIMES && whenAlgo.m_nNTimes != 0 &&
                 (double)(((double)nUseTime) / ((double)(whenAlgo.m_nNTimes))) - (Int32)((double)(((double)nUseTime) / ((double)(whenAlgo.m_nNTimes)))) != 0)
@@ -558,10 +566,10 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static bool Bundle_DoesCreditNeedToDownloaded(string sBundleCd, List<int> usersInDomain, List<int> relatedMediaFiles, int groupID, eBundleType bundleType)
+        internal static bool Bundle_DoesCreditNeedToDownloaded(string productCode, string userId, List<int> relatedMediaFiles, int groupID, eBundleType bundleType, int numOfUses)
         {
             bool bIsSub = true;
-            bool nIsCreditDownloaded = true;
+            bool isCreditDownloaded = false;
 
             string sWSUserName = string.Empty;
             string sWSPass = string.Empty;
@@ -579,7 +587,7 @@ namespace ConditionalAccess
                         {
                             Subscription theSub = null;
                             Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            theSub = m.GetSubscriptionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
+                            theSub = m.GetSubscriptionData(sWSUserName, sWSPass, productCode, String.Empty, String.Empty, String.Empty, false);
                             u = theSub.m_oSubscriptionUsageModule;
                             theBundle = theSub;
                             bIsSub = true;
@@ -590,7 +598,7 @@ namespace ConditionalAccess
                         {
                             Collection theCol = null;
                             Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                            theCol = m.GetCollectionData(sWSUserName, sWSPass, sBundleCd, String.Empty, String.Empty, String.Empty, false);
+                            theCol = m.GetCollectionData(sWSUserName, sWSPass, productCode, String.Empty, String.Empty, String.Empty, false);
                             u = theCol.m_oCollectionUsageModule;
                             theBundle = theCol;
                             bIsSub = false;
@@ -603,17 +611,30 @@ namespace ConditionalAccess
                 DateTime dtCreateDateOfLatestBundleUse = ODBCWrapper.Utils.FICTIVE_DATE;
                 DateTime dtNow = ODBCWrapper.Utils.FICTIVE_DATE;
 
-                if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(sBundleCd, groupID, usersInDomain, relatedMediaFiles, bIsSub,
-                    ref dtCreateDateOfLatestBundleUse, ref dtNow)
-                    && !dtCreateDateOfLatestBundleUse.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                    && !dtNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
-                    && ((dtNow - dtCreateDateOfLatestBundleUse).TotalMinutes < nViewLifeCycle))
+                if (numOfUses == 0)
                 {
-                    nIsCreditDownloaded = false;
+                    isCreditDownloaded = true;
+                }
+                else if (u.m_nMaxNumberOfViews > 0)
+                {
+                    int domainId = 0;
+                    List<int> allUsersInDomain = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(userId, groupID, ref domainId);
+                    if (ConditionalAccessDAL.Get_LatestCreateDateOfBundleUses(productCode, groupID, allUsersInDomain, relatedMediaFiles, bIsSub,
+                        ref dtCreateDateOfLatestBundleUse, ref dtNow)
+                        && !dtCreateDateOfLatestBundleUse.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+                        && !dtNow.Equals(ODBCWrapper.Utils.FICTIVE_DATE)
+                        && ((dtNow - dtCreateDateOfLatestBundleUse).TotalMinutes < nViewLifeCycle))
+                    {
+                        isCreditDownloaded = false;
+                    }
+                    else
+                    {
+                        isCreditDownloaded = true;
+                    }
                 }
             }
 
-            return nIsCreditDownloaded;
+            return isCreditDownloaded;
         }
 
         internal static void FillCatalogSignature(WS_Catalog.BaseRequest request)
@@ -654,7 +675,6 @@ namespace ConditionalAccess
         {
             return maxNumOfUses == 0 || numOfUses < maxNumOfUses;
         }
-
 
         private static void GetUserValidBundlesFromListOptimized(string sSiteGuid, int nMediaID, int nMediaFileID, MediaFileStatus eMediaFileStatus, int nGroupID,
             int[] nFileTypes, List<int> lstUserIDs, string sPricingUsername, string sPricingPassword, List<int> relatedMediaFiles,
@@ -867,7 +887,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Partially defines a user's purchase of a bundle, so data is easily transferred between methods
         /// </summary>
-        public struct UserBundlePurchase
+        [Serializable]
+        public class UserBundlePurchase
         {
             public string sBundleCode;
             public int nWaiver;
@@ -875,6 +896,8 @@ namespace ConditionalAccess
             public DateTime dtEndDate;
             public int nNumOfUses;
             public int nMaxNumOfUses;
+
+            public UserBundlePurchase() { }
         }
 
         private static List<int> GetFinalCollectionCodes(Dictionary<int, bool> collsAfterPPVCreditValidation)
@@ -1011,7 +1034,7 @@ namespace ConditionalAccess
 
         internal static Price CalculateCouponDiscount(ref Price pModule, CouponsGroup oCouponsGroup, string sCouponCode, int nGroupID)
         {
-            Price p = CopyPrice(pModule);
+            Price price = CopyPrice(pModule);
             if (!string.IsNullOrEmpty(sCouponCode) && sCouponCode.Length > 0)
             {
 
@@ -1033,13 +1056,21 @@ namespace ConditionalAccess
                         theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
                         theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
                     {
-                        //Coupon discount should take place
-                        DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
-                        p = GetPriceAfterDiscount(p, dCouponDiscount, 0);
+                        // if it is a valid gift card, set price to be 0
+                        if (theCouponData.Coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard)
+                        {
+                            price.m_dPrice = 0.0;
+                        }
+                        else
+                        {
+                            //Coupon discount should take place
+                            DiscountModule dCouponDiscount = oCouponsGroup.m_oDiscountCode;
+                            price = GetPriceAfterDiscount(price, dCouponDiscount, 0);
+                        }
                     }
                 }
             }
-            return p;
+            return price;
         }
 
         private static bool IsVoucherValid(int nLifeCycle, long nOwnerGuid, long campaignID)
@@ -1076,7 +1107,6 @@ namespace ConditionalAccess
             return retVal;
         }
 
-
         internal static Price CalculateMediaFileFinalPriceNoSubs(Int32 nMediaFileID, int mediaID, Price pModule,
             DiscountModule discModule, CouponsGroup oCouponsGroup, string sSiteGUID,
             string sCouponCode, Int32 nGroupID, string subCode, string sPricingUsername, string sPricingPassword, out DateTime? dtDiscountEnd)
@@ -1086,14 +1116,18 @@ namespace ConditionalAccess
             if (discModule != null)
             {
                 int nPPVPurchaseCount = 0;
-                if (discModule.m_dPercent == 100 && !string.IsNullOrEmpty(subCode))
+                if (discModule.m_oWhenAlgo.m_nNTimes > 0)
                 {
-                    nPPVPurchaseCount = ConditionalAccessDAL.Get_SubscriptionUseCount(sSiteGUID, subCode, nGroupID);
+                    if (discModule.m_dPercent == 100 && !string.IsNullOrEmpty(subCode))
+                    {
+                        nPPVPurchaseCount = ConditionalAccessDAL.Get_SubscriptionUseCount(sSiteGUID, subCode, nGroupID);
+                    }
+                    else
+                    {
+                        nPPVPurchaseCount = ConditionalAccessDAL.Get_PPVPurchaseCount(nGroupID, sSiteGUID, subCode, nMediaFileID);
+                    }
                 }
-                else
-                {
-                    nPPVPurchaseCount = ConditionalAccessDAL.Get_PPVPurchaseCount(nGroupID, sSiteGUID, subCode, nMediaFileID);
-                }
+                
                 p = GetPriceAfterDiscount(p, discModule, nPPVPurchaseCount);
 
                 dtDiscountEnd = discModule.m_dEndDate;
@@ -1133,6 +1167,12 @@ namespace ConditionalAccess
                             DiscountModule voucherDiscount = theCouponData.Coupon.m_oCouponGroup.m_oDiscountCode;
                             p = GetPriceAfterDiscount(p, voucherDiscount, 1);
                         }
+                    }
+                    // If it is a gift card - it should be free
+                    else if (theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
+                        theCouponData.Coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard)
+                    {
+                        p.m_dPrice = 0;
                     }
                     else if (theCouponData.Coupon.m_CouponStatus == CouponsStatus.Valid &&
                             theCouponData.Coupon.m_oCouponGroup.m_sGroupCode == oCouponsGroup.m_sGroupCode)
@@ -1404,23 +1444,6 @@ namespace ConditionalAccess
             return sb.ToString();
         }
 
-        //public static Int32 GetMediaIDFeomFileID(Int32 nMediaFileID, Int32 nGroupID)
-        //{
-        //    Int32[] nMediaFilesIDs = { nMediaFileID };
-        //    MeidaMaper[] mapper = null;
-        //    string nMediaFilesIDsForCache = ConvertArrayIntToStr(nMediaFilesIDs);
-
-        //    mapper = GetMediaMapper(nGroupID, nMediaFilesIDs);
-
-        //    if (mapper == null || mapper.Length == 0)
-        //        return 0;
-
-        //    if (mapper[0].m_nMediaFileID == nMediaFileID)
-        //        return mapper[0].m_nMediaID;
-
-        //    return 0;
-        //}
-
         public static Int32 GetMediaIDFromFileID(Int32 nMediaFileID, Int32 nGroupID)
         {
             Int32[] nMediaFilesIDs = { nMediaFileID };
@@ -1527,7 +1550,7 @@ namespace ConditionalAccess
 
             // check if file is avilable             
             Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode);
+            Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(new int[1] { nMediaFileID }, ref mediaFilesProductCode, nGroupID);
             if (validMediaFiles[nMediaFileID] == MediaFileStatus.NotForPurchase)
             {
                 theReason = PriceReason.NotForPurchase;
@@ -1678,7 +1701,7 @@ namespace ConditionalAccess
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP, Dictionary<int, int> mediaFileTypesMapping,
             List<int> allUserIDsInDomain, int nMediaFileTypeID, string sAPIUsername, string sAPIPassword, string sPricingUsername,
             string sPricingPassword, ref bool bCancellationWindow, ref string purchasedBySiteGuid, ref int purchasedAsMediaFileID,
-            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID, UserEntitlementsObject userEntitlements = null,
+            ref List<int> relatedMediaFileIDs, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, ref DateTime? dtDiscountEndDate, int domainID, DomainEntitlements domainEntitlements = null,
             int mediaID = 0, DAL.DomainSuspentionStatus userSuspendStatus = DAL.DomainSuspentionStatus.Suspended, bool shouldCheckUserStatus = true, bool shouldIgnoreBundlePurchases = false)
         {
             if (ppvModule == null)
@@ -1725,9 +1748,9 @@ namespace ConditionalAccess
                     int[] ppvGroupFileTypes = ppvModule.m_relatedFileTypes != null ? ppvModule.m_relatedFileTypes.ToArray() : null;
                     List<int> lstFileIDs;
                     // get list of mediaFileIDs
-                    if (userEntitlements != null && userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper != null)
+                    if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper != null)
                     {
-                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, userEntitlements.userPpvEntitlements.MediaIdGroupFileTypeMapper);
+                        lstFileIDs = GetRelatedFileIDs(mediaID, ppvGroupFileTypes, domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper);
                     }
                     else
                     {
@@ -1750,10 +1773,10 @@ namespace ConditionalAccess
                     bool isEntitled = false;
                     if (lstFileIDs.Count > 0)
                     {
-                        if (userEntitlements != null && userEntitlements.userPpvEntitlements.EntitlementsDictionary != null)
+                        if (domainEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
                         {
                             isEntitled = IsUserEntitled(lstFileIDs, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver,
-                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, userEntitlements.userPpvEntitlements.EntitlementsDictionary);
+                                                        ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary);
                         }
                         else
                         {
@@ -1838,14 +1861,14 @@ namespace ConditionalAccess
                     Dictionary<string, UserBundlePurchase> subsPurchase = new Dictionary<string, UserBundlePurchase>();
                     Dictionary<string, UserBundlePurchase> collPurchase = new Dictionary<string, UserBundlePurchase>();
 
-                    if (userEntitlements != null && userEntitlements.userBundleEntitlements.EntitledSubscriptions != null && userEntitlements.userBundleEntitlements.EntitledCollections != null)
+                    if (domainEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null)
                     {
-                        subsPurchase = userEntitlements.userBundleEntitlements.EntitledSubscriptions;
-                        collPurchase = userEntitlements.userBundleEntitlements.EntitledCollections;
+                        subsPurchase = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions;
+                        collPurchase = domainEntitlements.DomainBundleEntitlements.EntitledCollections;
                         GetUserValidBundles(mediaID, nMediaFileID, eMediaFileStatus, nGroupID, fileTypes, allUserIDsInDomain, sPricingUsername, sPricingPassword, relatedMediaFileIDs, subsPurchase,
-                                            collPurchase, userEntitlements.userBundleEntitlements.FileTypeIdToSubscriptionMappings, userEntitlements.userBundleEntitlements.SubscriptionsData,
-                                            userEntitlements.userBundleEntitlements.CollectionsData, userEntitlements.userBundleEntitlements.ChannelsToSubscriptionMappings,
-                                            userEntitlements.userBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections);
+                                            collPurchase, domainEntitlements.DomainBundleEntitlements.FileTypeIdToSubscriptionMappings, domainEntitlements.DomainBundleEntitlements.SubscriptionsData,
+                                            domainEntitlements.DomainBundleEntitlements.CollectionsData, domainEntitlements.DomainBundleEntitlements.ChannelsToSubscriptionMappings,
+                                            domainEntitlements.DomainBundleEntitlements.ChannelsToCollectionsMappings, ref relevantValidSubscriptions, ref relevantValidCollections);
                     }
                     else
                     {
@@ -1856,7 +1879,7 @@ namespace ConditionalAccess
                     if (relevantValidSubscriptions != null && relevantValidSubscriptions.Length > 0)
                     {
                         Dictionary<long, List<Subscription>> groupedSubs = (from s in relevantValidSubscriptions
-                                                                                          group s by s.m_Priority).OrderByDescending(gr => gr.Key).ToDictionary(gr => gr.Key, gr => gr.ToList());
+                                                                            group s by s.m_Priority).OrderByDescending(gr => gr.Key).ToDictionary(gr => gr.Key, gr => gr.ToList());
 
                         if (groupedSubs != null)
                         {
@@ -1909,7 +1932,7 @@ namespace ConditionalAccess
 
                     // check here if its part of a purchased collection                    
 
-                    if (relevantValidCollections != null)
+                    if (relevantValidCollections != null && relevantValidCollections.Length > 0)
                     {
                         for (int i = 0; i < relevantValidCollections.Length; i++)
                         {
@@ -1929,7 +1952,7 @@ namespace ConditionalAccess
                         }
 
                         //cancellationWindow by relevantSub
-                        if (relevantCol.m_oCollectionUsageModule != null)
+                        if (relevantCol != null && relevantCol.m_oCollectionUsageModule != null)
                         {
                             if (subsPurchase.ContainsKey(relevantCol.m_CollectionCode))
                             {
@@ -2100,7 +2123,7 @@ namespace ConditionalAccess
 
             if (missingWsCredentials != null && missingWsCredentials.Count > 0)
             {
-                result.Union(ConditionalAccessDAL.Get_MultipleWSCredentials(groupId, missingWsCredentials));                
+                result.Union(ConditionalAccessDAL.Get_MultipleWSCredentials(groupId, missingWsCredentials));
             }
 
             return result;
@@ -2136,6 +2159,15 @@ namespace ConditionalAccess
                 }
             }
 
+            //change the user pending to users without (-1)
+            lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
+
+            return lDomainsUsers;
+        }
+
+        internal static List<int> GetAllUsersInDomain(int groupID, int domainId)
+        {
+            List<int> lDomainsUsers = GetDomainsUsers(domainId, groupID);
             //change the user pending to users without (-1)
             lDomainsUsers = lDomainsUsers.ConvertAll(x => Math.Abs(x));
 
@@ -2775,7 +2807,6 @@ namespace ConditionalAccess
             return url;
         }
 
-
         /*
          * 1. The user is entitled to preview module iff 
          *    The MPP has a valid preview module object AND
@@ -2937,6 +2968,48 @@ namespace ConditionalAccess
             return result;
         }
 
+        static public CouponData GetCouponData(int groupID, string couponCode)
+        {
+            CouponData result = null;
+            mdoule module = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    module = new mdoule();
+                    string sWSUserName = string.Empty;
+                    string sWSPass = string.Empty;
+                    Utils.GetWSCredentials(groupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
+
+                    CouponDataResponse couponResponse = module.GetCouponStatus(sWSUserName, sWSPass, couponCode);
+
+                    if (couponResponse != null &&
+                        couponResponse.Status != null &&
+                        couponResponse.Status.Code == (int)eResponseStatus.OK &&
+                        couponResponse.Coupon != null &&
+                        couponResponse.Coupon.m_CouponStatus == CouponsStatus.Valid)
+                    {
+                        result = couponResponse.Coupon;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = null;
+                log.Error("GetCouponData - " + string.Format("Error on GetCouponData(), group id:{0}, coupon code:{1}, errorMessage:{2}", groupID, couponCode, ex.ToString()), ex);
+            }
+            finally
+            {
+                #region Disposing
+                if (module != null)
+                {
+                    module.Dispose();
+                }
+                #endregion
+            }
+
+            return result;
+        }
 
         internal static bool IsFirstDeviceEqualToCurrentDevice(int nMediaFileID, string sPPVCode, List<int> lUsersIds, string sCurrentDeviceName, ref string sFirstDeviceName)
         {
@@ -2977,43 +3050,14 @@ namespace ConditionalAccess
 
         internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
-            bool res = false;
-
-            // True - use DAL, with "our" slim stored procedure; false - use Catalog, with its full stored procedure
-            bool shouldUseDalOrCatalog = TVinciShared.WS_Utils.GetTcmBoolValue("ShouldGetMediaFileDetailsDirectly");
-
-            if (shouldUseDalOrCatalog)
+            string key = LayeredCacheKeys.GetFileCoGuidKey(coGuid);
+            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref mediaFileID, Get_MediaFileIDByCoGuid, new Dictionary<string, object>() { { "groupID", groupID }, { "coGuid", coGuid } },
+                                                              groupID, LayeredCacheConfigNames.MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME);
+            if (!cacheResult)
             {
-                res = ConditionalAccessDAL.Get_MediaFileIDByCoGuid(coGuid, groupID, ref mediaFileID);
+                log.ErrorFormat("fails Get Media FileID By CoGuid groupID:{0}, siteGuid:{1} ", groupID, siteGuid);
             }
-            else
-            {
-                WS_Catalog.MediaFilesRequest request = new WS_Catalog.MediaFilesRequest();
-                request.m_lMediaFileIDs = new int[0];
-                request.m_nGroupID = groupID;
-                request.m_oFilter = new WS_Catalog.Filter();
-                request.m_sSiteGuid = siteGuid;
-                request.m_sUserIP = string.Empty;
-                request.m_sSignString = Guid.NewGuid().ToString();
-                request.m_sSignature = TVinciShared.WS_Utils.GetCatalogSignature(request.m_sSignString, Utils.GetWSURL("CatalogSignatureKey"));
-                request.m_lCoGuids = new string[1] { coGuid };
-                using (WS_Catalog.IserviceClient catalog = new WS_Catalog.IserviceClient())
-                {
-                    catalog.Endpoint.Address = new System.ServiceModel.EndpointAddress(GetWSURL("WS_Catalog"));
-                    WS_Catalog.MediaFilesResponse response = catalog.GetResponse(request) as WS_Catalog.MediaFilesResponse;
-                    if (response != null && response.m_lObj != null && response.m_lObj.Length > 0)
-                    {
-                        WS_Catalog.MediaFileObj mf = response.m_lObj[0] as WS_Catalog.MediaFileObj;
-                        if (mf != null && mf.m_oFile != null)
-                        {
-                            res = true;
-                            mediaFileID = mf.m_oFile.m_nFileId;
-                        }
-                    }
-                }
-            }
-
-            return res;
+            return cacheResult;   
         }
 
         internal static bool GetStreamingUrlType(int fileMainStreamingCoID, ref string CdnStrID)
@@ -3150,9 +3194,57 @@ namespace ConditionalAccess
             return changeDLMObj;
         }
 
-        // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode)
+        internal static Tuple<Dictionary<string, DataTable>, bool> Get_FileAndMediaBasicDetails(Dictionary<string, object> funcParams)
         {
+            bool res = false;
+            Dictionary<string, DataTable> result = new Dictionary<string, DataTable>();            
+            try
+            {
+                if (funcParams.ContainsKey("fileIDs"))
+                {
+                    string key = string.Empty;
+                    int[] fileIDs;
+                    fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
+                    if (fileIDs != null)
+                    {
+                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            DataTable tempDt;
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                tempDt = dt.Clone();
+                                tempDt.ImportRow(dr);
+                                result.Add(ODBCWrapper.Utils.GetSafeStr(dr, "media_file_id"), tempDt);
+                            }
+                        }
+
+                        List<int> missingKeys = fileIDs.Where(x => !result.ContainsKey(x.ToString())).ToList();
+                        if (missingKeys != null)
+                        {
+                            DataTable tempDt = dt != null ? dt.Clone() : new DataTable();
+                            foreach (int missingKey in missingKeys)
+                            {
+                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey), tempDt);
+                            }
+                        }
+                    } 
+                    res = result.Keys.Count() == fileIDs.Count();
+
+                    result = result.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key)), x => x.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_FileAndMediaBasicDetails failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<Dictionary<string, DataTable>, bool>(result, res);
+        }
+
+        // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
+        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode, int groupId)
+        {
+
             Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int, MediaFileStatus>();
             mediaFilesProductCode = new Dictionary<int, string>();
             try
@@ -3170,38 +3262,42 @@ namespace ConditionalAccess
                     }
                 }
 
-                DataSet ds = Tvinci.Core.DAL.CatalogDAL.Get_FileAndMediaBasicDetails(nMediaFiles);
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                // get basic file details from cach / DB                 
+                Dictionary<string, DataTable> fileDatatables = null;
+                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x)).ToList();
+
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails,new Dictionary<string, object>() { { "fileIDs", nMediaFiles } },
+                                                                                groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
+
+                int mediaFileID;
+                int mediaIsActive = 0, mediaFileIsActive = 0;
+                int mediaStatus = 0, mediaFileStatus = 0;
+                DateTime mediaStartDate, mediaFileStartDate;
+                DateTime? mediaEndDate, mediaFileEndDate, mediaFinalEndDate;
+                DateTime currentDate;
+
+                if (cacheResult && fileDatatables != null)
                 {
-                    DataTable dtMediaFiles = ds.Tables[0];
-
-                    int mediaFileID;
-                    int mediaIsActive = 0, mediaFileIsActive = 0;
-                    int mediaStatus = 0, mediaFileStatus = 0;
-                    DateTime mediaStartDate, mediaFileStartDate;
-                    DateTime mediaEndDate, mediaFileEndDate;
-                    DateTime mediaFinalEndDate;
-                    DateTime dbCurrentDate;
-
-
-                    if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
+                    foreach (DataTable dt in fileDatatables.Values)
                     {
-                        foreach (DataRow dr in dtMediaFiles.Rows)
+                        if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                         {
-                            dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "dbCurrentDate");
+                            DataRow dr = dt.Rows[0];
+                            currentDate = DateTime.UtcNow;
                             //media
                             mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
                             mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
                             mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
-                            mediaEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_end_date");
-                            mediaFinalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_final_end_date");
+                            mediaEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_end_date");
+                            mediaFinalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_final_end_date");
 
                             //mediaFiles
                             mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
                             mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
                             mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
                             mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
-                            mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date");
+                            mediaFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_end_date");
                             productCode = ODBCWrapper.Utils.GetSafeStr(dr, "Product_Code");
 
                             if (!mediaFilesProductCode.ContainsKey(mediaFileID))
@@ -3217,15 +3313,16 @@ namespace ConditionalAccess
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if (mediaStartDate > dbCurrentDate || mediaFileStartDate > dbCurrentDate)
+                            else if (mediaStartDate > currentDate || mediaFileStartDate > currentDate)
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if (mediaFinalEndDate < dbCurrentDate || mediaFileEndDate < dbCurrentDate)
+                            else if ((mediaFinalEndDate.HasValue && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate.HasValue && mediaFileEndDate.Value < currentDate))
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if (mediaEndDate < dbCurrentDate && mediaFinalEndDate > dbCurrentDate) // cun see only if purchased
+                            else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) && 
+                                (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // cun see only if purchased
                             {
                                 eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
                             }
@@ -3244,6 +3341,10 @@ namespace ConditionalAccess
                         }
                     }
                 }
+                else
+                {
+                    log.Error(string.Format("ValidateMediaFiles -  LayeredCache return false for keys :{0}", string.Join(",", keys)));
+                }
             }
             catch (Exception ex)
             {
@@ -3251,7 +3352,6 @@ namespace ConditionalAccess
             }
             return mediaFilesStatus;
         }
-
 
         /// <summary>
         /// Validates that a user exists and belongs to a given domain
@@ -3262,6 +3362,21 @@ namespace ConditionalAccess
         /// <returns></returns>
         public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID)
         {
+            Users.User user;
+
+            return ValidateUser(groupId, siteGuid, ref houseHoldID, out user);
+        }
+
+        /// <summary>
+        /// Validates that a user exists and belongs to a given domain
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="siteGuid"></param>
+        /// <param name="domainId"></param>
+        /// <returns></returns>
+        public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID, out Users.User user)
+        {
+            user = null;
             ResponseStatus status = ResponseStatus.InternalError;
             long lSiteGuid = 0;
             if (siteGuid.Length == 0 || !Int64.TryParse(siteGuid, out lSiteGuid) || lSiteGuid == 0)
@@ -3272,14 +3387,13 @@ namespace ConditionalAccess
 
             string username = string.Empty;
             string password = string.Empty;
-
-            TVinciShared.WS_Utils.GetWSUNPass(groupId, "GetUserData", "users", "1.1.1.1", ref username, ref password);
+            GetWSCredentials(groupId, eWSModules.USERS, ref username, ref password);            
             UsersService userService = new UsersService();
 
             try
             {
                 UserResponseObject response = userService.GetUserData(username, password, siteGuid, string.Empty);
-
+   
                 // Make sure response is OK
                 if (response != null)
                 {
@@ -3290,6 +3404,8 @@ namespace ConditionalAccess
                         //check Domain and suspend
                         if (response.m_user != null)
                         {
+                            user = response.m_user;
+
                             if (houseHoldID != 0 && houseHoldID != response.m_user.m_domianID)
                             {
                                 status = ResponseStatus.UserNotIndDomain;
@@ -3335,7 +3451,7 @@ namespace ConditionalAccess
             string username = string.Empty;
             string password = string.Empty;
 
-            TVinciShared.WS_Utils.GetWSUNPass(groupId, "...", "domains", "1.1.1.1", ref username, ref password);
+            Utils.GetWSCredentials(groupId, eWSModules.DOMAINS, ref username, ref password);
             WS_Domains.module domainsService = new WS_Domains.module();
 
             try
@@ -3402,22 +3518,21 @@ namespace ConditionalAccess
             return res;
         }
 
-        internal static void InitializeUsersEntitlements(int m_nGroupID, int domainID, List<int> allUsersInDomain, MeidaMaper[] mapper, UserEntitlementsObject.PPVEntitlements userPpvEntitlements)
+        internal static DomainEntitlements.PPVEntitlements InitializeDomainPpvs(int groupId, int domainId, List<int> allUsersInDomain, MeidaMaper[] mapper)
         {
-            // Get all user entitlements
-            userPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainID, allUsersInDomain);
-            // Get mappings of mediaFileIDs - MediaIDs
-            if (mapper != null && mapper.Length > 0)
+            DomainEntitlements.PPVEntitlements domainPpvEntitlements = new DomainEntitlements.PPVEntitlements();
+            try
             {
-                int[] mediaIDsToMap = new int[mapper.Length];
-                for (int i = 0; i < mediaIDsToMap.Length; i++)
-                {
-                    mediaIDsToMap[i] = mapper[i].m_nMediaID;
-                }
-
-                // Get mappings dictionary<mediaID_groupFileType, mediaFileID>
-                userPpvEntitlements.MediaIdGroupFileTypeMapper = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDsToMap);
+                // Get all user entitlements
+                domainPpvEntitlements.EntitlementsDictionary = ConditionalAccessDAL.Get_AllUsersEntitlements(domainId, allUsersInDomain);
             }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed InitializeDomainPpvs, groupId: {0}, domainId: {1}, allUsersInDomain: {2}", groupId, domainId, allUsersInDomain != null ? string.Join(",", allUsersInDomain) : ""), ex);
+            }
+
+            return domainPpvEntitlements;
         }
 
         private static List<int> GetRelatedFileIDs(int mediaID, int[] ppvGroupFileTypes, Dictionary<string, int> mediaIdGroupFileTypeMappings)
@@ -3445,7 +3560,7 @@ namespace ConditionalAccess
             return relatedFileTypes;
         }
 
-        internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
+        internal static void GetAllUserBundles(int nGroupID, int domainID, List<int> lstUserIDs, DomainEntitlements.BundleEntitlements userBundleEntitlements)
         {
             DataSet dataSet = ConditionalAccessDAL.Get_AllBundlesInfoByUserIDsOrDomainID(domainID, lstUserIDs, nGroupID);
             if (dataSet != null && IsBundlesDataSetValid(dataSet))
@@ -3550,109 +3665,137 @@ namespace ConditionalAccess
             }
         }
 
-        internal static void InitializeUsersBundles(int domainID, int m_nGroupID, List<int> allUsersInDomain, string sPricingUsername, string sPricingPassword, UserEntitlementsObject.BundleEntitlements userBundleEntitlements)
+        internal static DomainEntitlements.BundleEntitlements InitializeDomainBundles(int domainId, int groupId, List<int> allUsersInDomain, bool shouldPopulateBundles)
         {
-            GetAllUserBundles(m_nGroupID, domainID, allUsersInDomain, userBundleEntitlements);
-            userBundleEntitlements.FileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
-            userBundleEntitlements.ChannelsToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
-            userBundleEntitlements.SubscriptionsData = new Dictionary<int, Subscription>();
-            userBundleEntitlements.CollectionsData = new Dictionary<int, Collection>();
-            userBundleEntitlements.ChannelsToCollectionsMappings = new Dictionary<int, List<Collection>>();
-            if (userBundleEntitlements.EntitledSubscriptions != null && userBundleEntitlements.EntitledSubscriptions.Count > 0)
+            DomainEntitlements.BundleEntitlements domainBundleEntitlements = new DomainEntitlements.BundleEntitlements();
+            try
             {
-                mdoule pricingModule = new mdoule();
-                SubscriptionsResponse subscriptionsResponse = pricingModule.GetSubscriptionsData(sPricingUsername, sPricingPassword, userBundleEntitlements.EntitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
-                if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
+                GetAllUserBundles(groupId, domainId, allUsersInDomain, domainBundleEntitlements);
+                if (shouldPopulateBundles)
                 {
-                    foreach (Subscription subscription in subscriptionsResponse.Subscriptions)
+                    PopulateDomainBundles(domainId, groupId, domainBundleEntitlements);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed domainBundleEntitlements, groupId: {0}, domainId: {1}, allUsersInDomain: {2}", groupId, domainId, allUsersInDomain != null ? string.Join(",", allUsersInDomain) : ""), ex);
+            }
+
+            return domainBundleEntitlements;
+        }
+
+        internal static void PopulateDomainBundles(int domainId, int groupId, DomainEntitlements.BundleEntitlements domainBundleEntitlements)
+        {
+            string pricingUsername = string.Empty, pricingPassword = string.Empty;
+            try
+            {
+                GetWSCredentials(groupId, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
+                if (string.IsNullOrEmpty(pricingUsername) || string.IsNullOrEmpty(pricingPassword))
+                {
+                    return;
+                }
+
+                if (domainBundleEntitlements.EntitledSubscriptions != null && domainBundleEntitlements.EntitledSubscriptions.Count > 0)
+                {
+                    mdoule pricingModule = new mdoule();
+                    SubscriptionsResponse subscriptionsResponse = pricingModule.GetSubscriptionsData(pricingUsername, pricingPassword, domainBundleEntitlements.EntitledSubscriptions.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
                     {
-                        // Insert to subscriptionData if subscriptionCode isn't already contained
-                        int subscriptionCode;
-                        if (int.TryParse(subscription.m_sObjectCode, out subscriptionCode) && !userBundleEntitlements.SubscriptionsData.ContainsKey(subscriptionCode))
+                        foreach (Subscription subscription in subscriptionsResponse.Subscriptions)
                         {
-                            userBundleEntitlements.SubscriptionsData.Add(subscriptionCode, subscription);
-                        }
-
-                        // Insert to channelsToSubscriptionMappings
-                        if (subscription.m_sCodes != null)
-                        {
-                            foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
+                            // Insert to subscriptionData if subscriptionCode isn't already contained
+                            int subscriptionCode;
+                            if (int.TryParse(subscription.m_sObjectCode, out subscriptionCode) && !domainBundleEntitlements.SubscriptionsData.ContainsKey(subscriptionCode))
                             {
-                                int channelID;
-                                if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToSubscriptionMappings.ContainsKey(channelID))
+                                domainBundleEntitlements.SubscriptionsData.Add(subscriptionCode, subscription);
+                            }
+
+                            // Insert to channelsToSubscriptionMappings
+                            if (subscription.m_sCodes != null)
+                            {
+                                foreach (BundleCodeContainer bundleCode in subscription.m_sCodes)
                                 {
-                                    userBundleEntitlements.ChannelsToSubscriptionMappings[channelID].Add(subscription);
-                                }
-                                else if (channelID > 0)
-                                {
-                                    userBundleEntitlements.ChannelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
+                                    int channelID;
+                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && domainBundleEntitlements.ChannelsToSubscriptionMappings.ContainsKey(channelID))
+                                    {
+                                        domainBundleEntitlements.ChannelsToSubscriptionMappings[channelID].Add(subscription);
+                                    }
+                                    else if (channelID > 0)
+                                    {
+                                        domainBundleEntitlements.ChannelsToSubscriptionMappings.Add(channelID, new List<Subscription>() { subscription });
+                                    }
                                 }
                             }
-                        }
 
-                        // Insert to fileTypeIdToSubscriptionMappings
-                        if (subscription.m_sFileTypes != null && subscription.m_sFileTypes.Count() > 0)
-                        {
-                            foreach (int fileTypeID in subscription.m_sFileTypes)
+                            // Insert to fileTypeIdToSubscriptionMappings
+                            if (subscription.m_sFileTypes != null && subscription.m_sFileTypes.Count() > 0)
                             {
-                                if (userBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID))
+                                foreach (int fileTypeID in subscription.m_sFileTypes)
                                 {
-                                    userBundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Add(subscription);
+                                    if (domainBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(fileTypeID))
+                                    {
+                                        domainBundleEntitlements.FileTypeIdToSubscriptionMappings[fileTypeID].Add(subscription);
+                                    }
+                                    else
+                                    {
+                                        domainBundleEntitlements.FileTypeIdToSubscriptionMappings.Add(fileTypeID, new List<Subscription>() { subscription });
+                                    }
                                 }
-                                else
-                                {
-                                    userBundleEntitlements.FileTypeIdToSubscriptionMappings.Add(fileTypeID, new List<Subscription>() { subscription });
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (userBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0))
-                            {
-                                userBundleEntitlements.FileTypeIdToSubscriptionMappings[0].Add(subscription);
                             }
                             else
                             {
-                                userBundleEntitlements.FileTypeIdToSubscriptionMappings.Add(0, new List<Subscription>() { subscription });
+                                if (domainBundleEntitlements.FileTypeIdToSubscriptionMappings.ContainsKey(0))
+                                {
+                                    domainBundleEntitlements.FileTypeIdToSubscriptionMappings[0].Add(subscription);
+                                }
+                                else
+                                {
+                                    domainBundleEntitlements.FileTypeIdToSubscriptionMappings.Add(0, new List<Subscription>() { subscription });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (domainBundleEntitlements.EntitledCollections != null && domainBundleEntitlements.EntitledCollections.Count > 0)
+                {
+                    mdoule pricingModule = new mdoule();
+                    Collection[] collectionsArray = pricingModule.GetCollectionsData(pricingUsername, pricingPassword, domainBundleEntitlements.EntitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
+                    if (collectionsArray != null && collectionsArray.Length > 0)
+                    {
+                        foreach (Collection collection in collectionsArray)
+                        {
+                            int collectionCode;
+                            if (int.TryParse(collection.m_sObjectCode, out collectionCode) && !domainBundleEntitlements.CollectionsData.ContainsKey(collectionCode))
+                            {
+                                domainBundleEntitlements.CollectionsData.Add(collectionCode, collection);
+
+                                // Insert to channelsToSubscriptionMappings
+                                if (collection.m_sCodes != null)
+                                {
+                                    foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
+                                    {
+                                        int channelID;
+                                        if (int.TryParse(bundleCode.m_sCode, out channelID) && domainBundleEntitlements.ChannelsToCollectionsMappings.ContainsKey(channelID))
+                                        {
+                                            domainBundleEntitlements.ChannelsToCollectionsMappings[channelID].Add(collection);
+                                        }
+                                        else if (channelID > 0)
+                                        {
+                                            domainBundleEntitlements.ChannelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
+                                        }
+                                    }
+                                }
+
                             }
                         }
                     }
                 }
             }
 
-            if (userBundleEntitlements.EntitledCollections != null && userBundleEntitlements.EntitledCollections.Count > 0)
+            catch (Exception ex)
             {
-                mdoule pricingModule = new mdoule();
-                Collection[] collectionsArray = pricingModule.GetCollectionsData(sPricingUsername, sPricingPassword, userBundleEntitlements.EntitledCollections.Keys.ToArray(), String.Empty, String.Empty, String.Empty);
-                if (collectionsArray != null && collectionsArray.Length > 0)
-                {
-                    foreach (Collection collection in collectionsArray)
-                    {
-                        int collectionCode;
-                        if (int.TryParse(collection.m_sObjectCode, out collectionCode) && !userBundleEntitlements.CollectionsData.ContainsKey(collectionCode))
-                        {
-                            userBundleEntitlements.CollectionsData.Add(collectionCode, collection);
-
-                            // Insert to channelsToSubscriptionMappings
-                            if (collection.m_sCodes != null)
-                            {
-                                foreach (BundleCodeContainer bundleCode in collection.m_sCodes)
-                                {
-                                    int channelID;
-                                    if (int.TryParse(bundleCode.m_sCode, out channelID) && userBundleEntitlements.ChannelsToCollectionsMappings.ContainsKey(channelID))
-                                    {
-                                        userBundleEntitlements.ChannelsToCollectionsMappings[channelID].Add(collection);
-                                    }
-                                    else if (channelID > 0)
-                                    {
-                                        userBundleEntitlements.ChannelsToCollectionsMappings.Add(channelID, new List<Collection>() { collection });
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                }
+                log.Error(string.Format("Failed PopulateDomainBundles, groupId: {0}, domainId: {1}", groupId, domainId), ex);
             }
         }
 
@@ -3918,9 +4061,16 @@ namespace ConditionalAccess
 
         internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain)
         {
+            Users.User user;
+            return ValidateUserAndDomain(groupId, siteGuid, ref householdId, out domain, out user);
+        }
+
+        internal static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, ref long householdId, out Domain domain, out Users.User user)
+        {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
             status.Code = -1;
             domain = null;
+            user = null;
 
             // If no user - go immediately to domain validation
             if (string.IsNullOrEmpty(siteGuid))
@@ -3930,7 +4080,7 @@ namespace ConditionalAccess
             else
             {
                 // Get response from users WS
-                ResponseStatus userStatus = ValidateUser(groupId, siteGuid, ref householdId);
+                ResponseStatus userStatus = ValidateUser(groupId, siteGuid, ref householdId, out user);
                 if (householdId == 0)
                 {
                     status.Code = (int)eResponseStatus.UserWithNoDomain;
@@ -4191,7 +4341,7 @@ namespace ConditionalAccess
 
             try
             {
-                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest();                
+                WS_Catalog.UnifiedSearchRequest request = new WS_Catalog.UnifiedSearchRequest();
                 request.m_nGroupID = groupID;
                 request.m_dServerTime = DateTime.UtcNow;
                 request.m_sSiteGuid = userID;
@@ -4301,7 +4451,7 @@ namespace ConditionalAccess
                 case RecordingInternalStatus.Waiting:
                     /* Unlike RecordingInternalStatus.OK we don't check the epg end date because
                      * we won't return recorded since the adapter call is async, so if the program
-                     * already started it doesn't matter if it finished or not we will return recording */                      
+                     * already started it doesn't matter if it finished or not we will return recording */
                     if (epgStartDate < DateTime.UtcNow)
                     {
                         recordingStatus = TstvRecordingStatus.Recording;
@@ -4377,7 +4527,7 @@ namespace ConditionalAccess
                 case TstvRecordingStatus.Deleted:
                     recordingStatus = TstvRecordingStatus.SeriesDelete;
                     break;
-                default:                   
+                default:
                     break;
             }
 
@@ -4898,7 +5048,7 @@ namespace ConditionalAccess
 
         public static List<SeriesRecording> BuildSeriesRecordingDetails(DataSet ds)
         {
-            Dictionary<long, SeriesRecording> result = new Dictionary<long, SeriesRecording>(); 
+            Dictionary<long, SeriesRecording> result = new Dictionary<long, SeriesRecording>();
             SeriesRecording seriesRecording = null;
 
             if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
@@ -5048,14 +5198,14 @@ namespace ConditionalAccess
                     if (id > 0 && !expiredRecordings.ContainsKey(id))
                     {
                         long recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "RECORDING_ID", 0);
-                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);                        
-                        long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);                        
+                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                        long scheduledExpirationEpoch = ODBCWrapper.Utils.GetLongSafeVal(dr, "scheduled_expiration_epoch", 0);
                         HandleDomainQuataByRecordingTask expiredRecording = new HandleDomainQuataByRecordingTask()
                         {
                             Id = id,
                             RecordingId = recordingId,
                             ScheduledExpirationEpoch = scheduledExpirationEpoch,
-                            GroupId = groupId                            
+                            GroupId = groupId
                         };
                         expiredRecordings.Add(id, expiredRecording);
                     }
@@ -5070,7 +5220,7 @@ namespace ConditionalAccess
             int domainDefaultQuota = 0;
             try
             {
-                string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);
+                string key = UtilsDal.GetDefaultQuotaInSeconds(groupId, domainId);// get defualt quota by group_id
                 bool res = ConditionalAccessCache.GetItem<int>(key, out domainDefaultQuota);
                 if (!res || domainDefaultQuota == 0)
                 {
@@ -5153,7 +5303,7 @@ namespace ConditionalAccess
                 programs = response.searchResults.Select(sr => (ExtendedSearchResult)sr).ToList();
             }
 
-            catch 
+            catch
             {
                 log.ErrorFormat("Failed GetFirstFollowerEpgIdsToRecord, channelId: {0}, seriesId: {1}, seassonNumber: {2}, windowStartDate: {3}", epgChannelId, seriesId, seasonNumber, windowStartDate);
             }
@@ -5257,7 +5407,7 @@ namespace ConditionalAccess
                     epg = epgs[0];
                 }
             }
-            
+
             Dictionary<string, string> epgFieldMappings = GetEpgFieldTypeEntitys(groupId, epg, recordingType);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
@@ -5297,10 +5447,9 @@ namespace ConditionalAccess
 
             // check if the user has future single episodes of the series/season and return them so we will cancel them and they will be recorded as part of series/season
             DomainSeriesRecording domainSeriesRecording = (DomainSeriesRecording)seriesRecording;
-            List<WS_Catalog.ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = Utils.SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>()
-                                                                                                            { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
+            List<WS_Catalog.ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = Utils.SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>() { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
             if (futureRecordingsOfSeasonOrSeries != null)
-            {                
+            {
                 foreach (WS_Catalog.ExtendedSearchResult futureRecordingSearchResult in futureRecordingsOfSeasonOrSeries)
                 {
                     long recordingId;
@@ -5422,10 +5571,10 @@ namespace ConditionalAccess
                 season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
                 seasonsToExclude = new StringBuilder();
                 if (serie.ExcludedSeasons != null && serie.ExcludedSeasons.Count > 0)
-                {                    
+                {
                     foreach (int seasonNumberToExclude in serie.ExcludedSeasons)
                     {
-                        seasonsToExclude.AppendFormat("{0} != '{1}' ", seasonNumber, seasonNumberToExclude); 
+                        seasonsToExclude.AppendFormat("{0} != '{1}' ", seasonNumber, seasonNumberToExclude);
                     }
                 }
 
@@ -5441,11 +5590,11 @@ namespace ConditionalAccess
                 case SearchSeriesRecordingsTimeOptions.future:
                     ksql.AppendFormat(") start_date > '0')");
                     break;
-                case SearchSeriesRecordingsTimeOptions.all:                  
+                case SearchSeriesRecordingsTimeOptions.all:
                 default:
                     ksql.AppendFormat("))");
                     break;
-            }            
+            }
 
 
             // get program ids
@@ -5513,7 +5662,7 @@ namespace ConditionalAccess
             }
 
             return recordings;
-        }        
+        }
 
         internal static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
         {
@@ -5555,7 +5704,7 @@ namespace ConditionalAccess
         {
             List<EpgCB> epgMatch = new List<EpgCB>();
             try
-            {   
+            {
                 List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
                 if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
@@ -5600,11 +5749,11 @@ namespace ConditionalAccess
                     }
                 }
             }
-            catch 
+            catch
             {
                 log.ErrorFormat("failed to 'GetEpgRelatedToSeriesRecording groupId = {0}, seriesRecordingID = {1}", groupId, seriesRecording.Id);
             }
-            return epgMatch;            
+            return epgMatch;
         }
 
         internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, WS_Catalog.ExtendedSearchResult potentialRecording,
@@ -5877,6 +6026,60 @@ namespace ConditionalAccess
             return media;
         }
 
+        internal static bool GetRecordingPlaybackSettingsByLinearMediaIdFromCache(int groupId, int mediaId)
+        {            
+            string key = LayeredCacheKeys.GetRecordingPlaybackSettingsKey(groupId, mediaId);
+            bool? enableRecordingPlaybackNonEntitledChannel = null;
+            bool res = false;
+            try
+            {
+                bool cacheResult = LayeredCache.Instance.Get<bool?>(key, ref enableRecordingPlaybackNonEntitledChannel, GetRecordingPlaybackSettingsByLinearMediaId, new Dictionary<string, object>()
+                { { "groupId", groupId }, { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.GET_RECORDING_PLAYBACK_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
+
+                if (cacheResult && enableRecordingPlaybackNonEntitledChannel.HasValue)
+                {
+                    res = enableRecordingPlaybackNonEntitledChannel.Value;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetRecordingPlaybackSettingsByLinearMediaIdFromCache, groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return res;
+        }
+
+        internal static Tuple<bool?, bool> GetRecordingPlaybackSettingsByLinearMediaId(Dictionary<string, object> funcParams)
+        {
+            bool? enableRecordingPlaybackNonEntitledChannel = null;
+            bool res = false;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    int? mediaId = funcParams["mediaId"] as int?;
+                    if (groupId.HasValue && mediaId.HasValue)
+                    {
+                        MediaObj media = GetMediaById(groupId.Value, mediaId.Value);
+                        if (media != null && !string.IsNullOrEmpty(media.AssetId))
+                        {
+                            enableRecordingPlaybackNonEntitledChannel = media.EnableRecordingPlaybackNonEntitledChannel;
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetRecordingPlaybackSettingsByLinearMediaId failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool?, bool>(enableRecordingPlaybackNonEntitledChannel, res);
+        }
+
         internal static bool IsDeviceInDomain(Domain domain, string udid)
         {
             if (domain != null && domain.m_deviceFamilies != null && domain.m_deviceFamilies.Count > 0)
@@ -5891,7 +6094,7 @@ namespace ConditionalAccess
             }
 
             return false;
-        }        
+        }
 
         internal static bool IsFollowingSeries(int groupId, long domainID, string seriesId, int seasonNumber, long channelId)
         {
@@ -5981,8 +6184,8 @@ namespace ConditionalAccess
         {
             List<Recording> orderedRecordings = new List<Recording>();
             switch (orderBy.m_eOrderBy)
-	        {
-		        case ApiObjects.SearchObjects.OrderBy.ID:
+            {
+                case ApiObjects.SearchObjects.OrderBy.ID:
                     if (orderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
                     {
                         orderedRecordings = recordings.OrderByDescending(x => x.Id).ToList();
@@ -6013,10 +6216,10 @@ namespace ConditionalAccess
                     }
                     break;
                 default:
-                    log.DebugFormat("Invalid orderBy type: {0} on OrderRecordingWithoutCatalog", orderBy.m_eOrderBy.ToString()); 
+                    log.DebugFormat("Invalid orderBy type: {0} on OrderRecordingWithoutCatalog", orderBy.m_eOrderBy.ToString());
                     break;
-	        }
-            
+            }
+
             totalResults = orderedRecordings.Count;
             if (!shouldIgnorePaging)
             {
@@ -6046,9 +6249,9 @@ namespace ConditionalAccess
                     long domainRecordingID = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
                     if (domainRecordingID > 0 && !domainIdToRecordingMap.ContainsKey(domainRecordingID))
                     {
-                        Recording domainRecording = BuildDomainRecordingFromDataRow(dr);                            
-                        domainIdToRecordingMap.Add(domainRecordingID, domainRecording);                                                        
-                    }                    
+                        Recording domainRecording = BuildDomainRecordingFromDataRow(dr);
+                        domainIdToRecordingMap.Add(domainRecordingID, domainRecording);
+                    }
                 }
             }
 
@@ -6065,7 +6268,7 @@ namespace ConditionalAccess
                 {
                     Recording recording = BuildRecordingFromDataRow(dr);
                     // add recording if its valid
-                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)                        
+                    if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK)
                     {
                         recordings.Add(recording);
                     }
@@ -6100,9 +6303,9 @@ namespace ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, Dictionary<long,string> epgToChannelMap)
+        internal static Dictionary<int, List<long>> GetFileIdsToEpgIdsMap(int groupId, Dictionary<long, string> epgToChannelMap)
         {
-            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int,List<long>>();
+            Dictionary<int, List<long>> fileIdsToEpgMap = new Dictionary<int, List<long>>();
             HashSet<long> epgIdsToGetFromDb = new HashSet<long>();
             try
             {
@@ -6120,7 +6323,7 @@ namespace ConditionalAccess
                                 if (!epgIdsToGetFromDb.Contains(epgAndChannel.Key))
                                 {
                                     epgIdsToGetFromDb.Add(epgAndChannel.Key);
-                                }                                
+                                }
                             }
                         }
                     }
@@ -6168,7 +6371,7 @@ namespace ConditionalAccess
                             string key = string.Format("Channel_{0}_FileIds", epgToChannelMap[epgId]);
                             List<int> channelFileIds = null;
                             if (!TvinciCache.WSCache.Instance.TryGet(key, out channelFileIds))
-                            {                                
+                            {
                                 TvinciCache.WSCache.Instance.Add(key, epgFileIds, 10);
                             }
                         }
@@ -6271,6 +6474,1029 @@ namespace ConditionalAccess
             return ConditionalAccessDAL.GetCachedEntitlementResults(TVinciShared.WS_Utils.GetTcmConfigValue("Version"), domainId, mediaFileId);
         }
 
+        internal static ApiObjects.Response.Status SetResponseStatus(PriceReason priceReason)
+        {
+            ApiObjects.Response.Status status = null;
+            switch (priceReason)
+            {
+                case PriceReason.PPVPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchasePPVPurchased, "PPV already purchased");
+                break;
+                case PriceReason.Free:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseFree, "Free");
+                break;
+                case PriceReason.ForPurchaseSubscriptionOnly:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly, "Subscription only");
+                break;
+                case PriceReason.SubscriptionPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseSubscriptionPurchased, "Already purchased (subscription)");
+                break;
+                case PriceReason.NotForPurchase:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.NotForPurchase, "Not valid for purchase");
+                break;
+                case PriceReason.CollectionPurchased:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UnableToPurchaseCollectionPurchased, "Collection already purchased");
+                break;
+                default:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
+                break;
+            }
+
+            return status;
+        }
+
+        internal static ApiObjects.Response.Status SetResponseStatus(ResponseStatus userValidStatus)
+        {
+            ApiObjects.Response.Status status = null;
+            // user validation failed
+            switch (userValidStatus)
+            {
+                case ResponseStatus.UserDoesNotExist:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User doesn't exists");
+                break;
+                case ResponseStatus.UserSuspended:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, "Suspended user");
+                break;
+                case ResponseStatus.UserNotIndDomain:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.UserNotInDomain, "User doesn't exist in household");
+                break;
+                default:
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to validate user");
+                break;
+            }
+
+            return status;
+        }
+
+        internal static void InitializeBillingModule(ref WS_Billing.module bm, int groupId, ref string sWSUsername, ref string sWSPassword)
+        {
+            Utils.GetWSCredentials(groupId, eWSModules.BILLING, ref sWSUsername, ref sWSPassword);
+
+            bm = new WS_Billing.module();
+        }
+
+        internal static List<MediaFile> FilterMediaFilesForAsset(int groupId, string assetId, eAssetTypes assetType, long mediaId, StreamerType? streamerType, string mediaProtocol,
+            PlayContextType context, List<long> fileIds, bool filterOnlyByIds = false)
+        {
+            List<MediaFile> files = null;
+
+            List<MediaFile> allMediafiles = null;
+            string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
+            bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
+                                                                        { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
+
+            // filter
+            if (allMediafiles != null && allMediafiles.Count > 0)
+            {
+                if (filterOnlyByIds)
+                {
+                    files = allMediafiles.Where(f => fileIds != null && fileIds.Contains(f.Id)).ToList();
+                }
+                else
+                {
+                    files = allMediafiles.Where(f => (!streamerType.HasValue || streamerType.Value == f.StreamerType) &&
+                        ((context == PlayContextType.Trailer && f.IsTrailer) ||
+                        ((context == PlayContextType.Playback || context == PlayContextType.CatchUp || context == PlayContextType.StartOver) && !f.IsTrailer)) &&
+                        (string.IsNullOrEmpty(mediaProtocol) || string.IsNullOrEmpty(f.Url) || f.Url.ToLower().StartsWith(string.Format("{0}:", mediaProtocol.ToLower()))) &&
+                        (fileIds == null || fileIds.Count == 0 || fileIds.Contains(f.Id))).ToList();
+                }
+            }
+
+            return files;
+        }
+
+        internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain ,string udid, 
+            out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            mediaId = 0;
+            recording = null;
+            program = null;
+            Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResult = null;            
+            string key = LayeredCacheKeys.GetMediaIdForAssetKey(assetId, assetType.ToString());
+
+            try
+            {
+                bool cacheResult = LayeredCache.Instance.Get<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>>(key, ref tupleResult, GetMediaIdForAssetFromCache,
+                new Dictionary<string, object>() { { "assetId", assetId }, { "groupId", groupId }, { "assetType", assetType }, { "userId", userId }, { "domain", domain }, { "udid", udid } },
+                groupId, LayeredCacheConfigNames.MEDIA_IF_FOR_ASSET_LAYERED_CACHE_CONFIG_NAME);
+
+                if (cacheResult && tupleResult != null)
+                {
+                    mediaId = tupleResult.Item1;
+                    recording = tupleResult.Item2;
+                    program = tupleResult.Item3;
+                    status = tupleResult.Item4;
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("failed GetMediaIdForAsset, groupId: {0}, assetId: {1}, assetType: {2}", groupId, assetId, assetType.ToString()), ex);
+            }
+
+            return status;
+        }
+
+        private static Tuple<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>, bool> GetMediaIdForAssetFromCache(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status> tupleResults = null;
+            long mediaId = 0;
+            Recording recording = null;
+            EPGChannelProgrammeObject program = null;
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                if (funcParams != null && funcParams.Count == 6)
+                {
+                    if (funcParams.ContainsKey("assetId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType") && funcParams.ContainsKey("userId"))
+                    {
+                        long id;
+                        string assetId = funcParams["assetId"] as string;
+                        int? groupId = funcParams["groupId"] as int?;
+                        eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
+                        string userId = funcParams["userId"] as string;
+                        if (!string.IsNullOrEmpty(assetId) && long.TryParse(assetId, out id) && groupId.HasValue && assetType.HasValue && !string.IsNullOrEmpty(userId))
+                        {
+                            switch (assetType)
+                            {
+                                case eAssetTypes.NPVR:
+                                    {
+                                        Domain domain = funcParams.ContainsKey("domain") ? funcParams["domain"] as Domain : null;
+                                        string udid = funcParams.ContainsKey("groupId") ? funcParams["udid"] as string : string.Empty;
+                                        // check recording valid
+                                        var recordingStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording);
+
+                                        if (recordingStatus.Code != (int)eResponseStatus.OK)
+                                        {
+                                            log.ErrorFormat("recording is not valid - recordingId = {0}", assetId);
+                                            status = new ApiObjects.Response.Status(recordingStatus.Code, recordingStatus.Message);
+                                        }
+
+                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { recording.EpgId });
+                                        if (epgs != null && epgs.Count > 0)
+                                        {
+                                            program = epgs[0];
+                                            mediaId = program.LINEAR_MEDIA_ID;
+                                        }
+                                        else
+                                        {
+                                            status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                                        }
+                                    }
+                                    break;
+                                case eAssetTypes.EPG:
+                                    {
+                                        List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { id });
+                                        if (epgs != null && epgs.Count > 0)
+                                        {
+                                            program = epgs[0];
+                                            mediaId = program.LINEAR_MEDIA_ID;
+                                        }
+                                        else
+                                        {
+                                            status = new ApiObjects.Response.Status((int)eResponseStatus.ProgramDoesntExist, "Program not found");
+                                        }
+                                    }
+                                    break;
+                                case eAssetTypes.MEDIA:
+                                    mediaId = id;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            tupleResults = new Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>(mediaId, recording, program, status);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaIdForAssetFromCache failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Tuple<long, Recording, EPGChannelProgrammeObject, ApiObjects.Response.Status>, bool>(tupleResults, res);
+        }
+
+        internal static eService GetServiceByPlayContextType(PlayContextType contextType)
+        {
+            eService service;
+            switch (contextType)
+            {
+                case PlayContextType.CatchUp:
+                    service = eService.CatchUp;
+                    break;
+                case PlayContextType.StartOver:
+                    service = eService.StartOver;
+                    break;
+                case PlayContextType.Trailer:
+                case PlayContextType.Playback:
+                default:
+                    service = eService.Unknown;
+                    break;
+            }
+
+            return service;
+        }
+
+        internal static eEPGFormatType GetEpgFormatTypeByPlayContextType(PlayContextType contextType)
+        {
+            eEPGFormatType type;
+
+            switch (contextType)
+            {
+                case PlayContextType.CatchUp:
+                    type = eEPGFormatType.Catchup;
+                    break;
+                case PlayContextType.StartOver:
+                    type = eEPGFormatType.StartOver;
+                    break;
+                default:
+                    throw new Exception("not supported context for EPG");
+            }
+
+            return type;
+        }
+
+        internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId, long domainRecordingId, ref Recording recording)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            // get device brand ID - and make sure the device is in the domain
+            if (!Utils.IsDeviceInDomain(domain, udid))
+            {
+                log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, udid = {4}",
+                    groupId, userId, domain.m_nDomainID, domainRecordingId, udid);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in the user's domain");
+                return response;
+            }
+
+            // validate recording
+            var domainRecordings = Utils.GetDomainRecordingIdsToRecordingsMap(groupId, domain.m_nDomainID, new List<long>() { domainRecordingId });
+            if (domainRecordings == null || domainRecordings.Count == 0 || (recording = domainRecordings[domainRecordingId]) == null)
+            {
+                log.ErrorFormat("Recording does not exist. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}", groupId, userId, domain.m_nDomainID, domainRecordingId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, "Recording was not found");
+                return response;
+            }
+            if (recording.RecordingStatus != TstvRecordingStatus.Recorded)
+            {
+                log.ErrorFormat("Recording status is not valid for playback. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, recording = {4}, recordingStatus = {5}",
+                    groupId, userId, domain.m_nDomainID, domainRecordingId, recording.Id, recording.RecordingStatus);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, "Recording status is not valid");
+                return response;
+            }
+
+            return response;
+        }
+
+        public static string GetAssetUrl(int groupId, eAssetTypes assetType, string url, int cdnId)
+        {
+            // get adapter
+            bool isDefaultAdapter = false;
+            var adapterResponse = GetRelevantCDN(groupId, cdnId, assetType, ref isDefaultAdapter);
+
+            url = string.Format("{0}{1}", adapterResponse.Adapter.BaseUrl, url);
+
+            return url;
+        }
+
+        public static Dictionary<string, string> GetLicensedLinkParamsDict(string sSiteGuid, string mediaFileIDStr, string basicLink,
+            string userIP, string countryCode, string langCode,
+            string deviceName, string couponCode)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>(8);
+
+            res.Add(CDNTokenizers.Constants.SITE_GUID, sSiteGuid);
+            res.Add(CDNTokenizers.Constants.MEDIA_FILE_ID, mediaFileIDStr);
+            res.Add(CDNTokenizers.Constants.URL, basicLink);
+            res.Add(CDNTokenizers.Constants.IP, userIP);
+            res.Add(CDNTokenizers.Constants.COUNTRY_CODE, countryCode);
+            res.Add(CDNTokenizers.Constants.LANGUAGE_CODE, langCode);
+            res.Add(CDNTokenizers.Constants.DEVICE_NAME, deviceName);
+            res.Add(CDNTokenizers.Constants.COUPON_CODE, couponCode);
+
+            return res;
+        }
+
+        public static bool IsItemPurchased(MediaFileItemPricesContainer price)
+        {
+            bool res = false;
+            if (price == null || price.m_oItemPrices == null || price.m_oItemPrices.Length == 0)
+            {
+                return res;
+            }
+            PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
+            switch (reason)
+            {
+                case PriceReason.SubscriptionPurchased:
+                case PriceReason.PrePaidPurchased:
+                case PriceReason.CollectionPurchased:
+                case PriceReason.PPVPurchased:
+                    res = price.m_oItemPrices[0].m_oPrice.m_dPrice == 0d;
+                    break;
+                default:
+                    break;
+
+            }
+
+            return res;
+        }
+
+        public static void GetDataFromCustomData(int customDataId, string customData, ref double customDataPrice, ref string customDataCurrency, ref string userIP, ref string coupon, ref string udid)
+        {
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(customData);
+                XmlNode theRequest = doc.FirstChild;
+
+                customDataCurrency = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
+                userIP = XmlUtils.GetSafeValue(BaseConditionalAccess.USER_IP, ref theRequest);
+                coupon = XmlUtils.GetSafeValue(BaseConditionalAccess.COUPON_CODE, ref theRequest);
+                udid = XmlUtils.GetSafeValue(BaseConditionalAccess.DEVICE_NAME, ref theRequest);
+                if (!Double.TryParse(XmlUtils.GetSafeValue(BaseConditionalAccess.PRICE, ref theRequest), out customDataPrice))
+                {
+                    customDataPrice = 0.0;
+                }
+
+            }
+            catch (Exception exc)
+            {
+                log.ErrorFormat("SetEntitlement - error load custom data xml {0} Exception:{1}", customDataId, exc);
+                throw exc;
+            }
+        }
+
+        public static NPVRUserActionResponse HandleNPVRQuota(int groupId, Subscription subscription, long householdId, bool isCreate)
+        {
+            NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();
+            NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
+            log.DebugFormat("Subscription with NPVR service, Quota: {0}", npvrObject.Quota);
+
+            INPVRProvider npvr;
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr))
+            {
+                try
+                {
+                    if (isCreate)
+                    {
+                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                    }
+                    else
+                    {
+                        userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                    }
+                }
+                catch
+                {
+
+                }
+
+            }
+
+            return userActionResponse;
+        }
+
+        internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
+        {
+            ApiObjects.Country res = null;
+            try
+            {
+                API api = new API();
+                string sAPIWSUserName = string.Empty;
+                string sAPIWSPass = string.Empty;
+                Utils.GetWSCredentials(groupId, eWSModules.API, ref sAPIWSUserName, ref sAPIWSPass);
+                res = api.GetCountryByIp(sAPIWSUserName, sAPIWSPass, ip);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetCountryByIp with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static string GetIP2CountryName(int groupId, string ip)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Name : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryName with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static int GetIP2CountryId(int groupId, string ip)
+        {
+            int res = 0;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Id : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryId with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static bool TryGetDomainEntitlementsFromCache(int groupId, int domainId, MeidaMaper[] mapper, ref DomainEntitlements domainEntitlements)
+        {
+            bool res = false;
+            try
+            {
+                string key = LayeredCacheKeys.GetDomainEntitlementsKey(groupId, domainId);
+                // if mapper is null init it to empty for passing validation in InitializeDomainEntitlements
+                if (mapper == null)
+                {
+                    mapper = new MeidaMaper[0];
+                }
+
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId }, { "mapper", mapper } };
+                res = LayeredCache.Instance.Get<DomainEntitlements>(key, ref domainEntitlements, InitializeDomainEntitlements, funcParams,
+                                                                    groupId, LayeredCacheConfigNames.GET_DOMAIN_ENTITLEMENTS_LAYERED_CACHE_CONFIG_NAME, GetDomainEntitlementInvalidationKeys(domainId));
+
+                if (res && domainEntitlements != null)
+                {
+                    // remove expired PPV's
+                    if (domainEntitlements.DomainPpvEntitlements != null && domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary != null)
+                    {
+                        List<string> keysToRemove = new List<string>();
+                        foreach (KeyValuePair<string, EntitlementObject> pair in domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary)
+                        {
+                            if (pair.Value.endDate.HasValue && pair.Value.endDate.Value <= DateTime.UtcNow)
+                            {
+                                keysToRemove.Add(pair.Key);
+                            }
+                        }
+
+                        foreach (string keyToRemove in keysToRemove)
+                        {
+                            domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary.Remove(keyToRemove);
+                        }
+                    }
+
+                    // Get mappings of mediaFileIDs - MediaIDs
+                    if (mapper != null && mapper.Length > 0)
+                    {
+                        int[] mediaIDsToMap = new int[mapper.Length];
+                        for (int i = 0; i < mediaIDsToMap.Length; i++)
+                        {
+                            mediaIDsToMap[i] = mapper[i].m_nMediaID;
+                        }
+
+                        Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
+                        List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
+
+                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
+                                                                                                    new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } },
+                                                                                                    groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME);
+                        if (!cacheResult)
+                        {
+                            log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file types mappings from cache keys: {0}", string.Join(",", keys)));
+                        }
+
+                        Dictionary<string, int> mapping = new Dictionary<string, int>();
+
+                        // combine all the results (all dictionaries that return to ONE dictionary)
+                        foreach (Dictionary<string, int> val in mediaIdGroupFileTypeMapper.Values)
+                        {
+                            foreach (KeyValuePair<string, int> item in val)
+                            {
+                                if (!mapping.ContainsKey(item.Key))
+                                {
+                                    mapping.Add(item.Key, item.Value);
+                                }
+                            }
+                        }
+
+                        domainEntitlements.DomainPpvEntitlements.MediaIdGroupFileTypeMapper = mapping;
+                    }
+
+                    // remove expired Bundles
+                    if (domainEntitlements.DomainBundleEntitlements != null)
+                    {
+                        // remove expired subscriptions
+                        if (domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null)
+                        {
+                            List<string> keysToRemove = new List<string>();
+                            foreach (KeyValuePair<string, UserBundlePurchase> pair in domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions)
+                            {
+                                if (pair.Value.dtEndDate != null && pair.Value.dtEndDate <= DateTime.UtcNow)
+                                {
+                                    keysToRemove.Add(pair.Key);
+                                }
+                            }
+
+                            foreach (string keyToRemove in keysToRemove)
+                            {
+                                domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Remove(keyToRemove);
+                            }
+                        }
+
+                        // remove expired collections
+                        if (domainEntitlements.DomainBundleEntitlements.EntitledCollections != null)
+                        {
+                            List<string> keysToRemove = new List<string>();
+                            foreach (KeyValuePair<string, UserBundlePurchase> pair in domainEntitlements.DomainBundleEntitlements.EntitledCollections)
+                            {
+                                if (pair.Value.dtEndDate != null && pair.Value.dtEndDate <= DateTime.UtcNow)
+                                {
+                                    keysToRemove.Add(pair.Key);
+                                }
+                            }
+
+                            foreach (string keyToRemove in keysToRemove)
+                            {
+                                domainEntitlements.DomainBundleEntitlements.EntitledCollections.Remove(keyToRemove);
+                            }
+                        }
+
+                        PopulateDomainBundles(domainId, groupId, domainEntitlements.DomainBundleEntitlements);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetDomainEntitlementsFromCache, groupId: {0}, domainId: {1}", groupId, domainId), ex);
+            }
+
+            return res && domainEntitlements != null;           
+        }
+
+        private static List<string> GetDomainEntitlementInvalidationKeys(int domainId)
+        {
+            return new List<string>()
+            {
+                LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId),
+                LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId),
+                LayeredCacheKeys.GetPurchaseInvalidationKey(domainId),
+                LayeredCacheKeys.GetGrantEntitlementInvalidationKey(domainId),
+                LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId),
+                LayeredCacheKeys.GetRenewInvalidationKey(domainId)
+            };
+        }
+
+        private static Tuple<DomainEntitlements, bool> InitializeDomainEntitlements(Dictionary<string, object> funcParams)
+        {            
+            DomainEntitlements domainEntitlements = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("domainId") && funcParams.ContainsKey("mapper"))
+                {
+                    int? groupId = funcParams["groupId"] as int?, domainId = funcParams["domainId"] as int?;                    
+                    MeidaMaper[] mapper = funcParams["mapper"] as MeidaMaper[];                    
+                    if (groupId.HasValue && domainId.HasValue != null && mapper != null)
+                    {
+                        List<int> usersInDomain = Utils.GetAllUsersInDomain(groupId.Value, domainId.Value);
+                        domainEntitlements = new DomainEntitlements();
+                        //Get domain PPV entitlements
+                        domainEntitlements.DomainPpvEntitlements = InitializeDomainPpvs(groupId.Value, domainId.Value, usersInDomain, mapper);
+                        //Get domain bundle entitlements
+                        domainEntitlements.DomainBundleEntitlements = InitializeDomainBundles(domainId.Value, groupId.Value, usersInDomain, false);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("InitializeDomainEntitlements failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            bool res = domainEntitlements != null;
+
+            return new Tuple<DomainEntitlements, bool>(domainEntitlements, res);
+        }
+
+        internal static Tuple<DataTable, bool> GetFileUrlLinks(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DataTable dt = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("mediaFileId"))
+                    {
+                        int? mediaFileId;
+                        mediaFileId = funcParams["mediaFileId"] as int?;
+
+                        if (mediaFileId.HasValue)
+                        {
+                            dt = ConditionalAccessDAL.GetFileCdnData(mediaFileId.Value);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetFileUrlLinks failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<DataTable, bool>(dt, res);
+        }
+
+        internal static Tuple<List<MediaFile>, bool> GetMediaFiles(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<MediaFile> mediaFiles = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("assetType"))
+                    {
+                        long? mediaId = funcParams["mediaId"] as long?;
+                        int? groupId = funcParams["groupId"] as int?;
+                        eAssetTypes? assetType = funcParams["assetType"] as eAssetTypes?;
+
+                        if (mediaId.HasValue && groupId.HasValue && assetType.HasValue)
+                        {
+                            mediaFiles = ApiDAL.GetMediaFiles(mediaId.Value);
+                            if (mediaFiles != null)
+                            {
+                                foreach (MediaFile mediaFile in mediaFiles)
+                                {
+                                    mediaFile.Url = GetAssetUrl(groupId.Value, assetType.Value, mediaFile.Url, mediaFile.CdnId);
+                                }
+                            }
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaFiles failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<MediaFile>, bool>(mediaFiles, res);
+        }
+
+        internal static List<int> GetRelatedMediaFiles(ItemPriceContainer price, int mediaFileID)
+        {
+            List<int> lRelatedMediaFiles = new List<int>();
+
+            if (price != null && price.m_lRelatedMediaFileIDs != null && price.m_lRelatedMediaFileIDs.Length > 0)
+            {
+                lRelatedMediaFiles.AddRange(price.m_lRelatedMediaFileIDs.ToList());
+            }
+            if (!lRelatedMediaFiles.Contains(mediaFileID))
+            {
+                lRelatedMediaFiles.Add(mediaFileID);
+            }
+            return lRelatedMediaFiles;
+        }
+        
+        internal static DateTime? GetStartDate(ItemPriceContainer price)
+        {
+            DateTime? dtStartDate = null;
+
+            if (price != null)
+            {
+                dtStartDate = price.m_dtStartDate;
+            }
+
+            return (dtStartDate);
+        }
+
+        internal static DateTime? GetEndDate(ItemPriceContainer price)
+        {
+            DateTime? dtEndDate = null;
+
+            if (price != null)
+            {
+                dtEndDate = price.m_dtEndDate;
+            }
+
+            return (dtEndDate);
+        }
+
+        internal static void InsertOfflinePpvUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, int releventCollectionID, ContextData context)
+        {
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the offlinePpvUsesLog row data
+                string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID });
+                offlinePpvLogger.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format(@"Error in InsertOfflinePpvUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7},
+                                            releventCollectionID: {8}", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID), ex);
+            }
+        }
+
+        internal static void InsertOfflineSubscriptionUse(int groupId, int mediaFileId, string productCode, string userId, string countryCode, string languageCode, string udid, int nRelPP, ContextData context)
+        {
+            try
+            {
+                context.Load();
+                // We write an empty string as the first parameter to split the start of the log from the offlineSubscriptionUsesLog row data
+                string infoToLog = string.Join(",", new object[] { " ", groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP });
+                offlineSubscriptionLogger.Info(infoToLog);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOfflinePpvUse, groupId: {0}, mediaFileId: {1}, productCode: {2}, userId: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, nRelPP: {7}",
+                                        groupId, mediaFileId, productCode, userId, countryCode, languageCode, udid, nRelPP), ex);
+            }
+        }
+
+        private static Tuple<int, bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int mediaFileID = 0;
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            try
+            {
+                int? groupID = 0;
+                string coGuid = string.Empty;
+                if (funcParams.ContainsKey("groupID"))
+                {
+                    groupID = funcParams["groupID"] as int?;
+                }
+                if (funcParams.ContainsKey("coGuid"))
+                {
+                    coGuid = funcParams["coGuid"] as string;
+                }
+                if (groupID > 0 && !string.IsNullOrEmpty(coGuid))
+                {
+                    res = ConditionalAccessDAL.Get_MediaFileIDByCoGuid(coGuid, groupID.Value, ref mediaFileID);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_MediaFileIDByCoGuid faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<int, bool>(mediaFileID, res);
+        }
+
+        private static Tuple<Dictionary<string, Dictionary<string, int>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
+            try
+            {
+                if (funcParams.ContainsKey("mediaIDs"))
+                {
+                    int[] mediaIDs;
+                    mediaIDs = funcParams["mediaIDs"] != null ? funcParams["mediaIDs"] as int[] : null;
+                    if (mediaIDs != null)
+                    {
+                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
+        }
+
+        internal static ApiObjects.Response.Status ValidatePPVModuleCode(int groupId, int productId, int contentId, ref PPVModule thePPVModule)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+
+            try
+            {
+                string userName = string.Empty;
+                string password = string.Empty;
+                mdoule wsPricingService = new mdoule();
+                Utils.GetWSCredentials(groupId, eWSModules.PRICING, ref userName, ref password);
+                long ppvModuleCode = 0;
+                long.TryParse(productId.ToString(), out ppvModuleCode);
+
+                thePPVModule = wsPricingService.ValidatePPVModuleForMediaFile(userName, password, contentId, ppvModuleCode);
+
+                if (thePPVModule == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "The ppv module is unknown");
+                    return response;
+                }
+
+                if (!thePPVModule.m_sObjectCode.Equals(productId.ToString()))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UnKnownPPVModule, "This PPVModule does not belong to item");
+                    return response;
+                }
+
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error("ValidateModuleCode  ", ex);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error ValidateModuleCode");
+                return response;
+            }
+        }
+
+        internal static DateTime CalcSubscriptionEndDate(Subscription sub, bool bIsEntitledToPreviewModule, DateTime dtToInitializeWith)
+        {
+            DateTime res = dtToInitializeWith;
+            if (sub != null)
+            {
+                if (bIsEntitledToPreviewModule && sub.m_oPreviewModule != null && sub.m_oPreviewModule.m_tsFullLifeCycle > 0)
+                {
+                    // calc end date according to preview module life cycle
+                    res = Utils.GetEndDateTime(res, sub.m_oPreviewModule.m_tsFullLifeCycle);
+                }
+                else
+                {
+                    if (sub.m_oSubscriptionUsageModule != null)
+                    {
+                        // calc end date as before.
+                        res = Utils.GetEndDateTime(res, sub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
+                    }
+                }
+            }
+
+            return res;
+        }
+        
+        internal static void GetFreeItemLeftLifeCycle(int groupId, ref string p_strViewLifeCycle, ref string p_strFullLifeCycle)
+        {
+            // Default is 2 days
+            TimeSpan ts = new TimeSpan(2, 0, 0, 0);
+
+            // Get the group's configuration for free view life cycle
+            string sFreeLeftView = Utils.GetValueFromConfig(string.Format("free_left_view_{0}", groupId));
+
+            if (!string.IsNullOrEmpty(sFreeLeftView))
+            {
+                DateTime dEndDate = Utils.GetEndDateTime(DateTime.UtcNow, int.Parse(sFreeLeftView), true);
+                ts = dEndDate.Subtract(DateTime.UtcNow);
+            }
+
+            p_strViewLifeCycle = ts.ToString();
+            // TODO: Understand what to do with full life cycle of free item. Right now I write it the same as view
+            p_strFullLifeCycle = ts.ToString();
+        }
+
+        public static bool IsFreeItem(MediaFileItemPricesContainer container)
+        {
+            return container != null && (container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free);
+        }
+        
+        internal static eTransactionType GetBusinessModuleType(string moduleCode)
+        {
+            if (!string.IsNullOrEmpty(moduleCode))
+            {
+                if (moduleCode.Contains("s:"))
+                    return eTransactionType.Subscription;
+                if (moduleCode.Contains("c:"))
+                    return eTransactionType.Collection;
+            }
+            return eTransactionType.PPV;
+        }
+
+        internal static string GetDeviceName(string deviceUDID)
+        {
+            return DAL.ConditionalAccessDAL.GetDeviceName(deviceUDID);            
+        }
+
+        /// <summary>
+        /// Get Billing Trans Method
+        /// </summary>
+        internal static PaymentMethod GetBillingTransMethod(int billingTransID, string billingGuid)
+        {
+            PaymentMethod retVal = PaymentMethod.Unknown;
+
+            if (billingTransID <= 0 && string.IsNullOrEmpty(billingGuid))
+            {
+                return retVal;
+            }
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = null;
+            try
+            {
+                selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                selectQuery += " select BILLING_METHOD from billing_transactions with (nolock) where status=1 and";
+                if (billingTransID > 0)
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", billingTransID);
+                }
+                else
+                {
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("billing_guid", "=", billingGuid);
+                }
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    int count = selectQuery.Table("query").DefaultView.Count;
+                    if (count > 0)
+                    {
+                        if (selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"] != System.DBNull.Value && selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"] != null)
+                        {
+                            int billingInt = int.Parse(selectQuery.Table("query").DefaultView[0].Row["BILLING_METHOD"].ToString());
+                            if (billingInt > 0)
+                            {
+                                if (Enum.IsDefined(typeof(PaymentMethod), ((PaymentMethod)billingInt).ToString()))
+                                    retVal = (PaymentMethod)billingInt;
+                            }
+                        }
+                    }
+                    else if (count == 0)
+                    {
+                        retVal = PaymentMethod.Gift;
+                    }
+                }
+            }
+            finally
+            {
+                if (selectQuery != null)
+                {
+                    selectQuery.Finish();
+                }
+            }
+            return retVal;
+        }
+
+        internal static bool IsGroupIDContainedInConfig(long lGroupID, string sKey, char cSeperator)
+        {
+            bool res = false;
+            string rawStrFromConfig = GetWSURL(sKey);
+            if (rawStrFromConfig.Length > 0)
+            {
+                string[] strArrOfIDs = rawStrFromConfig.Split(cSeperator);
+                if (strArrOfIDs != null && strArrOfIDs.Length > 0)
+                {
+                    List<long> listOfIDs = strArrOfIDs.Select(s =>
+                    {
+                        long l = 0;
+                        if (Int64.TryParse(s, out l))
+                            return l;
+                        return 0;
+                    }).ToList();
+
+                    res = listOfIDs.Contains(lGroupID);
+                }
+            }
+
+            return res;
+        }
+
+        internal static ApiObjects.Response.Status ConcurrencyResponseToResponseStatus(DomainResponseStatus mediaConcurrencyResponse)
+        {
+            ApiObjects.Response.Status res;
+
+            switch (mediaConcurrencyResponse)
+            {
+                case DomainResponseStatus.LimitationPeriod:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.LimitationPeriod, "Limitation period");
+                    break;
+                case DomainResponseStatus.Error:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+                case DomainResponseStatus.ExceededLimit:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ExceededLimit, "Exceeded limit");
+                    break;
+                case DomainResponseStatus.DeviceTypeNotAllowed:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceTypeNotAllowed, "Device type not allowed");
+                    break;
+                case DomainResponseStatus.DeviceNotInDomain:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device not in household");
+                    break;
+                case DomainResponseStatus.DeviceAlreadyExists:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceAlreadyExists, "Device already exists");
+                    break;
+                case DomainResponseStatus.OK:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    break;
+                case DomainResponseStatus.DeviceExistsInOtherDomains:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.DeviceExistsInOtherDomains, "Device exists in other household");
+                    break;
+                case DomainResponseStatus.ConcurrencyLimitation:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ConcurrencyLimitation, "Concurrency limitation");
+                    break;
+                case DomainResponseStatus.MediaConcurrencyLimitation:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.MediaConcurrencyLimitation, "Media concurrency limitation");
+                    break;
+                default:
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    break;
+            }
+
+            return res;
+        }
     }
 }
-

@@ -72,7 +72,9 @@ namespace ApiObjects
         PreviewModuleCancelOrRefund = 11,
         PurchaseWithPreviewModule = 12,
         AddDeviceToDomain = 13,
-        RemoveDomain = 14
+        RemoveDomain = 14,
+        PurchaseWithGiftCard = 15,
+        GiftCardRenewReminder = 16
     }
 
     public enum eGroupRuleType
@@ -826,6 +828,22 @@ namespace ApiObjects
         Switched_To = 6
     }
 
+    public enum PlayContextType
+    {
+        Trailer,
+        CatchUp,
+        StartOver,
+        Playback
+    }
+
+    public enum StreamerType
+    {
+        applehttp = 0, 
+        mpegdash = 1,
+        url = 2,
+        smothstreaming = 3
+    }
+
     public enum eService
     {
         Unknown = 0,
@@ -835,4 +853,22 @@ namespace ApiObjects
         Download = 4
     }
 
+    public enum DrmType
+    {
+        UDRM = -1,
+        NO_DRM = 0,
+    }
+
+    public enum eSubscriptionRenewRequestType
+    {
+        Renew = 0,
+        Reminder = 1
+    }
+
+    public enum GrantContext
+    {
+        Grant = 0,
+        Swap = 1,
+        Renew = 2
+    }
 }

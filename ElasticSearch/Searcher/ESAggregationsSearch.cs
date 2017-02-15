@@ -26,12 +26,7 @@ namespace ElasticSearch.Searcher
         filter,
         filters
     }
-
-    public static class ESAggregationsSearch
-    {
-
-    }
-
+    
     #region Aggregations
 
     public class ESBaseAggsItem
@@ -48,6 +43,7 @@ namespace ElasticSearch.Searcher
 
         public bool IsNumeric;
         public int Size;
+        public int? ShardSize;
 
         #endregion
 
@@ -56,6 +52,7 @@ namespace ElasticSearch.Searcher
         public ESBaseAggsItem()
         {
             this.Size = 0;
+            this.ShardSize = null;
             this.SubAggrgations = new List<ESBaseAggsItem>();
             this.AdditionalInnerParameters = new List<KeyValuePair<string, string>>();
         }
@@ -123,6 +120,11 @@ namespace ElasticSearch.Searcher
             if (this.Size > -1 && this.IsSizeable())
             {
                 sb.AppendFormat(",\"size\": {0}", this.Size);
+            }
+
+            if (this.ShardSize != null && this.ShardSize.HasValue)
+            {
+                sb.AppendFormat(",\"shard_size\": {0}", this.ShardSize.Value);
             }
 
             if (this.AdditionalInnerParameters != null && this.AdditionalInnerParameters.Count > 0)

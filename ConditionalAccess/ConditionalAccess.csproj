@@ -108,8 +108,15 @@
     <Compile Include="Modules\PpvPurchase.cs" />
     <Compile Include="Modules\Purchase.cs" />
     <Compile Include="Modules\SubscriptionPurchase.cs" />
+    <Compile Include="Managers\EntitelemantManager.cs" />
+    <Compile Include="Managers\GrantManager.cs" />
+    <Compile Include="Managers\PlaybackManager.cs" />
+    <Compile Include="Managers\PlayUsesManager.cs" />
+    <Compile Include="Managers\ReconciliationManager.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPriceResponse.cs" />
     <Compile Include="PersonalEnrichments\AssetItemPrices.cs" />
+    <Compile Include="Managers\PurchaseManager.cs" />
+    <Compile Include="Managers\RenewManager.cs" />
     <Compile Include="Recordings\QuotaManager.cs" />
     <Compile Include="Recordings\RecordingsManager.cs" />
     <Compile Include="Service References\WS_Catalog\Reference.cs">
@@ -117,7 +124,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="UserEntitlementsObject.cs" />
+    <Compile Include="DomainEntitlements.cs" />
     <Compile Include="Implementations\BaseConditionalAccess.cs" />
     <Compile Include="Commands\BaseNPVRCommand.cs" />
     <Compile Include="BillingTransactionContainer.cs" />

@@ -11,7 +11,7 @@ namespace ODBCWrapper
     {
 
         #region Constants
-        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 120d;
+        private static readonly uint DEFAULT_TIME_IN_CACHE_SECONDS = 7200;
         private static readonly string DEFAULT_CACHE_NAME = "Cache";
         #endregion
         #region Singleton properties
@@ -31,16 +31,20 @@ namespace ODBCWrapper
             return DEFAULT_CACHE_NAME;
         }
 
-        private double GetDefaultCacheTimeInMinutes()
+        private uint GetDefaultCacheTimeInSeconds()
         {
-            double res = 0d;
+            uint res = 0;
             string timeStr = TCMClient.Settings.Instance.GetValue<string>("CACHE_TIME_IN_MINUTES");
-            if (timeStr != null && timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+            if (timeStr != null && timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            {
+                res *= 60;
                 return res;
-            return DEFAULT_TIME_IN_CACHE_MINUTES;
+            }
+          
+            return DEFAULT_TIME_IN_CACHE_SECONDS;
         }
 
-        private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
+        private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
             string res = TCMClient.Settings.Instance.GetValue<string>("CACHE_TYPE");
 
@@ -50,7 +54,7 @@ namespace ODBCWrapper
                     //this.cache = new OutOfProcessCache
                     break;
                 default:
-                    this.cache = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+                    this.cache = new SingleInMemoryCache(expirationInSeconds);
                     break;
 
             }
@@ -58,7 +62,7 @@ namespace ODBCWrapper
 
         private ODBCWrapperCache()
         {
-            InitializeCachingService(GetCacheName(), GetDefaultCacheTimeInMinutes());
+            InitializeCachingService(GetCacheName(), GetDefaultCacheTimeInSeconds());
         }
 
         public static ODBCWrapperCache Instance

@@ -6,6 +6,7 @@ using System.Text;
 using Users.Cache;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace Users
 {
@@ -91,9 +92,15 @@ namespace Users
 
                             // set user role to master 
                             long roleId;
-                            if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId))
-                                DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true);
-
+                            if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(m_nGroupID, nMasterUserGuid.ToString(), roleId, true) > 0)
+                            {
+                                // add invalidation key for user roles cache
+                                string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(nMasterUserGuid.ToString());
+                                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                {
+                                    log.ErrorFormat("Failed to set invalidation key on AddDomain key = {0}", invalidationKey);
+                                }
+                            }
                             break;
                         case DomainStatus.UserExistsInOtherDomains:
                             oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.UserExistsInOtherDomains);

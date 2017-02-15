@@ -132,7 +132,7 @@ namespace AdapterControllers
         {
             LinkResult linkResult = null;
 
-            CDNAdapter adapter = CdnAdapterCache.Instance().GetCdnAdapter(groupId, adapterId);
+            CDNAdapter adapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, adapterId);
 
             if (adapter == null)
             {
@@ -194,7 +194,7 @@ namespace AdapterControllers
         {
             LinkResult linkResult = null;
 
-            CDNAdapter adapter = CdnAdapterCache.Instance().GetCdnAdapter(groupId, adapterId);
+            CDNAdapter adapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, adapterId);
 
             if (adapter == null)
             {
@@ -255,7 +255,7 @@ namespace AdapterControllers
         {
             LinkResult linkResult = null;
 
-            CDNAdapter adapter = CdnAdapterCache.Instance().GetCdnAdapter(groupId, adapterId);
+            CDNAdapter adapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, adapterId);
 
             if (adapter == null)
             {

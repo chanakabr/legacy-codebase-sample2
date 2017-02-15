@@ -156,6 +156,7 @@ namespace NPVR
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
                             GetCreateAccountResponse(responseJson, args, res);
+                            log.Debug(string.Format("CreateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
                         }
                         else
                         {
@@ -1706,6 +1707,8 @@ namespace NPVR
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
                             GetAccountResponse(responseJson, args, res, "Update");
+
+                            log.Debug(string.Format("UpdateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
                         }
                         else
                         {

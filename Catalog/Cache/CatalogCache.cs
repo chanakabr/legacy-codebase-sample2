@@ -18,7 +18,7 @@ namespace Catalog.Cache
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Constants
-        private static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 60d; // 1 hours
+        private static readonly uint DEFAULT_TIME_IN_CACHE_SECONDS = 3600; // 1 hours
         private static readonly double SHORT_IN_CACHE_MINUTES = 10d; // 10 minutes
         private static readonly string DEFAULT_CACHE_NAME = "CatalogCache";
         protected const string CACHE_KEY = "CATALOG";
@@ -28,7 +28,7 @@ namespace Catalog.Cache
         private static object lck = new object();
         private static object locker = new object();
         private ICachingService CacheService = null;
-        private readonly double dCacheTT;
+        private readonly uint dCacheTT;
         private string sKeyCache = string.Empty;
         #endregion
 
@@ -43,23 +43,27 @@ namespace Catalog.Cache
             return DEFAULT_CACHE_NAME;
         }
 
-        private double GetDefaultCacheTimeInMinutes()
+        private uint GetDefaultCacheTimeInSeconds()
         {
-            double res = 0d;
+            uint res = 0;
             string timeStr = TVinciShared.WS_Utils.GetTcmConfigValue("CACHE_TIME_IN_MINUTES");
-            if (timeStr.Length > 0 && Double.TryParse(timeStr, out res) && res > 0)
+            if (timeStr.Length > 0 && uint.TryParse(timeStr, out res) && res > 0)
+            {
+                res *= 60;
                 return res;
-            return DEFAULT_TIME_IN_CACHE_MINUTES;
+            }
+
+            return DEFAULT_TIME_IN_CACHE_SECONDS;
         }
 
-        private void InitializeCachingService(string cacheName, double cachingTimeMinutes)
+        private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.CacheService = new SingleInMemoryCache(cacheName, cachingTimeMinutes);
+            this.CacheService = new SingleInMemoryCache(expirationInSeconds);
         }
 
         private CatalogCache()
         {
-            dCacheTT = GetDefaultCacheTimeInMinutes();
+            dCacheTT = GetDefaultCacheTimeInSeconds();
             InitializeCachingService(GetCacheName(), dCacheTT);
             sKeyCache = CACHE_KEY; // the key for cache in the inner memory start with CACHE_KEY preffix
         }

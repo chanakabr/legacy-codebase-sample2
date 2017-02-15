@@ -25,7 +25,6 @@ namespace DAL
             //throw new NotImplementedException();
         }
 
-
         public static DataRow GetModuleImpementationID(int nGroupID, int moduleID, string connectionKey)
         {
             DataRow ret = null;
@@ -704,7 +703,7 @@ namespace DAL
         public static string GetPlayCycleKey(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             return string.Format("g{0}_u{1}_mf{2}_d{3}_p{4}", groupID, siteGuid, MediaFileID, UDID, platform);
-        }        
+        }
 
         public static string GetDomainQuotaKey(long domainId)
         {
@@ -741,7 +740,7 @@ namespace DAL
                         int status = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "STATUS", 0);
                         groupFeatures.Add(groupFeature, status == 1);
                     }
-                }               
+                }
             }
 
             return groupFeatures;
@@ -751,5 +750,11 @@ namespace DAL
         {
             return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
         }
+
+        public static string MediaIdGroupFileTypesKey(int mediaID)
+        {
+            return string.Format("media_group_file_type_{0}", mediaID.ToString());
+        }
+
     }
 }

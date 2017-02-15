@@ -929,7 +929,7 @@ namespace Catalog
             return documents;
         }
 
-        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix, List<string> extraReturnFields = null)
+        private static ElasticSearchApi.ESAssetDocument DecodeSingleAssetJsonObject(JToken item, string fieldNamePrefix, List<string> extraReturnFields = null) 
         {
             JToken tempToken = null;
             string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
@@ -973,8 +973,8 @@ namespace Catalog
             int mediaTypeId = 0;
             string epgIdentifier = string.Empty;
 
-            assetId = ExtractValueFromToken<int>(item, assetIdField);
-            groupId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
+            assetId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, assetIdField);
+            groupId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("group_id", fieldNamePrefix));
 
             var subItem = item;
 
@@ -989,18 +989,18 @@ namespace Catalog
 
                 if (property != null && property.Name.Contains("name"))
                 {
-                    name = ExtractValueFromToken<string>(subItem, property.Name);
+                    name = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(subItem, property.Name);
 
                     break;
                 }
             }
 
-            cacheDate = ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
-            updateDate = ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
-            startDate = ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
-            mediaTypeId = ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
-            epgIdentifier = ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
-            endDate = ExtractDateFromToken(item, AddPrefixToFieldName("end_date", fieldNamePrefix));
+            cacheDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("cache_date", fieldNamePrefix));
+            updateDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("update_date", fieldNamePrefix));
+            startDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
+            mediaTypeId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
+            epgIdentifier = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
+            endDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("end_date", fieldNamePrefix));
 
             var newDocument = new ElasticSearchApi.ESAssetDocument()
             {
@@ -1036,13 +1036,13 @@ namespace Catalog
 
                             if (specificFieldToken != null)
                             {
-                                fieldValue = ExtractValueFromToken<string>(specificFieldToken);
+                                fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(specificFieldToken);
                             }
                         }
                     }
                     else
                     {
-                        fieldValue = ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
+                        fieldValue = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName(fieldName, fieldNamePrefix));
                     }
 
                     if (!string.IsNullOrEmpty(fieldValue))
@@ -1053,66 +1053,6 @@ namespace Catalog
             }
 
             return newDocument;
-        }
-
-        private static T ExtractValueFromToken<T>(JToken item, string fieldName)
-        {
-            T result = default(T);
-
-            JToken tempToken = null;
-
-            try
-            {
-                tempToken = item[fieldName];
-            }
-            catch
-            {
-            }
-
-            if (tempToken == null)
-            {
-                tempToken = item.SelectToken(fieldName);
-            }
-
-            result = ExtractValueFromToken<T>(tempToken);
-
-            return result;
-        }
-
-        private static T ExtractValueFromToken<T>(JToken tempToken)
-        {
-            T result = default(T);
-
-            JArray tempArray = null;
-
-            if (tempToken != null)
-            {
-                tempArray = tempToken as JArray;
-
-                if (tempArray != null && tempArray.Count > 0)
-                {
-                    result = tempArray[0].ToObject<T>();
-                }
-                else
-                {
-                    result = tempToken.ToObject<T>();
-                }
-            }
-
-            return result;
-        }
-        
-        private static DateTime ExtractDateFromToken(JToken item, string fieldName)
-        {
-            DateTime result = new DateTime(1970, 1, 1, 0, 0, 0);
-            string dateString = ExtractValueFromToken<string>(item, fieldName);
-
-            if (!string.IsNullOrEmpty(dateString))
-            {
-                result = DateTime.ParseExact(dateString, DATE_FORMAT, null);
-            }
-
-            return result;
         }
 
         private static string AddPrefixToFieldName(string fieldName, string prefix)
@@ -1151,7 +1091,7 @@ namespace Catalog
                             name = ((tempToken = item.SelectToken("fields.name")) == null ? string.Empty : (string)tempToken),
                             cache_date = ((tempToken = item.SelectToken("fields.cache_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                             DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
-                            update_date = ExtractDateFromToken(item, "fields.update_date"),
+                            update_date = ElasticSearch.Common.Utils.ExtractDateFromToken(item, "fields.update_date"),
                             epg_channel_id = ((tempToken = item.SelectToken("fields.epg_channel_id")) == null ? 0 : (int)tempToken),
                             start_date = ((tempToken = item.SelectToken("fields.start_date")) == null ? new DateTime(1970, 1, 1, 0, 0, 0) :
                                             DateTime.ParseExact((string)tempToken, DATE_FORMAT, null)),
@@ -1590,7 +1530,7 @@ namespace Catalog
 
             return (searchResultsList);
         }
-
+        
         private List<long> SortAssetsByStartDate(List<ElasticSearchApi.ESAssetDocument> assets,
             int groupId, OrderDir orderDirection,
             Dictionary<int, string> associationTags, Dictionary<int, int> mediaTypeParent)
@@ -1857,7 +1797,8 @@ namespace Catalog
         /// <param name="orderBy"></param>
         /// <param name="orderDirection"></param>
         /// <returns></returns>
-        private List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection)
+        public List<long> SortAssetsByStats(List<long> assetIds, int groupId, ApiObjects.SearchObjects.OrderBy orderBy, OrderDir orderDirection,
+            DateTime? startDate = null, DateTime? endDate = null)
         {
             List<long> sortedList = null;
             HashSet<long> alreadyContainedIds = null;
@@ -1884,6 +1825,33 @@ namespace Catalog
                 Key = "group_id",
                 Value = groupId.ToString()
             });
+
+            #region define date filter
+
+            if ((startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue)) || 
+                (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue)))
+            {
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+
+                if (startDate != null && startDate.HasValue && !startDate.Equals(DateTime.MinValue))
+                {
+                    string sMin = startDate.Value.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                }
+
+                if (endDate != null && endDate.HasValue && !endDate.Equals(DateTime.MaxValue))
+                {
+                    string sMax = endDate.Value.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+                }
+
+                filter.AddChild(dateRange);
+            }
+
+            #endregion
 
             #region define action filter
 
@@ -2130,14 +2098,16 @@ namespace Catalog
 
                 if (statResult != null && statResult.Count > 0)
                 {
+                    var sortedStatsDictionary = statResult.OrderBy(o => o.Value).ThenBy(o => o.Key).Reverse();
+
                     // We base this section on the assumption that aggregations request is sorted, descending
-                    foreach (string currentKey in statResult.Keys)
+                    foreach (var currentValue in sortedStatsDictionary)
                     {
-                        int count = statResult[currentKey];
+                        int count = statResult[currentValue.Key];
 
                         int currentId;
 
-                        if (int.TryParse(currentKey, out currentId))
+                        if (int.TryParse(currentValue.Key, out currentId))
                         {
                             // Depending on direction - if it is ascending, insert Id at start. Otherwise at end
                             if (orderDirection == OrderDir.ASC)
@@ -2351,7 +2321,7 @@ namespace Catalog
                             }
 
                             string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
-                            DateTime update_date = ExtractDateFromToken(item, "fields.update_date");                            
+                            DateTime update_date = ElasticSearch.Common.Utils.ExtractDateFromToken(item, "fields.update_date");                            
 
                             // Find the asset in the list with this ID, set its update date
                             assets.First(result => result.AssetId == id).m_dUpdateDate = update_date;

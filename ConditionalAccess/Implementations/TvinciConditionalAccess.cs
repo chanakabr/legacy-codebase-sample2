@@ -36,7 +36,7 @@ namespace ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
+        internal override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
         {
             string response = null;
 
@@ -237,7 +237,7 @@ namespace ConditionalAccess
             return bSuccesful;
         }
 
-        protected override BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
+        protected internal override BillingResponse HandleCCChargeUser(string sWSUsername, string sWSPassword, string sSiteGuid,
             double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments,
             string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule, ref module wsBillingService)
         {
@@ -279,7 +279,7 @@ namespace ConditionalAccess
 
             bool bUsageModuleExists = (theSub != null && theSub.m_oUsageModule != null);
             DateTime dtUtcNow = DateTime.UtcNow;
-            DateTime dtSubEndDate = CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
+            DateTime dtSubEndDate = Utils.CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
 
             lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode,
                 sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
@@ -404,7 +404,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID,
+        protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string sWSUsername, string sWSPassword, string sSiteGUID, int domianID,
             Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, BillingResponse br, string sCustomData,
             PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, ref module wsBillingService, 
@@ -522,7 +522,7 @@ namespace ConditionalAccess
 
                 // check if the service allowed for domain  
                 eService eservice = GetServiceByEPGFormat(eformat);
-                if (eservice != eService.Unknown && !IsServiceAllowed(m_nGroupID, domainId, eservice))
+                if (eservice != eService.Unknown && !IsServiceAllowed(domainId, eservice))
                 {
                     #region Logging
                     StringBuilder sb = new StringBuilder("GetEPGLink: service not allowed.");
@@ -709,7 +709,7 @@ namespace ConditionalAccess
             }
         }
 
-        protected override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
+        protected internal override bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIp, string country, string deviceName, long billingTransactionId, string customData,
                                                         PPVModule thePPVModule, int productId, int contentId, string billingGuid, DateTime entitlementDate, ref long purchaseId)
         {
@@ -778,7 +778,10 @@ namespace ConditionalAccess
                                     productId);           // {3}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                if (billingTransactionId > 0)
+                {
+                    ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                }
             }
             catch (Exception ex)
             {
@@ -788,10 +791,12 @@ namespace ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected override bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, string currency, string coupon, string userIP,
-                                                                 string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
-                                                                 bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate
-                                                                ,SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK )
+        protected internal override bool HandleSubscriptionBillingSuccess(
+            ref TransactionResponse response, string siteguid, long houseHoldId, Subscription subscription, double price, 
+            string currency, string coupon, string userIP,
+            string country, string deviceName, long billingTransactionId, string customData, int productId, string billingGuid,
+            bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate, ref long purchaseId, ref DateTime? subscriptionEndDate,
+            SubscriptionPurchaseStatus purchaseStatus = SubscriptionPurchaseStatus.OK)
         {
             purchaseId = 0;
             try
@@ -814,7 +819,7 @@ namespace ConditionalAccess
 
                 if (!subscriptionEndDate.HasValue)
                 {
-                    subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
+                    subscriptionEndDate = Utils.CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
                 }
 
                 DateTime transactionStartDate = entitlementDate.Value;
@@ -878,8 +883,10 @@ namespace ConditionalAccess
                                     productId);           // {2}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
-
+                if (billingTransactionId > 0)
+                {
+                    ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                }
             }
             catch (Exception ex)
             {
@@ -888,11 +895,12 @@ namespace ConditionalAccess
             return purchaseId > 0;
         }
 
-        protected override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
-                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                               int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseId)
+        protected internal override bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, 
+            Collection collection, double price, string currency, string coupon, string userIP, string country, string deviceName, 
+            long billingTransactionId, string customData, int productID, string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID)
         {
-            purchaseId = 0;
+            purchaseID = 0;
+            
             try
             {
                 // update coupon uses
@@ -911,12 +919,12 @@ namespace ConditionalAccess
                 }
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
+                purchaseID = ConditionalAccessDAL.Insert_NewMColPurchase(m_nGroupID, productID.ToString(), siteGUID, price, currency, customData, country,
                                                                          deviceName, usageModuleExists ? collection.m_oUsageModule.m_nMaxNumberOfViews : 0,
                                                                          usageModuleExists ? collection.m_oUsageModule.m_tsViewLifeCycle : 0, billingTransactionId,
                                                                          entitlementDate, collectionEndDate, entitlementDate, houseHoldID, billingGuid);
 
-                if (purchaseId < 1)
+                if (purchaseID < 1)
                 {
                     // entitlement failed
                     log.ErrorFormat("Failed to insert collection purchase. Billing transaction ID: {0} , Siteguid: {1} , Product ID: {2}",
@@ -925,13 +933,14 @@ namespace ConditionalAccess
                                     productID);           // {2}
                 }
 
-                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseId);
+                ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransactionId, purchaseID);
             }
             catch (Exception ex)
             {
                 log.Error("fail HandleCollectionBillingSuccess ", ex);
             }
-            return purchaseId > 0;
+
+            return purchaseID > 0;
         }
     }
 }

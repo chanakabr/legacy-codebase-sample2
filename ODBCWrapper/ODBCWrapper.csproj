@@ -119,9 +119,9 @@
     <Reference Include="Couchbase.NetClient">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseManager, Version=3.4.118.25100, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CouchbaseManager, Version=3.4.118.31417, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>

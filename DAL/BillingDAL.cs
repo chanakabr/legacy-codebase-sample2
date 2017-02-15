@@ -1707,12 +1707,13 @@ namespace DAL
         }
 
         public static bool GetPendingPaymentGatewayTransactionDetails(int paymentGatewayId, string externalTransactionId, out string billingGuid, out int productType,
-            out int transactionState, out int pendingTransactionState)
+            out int transactionState, out int pendingTransactionState, out int domainId)
         {
             billingGuid = string.Empty;
             productType = 0;
             transactionState = 0;
             pendingTransactionState = 0;
+            domainId = 0;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PendingPaymentGatewayTransactionDetails");
@@ -1730,6 +1731,7 @@ namespace DAL
                         productType = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["product_type"]);
                         transactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["state"]);
                         pendingTransactionState = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["pgpState"]);
+                        domainId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["domain_id"]);
                         return true;
                     }
                 }
@@ -2480,24 +2482,23 @@ namespace DAL
             failPurchaseMail = ODBCWrapper.Utils.GetIntSafeVal(row, "SEND_FAIL_PURCHASE_MAIL") == 1 ? true : false;           
         }
 
-        public static DataTable GetTransactionPaymentDetails(List<string> billingGuids)
+        public static DataSet GetTransactionPaymentDetails(List<string> billingGuids)
         {
-            DataTable dt = null;
+            DataSet ds = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TransactionPaymentDetails");
                 sp.SetConnectionKey("BILLING_CONNECTION_STRING");                
                 sp.AddIDListParameter<string>("@billing_guids", billingGuids, "ID");
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                    return ds.Tables[0];
+                ds = sp.ExecuteDataSet();                
+                
             }
             catch (Exception ex)
             {
+                ds = null;
                 HandleException(ex);
             }
-            return dt;
+            return ds;
         }
 
         public static int SetTransactionPaymentDetails(int groupID, string billingGuid, int newPaymentGatewayId, int newPaymentMethodId)

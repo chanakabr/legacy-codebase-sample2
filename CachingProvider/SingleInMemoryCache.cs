@@ -18,6 +18,8 @@ namespace CachingProvider
          * 1. MemoryCache is threadsafe, however the references it holds are not necessarily thread safe.
          * 2. MemoryCache should be properly disposed.
          */
+
+        private static readonly string DEFAULT_CACHE_NAME = "Cache";        
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private MemoryCache cache = null;
 
@@ -34,14 +36,29 @@ namespace CachingProvider
 
         #region Ctors
 
-        public SingleInMemoryCache(string name, double defaultMinOffset)
+        public SingleInMemoryCache(uint defaultExpirationInSeconds)
         {
-            CacheName = name;
-            DefaultMinOffset = defaultMinOffset;
-            cache = new MemoryCache(name);
+            CacheName = GetCacheName();
+            DefaultMinOffset = (double)defaultExpirationInSeconds / 60;
+            cache = new MemoryCache(CacheName);
         }
 
         #endregion
+
+        private string GetCacheName()
+        {
+            string res = Utils.GetTcmConfigValue("CACHE_NAME");
+            if (res.Length > 0)
+                return res;
+            return DEFAULT_CACHE_NAME;
+        }
+
+        public bool Add<T>(string sKey, T value, uint expirationInSeconds)
+        {
+            if (string.IsNullOrEmpty(sKey))
+                return false;
+            return cache.Add(sKey, value, DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60));
+        }
 
         public bool Add(string sKey, BaseModuleCache oValue, double nMinuteOffset)
         {
@@ -98,7 +115,7 @@ namespace CachingProvider
             BaseModuleCache baseModule = new BaseModuleCache();
             baseModule.result = cache.Remove(sKey);
             return baseModule;
-        }
+        }        
 
         public T Get<T>(string sKey) where T : class
         {
@@ -145,8 +162,6 @@ namespace CachingProvider
             bool bRes = false;
             try
             {
-                VersionModuleCache baseModule = (VersionModuleCache)oValue;
-
                 DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes(nMinuteOffset);
 
                 //lock 
@@ -157,13 +172,12 @@ namespace CachingProvider
                     try
                     {
                         mutex.WaitOne(-1);
-                        VersionModuleCache vModule = (VersionModuleCache)GetWithVersion<T>(sKey);
+                        BaseModuleCache vModule = GetWithVersion<T>(sKey);
                         // memory is empty for this key OR the object must have the same version 
-                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null && vModule.version != baseModule.version))
+                        if (vModule == null || vModule.result == null || (vModule != null && vModule.result != null))
                         {                            
                             Guid versionGuid = Guid.NewGuid();
-                            baseModule.version = versionGuid.ToString();
-                            cache.Set(sKey, baseModule, DateTime.UtcNow.AddMinutes(nMinuteOffset));
+                            cache.Set(sKey, oValue, DateTime.UtcNow.AddMinutes(nMinuteOffset));
                             return true;
                         }                        
                     }
@@ -225,7 +239,6 @@ namespace CachingProvider
             return sb.ToString();
         }
 
-
         public IDictionary<string, object> GetValues(List<string> keys, bool asJson = false)
         {
             IDictionary<string, object> iDict = null;
@@ -265,5 +278,130 @@ namespace CachingProvider
             }
             return keys;
         }
+
+        public bool Get<T>(string key, ref T result)
+        {
+            result = default(T);
+            bool res = false;
+            try
+            {
+                if (!string.IsNullOrEmpty(key))
+                {
+                    object cacheResult = cache.Get(key);
+                    if (cacheResult != null)
+                    {
+                        result = (T) cacheResult;
+                        res = result != null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Get<T> with key: {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        public bool GetWithVersion<T>(string key, out ulong version, ref T result)
+        {            
+            bool res = false;
+            version = 0;
+            try
+            {
+                res = Get<T>(key, ref result);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetWithVersion<T> with key: {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        public bool RemoveKey(string sKey)
+        {
+            bool? result = false;
+            result = cache.Remove(sKey) as bool?;
+            return result.HasValue && result.Value;
+        }
+
+        public bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds)
+        {
+            bool bRes = false;
+            try
+            {
+                
+
+                //lock 
+                bool createdNew = false;
+                var mutexSecurity = CreateMutex();
+                using (Mutex mutex = new Mutex(false, string.Concat("Lock", key), out createdNew, mutexSecurity))
+                {
+                    try
+                    {
+                        mutex.WaitOne(-1);
+                        T getResult = default(T);
+                        if (!GetWithVersion<T>(key, out version, ref getResult) || getResult == null)
+                        {
+                            DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
+                            cache.Set(key, value, dtExpiresAt);
+                        }
+
+                        bRes = true;
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+                        //unlock
+                        mutex.ReleaseMutex();
+                    }
+                }                
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("SetWithVersion<T>", ex);
+                return false;
+            }
+
+            return bRes;
+        }
+
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
+        {
+            bool res = false;
+            try
+            {
+                IDictionary<string, object> getResults = null;
+                getResults = GetValues(keys, shouldAllowPartialQuery);
+                if (getResults != null && getResults.Count > 0)
+                {
+                    results = getResults.ToDictionary(x => x.Key, x => (T)x.Value);
+                    if (results != null)
+                    {
+                        if (shouldAllowPartialQuery)
+                        {
+                            res = results.Count > 0;
+                        }
+                        else
+                        {
+                            res = keys.Count == results.Count;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetValues<T> from InMemoryCache while getting the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return res;
+        }
+
     }
+
 }

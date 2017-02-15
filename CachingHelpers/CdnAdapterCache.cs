@@ -1,4 +1,6 @@
-﻿using ApiObjects.CDNAdapter;
+﻿using ApiObjects;
+using ApiObjects.CDNAdapter;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -9,60 +11,73 @@ using System.Threading.Tasks;
 
 namespace CachingHelpers
 {
-    public class CdnAdapterCache : BaseCacheHelper<CDNAdapter>
+    public class CdnAdapterCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static object locker = new object();
 
         #region Singleton
 
-        private static CdnAdapterCache instance;
+        private static CdnAdapterCache instance = null;
 
-        public static CdnAdapterCache Instance()
+        public static CdnAdapterCache Instance
         {
-            if (instance == null)
+            get
             {
-                lock (locker)
+                if (instance == null)
                 {
-                    if (instance == null)
+                    lock (locker)
                     {
-                        instance = new CdnAdapterCache("innercache");
+                        if (instance == null)
+                        {
+                            instance = new CdnAdapterCache();
+                        }
                     }
                 }
-            }
 
-            return instance;
+                return instance;
+            }
         }
 
         #endregion
 
         #region Ctor
 
-        private CdnAdapterCache(string cacheType)
-            : base(cacheType)
-        {
-
-        }
+        private CdnAdapterCache() { }
 
         #endregion
 
-        #region Override Methods
-
-        protected override CDNAdapter BuildValue(params object[] parameters)
-        {
-            int adapterId = (int)parameters[0];
-            int groupId = (int)parameters[1];
-
-            return DAL.ApiDAL.GetCDNAdapter(adapterId);
-        }
+        #region Public Methods
 
         public CDNAdapter GetCdnAdapter(int groupId, int adapterId)
         {
-            //string cacheKey = string.Format("cdn_adapter_{0}", adapterId);
-            //string mutexName = string.Concat("Group CDNAdapter GID_", groupId);
+            CDNAdapter adapter = null;
+            string key = LayeredCacheKeys.GetCDNAdapterKey(groupId, adapterId);
+            bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, Utils.GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
+                groupId, LayeredCacheConfigNames.CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
 
-            //return base.Get(cacheKey, mutexName, adapterId, groupId);
+            if (!cacheResult || adapter == null)
+            {
+                log.ErrorFormat("Failed GetCdnAdapter, groupId: {0}, adapterId: {1}", groupId, adapterId); 
+            }
 
-            return DAL.ApiDAL.GetCDNAdapter(adapterId);
+            return adapter;
+        }
+
+        public CDNPartnerSettings GetCdnAdapterSettings(int groupId)
+        {
+            CDNPartnerSettings settings = null;
+            // get group cdn settings
+            string key = LayeredCacheKeys.GetGroupCdnSettingsKey(groupId);
+            bool cacheResult = LayeredCache.Instance.Get<CDNPartnerSettings>(key, ref settings, Utils.GetCdnSettings, new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId, LayeredCacheConfigNames.GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
+
+            if (cacheResult && settings != null)
+            {
+                log.ErrorFormat("Failed GetCdnAdapterSettings, groupId: {0}", groupId); 
+            }
+
+            return settings;
         }
 
         #endregion

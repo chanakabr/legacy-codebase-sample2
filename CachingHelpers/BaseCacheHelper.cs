@@ -22,7 +22,7 @@ namespace CachingHelpers
         /// <summary>
         /// 24 hours
         /// </summary>
-        protected static readonly double DEFAULT_TIME_IN_CACHE_MINUTES = 1440d;
+        protected static readonly uint DEFAULT_TIME_IN_CACHE_SECONDS = 86400;
         protected static readonly string DEFAULT_CACHE_NAME = "GroupsCache";
 
         #endregion
@@ -40,7 +40,7 @@ namespace CachingHelpers
         /// <summary>
         /// How long will an object stay in cache IN MINUTES
         /// </summary>
-        protected double cacheTime;
+        protected uint cacheTime;
         protected string version;
 
         #endregion
@@ -67,13 +67,13 @@ namespace CachingHelpers
                 }
                 case "innercache":
                 {
-                    cacheTime = GetDefaultCacheTimeInMinutes();
+                    cacheTime = GetDefaultCacheTimeInSeconds();
                     InitializeCachingService(GetCacheName(), cacheTime);
                     break;
                 }
                 case "hybrid":
                 {
-                    cacheTime = GetDefaultCacheTimeInMinutes();
+                    cacheTime = GetDefaultCacheTimeInSeconds();
                     string cacheName = GetCacheName();
                     cacheService = HybridCache<T>.GetInstance(eCouchbaseBucket.CACHE, cacheName);
                     version = TVinciShared.WS_Utils.GetTcmConfigValue("Version");
@@ -83,9 +83,9 @@ namespace CachingHelpers
             }
         }
 
-        private void InitializeCachingService(string cacheName, double cacheTime)
+        private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.cacheService = new SingleInMemoryCache(cacheName, cacheTime);
+            this.cacheService = new SingleInMemoryCache(expirationInSeconds);
         }
 
         private string GetCacheName()
@@ -102,29 +102,34 @@ namespace CachingHelpers
             return result;
         }
 
-        private double GetDefaultCacheTimeInMinutes()
+        private uint GetDefaultCacheTimeInSeconds()
         {
-            double result = DEFAULT_TIME_IN_CACHE_MINUTES;
-            double tcm = 0d;
+            uint result = DEFAULT_TIME_IN_CACHE_SECONDS;
+            uint tcm = 0;
 
             string timeString = TVinciShared.WS_Utils.GetTcmConfigValue("GROUPS_CACHE_TIME_IN_MINUTES");
 
-            if (timeString.Length > 0 && Double.TryParse(timeString, out tcm) && tcm > 0)
+            if (timeString.Length > 0 && uint.TryParse(timeString, out tcm) && tcm > 0)
             {
-                result = tcm;
+                result = tcm * 60;
             }
 
             return result;
         }
 
-        private double GetDocTTLSettings()
+        private uint GetDocTTLSettings()
         {
-            double result;
+            uint result;
 
-            if (!double.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out result))
+            if (!uint.TryParse(TVinciShared.WS_Utils.GetTcmConfigValue("GroupsCacheDocTimeout"), out result))
             {
                 // 24 hours
-                result = 1440.0;
+                result = 86400;
+            }
+            else
+            {
+                // convert to seconds (TCM config is in minutes)
+                result *= 60;
             }
 
             return result;

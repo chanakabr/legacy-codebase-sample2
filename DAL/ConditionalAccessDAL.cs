@@ -1566,50 +1566,48 @@ namespace DAL
             return res;
         }
 
-        public static long Insert_NewPPVUse(long groupID, long mediaFileID, string ppvModuleCode, string siteGuid, bool isCreditDownloaded,
-            string countryCode, string langCode, string deviceName, int relPp, int relBoxSet)
+        public static bool Insert_NewPPVUse(long groupID, long mediaFileID, string ppvModuleCode, string siteGuid, string countryCode, string langCode, string deviceName, int relPp, int relBoxSet)
         {
-            StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
-            sp.SetConnectionKey("CA_CONNECTION_STRING");
-            sp.AddParameter("@GroupID", groupID);
-            sp.AddParameter("@MediaFileID", mediaFileID);
-            sp.AddParameter("@PPVModuleCode", ppvModuleCode);
-            sp.AddParameter("@SiteGuid", siteGuid);
-            sp.AddParameter("@IsCreditDownloaded", isCreditDownloaded ? 1 : 0);
-            sp.AddParameter("@IsActive", 1);
-            sp.AddParameter("@Status", 1);
-            if (countryCode == null)
-            {
-                sp.AddParameter("@CountryCode", string.Empty);
-            }
-            else
-            {
-                sp.AddParameter("@CountryCode", countryCode);
-            }
-            if (langCode == null)
-            {
-                sp.AddParameter("@LangCode", string.Empty);
-            }
-            else
-            {
-                sp.AddParameter("@LangCode", langCode);
-            }
-            if (deviceName == null)
-            {
-                sp.AddParameter("@DeviceName", string.Empty);
-            }
-            else
-            {
-                sp.AddParameter("@DeviceName", deviceName);
-            }
-            sp.AddParameter("@RelPP", relPp);
-            sp.AddParameter("@RelBoxSet", relBoxSet);
+                StoredProcedure sp = new StoredProcedure("Insert_NewPPVUse");
+                sp.SetConnectionKey("CA_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupID);
+                sp.AddParameter("@MediaFileID", mediaFileID);
+                sp.AddParameter("@PPVModuleCode", ppvModuleCode);
+                sp.AddParameter("@SiteGuid", siteGuid);
+                sp.AddParameter("@IsCreditDownloaded", 1);
+                sp.AddParameter("@IsActive", 1);
+                sp.AddParameter("@Status", 1);
+                if (countryCode == null)
+                {
+                    sp.AddParameter("@CountryCode", string.Empty);
+                }
+                else
+                {
+                    sp.AddParameter("@CountryCode", countryCode);
+                }
+                if (langCode == null)
+                {
+                    sp.AddParameter("@LangCode", string.Empty);
+                }
+                else
+                {
+                    sp.AddParameter("@LangCode", langCode);
+                }
+                if (deviceName == null)
+                {
+                    sp.AddParameter("@DeviceName", string.Empty);
+                }
+                else
+                {
+                    sp.AddParameter("@DeviceName", deviceName);
+                }
+                sp.AddParameter("@RelPP", relPp);
+                sp.AddParameter("@RelBoxSet", relBoxSet);
 
-            return sp.ExecuteReturnValue<long>();
+                return sp.ExecuteReturnValue<long>() > 0;            
         }
 
-        public static long Insert_NewSubscriptionUse(long groupID, string subCode, long mediaFileID, string siteGuid, bool isCreditDownloaded,
-            string countryCode, string langCode, string deviceName, int relPP)
+        public static bool Insert_NewSubscriptionUse(long groupID, string subCode, long mediaFileID, string siteGuid, string countryCode, string langCode, string deviceName, int relPP)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewSubscriptionUse");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1617,7 +1615,7 @@ namespace DAL
             sp.AddParameter("@SubCode", subCode);
             sp.AddParameter("@MediaFileID", mediaFileID);
             sp.AddParameter("@SiteGuid", siteGuid);
-            sp.AddParameter("@IsCreditDownloaded", isCreditDownloaded ? 1 : 0);
+            sp.AddParameter("@IsCreditDownloaded", 1);
             sp.AddParameter("@IsActive", 1);
             sp.AddParameter("@Status", 1);
             if (countryCode == null)
@@ -1646,7 +1644,7 @@ namespace DAL
             }
             sp.AddParameter("@RelPP", relPP);
 
-            return sp.ExecuteReturnValue<long>();
+            return sp.ExecuteReturnValue<long>() > 0;
         }
 
         public static bool Update_SubPurchaseNumOfUses(long groupID, string siteGuid, string subCode)
@@ -1848,8 +1846,10 @@ namespace DAL
             return fileIds;
         }
 
-        public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
-            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, DateTime createAndUpdateDate, long householdId, string billingGuid, int purchaseStatus = 0)
+        public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData, 
+            string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
+            bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate, 
+            DateTime createAndUpdateDate, long householdId, string billingGuid, int purchaseStatus = 0, string coupon = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1876,6 +1876,7 @@ namespace DAL
             sp.AddParameter("@domainID", householdId);
             sp.AddParameter("@billingGuid", billingGuid);
             sp.AddParameter("@PurchaseStatus", purchaseStatus);
+            sp.AddParameter("@CouponCode", coupon);
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -2005,7 +2006,7 @@ namespace DAL
             dt = spGet_AllUsersEntitlements.Execute();
 
             if (dt != null && dt.Rows.Count > 0)
-            {
+            {                
                 int ppvmTagLength = 6;
                 foreach (DataRow dr in dt.Rows)
                 {
@@ -2021,7 +2022,8 @@ namespace DAL
                         {
                             EntitlementObject entitlement = new EntitlementObject(Utils.GetIntSafeVal(dr["ID"]), Utils.GetSafeStr(dr["subscription_code"]), Utils.GetSafeStr(dr["rel_pp"]),
                                                     Utils.GetIntSafeVal(dr, "WAIVER"), Utils.GetSafeStr(dr["SITE_USER_GUID"]), mediaFileID,
-                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"), Utils.ExtractNullableDateTime(dr, "END_DATE"));
+                                                    ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"),
+                                                    Utils.ExtractNullableDateTime(dr, "END_DATE"), Utils.GetIntSafeVal(dr, "NUM_OF_USES"));
                             allEntitlments.Add(entitlementKey, entitlement);
                         }
                     }
@@ -2031,10 +2033,12 @@ namespace DAL
             return allEntitlments;
         }
 
-        public static Dictionary<string, int> Get_AllMediaIdGroupFileTypesMappings(int[] mediaIDs)
+        public static Dictionary<string, Dictionary<string, int>> Get_AllMediaIdGroupFileTypesMappings(int[] mediaIDs)
         {
-            Dictionary<string, int> mappings = new Dictionary<string, int>();
+            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
             DataTable dt = null;
+            string resultKey = string.Empty;
+
             StoredProcedure spGet_AllMediaFilesMappings = new ODBCWrapper.StoredProcedure("Get_AllMediaFilesTypesMappings");
             spGet_AllMediaFilesMappings.AddIDListParameter<int>("@MediaIDs", mediaIDs.ToList(), "ID");
             spGet_AllMediaFilesMappings.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -2048,11 +2052,23 @@ namespace DAL
                     string mediaID = Utils.GetSafeStr(dr["MEDIA_ID"]);
                     string groupFileType = Utils.GetSafeStr(dr["GROUP_FILE_TYPE"]);
                     string key = mediaID + "_" + groupFileType;
-                    mappings[key] = mediaFileID;
+                                       
+                    resultKey = UtilsDal.MediaIdGroupFileTypesKey(Utils.GetIntSafeVal(dr["MEDIA_ID"]));
+
+                    if (result.Keys.Contains(resultKey))
+                    {
+                        result[resultKey].Add(key, mediaFileID); 
+                    }
+                    else
+                    {
+                        result.Add(resultKey, new Dictionary<string, int>() { {key, mediaFileID}});
+                    }
+
+                    
                 }
             }
 
-            return mappings;
+            return result;
         }
 
         public static DataSet Get_AllBundlesInfoByUserIDsOrDomainID(int domainID, List<int> lstUsers, int nGroupID)
@@ -2447,7 +2463,7 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() * 60;
         }
-
+        
         public static int GetTimeShiftedTVAdapterId(int groupId)
         {
             int adapterId = 0;
@@ -2557,7 +2573,7 @@ namespace DAL
                         if (!result)
                         {
                             numOfRetries++;
-                            log.ErrorFormat("Error while updating CachedEntitlementResults. domainId: {0}, mediaFileId: {1}", domainId, mediaFileId, cachedEntitlementResults);
+                            log.ErrorFormat("Error while updating CachedEntitlementResults. domainId: {0}, mediaFileId: {1}, cachedEntitlementResults: {2}", domainId, mediaFileId, cachedEntitlementResults.ToString());
                             System.Threading.Thread.Sleep(r.Next(50));
                         }
                     }
@@ -2594,7 +2610,7 @@ namespace DAL
                     response = cbClient.Get<CachedEntitlementResults>(cachedEntitlementKey, out getResult);
                     if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
                     {
-                        log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {1}", cachedEntitlementKey);
+                        log.ErrorFormat("Error while trying to get CachedEntitlementResults, KeyNotFound. key: {0}", cachedEntitlementKey);
                         break;
                     }
                     else if (getResult == Couchbase.IO.ResponseStatus.Success)
@@ -2673,6 +2689,85 @@ namespace DAL
                 return null;
             }
             return null;
+        }
+
+        public static DataRow Get_SubscriptionPurchaseForReminder(int groupId, long purchaseId)
+        {
+            DataRow result = null;
+            ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseForReminder");
+            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+            storedProcedure.AddParameter("@GroupID", groupId);
+            storedProcedure.AddParameter("@PurchaseId", purchaseId);
+
+            DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+            if (dataSet != null &&
+                dataSet.Tables != null &&
+                dataSet.Tables.Count > 0 &&
+                dataSet.Tables[0].Rows != null &&
+                dataSet.Tables[0].Rows.Count > 0)
+            {
+                result = dataSet.Tables[0].Rows[0];
+            }
+
+            return result;
+        }
+        
+        public static DataTable GetFileCdnData(int mediaFileId)
+        {
+            DataTable response = null;
+
+            StoredProcedure sp = new StoredProcedure("Get_FileUrlLinks");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaFileID", mediaFileId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                response = ds.Tables[0];
+            }
+
+            return response;
+        }
+
+        public static DataTable GetFilesCreditUsedDetails(int groupId, int domainId, int mediaId)
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp_GetFilesCreditUsedDetails = new ODBCWrapper.StoredProcedure("GetFilesCreditUsedDetails");
+            sp_GetFilesCreditUsedDetails.SetConnectionKey("CA_CONNECTION_STRING");
+            sp_GetFilesCreditUsedDetails.AddParameter("@GroupId", groupId);
+            sp_GetFilesCreditUsedDetails.AddParameter("@DomainId", domainId);
+            sp_GetFilesCreditUsedDetails.AddParameter("@MediaId", mediaId);
+
+            dt = sp_GetFilesCreditUsedDetails.Execute();
+            if (dt == null)
+            {
+                dt = new DataTable();
+            }
+
+            return dt;
+        }
+
+
+        public static string GetDeviceName(string deviceUDID)
+        {
+            string deviceName = string.Empty;
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += " select name from devices where ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", deviceUDID);
+            selectQuery.SetConnectionKey("users_connection");
+            if (selectQuery.Execute("query", true) != null)
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                if (nCount > 0)
+                    deviceName = selectQuery.Table("query").DefaultView[0].Row["name"].ToString();
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            return deviceName;
         }
     }
 }

@@ -46,6 +46,7 @@ namespace ApiObjects.Response
         HomeNetworkLimitation = 1032,
         HomeNetworkDoesNotExist = 1033,
         HomeNetworkFrequency = 1034,
+        DlmExist = 1035,
 
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,
@@ -123,8 +124,10 @@ namespace ApiObjects.Response
         EpgIdNotPartOfSeries = 3049,
         RecordingPlaybackNotAllowedForNonExistingEpgChannel = 3050,
         RecordingPlaybackNotAllowedForNotEntitledEpgChannel = 3051,
-        SeasonNumberNotMatch = 3052, 
-
+        SeasonNumberNotMatch = 3052,
+        ServiceAlreadyExists = 3053,
+        NoFilesFound = 3054, 
+        
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,
@@ -251,9 +254,7 @@ namespace ApiObjects.Response
         AssetAlreadyRated = 7014,
         AssetNeverLiked = 7015,
         SocialActionIdDoseNotExists = 7016,
-                   
-       /* MEDIA_ALEADY_FOLLOWED = 12,
-        MEDIA_ALREADY_RATED = 14,*/
+        UserEmailIsMissing = 7017,
 
         // notification 8000-8999
         NoNotificationSettingsSent = 8000,

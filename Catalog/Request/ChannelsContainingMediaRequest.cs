@@ -14,13 +14,14 @@ using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using TVinciShared;
+using CachingProvider.LayeredCache;
 
 namespace Catalog.Request
 {
     [DataContract]
     public class ChannelsContainingMediaRequest : BaseRequest, IRequestImp
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
 
         [DataMember]
         public List<int> m_lChannles;
@@ -44,140 +45,30 @@ namespace Catalog.Request
 
                 CheckSignature(request);
 
-                //IF ElasticSearch 
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                if (searcher != null)
+                List<int> channels = null;
+                List<string> invalidationKeys = new List<string>()
                 {
-                    if (searcher is ElasticsearchWrapper)
+                    LayeredCacheConfigNames.CHANNELS_INVALIDATION_KEY
+                };
+
+                string key = LayeredCacheKeys.GetChannelsContainingMediaKey(m_nMediaID);
+
+                bool cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref channels, GetMediaChannels, new Dictionary<string, object>() { { "groupId", request.m_nGroupID }, { "mediaId", request.m_nMediaID } },
+                    request.m_nGroupID, LayeredCacheConfigNames.CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys);
+
+                if (cacheResult && channels != null && channels.Count > 0)
+                {
+                    Dictionary<int, int> dChannels = channels.ToDictionary<int, int>(item => item);
+
+                    foreach (int item in request.m_lChannles)
                     {
-                        List<int> nChannels = searcher.GetMediaChannels(request.m_nGroupID, request.m_nMediaID);
-
-                        if (nChannels != null && nChannels.Count > 0)
+                        if (dChannels.ContainsKey(item))
                         {
-                            Dictionary<int, int> dChannels = nChannels.ToDictionary<int, int>(item => item);
-
-                            foreach (int item in request.m_lChannles)
-                            {
-                                if (dChannels.ContainsKey(item))
-                                {
-                                    response.m_lChannellList.Add(item);
-                                }
-
-                            }
+                            response.m_lChannellList.Add(item);
                         }
-                    }
-                    else //LuceneWrapper
-                    {
-                        #region Lucene
-                        
-                        GroupManager groupManager = new GroupManager();
-                        CatalogCache catalogCache = CatalogCache.Instance();
-                        int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                        Group groupInCache = groupManager.GetGroup(nParentGroupID);
-                        List<int> channelIds = request.m_lChannles;
-
-                        if (groupInCache != null && channelIds != null && channelIds.Count > 0)
-                        {
-                            // Builds search Object per channelId call Searcher to return true/false result
-                            List<GroupsCacheManager.Channel> allChannels = groupManager.GetChannels(channelIds, groupInCache.m_nParentGroupID);
-
-
-                            //    Build search object per channel
-                            if (allChannels != null && allChannels.Count > 0)
-                            {
-                                List<ChannelContainSearchObj> channelsSearchObjects = new List<ChannelContainSearchObj>();
-                                List<int> lIds = new List<int>();
-
-                                // save monitor and logs context data
-                                ContextData contextData = new ContextData();
-
-                                Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
-
-                                #region Building search object for each channel
-                                OrderObj oOrderObj = new OrderObj();
-                                oOrderObj.m_eOrderBy = OrderBy.RELATED;
-
-                                int[] nDeviceRuleId = null;
-                                //get media DeviceRuleID
-                                string sDeviceRuleID = string.Empty;
-                                DataTable dt = DAL.ApiDAL.Get_DeviceMediaRules(request.m_nMediaID, request.m_nGroupID, null);
-                                if (dt != null && dt.DefaultView.Count > 0)
-                                    sDeviceRuleID = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["device_rule_id"]);
-
-                                if (!string.IsNullOrEmpty(sDeviceRuleID))
-                                    nDeviceRuleId = ProtocolsFuncs.GetDeviceAllowedRuleIDs(sDeviceRuleID, request.m_nGroupID).ToArray();
-
-                                for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
-                                {
-                                    channelsSearchObjectTasks[searchObjectIndex] = new Task(
-                                         (obj) =>
-                                         {
-                                             // load monitor and logs context data
-                                             contextData.Load();
-
-                                             try
-                                             {
-                                                 if (groupInCache != null)
-                                                 {
-                                                     GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
-                                                     MediaSearchObj channelSearchObject = Catalog.BuildBaseChannelSearchObject(currentChannel, request, oOrderObj, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
-                                                     if (channelSearchObject != null)
-                                                     {
-                                                         channelSearchObject.m_nMediaID = request.m_nMediaID;
-                                                     }
-                                                     ChannelContainSearchObj oCCSearchObj = new ChannelContainSearchObj();
-                                                     oCCSearchObj.m_nChannelID = currentChannel.m_nChannelID;
-                                                     oCCSearchObj.m_oSearchObj = channelSearchObject;
-                                                     channelsSearchObjects.Add(oCCSearchObj);
-                                                 }
-                                             }
-                                             catch (Exception ex)
-                                             {
-                                                 log.Error(ex.Message, ex);
-                                             }
-                                         }, searchObjectIndex);
-                                    channelsSearchObjectTasks[searchObjectIndex].Start();
-                                }
-
-                                //Wait for all parallel tasks to end
-                                Task.WaitAll(channelsSearchObjectTasks);
-                                for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
-                                {
-                                    if (channelsSearchObjectTasks[i] != null)
-                                    {
-                                        channelsSearchObjectTasks[i].Dispose();
-                                    }
-                                }
-                                #endregion
-
-                                #region Search
-                                if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
-                                {
-                                    try
-                                    {
-                                        // Getting true/false result if media exists in at least one channel
-                                        List<ChannelContainObj> oChannelsContain = searcher.GetSubscriptionContainingMedia(channelsSearchObjects);
-
-                                        //update the right places with true/ false                          
-
-                                        foreach (ChannelContainObj item in oChannelsContain)
-                                        {
-                                            if (item.m_bContain)
-                                                response.m_lChannellList.Add(item.m_nChannelID);
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        log.Error(ex.Message);
-                                    }
-                                }
-                                #endregion
-                            }
-                        }
-                        #endregion
-
                     }
                 }
+
                 return (BaseResponse)response;
             }
             catch (Exception ex)
@@ -186,5 +77,42 @@ namespace Catalog.Request
                 return null;
             }
         }
+
+        private Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = new List<int>();
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                    {
+                        int? groupId, mediaId;
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as int?;
+
+                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                        if (searcher != null)
+                        {
+                            if (searcher is ElasticsearchWrapper)
+                            {
+                                if (groupId.HasValue && mediaId.HasValue)
+                                {
+                                    result = searcher.GetMediaChannels(groupId.Value, mediaId.Value);
+                                    res = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaChannels faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<int>, bool>(result, res);
+        }
+
     }
 }

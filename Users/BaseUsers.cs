@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Statistics;
+using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using System;
@@ -16,6 +17,7 @@ namespace Users
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string ROLE_ALREADY_ASSIGNED_TO_USER_ERROR = "Role already assigned to user";
+        private const string USER_ROLES_LAYERED_CACHE_CONFIG_NAME = "GetUserRoles";
 
         public const int PIN_NUMBER_OF_DIGITS = 10;
         public const int PIN_MIN_NUMBER_OF_DIGITS = 8;
@@ -1343,9 +1345,14 @@ namespace Users
 
             try
             {
-                response.Ids = UsersDal.Get_UserRoleIds(groupId, userId);
-                if (response.Ids != null)
+                string key = LayeredCacheKeys.GetUserRolesKey(userId);
+                List<long> roleIds = null;
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
+                    groupId, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAddRoleInvalidationKey(userId) });
+                if (cacheResult && roleIds != null)
                 {
+                    response.Ids = roleIds;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
@@ -1371,6 +1378,13 @@ namespace Users
                 else if (rowCount > 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    
+                    // add invalidation key for user roles cache
+                    string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(userId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1454,6 +1468,6 @@ namespace Users
             }
 
             return response;
-        }      
+        }
     }
 }

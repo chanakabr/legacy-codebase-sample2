@@ -1062,7 +1062,7 @@ namespace TVinciShared
         {
             bool bYes = false;
             Int32 nUpperGroup = int.Parse(ODBCWrapper.Utils.GetTableSingleVal("accounts", "group_id", LoginManager.GetLoginID(), 86400).ToString());
-            if (nGroupToCheck == nUpperGroup)
+            if (nGroupToCheck == nUpperGroup || nUpperGroup == 1)
                 return true;
             DoesGroupIsParentOfGroup(nUpperGroup, nGroupToCheck, ref bYes);
             return bYes;

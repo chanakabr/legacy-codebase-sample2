@@ -40,5 +40,18 @@ namespace CachingProvider
         public abstract bool GetJsonAsT<T>(string sKey, out T res) where T : class;
 
         public abstract List<string> GetKeys();
+
+        public abstract bool Get<T>(string key, ref T result);
+
+        public abstract bool GetWithVersion<T>(string key, out ulong version, ref T result);
+
+        public abstract bool RemoveKey(string key);
+
+        public abstract bool Add<T>(string key, T value, uint expirationInSeconds);
+
+        public abstract bool SetWithVersion<T>(string key, T value, ulong version, uint expirationInSeconds);
+
+        public abstract bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false);
+
     }
 }
