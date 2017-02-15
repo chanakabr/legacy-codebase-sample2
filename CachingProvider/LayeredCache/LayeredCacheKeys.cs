@@ -159,5 +159,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("groupChannelsInvalidationKey_groupId_{0}", groupId);
         }
 
+        public static string GetMediaInvalidationKey(int groupId, long mediaId)
+        {
+            return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
+        }
     }
 }

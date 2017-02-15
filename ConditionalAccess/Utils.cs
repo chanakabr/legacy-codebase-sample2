@@ -6952,17 +6952,20 @@ namespace ConditionalAccess
                     if (mapper != null && mapper.Length > 0)
                     {
                         int[] mediaIDsToMap = new int[mapper.Length];
+                        Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
                         for (int i = 0; i < mediaIDsToMap.Length; i++)
                         {
                             mediaIDsToMap[i] = mapper[i].m_nMediaID;
+                            invalidationKeysMap.Add(mediaIDsToMap[i].ToString(), new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaIDsToMap[i]) });
                         }
 
                         Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
-                        List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();
+                        List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();                         
 
                         bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
                                                                                                     new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } },
-                                                                                                    groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME);
+                                                                                                    groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME,
+                                                                                                    invalidationKeysMap);
                         if (!cacheResult)
                         {
                             log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file types mappings from cache keys: {0}", string.Join(",", keys)));
