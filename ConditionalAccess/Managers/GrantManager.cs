@@ -328,7 +328,7 @@ namespace ConditionalAccess
                 string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, userId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3,
                                                                  string.Empty, ip, country, string.Empty, udid, string.Empty,
                                                                  entitleToPreview ? subscription.m_oPreviewModule.m_nID + "" : string.Empty,
-                                                                 entitleToPreview, true, recurringNumber, saveHistory);
+                                                                 entitleToPreview, true, recurringNumber, saveHistory, (int)context);
 
                 // create new GUID for billing transaction
                 string billingGuid = Guid.NewGuid().ToString();
