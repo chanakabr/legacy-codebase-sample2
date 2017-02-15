@@ -154,5 +154,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("recordingPlayBackSettings_groupId_{0}mediaId_{1}", groupId, mediaId);
         }
 
+        public static string GetGroupChannelsInvalidationKey(int groupId)
+        {
+            return string.Format("groupChannelsInvalidationKey_groupId_{0}", groupId);
+        }
+
     }
 }

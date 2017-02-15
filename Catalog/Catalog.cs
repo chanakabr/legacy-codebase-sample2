@@ -2514,13 +2514,11 @@ namespace Catalog
 
                     legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
                 }
-                
-                // Set invalidation keys - for all channels and for specific channel
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheConfigNames.CHANNELS_INVALIDATION_KEY);
 
-                foreach (var id in ids)
+                if (updatedObjectType == eObjectType.Channel)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(string.Format("channel_{0}", id));
+                    // Set invalidation for the entire group
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
                 }
             }
 

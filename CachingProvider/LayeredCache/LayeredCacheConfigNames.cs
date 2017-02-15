@@ -35,7 +35,6 @@ namespace CachingProvider.LayeredCache
         #region Constant Invalidation Keys
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
-        public static readonly string CHANNELS_INVALIDATION_KEY = "channels_updated";
 
         #endregion
 
