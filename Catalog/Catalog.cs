@@ -2519,8 +2519,7 @@ namespace Catalog
                 {
                     case eObjectType.Unknown:
                         break;
-                    case eObjectType.Media:
-                        break;
+                    case eObjectType.Media:                        
                         foreach (long id in ids)
                         {
                             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
