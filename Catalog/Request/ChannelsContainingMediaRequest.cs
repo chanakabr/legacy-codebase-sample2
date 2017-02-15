@@ -48,7 +48,8 @@ namespace Catalog.Request
                 List<int> channels = null;
                 List<string> invalidationKeys = new List<string>()
                 {
-                    LayeredCacheKeys.GetGroupChannelsInvalidationKey(request.m_nGroupID)
+                    LayeredCacheKeys.GetGroupChannelsInvalidationKey(request.m_nGroupID),
+                    LayeredCacheKeys.GetMediaInvalidationKey(request.m_nGroupID, m_nMediaID)
                 };
 
                 string key = LayeredCacheKeys.GetChannelsContainingMediaKey(m_nMediaID);

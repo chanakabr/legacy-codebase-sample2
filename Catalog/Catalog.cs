@@ -2515,10 +2515,29 @@ namespace Catalog
                     legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
                 }
 
-                if (updatedObjectType == eObjectType.Channel)
+                switch (updatedObjectType)
                 {
-                    // Set invalidation for the entire group
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
+                    case eObjectType.Unknown:
+                        break;
+                    case eObjectType.Media:
+                        break;
+                        foreach (long id in ids)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                        }
+                        break;
+                    case eObjectType.Channel:
+                        // Set invalidation for the entire group
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
+                        break;
+                    case eObjectType.EPG:
+                        break;
+                    case eObjectType.EpgChannel:
+                        break;
+                    case eObjectType.Recording:
+                        break;
+                    default:
+                        break;
                 }
             }
 
