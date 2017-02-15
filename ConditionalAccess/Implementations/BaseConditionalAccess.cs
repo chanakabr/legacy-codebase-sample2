@@ -8107,7 +8107,7 @@ namespace ConditionalAccess
         /// </summary>
         protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
-            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false)
+            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null)
         {
             bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -8193,6 +8193,10 @@ namespace ConditionalAccess
                 {
                     sb.Append(string.Format("<{0}>1</{0}>", HISTORY));
                 }
+            }
+            if (context.HasValue)
+            {
+                sb.Append(string.Format("<context>{0}</context>", context.Value));
             }
 
             sb.Append("</customdata>");
