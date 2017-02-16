@@ -891,7 +891,7 @@ namespace ConditionalAccess
 
             // enqueue renew transaction
             RenewTransactionsQueue queue = new RenewTransactionsQueue();
-            DateTime nextRenewalDate = endDate.AddMinutes(-5);
+            DateTime nextRenewalDate = endDate.AddMinutes(0);
 
             RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseId, billingGuid, TVinciShared.DateUtils.DateTimeToUnixTimestamp(endDate), nextRenewalDate);
             bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
