@@ -54,10 +54,11 @@ namespace WebAPI.Utils
             return Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
         }
 
-        internal static string BuildUDrmUrl(KalturaDrmSchemeName schemeName, string customDataString, string signature)
+        internal static string BuildUDrmUrl(Group group, KalturaDrmSchemeName schemeName, string customDataString, string signature)
         {
             string response = null;
-            string baseUdrmUrl = TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
+            string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ? group.UDrmUrl : TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
+
             customDataString = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.ASCII.GetBytes(customDataString)));
             signature = HttpUtility.UrlEncode(signature);
             switch (schemeName)
@@ -131,7 +132,7 @@ namespace WebAPI.Utils
             var customDataString = DrmUtils.BuildCencCustomDataString(source.ExternalId, caSystemUrl);
             var signature = DrmUtils.BuildCencSignatureString(customDataString);
             drmData.Scheme = scheme;
-            drmData.LicenseURL = DrmUtils.BuildUDrmUrl(scheme, customDataString, signature);
+            drmData.LicenseURL = DrmUtils.BuildUDrmUrl(group, scheme, customDataString, signature);
             return drmData;
         }
     }

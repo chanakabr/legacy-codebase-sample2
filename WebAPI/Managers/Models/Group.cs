@@ -108,6 +108,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("fairplay_certificate")]
         public string FairplayCertificate { get; set; }
 
+        [JsonProperty("udrm_url")]
+        public string UDrmUrl { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 
