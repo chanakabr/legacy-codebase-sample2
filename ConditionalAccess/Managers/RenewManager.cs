@@ -990,11 +990,7 @@ namespace ConditionalAccess
 
             if (newRecurringNumber != oldRecurringNumber)
             {
-                theRequest.SelectSingleNode(RECURRING_NUMBER).FirstChild.Value = newRecurringNumber.ToString();
                 customData = customData.Replace(string.Format("<recurringnumber>{0}</recurringnumber>", oldRecurringNumber), string.Format("<recurringnumber>{0}</recurringnumber>", newRecurringNumber));
-
-                log.DebugFormat("XML:{0}", theRequest.InnerText);
-                log.DebugFormat("TEXT:{0}", customData);
             }
 
             long billingTransactionID = 0;
