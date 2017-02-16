@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using WebAPI.EventNotifications;
 using System.Reflection;
 using ApiObjects;
+using System.Threading.Tasks;
 
 namespace WebAPI
 {
@@ -59,6 +60,9 @@ namespace WebAPI
             EventNotification specificNotification = null;
             EventNotification generalNotification = null;
             Dictionary<string, NotificationAction> actions = new Dictionary<string, NotificationAction>();
+
+            log.DebugFormat("Start consume Notification event for: partnerId = {0}, type = {1}, action = {2}",
+                kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action);
 
             #region Get notification definitions
 
@@ -160,6 +164,8 @@ namespace WebAPI
             // Perform the actions for this event
             foreach (var action in actions.Values)
             {
+
+                log.DebugFormat("Notification event action: action name = {0}", action.FriendlyName);
                 try
                 {
                     // first check action's status - if it isn't good,
@@ -187,7 +193,18 @@ namespace WebAPI
                         continue;
                     }
 
-                    action.Handle(kalturaEvent, phoenixObject);
+                    if (!action.IsAsync)
+                    {
+                        action.Handle(kalturaEvent, phoenixObject);
+                    }
+                    else
+                    {
+                        Task t = Task.Factory.StartNew(() =>
+                            {
+                                action.Handle(kalturaEvent, phoenixObject);
+                            }
+                            );
+                    }
                 }
                 catch (Exception ex)
                 {

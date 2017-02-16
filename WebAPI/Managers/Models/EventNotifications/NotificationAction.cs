@@ -40,6 +40,13 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+        [JsonProperty("is_asynch")]
+        public bool IsAsync
+        {
+            get;
+            set;
+        }
+
         internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, object t);
     }
 }
