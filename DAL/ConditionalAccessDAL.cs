@@ -2033,14 +2033,14 @@ namespace DAL
             return allEntitlments;
         }
 
-        public static Dictionary<string, Dictionary<string, int>> Get_AllMediaIdGroupFileTypesMappings(int[] mediaIDs)
+        public static Dictionary<string, Dictionary<string, int>> Get_AllMediaIdGroupFileTypesMappings(HashSet<int> mediaIds)
         {
             Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
             DataTable dt = null;
             string resultKey = string.Empty;
 
             StoredProcedure spGet_AllMediaFilesMappings = new ODBCWrapper.StoredProcedure("Get_AllMediaFilesTypesMappings");
-            spGet_AllMediaFilesMappings.AddIDListParameter<int>("@MediaIDs", mediaIDs.ToList(), "ID");
+            spGet_AllMediaFilesMappings.AddIDListParameter<int>("@MediaIDs", mediaIds.ToList(), "ID");
             spGet_AllMediaFilesMappings.SetConnectionKey("MAIN_CONNECTION_STRING");
             dt = spGet_AllMediaFilesMappings.Execute();
 
@@ -2051,8 +2051,7 @@ namespace DAL
                     int mediaFileID = Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
                     string mediaID = Utils.GetSafeStr(dr["MEDIA_ID"]);
                     string groupFileType = Utils.GetSafeStr(dr["GROUP_FILE_TYPE"]);
-                    string key = mediaID + "_" + groupFileType;
-                                       
+                    string key = mediaID + "_" + groupFileType;                                       
                     resultKey = UtilsDal.MediaIdGroupFileTypesKey(Utils.GetIntSafeVal(dr["MEDIA_ID"]));
 
                     if (result.Keys.Contains(resultKey))
@@ -2062,9 +2061,7 @@ namespace DAL
                     else
                     {
                         result.Add(resultKey, new Dictionary<string, int>() { {key, mediaFileID}});
-                    }
-
-                    
+                    }                    
                 }
             }
 
