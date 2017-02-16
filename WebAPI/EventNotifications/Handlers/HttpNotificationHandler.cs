@@ -29,54 +29,6 @@ namespace WebAPI.EventNotifications
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, object phoenixObject)
         {
             this.SendRequest(phoenixObject);
-            //WebRequest request = WebRequest.Create(this.Url);
-            
-            //int statusCode = -1;
-
-            //request.Method = this.Method.ToString().ToUpper();
-            //request.ContentType = "application/json";ֲ
-
-            //string phoenixString = string.Empty;
-
-            //byte[] byteArray = Encoding.UTF8.GetBytes(phoenixString);
-
-            //Stream dataStream = request.GetRequestStream();
-            //dataStream.Write(byteArray, 0, byteArray.Length);
-            //dataStream.Close();
-
-            //WebResponse response = request.GetResponse();
-            //dataStream = response.GetResponseStream();
-
-            //StreamReader reader = new StreamReader(dataStream);
-            //string responseFromServer = reader.ReadToEnd();
-
-            //reader.Close();
-            //dataStream.Close();
-            //response.Close();
-
-            //WebClient webClient = new WebClient();
-
-            //webClient.BaseAddress = this.Url;
-            //webClient.Credentials = new NotificationCredentials(this);
-
-            //if (this.CustomHeaders != null)
-            //{
-            //    foreach (var header in this.CustomHeaders)
-            //    {
-            //        webClient.Headers.Add(header.key, header.value);
-            //    }
-            //}
-
-            //var stream = webClient.OpenRead(this.Url);
-
-            //using (StreamReader sr = new StreamReader(stream))
-            //{
-            //    var page = sr.ReadToEnd();
-            //}
-
-            //client.
-
-            //webClient.Dispose();
         }
 
         #endregion 
@@ -231,14 +183,19 @@ namespace WebAPI.EventNotifications
                     }
                     case eHttpMethod.Post:
                     {
-                        this.SendPostHttpRequest(phoenixObject);
-                        this.Post(phoenixObject);
+                        this.SendHttpRequest(phoenixObject, "POST");
                         break;
                     }
                     case eHttpMethod.Put:
-                    break;
+                    {
+                        this.SendHttpRequest(phoenixObject, "PUT");
+                        break;
+                    }
                     case eHttpMethod.Delete:
-                    break;
+                    {
+                        this.SendHttpRequest(phoenixObject, "DELETE");
+                        break;
+                    }
                     default:
                     break;
                 }
@@ -251,13 +208,13 @@ namespace WebAPI.EventNotifications
 
         #region HTTP requests
 
-        public void SendPostHttpRequest(object phoenixObject)
+        public void SendHttpRequest(object phoenixObject, string method)
         {
             int statusCode = -1;
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
             webRequest.ContentType = "application/x-www-form-urlencoded";
-            webRequest.Method = "POST";
+            webRequest.Method = method;
 
             string postBody = JsonConvert.SerializeObject(phoenixObject, Newtonsoft.Json.Formatting.None);
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
@@ -356,10 +313,13 @@ namespace WebAPI.EventNotifications
                     byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
                     HttpContent content = new ByteArrayContent(bytes);
 
-                    // Set headers
-                    foreach (var header in this.CustomHeaders)
+                    if (this.CustomHeaders != null)
                     {
-                        content.Headers.Add(header.key, header.value);
+                        // Set headers
+                        foreach (var header in this.CustomHeaders)
+                        {
+                            content.Headers.Add(header.key, header.value);
+                        }
                     }
 
                     // Send request and wait until it finishes
