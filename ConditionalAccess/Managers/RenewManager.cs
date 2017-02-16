@@ -3,6 +3,7 @@ using ApiObjects.Billing;
 using ApiObjects.Response;
 using Billing;
 using CachingProvider.LayeredCache;
+using ConditionalAccess.Modules;
 using DAL;
 using KLogMonitor;
 using Pricing;
@@ -442,8 +443,16 @@ namespace ConditionalAccess
         {
             log.DebugFormat("Transaction renew failed. data: {0}", logString);
 
-            // Try to cancel subscription
-            if (ConditionalAccessDAL.CancelSubscription((int)purchaseId, groupId, siteguid, subscription.m_SubscriptionCode, (int)SubscriptionPurchaseStatus.Fail) == 0)
+            // grant entitlement
+            SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(groupId)
+            {
+                purchaseId = (int)purchaseId,
+                siteGuid = siteguid,
+                productId = subscription.m_SubscriptionCode,
+                status = SubscriptionPurchaseStatus.Fail
+            };
+            bool success = subscriptionPurchase.Update();
+            if (!success)
             {
                 log.Error("Error while trying to cancel subscription");
                 return false;
