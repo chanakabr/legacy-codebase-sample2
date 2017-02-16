@@ -390,6 +390,10 @@ namespace ConditionalAccess
                         isCreditDownloaded = true;
                     }
                 }
+                else
+                {
+                    isCreditDownloaded = true;
+                }
 
                 if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache"))
                 {
