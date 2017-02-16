@@ -6951,22 +6951,19 @@ namespace ConditionalAccess
                     // Get mappings of mediaFileIDs - MediaIDs
                     if (mapper != null && mapper.Length > 0)
                     {
-                        HashSet<int> mediaIdsToMap = new HashSet<int>();                        
+                        int[] mediaIDsToMap = new int[mapper.Length];
                         Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-                        List<string> keys = new List<string>();
-                        foreach (MeidaMaper mediaMapper in mapper)
+                        for (int i = 0; i < mediaIDsToMap.Length; i++)
                         {
-                            if (!mediaIdsToMap.Contains(mediaMapper.m_nMediaID))
-                            {
-                                mediaIdsToMap.Add(mediaMapper.m_nMediaID);
-                                invalidationKeysMap.Add(mediaMapper.m_nMediaID.ToString(), new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaMapper.m_nMediaID) });
-                                keys.Add(DAL.UtilsDal.MediaIdGroupFileTypesKey(mediaMapper.m_nMediaID));
-                            }
-                        }                        
+                            mediaIDsToMap[i] = mapper[i].m_nMediaID;
+                            invalidationKeysMap.Add(mediaIDsToMap[i].ToString(), new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaIDsToMap[i]) });
+                        }
 
-                        Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;                        
+                        Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;
+                        List<string> keys = mediaIDsToMap.Select(x => DAL.UtilsDal.MediaIdGroupFileTypesKey(x)).ToList();                         
+
                         bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
-                                                                                                    new Dictionary<string, object>() { { "mediaIds", mediaIdsToMap } },
+                                                                                                    new Dictionary<string, object>() { { "mediaIDs", mediaIDsToMap } },
                                                                                                     groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME,
                                                                                                     invalidationKeysMap);
                         if (!cacheResult)
@@ -7259,13 +7256,13 @@ namespace ConditionalAccess
             Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
             try
             {
-                if (funcParams.ContainsKey("mediaIds"))
+                if (funcParams.ContainsKey("mediaIDs"))
                 {
-                    HashSet<int> mediaIds;
-                    mediaIds = funcParams["mediaIds"] != null ? funcParams["mediaIds"] as HashSet<int> : null;
-                    if (mediaIds != null)
+                    int[] mediaIDs;
+                    mediaIDs = funcParams["mediaIDs"] != null ? funcParams["mediaIDs"] as int[] : null;
+                    if (mediaIDs != null)
                     {
-                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIds);
+                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
                         res = true;
                     }
                 }
