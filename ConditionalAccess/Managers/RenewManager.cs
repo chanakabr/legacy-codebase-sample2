@@ -868,6 +868,12 @@ namespace ConditionalAccess
                 return true;
             }
 
+            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
+            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            {
+                log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
+            }
+
             // update billing_transactions subscriptions_purchased reference  
             if (billingTransitionId > 0 && !ApiDAL.Update_PurchaseIDInBillingTransactions(billingTransitionId, purchaseId))
             {
