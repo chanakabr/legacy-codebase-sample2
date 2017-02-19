@@ -2728,7 +2728,7 @@ namespace ConditionalAccess
 
         protected internal void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
-                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription)
+                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null)
         {
             if (subscription == null)
             {
@@ -2770,12 +2770,28 @@ namespace ConditionalAccess
                             }
 
                             HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
+
+                            if (compensation != null)
+                            {
+                                switch (compensation.CompensationType)
+                                {
+                                    case CompensationType.Percentage:
+                                        priceValue = priceValue - (priceValue * compensation.Amount / 100);
+                                        break;
+                                    case CompensationType.FixedAmount:
+                                        priceValue = priceValue - compensation.Amount;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
                             nRecPeriods = subscription.m_nNumberOfRecPeriods;
                             isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
                             maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
                             customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, p, subscription.m_SubscriptionCode,
-                                siteguid, priceValue, sCurrency, couponCode, userIp, string.Empty, string.Empty, string.Empty);
+                                siteguid, priceValue, sCurrency, couponCode, userIp, string.Empty, string.Empty, string.Empty, compensation);
                         }
                         catch (Exception ex)
                         {
@@ -9426,7 +9442,7 @@ namespace ConditionalAccess
 
         protected virtual string GetCustomDataForMPPRenewal(Subscription theSub, UsageModule theUsageModule,
            PriceCode p, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency,
-           string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+           string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, Compensation compensation)
         {
 
             bool bIsRecurring = theSub.m_bIsRecurring;
@@ -9470,6 +9486,12 @@ namespace ConditionalAccess
             sb.Append("<cu>");
             sb.Append(sCurrency);
             sb.Append("</cu>");
+
+            if (compensation != null)
+            {
+                sb.AppendFormat("<compensation type=\"{0}\" amount=\"{1}\" totalRenewals=\"{2}\" renewalNumber=\"{3}\" />", 
+                    compensation.CompensationType, compensation.Amount, compensation.TotalRenewals, compensation.Renewals + 1);
+            }
             sb.Append("</customdata>");
 
             return sb.ToString();
@@ -16156,6 +16178,11 @@ namespace ConditionalAccess
         public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)
         {
             return PlaybackManager.GetPlayManifest(this, m_nGroupID, userId, assetId, assetType, fileId, ip, udid, playContextType);
+        }
+
+        public ApiObjects.Response.Status Compensate(string userId, int purchaseId, Compensation compensation)
+        {
+            return EntitelemantManager.Compensate(this, m_nGroupID, userId, purchaseId, compensation);
         }
     }
 }

@@ -756,5 +756,145 @@ namespace ConditionalAccess
             }
             return entitlement;
         }
+
+        public static ApiObjects.Response.Status Compensate(BaseConditionalAccess cas, int groupId, string userId, int purchaseId, Compensation compensation)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                // validate user
+                int domainId = 0;
+                DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+                if (!Utils.IsUserValid(userId, groupId, ref domainId, ref suspendStatus))
+                {
+                    log.ErrorFormat("Invalid user, userId = {0}", userId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "Invalid user");
+                    return response;
+                }
+                if (suspendStatus == DomainSuspentionStatus.Suspended)
+                {
+                    log.ErrorFormat("Domain suspended, userId = {0}", userId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");
+                    return response;
+                }
+
+                // validate purchase
+                DataRow subscriptionPurchaseRow = ConditionalAccessDAL.GetPurchaseByID(purchaseId);
+
+                if (subscriptionPurchaseRow == null)
+                {
+                    log.ErrorFormat("Subscription purchase not found purchaseId = {0}", purchaseId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidPurchase, "Invalid purchase");
+                    return response;
+                }
+
+                if (ODBCWrapper.Utils.GetIntSafeVal(subscriptionPurchaseRow, "domain_id") != domainId)
+                {
+                    log.ErrorFormat("Purchase does not belong to householdId = {0}, purchaseId = {1} ", domainId, purchaseId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidPurchase, "Invalid purchase");
+                    return response;
+                }
+
+                bool isRecurring = ODBCWrapper.Utils.GetIntSafeVal(subscriptionPurchaseRow, "is_recurring_status") == 1;
+                if (!isRecurring)
+                {
+                    log.ErrorFormat("Subscription is not renewable for purchaseId = {0}", purchaseId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionNotRenewable, "Subscription is not renewable");
+                    return response;
+                }
+
+                DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(subscriptionPurchaseRow, "END_DATE");
+                if (endDate < DateTime.UtcNow)
+                {
+                    log.ErrorFormat("Household is not entitled for purchaseId = {0}, householdId = {1}", purchaseId, domainId);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.NotEntitled, "Not entitled");
+                    return response;
+                }
+
+                // get subscription
+                int subscriptionId = ODBCWrapper.Utils.GetIntSafeVal(subscriptionPurchaseRow, "SUBSCRIPTION_CODE");
+                Subscription subscription = Utils.GetSubscription(groupId, subscriptionId);
+
+                // validate subscription
+                if (subscription == null)
+                {
+                    // subscription wasn't found
+                    log.Error(string.Format("subscription wasn't found. subscriptionId = {0}", subscriptionId));
+                    return response;
+                }
+
+                string billingGuid = ODBCWrapper.Utils.GetSafeStr(subscriptionPurchaseRow, "billing_guid");
+                DataRow renewDetailsRow = DAL.ConditionalAccessDAL.Get_RenewDetails(groupId, purchaseId, billingGuid);
+
+                // TODO: maybe remove, DR
+                if (renewDetailsRow == null)
+                {
+                    // transaction details weren't found
+                    log.ErrorFormat("Transaction details weren't found. subscriptionId: {0}, billingGuid: {1}, purchaseId: {2}", subscriptionId, billingGuid, purchaseId);
+                    return response;
+                }
+
+                int paymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
+                int numOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
+                int totalNumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "total_number_of_payments");
+
+                // check if purchased with preview module
+                bool isPurchasedWithPreviewModule;
+                isPurchasedWithPreviewModule = ApiDAL.Get_IsPurchasedWithPreviewModuleByBillingGuid(groupId, billingGuid, purchaseId);
+
+                paymentNumber = Utils.CalcPaymentNumber(numOfPayments, paymentNumber, isPurchasedWithPreviewModule);
+                if (paymentNumber + compensation.TotalRenewals - 1 > numOfPayments)
+                {
+                    log.ErrorFormat("There is not enough renewals left for subscriptionId = {0}, paymentNumber = {1}, numOfPayments = {2}", subscriptionId, paymentNumber, numOfPayments);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.NotEnoughRenewalsLeft, "Not enough renewals left");
+                    return response;
+                }
+
+                if (compensation.CompensationType == CompensationType.FixedAmount)
+                {
+                    string couponCode = ODBCWrapper.Utils.GetSafeStr(subscriptionPurchaseRow, "coupon_code");
+
+                    // get MPP
+                    int recPeriods = 0;
+                    bool isMPPRecurringInfinitely = false;
+                    int maxVLCOfSelectedUsageModule = 0;
+                    double price = 0;
+                    string currency = "n/a";
+                    string customData = null;
+
+                    try
+                    {
+                        cas.GetMultiSubscriptionUsageModule(userId, string.Empty, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
+                                ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
+                                ref couponCode, subscription);
+                    }
+                    catch (Exception ex)
+                    {
+                        // "Error while trying to get MPP
+                        log.Error("Error while trying to get MPP", ex);
+                        return response;
+                    }
+
+                    if (price > compensation.Amount)
+                    {
+                        log.ErrorFormat("Fixed amount compensation is higher than subscription renewal price. subscriptionId = {0}, price = {1}", subscriptionId, price);
+                        response = new ApiObjects.Response.Status((int)eResponseStatus.CompensationIsHigherThanPrice, "Compensation is higher than price");
+                        return response;
+                    }
+                }
+                // insert the compensation data
+                if (!ConditionalAccessDAL.AddSubscriptionCompensation(purchaseId, compensation.CompensationType, compensation.Amount, compensation.TotalRenewals))
+                {
+                    log.DebugFormat("Failed to insert compensation data for userId = {0}, purchaseId = {1}", userId, purchaseId);
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error in compensate", ex);
+            }
+            return response;
+        }
     }
 }

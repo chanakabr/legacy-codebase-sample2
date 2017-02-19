@@ -269,6 +269,9 @@ namespace ConditionalAccess
             // calculate payment number
             paymentNumber++;
 
+            // get compensation data
+            Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensation(purchaseId);
+
             // get MPP
             int recPeriods = 0;
             bool isMPPRecurringInfinitely = false;
@@ -280,7 +283,7 @@ namespace ConditionalAccess
             {
                 cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                         ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                        ref couponCode, subscription);
+                        ref couponCode, subscription, compensation);
             }
             catch (Exception ex)
             {

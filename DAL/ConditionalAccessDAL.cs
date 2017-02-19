@@ -2766,5 +2766,41 @@ namespace DAL
 
             return deviceName;
         }
+
+        public static bool AddSubscriptionCompensation(int purchaseId, CompensationType compensationType, int amount, int renewals)
+        {
+            int rowCount = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionCompernsation");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@purchaseId", purchaseId);
+            sp.AddParameter("@compensationType", (int)compensationType);
+            sp.AddParameter("@amount", amount);
+            sp.AddParameter("@renewals", renewals);
+
+            rowCount = sp.ExecuteReturnValue<int>();
+            return rowCount > 0;
+        }
+
+        public static Compensation GetSubscriptionCompensation(long purchaseId)
+        {
+            Compensation compensation = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensation");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@purchaseId", purchaseId);
+            
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                compensation = new Compensation()
+                {
+                    Amount = ODBCWrapper.Utils.GetIntSafeVal("AMOUNT"),
+                    TotalRenewals = ODBCWrapper.Utils.GetIntSafeVal("TOTAL_RENEWALS"),
+                    Renewals = ODBCWrapper.Utils.GetIntSafeVal("RENEWALS"),
+                    CompensationType = (CompensationType)ODBCWrapper.Utils.GetIntSafeVal("COMPENSATION_TYPE"),
+                };
+            }
+            return compensation;
+        }
     }
 }

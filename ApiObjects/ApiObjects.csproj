@@ -93,6 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compensation.cs" />
     <Compile Include="MailRequests\AddUserMailRequest.cs" />
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />

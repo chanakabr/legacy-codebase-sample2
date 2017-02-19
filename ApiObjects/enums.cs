@@ -871,4 +871,11 @@ namespace ApiObjects
         Swap = 1,
         Renew = 2
     }
+
+    public enum CompensationType
+    {
+        Percentage = 0,
+        FixedAmount = 1
+    }
+
 }

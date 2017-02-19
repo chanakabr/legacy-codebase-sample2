@@ -7504,5 +7504,28 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        public static Subscription GetSubscription(int groupId, int subscriptionId)
+        {
+            Subscription subscription = null;
+
+            string wsUsername = string.Empty;
+            string wsPassword = string.Empty;
+
+            try
+            {
+                using (mdoule m = new mdoule())
+                {
+                    Utils.GetWSCredentials(groupId, eWSModules.PRICING, ref wsUsername, ref wsPassword);
+                    subscription = m.GetSubscriptionData(wsUsername, wsPassword, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while trying to fetch subscription data. subscriptionId = {0}", subscriptionId), ex);
+            }
+
+            return subscription;
+        }
     }
 }
