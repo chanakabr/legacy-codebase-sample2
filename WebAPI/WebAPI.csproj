@@ -661,6 +661,7 @@
     <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCompensation.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />

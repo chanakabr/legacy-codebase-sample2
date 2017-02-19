@@ -367,6 +367,31 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ApiObjects.Response.Status, KalturaAccessControlMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => ((ApiObjects.Response.eResponseStatus)src.Code).ToString()))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+            Mapper.CreateMap<KalturaCompensation, Compensation>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.TotalRenewals, opt => opt.MapFrom(src => src.RenewalIterations))
+              .ForMember(dest => dest.CompensationType, opt => opt.MapFrom(src => ConvertCompensationType(src.CompensationType)));
+        }
+
+        private static CompensationType ConvertCompensationType(KalturaCompensationType kalturaCompensationType)
+        {
+            CompensationType result;
+
+            switch (kalturaCompensationType)
+            {
+                case KalturaCompensationType.PERCENTAGE:
+                    result = CompensationType.Percentage;
+                    break;
+                case KalturaCompensationType.FIXED_AMOUNT:
+                    result = CompensationType.FixedAmount;
+                    break;
+                default:
+                    result = CompensationType.Percentage;
+                    break;
+            }
+
+            return result;
         }
 
         private static int? GetNullableInt(int p)
