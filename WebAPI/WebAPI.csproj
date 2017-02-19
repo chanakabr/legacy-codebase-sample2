@@ -927,6 +927,7 @@
     <Compile Include="Models\General\BaseReport.cs" />
     <Compile Include="Models\General\KalturaApiArgumentPermissionItem.cs" />
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaEventWrapper.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />

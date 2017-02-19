@@ -11,6 +11,7 @@ using WebAPI.EventNotifications;
 using System.Reflection;
 using ApiObjects;
 using System.Threading.Tasks;
+using WebAPI.Models.General;
 
 namespace WebAPI
 {
@@ -156,6 +157,13 @@ namespace WebAPI
 
             // convert the WS object to an API/rest/phoenixObject
             object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
+            KalturaOTTObject ottObject = phoenixObject as KalturaOTTObject;
+            KalturaEventWrapper eventWrapper = new KalturaEventWrapper()
+            {
+                eventObject = ottObject,
+                eventAction = ConvertKalturaAction(actionEvent.Action),
+                objectType = actionEvent.Type
+            };
 
             #endregion
 
@@ -164,8 +172,8 @@ namespace WebAPI
             // Perform the actions for this event
             foreach (var action in actions.Values)
             {
-
                 log.DebugFormat("Notification event action: action name = {0}", action.FriendlyName);
+
                 try
                 {
                     // first check action's status - if it isn't good,
@@ -195,13 +203,13 @@ namespace WebAPI
 
                     if (!action.IsAsync)
                     {
-                        action.Handle(kalturaEvent, phoenixObject);
+                        action.Handle(kalturaEvent, eventWrapper);
                     }
                     else
                     {
                         Task t = Task.Factory.StartNew(() =>
                             {
-                                action.Handle(kalturaEvent, phoenixObject);
+                                action.Handle(kalturaEvent, eventWrapper);
                             }
                             );
                     }
@@ -219,6 +227,68 @@ namespace WebAPI
             result = true;
 
             return result;
+        }
+
+        private KalturaEventAction ConvertKalturaAction(eKalturaEventActions eKalturaEventActions)
+        {
+            KalturaEventAction action = KalturaEventAction.None;
+            switch (eKalturaEventActions)
+            {
+                case eKalturaEventActions.None:
+                {
+                    action = KalturaEventAction.None;
+                    break;
+                }
+                case eKalturaEventActions.Added:
+                {
+                    action = KalturaEventAction.Added;
+                    break;
+                }
+                case eKalturaEventActions.Changed:
+                {
+                    action = KalturaEventAction.Changed;
+                    break;
+                }
+                case eKalturaEventActions.Copied:
+                {
+                    action = KalturaEventAction.Copied;
+                    break;
+                }
+                case eKalturaEventActions.Created:
+                {
+                    action = KalturaEventAction.Created;
+                    break;
+                }
+                case eKalturaEventActions.Deleted:
+                {
+                    action = KalturaEventAction.Deleted;
+                    break;
+                }
+                case eKalturaEventActions.Erased:
+                {
+                    action = KalturaEventAction.Erased;
+                    break;
+                }
+                case eKalturaEventActions.Saved:
+                {
+                    action = KalturaEventAction.Saved;
+                    break;
+                }
+                case eKalturaEventActions.Updated:
+                {
+                    action = KalturaEventAction.Updated;
+                    break;
+                }
+                case eKalturaEventActions.Replaced:
+                {
+                    action = KalturaEventAction.Replaced;
+                    break;
+                }
+                default:
+                break;
+            }
+
+            return action;
         }
 
         #endregion

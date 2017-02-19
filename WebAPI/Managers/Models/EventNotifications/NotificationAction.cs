@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using WebAPI.Models.General;
 
 namespace WebAPI.Managers.Models
 {
@@ -47,6 +48,6 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, object t);
+        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper wrapper);
     }
 }
