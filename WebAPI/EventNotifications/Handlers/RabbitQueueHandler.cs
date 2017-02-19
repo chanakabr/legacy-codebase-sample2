@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
 {
@@ -18,7 +19,7 @@ namespace WebAPI.EventNotifications
         {
         }
 
-        internal override void Handle(EventManager.KalturaEvent kalturaEvent, object theObject)
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper theObject)
         {
             //
             QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();

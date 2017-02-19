@@ -25,10 +25,10 @@ namespace WebAPI.EventNotifications
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Override Method
-        
-        internal override void Handle(EventManager.KalturaEvent kalturaEvent, object phoenixObject)
+
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper eventWrapper)
         {
-            this.SendRequest(phoenixObject);
+            this.SendRequest(eventWrapper);
         }
 
         #endregion 
