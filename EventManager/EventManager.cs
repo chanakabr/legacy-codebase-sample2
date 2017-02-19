@@ -17,7 +17,6 @@ namespace EventManager
         static EventManager()
         {
             eventConsumers = new List<BaseEventConsumer>();
-            eventConsumers.Add(new NotificationEventConsumer());
         }
 
         public static void Init()
