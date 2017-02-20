@@ -2767,18 +2767,27 @@ namespace DAL
             return deviceName;
         }
 
-        public static bool AddSubscriptionCompensation(int purchaseId, CompensationType compensationType, int amount, int renewals)
+        public static Compensation InsertSubscriptionCompernsation(int groupId, long householdId, int purchaseId, CompensationType compensationType, double amount, int renewals, long subscriptionId)
         {
-            int rowCount = 0;
+            Compensation compensation = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionCompernsation");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@purchaseId", purchaseId);
             sp.AddParameter("@compensationType", (int)compensationType);
             sp.AddParameter("@amount", amount);
             sp.AddParameter("@renewals", renewals);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@householdId", householdId);
+            sp.AddParameter("@subscriptionId", subscriptionId);
 
-            rowCount = sp.ExecuteReturnValue<int>();
-            return rowCount > 0;
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                compensation = BuildCompensation(dt.Rows[0]);
+            }
+
+            return compensation;
         }
 
         public static Compensation GetSubscriptionCompensation(long purchaseId)
@@ -2792,15 +2801,35 @@ namespace DAL
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                compensation = new Compensation()
-                {
-                    Amount = ODBCWrapper.Utils.GetIntSafeVal("AMOUNT"),
-                    TotalRenewals = ODBCWrapper.Utils.GetIntSafeVal("TOTAL_RENEWALS"),
-                    Renewals = ODBCWrapper.Utils.GetIntSafeVal("RENEWALS"),
-                    CompensationType = (CompensationType)ODBCWrapper.Utils.GetIntSafeVal("COMPENSATION_TYPE"),
-                };
+                compensation = BuildCompensation(dt.Rows[0]);
             }
             return compensation;
+        }
+
+        public static bool UpdateSubscriptionCompernsationUse(long subscriptionCompernsationId, long transactionId, int renewalNumber)
+        {
+            int rowCount = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionCompernsationUse");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@subscriptionCompernsationId", subscriptionCompernsationId);
+            sp.AddParameter("@transactionId", transactionId);
+            sp.AddParameter("@renewalNumber", renewalNumber);
+
+            rowCount = sp.ExecuteReturnValue<int>();
+            return rowCount > 0;
+        }
+
+        private static Compensation BuildCompensation(DataRow row)
+        {
+            return new Compensation()
+            {
+                Amount = ODBCWrapper.Utils.GetIntSafeVal(row, "AMOUNT"),
+                TotalRenewals = ODBCWrapper.Utils.GetIntSafeVal(row, "TOTAL_RENEWALS"),
+                Renewals = ODBCWrapper.Utils.GetIntSafeVal(row, "RENEWALS"),
+                CompensationType = (CompensationType)ODBCWrapper.Utils.GetIntSafeVal(row, "COMPENSATION_TYPE"),
+                Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                SubscriptionId = ODBCWrapper.Utils.GetIntSafeVal(row, "SUBSCRIPTION_ID"),
+            };
         }
     }
 }

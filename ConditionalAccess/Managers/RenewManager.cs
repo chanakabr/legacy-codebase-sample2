@@ -351,6 +351,16 @@ namespace ConditionalAccess
                             {
                                 log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
                             }
+
+                            // update compensation use
+                            if (compensation != null)
+                            {
+                                if (!ConditionalAccessDAL.UpdateSubscriptionCompernsationUse(compensation.Id, transactionResponse.TransactionID, compensation.Renewals + 1))
+                                {
+                                    log.ErrorFormat("Failed to update subscription compensation use. compensationId = {0}, billingTransactionId = {1}, renewalNumber = {2}",
+                                        compensation.Id, transactionResponse.TransactionID, compensation.Renewals + 1);
+                                }
+                            }
                         }
                     }
                     break;

@@ -2779,7 +2779,7 @@ namespace ConditionalAccess
                                         priceValue = priceValue - (priceValue * compensation.Amount / 100);
                                         break;
                                     case CompensationType.FixedAmount:
-                                        priceValue = priceValue - compensation.Amount;
+                                        priceValue = Math.Max(priceValue - compensation.Amount, 0);
                                         break;
                                     default:
                                         break;
@@ -16180,9 +16180,9 @@ namespace ConditionalAccess
             return PlaybackManager.GetPlayManifest(this, m_nGroupID, userId, assetId, assetType, fileId, ip, udid, playContextType);
         }
 
-        public ApiObjects.Response.Status Compensate(string userId, int purchaseId, Compensation compensation)
+        public CompensationResponse AddCompensation(string userId, Compensation compensation)
         {
-            return EntitelemantManager.Compensate(this, m_nGroupID, userId, purchaseId, compensation);
+            return EntitelemantManager.AddCompensation(this, m_nGroupID, userId, compensation);
         }
     }
 }
