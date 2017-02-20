@@ -3686,7 +3686,12 @@ namespace ConditionalAccess
 
         internal static void PopulateDomainBundles(int domainId, int groupId, DomainEntitlements.BundleEntitlements domainBundleEntitlements)
         {
-            string pricingUsername = string.Empty, pricingPassword = string.Empty;
+            domainBundleEntitlements.ChannelsToCollectionsMappings = new Dictionary<int, List<Collection>>();
+            domainBundleEntitlements.ChannelsToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
+            domainBundleEntitlements.CollectionsData = new Dictionary<int, Collection>();
+            domainBundleEntitlements.SubscriptionsData = new Dictionary<int, Subscription>();
+            domainBundleEntitlements.FileTypeIdToSubscriptionMappings = new Dictionary<int, List<Subscription>>();
+            string pricingUsername = string.Empty, pricingPassword = string.Empty;            
             try
             {
                 GetWSCredentials(groupId, eWSModules.PRICING, ref pricingUsername, ref pricingPassword);
