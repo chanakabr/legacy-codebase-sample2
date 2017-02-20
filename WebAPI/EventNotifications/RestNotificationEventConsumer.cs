@@ -162,7 +162,7 @@ namespace WebAPI
             {
                 eventObject = ottObject,
                 eventAction = ConvertKalturaAction(actionEvent.Action),
-                objectType = actionEvent.Type
+                objectType = destination.Name
             };
 
             #endregion
@@ -208,10 +208,10 @@ namespace WebAPI
                     else
                     {
                         Task t = Task.Factory.StartNew(() =>
-                            {
-                                action.Handle(kalturaEvent, eventWrapper);
-                            }
-                            );
+                        {
+                            action.Handle(kalturaEvent, eventWrapper);
+                        }
+                        );
                     }
                 }
                 catch (Exception ex)
