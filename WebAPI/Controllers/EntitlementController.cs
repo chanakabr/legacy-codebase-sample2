@@ -494,40 +494,5 @@ namespace WebAPI.Controllers
 
             return response;
         }
-
-        /// <summary>
-        /// Compensates a household for a given number of iterations of a subscription renewal for a fixed amount / percentage of the renewal price.
-        /// </summary>
-        /// <param name="id">Purchase ID</param>
-        /// <param name="compensation">Compensation parameters</param>
-        /// <returns></returns>
-        [Route("compensate"), HttpPost]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.InvalidUser)]
-        [Throws(eResponseStatus.DomainSuspended)]
-        [Throws(eResponseStatus.InvalidPurchase)]
-        [Throws(eResponseStatus.SubscriptionNotRenewable)]
-        [Throws(eResponseStatus.NotEntitled)]
-        [Throws(eResponseStatus.NotEnoughRenewalsLeft)]
-        [Throws(eResponseStatus.CompensationIsHigherThanPrice)]
-        public bool Compensate(int id, KalturaCompensation compensation)
-        {
-            bool response = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            string userId = KS.GetFromRequest().UserId;
-
-            try
-            {
-                response = ClientsManager.ConditionalAccessClient().Compensate(groupId, userId, id, compensation);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
     }
 }

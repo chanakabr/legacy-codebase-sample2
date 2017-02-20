@@ -2091,10 +2091,10 @@ namespace WebAPI.Clients
             return response.Url;
         }
 
-        internal bool Compensate(int groupId, string userId, int purchaseId, KalturaCompensation compensation)
+        internal KalturaCompensation AddCompensation(int groupId, string userId, KalturaCompensation compensation)
         {
-            Status response = null;
-
+            CompensationResponse response = null;
+            
             Group group = GroupsManager.GetGroup(groupId);
             Compensation wsCompensation = Mapper.Map<Compensation>(compensation);
 
@@ -2102,8 +2102,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    // fire request
-                    response = ConditionalAccess.Compensate(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, purchaseId, wsCompensation);
+                    response = ConditionalAccess.AddCompensation(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, wsCompensation);
                 }
             }
             catch (Exception ex)
@@ -2111,18 +2110,17 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
-
             if (response == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
 
-            if (response.Code != (int)StatusCode.OK)
+            if (response.Status.Code != (int)StatusCode.OK)
             {
-                throw new ClientException((int)response.Code, response.Message);
+                throw new ClientException(response.Status.Code, response.Status.Message);
             }
-
-            return true;
+            // convert response
+            return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
         }
     }
 }

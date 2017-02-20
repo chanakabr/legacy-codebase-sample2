@@ -610,6 +610,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\CompensationController.cs" />
     <Compile Include="Controllers\ConfigurationGroupController.cs">
       <SubType>Code</SubType>
     </Compile>
