@@ -825,14 +825,14 @@ namespace ConditionalAccess
                 }
 
                 // get subscription
-                int subscriptionId = ODBCWrapper.Utils.GetIntSafeVal(subscriptionPurchaseRow, "SUBSCRIPTION_CODE");
-                Subscription subscription = Utils.GetSubscription(groupId, subscriptionId);
+                compensation.SubscriptionId = ODBCWrapper.Utils.GetIntSafeVal(subscriptionPurchaseRow, "SUBSCRIPTION_CODE");
+                Subscription subscription = Utils.GetSubscription(groupId, (int)compensation.SubscriptionId);
 
                 // validate subscription
                 if (subscription == null)
                 {
                     // subscription wasn't found
-                    log.Error(string.Format("subscription wasn't found. subscriptionId = {0}", subscriptionId));
+                    log.Error(string.Format("subscription wasn't found. subscriptionId = {0}", compensation.SubscriptionId));
                     return response;
                 }
 
@@ -862,12 +862,16 @@ namespace ConditionalAccess
                 }
 
                 // insert the compensation data
-                response.Compensation = ConditionalAccessDAL.InsertSubscriptionCompernsation(groupId, domainId, compensation.PurchaseId, compensation.CompensationType, compensation.Amount, 
-                    compensation.TotalRenewals, subscriptionId);
+                compensation.Id = ConditionalAccessDAL.InsertSubscriptionCompernsation(groupId, domainId, compensation.PurchaseId, compensation.CompensationType, compensation.Amount,
+                    compensation.TotalRenewals, compensation.SubscriptionId);
+                if (compensation.Id == 0)
                 {
                     log.DebugFormat("Failed to insert compensation data for userId = {0}, purchaseId = {1}", userId, compensation.PurchaseId);
                     return response;
                 }
+
+                response.Compensation = compensation;
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {

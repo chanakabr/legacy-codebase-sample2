@@ -2767,9 +2767,8 @@ namespace DAL
             return deviceName;
         }
 
-        public static Compensation InsertSubscriptionCompernsation(int groupId, long householdId, int purchaseId, CompensationType compensationType, double amount, int renewals, long subscriptionId)
+        public static long InsertSubscriptionCompernsation(int groupId, long householdId, int purchaseId, CompensationType compensationType, double amount, int renewals, long subscriptionId)
         {
-            Compensation compensation = null;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionCompernsation");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@purchaseId", purchaseId);
@@ -2780,14 +2779,7 @@ namespace DAL
             sp.AddParameter("@householdId", householdId);
             sp.AddParameter("@subscriptionId", subscriptionId);
 
-
-            DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                compensation = BuildCompensation(dt.Rows[0]);
-            }
-
-            return compensation;
+            return sp.ExecuteReturnValue<long>();
         }
 
         public static Compensation GetSubscriptionCompensation(long purchaseId)
