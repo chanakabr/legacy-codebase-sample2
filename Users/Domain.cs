@@ -41,7 +41,18 @@ namespace Users
         public int m_nDomainID;
 
         //Domain group_id        
-        public int m_nGroupID;
+        [JsonProperty()]
+        public int m_nGroupID
+        {
+            get
+            {
+                return this.GroupId;
+            }
+            set
+            {
+                this.GroupId = value;
+            }
+        }
 
         //Domain Max_Limit  = module_group_limit_id     
         public int m_nLimit;
