@@ -79,7 +79,7 @@ namespace WebAPI.Models.ConditionalAccess
 
         public void Validate()
         {
-            if (CompensationType == KalturaCompensationType.PERCENTAGE && Amount > 0)
+            if (CompensationType == KalturaCompensationType.PERCENTAGE && Amount > 100)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_MAX_VALUE_CROSSED, "KalturaCompensation.amount", 100);
             }
