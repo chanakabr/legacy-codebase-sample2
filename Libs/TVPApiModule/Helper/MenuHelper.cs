@@ -26,8 +26,12 @@ namespace TVPApi
             if (siteMap != null)
             {
                 List<Menu> menues = siteMap.Menues;
+                bool langInList = false;
+                menues.Select(m => m.MenuItems).ToList().ForEach(mi => mi.ForEach(r => { if (r.Culture == initObj.Locale.LocaleLanguage) langInList = true; }));
+                initObj.Locale.LocaleLanguage = (langInList) ? initObj.Locale.LocaleLanguage : "";
+
                 retVal = (from menu in menues
-                          where menu.ID == ID
+                          where menu.ID == ID && ((initObj.Locale.LocaleLanguage != "") ? menu.MenuItems.FirstOrDefault().Culture == initObj.Locale.LocaleLanguage : true)
                           select menu).FirstOrDefault();
             }
             return retVal;
