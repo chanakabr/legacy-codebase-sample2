@@ -162,7 +162,7 @@ namespace WebAPI
             {
                 eventObject = ottObject,
                 eventAction = ConvertKalturaAction(actionEvent.Action),
-                objectType = phoenixType
+                objectType = destination.Name
             };
 
             #endregion
