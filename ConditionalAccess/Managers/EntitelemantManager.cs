@@ -783,7 +783,7 @@ namespace ConditionalAccess
                 }
 
                 // make sure compensation doesn't already exists for purchaseId
-                Compensation currentCompensation = ConditionalAccessDAL.GetSubscriptionCompensation(compensation.PurchaseId);
+                Compensation currentCompensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(compensation.PurchaseId);
                 if (currentCompensation != null)
                 {
                     log.ErrorFormat("Compensation already exists for purchaseId = {0}", compensation.PurchaseId);
@@ -887,14 +887,48 @@ namespace ConditionalAccess
 
             try
             {
-                ConditionalAccessDAL.DeleteSubscriptionCompernsation(compensationId);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensation(compensationId);
+                if (compensation == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.CompensationNotFound, "Compensation not found");
+                    return response;
+                }
+                if (ConditionalAccessDAL.DeleteSubscriptionCompernsation(compensationId))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Error while deleting subscription compensation. ID = {0}", compensationId), ex);
             }
 
+            return response;
+        }
+
+        internal static CompensationResponse GetCompensation(BaseConditionalAccess cas, int groupId, long compensationId)
+        {
+            CompensationResponse response = new CompensationResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            try
+            {
+                response.Compensation = ConditionalAccessDAL.GetSubscriptionCompensation(compensationId);
+                if (response.Compensation == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CompensationNotFound, "Compensation not found");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while getting subscription compensation. ID = {0}", compensationId), ex);
+            }
 
             return response;
         }

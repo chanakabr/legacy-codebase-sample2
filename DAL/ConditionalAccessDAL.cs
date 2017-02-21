@@ -2782,10 +2782,10 @@ namespace DAL
             return sp.ExecuteReturnValue<long>();
         }
 
-        public static Compensation GetSubscriptionCompensation(long purchaseId)
+        public static Compensation GetSubscriptionCompensationByPurchaseId(long purchaseId)
         {
             Compensation compensation = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensation");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensationByPurchaseId");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@purchaseId", purchaseId);
             
@@ -2835,5 +2835,20 @@ namespace DAL
             return rowCount > 0;
         }
 
+        public static Compensation GetSubscriptionCompensation(long id)
+        {
+            Compensation compensation = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensation");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@id", id);
+
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                compensation = BuildCompensation(dt.Rows[0]);
+            }
+            return compensation;
+        }
     }
 }

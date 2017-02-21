@@ -16189,5 +16189,10 @@ namespace ConditionalAccess
         {
             return EntitelemantManager.DeleteCompensation(this, m_nGroupID, compensationId);
         }
+
+        public CompensationResponse GetCompensation(long compensationId)
+        {
+            return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
+        }
     }
 }

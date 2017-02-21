@@ -270,7 +270,7 @@ namespace ConditionalAccess
             paymentNumber++;
 
             // get compensation data
-            Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensation(purchaseId);
+            Compensation compensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(purchaseId);
 
             // get MPP
             int recPeriods = 0;
