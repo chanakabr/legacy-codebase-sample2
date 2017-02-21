@@ -453,7 +453,14 @@
         </member>
         <member name="M:WebAPI.Controllers.CompensationController.Delete(System.Int64)">
             <summary>
-            Deletes a compensation by identifier
+            Delete a compensation by identifier
+            </summary>
+            <param name="id">Compensation identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.CompensationController.Get(System.Int64)">
+            <summary>
+            Get a compensation by identifier
             </summary>
             <param name="id">Compensation identifier</param>
             <returns></returns>
