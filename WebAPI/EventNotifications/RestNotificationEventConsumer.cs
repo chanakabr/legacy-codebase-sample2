@@ -136,8 +136,6 @@ namespace WebAPI
 
             #region Convert object
 
-            Type source = actionEvent.Object.GetType();
-
             string phoenixType = string.Empty;
 
             // by default - phoenix type is from general defintiion
@@ -152,18 +150,7 @@ namespace WebAPI
                 phoenixType = specificNotification.PhoenixType;
             }
 
-            // Get the phoenix type Type
-            Type destination = Type.GetType(phoenixType);
-
-            // convert the WS object to an API/rest/phoenixObject
-            object phoenixObject = AutoMapper.Mapper.Map(actionEvent.Object, source, destination);
-            KalturaOTTObject ottObject = phoenixObject as KalturaOTTObject;
-            KalturaEventWrapper eventWrapper = new KalturaEventWrapper()
-            {
-                eventObject = ottObject,
-                eventAction = ConvertKalturaAction(actionEvent.Action),
-                objectType = destination.Name
-            };
+            var eventWrapper = EventConverter.ConvertEvent(phoenixType, actionEvent);
 
             #endregion
 
@@ -191,7 +178,7 @@ namespace WebAPI
                             // Only for active/enabled conditions
                             if (condition.Status == 1)
                             {
-                                conditionResult &= condition.Evaluate(kalturaEvent, phoenixObject);
+                                conditionResult &= condition.Evaluate(kalturaEvent, eventWrapper.eventObject);
                             }
                         }
                     }
@@ -227,68 +214,6 @@ namespace WebAPI
             result = true;
 
             return result;
-        }
-
-        private KalturaEventAction ConvertKalturaAction(eKalturaEventActions eKalturaEventActions)
-        {
-            KalturaEventAction action = KalturaEventAction.None;
-            switch (eKalturaEventActions)
-            {
-                case eKalturaEventActions.None:
-                {
-                    action = KalturaEventAction.None;
-                    break;
-                }
-                case eKalturaEventActions.Added:
-                {
-                    action = KalturaEventAction.Added;
-                    break;
-                }
-                case eKalturaEventActions.Changed:
-                {
-                    action = KalturaEventAction.Changed;
-                    break;
-                }
-                case eKalturaEventActions.Copied:
-                {
-                    action = KalturaEventAction.Copied;
-                    break;
-                }
-                case eKalturaEventActions.Created:
-                {
-                    action = KalturaEventAction.Created;
-                    break;
-                }
-                case eKalturaEventActions.Deleted:
-                {
-                    action = KalturaEventAction.Deleted;
-                    break;
-                }
-                case eKalturaEventActions.Erased:
-                {
-                    action = KalturaEventAction.Erased;
-                    break;
-                }
-                case eKalturaEventActions.Saved:
-                {
-                    action = KalturaEventAction.Saved;
-                    break;
-                }
-                case eKalturaEventActions.Updated:
-                {
-                    action = KalturaEventAction.Updated;
-                    break;
-                }
-                case eKalturaEventActions.Replaced:
-                {
-                    action = KalturaEventAction.Replaced;
-                    break;
-                }
-                default:
-                break;
-            }
-
-            return action;
         }
 
         #endregion
