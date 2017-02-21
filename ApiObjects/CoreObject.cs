@@ -78,7 +78,9 @@ namespace ApiObjects
             {
                 EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
                     this.GroupId,
-                    this.Id));
+                    this.Id,
+                    null,
+                    this));
             }
 
             return result;

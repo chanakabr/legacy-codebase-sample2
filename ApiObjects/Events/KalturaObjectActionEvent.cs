@@ -36,9 +36,8 @@ namespace ApiObjects
 
         #endregion
 
-        public KalturaObjectActionEvent(int groupId = 0, ApiObjects.CoreObject coreObject = null, 
-            eKalturaEventActions action = eKalturaEventActions.None, string type = null)
-            : base (groupId, coreObject, type)
+        public KalturaObjectActionEvent(int groupId = 0, ApiObjects.CoreObject coreObject = null, eKalturaEventActions action = eKalturaEventActions.None, string type = null) : 
+            base(groupId, coreObject, type)
         {
             this.action = action;
         }
