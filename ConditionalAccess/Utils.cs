@@ -6901,6 +6901,22 @@ namespace ConditionalAccess
             return res;
         }
 
+        internal static string GetIP2CountryCode(int groupId, string ip)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Code : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
         internal static int GetIP2CountryId(int groupId, string ip)
         {
             int res = 0;

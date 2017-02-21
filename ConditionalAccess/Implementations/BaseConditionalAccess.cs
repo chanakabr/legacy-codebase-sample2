@@ -6845,17 +6845,15 @@ namespace ConditionalAccess
             }
             return ret;
         }
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
+            return GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, "");
         }
 
         /// <summary>
         /// Get Items Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid, string ip, string currency = null)
         {
             string sFirstDeviceNameFound = string.Empty;
             mdoule objPricingModule = null;
@@ -6867,8 +6865,9 @@ namespace ConditionalAccess
             string wsUsersUsername = string.Empty;
             string wsUsersPassword = string.Empty;
             bool bCancellationWindow = false;
+            string countryCode = string.Empty;
             try
-            {
+            {                
                 MediaFilePPVContainer[] oModules = null;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
@@ -6876,14 +6875,14 @@ namespace ConditionalAccess
 
                 // get details about files + media (validity about files)    
                 Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles, ref mediaFilesProductCode, m_nGroupID);
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(mediaFiles, ref mediaFilesProductCode, m_nGroupID);
 
                 //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
                 List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();
                 MediaFileItemPricesContainer tempItemPricesContainer = null;
 
                 List<int> notForPurchaseFiles = validMediaFiles.Where(x => x.Value == MediaFileStatus.NotForPurchase).Select(x => x.Key).ToList();
-                nMediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
+                mediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
 
                 foreach (int mf in notForPurchaseFiles)
                 {
@@ -6895,29 +6894,30 @@ namespace ConditionalAccess
                     tempItemPricesContainer.m_sProductCode = string.Empty;
                     tempRet.Add(tempItemPricesContainer);
                 }
-                if (nMediaFiles.Count() == 0) // all file not for purchase - return
+                if (mediaFiles.Count() == 0) // all file not for purchase - return
                 {
                     ret = tempRet.ToArray();
                     return ret;
                 }
 
                 InitializePricingModule(ref objPricingModule);
-                oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, nMediaFiles, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                countryCode = Utils.GetIP2CountryCode(m_nGroupID, ip);
+                oModules = objPricingModule.GetPPVModuleListForMediaFilesWithExpiry(sPricingUsername, sPricingPassword, mediaFiles, countryCode, languageCode, udid);
 
                 if (oModules != null && oModules.Length > 0)
                 {
                     ret = new MediaFileItemPricesContainer[oModules.Length];
                     MeidaMaper[] mapper = null;
                     int domainID = 0;
-                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(sUserGUID, m_nGroupID, ref domainID);
+                    List<int> allUsersInDomain = Utils.GetAllUsersDomainBySiteGUID(userId, m_nGroupID, ref domainID);
                     DomainSuspentionStatus userSuspendStatus = DomainSuspentionStatus.OK;
                     DomainEntitlements domainEntitlements = null;
 
                     // check if user is valid
-                    if (Utils.IsUserValid(sUserGUID, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == DomainSuspentionStatus.OK)
+                    if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus) && userSuspendStatus == DomainSuspentionStatus.OK)
                     {
                         // create mapper
-                        mapper = Utils.GetMediaMapper(m_nGroupID, nMediaFiles, sAPIUsername, sAPIPassword);
+                        mapper = Utils.GetMediaMapper(m_nGroupID, mediaFiles, sAPIUsername, sAPIPassword);
                         // Get all user entitlements
                         if (!Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainID, mapper, ref domainEntitlements))
                         {
@@ -6927,7 +6927,7 @@ namespace ConditionalAccess
                     // set sUserGUID to empty for Utils.GetMediaFileFinalPrice logic
                     else
                     {
-                        sUserGUID = string.Empty;
+                        userId = string.Empty;
                     }
 
                     // set max amount of concurrent tasks
@@ -6977,6 +6977,11 @@ namespace ConditionalAccess
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
                                 string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
+                                // Get PPV price code according to currency if it's different than the currency in the request
+                                if (!string.IsNullOrEmpty(currency) && currency != ppvModules[j].PPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3)
+                                {
+                                    ppvModules[j].PPVModule.m_oPriceCode = objPricingModule.GetPriceCodeDataWIthCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID.ToString(), countryCode, languageCode, udid, currency);
+                                }
 
                                 PriceReason theReason = PriceReason.UnKnown;
                                 Subscription relevantSub = null;
@@ -6989,9 +6994,9 @@ namespace ConditionalAccess
                                 DateTime? dtEntitlementEndDate = null;
                                 DateTime? dtDiscountEndDate = null;
 
-                                Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, sUserGUID, sCouponCode, m_nGroupID,
-                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
-                                    sClientIP, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
+                                Price p = Utils.GetMediaFileFinalPrice(nMediaFileID, validMediaFiles[nMediaFileID], ppvModules[j].PPVModule, userId, couponCode, m_nGroupID,
+                                    ppvModules[j].IsValidForPurchase, ref theReason, ref relevantSub, ref relevantCol, ref relevantPrePaid, ref sFirstDeviceNameFound, countryCode, languageCode, udid,
+                                    ip, null, allUsersInDomain, nMediaFileTypeID, sAPIUsername, sAPIPassword, sPricingUsername, sPricingPassword, ref bCancellationWindow, ref purchasedBySiteGuid,
                                     ref purchasedAsMediaFileID, ref relatedMediaFileIDs, ref dtEntitlementStartDate, ref dtEntitlementEndDate, ref dtDiscountEndDate, domainID, domainEntitlements, mediaID, userSuspendStatus, false);
 
                                 sProductCode = mediaFilesProductCode[nMediaFileID];
@@ -7006,7 +7011,7 @@ namespace ConditionalAccess
                                 {
                                     isUserSuspended = true;
 
-                                    if (!bOnlyLowest)
+                                    if (!onlyLowest)
                                     {
                                         itemPriceCont.Add(tempItemPriceContainer);
                                     }
@@ -7023,7 +7028,7 @@ namespace ConditionalAccess
                                     bool isValidForPurchase = ppvModules[j].IsValidForPurchase;
                                     if (isValidForPurchase || (!isValidForPurchase && theReason == PriceReason.PPVPurchased))
                                     {
-                                        if (!bOnlyLowest)
+                                        if (!onlyLowest)
                                         {
                                             itemPriceCont.Add(tempItemPriceContainer);
                                         }
@@ -7054,7 +7059,7 @@ namespace ConditionalAccess
 
                             if (ppvModules.Length > 0 && itemPriceCont.Count == 0 && !isUserSuspended)
                             {
-                                if (bOnlyLowest)
+                                if (onlyLowest)
                                 {
                                     var tempItemPriceContainer = new ItemPriceContainer();
 
@@ -7093,7 +7098,7 @@ namespace ConditionalAccess
                 {
                     ret = new MediaFileItemPricesContainer[1];
                     MediaFileItemPricesContainer mc = new MediaFileItemPricesContainer();
-                    foreach (int mediaFileID in nMediaFiles)
+                    foreach (int mediaFileID in mediaFiles)
                     {
                         ItemPriceContainer freeContainer = new ItemPriceContainer();
                         freeContainer.m_PriceReason = PriceReason.Free;
@@ -7113,15 +7118,15 @@ namespace ConditionalAccess
             {
                 #region Logging
                 StringBuilder sb = new StringBuilder(String.Concat("GetItemsPrices Exception. Msg: ", ex.Message));
-                sb.Append(String.Concat(" SiteGuid: ", sUserGUID));
-                sb.Append(String.Concat(" Coupon Code: ", sCouponCode));
-                sb.Append(String.Concat(" OnlyLowest: ", bOnlyLowest.ToString().ToLower()));
-                if (nMediaFiles != null && nMediaFiles.Length > 0)
+                sb.Append(String.Concat(" SiteGuid: ", userId));
+                sb.Append(String.Concat(" Coupon Code: ", couponCode));
+                sb.Append(String.Concat(" OnlyLowest: ", onlyLowest.ToString().ToLower()));
+                if (mediaFiles != null && mediaFiles.Length > 0)
                 {
                     sb.Append(" Media Files: ");
-                    for (int i = 0; i < nMediaFiles.Length; i++)
+                    for (int i = 0; i < mediaFiles.Length; i++)
                     {
-                        sb.Append(String.Concat(nMediaFiles[i], " "));
+                        sb.Append(String.Concat(mediaFiles[i], " "));
                     }
                 }
                 else
@@ -7841,18 +7846,16 @@ namespace ConditionalAccess
         /// <summary>
         /// GetI tems Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
+            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, "");
         }
         /// <summary>
         /// GetI tems Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP = null)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP = null)
         {
-            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
+            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
         }
         /// <summary>
         /// Is Subscription Purchased
@@ -10761,8 +10764,7 @@ namespace ConditionalAccess
                     return res;
                 }
 
-                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sCountryCode,
-                    sLanguageCode, sDeviceName, sUserIP);
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sLanguageCode, sDeviceName, sUserIP);
 
                 if (prices != null && prices.Length > 0)
                 {
@@ -12223,7 +12225,7 @@ namespace ConditionalAccess
                 }
             }
 
-            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, false, countryCd2, languageCode3, deviceName, clientIP);
+            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, false, languageCode3, deviceName, clientIP);
 
             if (itemPrices == null)
             {
