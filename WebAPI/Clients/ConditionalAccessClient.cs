@@ -2123,7 +2123,7 @@ namespace WebAPI.Clients
             return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
         }
 
-        internal bool DeleteCompensation(int groupId, long compensationId)
+        internal void DeleteCompensation(int groupId, long compensationId)
         {
             Status response = null;
 
@@ -2151,8 +2151,6 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)response.Code, response.Message);
             }
-
-            return true;
         }
         
     }

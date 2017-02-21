@@ -415,8 +415,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.CompensationType, opt => opt.MapFrom(src => ConvertCompensationType(src.CompensationType)))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
-              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
-              .ForMember(dest => dest.Renewals, opt => opt.MapFrom(src => src.RenewalIterations));
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId));
 
             Mapper.CreateMap<Compensation, KalturaCompensation>()
               .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
@@ -425,7 +424,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
-              .ForMember(dest => dest.RenewalIterations, opt => opt.MapFrom(src => src.Renewals));
+              .ForMember(dest => dest.AppliedRenewalIterations, opt => opt.MapFrom(src => src.Renewals));
         }
 
         private static CompensationType ConvertCompensationType(KalturaCompensationType kalturaCompensationType)

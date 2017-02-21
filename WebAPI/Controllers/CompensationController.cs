@@ -58,22 +58,18 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(long id)
+        public void Delete(long id)
         {
-            bool response = false;
-
             int groupId = KS.GetFromRequest().GroupId;
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().DeleteCompensation(groupId, id);
+                ClientsManager.ConditionalAccessClient().DeleteCompensation(groupId, id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return response;
         }
     }
 }

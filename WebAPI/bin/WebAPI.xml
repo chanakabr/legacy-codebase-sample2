@@ -1033,7 +1033,7 @@
             The number of renewals for compensation
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.RenewalIterations">
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.AppliedRenewalIterations">
             <summary>
             The number of renewals the compensation was already applied on 
             </summary>

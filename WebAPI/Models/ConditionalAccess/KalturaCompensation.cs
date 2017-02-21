@@ -63,11 +63,11 @@ namespace WebAPI.Models.ConditionalAccess
         /// <summary>
         /// The number of renewals the compensation was already applied on 
         /// </summary>
-        [DataMember(Name = "renewalIterations")]
-        [JsonProperty("renewalIterations")]
-        [XmlElement(ElementName = "renewalIterations")]
+        [DataMember(Name = "appliedRenewalIterations")]
+        [JsonProperty("appliedRenewalIterations")]
+        [XmlElement(ElementName = "appliedRenewalIterations")]
         [SchemeProperty(ReadOnly = true)]
-        public int RenewalIterations { get; set; }
+        public int AppliedRenewalIterations { get; set; }
 
         /// <summary>
         /// Purchase identifier
