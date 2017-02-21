@@ -610,6 +610,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\CompensationController.cs" />
     <Compile Include="Controllers\ConfigurationGroupController.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -662,6 +663,7 @@
     <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCompensation.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />

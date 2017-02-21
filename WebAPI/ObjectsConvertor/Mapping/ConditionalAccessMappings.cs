@@ -408,6 +408,63 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ApiObjects.Response.Status, KalturaAccessControlMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => ((ApiObjects.Response.eResponseStatus)src.Code).ToString()))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+            Mapper.CreateMap<KalturaCompensation, Compensation>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.TotalRenewals, opt => opt.MapFrom(src => src.TotalRenewalIterations))
+              .ForMember(dest => dest.CompensationType, opt => opt.MapFrom(src => ConvertCompensationType(src.CompensationType)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId));
+
+            Mapper.CreateMap<Compensation, KalturaCompensation>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.TotalRenewalIterations, opt => opt.MapFrom(src => src.TotalRenewals))
+              .ForMember(dest => dest.CompensationType, opt => opt.MapFrom(src => ConvertCompensationType(src.CompensationType)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
+              .ForMember(dest => dest.AppliedRenewalIterations, opt => opt.MapFrom(src => src.Renewals));
+        }
+
+        private static CompensationType ConvertCompensationType(KalturaCompensationType kalturaCompensationType)
+        {
+            CompensationType result;
+
+            switch (kalturaCompensationType)
+            {
+                case KalturaCompensationType.PERCENTAGE:
+                    result = CompensationType.Percentage;
+                    break;
+                case KalturaCompensationType.FIXED_AMOUNT:
+                    result = CompensationType.FixedAmount;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown compensation type");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KalturaCompensationType ConvertCompensationType(CompensationType kalturaCompensationType)
+        {
+            KalturaCompensationType result;
+
+            switch (kalturaCompensationType)
+            {
+                case CompensationType.Percentage:
+                    result = KalturaCompensationType.PERCENTAGE;
+                    break;
+                case CompensationType.FixedAmount:
+                    result = KalturaCompensationType.FIXED_AMOUNT;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown compensation type");
+                    break;
+            }
+
+            return result;
         }
 
         private static int? GetNullableInt(int p)

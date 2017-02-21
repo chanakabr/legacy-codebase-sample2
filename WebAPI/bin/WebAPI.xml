@@ -443,6 +443,21 @@
             <returns></returns>
             <remarks>Possible status codes: CDN partner settings not found = 5025</remarks>   
         </member>
+        <member name="M:WebAPI.Controllers.CompensationController.Add(WebAPI.Models.ConditionalAccess.KalturaCompensation)">
+            <summary>
+            Adds a new compensation for a household for a given number of iterations of a subscription renewal for a fixed amount / percentage of the renewal price.
+            </summary>
+            <param name="id">Purchase ID</param>
+            <param name="compensation">Compensation parameters</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.CompensationController.Delete(System.Int64)">
+            <summary>
+            Deletes a compensation by identifier
+            </summary>
+            <param name="id">Compensation identifier</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.ConfigurationGroupController.Get(System.String)">
             <summary>
             Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration
@@ -986,6 +1001,51 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.IsInGracePeriod">
             <summary>
             Indicates whether the user is currently in his grace period entitlement (only for subscription)
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
+            <summary>
+            Compensation request parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.Id">
+            <summary>
+            Compensation identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.SubscriptionId">
+            <summary>
+            Subscription identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.CompensationType">
+            <summary>
+            Compensation type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.Amount">
+            <summary>
+            Compensation amount
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.TotalRenewalIterations">
+            <summary>
+            The number of renewals for compensation
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.AppliedRenewalIterations">
+            <summary>
+            The number of renewals the compensation was already applied on 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaCompensation.PurchaseId">
+            <summary>
+            Purchase identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensationType">
+            <summary>
+            Compensation type
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaDrmPlaybackPluginData.Scheme">

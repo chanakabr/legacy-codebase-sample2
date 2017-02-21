@@ -2090,5 +2090,68 @@ namespace WebAPI.Clients
 
             return response.Url;
         }
+
+        internal KalturaCompensation AddCompensation(int groupId, string userId, KalturaCompensation compensation)
+        {
+            CompensationResponse response = null;
+            
+            Group group = GroupsManager.GetGroup(groupId);
+            Compensation wsCompensation = Mapper.Map<Compensation>(compensation);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.AddCompensation(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, wsCompensation);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+            // convert response
+            return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
+        }
+
+        internal void DeleteCompensation(int groupId, long compensationId)
+        {
+            Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = ConditionalAccess.DeleteCompensation(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, compensationId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+        }
+        
     }
 }

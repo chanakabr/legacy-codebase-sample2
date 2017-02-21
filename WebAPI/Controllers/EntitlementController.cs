@@ -462,7 +462,6 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-
         /// <summary>        
         /// Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
         /// </summary>
@@ -476,7 +475,6 @@ namespace WebAPI.Controllers
         [Route("swap"), HttpPost]
         [ApiAuthorize]       
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-
         public bool Swap(int currentProductId, int newProductId, bool history)
         {
             bool response = false;
