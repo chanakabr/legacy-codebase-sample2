@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects
 {
+    [Serializable]
     public abstract class CoreObject
     {
         protected int GroupId
