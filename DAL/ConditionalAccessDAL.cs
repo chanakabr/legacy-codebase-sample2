@@ -2819,9 +2819,21 @@ namespace DAL
                 TotalRenewals = ODBCWrapper.Utils.GetIntSafeVal(row, "TOTAL_RENEWALS"),
                 Renewals = ODBCWrapper.Utils.GetIntSafeVal(row, "RENEWALS"),
                 CompensationType = (CompensationType)ODBCWrapper.Utils.GetIntSafeVal(row, "COMPENSATION_TYPE"),
-                Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
+                Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
                 SubscriptionId = ODBCWrapper.Utils.GetIntSafeVal(row, "SUBSCRIPTION_ID"),
             };
         }
+
+        public static bool DeleteSubscriptionCompernsation(long subscriptionCompernsationId)
+        {
+            int rowCount = 0;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteSubscriptionCompernsation");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@subscriptionCompernsationId", subscriptionCompernsationId);
+
+            rowCount = sp.ExecuteReturnValue<int>();
+            return rowCount > 0;
+        }
+
     }
 }

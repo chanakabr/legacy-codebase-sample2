@@ -880,5 +880,23 @@ namespace ConditionalAccess
 
             return response;
         }
+
+        internal static ApiObjects.Response.Status DeleteCompensation(BaseConditionalAccess cas, int groupId, long compensationId)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                ConditionalAccessDAL.DeleteSubscriptionCompernsation(compensationId);
+                response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error while deleting subscription compensation. ID = {0}", compensationId), ex);
+            }
+
+
+            return response;
+        }
     }
 }
