@@ -14,8 +14,8 @@ namespace ApiObjects
             set;
         }
 
-        public KalturaObjectDeletedEvent(int groupId = 0, long id = 0, string type = null) : 
-            base(groupId, null, eKalturaEventActions.Deleted, type)
+        public KalturaObjectDeletedEvent(int groupId = 0, long id = 0, string type = null, ApiObjects.CoreObject coreObject = null) : 
+            base(groupId, coreObject, eKalturaEventActions.Deleted, type)
         {
             this.Id = id;
         }
