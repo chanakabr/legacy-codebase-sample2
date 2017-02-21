@@ -633,6 +633,7 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EventNotifications\EventConverter.cs" />
     <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
     <Compile Include="EventNotifications\Handlers\HttpNotificationHandler.cs" />
     <Compile Include="EventNotifications\Handlers\RabbitQueueHandler.cs" />
