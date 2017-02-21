@@ -451,6 +451,13 @@
             <param name="compensation">Compensation parameters</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.CompensationController.Delete(System.Int64)">
+            <summary>
+            Deletes a compensation by identifier
+            </summary>
+            <param name="id">Compensation identifier</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.ConfigurationGroupController.Get(System.String)">
             <summary>
             Return the configuration group details, including group identifiers, tags, and number of associated devices, and list of device configuration

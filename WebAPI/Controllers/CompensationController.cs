@@ -50,5 +50,30 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Deletes a compensation by identifier
+        /// </summary>
+        /// <param name="id">Compensation identifier</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(long id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().DeleteCompensation(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
     }
 }
