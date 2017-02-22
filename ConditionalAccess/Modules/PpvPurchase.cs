@@ -52,8 +52,6 @@ namespace ConditionalAccess.Modules
                 this.purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(this.GroupId, this.contentId, this.siteGuid, this.price, this.currency, this.maxNumOfViews,
                                                                 this.customData, this.subscriptionCode, this.billingTransactionId, this.startDate.Value, this.endDate.Value,
                                                                 this.entitlementDate, this.country, string.Empty, this.deviceName, this.houseHoldId, this.billingGuid);
-                this.purchaseId = 0;
-
                 if (this.purchaseId > 0)
                 {
                     success = true;
