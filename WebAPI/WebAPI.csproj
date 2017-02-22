@@ -595,6 +595,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
     <Compile Include="clear_cache.aspx.cs">
