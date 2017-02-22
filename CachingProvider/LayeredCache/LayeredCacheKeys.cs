@@ -163,5 +163,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
+
+        public static string GetPriceCodeByCountryAndCurrencyKey(int groupId, int priceCodeId, string countryCode, string currencyCode)
+        {
+            return string.Format("g_{0}_pc_{1}_co_{2}_cu_{3}", groupId, priceCodeId, countryCode, currencyCode);
+        }
+
     }
 }

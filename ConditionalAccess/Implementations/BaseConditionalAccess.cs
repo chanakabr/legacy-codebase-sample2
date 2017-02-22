@@ -463,7 +463,6 @@ namespace ConditionalAccess
             }
         }
 
-
         /// <summary>
         /// Credit Card Charge User For PrePaid
         /// </summary>
@@ -477,6 +476,7 @@ namespace ConditionalAccess
 
 
         }
+
         /// <summary>
         /// Credit Card Charge User For Pre Paid
         /// </summary>
@@ -1642,6 +1642,7 @@ namespace ConditionalAccess
         {
             return InApp_BaseChargeUserForSubscription(sSiteGUID, dPrice, sCurrency, sProductCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, ReceiptData);
         }
+
         /// <summary>
         /// Renew Cacled Subscription
         /// </summary>
@@ -1799,6 +1800,7 @@ namespace ConditionalAccess
             }
             return bRet;
         }
+
         /// <summary>
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
         /// </summary>
@@ -2069,6 +2071,7 @@ namespace ConditionalAccess
             }
             return bRet;
         }
+
         /// <summary>
         /// Credit Card Renew Subscription
         /// </summary>
@@ -2806,7 +2809,6 @@ namespace ConditionalAccess
             }
         }
 
-
         /// <summary>
         /// Direct debit Renew Subscription
         /// </summary>
@@ -2928,7 +2930,6 @@ namespace ConditionalAccess
 
             return oBillingResponse;
         }
-
 
         protected void HandleMPPRenewalBillingFail(string sSiteGUID, string sSubscriptionCode, long lPurchaseID,
          BillingResponse br, string sCustomData)
@@ -3338,7 +3339,6 @@ namespace ConditionalAccess
             return u;
         }
 
-
         public BillingResponse CC_BaseMultiRenewSubscription(string sSiteGUID, double dPrice, string sCurrency,
            string sSubscriptionCode, string sUserIP, string sExtraParams, Int32 nPurchaseID, int nBillingMethod, Int32 nPaymentNumber,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
@@ -3453,6 +3453,7 @@ namespace ConditionalAccess
         /// Checks if there is recurring coupon definition on the subscription and if yes 
         /// activate the discount of the coupon on the price and return the updated price and the coupon code. 
         /// </summary> 
+        
         private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode)
         {
             try
@@ -3480,8 +3481,6 @@ namespace ConditionalAccess
                 log.Error("HandleRecurringCoupon error - , PurchaseID: " + nPurchaseID.ToString() + ",Exception:" + ex.ToString(), ex);
             }
         }
-
-
 
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
         {
@@ -3600,8 +3599,6 @@ namespace ConditionalAccess
             return isDeviceRecognized;
         }
 
-
-
         public virtual LicensedLinkResponse GetEPGLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, Int32 nMediaFileID, string sBasicLink, string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode)
         {
             return new LicensedLinkResponse();
@@ -3641,198 +3638,6 @@ namespace ConditionalAccess
 
             return res;
         }
-
-        /// <summary>
-        /// Handle Play Uses
-        /// </summary>
-        //protected void HandlePlayUses(MediaFileItemPricesContainer price, string sSiteGUID, Int32 nMediaFileID, string sUserIP, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME,
-        //                                string couponCode, long domainId)
-        //{
-        //    sCOUNTRY_CODE = GetCountryCodeForHandlePlayUses(sUserIP, sCOUNTRY_CODE);
-
-        //    int nReleventCollectionID = ExtractRelevantCollectionID(price);
-
-        //    HandleCouponUses(price.m_oItemPrices[0].m_relevantSub, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID,
-        //    price.m_oItemPrices[0].m_oPrice.m_dPrice, price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3,
-        //    nMediaFileID, couponCode, sUserIP,
-        //    sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, false, 0, nReleventCollectionID);
-
-        //    Int32 nRelPP = ExtractRelevantPrePaidID(price);
-
-        //    int domainID = 0;
-        //    List<int> lUsersIds = Utils.GetAllUsersInDomainBySiteGUIDIncludeDeleted(sSiteGUID, m_nGroupID, ref domainID);
-
-        //    if (IsPurchasedAsPurePPV(price))
-        //    {
-        //        string sPPVMCd = price.m_oItemPrices[0].m_sPPVModuleCode;
-
-        //        Int32 nIsCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
-        //        if (TVinciShared.WS_Utils.GetTcmBoolValue("ShouldUseLicenseLinkCache") && domainId > 0)
-        //        {
-        //            CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, nMediaFileID);
-        //            if (cachedEntitlementResults != null)
-        //            {
-        //                cachedEntitlementResults.EntitlementStartDate = GetStartDate(price);
-        //                cachedEntitlementResults.EntitlementEndDate = GetEndDate(price);
-        //                if (!Utils.InsertOrSetCachedEntitlementResults(domainId, nMediaFileID, cachedEntitlementResults))
-        //                {
-        //                    log.DebugFormat("Failed to insert cachedEntitlementResults, domainId: {0}, mediaFileId: {1}", domainID, nMediaFileID);
-        //                }
-        //            }
-        //        }
-        //        if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode,
-        //            sSiteGUID, nIsCreditDownloaded > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
-        //        {
-        //            // failed to insert ppv use.
-        //            throw new Exception(GetPPVUseInsertionFailureExMsg(nMediaFileID, price.m_oItemPrices[0].m_sPPVModuleCode, sSiteGUID,
-        //                nIsCreditDownloaded > 0, nRelPP, nReleventCollectionID));
-        //        }
-
-
-        //        long nPPVID = 0;
-        //        string sRelSub = string.Empty;
-        //        if (nIsCreditDownloaded == 1)
-        //        {
-        //            //sRelSub - the subscription that caused the price to be lower
-
-        //            nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
-        //            if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
-        //            {
-        //                nPPVID = InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
-        //                    price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelSub, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sPPVMCd,
-        //                    couponCode, sUserIP, domainID);
-        //            }
-
-        //            UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        string purchasingSiteGuid = GetPurchasingSiteGuid(price, sSiteGUID);
-        //        if (IsPurchasedAsPartOfSub(price))
-        //        {
-        //            // PPV purchased as part of Subscription
-
-        //            Int32 nIsCreditDownloaded = Utils.Bundle_DoesCreditNeedToDownloaded(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), m_nGroupID, eBundleType.SUBSCRIPTION) ? 1 : 0;
-
-        //            if (ConditionalAccessDAL.Insert_NewSubscriptionUse(m_nGroupID, price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, nMediaFileID,
-        //                sSiteGUID, nIsCreditDownloaded > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP) < 1)
-        //            {
-        //                // failed to insert subscription use
-        //                throw new Exception(GetSubUseInsertionFailureExMsg(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, nMediaFileID, sSiteGUID,
-        //                    nIsCreditDownloaded > 0, nRelPP));
-        //            }
-
-        //            //subscriptions_purchases
-        //            if (nIsCreditDownloaded == 1)
-        //            {
-        //                if (!ConditionalAccessDAL.Update_SubPurchaseNumOfUses(m_nGroupID, purchasingSiteGuid,
-        //                    price.m_oItemPrices[0].m_relevantSub.m_sObjectCode))
-        //                {
-        //                    // failed to update num of uses in subscriptions_purchases.
-        //                    #region Logging
-        //                    StringBuilder sb = new StringBuilder("Failed to update num of uses in subscriptions_purchases table. ");
-        //                    sb.Append(String.Concat("Sub Cd: ", price.m_oItemPrices[0].m_relevantSub.m_sObjectCode));
-        //                    sb.Append(String.Concat(" Site Guid: ", purchasingSiteGuid));
-        //                    sb.Append(String.Concat(" Group ID: ", m_nGroupID));
-        //                    sb.Append(String.Concat(" MF ID: ", nMediaFileID));
-
-        //                    log.Debug("CriticalError - " + sb.ToString());
-        //                    #endregion
-
-        //                }
-        //            }
-
-        //            string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(price.m_oItemPrices[0].m_relevantSub.m_sObjectCode, eTransactionType.Subscription);
-
-        //            Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, price.m_oItemPrices[0].m_relevantSub, null, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
-        //            if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, modifiedPPVModuleCode,
-        //                sSiteGUID, nIsCreditDownloaded1 > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
-        //            {
-        //                // failed to insert ppv use
-        //                throw new Exception(GetPPVUseInsertionFailureExMsg(nMediaFileID, modifiedPPVModuleCode, sSiteGUID,
-        //                    nIsCreditDownloaded1 > 0, nRelPP, nReleventCollectionID));
-        //            }
-
-        //            long nPPVID = 0;
-        //            if (nIsCreditDownloaded1 == 1)
-        //            {
-        //                string sRelSub = string.Empty;
-        //                nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelSub, lUsersIds, domainID);
-
-        //                if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
-        //                {
-        //                    nPPVID = InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
-        //                        price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelSub, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
-        //                        price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP, domainID);
-        //                }
-
-        //                UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // PPV purchased as part of Collection
-
-        //            Int32 nIsCreditDownloaded = Utils.Bundle_DoesCreditNeedToDownloaded(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), m_nGroupID, eBundleType.COLLECTION) ? 1 : 0;
-
-        //            //collections_uses
-
-        //            if (ConditionalAccessDAL.Insert_NewCollectionUse(m_nGroupID, price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, nMediaFileID,
-        //                sSiteGUID, nIsCreditDownloaded > 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME) < 1)
-        //            {
-        //                // failed to insert values in collections_uses
-        //                // throw here an exception
-        //                throw new Exception(GetColUseInsertionFailureMsg(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, nMediaFileID,
-        //                    sSiteGUID, nIsCreditDownloaded > 0, nRelPP));
-
-        //            }
-        //            if (nIsCreditDownloaded == 1)
-        //            {
-        //                if (!ConditionalAccessDAL.Update_ColPurchaseNumOfUses(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, purchasingSiteGuid, m_nGroupID))
-        //                {
-        //                    // failed to update num of uses in collections_purchases. logging
-        //                    #region Logging
-        //                    StringBuilder sb = new StringBuilder("Failed to increment num of uses in collections_purchases. ");
-        //                    sb.Append(String.Concat(" Col Code: ", price.m_oItemPrices[0].m_relevantCol.m_sObjectCode));
-        //                    sb.Append(String.Concat(" Group ID: ", m_nGroupID));
-        //                    sb.Append(String.Concat(" Site Guid: ", purchasingSiteGuid));
-
-        //                    log.Error("CriticalError - " + sb.ToString());
-        //                    #endregion
-        //                }
-        //            }
-
-        //            string modifiedPPVModuleCode = GetPPVModuleCodeForPPVUses(price.m_oItemPrices[0].m_relevantCol.m_sObjectCode, eTransactionType.Collection);
-
-        //            Int32 nIsCreditDownloaded1 = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, null, price.m_oItemPrices[0].m_relevantCol, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, lUsersIds, GetRelatedMediaFiles(price, nMediaFileID), domainId, nMediaFileID);
-
-        //            if (ConditionalAccessDAL.Insert_NewPPVUse(m_nGroupID, nMediaFileID, modifiedPPVModuleCode, sSiteGUID, nIsCreditDownloaded1 > 0,
-        //                sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, nRelPP, nReleventCollectionID) < 1)
-        //            {
-        //                // failed to insert ppv use
-        //                throw new Exception(GetPPVUseInsertionFailureExMsg(nMediaFileID, modifiedPPVModuleCode, sSiteGUID, nIsCreditDownloaded1 > 0,
-        //                    nRelPP, nReleventCollectionID));
-        //            }
-
-        //            long nPPVID = 0;
-        //            if (nIsCreditDownloaded1 == 1)
-        //            {
-        //                string sRelCol = string.Empty;
-        //                nPPVID = GetActivePPVPurchaseID(price.m_oItemPrices[0].m_lPurchasedMediaFileID > 0 ? new List<int>(1) { price.m_oItemPrices[0].m_lPurchasedMediaFileID } : new List<int>(1) { nMediaFileID }, ref sRelCol, lUsersIds, domainID);
-
-        //                if (nPPVID == 0 && !string.IsNullOrEmpty(couponCode))
-        //                {
-        //                    nPPVID = InsertPPVPurchases(sSiteGUID, nMediaFileID, price.m_oItemPrices[0].m_oPrice.m_dPrice,
-        //                        price.m_oItemPrices[0].m_oPrice.m_oCurrency.m_sCurrencyCD3, sRelCol, 0, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME,
-        //                        price.m_oItemPrices[0].m_sPPVModuleCode, couponCode, sUserIP, domainID);
-        //                }
-
-        //                UpdatePPVPurchases(nPPVID, price.m_oItemPrices[0].m_sPPVModuleCode, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME);
-        //            }
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// Get Active Collection Purchase ID
@@ -4221,6 +4026,7 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
         /// <summary>
         /// Get User CA Sub Status
         /// </summary>
@@ -4228,6 +4034,7 @@ namespace ConditionalAccess
         {
             return false;
         }
+
         /// <summary>
         /// Get User CA Status
         /// </summary>
@@ -4324,6 +4131,7 @@ namespace ConditionalAccess
                 return intUsersList;
             }
         }
+
         /// <summary>
         /// Get Domain Permitted Items
         /// </summary>
@@ -4333,6 +4141,7 @@ namespace ConditionalAccess
 
             return GetUserPermittedItems(intUsersList, false, 0, nDomainID);
         }
+
         /// <summary>
         /// Get Domain Permitted Subscriptions
         /// </summary>
@@ -4342,6 +4151,7 @@ namespace ConditionalAccess
 
             return GetUserPermittedSubscriptions(intUsersList, false, 0, nDomainID);
         }
+
         /// <summary>
         /// Get Domain Permitted Collections
         /// </summary>
@@ -4351,6 +4161,7 @@ namespace ConditionalAccess
 
             return GetUserPermittedCollections(intUsersList, false, 0, nDomainID);
         }
+
         /// <summary>
         /// Get User Permitted Items
         /// </summary>
@@ -4376,6 +4187,7 @@ namespace ConditionalAccess
 
             return res;
         }
+
         /// <summary>
         /// Get User Permitted Items
         /// </summary>
@@ -4522,6 +4334,7 @@ namespace ConditionalAccess
 
             return response;
         }
+
         /// <summary>
         /// Get User Permitted Collections
         /// </summary>
@@ -4529,6 +4342,7 @@ namespace ConditionalAccess
         {
             return GetUserPermittedCollections(new List<int>() { int.Parse(sSiteGUID) }, false, 0);
         }
+
         /// <summary>
         /// Get User Permitted Collections
         /// </summary>
@@ -4667,6 +4481,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get User Permitted Subscriptions
         /// </summary>
+        
         public virtual PermittedSubscriptionContainer[] GetUserPermittedSubscriptions(List<int> usersIdList, bool isExpired, int numOfItems, int domainID = 0, bool shouldCheckByDomain = true)
         {
             PermittedSubscriptionContainer[] ret = null;
@@ -4802,7 +4617,6 @@ namespace ConditionalAccess
             return ret;
         }
 
-
         /// <summary>
         /// Split Refference
         /// </summary>
@@ -4821,6 +4635,7 @@ namespace ConditionalAccess
                     sPPVCode = sHeader.Substring(8);
             }
         }
+
         /// <summary>
         /// SMS Check Code For Media File
         /// </summary>
@@ -5003,6 +4818,7 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
         /// <summary>
         /// SMS Check Code For Subscription
         /// </summary>
@@ -5159,7 +4975,6 @@ namespace ConditionalAccess
             return ret;
         }
 
-
         /// <summary>
         /// Credit Card Charge User For Media File
         /// </summary>
@@ -5168,7 +4983,6 @@ namespace ConditionalAccess
         {
             return Cellular_BaseChargeUserForMediaFile(sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy);
         }
-
 
         /// <summary>
         /// Credit Card Charge User For Media File
@@ -5180,6 +4994,7 @@ namespace ConditionalAccess
             return CC_BaseChargeUserForMediaFile(sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters,
                 sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy, sPaymentMethodID, sEncryptedCVV);
         }
+
         protected BillingResponse CC_BaseChargeUserForMediaFile(string sSiteGUID, double dPrice, string sCurrency,
            Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode, string sUserIP, string sExtraParameters,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy, string sPaymentMethodID, string sEncryptedCVV)
@@ -5450,7 +5265,6 @@ namespace ConditionalAccess
             return oResponse;
         }
 
-
         /// <summary>
         /// InApp Charge User For Media File
         /// </summary>
@@ -5459,11 +5273,10 @@ namespace ConditionalAccess
         {
             return InApp_BaseChargeUserForMediaFile(sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sRecieptCode);
         }
+
         /// <summary>
         /// Get PPV CustomData ID
         /// </summary>
-
-
         public virtual int GetPPVCustomDataID(string sSiteGUID, double dPrice, string sCurrency,
             Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode, string sCampaignCode, string sPaymentMethod, string sUserIP,
             string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
@@ -5607,6 +5420,7 @@ namespace ConditionalAccess
             sb.Append(String.Concat(" BaseConditionalAccess is:", this.GetType().Name));
             return sb.ToString();
         }
+
         /// <summary>
         /// Get PrePaid Custom DataID
         /// </summary>
@@ -5709,33 +5523,29 @@ namespace ConditionalAccess
             }
             return retVal;
         }
+
         /// <summary>
         /// Get Subscription Custom Data ID
         /// </summary>
-        public virtual int GetSubscriptionCustomDataID(string sSiteGUID, double dPrice,
-    string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
-    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual int GetSubscriptionCustomDataID(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod,
+                                                        string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetBundleCustomDataID(sSiteGUID, dPrice,
-            sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP,
-            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, eBundleType.SUBSCRIPTION);
+            return GetBundleCustomDataID(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP, sCountryCd, sLANGUAGE_CODE,
+                                            sDEVICE_NAME, string.Empty, string.Empty, eBundleType.SUBSCRIPTION);
         }
 
         /// <summary>
         /// Get Subscription Custom Data ID
         /// </summary>
-        public virtual int GetCollectionCustomDataID(string sSiteGUID, double dPrice,
-    string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
-    string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual int GetCollectionCustomDataID(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCampaignCode, string sCouponCode, string sPaymentMethod,
+                                                        string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetBundleCustomDataID(sSiteGUID, dPrice,
-            sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP,
-            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, string.Empty, eBundleType.COLLECTION);
+            return GetBundleCustomDataID(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCampaignCode, sCouponCode, sPaymentMethod, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME,
+                                            string.Empty, string.Empty, eBundleType.COLLECTION);
         }
 
-        public virtual int GetBundleCustomDataID(string sSiteGUID, double dPrice,
-            string sCurrency, string sBundleCode, string sCampaignCode, string sCouponCode, string sPaymentMethod, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID, eBundleType bundleType)
+        public virtual int GetBundleCustomDataID(string sSiteGUID, double dPrice, string sCurrency, string sBundleCode, string sCampaignCode, string sCouponCode, string sPaymentMethod,
+                                                string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEnddate, string sPreviewModuleID, eBundleType bundleType)
         {
             int retVal = 0;
             long lSiteGuid = 0;
@@ -5892,9 +5702,8 @@ namespace ConditionalAccess
         /// <summary>
         /// PU Get PPV Popup Payment Method URL
         /// </summary>
-        public virtual BillingResponse PU_GetPPVPopupPaymentMethodURL(string sSiteGUID, double dPrice, string sCurrency,
-            Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode, string sPaymentMethod, string sExtraParameters,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual BillingResponse PU_GetPPVPopupPaymentMethodURL(string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCouponCode,
+                                                                        string sPaymentMethod, string sExtraParameters, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             BillingResponse ret = new BillingResponse();
             ret.m_oStatus = BillingResponseStatus.UnKnown;
@@ -6135,12 +5944,12 @@ namespace ConditionalAccess
             }
             return ret;
         }
+        
         /// <summary>
         /// PU Get Subscription Popup Payment Method URL
         /// </summary>
-        public virtual BillingResponse PU_GetSubscriptionPopupPaymentMethodURL(string sSiteGUID, double dPrice,
-            string sCurrency, string sSubscriptionCode, string sCouponCode, string sPaymentMethod, string sExtraParameters,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual BillingResponse PU_GetSubscriptionPopupPaymentMethodURL(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sPaymentMethod,
+                                                                                string sExtraParameters, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             BillingResponse ret = new BillingResponse();
             if (sSiteGUID == "")
@@ -6284,11 +6093,12 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
         /// <summary>
         /// Credit Card Charge User For Subscription
         /// </summary>
-        public virtual BillingResponse Cellular_ChargeUserForSubscription(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParams,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy)
+        public virtual BillingResponse Cellular_ChargeUserForSubscription(string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP,
+                                                                            string sExtraParams, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy)
         {
             return Cellular_BaseChargeUserForSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, bDummy);
         }
@@ -6853,7 +6663,7 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Items Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid, string ip, string currency = null)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid, string ip, string currencyCode = null)
         {
             string sFirstDeviceNameFound = string.Empty;
             mdoule objPricingModule = null;
@@ -6977,10 +6787,19 @@ namespace ConditionalAccess
                             for (int j = 0; j < ppvModules.Length; j++)
                             {
                                 string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
-                                // Get PPV price code according to currency if it's different than the currency in the request
-                                if (!string.IsNullOrEmpty(currency) && currency != ppvModules[j].PPVModule.m_oPriceCode.m_oPrise.m_oCurrency.m_sCurrencyCD3)
+                                // Get PPV price code according to country and currency (if exists on the request)
+                                if ((!string.IsNullOrEmpty(currencyCode) && Utils.IsValidCurrencyCode(currencyCode)) || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
                                 {
-                                    ppvModules[j].PPVModule.m_oPriceCode = objPricingModule.GetPriceCodeDataWIthCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID.ToString(), countryCode, languageCode, udid, currency);
+                                    PriceCode priceCodeWithCurrency = objPricingModule.GetPriceCodeByCountyAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
+                                    if (priceCodeWithCurrency != null)
+                                    {
+                                        ppvModules[j].PPVModule.m_oPriceCode = priceCodeWithCurrency;
+                                    }
+                                    else
+                                    {
+                                        // return error
+                                        throw new Exception("priceCode not found");
+                                    }
                                 }
 
                                 PriceReason theReason = PriceReason.UnKnown;
@@ -7209,7 +7028,6 @@ namespace ConditionalAccess
             pm = new mdoule();
         }
 
-
         protected internal void InitializeBillingModule(ref module bm, ref string sWSUsername, ref string sWSPassword)
         {
             Utils.GetWSCredentials(m_nGroupID, eWSModules.BILLING, ref sWSUsername, ref sWSPassword);
@@ -7272,6 +7090,7 @@ namespace ConditionalAccess
                 }
             }
         }
+
         /// <summary>
         /// Get Media Title
         /// </summary>
@@ -7301,38 +7120,6 @@ namespace ConditionalAccess
             }
             return sRet;
         }
-
-
-        /*
-        /// <summary>
-        /// Get Safe Double
-        /// </summary>
-        protected double GetSafeDouble(object o)
-        {
-            try
-            {
-                return double.Parse(o.ToString());
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-        /// <summary>
-        /// Get Safe Int
-        /// </summary>
-        protected Int32 GetSafeInt(object o)
-        {
-            try
-            {
-                return int.Parse(o.ToString());
-            }
-            catch
-            {
-                return 0;
-            }
-        }
-        */
 
         /// <summary>
         /// Get Domains Billing History
@@ -7850,6 +7637,7 @@ namespace ConditionalAccess
         {
             return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, "");
         }
+
         /// <summary>
         /// GetI tems Prices
         /// </summary>
@@ -7857,6 +7645,7 @@ namespace ConditionalAccess
         {
             return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
         }
+
         /// <summary>
         /// Is Subscription Purchased
         /// </summary>
@@ -7864,6 +7653,7 @@ namespace ConditionalAccess
         {
             return true;
         }
+
         /// <summary>
         /// Is Item Permitted
         /// </summary>
@@ -7875,10 +7665,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Handle Coupon Uses
         /// </summary>
-        protected internal virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode,
-            string sSiteGUID, double dPrice, string sCurrency,
-            Int32 nMediaFileID, string sCouponCode, string sUserIP,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection)
+        protected internal virtual void HandleCouponUses(Subscription relevantSub, string sPPVModuleCode, string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, string sCouponCode,
+                                                        string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bFromPurchase, int nPrePaidCode, Int32 relevantCollection)
         {
             if (!string.IsNullOrEmpty(sCouponCode))
             {
@@ -7950,10 +7738,9 @@ namespace ConditionalAccess
         /// <summary>
         /// Get CustomData string  
         /// </summary>
-        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
-               string sSiteGUID, double dPrice, string sCurrency,
-               Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP,
-               string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
+        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign, string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID,
+                                                        Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE,
+                                                        string sDEVICE_NAME, string sOverrideEndDate)
         {
             StringBuilder sb = new StringBuilder();
             sb.Append("<customdata type=\"pp\">");
@@ -8027,9 +7814,9 @@ namespace ConditionalAccess
         }
 
         // Get CustomData string
-        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
-                                               string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode,
-                                               string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign, string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID,
+                                                        Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE,
+                                                        string sDEVICE_NAME)
         {
             return GetCustomData(relevantSub, thePPVModule, campaign, sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode,
                                  sCampaignCode, sCouponCode, sUserIP, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
@@ -8299,6 +8086,7 @@ namespace ConditionalAccess
         {
             return PP_BaseChargeUserForMediaFile(sSiteGUID, dPrice, sCurrency, nMediaFileID, nMediaID, sPPVModuleCode, sCouponCode, sUserIP, sExtraParameters, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
         }
+
         /// <summary>
         /// PP Base Charge User For Media File
         /// </summary>
@@ -8645,6 +8433,7 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
         /// <summary>
         /// PP Charge User For Subscription
         /// </summary>
@@ -8653,6 +8442,7 @@ namespace ConditionalAccess
         {
             return PP_BaseChargeUserForSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, sCouponCode, sUserIP, sExtraParams, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
         }
+
         /// <summary>
         /// PP Base Charge User For Subscription
         /// </summary>
@@ -8958,6 +8748,7 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
         /// <summary>
         /// Get User Pre Paid Status
         /// </summary>
@@ -8967,6 +8758,7 @@ namespace ConditionalAccess
             UserPPs.Initialize(sSiteGUID, sCurrency);
             return UserPPs;
         }
+
         /// <summary>
         /// Update PP Purchase
         /// </summary>
@@ -8991,12 +8783,12 @@ namespace ConditionalAccess
             }
 
         }
+
         /// <summary>
         /// Insert PP Uses Record
         /// </summary>
-        private void InsertPPUsesRecord(Int32 nPurchaseID, Int32 nItemID, BillingItemsType eItemType, string sSiteGUID, string sCurrency, Int32 nPPCD, Int32 nPPPurchaseID,
-            double dPrice, double dCredit,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        private void InsertPPUsesRecord(Int32 nPurchaseID, Int32 nItemID, BillingItemsType eItemType, string sSiteGUID, string sCurrency, Int32 nPPCD, Int32 nPPPurchaseID, double dPrice, double dCredit,
+                                        string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             ODBCWrapper.InsertQuery insertQuery = null;
             try
@@ -9033,6 +8825,7 @@ namespace ConditionalAccess
             }
 
         }
+
         /// <summary>
         /// Get User PrePaidS History
         /// </summary>
@@ -9233,6 +9026,7 @@ namespace ConditionalAccess
 
             return theResp;
         }
+
         /// <summary>
         /// Get Item Left View Life Cycle
         /// </summary>
@@ -9443,9 +9237,8 @@ namespace ConditionalAccess
             return bIsRecurring || (Int64.TryParse(sPreviewModuleID, out lPreviewModuleID) && lPreviewModuleID > 0) ? "true" : "false";
         }
 
-        protected virtual string GetCustomDataForMPPRenewal(Subscription theSub, UsageModule theUsageModule,
-           PriceCode p, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency,
-           string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, Compensation compensation)
+        protected virtual string GetCustomDataForMPPRenewal(Subscription theSub, UsageModule theUsageModule, PriceCode p, string sSubscriptionCode, string sSiteGUID, double dPrice, string sCurrency,
+                                                            string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, Compensation compensation)
         {
 
             bool bIsRecurring = theSub.m_bIsRecurring;
@@ -9762,9 +9555,8 @@ namespace ConditionalAccess
         /// <summary>
         /// Credit Card Charge User For Subscription
         /// </summary>
-        protected BillingResponse Cellular_BaseChargeUserForSubscription
-           (string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParams,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy)
+        protected BillingResponse Cellular_BaseChargeUserForSubscription (string sSiteGUID, double dPrice, string sCurrency, string sSubscriptionCode, string sCouponCode, string sUserIP, string sExtraParams,
+                                                                            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, bool bDummy)
         {
             BillingResponse ret = new BillingResponse();
             ret.m_oStatus = BillingResponseStatus.UnKnown;
@@ -10011,7 +9803,6 @@ namespace ConditionalAccess
             return false;
 
         }
-
 
         //Change subscription for a given user - the user will be able to watch the new subscription content, 
         //but the billing for the new subscription will happen only when the previous subcription ends 
@@ -10722,7 +10513,6 @@ namespace ConditionalAccess
             return res;
         }
 
-
         public virtual LicensedLinkResponse GetLicensedLinks(string sSiteGuid, Int32 nMediaFileID, string sBasicLink, string sUserIP,
            string sRefferer, string sCountryCode, string sLanguageCode, string sDeviceName, string sCouponCode)
         {
@@ -10939,9 +10729,7 @@ namespace ConditionalAccess
             }
 
             return res;
-        }
-
-        
+        }        
 
         /*******************************************************************************************
          * This method create the PlayCycleSession in CB and also inserts into DB with the (media_concurrency) mc_rule_id 
@@ -11109,31 +10897,7 @@ namespace ConditionalAccess
             res.Add(CDNTokenizers.Constants.COUPON_CODE, couponCode);
 
             return res;
-        }
-
-        //internal bool IsItemPurchased(MediaFileItemPricesContainer price)
-        //{
-        //    bool res = false;
-        //    if (price == null || price.m_oItemPrices == null || price.m_oItemPrices.Length == 0)
-        //    {
-        //        return res;
-        //    }
-        //    PriceReason reason = price.m_oItemPrices[0].m_PriceReason;
-        //    switch (reason)
-        //    {
-        //        case PriceReason.SubscriptionPurchased:
-        //        case PriceReason.PrePaidPurchased:
-        //        case PriceReason.CollectionPurchased:
-        //        case PriceReason.PPVPurchased:
-        //            res = price.m_oItemPrices[0].m_oPrice.m_dPrice == 0d;
-        //            break;
-        //        default:
-        //            break;
-
-        //    }
-
-        //    return res;
-        //}
+        }        
 
         private bool IsAlterBasicLink(string sBasicLink, int nMediaFileID)
         {
@@ -11144,12 +10908,7 @@ namespace ConditionalAccess
         {
             int temp = 0;
             return basicLink != null && mediaFileID > 0 && !string.IsNullOrEmpty(siteGuid) && Int32.TryParse(siteGuid, out temp) && temp > 0;
-        }
-
-        //private bool IsFreeItem(MediaFileItemPricesContainer container)
-        //{
-        //    return container != null && (container.m_oItemPrices == null || container.m_oItemPrices.Length == 0 || container.m_oItemPrices[0].m_PriceReason == PriceReason.Free);
-        //}
+        }        
 
         private bool IsUserSuspended(MediaFileItemPricesContainer container)
         {
@@ -11543,7 +11302,6 @@ namespace ConditionalAccess
 
             return response;
         }
-
 
         private TransactionResponse ProcessPPVReceipt(string siteguid, long householdId, int productId, string userIp, string deviceName, string purchaseToken, string paymentGwName, int contentId)
         {
@@ -12127,7 +11885,6 @@ namespace ConditionalAccess
             return response;
         }
 
-
         public ApiObjects.Response.Status GrantEntitlements(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string ip,
             string udid, bool history)
         {
@@ -12148,7 +11905,6 @@ namespace ConditionalAccess
         {
             return ConditionalAccessDAL.Update_SubscriptionPurchaseRenewalActiveStatus(m_nGroupID, purchaseId, billingGuid, Convert.ToInt16(isActive));
         }
-
 
         public AssetItemPriceResponse GetAssetPrices(List<AssetFiles> assetFiles, string siteGuid,
             string couponCode, string countryCd2, string languageCode3, string deviceName, string clientIP)
@@ -16123,7 +15879,6 @@ namespace ConditionalAccess
             return string.Format("Found {0} subscriptions to renew, {1} added to queue successfully", totalSubscriptionsToRenew, totalRenewTransactionsAdded);
         }
 
-
         public void RemoveHouseholdEntitlements(int householdId)
         {
             int deleted = DAL.ConditionalAccessDAL.DeleteHouseholdSubscriptions(householdId, (int)SubscriptionPurchaseStatus.HouseholdCancel);
@@ -16191,5 +15946,6 @@ namespace ConditionalAccess
         {
             return EntitelemantManager.DeleteCompensation(this, m_nGroupID, compensationId);
         }
+
     }
 }

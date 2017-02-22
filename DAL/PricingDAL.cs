@@ -1301,6 +1301,16 @@ namespace DAL
             }
             return res;
         }
+
+        public static DataSet GetPriceCodeLocale(int priceCodeId, string countryCode, string currencyCode)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPriceCodeLocale");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@priceCodeId", priceCodeId);            
+            sp.AddParameter("@countryCode", countryCode);
+            sp.AddParameter("@currencyCode", currencyCode);
+            return sp.ExecuteDataSet();
+        }
     }
 }
 

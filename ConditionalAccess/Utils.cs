@@ -7548,5 +7548,15 @@ namespace ConditionalAccess
 
             return subscription;
         }
+
+        internal static bool GetGroupDefaultCurrency(int m_nGroupID, ref string currencyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static bool IsValidCurrencyCode(string currencyCode)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
