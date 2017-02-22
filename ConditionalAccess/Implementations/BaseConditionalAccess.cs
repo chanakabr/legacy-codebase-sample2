@@ -83,9 +83,7 @@ namespace ConditionalAccess
         internal const string ADAPTER_NOT_EXIST = "Adapter not exist";
         internal const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
         internal const string ADAPTER_ALIAS_REQUIRED = "Adapter Alias must have a value";
-        internal const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";
-
-        protected const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
+        internal const string ERROR_ALIAS_ALREADY_IN_USE = "Adapter Alias must be unique";        
 
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
@@ -10704,7 +10702,7 @@ namespace ConditionalAccess
             string key = LayeredCacheKeys.GetFileCdnDataKey(mediaFileID);
             DataTable dt = null;
             // try to get from cache            
-            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, Utils.GetFileUrlLinks, new Dictionary<string, object>() { { "mediaFileId", mediaFileID } }, groupId, FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME);
+            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, Utils.GetFileUrlLinks, new Dictionary<string, object>() { { "mediaFileId", mediaFileID } }, groupId, LayeredCacheConfigNames.FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME);
             if (cacheResult && dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 DataRow dr = dt.Rows[0];
