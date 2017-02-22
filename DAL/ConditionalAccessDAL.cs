@@ -2820,7 +2820,8 @@ namespace DAL
                 Renewals = ODBCWrapper.Utils.GetIntSafeVal(row, "RENEWALS"),
                 CompensationType = (CompensationType)ODBCWrapper.Utils.GetIntSafeVal(row, "COMPENSATION_TYPE"),
                 Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
-                SubscriptionId = ODBCWrapper.Utils.GetIntSafeVal(row, "SUBSCRIPTION_ID"),
+                SubscriptionId = ODBCWrapper.Utils.GetLongSafeVal(row, "SUBSCRIPTION_ID"),
+                PurchaseId = ODBCWrapper.Utils.GetIntSafeVal(row, "PURCHASE_ID"),
             };
         }
 
