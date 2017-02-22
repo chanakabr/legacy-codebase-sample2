@@ -21,7 +21,7 @@ namespace WebAPI
         
         private const string CB_SECTION_NAME = "groups";
         private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}_{2}";
-        private const string CB_GENERAL_KEY_FORMAT = "notification_{0}_{1}";
+        private const string CB_GENERAL_KEY_FORMAT = "notification_0_{0}_{1}";
 
         #endregion
 
