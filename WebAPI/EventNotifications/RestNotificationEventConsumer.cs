@@ -53,9 +53,9 @@ namespace WebAPI
             return result;
         }
 
-        protected override bool Consume(KalturaEvent kalturaEvent)
+        protected override eEventConsumptionResult Consume(KalturaEvent kalturaEvent)
         {
-            bool result = false;
+            eEventConsumptionResult result = eEventConsumptionResult.None;
 
             KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
             EventNotification specificNotification = null;
@@ -129,7 +129,7 @@ namespace WebAPI
 
             if (!shouldConsume)
             {
-                return false;
+                return eEventConsumptionResult.None;
             }
 
             #endregion
@@ -206,12 +206,13 @@ namespace WebAPI
                     log.ErrorFormat(
                         "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
                         kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.GetType().ToString(), ex);
+                    result = eEventConsumptionResult.Failure;
                 }
             }
 
             #endregion
 
-            result = true;
+            result = eEventConsumptionResult.Success;
 
             return result;
         }
