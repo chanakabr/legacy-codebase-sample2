@@ -23,7 +23,7 @@ namespace ApiObjects
 
         public KalturaObjectChangedEvent(int groupId = 0, ApiObjects.CoreObject newObject = null, ApiObjects.CoreObject previousObject = null, 
             List<string> changedFields = null, string type = null)
-            : base (groupId, newObject, eKalturaEventActions.Changed, type)
+            : base(groupId, newObject, eKalturaEventActions.Changed, eKalturaEventTime.After, type)
         {
             this.PreviousObject = previousObject;
             this.ChangedFields = changedFields;

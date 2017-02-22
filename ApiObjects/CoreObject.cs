@@ -40,32 +40,90 @@ namespace ApiObjects
 
         public bool Insert()
         {
-            bool result = DoInsert();
-
-            if (result)
-            {
+            // Raise event before starting to insert
+            var beforeInsertEventResults = 
                 EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
                     this.GroupId,
                     this,
-                    eKalturaEventActions.Created));
+                    eKalturaEventActions.Created,
+                    eKalturaEventTime.Before));
+
+            bool shouldInsert = true;
+
+            // Check results - if one of the consumers failed, don't insert
+            if (beforeInsertEventResults != null)
+            {
+                foreach (var eventResult in beforeInsertEventResults)
+                {
+                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
+                    {
+                        shouldInsert = false;
+                        break;
+                    }
+                }
             }
 
-            return result;
+            bool insertResult = false;
+
+            // Do the insert if we agreed on doing it, and raise new event
+            if (shouldInsert)
+            {
+                 insertResult = DoInsert();
+
+                if (insertResult)
+                {
+                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                        this.GroupId,
+                        this,
+                        eKalturaEventActions.Created));
+                }
+            }
+
+            return insertResult;
         }
 
         public bool Update()
         {
-            CoreObject previous = this.CoreClone();
-
-            bool result = DoUpdate();
-
-            if (result)
-            {
-                EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
+            // Raise event before starting to update
+            var beforeEventResults =
+                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
                     this.GroupId,
                     this,
-                    previous,
-                    this.ChangedFields));
+                    eKalturaEventActions.Changed,
+                    eKalturaEventTime.Before));
+
+            bool shouldUpdate = true;
+
+            // Check results - if one of the consumers failed, don't update
+            if (beforeEventResults != null)
+            {
+                foreach (var eventResult in beforeEventResults)
+                {
+                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
+                    {
+                        shouldUpdate = false;
+                        break;
+                    }
+                }
+            }
+
+            bool result = false;
+
+            // Do the update if we agreed on doing it, and raise new event
+            if (shouldUpdate)
+            {
+                CoreObject previous = this.CoreClone();
+
+                result = DoUpdate();
+
+                if (result)
+                {
+                    EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
+                        this.GroupId,
+                        this,
+                        previous,
+                        this.ChangedFields));
+                }
             }
 
             return result;
@@ -73,15 +131,43 @@ namespace ApiObjects
 
         public bool Delete()
         {
-            bool result = DoDelete();
-
-            if (result)
-            {
-                EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
+            // Raise event before starting to delete
+            var beforeEventResults =
+                EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
                     this.GroupId,
-                    this.Id,
-                    null,
-                    this));
+                    this,
+                    eKalturaEventActions.Deleted,
+                    eKalturaEventTime.Before));
+
+            bool shouldDelete = true;
+
+            // Check results - if one of the consumers failed, don't delete
+            if (beforeEventResults != null)
+            {
+                foreach (var eventResult in beforeEventResults)
+                {
+                    if (eventResult == EventManager.eEventConsumptionResult.Failure)
+                    {
+                        shouldDelete = false;
+                        break;
+                    }
+                }
+            }
+
+            bool result = false;
+
+            if (shouldDelete)
+            {
+                result = DoDelete();
+
+                if (result)
+                {
+                    EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
+                        this.GroupId,
+                        this.Id,
+                        null,
+                        this));
+                }
             }
 
             return result;

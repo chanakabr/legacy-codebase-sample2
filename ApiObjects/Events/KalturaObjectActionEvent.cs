@@ -20,6 +20,12 @@ namespace ApiObjects
         Replaced
     }
 
+    public enum eKalturaEventTime
+    {
+        Before,
+        After
+    }
+
     public class KalturaObjectActionEvent : KalturaObjectEvent
     {
         #region Props
@@ -34,12 +40,20 @@ namespace ApiObjects
             }
         }
 
+        public eKalturaEventTime Time
+        {
+            get;
+            set;
+        }
+        
         #endregion
 
-        public KalturaObjectActionEvent(int groupId = 0, ApiObjects.CoreObject coreObject = null, eKalturaEventActions action = eKalturaEventActions.None, string type = null) : 
+        public KalturaObjectActionEvent(int groupId = 0, ApiObjects.CoreObject coreObject = null, 
+            eKalturaEventActions action = eKalturaEventActions.None, eKalturaEventTime time = eKalturaEventTime.After, string type = null) : 
             base(groupId, coreObject, type)
         {
             this.action = action;
+            this.Time = time;
         }
     }
 }

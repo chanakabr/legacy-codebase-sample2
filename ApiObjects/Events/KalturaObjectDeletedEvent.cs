@@ -15,7 +15,7 @@ namespace ApiObjects
         }
 
         public KalturaObjectDeletedEvent(int groupId = 0, long id = 0, string type = null, ApiObjects.CoreObject coreObject = null) : 
-            base(groupId, coreObject, eKalturaEventActions.Deleted, type)
+            base(groupId, coreObject, eKalturaEventActions.Deleted, eKalturaEventTime.After, type)
         {
             this.Id = id;
         }
