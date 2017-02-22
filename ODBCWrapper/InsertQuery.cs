@@ -47,18 +47,26 @@ namespace ODBCWrapper
                 int numRows = dtData.Rows.Count;
                 string connString = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
 
-                SqlBulkCopy bulkCopy = new SqlBulkCopy(connString, sqlBulkCopyOptions)
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connString, sqlBulkCopyOptions)
                 {
                     DestinationTableName = sTableName,
                     BatchSize = numRows,
                     BulkCopyTimeout = 360
-                };
-
-                foreach (DataColumn col in dtData.Columns)
+                })
                 {
-                    bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
+                    try
+                    {
+                        foreach (DataColumn col in dtData.Columns)
+                            bulkCopy.ColumnMappings.Add(col.ColumnName, col.ColumnName);
+
+                        bulkCopy.WriteToServer(dtData);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Error while performing bulk insert into DB", ex);
+                        throw ex;
+                    }
                 }
-                bulkCopy.WriteToServer(dtData);
             }
         }
 
@@ -135,7 +143,7 @@ namespace ODBCWrapper
             m_sOraStr.Append("output INSERTED.ID ");
             m_sOraStr.Append("VALUES ");
             m_sOraStr.Append(sInsertValues);
-            m_sOraStr.Append(")");            
+            m_sOraStr.Append(")");
             oraStr = m_sOraStr.ToString();
             int_Execute();
             string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
