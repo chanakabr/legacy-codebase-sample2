@@ -134,6 +134,8 @@ namespace WebAPI
 
             #endregion
 
+            result = eEventConsumptionResult.Success;
+
             #region Convert object
 
             string phoenixType = string.Empty;
@@ -211,8 +213,6 @@ namespace WebAPI
             }
 
             #endregion
-
-            result = eEventConsumptionResult.Success;
 
             return result;
         }
