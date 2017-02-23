@@ -166,7 +166,12 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPriceCodeByCountryAndCurrencyKey(int groupId, int priceCodeId, string countryCode, string currencyCode)
         {
-            return string.Format("g_{0}_pc_{1}_co_{2}_cu_{3}", groupId, priceCodeId, countryCode, currencyCode);
+            return string.Format("priceCode_g_{0}_pc_{1}_co_{2}_cu_{3}", groupId, priceCodeId, countryCode, currencyCode);
+        }
+
+        public static string GetDiscountModuleCodeByCountryAndCurrencyKey(int groupId, int discountCodeId, string countryCode, string currencyCode)
+        {
+            return string.Format("discountModule_g_{0}_dm_{1}_co_{2}_cu_{3}", groupId, discountCodeId, countryCode, currencyCode);
         }
 
     }

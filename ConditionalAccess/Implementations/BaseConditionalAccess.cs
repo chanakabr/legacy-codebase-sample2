@@ -2756,16 +2756,23 @@ namespace ConditionalAccess
                         try
                         {
                             PriceCode price = null;
+                            DiscountModule externalDisount = null;
                             if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(previousPurchaseCurrencyCode))
                             {
-                                priceModule.GetPriceCodeByCountyAndCurrency(wsUserName, waPass, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                                price = priceModule.GetPriceCodeByCountyAndCurrency(wsUserName, waPass, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                                externalDisount = priceModule.GetDiscountCodeDataByCountryAndCurrency(wsUserName, waPass, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                             }
                             else
                             {
-                                priceModule.GetPriceCodeData(wsUserName, waPass, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
+                                price = priceModule.GetPriceCodeData(wsUserName, waPass, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
+                                externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
                             }
 
-                            DiscountModule externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
+                            if (priceModule == null)
+                            {
+                                throw new Exception(string.Format("PriceCode is null for priceCodeId: {0}", AppUsageModule.m_pricing_id));
+                            }
+                            
                             if (externalDisount != null)
                             {
                                 Price priceAfterDiscount = Utils.GetPriceAfterDiscount(price.m_oPrise, externalDisount, 1);
@@ -6489,7 +6496,7 @@ namespace ConditionalAccess
         }
 
         public virtual SubscriptionsPricesContainer[] GetSubscriptionsPrices(string[] subscriptions, string userId, string couponCode, string countryCode, string languageCode, string udid,
-                                                                                string ip = null, string currency = null)
+                                                                                string ip = null, string currencyCode = null)
         {
             SubscriptionsPricesContainer[] ret = null;
             try
@@ -6503,7 +6510,7 @@ namespace ConditionalAccess
                         string subscriptionCode = subscriptions[i];
                         PriceReason theReason = PriceReason.UnKnown;
                         Subscription s = null;
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currency);
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currencyCode);
                         if (price != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
@@ -6526,7 +6533,7 @@ namespace ConditionalAccess
                 sb.Append(String.Concat(" languageCode: ", languageCode));
                 sb.Append(String.Concat(" udid: ", udid));
                 sb.Append(String.Concat(" ip: ", ip != null ? ip : "null"));
-                sb.Append(String.Concat(" currency: ", currency != null ? currency : "null"));
+                sb.Append(String.Concat(" currency: ", currencyCode != null ? currencyCode : "null"));
                 if (subscriptions != null && subscriptions.Length > 0)
                 {
                     sb.Append("Subs: ");
@@ -6798,14 +6805,16 @@ namespace ConditionalAccess
                                 if ((!string.IsNullOrEmpty(currencyCode) && Utils.IsValidCurrencyCode(currencyCode)) || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
                                 {
                                     PriceCode priceCodeWithCurrency = objPricingModule.GetPriceCodeByCountyAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
-                                    if (priceCodeWithCurrency != null)
-                                    {
-                                        ppvModules[j].PPVModule.m_oPriceCode = priceCodeWithCurrency;
-                                    }
-                                    else
+                                    DiscountModule discountModuleWithCurrency = objPricingModule.GetDiscountCodeDataByCountryAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
+                                    if (priceCodeWithCurrency == null || discountModuleWithCurrency == null)
                                     {
                                         // return error
-                                        throw new Exception("priceCode not found");
+                                        throw new Exception("priceCode or discountModule not found");                                        
+                                    }
+                                    else
+                                    {                                        
+                                        ppvModules[j].PPVModule.m_oPriceCode = priceCodeWithCurrency;
+                                        ppvModules[j].PPVModule.m_oDiscountModule =  discountModuleWithCurrency;
                                     }
                                 }
 

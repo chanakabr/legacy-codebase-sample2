@@ -30,6 +30,7 @@ namespace CachingProvider.LayeredCache
         public const string EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "EpgParentalRules";
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string PRICE_CODE_LOCALE_LAYERED_CACHE_CONFIG_NAME = "GetPriceCodeByCountyAndCurrency";
+        public const string DISCOUNT_MODULE_LOCALE_LAYERED_CACHE_CONFIG_NAME = "GetDiscountModuleByCountyAndCurrency";
 
         #endregion
 

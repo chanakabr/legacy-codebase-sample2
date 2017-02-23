@@ -1233,6 +1233,7 @@ namespace ConditionalAccess
                 if (!isGeoCommerceBlock)
                 {
                     theSub = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(subscription));
+                    DiscountModule externalDisount = null;
                     if (subscription.m_oSubscriptionPriceCode != null)
                     {                        
                         // Get subscription price code according to country and currency (if exists on the request)
@@ -1248,6 +1249,12 @@ namespace ConditionalAccess
                             {
                                 // return error
                                 throw new Exception("priceCode not found");
+                            }
+
+                            externalDisount = pricingModule.GetDiscountCodeDataByCountryAndCurrency(sWSUserName, sWSPass, theSub.m_oExtDisountModule.m_nObjectID, countryCode, currencyCode);
+                            if (externalDisount == null)
+                            {
+                                externalDisount = theSub.m_oExtDisountModule != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule)) : null;
                             }
                         }
 
@@ -1276,9 +1283,8 @@ namespace ConditionalAccess
                         }
 
                         CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
-                        if (theSub.m_oExtDisountModule != null)
-                        {
-                            DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule));
+                        if (externalDisount != null)
+                        {                            
                             price = GetPriceAfterDiscount(price, externalDisount, 1);
                         }
 

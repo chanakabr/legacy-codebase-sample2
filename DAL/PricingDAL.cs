@@ -1311,6 +1311,17 @@ namespace DAL
             sp.AddParameter("@currencyCode", currencyCode);
             return sp.ExecuteDataSet();
         }
+
+        public static DataSet GetDiscountModuleLocale(int discountCodeId, string countryCode, string currencyCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetDiscountModuleLocale");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@discountCodeId", discountCodeId);
+            sp.AddParameter("@countryCode", countryCode);
+            sp.AddParameter("@currencyCode", currencyCode);
+            return sp.ExecuteDataSet();
+        }
+
     }
 }
 
