@@ -29,17 +29,8 @@ namespace ConditionalAccess
         #region Consts
 
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
-        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-
-        public const string PRICE = "pri";
-        public const string CURRENCY = "cu";
-        public const string USER_IP = "up";
-        public const string COUPON_CODE = "cc";
-        public const string DEVICE_NAME = "ldn";
-        public const string DUMMY = "dummy";
-        public const string HISTORY = "history";
-        public const string RECURRING_NUMBER = "recurringnumber";
-        public const string MAX_USAGE_MODULE = "mumlc";
+        private const string MAX_USAGE_MODULE = "mumlc";
+        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";        
 
         #endregion
 
@@ -106,6 +97,8 @@ namespace ConditionalAccess
                 return true;
             }
 
+            string previousPurchaseCurrencyCode = string.Empty;
+            string previousPurchaseCountryCode = string.Empty;
             #region Dummy
 
             try
@@ -117,8 +110,10 @@ namespace ConditionalAccess
                     XmlDocument doc = new XmlDocument();
                     doc.LoadXml(customData);
                     XmlNode theRequest = doc.FirstChild;
-
-                    bool isDummy = XmlUtils.IsNodeExists(ref theRequest, DUMMY);
+                    // previousPurchaseCurrencyCode and previousPurchaseCountryCode will be used later for getting the correct priceCodeData 
+                    previousPurchaseCurrencyCode = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
+                    previousPurchaseCountryCode = XmlUtils.GetSafeValue(BaseConditionalAccess.COUNTRY_CODE, ref theRequest);
+                    bool isDummy = XmlUtils.IsNodeExists(ref theRequest, BaseConditionalAccess.DUMMY);
                     if (isDummy)
                     {
                         return HandleDummySubsciptionRenewal(cas, groupId, siteguid, purchaseId, billingGuid, logString, householdId, userIp, productId, theRequest, 
@@ -283,7 +278,7 @@ namespace ConditionalAccess
             {
                 cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                         ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                        ref couponCode, subscription, compensation);
+                        ref couponCode, subscription, compensation, previousPurchaseCountryCode, previousPurchaseCountryCode);
             }
             catch (Exception ex)
             {
@@ -947,13 +942,13 @@ namespace ConditionalAccess
         protected internal static bool HandleDummySubsciptionRenewal(BaseConditionalAccess cas, int groupId, string userId, long purchaseId, string billingGuid,
             string logString, long householdId, string userIp, long productId, XmlNode theRequest, DateTime endDate, string customData)
         {
-            bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, HISTORY);
-            string udid = XmlUtils.GetSafeValue(DEVICE_NAME, ref theRequest);
+            bool saveHistory = XmlUtils.IsNodeExists(ref theRequest, BaseConditionalAccess.HISTORY);
+            string udid = XmlUtils.GetSafeValue(BaseConditionalAccess.DEVICE_NAME, ref theRequest);
             int newRecurringNumber = 0;
             int oldRecurringNumber = 0;
             int numOfPayments = 0;
 
-            if (!int.TryParse(XmlUtils.GetSafeValue(RECURRING_NUMBER, ref theRequest), out oldRecurringNumber))
+            if (!int.TryParse(XmlUtils.GetSafeValue(BaseConditionalAccess.RECURRING_NUMBER, ref theRequest), out oldRecurringNumber))
             {
                 // Subscription ended
                 log.ErrorFormat("Renew Dummy GrantSubscription failed, error at parse recurringNumber,  data: {0}", logString);
@@ -984,8 +979,8 @@ namespace ConditionalAccess
             // calculate payment (recurring) number
             newRecurringNumber++;
 
-            string price = XmlUtils.GetSafeValue(PRICE, ref theRequest);
-            string currency = XmlUtils.GetSafeValue(CURRENCY, ref theRequest);
+            string price = XmlUtils.GetSafeValue(BaseConditionalAccess.PRICE, ref theRequest);
+            string currency = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
             string mumlc = XmlUtils.GetSafeValue(MAX_USAGE_MODULE, ref theRequest); 
 
             Subscription subscription = null;

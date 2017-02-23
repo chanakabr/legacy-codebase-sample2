@@ -90,6 +90,7 @@ namespace ConditionalAccess
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
         public const string USER_IP = "up";
+        public const string COUNTRY_CODE = "lcc";
         public const string COUPON_CODE = "cc";
         public const string DEVICE_NAME = "ldn";
         public const string DUMMY = "dummy";
@@ -2731,7 +2732,8 @@ namespace ConditionalAccess
 
         protected internal void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
-                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null)
+                ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
+                string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
         {
             if (subscription == null)
             {
@@ -2739,12 +2741,10 @@ namespace ConditionalAccess
             }
             else
             {
-                UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber,
-                                                                                                      numOfPayments, isPurchasedWithPreviewModule);
+                UsageModule AppUsageModule = GetAppropriateMultiSubscriptionUsageModule(subscription, paymentNumber, purchaseId, totalPaymentsNumber, numOfPayments, isPurchasedWithPreviewModule);
                 priceValue = 0;
                 Currency oCurrency = null;
                 sCurrency = "n/a";
-
                 if (AppUsageModule != null)
                 {
                     // price data and discount code data
@@ -2755,21 +2755,29 @@ namespace ConditionalAccess
                     {
                         try
                         {
-                            PriceCode p = priceModule.GetPriceCodeData(wsUserName, waPass, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
-                            DiscountModule externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
-
-                            if (externalDisount != null)
+                            PriceCode price = null;
+                            if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(previousPurchaseCurrencyCode))
                             {
-                                Price price = Utils.GetPriceAfterDiscount(p.m_oPrise, externalDisount, 1);
-                                priceValue = price.m_dPrice;
-                                oCurrency = price.m_oCurrency;
-                                sCurrency = price.m_oCurrency.m_sCurrencyCD3;
+                                priceModule.GetPriceCodeByCountyAndCurrency(wsUserName, waPass, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                             }
                             else
                             {
-                                priceValue = p.m_oPrise.m_dPrice;
-                                oCurrency = p.m_oPrise.m_oCurrency;
-                                sCurrency = p.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                                priceModule.GetPriceCodeData(wsUserName, waPass, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
+                            }
+
+                            DiscountModule externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
+                            if (externalDisount != null)
+                            {
+                                Price priceAfterDiscount = Utils.GetPriceAfterDiscount(price.m_oPrise, externalDisount, 1);
+                                priceValue = priceAfterDiscount.m_dPrice;
+                                oCurrency = priceAfterDiscount.m_oCurrency;
+                                sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
+                            }
+                            else
+                            {
+                                priceValue = price.m_oPrise.m_dPrice;
+                                oCurrency = price.m_oPrise.m_oCurrency;
+                                sCurrency = price.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                             }
 
                             HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
@@ -2793,8 +2801,9 @@ namespace ConditionalAccess
                             isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
                             maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
-                            customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, p, subscription.m_SubscriptionCode,
-                                siteguid, priceValue, sCurrency, couponCode, userIp, string.Empty, string.Empty, string.Empty, compensation);
+                            customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, price, subscription.m_SubscriptionCode,
+                                siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
+                                string.Empty, string.Empty, compensation);
                         }
                         catch (Exception ex)
                         {
@@ -6473,35 +6482,32 @@ namespace ConditionalAccess
         /// <summary>
         /// Get Subscriptions Prices 
         /// </summary>
-        public virtual SubscriptionsPricesContainer[] GetSubscriptionsPrices(string[] sSubscriptions, string sUserGUID, string sCouponCode,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sIP = null)
+        public virtual SubscriptionsPricesContainer[] GetSubscriptionsPrices(string[] subscriptions, string userId, string couponCode,
+            string countryCode, string languageCode, string udid, string ip = null)
+        {
+            return GetSubscriptionsPrices(subscriptions, userId, couponCode, countryCode, languageCode, udid, ip, null);
+        }
+
+        public virtual SubscriptionsPricesContainer[] GetSubscriptionsPrices(string[] subscriptions, string userId, string couponCode, string countryCode, string languageCode, string udid,
+                                                                                string ip = null, string currency = null)
         {
             SubscriptionsPricesContainer[] ret = null;
             try
             {
-                if (sSubscriptions != null && sSubscriptions.Length > 0)
+                if (subscriptions != null && subscriptions.Length > 0)
                 {
                     List<SubscriptionsPricesContainer> resp = new List<SubscriptionsPricesContainer>();
 
-                    for (int i = 0; i < sSubscriptions.Length; i++)
+                    for (int i = 0; i < subscriptions.Length; i++)
                     {
-                        string sSubCode = sSubscriptions[i];
+                        string subscriptionCode = subscriptions[i];
                         PriceReason theReason = PriceReason.UnKnown;
                         Subscription s = null;
-                        Price p = null;
-                        if (string.IsNullOrEmpty(sIP))
-                        {
-                            p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubCode, sUserGUID, sCouponCode, ref theReason, ref s, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-                        }
-                        else
-                        {
-                            p = Utils.GetSubscriptionFinalPrice(m_nGroupID, sSubCode, sUserGUID, sCouponCode, ref theReason, ref s, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty, sIP);
-                        }
-
-                        if (p != null)
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currency);
+                        if (price != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
-                            cont.Initialize(sSubCode, p, theReason);
+                            cont.Initialize(subscriptionCode, price, theReason);
                             resp.Add(cont);
                         }
                     }
@@ -6514,18 +6520,19 @@ namespace ConditionalAccess
                 #region Logging
                 StringBuilder sb = new StringBuilder("Exception at GetSubscriptionsPrices. ");
                 sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(" Site Guid: ", sUserGUID));
-                sb.Append(String.Concat(" Cpn Cd: ", sCouponCode));
-                sb.Append(String.Concat(" Cntry Cd: ", sCountryCd));
-                sb.Append(String.Concat(" Lng Cd: ", sLANGUAGE_CODE));
-                sb.Append(String.Concat(" D Nm: ", sDEVICE_NAME));
-                sb.Append(String.Concat(" sIP: ", sIP != null ? sIP : "null"));
-                if (sSubscriptions != null && sSubscriptions.Length > 0)
+                sb.Append(String.Concat(" userId: ", userId));
+                sb.Append(String.Concat(" couponCode: ", couponCode));
+                sb.Append(String.Concat(" countryCode: ", countryCode));
+                sb.Append(String.Concat(" languageCode: ", languageCode));
+                sb.Append(String.Concat(" udid: ", udid));
+                sb.Append(String.Concat(" ip: ", ip != null ? ip : "null"));
+                sb.Append(String.Concat(" currency: ", currency != null ? currency : "null"));
+                if (subscriptions != null && subscriptions.Length > 0)
                 {
                     sb.Append("Subs: ");
-                    for (int i = 0; i < sSubscriptions.Length; i++)
+                    for (int i = 0; i < subscriptions.Length; i++)
                     {
-                        sb.Append(String.Concat(sSubscriptions[i], "; "));
+                        sb.Append(String.Concat(subscriptions[i], "; "));
                     }
                 }
                 else
@@ -6603,8 +6610,7 @@ namespace ConditionalAccess
         /// <summary>
         /// 
         /// </summary>
-        public virtual PrePaidPricesContainer[] GetPrePaidPrices(string[] sPrePaids, string sUserGUID, string sCouponCode,
-         string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual PrePaidPricesContainer[] GetPrePaidPrices(string[] sPrePaids, string sUserGUID, string sCouponCode, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             PrePaidPricesContainer[] ret = null;
             try
@@ -6655,6 +6661,7 @@ namespace ConditionalAccess
             }
             return ret;
         }
+
         public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
             return GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, "");
@@ -6979,8 +6986,7 @@ namespace ConditionalAccess
          * 2. It is used to optimize DB access. In case the data is not needed in the function Utils.GetMediaFileFinalPrice it will not attempt
          * 3. to access the DB.
          */
-        private void GetAllUsersInDomainAndMediaFileTypes(MediaFilePPVContainer[] oModules, string sSiteGuid,
-            out Dictionary<int, int> mediaFileTypesMapping, out List<int> allUsersInDomain)
+        private void GetAllUsersInDomainAndMediaFileTypes(MediaFilePPVContainer[] oModules, string sSiteGuid, out Dictionary<int, int> mediaFileTypesMapping, out List<int> allUsersInDomain)
         {
             long lSiteGuid = 0;
             if (!string.IsNullOrEmpty(sSiteGuid) && Int64.TryParse(sSiteGuid, out lSiteGuid) && lSiteGuid > 0 && IsExistPPVModule(oModules))
