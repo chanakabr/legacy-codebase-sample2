@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                 {
                     // call client
                     subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.SubscriptionsIds.Select(x => x.value), KS.GetFromRequest().UserId, coupon_code,
-                        udid, language, filter.getShouldGetOnlyLowest());
+                                                                                                            udid, language, filter.getShouldGetOnlyLowest(), null);
                     productPrices.AddRange(subscriptionPrices);
                 }
 

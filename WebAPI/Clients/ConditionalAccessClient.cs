@@ -262,7 +262,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, IEnumerable<int> subscriptionsIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        internal List<KalturaSubscriptionPrice> GetSubscriptionsPrices(int groupId, IEnumerable<int> subscriptionsIds, string userId, string couponCode, string udid,
+                                                                        string languageCode, bool shouldGetOnlyLowest, string currencyCode)
         {
             SubscriptionsPricesResponse response = null;
             List<KalturaSubscriptionPrice> prices = new List<KalturaSubscriptionPrice>();
@@ -273,8 +274,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-                        subscriptionsIds.Select(x => x.ToString()).ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                    response = ConditionalAccess.GetSubscriptionsPricesWithCurrency(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        subscriptionsIds.Select(x => x.ToString()).ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), currencyCode);
                 }
             }
             catch (Exception ex)
@@ -338,7 +339,7 @@ namespace WebAPI.Clients
             return prices;
         }
 
-        internal List<KalturaPpvPrice> GetPpvPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest)
+        internal List<KalturaPpvPrice> GetPpvPrices(int groupId, List<int> mediaFileIds, string userId, string couponCode, string udid, string languageCode, bool shouldGetOnlyLowest, string currencyCode)
         {
             MediaFileItemPricesContainerResponse response = null;
             List<KalturaPpvPrice> prices = new List<KalturaPpvPrice>();
@@ -349,8 +350,8 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetItemsPricesWithCoupons(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
-                        mediaFileIds.ToArray(), userId, couponCode, shouldGetOnlyLowest, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
+                    response = ConditionalAccess.GetItemsPricesWithCurrency(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                        mediaFileIds.ToArray(), userId, couponCode, shouldGetOnlyLowest, languageCode, udid, Utils.Utils.GetClientIP(), currencyCode);
                 }
             }
             catch (Exception ex)
