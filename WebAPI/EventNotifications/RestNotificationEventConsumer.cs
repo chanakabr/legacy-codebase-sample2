@@ -95,7 +95,7 @@ namespace WebAPI
                 generalNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
-            // chek if we have the metadata at all. if we don't we don't continue
+            // check if we have the metadata at all. if we don't we don't continue
             if (specificNotification == null && generalNotification == null)
             {
                 shouldConsume = false;
