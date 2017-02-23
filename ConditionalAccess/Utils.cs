@@ -157,14 +157,12 @@ namespace ConditionalAccess
         internal static Price GetPriceAfterDiscount(Price price, DiscountModule disc, Int32 nUseTime)
         {
             Price discRetPrice = CopyPrice(price);
-            discRetPrice = price;
-            if (disc.m_dEndDate < DateTime.UtcNow ||
-                disc.m_dStartDate > DateTime.UtcNow)
+
+            if (disc.m_dEndDate < DateTime.UtcNow || disc.m_dStartDate > DateTime.UtcNow)
                 return price;
 
             WhenAlgo whenAlgo = disc.m_oWhenAlgo;
-            if (whenAlgo.m_eAlgoType == WhenAlgoType.N_FIRST_TIMES && whenAlgo.m_nNTimes != 0 &&
-                nUseTime >= whenAlgo.m_nNTimes)
+            if (whenAlgo.m_eAlgoType == WhenAlgoType.N_FIRST_TIMES && whenAlgo.m_nNTimes != 0 && nUseTime >= whenAlgo.m_nNTimes)
                 return price;            
 
             if (whenAlgo.m_eAlgoType == WhenAlgoType.EVERY_N_TIMES && whenAlgo.m_nNTimes != 0 &&
