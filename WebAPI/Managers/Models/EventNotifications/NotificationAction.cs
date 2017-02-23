@@ -49,6 +49,13 @@ namespace WebAPI.Managers.Models
             set;
         }
 
+        [JsonProperty("failure_handlers")]
+        public List<NotificationAction> FailureHandlers
+        {
+            get;
+            set;
+        }
+
         internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper wrapper);
     }
 }

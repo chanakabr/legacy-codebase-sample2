@@ -165,50 +165,23 @@ namespace WebAPI
 
                 try
                 {
-                    // first check action's status - if it isn't good,
-                    if (action.Status != 1)
-                    {
-                        continue;
-                    }
-                    bool conditionResult = true;
-
-                    // Check conditions for this action. If all are OK, perform action. If one fails, stop.
-                    if (action.Conditions != null && action.Conditions.Count > 0)
-                    {
-                        foreach (var condition in action.Conditions)
-                        {
-                            // Only for active/enabled conditions
-                            if (condition.Status == 1)
-                            {
-                                conditionResult &= condition.Evaluate(kalturaEvent, eventWrapper.eventObject);
-                            }
-                        }
-                    }
-
-                    if (!conditionResult)
-                    {
-                        continue;
-                    }
-
-                    if (!action.IsAsync)
-                    {
-                        action.Handle(kalturaEvent, eventWrapper);
-                    }
-                    else
-                    {
-                        Task t = Task.Factory.StartNew(() =>
-                        {
-                            action.Handle(kalturaEvent, eventWrapper);
-                        }
-                        );
-                    }
+                    PerformAction(action, kalturaEvent, eventWrapper);
                 }
                 catch (Exception ex)
                 {
                     log.ErrorFormat(
                         "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
                         kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.GetType().ToString(), ex);
+
                     result = eEventConsumptionResult.Failure;
+
+                    if (action.FailureHandlers != null && action.FailureHandlers.Count > 0)
+                    {
+                        foreach (var handler in action.FailureHandlers)
+                        {
+                            PerformAction(action, kalturaEvent, eventWrapper);
+                        }
+                    }
                 }
             }
 
@@ -220,6 +193,48 @@ namespace WebAPI
         #endregion
 
         #region Protected methods
+
+        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaEventWrapper eventWrapper)
+        {
+            // first check action's status - if it isn't good,
+            if (action.Status != 1)
+            {
+                return;
+            }
+
+            bool conditionResult = true;
+
+            // Check conditions for this action. If all are OK, perform action. If one fails, stop.
+            if (action.Conditions != null && action.Conditions.Count > 0)
+            {
+                foreach (var condition in action.Conditions)
+                {
+                    // Only for active/enabled conditions
+                    if (condition.Status == 1)
+                    {
+                        conditionResult &= condition.Evaluate(kalturaEvent, eventWrapper.eventObject);
+                    }
+                }
+            }
+
+            if (!conditionResult)
+            {
+                return;
+            }
+
+            if (!action.IsAsync)
+            {
+                action.Handle(kalturaEvent, eventWrapper);
+            }
+            else
+            {
+                Task t = Task.Factory.StartNew(() =>
+                {
+                    action.Handle(kalturaEvent, eventWrapper);
+                }
+                );
+            }
+        }
 
         protected string GetCBGeneralKey(KalturaObjectActionEvent kalturaEvent)
         {
