@@ -70,13 +70,20 @@ namespace ApiObjects
             {
                  insertResult = DoInsert();
 
-                if (insertResult)
-                {
-                    EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
-                        this.GroupId,
-                        this,
-                        eKalturaEventActions.Created));
-                }
+                 if (insertResult)
+                 {
+                     EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                         this.GroupId,
+                         this,
+                         eKalturaEventActions.Created));
+                 }
+                 else
+                 {
+                     EventManager.EventManager.HandleEvent(new KalturaObjectActionEvent(
+                         this.GroupId,
+                         this,
+                         eKalturaEventActions.Created, eKalturaEventTime.Failed));
+                 }
             }
 
             return insertResult;
@@ -124,6 +131,15 @@ namespace ApiObjects
                         previous,
                         this.ChangedFields));
                 }
+                else
+                {
+                    EventManager.EventManager.HandleEvent(new KalturaObjectChangedEvent(
+                        this.GroupId,
+                        this,
+                        previous,
+                        this.ChangedFields,
+                        eKalturaEventTime.Failed));
+                }
             }
 
             return result;
@@ -167,6 +183,15 @@ namespace ApiObjects
                         this.Id,
                         null,
                         this));
+                }
+                else
+                {
+                    EventManager.EventManager.HandleEvent(new KalturaObjectDeletedEvent(
+                        this.GroupId,
+                        this.Id,
+                        null,
+                        this,
+                        eKalturaEventTime.Failed));
                 }
             }
 

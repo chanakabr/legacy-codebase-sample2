@@ -23,7 +23,8 @@ namespace ApiObjects
     public enum eKalturaEventTime
     {
         Before,
-        After
+        After,
+        Failed
     }
 
     public class KalturaObjectActionEvent : KalturaObjectEvent
