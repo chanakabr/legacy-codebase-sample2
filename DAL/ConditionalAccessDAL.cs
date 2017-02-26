@@ -2665,7 +2665,6 @@ namespace DAL
             }
         }
 
-
         public static DataRow GetPurchaseByID(int purchaseID)
         {            
             try
@@ -2745,7 +2744,6 @@ namespace DAL
 
             return dt;
         }
-
 
         public static string GetDeviceName(string deviceUDID)
         {
@@ -2834,6 +2832,28 @@ namespace DAL
             rowCount = sp.ExecuteReturnValue<int>();
             return rowCount > 0;
         }
+
+        public static DataTable GetAllCurrencies()
+        {
+            DataTable dt = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllCurrencies");
+            sp.SetConnectionKey("PRICING_CONNECTION");
+            dt = sp.Execute();
+            if (dt == null)
+            {
+                dt = new DataTable();
+            }
+
+            return dt;
+        }
+
+        public static int GetGroupDefaultCurrency(int groupId)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupDefaultCurrency");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            return sp.ExecuteReturnValue<int>();
+        }                
 
     }
 }

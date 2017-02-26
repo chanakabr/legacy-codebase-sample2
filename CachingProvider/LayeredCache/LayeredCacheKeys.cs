@@ -9,6 +9,12 @@ namespace CachingProvider.LayeredCache
     public class LayeredCacheKeys
     {
 
+        #region Constant Keys
+
+        public const string GET_CURRENCIES_KEY = "currencies";
+
+        #endregion
+
         public static string GetCheckGeoBlockMediaKey(int groupID, int mediaID)
         {
             return string.Format("groupId_{0}_mediaId_{1}", groupID, mediaID);
@@ -172,6 +178,11 @@ namespace CachingProvider.LayeredCache
         public static string GetDiscountModuleCodeByCountryAndCurrencyKey(int groupId, int discountCodeId, string countryCode, string currencyCode)
         {
             return string.Format("discountModule_g_{0}_dm_{1}_co_{2}_cu_{3}", groupId, discountCodeId, countryCode, currencyCode);
+        }
+
+        public static string GetGroupDefaultCurrencyKey(int groupId)
+        {
+            return string.Format("groupDefaultCurrency_groupId_{0}", groupId);
         }
 
     }

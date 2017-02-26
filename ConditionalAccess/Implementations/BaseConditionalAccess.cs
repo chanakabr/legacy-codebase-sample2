@@ -2756,10 +2756,10 @@ namespace ConditionalAccess
                         try
                         {
                             PriceCode price = null;
-                            DiscountModule externalDisount = null;
-                            if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(previousPurchaseCurrencyCode))
+                            DiscountModule externalDisount = null;                            
+                            if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
                             {
-                                price = priceModule.GetPriceCodeByCountyAndCurrency(wsUserName, waPass, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                                price = priceModule.GetPriceCodeDataByCountyAndCurrency(wsUserName, waPass, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                                 externalDisount = priceModule.GetDiscountCodeDataByCountryAndCurrency(wsUserName, waPass, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                             }
                             else
@@ -2768,9 +2768,10 @@ namespace ConditionalAccess
                                 externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
                             }
 
-                            if (priceModule == null)
-                            {
-                                throw new Exception(string.Format("PriceCode is null for priceCodeId: {0}", AppUsageModule.m_pricing_id));
+                            if (price == null)
+                            {                                
+                                throw new Exception(string.Format("PriceCode is null for priceCodeId: {0}, previousPurchaseCurrencyCode: {1}", AppUsageModule.m_pricing_id,
+                                                                    !string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty));
                             }
                             
                             if (externalDisount != null)
@@ -6504,7 +6505,6 @@ namespace ConditionalAccess
                 if (subscriptions != null && subscriptions.Length > 0)
                 {
                     List<SubscriptionsPricesContainer> resp = new List<SubscriptionsPricesContainer>();
-
                     for (int i = 0; i < subscriptions.Length; i++)
                     {
                         string subscriptionCode = subscriptions[i];
@@ -6708,6 +6708,32 @@ namespace ConditionalAccess
                 List<int> notForPurchaseFiles = validMediaFiles.Where(x => x.Value == MediaFileStatus.NotForPurchase).Select(x => x.Key).ToList();
                 mediaFiles = validMediaFiles.Where(x => x.Value != MediaFileStatus.NotForPurchase).Select(x => x.Key).ToArray();
 
+                bool isValidCurrencyCode = false;
+                // Validate currencyCode if it was passed in the request
+                if (!string.IsNullOrEmpty(currencyCode))
+                {
+                    if (!Utils.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                    {
+                        foreach (int mf in mediaFiles)
+                        {
+                            tempItemPricesContainer = new MediaFileItemPricesContainer();
+                            tempItemPricesContainer.m_nMediaFileID = mf;
+                            tempItemPricesContainer.m_oItemPrices = new ItemPriceContainer[1];
+                            tempItemPricesContainer.m_oItemPrices[0] = new ItemPriceContainer();
+                            tempItemPricesContainer.m_oItemPrices[0].m_PriceReason = PriceReason.InvalidCurrency;
+                            tempItemPricesContainer.m_sProductCode = string.Empty;
+                            tempRet.Add(tempItemPricesContainer);
+                        }
+
+                        ret = tempRet.ToArray();
+                        return ret;
+                    }
+                    else
+                    {
+                        isValidCurrencyCode = true;
+                    }
+                }                
+
                 foreach (int mf in notForPurchaseFiles)
                 {
                     tempItemPricesContainer = new MediaFileItemPricesContainer();
@@ -6777,7 +6803,6 @@ namespace ConditionalAccess
                         PPVModuleWithExpiry[] ppvModules = oModules[i].m_oPPVModules;
                         MediaFileItemPricesContainer mf = new MediaFileItemPricesContainer();
                         int nMediaFileTypeID = Utils.GetMediaFileTypeID(m_nGroupID, nMediaFileID, sAPIUsername, sAPIPassword);
-
                         if (ppvModules != null && ppvModules.Length > 0)
                         {
                             List<ItemPriceContainer> itemPriceCont = new List<ItemPriceContainer>();
@@ -6802,14 +6827,23 @@ namespace ConditionalAccess
                             {
                                 string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
                                 // Get PPV price code according to country and currency (if exists on the request)
-                                if ((!string.IsNullOrEmpty(currencyCode) && Utils.IsValidCurrencyCode(currencyCode)) || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
+                                if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
                                 {
-                                    PriceCode priceCodeWithCurrency = objPricingModule.GetPriceCodeByCountyAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
-                                    DiscountModule discountModuleWithCurrency = objPricingModule.GetDiscountCodeDataByCountryAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
-                                    if (priceCodeWithCurrency == null || discountModuleWithCurrency == null)
+                                    PriceCode priceCodeWithCurrency = objPricingModule.GetPriceCodeDataByCountyAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
+                                    bool shouldCheckDiscountModule = false;
+                                    DiscountModule discountModuleWithCurrency = null;
+                                    if (ppvModules[j].PPVModule.m_oDiscountModule != null)
                                     {
-                                        // return error
-                                        throw new Exception("priceCode or discountModule not found");                                        
+                                        discountModuleWithCurrency = objPricingModule.GetDiscountCodeDataByCountryAndCurrency(sPricingUsername, sPricingPassword, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
+                                        shouldCheckDiscountModule = true;
+                                    }
+
+                                    if (priceCodeWithCurrency == null || (shouldCheckDiscountModule && discountModuleWithCurrency == null))
+                                    {
+                                        ItemPriceContainer invalidItemPriceContainer = new ItemPriceContainer();
+                                        invalidItemPriceContainer.m_PriceReason = PriceReason.CurrencyNotDefinedOnPriceCode;
+                                        itemPriceCont.Add(invalidItemPriceContainer);
+                                        continue;
                                     }
                                     else
                                     {                                        
