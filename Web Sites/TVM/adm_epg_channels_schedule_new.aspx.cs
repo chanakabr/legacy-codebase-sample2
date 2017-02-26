@@ -318,6 +318,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
                 isDownloadPicWithImageServer = true;
                 int groupId = LoginManager.GetLoginGroupID();
                 imageUrl = GetEpgChannelsSchedulePicImageUrl(out picId);
+                epg.PicID = picId;
             }
 
             DataRecordOnePicBrowserField dr_pic = new DataRecordOnePicBrowserField(string.Empty, epg.EpgIdentifier, epg.ChannelID, isDownloadPicWithImageServer, imageUrl, picId);
@@ -394,29 +395,12 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
     private string GetEpgChannelsSchedulePicImageUrl(out int picId)
     {
         string imageUrl = string.Empty;
-        string baseUrl = string.Empty;
-        int version = 0;
         picId = 0;
-        int groupId = LoginManager.GetLoginGroupID();
 
         object epgChannelsScheduleId = Session["epg_channels_schedule_id"];
+        object channelId = Session["epg_channel_id"];
 
-
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select p.BASE_URL, p.ID, p.version from epg_pics p left join epg_channels_schedule ec on ec.PIC_ID = p.ID where p.STATUS in (0, 1) and ec.id = " + epgChannelsScheduleId.ToString();
-
-        if (selectQuery.Execute("query", true) != null && selectQuery.Table("query").DefaultView != null && selectQuery.Table("query").DefaultView.Count > 0)
-        {
-
-            baseUrl = ODBCWrapper.Utils.GetSafeStr(selectQuery.Table("query").DefaultView[0].Row["BASE_URL"]);
-            picId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["ID"]);
-            version = ODBCWrapper.Utils.GetIntSafeVal(selectQuery.Table("query").DefaultView[0].Row["version"]);
-            int parentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
-
-            imageUrl = PageUtils.BuildEpgUrl(parentGroupID, baseUrl, version);
-        }
-
-        return imageUrl;
+        return PageUtils.GetEpgChannelsSchedulePicImageUrlByScheduleId(epgChannelsScheduleId.ToString(), channelId.ToString(), out picId);        
     }
 
 
@@ -424,18 +408,17 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
     {
         // update epg_multi_pictures
         // update epg_channels_schedule only if ratio Is the group default ratio
-
-        string epgIdentifier = string.Empty;
+        var epgIdentifierSession = Session["epgIdentifierForScheduleNew"];
         int picId = 0;
         int ratioId = 0;
 
-        if (Session["epgIdentifier"] == null || string.IsNullOrEmpty(Session["epgIdentifier"].ToString()))
+        if (epgIdentifierSession == null || string.IsNullOrWhiteSpace(epgIdentifierSession.ToString()))
         {
             log.Error("UpdateEpgChannelSchedulePics epgIdentifier is null");
             return 0;
         }
 
-        epgIdentifier = Session["epgIdentifier"].ToString();
+        string epgIdentifier = epgIdentifierSession.ToString();
 
         //Get picId
         string epgPic = string.Format("Epg_Channel_Schedule_{0}_Pic_Id", epgIdentifier);
@@ -489,6 +472,7 @@ public partial class adm_epg_channels_schedule_new : System.Web.UI.Page
             picId = 0;
         }
 
+        Session["epgIdentifierForScheduleNew"] = null;
         return picId;
     }
 
