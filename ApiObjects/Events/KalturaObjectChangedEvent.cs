@@ -21,9 +21,9 @@ namespace ApiObjects
             set;
         }
 
-        public KalturaObjectChangedEvent(int groupId = 0, ApiObjects.CoreObject newObject = null, ApiObjects.CoreObject previousObject = null, 
-            List<string> changedFields = null, string type = null)
-            : base (groupId, newObject, eKalturaEventActions.Changed, type)
+        public KalturaObjectChangedEvent(int groupId = 0, ApiObjects.CoreObject newObject = null, ApiObjects.CoreObject previousObject = null,
+            List<string> changedFields = null, eKalturaEventTime time = eKalturaEventTime.After, string type = null)
+            : base(groupId, newObject, eKalturaEventActions.Changed, time, type)
         {
             this.PreviousObject = previousObject;
             this.ChangedFields = changedFields;

@@ -2780,10 +2780,10 @@ namespace DAL
             return sp.ExecuteReturnValue<long>();
         }
 
-        public static Compensation GetSubscriptionCompensation(long purchaseId)
+        public static Compensation GetSubscriptionCompensationByPurchaseId(long purchaseId)
         {
             Compensation compensation = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensation");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensationByPurchaseId");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@purchaseId", purchaseId);
             
@@ -2818,7 +2818,8 @@ namespace DAL
                 Renewals = ODBCWrapper.Utils.GetIntSafeVal(row, "RENEWALS"),
                 CompensationType = (CompensationType)ODBCWrapper.Utils.GetIntSafeVal(row, "COMPENSATION_TYPE"),
                 Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
-                SubscriptionId = ODBCWrapper.Utils.GetIntSafeVal(row, "SUBSCRIPTION_ID"),
+                SubscriptionId = ODBCWrapper.Utils.GetLongSafeVal(row, "SUBSCRIPTION_ID"),
+                PurchaseId = ODBCWrapper.Utils.GetIntSafeVal(row, "PURCHASE_ID"),
             };
         }
 
@@ -2831,6 +2832,22 @@ namespace DAL
 
             rowCount = sp.ExecuteReturnValue<int>();
             return rowCount > 0;
+        }
+
+        public static Compensation GetSubscriptionCompensation(long id)
+        {
+            Compensation compensation = null;
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionCompensation");
+            sp.SetConnectionKey("CA_CONNECTION_STRING");
+            sp.AddParameter("@id", id);
+
+            DataTable dt = sp.Execute();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                compensation = BuildCompensation(dt.Rows[0]);
+            }
+            return compensation;
         }
 
         public static DataTable GetAllCurrencies()
@@ -2853,7 +2870,7 @@ namespace DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             return sp.ExecuteReturnValue<int>();
-        }                
+        }
 
     }
 }
