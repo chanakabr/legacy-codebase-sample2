@@ -31,7 +31,7 @@ namespace WebAPI.EventNotifications
             this.SendRequest(eventWrapper);
         }
 
-        #endregion 
+        #endregion
 
         #region Properties
 
@@ -44,6 +44,13 @@ namespace WebAPI.EventNotifications
 
         [JsonProperty("method")]
         public eHttpMethod Method
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("status_handling")]
+        public eHttpStatusHandling StatusHandling
         {
             get;
             set;
@@ -162,6 +169,13 @@ namespace WebAPI.EventNotifications
             set;
         }
 
+        [JsonProperty("content_type")]
+        public string ContentType
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Protected and private methods
@@ -213,7 +227,12 @@ namespace WebAPI.EventNotifications
             int statusCode = -1;
 
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
-            webRequest.ContentType = "application/x-www-form-urlencoded";
+            webRequest.ContentType = "application/json";
+
+            if (!string.IsNullOrEmpty(this.ContentType))
+            {
+                webRequest.ContentType = this.ContentType;
+            }
             webRequest.Method = method;
 
             string postBody = JsonConvert.SerializeObject(phoenixObject, Newtonsoft.Json.Formatting.None);
@@ -290,6 +309,40 @@ namespace WebAPI.EventNotifications
             {
                 log.Error("Error in SendPostHttpReq Exception", ex);
             }
+
+            //switch (this.StatusHandling)
+            //{
+            //    case eHttpStatusHandling.None:
+            //    break;
+            //    case eHttpStatusHandling.OnlySuccess:
+            //    {
+            if (statusCode < 200 || statusCode >= 300)
+            {
+                throw new Exception("HTTP handler: received unwanted status code");
+            }
+            //        break;
+            //    }
+            //    case eHttpStatusHandling.AllowRedirection:
+            //    {
+            //        if (statusCode < 200 || statusCode >= 400)
+            //        {
+            //            throw new Exception("HTTP handler: received unwanted status code");
+            //        }
+            //        break;
+            //    }
+            //    case eHttpStatusHandling.AllowClientError:
+            //    {
+            //        if (statusCode < 200 || statusCode >= 500)
+            //        {
+            //            throw new Exception("HTTP handler: received unwanted status code");
+            //        }
+            //        break;
+            //    }
+            //    case eHttpStatusHandling.AllowServerError:
+            //    break;
+            //    default:
+            //    break;
+            //}
         }
 
         public void Post(object phoenix)
@@ -463,6 +516,7 @@ namespace WebAPI.EventNotifications
 
         #endregion
         #endregion
+
     }
 
     public class NotificationCredentials : ICredentials
@@ -477,7 +531,7 @@ namespace WebAPI.EventNotifications
         public NetworkCredential GetCredential(Uri uri, string authType)
         {
             NetworkCredential credentials = new NetworkCredential(handler.Username, handler.Password);
-            
+
             return credentials;
         }
     }
@@ -502,6 +556,15 @@ namespace WebAPI.EventNotifications
         Post,
         Put,
         Delete
+    }
+
+    public enum eHttpStatusHandling
+    {
+        None,
+        OnlySuccess,
+        AllowRedirection,
+        AllowClientError,
+        AllowServerError
     }
 
     public enum eAuthenticationMethod

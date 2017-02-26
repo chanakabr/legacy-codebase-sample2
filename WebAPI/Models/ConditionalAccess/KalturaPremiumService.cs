@@ -13,6 +13,8 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Premium service
     /// </summary>
+    [XmlInclude(typeof(KalturaNpvrPremiumService))]
+    [XmlInclude(typeof(KalturaHouseholdPremiumService))]
     public class KalturaPremiumService : KalturaOTTObject
     {
         /// <summary>

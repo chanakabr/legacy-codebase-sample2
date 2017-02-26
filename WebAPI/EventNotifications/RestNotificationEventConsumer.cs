@@ -20,8 +20,8 @@ namespace WebAPI
         #region Consts
         
         private const string CB_SECTION_NAME = "groups";
-        private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}_{2}";
-        private const string CB_GENERAL_KEY_FORMAT = "notification_{0}_{1}";
+        private const string CB_SPECIFIC_PARTNER_KEY_FORMAT = "notification_{0}_{1}_{2}_{3}";
+        private const string CB_GENERAL_KEY_FORMAT = "notification_0_{0}_{1}_{2}";
 
         #endregion
 
@@ -53,9 +53,9 @@ namespace WebAPI
             return result;
         }
 
-        protected override bool Consume(KalturaEvent kalturaEvent)
+        protected override eEventConsumptionResult Consume(KalturaEvent kalturaEvent)
         {
-            bool result = false;
+            eEventConsumptionResult result = eEventConsumptionResult.None;
 
             KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
             EventNotification specificNotification = null;
@@ -95,7 +95,7 @@ namespace WebAPI
                 generalNotification = cbManager.Get<EventNotification>(cbKey, true);
             }
 
-            // chek if we have the metadata at all. if we don't we don't continue
+            // check if we have the metadata at all. if we don't we don't continue
             if (specificNotification == null && generalNotification == null)
             {
                 shouldConsume = false;
@@ -129,10 +129,12 @@ namespace WebAPI
 
             if (!shouldConsume)
             {
-                return false;
+                return eEventConsumptionResult.None;
             }
 
             #endregion
+
+            result = eEventConsumptionResult.Success;
 
             #region Convert object
 
@@ -163,55 +165,38 @@ namespace WebAPI
 
                 try
                 {
-                    // first check action's status - if it isn't good,
-                    if (action.Status != 1)
-                    {
-                        continue;
-                    }
-                    bool conditionResult = true;
-
-                    // Check conditions for this action. If all are OK, perform action. If one fails, stop.
-                    if (action.Conditions != null && action.Conditions.Count > 0)
-                    {
-                        foreach (var condition in action.Conditions)
-                        {
-                            // Only for active/enabled conditions
-                            if (condition.Status == 1)
-                            {
-                                conditionResult &= condition.Evaluate(kalturaEvent, eventWrapper.eventObject);
-                            }
-                        }
-                    }
-
-                    if (!conditionResult)
-                    {
-                        continue;
-                    }
-
-                    if (!action.IsAsync)
-                    {
-                        action.Handle(kalturaEvent, eventWrapper);
-                    }
-                    else
-                    {
-                        Task t = Task.Factory.StartNew(() =>
-                        {
-                            action.Handle(kalturaEvent, eventWrapper);
-                        }
-                        );
-                    }
+                    PerformAction(action, kalturaEvent, eventWrapper);
                 }
                 catch (Exception ex)
                 {
                     log.ErrorFormat(
                         "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
                         kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.GetType().ToString(), ex);
+
+                    // If at least one of the actions failed - mark the consumption result as failed
+                    result = eEventConsumptionResult.Failure;
+
+                    // Handle failure with follow-up actions (similar fashion to AJAX)
+                    if (action.FailureHandlers != null && action.FailureHandlers.Count > 0)
+                    {
+                        foreach (var handler in action.FailureHandlers)
+                        {
+                            try
+                            {
+                                PerformAction(handler, kalturaEvent, eventWrapper);
+                            }
+                            catch (Exception innerEx)
+                            {
+                                log.ErrorFormat(
+                                    "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
+                                    kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, handler.GetType().ToString(), innerEx);
+                            }
+                        }
+                    }
                 }
             }
 
             #endregion
-
-            result = true;
 
             return result;
         }
@@ -220,14 +205,56 @@ namespace WebAPI
 
         #region Protected methods
 
+        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaEventWrapper eventWrapper)
+        {
+            // first check action's status - if it isn't good,
+            if (action.Status != 1)
+            {
+                return;
+            }
+
+            bool conditionResult = true;
+
+            // Check conditions for this action. If all are OK, perform action. If one fails, stop.
+            if (action.Conditions != null && action.Conditions.Count > 0)
+            {
+                foreach (var condition in action.Conditions)
+                {
+                    // Only for active/enabled conditions
+                    if (condition.Status == 1)
+                    {
+                        conditionResult &= condition.Evaluate(kalturaEvent, eventWrapper.eventObject);
+                    }
+                }
+            }
+
+            if (!conditionResult)
+            {
+                return;
+            }
+
+            if (!action.IsAsync)
+            {
+                action.Handle(kalturaEvent, eventWrapper);
+            }
+            else
+            {
+                Task t = Task.Factory.StartNew(() =>
+                {
+                    action.Handle(kalturaEvent, eventWrapper);
+                }
+                );
+            }
+        }
+
         protected string GetCBGeneralKey(KalturaObjectActionEvent kalturaEvent)
         {
-            return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+            return string.Format(CB_GENERAL_KEY_FORMAT, kalturaEvent.Time, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }
 
         protected string GetCBSpecificKey(KalturaObjectActionEvent kalturaEvent)
         {
-            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Type, kalturaEvent.Action).ToLower();
+            return string.Format(CB_SPECIFIC_PARTNER_KEY_FORMAT, kalturaEvent.PartnerId, kalturaEvent.Time, kalturaEvent.Type, kalturaEvent.Action).ToLower();
         }
 
         #endregion

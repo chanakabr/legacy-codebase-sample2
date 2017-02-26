@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EventManager;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,13 @@ namespace WebAPI.Managers.Models
 
         [JsonProperty("is_asynch")]
         public bool IsAsync
+        {
+            get;
+            set;
+        }
+
+        [JsonProperty("failure_handlers")]
+        public List<NotificationAction> FailureHandlers
         {
             get;
             set;

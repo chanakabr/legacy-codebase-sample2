@@ -52,11 +52,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes a compensation by identifier
+        /// Delete a compensation by identifier
         /// </summary>
         /// <param name="id">Compensation identifier</param>
         /// <returns></returns>
         [Route("delete"), HttpPost]
+        [Throws(eResponseStatus.CompensationNotFound)]
         [ApiAuthorize]
         public void Delete(long id)
         {
@@ -70,6 +71,32 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+        }
+
+        /// <summary>
+        /// Get a compensation by identifier
+        /// </summary>
+        /// <param name="id">Compensation identifier</param>
+        /// <returns></returns>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CompensationNotFound)]
+        public KalturaCompensation Get(long id)
+        {
+            KalturaCompensation response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                response = ClientsManager.ConditionalAccessClient().GetCompensation(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }
