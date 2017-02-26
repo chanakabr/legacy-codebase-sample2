@@ -514,6 +514,11 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", "Content language");
             writer.WriteEndElement(); // language
 
+            writer.WriteStartElement("currency");
+            writer.WriteAttributeString("type", "string");
+            writer.WriteAttributeString("description", "Content currency");
+            writer.WriteEndElement(); // currency
+
             writer.WriteStartElement("ks");
             writer.WriteAttributeString("type", "string");
             writer.WriteAttributeString("alias", "sessionId");

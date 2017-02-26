@@ -19,6 +19,8 @@ namespace WebAPI.Models.Pricing
         first_device_limitation, 
         collection_purchased,
         user_suspended,
-        not_for_purchase
+        not_for_purchase,
+        invalid_currency,
+        currency_not_defined_on_price_code
     }
 }

@@ -98,6 +98,12 @@ namespace WebAPI.Utils
             return language != null ? language.ToString() : null;
         }
 
+        internal static string GetCurrencyFromRequest()
+        {
+            var currency = HttpContext.Current.Items[RequestParser.REQUEST_CURRENCY];
+            return currency != null ? currency.ToString() : null;
+        }
+
         public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
         {
             return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);

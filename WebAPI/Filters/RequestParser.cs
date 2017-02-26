@@ -107,9 +107,11 @@ namespace WebAPI.Filters
         public const string REQUEST_VERSION = "requestVersion";
         public const string REQUEST_USER_ID = "user_id";
         public const string REQUEST_LANGUAGE = "language";
+        public const string REQUEST_CURRENCY = "currency";
         public const string REQUEST_GLOBAL_KS = "global_ks";
         public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
         public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
+        public const string REQUEST_GLOBAL_CURRENCY = "global_currency";
         public const string REQUEST_SERVICE = "requestService";
         public const string REQUEST_ACTION = "requestAction";
         public const string REQUEST_TIME = "requestTime";
@@ -242,6 +244,29 @@ namespace WebAPI.Filters
             else if (HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE] != null)
             {
                 HttpContext.Current.Items.Add(REQUEST_LANGUAGE, HttpContext.Current.Items[REQUEST_GLOBAL_LANGUAGE]);
+            }
+
+            // currency
+            HttpContext.Current.Items.Remove(REQUEST_CURRENCY);
+            if (requestParams.ContainsKey("currency") && requestParams["currency"] != null)
+            {
+                string currency;
+                if (requestParams["currency"].GetType() == typeof(JObject) || requestParams["currency"].GetType().IsSubclassOf(typeof(JObject)))
+                {
+                    currency = ((JObject)requestParams["currency"]).ToObject<string>();
+                }
+                else
+                {
+                    currency = (string)Convert.ChangeType(requestParams["currency"], typeof(string));
+                }
+
+                HttpContext.Current.Items.Add(REQUEST_CURRENCY, currency);
+                if (globalScope && HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY] == null)
+                    HttpContext.Current.Items.Add(REQUEST_GLOBAL_CURRENCY, currency);
+            }
+            else if (HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY] != null)
+            {
+                HttpContext.Current.Items.Add(REQUEST_CURRENCY, HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY]);
             }
 
             if (HttpContext.Current.Items[REQUEST_TYPE] != null)

@@ -303,6 +303,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case PriceReason.NotForPurchase:
                     result = KalturaPurchaseStatus.not_for_purchase;
                     break;
+                case PriceReason.InvalidCurrency:
+                    result = KalturaPurchaseStatus.invalid_currency;
+                    break;
+                case PriceReason.CurrencyNotDefinedOnPriceCode:
+                    result = KalturaPurchaseStatus.currency_not_defined_on_price_code;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown purchase status");
             }

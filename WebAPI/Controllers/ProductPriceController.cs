@@ -34,6 +34,7 @@ namespace WebAPI.Controllers
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
+            string currency = Utils.Utils.GetCurrencyFromRequest();
             
             if ((filter.SubscriptionIdIn == null || filter.SubscriptionIdIn.Count() == 0) && (filter.FileIdIn == null || filter.FileIdIn.Count() == 0))
             {
@@ -45,7 +46,7 @@ namespace WebAPI.Controllers
                 {
                     // call client
                     subscriptionPrices = ClientsManager.ConditionalAccessClient().GetSubscriptionsPrices(groupId, filter.getSubscriptionIdIn(), KS.GetFromRequest().UserId, filter.CouponCodeEqual,
-                                                                                                            udid, language, filter.getShouldGetOnlyLowest(), filter.CurrencyCodeEqual);
+                                                                                                            udid, language, filter.getShouldGetOnlyLowest(), currency);
                     productPrices.AddRange(subscriptionPrices);
                 }
 
@@ -53,7 +54,7 @@ namespace WebAPI.Controllers
                 {
                     // call client
                     ppvPrices = ClientsManager.ConditionalAccessClient().GetPpvPrices(groupId, filter.getFileIdIn(), KS.GetFromRequest().UserId, filter.CouponCodeEqual, udid, language,
-                                                                                        filter.getShouldGetOnlyLowest(), filter.CurrencyCodeEqual);
+                                                                                        filter.getShouldGetOnlyLowest(), currency);
                     productPrices.AddRange(ppvPrices);
                 }
 

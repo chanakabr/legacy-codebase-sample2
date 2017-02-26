@@ -48,14 +48,6 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "couponCodeEqual")]
         public string CouponCodeEqual { get; set; }
 
-        /// <summary>
-        /// Currency code (code3)
-        /// </summary>
-        [DataMember(Name = "currencyCodeEqual")]
-        [JsonProperty("currencyCodeEqual")]
-        [XmlElement(ElementName = "currencyCodeEqual", IsNullable = true)]
-        public string CurrencyCodeEqual { get; set; }
-
         internal bool getShouldGetOnlyLowest()
         {
             return isLowest.HasValue ? (bool)isLowest : false;
