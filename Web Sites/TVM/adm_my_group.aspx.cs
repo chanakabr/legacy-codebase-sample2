@@ -374,6 +374,11 @@ public partial class adm_my_group : System.Web.UI.Page
         dr_npvr_quota.Initialize("NPVR Quota", "adm_table_header_nbg", "FormInput", "npvr_quota_in_seconds", false);
         theRecord.AddRecord(dr_npvr_quota);
 
+        DataRecordDropDownField dr_currency = new DataRecordDropDownField("lu_currency", "name", "id", "", null, 60, true);
+        string currencyQuery = "select name as txt,id as id from pricing.dbo.lu_currency where status=1 and is_active=1";
+        dr_currency.Initialize("Default Currency", "adm_table_header_nbg", "FormInput", "CURRENCY_ID", false);
+        theRecord.AddRecord(dr_currency);
+
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
         return sTable;
