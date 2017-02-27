@@ -8,6 +8,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using CachingHelpers;
+using CachingProvider.LayeredCache;
 using Core.Catalog.Cache;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -41,8 +42,8 @@ namespace Core.Catalog
     public class CatalogLogic
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly KLogger statisticsLog = new KLogger("MediaEohLogger", true);
-        private static readonly KLogger newWatcherMediaActionLog = new KLogger("NewWatcherMediaActionLogger", true);
+        private static readonly KLogger statisticsLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "MediaEohLogger");
+        private static readonly KLogger newWatcherMediaActionLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "NewWatcherMediaActionLogger");
 
         private static readonly string TAGS = "tags";
         private static readonly string METAS = "metas";
@@ -50,9 +51,6 @@ namespace Core.Catalog
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
         private static readonly int ASSET_STATS_VIEWS_INDEX = 0;
-        private static readonly int ASSET_STATS_VOTES_INDEX = 1;
-        private static readonly int ASSET_STATS_VOTES_SUM_INDEX = 2;
-        private static readonly int ASSET_STATS_LIKES_INDEX = 3;
 
         private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 10000;
 
@@ -61,10 +59,10 @@ namespace Core.Catalog
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         internal const int FINISHED_PERCENT_THRESHOLD = 95;
         private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
-        internal static readonly string STAT_ACTION_MEDIA_HIT = "mediahit";
-        internal static readonly string STAT_ACTION_FIRST_PLAY = "firstplay";
-        internal static readonly string STAT_ACTION_LIKE = "like";
-        internal static readonly string STAT_ACTION_RATES = "rates";
+        internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
+        internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
+        internal const string STAT_ACTION_LIKE = "like";
+        internal const string STAT_ACTION_RATES = "rates";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
@@ -1098,7 +1096,7 @@ namespace Core.Catalog
         /// <returns></returns>
         private static List<int> GetGeoBlockRules(int groupId, string ip)
         {
-            int countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+            int countryId = Utils.GetIP2CountryId(groupId, ip);
 
             //GroupsCache.Instance().
             List<int> result = GeoBlockRulesCache.Instance().GetGeoBlockRulesByCountry(groupId, countryId);
@@ -2464,6 +2462,30 @@ namespace Core.Catalog
 
                     legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", group.m_nParentGroupID, updatedObjectType.ToString()));
                 }
+
+                switch (updatedObjectType)
+                {
+                    case eObjectType.Unknown:
+                        break;
+                    case eObjectType.Media:                        
+                        foreach (long id in ids)
+                        {
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                        }
+                        break;
+                    case eObjectType.Channel:
+                        // Set invalidation for the entire group
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId));
+                        break;
+                    case eObjectType.EPG:
+                        break;
+                    case eObjectType.EpgChannel:
+                        break;
+                    case eObjectType.Recording:
+                        break;
+                    default:
+                        break;
+                }
             }
 
             return isUpdateIndexSucceeded;
@@ -3310,27 +3332,26 @@ namespace Core.Catalog
 
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
 
-                        if (IsBringAllStatsRegardlessDates(dStartDate, dEndDate))
-                        {
-                            /*
-                             * When dates are fictive, we get all data (Views, VotesCount, VotesSum, Likes) from media table in SQL DB.
-                             */
-                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(null, null, nGroupID, lAssetIDs);
 
+                        /*
+                         * When we have valid dates in Media Asset Stats request we fetch the data as follows:
+                         * 1. Views Rating and Likes from ES statistics index.
+                         * 
+                         *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
+                         */
+
+                        if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
+                        {
+                            #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
+
+                            Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
                             if (dict.Count > 0)
                             {
                                 foreach (KeyValuePair<int, int[]> kvp in dict)
                                 {
                                     if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
                                     {
-                                        int votesCount = kvp.Value[ASSET_STATS_VOTES_INDEX];
                                         assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nVotes = votesCount;
-                                        assetIdToAssetStatsMapping[kvp.Key].m_nLikes = kvp.Value[ASSET_STATS_LIKES_INDEX];
-                                        if (votesCount > 0)
-                                        {
-                                            assetIdToAssetStatsMapping[kvp.Key].m_dRate = ((double)kvp.Value[ASSET_STATS_VOTES_SUM_INDEX]) / votesCount;
-                                        }
                                         if (isBuzzNotEmpty)
                                         {
                                             string strAssetID = kvp.Key.ToString();
@@ -3340,98 +3361,54 @@ namespace Core.Catalog
                                             }
                                             else
                                             {
-                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("Buzz Meter for media id: ", strAssetID, " does not exist. "), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                                log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                                             }
                                         }
                                     }
                                 } // foreach
-                            } // end if dict is not empty
+                            }
                             else
                             {
-                                // log here no data retrieved from media table.
-                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No data retrieved from media table.", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
                             }
+
+                            // save monitor and logs context data
+                            ContextData contextData = new ContextData();
+
+                            // bring social actions from CB social bucket
+                            Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
+                            for (int i = 0; i < lAssetIDs.Count; i++)
+                            {
+                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                {
+                                    // load monitor and logs context data
+                                    contextData.Load();
+
+                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
+                                }
+                                    , lAssetIDs[i]);
+                            }
+                            Task.WaitAll(tasks);
+                            for (int i = 0; i < tasks.Length; i++)
+                            {
+                                if (tasks[i] != null)
+                                {
+                                    AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
+                                    if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
+                                    {
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
+                                        assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
+                                    }
+                                }
+                                tasks[i].Dispose();
+                            }
+                            #endregion
                         }
                         else
                         {
-                            /*
-                             * When we have valid dates in Media Asset Stats request we fetch the data as follows:
-                             * 1. Views Rating and Likes from ES statistics index.
-                             * 
-                             *  Only for groups that are not contained in GROUPS_USING_DB_FOR_ASSETS_STATS
-                             */
-
-                            if (Utils.IsGroupIDContainedInConfig(nGroupID, "GROUPS_USING_DB_FOR_ASSETS_STATS", ';'))
-                            {
-                                #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
-
-                                Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
-                                if (dict.Count > 0)
-                                {
-                                    foreach (KeyValuePair<int, int[]> kvp in dict)
-                                    {
-                                        if (assetIdToAssetStatsMapping.ContainsKey(kvp.Key))
-                                        {
-                                            assetIdToAssetStatsMapping[kvp.Key].m_nViews = kvp.Value[ASSET_STATS_VIEWS_INDEX];
-                                            if (isBuzzNotEmpty)
-                                            {
-                                                string strAssetID = kvp.Key.ToString();
-                                                if (buzzDict.ContainsKey(strAssetID) && buzzDict[strAssetID] != null)
-                                                {
-                                                    assetIdToAssetStatsMapping[kvp.Key].m_buzzAverScore = buzzDict[strAssetID];
-                                                }
-                                                else
-                                                {
-                                                    log.Error("Error - " + GetAssetStatsResultsLogMsg(String.Concat("No buzz meter found for media id: ", kvp.Key), nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                                                }
-                                            }
-                                        }
-                                    } // foreach
-                                }
-                                else
-                                {
-                                    log.Error("Error - " + GetAssetStatsResultsLogMsg("No media views retrieved from DB. ", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
-                                }
-
-                                // save monitor and logs context data
-                                ContextData contextData = new ContextData();
-
-                                // bring social actions from CB social bucket
-                                Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
-                                for (int i = 0; i < lAssetIDs.Count; i++)
-                                {
-                                    tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
-                                    {
-                                        // load monitor and logs context data
-                                        contextData.Load();
-
-                                        return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                    }
-                                        , lAssetIDs[i]);
-                                }
-                                Task.WaitAll(tasks);
-                                for (int i = 0; i < tasks.Length; i++)
-                                {
-                                    if (tasks[i] != null)
-                                    {
-                                        AssetStatsResult.SocialPartialAssetStatsResult socialData = tasks[i].Result;
-                                        if (socialData != null && assetIdToAssetStatsMapping.ContainsKey(socialData.assetId))
-                                        {
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_nLikes = socialData.likesCounter;
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_dRate = socialData.rate;
-                                            assetIdToAssetStatsMapping[socialData.assetId].m_nVotes = socialData.votes;
-                                        }
-                                    }
-                                    tasks[i].Dispose();
-                                }
-                                #endregion
-                            }
-                            else
-                            {
-                                /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
-                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
-                            }
-
+                            /************* For versions after Joker that don't want to use DB for getting stats, we fetch the data from ES statistics index **********/
+                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
                         }
 
                         break;
@@ -4118,11 +4095,11 @@ namespace Core.Catalog
         }
 
         internal static bool GetMediaMarkHitInitialData(string sSiteGuid, string userIP, int mediaID, int mediaFileID, ref int countryID,
-            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration)
+            ref int ownerGroupID, ref int cdnID, ref int qualityID, ref int formatID, ref int mediaTypeID, ref int billingTypeID, ref int fileDuration, int groupId)
         {
             if (!TVinciShared.WS_Utils.GetTcmBoolValue("CATALOG_HIT_CACHE"))
             {
-                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                countryID = Utils.GetIP2CountryId(groupId, userIP);
                 return CatalogDAL.GetMediaPlayData(mediaID, mediaFileID, ref ownerGroupID, ref cdnID, ref qualityID, ref formatID, ref mediaTypeID, ref billingTypeID, ref fileDuration);
             }
 
@@ -4174,7 +4151,7 @@ namespace Core.Catalog
             {
                 log.DebugFormat("GetMediaMarkHitInitialData, try getting countryID from ES, if it fails get countryID from DB");
 
-                countryID = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(userIP);
+                countryID = Utils.GetIP2CountryId(groupId, userIP);
                 //getting from ES failed
                 if (countryID == 0)
                 {
@@ -4363,8 +4340,12 @@ namespace Core.Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 1
+                PageSize = 0,
+                ZeroSize = true
             };
+
+            filteredQuery.ReturnFields.Clear();
+
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
@@ -4375,15 +4356,28 @@ namespace Core.Catalog
             });
 
             #region define date filter
-            ESRange dateRange = new ESRange(false)
+            if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
             {
-                Key = "action_date"
-            };
-            string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            filter.AddChild(dateRange);
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+                string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+
+                if (!startDate.Equals(DateTime.MinValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                }
+
+                if (!endDate.Equals(DateTime.MaxValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+                }
+
+                filter.AddChild(dateRange);
+            }
+
             #endregion
 
             #region define action filter
@@ -4414,7 +4408,8 @@ namespace Core.Catalog
             {
                 Field = "media_id",
                 Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
-                Type = eElasticAggregationType.terms
+                Type = eElasticAggregationType.terms,
+                ShardSize = 0
             };
 
             filteredQuery.Aggregations.Add(aggregation);
@@ -4426,37 +4421,75 @@ namespace Core.Catalog
         internal static List<int> SlidingWindowCountAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action)
         {
-            List<int> result = new List<int>();
+            List<int> result = new List<int>(lMediaIds);
+            
+            var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
 
-            // if no ordering is specified to BuildSlidingWindowCountAggregationsRequest function then default is order by count descending
-            string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
-
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-            if (!string.IsNullOrEmpty(retval))
+            // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
+            if (searcher != null)
             {
-                //Get aggregations results
-                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
+                var assetIds = lMediaIds.Select(id => (long)id).ToList();
+                OrderBy orderBy = OrderBy.ID;
 
-                if (aggregationResults != null && aggregationResults.Count > 0)
+                switch (action)
                 {
-                    Dictionary<string, int> aggregationResult;
-                    //retrieve channel_views aggregations results
-                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                    if (aggregationResult != null && aggregationResult.Count > 0)
+                    case STAT_ACTION_FIRST_PLAY:
                     {
-                        foreach (string key in aggregationResult.Keys)
-                        {
-                            int count = aggregationResult[key];
+                        orderBy = OrderBy.VIEWS;
+                        break;
+                    }
+                    case STAT_ACTION_LIKE:
+                    {
+                        orderBy = OrderBy.LIKE_COUNTER;
+                        break;
+                    }
+                    case STAT_ACTION_RATES:
+                    {
+                        orderBy = OrderBy.RATING;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
 
-                            int nMediaId;
-                            if (int.TryParse(key, out nMediaId))
+                var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
+
+                result = orderedList.Select(id => (int)id).ToList();
+            }
+            else
+            {
+                // if no ordering is specified to BuildSlidingWindowCountAggregationsRequest function then default is order by count descending
+                string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
+
+                //Search
+                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+                string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
+
+                if (!string.IsNullOrEmpty(retval))
+                {
+                    //Get aggregations results
+                    Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
+
+                    if (aggregationResults != null && aggregationResults.Count > 0)
+                    {
+                        Dictionary<string, int> aggregationResult;
+                        //retrieve channel_views aggregations results
+                        aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
+
+                        if (aggregationResult != null && aggregationResult.Count > 0)
+                        {
+                            foreach (string key in aggregationResult.Keys)
                             {
-                                result.Add(nMediaId);
+                                int count = aggregationResult[key];
+
+                                int nMediaId;
+                                if (int.TryParse(key, out nMediaId))
+                                {
+                                    result.Add(nMediaId);
+                                }
                             }
                         }
                     }
@@ -4515,7 +4548,8 @@ namespace Core.Catalog
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
             {
                 PageIndex = 0,
-                PageSize = 1
+                PageSize = 0,
+                ZeroSize = true
             };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
@@ -4527,15 +4561,29 @@ namespace Core.Catalog
             });
 
             #region define date filter
-            ESRange dateRange = new ESRange(false)
+
+            if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
             {
-                Key = "action_date"
-            };
-            string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            filter.AddChild(dateRange);
+                ESRange dateRange = new ESRange(false)
+                {
+                    Key = "action_date"
+                };
+                string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+                string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
+
+                if (!startDate.Equals(DateTime.MinValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
+                }
+
+                if (!endDate.Equals(DateTime.MaxValue))
+                {
+                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
+                }
+
+                filter.AddChild(dateRange);
+            }
+
             #endregion
 
             #region define action filter
@@ -4565,6 +4613,7 @@ namespace Core.Catalog
                 Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
                 Field = "media_id",
                 Type = eElasticAggregationType.terms,
+                ShardSize = 0
             };
 
             aggregation.SubAggrgations.Add(new ESBaseAggsItem()
@@ -4582,40 +4631,79 @@ namespace Core.Catalog
         internal static List<int> SlidingWindowStatisticsAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
             DateTime dtEndDate, string action, string valueField, AggregationsComparer.eCompareType compareType)
         {
-            List<int> result = new List<int>();
 
-            string aggregationsQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
-                action, valueField);
+            List<int> result = new List<int>(lMediaIds);
 
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
+            var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
 
-            if (!string.IsNullOrEmpty(retval))
+            // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
+            if (searcher != null)
             {
-                //Get aggregation results
-                Dictionary<string, List<StatisticsAggregationResult>> aggregationResults =
-                    ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
+                var assetIds = lMediaIds.Select(id => (long)id).ToList();
+                OrderBy orderBy = OrderBy.ID;
 
-                if (aggregationResults != null && aggregationResults.Count > 0)
+                switch (action)
                 {
-                    List<StatisticsAggregationResult> aggregationResult;
-                    //retrieve channel_views aggregation results
-                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                    if (aggregationResult != null && aggregationResult.Count > 0)
+                    case STAT_ACTION_FIRST_PLAY:
                     {
-                        int mediaId;
+                        orderBy = OrderBy.VIEWS;
+                        break;
+                    }
+                    case STAT_ACTION_LIKE:
+                    {
+                        orderBy = OrderBy.LIKE_COUNTER;
+                        break;
+                    }
+                    case STAT_ACTION_RATES:
+                    {
+                        orderBy = OrderBy.RATING;
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
 
-                        // sorts order by descending
-                        aggregationResult.Sort(new AggregationsComparer(compareType));
+                var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
 
-                        foreach (var stats in aggregationResult)
+                result = orderedList.Select(id => (int)id).ToList();
+            }
+            else
+            {
+                string aggregationsQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
+                    action, valueField);
+
+                //Search
+                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
+                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
+                string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
+
+                if (!string.IsNullOrEmpty(retval))
+                {
+                    //Get aggregation results
+                    Dictionary<string, List<StatisticsAggregationResult>> aggregationResults =
+                        ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
+
+                    if (aggregationResults != null && aggregationResults.Count > 0)
+                    {
+                        List<StatisticsAggregationResult> aggregationResult;
+                        //retrieve channel_views aggregation results
+                        aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
+
+                        if (aggregationResult != null && aggregationResult.Count > 0)
                         {
-                            if (int.TryParse(stats.key, out mediaId))
+                            int mediaId;
+
+                            // sorts order by descending
+                            aggregationResult.Sort(new AggregationsComparer(compareType));
+
+                            foreach (var stats in aggregationResult)
                             {
-                                result.Add(mediaId);
+                                if (int.TryParse(stats.key, out mediaId))
+                                {
+                                    result.Add(mediaId);
+                                }
                             }
                         }
                     }
@@ -4814,7 +4902,6 @@ namespace Core.Catalog
             long temp = 0;
             if (!Int64.TryParse(siteGuid, out temp) || temp < 1)
                 return false;
-
             bool res = false;
             UserResponseObject resp = Core.Users.Module.GetUserData(groupID, siteGuid, string.Empty);
             if (resp != null && resp.m_RespStatus == ResponseStatus.OK && resp.m_user != null && resp.m_user.m_domianID > 0)
@@ -5404,7 +5491,7 @@ namespace Core.Catalog
                         {
                             try
                             {
-                                string coutnryCode = ElasticSearch.Utilities.IpToCountry.GetCountryCodeByIp(request.m_sUserIP);
+                                string coutnryCode = Utils.GetIP2CountryCode(request.m_nGroupID, request.m_sUserIP);
 
                                 dictionary["client_location"] = coutnryCode;
                             }
@@ -5841,7 +5928,8 @@ namespace Core.Catalog
 
             #region Order
 
-            if (request.m_nMediaID > 0)
+            if (request.OrderObj == null &&
+                request.m_nMediaID > 0)
             {
                 definitions.order = new OrderObj()
                 {
@@ -6028,7 +6116,7 @@ namespace Core.Catalog
         /// <param name="group"></param>
         public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group)
         {
-            if (group != null)
+            if (group != null && filterTree != null)
             {
                 Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping = new Dictionary<BooleanPhraseNode, BooleanPhrase>();
 

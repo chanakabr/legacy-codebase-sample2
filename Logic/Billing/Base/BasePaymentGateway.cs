@@ -76,7 +76,7 @@ namespace Core.Billing
         private const string ERROR_REMOVING_PAYMENT_GATEWAY_HOUSEHOLD_PAYMENT_METHOD = "Error removing paymentGateway household paymentMethod";
         private const string PAYMENT_METHOD_ALREADY_SET_TO_HOUSEHOLD_PAYMENTGATEWAY = "Payment method already set to household paymentgateway";
         private const string PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = "Payment gateway not support payment method";
-        private const string PAYMENT_GATEWAY_NOT_SET_TO_HOUSEHOLD = "Payment gateway מםא set to household";
+        private const string PAYMENT_GATEWAY_NOT_SET_TO_HOUSEHOLD = "Payment gateway not set to household";
 
         protected const int FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE = 26;
 
@@ -2216,8 +2216,8 @@ namespace Core.Billing
 
                 // get relevant transaction data
                 string billingGuid;
-                int productType, transactionState, pendingTransactionState;
-                if (!DAL.BillingDAL.GetPendingPaymentGatewayTransactionDetails(pgId, externalTransactionId, out billingGuid, out productType, out transactionState, out pendingTransactionState) || string.IsNullOrEmpty(billingGuid))
+                int productType, transactionState, pendingTransactionState, domainId;
+                if (!DAL.BillingDAL.GetPendingPaymentGatewayTransactionDetails(pgId, externalTransactionId, out billingGuid, out productType, out transactionState, out pendingTransactionState, out domainId) || string.IsNullOrEmpty(billingGuid))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayTransactionNotFound, PAYMENT_GATEWAY_TRANSACTION_NOT_FOUND);
                     log.DebugFormat("payment gateway transaction was not found. paymentGatewayId = {0}, adapterTransactionState = {1}, failReason = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}, failReason = {6},",
@@ -2239,6 +2239,7 @@ namespace Core.Billing
                     response.ProductType = (eTransactionType)productType;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.TransactionState = (eTransactionState)adapterTransactionState;
+                    response.DomainId = (long)domainId;
                 }
                 // update failed
                 else
@@ -4041,6 +4042,37 @@ namespace Core.Billing
                 log.Error(string.Format("GetPaymentDetails groupId={0} , billingGuids={1}", groupID, string.Join(",", billingGuids)), ex);
                 response = new List<PaymentDetails>();
             }
+            return response;
+        }
+
+        public Status GetPaymentGatewayVerificationStatus(string billingGuid)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });               
+
+            int currentPaymentGatewayId, currentPaymentMethodId;
+
+            PaymentDetails pd = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+
+            if (pd != null)
+            {
+                currentPaymentGatewayId = pd.PaymentGatewayId;
+                currentPaymentMethodId = pd.PaymentMethodId;
+
+                PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
+
+                // check if IsVerificationPaymentGateway
+                if (IsVerificationPaymentGateway(currentPaymentGateway))
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid for action");
+                }
+                else
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+
             return response;
         }
     }

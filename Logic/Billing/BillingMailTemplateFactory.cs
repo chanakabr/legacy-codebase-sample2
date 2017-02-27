@@ -6,6 +6,7 @@ using System.Text;
 using KLogMonitor;
 using ApiObjects;
 using Core.Users;
+using System.Data;
 
 namespace Core.Billing
 {
@@ -60,25 +61,19 @@ namespace Core.Billing
             }
             if (mailRequest != null)
             {
-                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery += "select top 1 * from groups_parameters where status=1 and is_active=1 and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);                
-                selectQuery += " order by id";
-                selectQuery.SetConnectionKey("BILLING_CONNECTION_STRING");
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                    if (nCount > 0)
-                    {
-                        object oPurchaseMail = selectQuery.Table("query").DefaultView[0].Row[sMailName];
-                        object oMailFromName = selectQuery.Table("query").DefaultView[0].Row["MAIL_FROM_NAME"];
-                        object oMailFromAdd = selectQuery.Table("query").DefaultView[0].Row["MAIL_FROM_ADD"];
-                        object oPurchaseMailSubject = selectQuery.Table("query").DefaultView[0].Row[sMailSubject];
-                        object oTaxVal = selectQuery.Table("query").DefaultView[0].Row["tax_value"];
-                        object oLastInvoiceNum = selectQuery.Table("query").DefaultView[0].Row["last_invoice_num"];
-                        object oBccAddress = selectQuery.Table("query").DefaultView[0].Row["bcc_address"];
+                DataRow groupsParameters = GetGroupsParameters(groupId);
 
-                        long lastInvoiceNum = 0;
+                if (groupsParameters != null)
+                {
+                    object oPurchaseMail = groupsParameters[sMailName];
+                    object oMailFromName = groupsParameters["MAIL_FROM_NAME"];
+                    object oMailFromAdd = groupsParameters["MAIL_FROM_ADD"];
+                    object oPurchaseMailSubject = groupsParameters[sMailSubject];
+                    object oTaxVal = groupsParameters["tax_value"];
+                    object oLastInvoiceNum = groupsParameters["last_invoice_num"];
+                    object oBccAddress = groupsParameters["bcc_address"];
+
+                    long lastInvoiceNum = 0;
 
                         if (oPurchaseMail != null && oPurchaseMail != DBNull.Value)
                             mailRequest.m_sTemplateName = oPurchaseMail.ToString();
@@ -102,21 +97,14 @@ namespace Core.Billing
                             {
                                 UpdateInvoiceNum(lastInvoiceNum, groupId);
                             }                           
-                        }
+                    }
 
-                        int hoursOffset = 0;
-                        string sGMTOffset = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("GMTOffset_{0}", groupId.ToString()));
-                        if (!string.IsNullOrEmpty(sGMTOffset))
-                        {
-                            hoursOffset = int.Parse(sGMTOffset);
-                        }
+                    int hoursOffset = GetHoursOffset(groupId);
 
-                        // get default email date format from DB  - get from cache 
-                        string dateEmailFormat = Utils.GetDateEmailFormat(groupId);
-                        mailRequest.m_sPurchaseDate = DateTime.UtcNow.AddHours(hoursOffset).ToString(dateEmailFormat);
+                    mailRequest.m_sPurchaseDate = GetPurchaseDateString(groupId, hoursOffset);
 
-                        if (templateType == eMailTemplateType.PurchaseWithPreviewModule)
-                        {
+                    if (templateType == eMailTemplateType.PurchaseWithPreviewModule)
+                    {
                             ((PurchaseWithPreviewModuleRequest)mailRequest).m_sPreviewModuleEndDate = Utils.GetEndDateTime(DateTime.UtcNow.AddHours(hoursOffset), int.Parse(previewModuleLifeCycle)).ToString("dd/MM/yyyy");
                         }
                         mailRequest.m_sTransactionNumber = billingTransID.ToString();
@@ -139,10 +127,8 @@ namespace Core.Billing
                             mailRequest.m_sTaxSubtotal = getPriceStrForInvoice(taxPrice);
                             mailRequest.m_sTaxAmount = getPriceStrForInvoice(taxDisc);
                         }
-                    }
                 }
-                selectQuery.Finish();
-                selectQuery = null;
+
                 string sHouseNumber = string.Empty;
                 string sStreetName = string.Empty;
                 string sBuildeingName = string.Empty;
@@ -190,6 +176,52 @@ namespace Core.Billing
                 }
             }
             return mailRequest;
+        }
+
+        private static int GetHoursOffset(Int32 groupId)
+        {
+            int hoursOffset = 0;
+            string sGMTOffset = TVinciShared.WS_Utils.GetTcmConfigValue(string.Format("GMTOffset_{0}", groupId.ToString()));
+            if (!string.IsNullOrEmpty(sGMTOffset))
+            {
+                hoursOffset = int.Parse(sGMTOffset);
+            }
+            return hoursOffset;
+        }
+
+        public static PurchaseViaGiftCardMailRequest GetGiftCardMailTemplate(int groupId, string userId, User user, string itemName, eTransactionType? transactionType)
+        {
+            PurchaseViaGiftCardMailRequest mailRequest = new PurchaseViaGiftCardMailRequest();
+
+            DataRow groupsParameters = GetGroupsParameters(groupId);
+
+            mailRequest.m_sTemplateName = ODBCWrapper.Utils.ExtractString(groupsParameters, "PURCHASE_WITH_GIFT_CARD_MAIL");
+            mailRequest.m_sSenderName = ODBCWrapper.Utils.ExtractString(groupsParameters, "MAIL_FROM_NAME");
+            mailRequest.m_sSenderFrom = ODBCWrapper.Utils.ExtractString(groupsParameters, "MAIL_FROM_ADD");
+            mailRequest.m_sSubject = ODBCWrapper.Utils.ExtractString(groupsParameters, "PURCHASE_WITH_GIFT_CARD_MAIL_SUBJECT");
+
+            mailRequest.offerType = transactionType.ToString();
+            mailRequest.m_sItemName = itemName;
+
+            mailRequest.m_sSenderTo = user.m_oBasicData.m_sEmail;
+            mailRequest.m_sUserEmail = user.m_oBasicData.m_sEmail;
+            mailRequest.m_sLastName = user.m_oBasicData.m_sLastName;
+            mailRequest.m_sFirstName = user.m_oBasicData.m_sFirstName;
+
+            int hoursOffset = GetHoursOffset(groupId);
+            string purchaseDateString = GetPurchaseDateString(groupId, hoursOffset);
+
+            mailRequest.m_sPurchaseDate = purchaseDateString;
+
+            return mailRequest;
+        }
+
+        private static string GetPurchaseDateString(int groupId, int hoursOffset)
+        {
+            // get default email date format from DB  - get from cache 
+            string dateEmailFormat = Utils.GetDateEmailFormat(groupId);
+            string purchaseDateString = DateTime.UtcNow.AddHours(hoursOffset).ToString(dateEmailFormat);
+            return purchaseDateString;
         }
 
         private static string BuildAddressFiled(User hhUser)
@@ -316,5 +348,36 @@ namespace Core.Billing
             updateQuery = null;
         }
 
+        private static DataRow GetGroupsParameters(int groupId)
+        {
+            DataRow result = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            try
+            {
+                selectQuery += "select top 1 * from groups_parameters where status=1 and is_active=1 and ";
+                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupId);
+                selectQuery += " order by id";
+                selectQuery.SetConnectionKey("BILLING_CONNECTION_STRING");
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        result = selectQuery.Table("query").DefaultView[0].Row;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetGroupsParameters {0}", ex);
+            }
+            finally
+            {
+                selectQuery.Finish();
+                selectQuery = null;
+            }
+            return result;
+        }
     }
 }

@@ -79,9 +79,7 @@ namespace Core.Api
         private const string EXPORT_NOTIFICATION_URL_REQUIRED = "Notification URL is required";
         private const string EXPORT_FREQUENCY_MIN_VALUE_FORMAT = "Frequency cannot be smaller than configured minimum value ({0} minutes)";
         private const string ROUTING_KEY_PROCESS_EXPORT = "PROCESS_EXPORT\\{0}";
-
         private const string PURCHASE_SETTINGS_TYPE_INVALID = "Purchase settings type invalid";
-        private const string CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME = "CheckGeoBlockMedia";
 
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
         protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";
@@ -2247,36 +2245,54 @@ namespace Core.Api
 
         protected Int32 m_nGroupID;
 
-        public static int GetIPCountryCode(string ip)
+        public static Country GetCountryByIp(int groupId, string ip)
         {
-            return ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+            Country country = null;            
+            try
+            {
+                string key = LayeredCacheKeys.GetKeyForIp(ip);
+                if (!LayeredCache.Instance.Get<Country>(key, ref country, APILogic.Utils.GetCountryByIpFromES, new Dictionary<string, object>() { { "ip", ip } },
+                                                        groupId, LayeredCacheConfigNames.COUNTRY_BY_IP_LAYERED_CACHE_CONFIG_NAME,
+                                                        new List<string>() { LayeredCacheConfigNames.GET_COUNTRY_BY_IP_INVALIDATION_KEY }))
+                {
+                    log.ErrorFormat("Failed getting country by ip from LayeredCache, ip: {0}, key: {1}", ip, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);                
+            }
+
+            return country;
         }
 
-        static public bool CheckGeoBlockMedia(Int32 nGroupID, Int32 nMediaID, string ip, out string ruleName)
+        static public bool CheckGeoBlockMedia(Int32 groupId, Int32 mediaId, string ip, out string ruleName)
         {
             bool isBlocked = false;
             Int32 nGeoBlockID = 0;
             int nProxyRule = 0;
             double dProxyLevel = 0.0;
 
-            ruleName = string.Empty;            
-            string key = DAL.UtilsDal.GetCheckGeoBlockMediaKey(nGroupID, nMediaID);
+            ruleName = string.Empty;
+            string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
             DataTable dt = null;            
             // try to get from cache            
-            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", nGroupID },
-                                                                    { "mediaId", nMediaID } }, CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME);
+            bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                    { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
+                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
             if (cacheResult && dt != null)
             {
                 if (dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    Int32 nCountryID = GetIPCountryCode(ip);
+                    Country country = GetCountryByIp(groupId, ip);
+                    Int32 nCountryID = country != null ? country.Id : 0;
                     ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
                     nGeoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
                     int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
 
                     DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
                     bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
-                    
+                                                                             
                     log.Debug("Geo Blocks - Geo Block ID " + nGeoBlockID + " Country ID " + nCountryID);
 
                     if (nGeoBlockID > 0)
@@ -2292,7 +2308,7 @@ namespace Core.Api
                         {
                             nProxyRule = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE");
                             dProxyLevel = APILogic.Utils.GetDoubleSafeVal(dt.Rows[0], "PROXY_LEVEL");
-                            isBlocked = !(MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, ip, nGroupID));
+                            isBlocked = !(MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, ip, groupId));
                         }
                     }
                 }
@@ -2301,17 +2317,6 @@ namespace Core.Api
             return isBlocked;
         }
 
-        static public string CheckGeoBlockMediaOld(Int32 nGroupID, Int32 nMediaID, string ip, out string ruleName)
-        {
-            if (CheckGeoBlockMedia(nGroupID, nMediaID, ip, out ruleName))
-            {
-                return "Geo";
-            }
-            else
-            {
-                return "OK";
-            }
-        }
 
         static public bool CheckMediaUserType(Int32 nMediaID, int nSiteGuid, int groupId)
         {
@@ -2333,11 +2338,12 @@ namespace Core.Api
                 log.ErrorFormat(string.Format("CheckMediaUserType - Error when calling GetUserData, user {0} in group {1}. ex = {2}, ST = {3}", nSiteGuid, groupId, ex.Message, ex.StackTrace), ex);
             }
 
-            string key = DAL.UtilsDal.GetIsMediaExistsToUserTypeKey(nMediaID, nUserTypeID);
+            string key = LayeredCacheKeys.GetIsMediaExistsToUserTypeKey(nMediaID, nUserTypeID);
             bool? isMediaExistsToUserType = null;
             // try go get from cache
             bool cacheResult = LayeredCache.Instance.Get<bool?>(key, ref isMediaExistsToUserType, APILogic.Utils.GetIsMediaExistsToUserType,
-                                                                new Dictionary<string, object>() { { "mediaId", nMediaID }, { "userTypeId", nUserTypeID } });
+                                                                new Dictionary<string, object>() { { "mediaId", nMediaID }, { "userTypeId", nUserTypeID } },
+                                                                groupId, LayeredCacheConfigNames.MEDIA_USER_TYPE_LAYERED_CACHE_CONFIG_NAME);
 
             if (cacheResult && isMediaExistsToUserType.HasValue)
             {
@@ -3467,15 +3473,13 @@ namespace Core.Api
         public static bool IsGeoCommerceBlock(int nGroupID, int SubscriptionGeoCommerceID, string sIP)
         {
             bool GeoCommersRes = false;
-            //convert IP to country ID
-            Int32 nCountryID = GetIPCountryCode(sIP);
-            //
-            string sGroupID = PageUtils.GetAllGroupTreeStr(nGroupID);
-
-
-            log.Debug("Geo Commerce - Geo Commerce ID " + SubscriptionGeoCommerceID + " Country ID " + nCountryID);
             if (SubscriptionGeoCommerceID != 0)
             {
+            //convert IP to country ID
+                Country country = GetCountryByIp(nGroupID, sIP);
+                Int32 nCountryID = country != null ? country.Id : 0;
+                string sGroupID = PageUtils.GetAllGroupTreeStr(nGroupID);
+                log.Debug("Geo Commerce - Geo Commerce ID " + SubscriptionGeoCommerceID + " Country ID " + nCountryID);
                 //define the logic roul only spasfic country or no one except.
                 // true : No one except the below selections
                 // false : Every body except the below selection
@@ -3520,8 +3524,8 @@ namespace Core.Api
                 {
                     GeoCommersRes = false;
                 }
-
             }
+
             return GeoCommersRes;
         }
 
@@ -4123,18 +4127,21 @@ namespace Core.Api
                             Parallel.ForEach(mcr, (rule) =>
                             {
                                 tempFilter = rule.AllTagValues.Select(x => string.Format("{0}='{1}'", rule.TagType, x)).ToList();
-                                if (tempFilter.Count > 1)
+                                if (tempFilter != null && tempFilter.Count > 0)
                                 {
-                                    filter = string.Format("(and media_id = '{0}' (or {1}))", mediaId.Value, string.Join(" ", tempFilter));
-                                }
-                                else
-                                {
-                                    filter = string.Format("(and media_id = '{0}' {1})", mediaId.Value, tempFilter.First());
-                                }
-                                medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-                                if (medias != null && medias.Count() > 0)// there is a match 
-                                {                                    
-                                    ruleIds.Add(rule.RuleID);
+                                    if (tempFilter.Count > 1)
+                                    {
+                                        filter = string.Format("(and media_id = '{0}' (or {1}))", mediaId.Value, string.Join(" ", tempFilter));
+                                    }
+                                    else
+                                    {
+                                        filter = string.Format("(and media_id = '{0}' {1})", mediaId.Value, tempFilter.First());
+                                    }
+                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                                    if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                        ruleIds.Add(rule.RuleID);
+                                    }
                                 }
                             });                            
                             
@@ -4165,24 +4172,24 @@ namespace Core.Api
             try
             {
                 // check if media concurrency rule exists for group
-                string key = DAL.UtilsDal.GetGroupMediaConcurrencyRules(groupId);
+                string key = LayeredCacheKeys.GetGroupMediaConcurrencyRulesKey(groupId);
                 List<MediaConcurrencyRule> mcr = null;
                 List<int> ruleIds = null;
                 // try to get from cache  
 
-                bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId} });
+                bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                        groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
                 if (!cacheResult)
-                {
-
-                    //to do return an error + write to log 
+                {                 
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
                     return null;
                 }
                
                 // get all related rules to media 
-                key = DAL.UtilsDal.GetMediaConcurrencyRules(mediaId);
-                cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, {"mediaId", mediaId}, {"mcr", mcr}});
-
+                key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
+                cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId }, { "mcr", mcr } },
+                                                                    groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
+                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) } );
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
@@ -4367,7 +4374,18 @@ namespace Core.Api
 
             try
             {
-                response.rules = DAL.ApiDAL.Get_Group_ParentalRules(groupId);
+                List<ParentalRule> rules = null;
+                string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
+                bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref rules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                        groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                if (!cacheResult)
+                {
+                    log.Error(string.Format("GetParentalRules - Failed get data from cache groupId = {0}", groupId));
+                    response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+
+                response.rules = rules; 
                 response.status = new ApiObjects.Response.Status()
                 {
                     Code = (int)eResponseStatus.OK
@@ -4464,6 +4482,8 @@ namespace Core.Api
                     {
                         status.Code = (int)eResponseStatus.OK;
                         status.Message = string.Empty;
+
+                        LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
                     }
                     else if (newId == -260)
                     {
@@ -4492,9 +4512,15 @@ namespace Core.Api
             return status;
         }
 
+        private static string GetUserParentalRuleInvalidationKey(string siteGuid)
+        {
+            return string.Format("user_parental_rules_{0}", siteGuid);
+        }
+
         public static ApiObjects.Response.Status SetDomainParentalRules(int groupId, int domainId, long ruleId, int isActive)
         {
-            ApiObjects.Response.Status status = ValidateUserAndDomain(groupId, string.Empty, domainId);
+            Users.Domain domain;
+            ApiObjects.Response.Status status = ValidateUserAndDomain(groupId, string.Empty, domainId, out domain);
 
             if (status.Code == (int)eResponseStatus.OK)
             {
@@ -4505,6 +4531,8 @@ namespace Core.Api
                     if (newId > 0)
                     {
                         status.Code = (int)eResponseStatus.OK;
+
+                        SetInvalidKeyParentalRulesForDomain(groupId, domainId, domain);
                     }
                     else if (newId == -260)
                     {
@@ -4592,7 +4620,8 @@ namespace Core.Api
 
         public static ApiObjects.Response.Status SetParentalPIN(int groupId, int domainId, string siteGuid, string pin, int? ruleId = null)
         {
-            ApiObjects.Response.Status status = ValidateUserAndDomain(groupId, siteGuid, domainId);
+            Users.Domain domain;
+            ApiObjects.Response.Status status = ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
 
             if (status.Code == (int)eResponseStatus.OK)
             {
@@ -4617,6 +4646,17 @@ namespace Core.Api
                         if (newId > 0)
                         {
                             status.Code = (int)eResponseStatus.OK;
+
+                            // if we updated a user only - set its key as invalid
+                            if (!string.IsNullOrEmpty(siteGuid))
+                            {
+                                LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(siteGuid));
+                            }
+                            // otherwise - set all of the domain's users keys as invalid
+                            else
+                            {
+                                SetInvalidKeyParentalRulesForDomain(groupId, domainId, domain);
+                            }
                         }
                         else
                         {
@@ -4635,6 +4675,31 @@ namespace Core.Api
             }
 
             return status;
+        }
+
+        /// <summary>
+        /// For a given domain, marks its parental rules as invalid in our layered cache
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="domainId"></param>
+        /// <param name="domain"></param>
+        private static void SetInvalidKeyParentalRulesForDomain(int groupId, int domainId, Users.Domain domain)
+        {
+            // Get domain from web service if it wasn't given
+            if (domain == null)
+            {
+                ValidateUserAndDomain(groupId, string.Empty, domainId, out domain);
+            }
+
+            // If we succesfully obtained a domain object
+            if (domain != null)
+            {
+                // Set invalidation key for each of its users
+                foreach (var userId in domain.m_UsersIDs)
+                {
+                    LayeredCache.Instance.SetInvalidationKey(GetUserParentalRuleInvalidationKey(userId.ToString()));
+                }
+            }
         }
 
         private static ApiObjects.Response.Status ValidateRuleId(int groupId, int? ruleId)
@@ -4992,10 +5057,12 @@ namespace Core.Api
                     Dictionary<long, eRuleLevel> userParentalRules = null;
 
                     // group rules                 
-                    string key = DAL.UtilsDal.GetGroupParentalRulesKey(groupId);
+                    string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
                     // try to get from cache  
-                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref groupsParentalRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
-                                                                                            /*groupId, */GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, 
+                        ref groupsParentalRules, APILogic.Utils.GetGroupParentalRules,
+                        new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+
                     if (!cacheResult || groupsParentalRules == null)
                     {
                         log.Error(string.Format("GetParentalMediaRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
@@ -5008,7 +5075,7 @@ namespace Core.Api
                     }
 
                     // media rules id 
-                    key = DAL.UtilsDal.GetMediaParentalRulesKey(groupId, mediaId);
+                    key = LayeredCacheKeys.GetMediaParentalRulesKey(groupId, mediaId);
                     cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref mediaRuleIds, GetMediaParentalRules,
                         new Dictionary<string, object>() 
                             { 
@@ -5016,7 +5083,7 @@ namespace Core.Api
                                 { "mediaId", mediaId }, 
                                 { "groupsParentalRules", groupsParentalRules } 
                             },
-                        /*groupId,*/ MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                        groupId, LayeredCacheConfigNames.MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
                     if (!cacheResult)
                     {
@@ -5025,11 +5092,14 @@ namespace Core.Api
                     }
                     else if (mediaRuleIds != null && mediaRuleIds.Count > 0)
                     {
+                        List<string> userParentalRulesInvalidationKeys = new List<string>();
+                        userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+
                         // user rules 
-                        key = DAL.UtilsDal.GetUserParentalRulesKey(groupId, siteGuid);
-                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules,
+                        key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
+                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules, 
                             APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", siteGuid } },
-                            /*groupId,*/ USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, userParentalRulesInvalidationKeys);
 
                         if (!cacheResult || userParentalRules == null)
                         {
@@ -5078,6 +5148,72 @@ namespace Core.Api
             return response;
         }
 
+        private static Tuple<List<long>, bool> GetMediaParentalRules(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> ruleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupsParentalRules"))
+                    {
+                        int? groupId;
+                        long? mediaId;
+                        List<ParentalRule> groupsParentalRules = new List<ParentalRule>();
+                        UnifiedSearchResult[] medias;
+                        string filter = string.Empty;
+
+                        groupId = funcParams["groupId"] as int?;
+                        mediaId = funcParams["mediaId"] as long?;
+                        groupsParentalRules = funcParams["groupsParentalRules"] as List<ParentalRule>;
+
+                        if (groupId.HasValue && mediaId.HasValue && groupsParentalRules != null && groupsParentalRules.Count > 0)
+                        {
+                            // find all asset ids that match the tag + tag value ==> if so save the rule id
+                            //build serach for each tag and tag values
+
+                            List<string> tempFilter = new List<string>();
+
+
+                            groupsParentalRules = groupsParentalRules.Where(x => !string.IsNullOrEmpty(x.mediaTagType)).ToList();
+                            Parallel.ForEach(groupsParentalRules, (rule) =>
+                            {       
+                                tempFilter = rule.mediaTagValues.Select(x => string.Format("{0}='{1}'", rule.mediaTagType, x)).ToList();
+
+                                if (tempFilter != null && tempFilter.Count > 0)
+                                {
+                                    if (tempFilter.Count > 1)
+                                    {
+                                        filter = string.Format("(and media_id='{0}' (or {1}))", mediaId.Value, string.Join(" ", tempFilter));
+                                    }
+                                    else
+                                    {
+                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, tempFilter.First());
+                                    }
+
+                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+                                    if (medias != null && medias.Count() > 0)// there is a match 
+                                    {
+                                        ruleIds.Add(rule.id);
+                                    }
+                                }
+                            });
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaParentalRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
+        }      
+
         public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
         {
             GenericRuleResponse response = new GenericRuleResponse();
@@ -5101,11 +5237,10 @@ namespace Core.Api
                         response.Rules.Add(new GenericRule() { Name = "UserTypeBlock", RuleType = RuleType.UserType, Description = string.Empty });
                     }
 
-                    List<ParentalRule> parentalRules = DAL.ApiDAL.Get_ParentalMediaRules(groupId, siteGuid, mediaId, domainId);
-
-                    if (parentalRules != null)
+                    ParentalRulesResponse parentalRulesResponse = GetParentalMediaRules(groupId, siteGuid, mediaId, domainId);
+                    if (parentalRulesResponse!= null && parentalRulesResponse.rules != null)
                     {
-                        foreach (ParentalRule rule in parentalRules)
+                        foreach (ParentalRule rule in parentalRulesResponse.rules)
                         {
                             response.Rules.Add(new GenericRule()
                             {
@@ -5148,6 +5283,7 @@ namespace Core.Api
 
         public static ParentalRulesResponse GetParentalEPGRules(int groupId, string siteGuid, long epgId, long domainId)
         {
+            List<ParentalRule> rules = null;
             ParentalRulesResponse response = new ParentalRulesResponse()
             {
                 rules = new List<ParentalRule>()
@@ -5160,12 +5296,81 @@ namespace Core.Api
             {
                 try
                 {
-                    response.rules = DAL.ApiDAL.Get_ParentalEPGRules(groupId, siteGuid, epgId, domainId);
+                    List<ParentalRule> groupParentalRules = null;
+                    List<long> epgRuleIds = new List<long>();
+                    Dictionary<long, eRuleLevel> userParentalRules = null;
 
-                    if (response.rules == null)
+                    // group rules                 
+                    string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
+                    // try to get from cache  
+                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, ref groupParentalRules, APILogic.Utils.GetGroupParentalRules, new Dictionary<string, object>() { { "groupId", groupId } },
+                                                                                            groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+                    if (!cacheResult || groupParentalRules == null)
                     {
-                        response.rules = new List<ParentalRule>();
+                        log.Error(string.Format("GetParentalEPGRules - GetGroupParentalRules - Failed get data from cache groupId = {0}", groupId));
+                        return null;
                     }
+
+                    if (groupParentalRules.Count == 0)
+                    {
+                        return response;
+                    }
+
+                    // epg rules id 
+                    key = LayeredCacheKeys.GetEpgParentalRulesKey(groupId, epgId);
+                    cacheResult = LayeredCache.Instance.Get<List<long>>(key, ref epgRuleIds, GetEpgParentalRules,
+                        new Dictionary<string, object>() 
+                            { 
+                                { "groupId", groupId }, 
+                                { "epgId", epgId }, 
+                                { "groupParentalRules", groupParentalRules } 
+                            },
+                        groupId, LayeredCacheConfigNames.EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
+
+                    if (!cacheResult)
+                    {
+                        log.Error(string.Format("GetParentalEPGRules - GetEpgParentalRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, epgId));
+                        return null;
+                    }
+                    else if (epgRuleIds != null && epgRuleIds.Count > 0)
+                    {
+                        List<string> userParentalRulesInvalidationKeys = new List<string>();
+                        userParentalRulesInvalidationKeys.Add(GetUserParentalRuleInvalidationKey(siteGuid));
+
+                        // user rules 
+                        key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
+                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules,
+                            APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", siteGuid } },
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, userParentalRulesInvalidationKeys);
+
+                        if (!cacheResult || userParentalRules == null)
+                        {
+                            log.Error(string.Format("GetParentalEPGRules - GetUserParentalRules - Failed get data from cache groupId = {0}, userId = {1}", groupId, siteGuid));
+                            return null;
+                        }
+
+                        // if user has at least one rule applied on him on user or domain level
+                        if (userParentalRules.Count > 0)
+                        {
+                            // If user ignored group's default rules - and if this is the only one - user has 0 parental rules for this media, he's free.
+                            if (userParentalRules.Count == 1 && userParentalRules.FirstOrDefault().Key < 0)
+                            {
+                                rules = new List<ParentalRule>();
+                            }
+                            else
+                            {
+                                // User does have rules. Let's see which of the rules that are relevant to the media are also relevant to the user (intersection)
+                                rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && userParentalRules.ContainsKey(x.id)).ToList();
+                            }
+                        }
+                        else if (groupParentalRules.Count > 0) // check on group rules 
+                        {
+                            // check if media related to user parental rules - if needed 
+                            rules = groupParentalRules.Where(x => epgRuleIds.Contains(x.id) && x.isDefault).ToList();
+                        }
+                    }
+
+                    response.rules = rules != null ? rules : new List<ParentalRule>();
 
                     response.status = new ApiObjects.Response.Status()
                     {
@@ -5181,6 +5386,68 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        private static Tuple<List<long>, bool> GetEpgParentalRules(Dictionary<string, object> funcParams)
+        {
+            bool result = false;
+            List<long> ruleIds = new List<long>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 3)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("epgId") && funcParams.ContainsKey("groupParentalRules"))
+                    {
+                        int? groupId;
+                        long? epgId;
+                        List<ParentalRule> groupParentalRules = new List<ParentalRule>();
+
+                        groupId = funcParams["groupId"] as int?;
+                        epgId = funcParams["epgId"] as long?;
+                        groupParentalRules = funcParams["groupParentalRules"] as List<ParentalRule>;
+
+                        if (groupId.HasValue && epgId.HasValue && groupParentalRules != null && groupParentalRules.Count > 0)
+                        {
+                            groupParentalRules = groupParentalRules.Where(x => !string.IsNullOrEmpty(x.epgTagType)).ToList();
+                            if (groupParentalRules == null || groupParentalRules.Count == 0)
+                            {
+                                return new Tuple<List<long>, bool>(new List<long>(), result);
+                            }
+
+                            // get epg program from CB ==> check matches to tag type and values 
+
+                            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId.Value);  //assuming this is a Tvinci user - does not support yes Epg
+                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId.Value);
+                            if (epg != null)
+                            {
+                                Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
+
+                                foreach (KeyValuePair<string, List<string>> tag in epg.Tags)
+                                {
+                                    tags.Add(tag.Key.ToLower(), new List<string>(tag.Value.ConvertAll(x => x.ToLower())).ToList());
+                                }
+
+                                groupParentalRules = groupParentalRules.Where(x => tags.Select(t => t.Key.ToLower()).Contains(x.epgTagType.ToLower())).ToList();
+
+                                Parallel.ForEach(groupParentalRules, (rule) =>
+                                {
+                                    if (rule.epgTagValues.Any(x => tags[rule.epgTagType.ToLower()].Contains(x.ToLower())))
+                                    {
+                                        ruleIds.Add(rule.id);
+                                    }
+                                });
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetEpgParentalRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
         }
 
         public static GenericRuleResponse GetEpgRules(int groupId, string siteGuid, long epgId, long channelMediaId, long domainId, string ip, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
@@ -5223,12 +5490,11 @@ namespace Core.Api
                                 Description = string.Empty
                             });
                         }
-
-                        List<ParentalRule> parentalRules = DAL.ApiDAL.Get_ParentalEPGRules(groupId, siteGuid, epgId, domainId);
-
-                        if (parentalRules != null)
+                       
+                        ParentalRulesResponse parentalRulesResponse = GetParentalEPGRules(groupId, siteGuid, epgId, domainId);
+                        if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
                         {
-                            foreach (ParentalRule rule in parentalRules)
+                            foreach (ParentalRule rule in parentalRulesResponse.rules)
                             {
                                 response.Rules.Add(new GenericRule()
                                 {
@@ -5323,7 +5589,14 @@ namespace Core.Api
         #region Utility
         private static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId)
         {
+            Users.Domain domain;
+            return ValidateUserAndDomain(groupId, siteGuid, domainId, out domain);
+        }
+
+        private static ApiObjects.Response.Status ValidateUserAndDomain(int groupId, string siteGuid, int domainId, out Users.Domain domain)
+        {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            domain = null;
 
             // If no user - go immediately to domain validation
             if (string.IsNullOrEmpty(siteGuid) || siteGuid == "0")
@@ -5379,7 +5652,7 @@ namespace Core.Api
             if (status.Code == (int)eResponseStatus.OK && domainId != 0)
             {
                 // Get response from domains WS
-                eResponseStatus domainStatus = APILogic.Utils.ValidateDomain(groupId, domainId);
+                eResponseStatus domainStatus = APILogic.Utils.ValidateDomain(groupId, domainId, out domain);
 
                 switch (domainStatus)
                 {
@@ -8056,20 +8329,13 @@ namespace Core.Api
                     return response;
                 }
 
-                //check Adapter exists
-                CDNAdapter adapter = null;
-
-                // get the adapter                   
-                string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterId);
-                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId }, { "shouldGetOnlyActive", false } },
-                    /*groupID, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
-
-                if (!cacheResult || adapter == null || adapter.ID <= 0)
+                //check Adapter exists                
+                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter(adapterId, false);
+                if (adapter == null || adapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
                 }
-
 
                 bool isSet = DAL.ApiDAL.DeleteCDNAdapter(groupID, adapterId);
                 if (isSet)
@@ -8193,11 +8459,8 @@ namespace Core.Api
                 }
 
                 //check CDN Adapter exists
-                CDNAdapter adapter = null;
-                string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterId);
-                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
-                    /*groupID, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
-                if (!cacheResult && adapter == null || adapter.ID <= 0)
+                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter(adapterId);
+                if (adapter == null || adapter.ID <= 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
@@ -8292,13 +8555,9 @@ namespace Core.Api
 
                 if (responseAdpater == null)
                 {
-
-                    //check adapter exists                     
-                    string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterId);
-                    bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref responseAdpater, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId }, { "shouldGetOnlyActive", false } },
-                        /*groupID, */ CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
-
-                    if (!cacheResult || responseAdpater == null)
+                    //check adapter exists 
+                    responseAdpater = DAL.ApiDAL.GetCDNAdapter(adapterId, false);
+                    if (responseAdpater == null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                         return response;
@@ -8356,14 +8615,12 @@ namespace Core.Api
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterIdentifierRequired, ADAPTER_ID_REQUIRED);
                     return response;
                 }
+
                 // get adapter from DB 
                 //check alias uniqueness 
-                CDNAdapter adapter = null;
-                string key = DAL.UtilsDal.GetCDNAdapterKey(groupID, adapterID);
-                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterID } },
-                    /*groupID, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
+                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter(adapterID);
 
-                if (!cacheResult || adapter == null)
+                if (adapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, ADAPTER_NOT_EXIST);
                     return response;
@@ -8425,21 +8682,13 @@ namespace Core.Api
 
             try
             {
-                CDNPartnerSettings settings = new CDNPartnerSettings();
-                // get group cdn settings
-                string key = DAL.UtilsDal.GetGroupCdnSettingsKey(groupId);
-                bool cacheResult = LayeredCache.Instance.Get<CDNPartnerSettings>(key, ref settings, GetCdnSettings, new Dictionary<string, object>() { { "groupId", groupId } },
-                    /*groupId, */GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
-
-                response.CDNPartnerSettings = settings;
-
-                if (!cacheResult || settings == null)
+                response.CDNPartnerSettings = DAL.ApiDAL.GetCdnSettings(groupId);
+                if (response.CDNPartnerSettings == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.CDNPartnerSettingsNotFound, eResponseStatus.CDNPartnerSettingsNotFound.ToString());
                 }
                 else
                 {
-                    response.CDNPartnerSettings = settings;
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
 
@@ -8505,12 +8754,8 @@ namespace Core.Api
 
             try
             {
-                CDNAdapter adapter = null;
-                string key = DAL.UtilsDal.GetCDNAdapterKey(groupId, adapterId);
-                bool cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref adapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", adapterId } },
-                    /*groupId, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
-
-                if (!cacheResult || adapter == null)
+                CDNAdapter adapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, adapterId);
+                if (adapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, eResponseStatus.AdapterNotExists.ToString());
                 }
@@ -8534,13 +8779,10 @@ namespace Core.Api
 
             try
             {
-                CDNPartnerSettings settings = new CDNPartnerSettings();
                 // get group cdn settings
-                string key = DAL.UtilsDal.GetGroupCdnSettingsKey(groupId);
-                bool cacheResult = LayeredCache.Instance.Get<CDNPartnerSettings>(key, ref settings, GetCdnSettings, new Dictionary<string, object>() { { "groupId", groupId } },
-                    /*groupId, */GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
+                CDNPartnerSettings settings = CdnAdapterCache.Instance.GetCdnAdapterSettings(groupId);                
 
-                if (cacheResult && settings != null)
+                if (settings != null)
                 {
                     int defaultAdapterId;
 
@@ -8569,12 +8811,8 @@ namespace Core.Api
                     }
 
                     // get the adapter                   
-                    key = DAL.UtilsDal.GetCDNAdapterKey(groupId, defaultAdapterId);
-                    CDNAdapter cdnAdapter = new CDNAdapter();
-                    cacheResult = LayeredCache.Instance.Get<CDNAdapter>(key, ref cdnAdapter, GetCdnAdapter, new Dictionary<string, object>() { { "adapterId", defaultAdapterId } },
-                        /*groupId, */CDN_ADAPTER_LAYERED_CACHE_CONFIG_NAME);
-
-                    if (!cacheResult || cdnAdapter == null)
+                    CDNAdapter cdnAdapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, defaultAdapterId);                    
+                    if (cdnAdapter == null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, eResponseStatus.AdapterNotExists.ToString());
                     }
@@ -9056,123 +9294,40 @@ namespace Core.Api
             return response;
         }
 
-        private static Tuple<CDNAdapter, bool> GetCdnAdapter(Dictionary<string, object> funcParams)
+        public static string GetLayeredCacheGroupConfig(int groupId)
         {
-            bool res = false;
-            CDNAdapter result = null;
+            string groupConfigResult = string.Empty;
+
             try
             {
-                if (funcParams != null && funcParams.Count >= 1)
+                LayeredCacheGroupConfig groupConfig = LayeredCache.Instance.GetLayeredCacheGroupConfig(groupId);
+                if (groupConfig != null)
                 {
-                    bool shouldGetOnlyActive = true;
-                    if (funcParams.ContainsKey("shouldGetOnlyActive"))
-                    {
-                        shouldGetOnlyActive = (bool)funcParams["shouldGetOnlyActive"];
-                    }
-                    if (funcParams.ContainsKey("adapterId"))
-                    {
-                        int? adapterId;
-                        adapterId = funcParams["adapterId"] as int?;
-                        result = DAL.ApiDAL.GetCDNAdapter(adapterId.Value, shouldGetOnlyActive);
-                        res = true;
-                    }
+                    groupConfigResult = groupConfig.ToString();
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetCdnAdapter faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("Failed GetLayeredCacheGroupConfig for groupId: {0}", groupId), ex);
             }
-            return new Tuple<CDNAdapter, bool>(result, res);
+
+            return groupConfigResult;
         }
 
-        private static Tuple<CDNPartnerSettings, bool> GetCdnSettings(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            CDNPartnerSettings result = null;
-            try
-            {
-                if (funcParams != null && funcParams.Count == 1)
-                {
-                    if (funcParams.ContainsKey("groupId"))
-                    {
-                        int? groupId;
-                        groupId = funcParams["groupId"] as int?;
-                        result = DAL.ApiDAL.GetCdnSettings(groupId.Value);
-                        res = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetCdnSettings faild params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-            return new Tuple<CDNPartnerSettings, bool>(result, res);
-        }
-
-        private static Tuple<List<long>, bool> GetMediaParentalRules(Dictionary<string, object> funcParams)
+        public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings)
         {
             bool result = false;
-            List<long> ruleIds = new List<long>();
 
             try
             {
-                if (funcParams != null && funcParams.Count == 3)
-                {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("groupsParentalRules"))
-                    {
-                        int? groupId;
-                        long? mediaId;
-                        List<ParentalRule> groupsParentalRules = new List<ParentalRule>();
-                        Core.Catalog.Response.UnifiedSearchResult[] medias;
-                        string filter = string.Empty;
-
-                        groupId = funcParams["groupId"] as int?;
-                        mediaId = funcParams["mediaId"] as long?;
-                        groupsParentalRules = funcParams["groupsParentalRules"] as List<ParentalRule>;
-
-                        if (groupId.HasValue && mediaId.HasValue && groupsParentalRules != null && groupsParentalRules.Count > 0)
-                        {
-                            // find all asset ids that match the tag + tag value ==> if so save the rule id
-                            //build serach for each tag and tag values
-
-                            List<string> tempFilter = new List<string>();
-
-
-                            groupsParentalRules = groupsParentalRules.Where(x => !string.IsNullOrEmpty(x.mediaTagType)).ToList();
-                            Parallel.ForEach(groupsParentalRules, (rule) =>
-                            {
-                                tempFilter = rule.mediaTagValues.Select(x => string.Format("{0}='{1}'", rule.mediaTagType, x)).ToList();
-
-                                if (tempFilter != null && tempFilter.Count > 0)
-                                {
-                                    if (tempFilter.Count > 1)
-                                    {
-                                        filter = string.Format("(and media_id='{0}' (or {1}))", mediaId.Value, string.Join(" ", tempFilter));
-                                    }
-                                    else
-                                    {
-                                        filter = string.Format("(and media_id='{0}' {1})", mediaId.Value, tempFilter.First());
-                                    }
-
-                                    medias = SearchAssets(groupId.Value, filter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
-                                    if (medias != null && medias.Count() > 0)// there is a match 
-                                    {
-                                        ruleIds.Add(rule.id);
-                                    }
-                                }
-                            });
-
-                            result = true;
-                        }
-                    }
-                }
+                result = LayeredCache.Instance.SetLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
             }
-
             catch (Exception ex)
             {
-                log.Error(string.Format("GetMediaParentalRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("Failed UpdateLayeredCacheGroupConfig for groupId: {0}", groupId), ex);
             }
-            return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
-        }      
+
+            return result;
+        }
     }
 }

@@ -442,7 +442,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        protected override BillingResponse HandleCCChargeUser(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule)
+        protected internal override BillingResponse HandleCCChargeUser(string sSiteGuid, double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments, string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule)
         {
             return Billing.Module.CC_ChargeUser(m_nGroupID, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
         }
@@ -486,7 +486,7 @@ namespace Core.ConditionalAccess
             return !isDummy || price != 0d;
         }
 
-         protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,int domainID, Subscription relevantSub, 
+         protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID,int domainID, Subscription relevantSub, 
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLanguageCode, string sDeviceName, 
             BillingResponse br, string sCustomData, PPVModule thePPVModule, long lMediaFileID,
             ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, string billingGuid = null, DateTime? startDate = null, DateTime? endDate = null)

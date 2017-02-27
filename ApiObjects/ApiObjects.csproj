@@ -93,6 +93,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compensation.cs" />
     <Compile Include="AdminAccountObj.cs" />
     <Compile Include="AdminAccountUserObj.cs" />
     <Compile Include="AdminAccountUserResponse.cs" />
@@ -125,6 +126,10 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="CoreObject.cs" />
+    <Compile Include="Events\KalturaObjectActionEvent.cs" />
+    <Compile Include="Events\KalturaObjectChangedEvent.cs" />
+    <Compile Include="Events\KalturaObjectDeletedEvent.cs" />
+    <Compile Include="Events\KalturaObjectEvent.cs" />
     <Compile Include="MailRequests\AddDeviceMailRequest.cs" />
     <Compile Include="MailRequests\AddUserMailRequest.cs" />
     <Compile Include="MailRequests\ChangedPinMailRequest.cs" />
@@ -136,6 +141,7 @@
     <Compile Include="MailRequests\MailRequestObj.cs" />
     <Compile Include="MailRequests\PurchaseMailRequest.cs" />
     <Compile Include="MailRequests\PurchaseViaGiftCardMailRequest.cs" />
+    <Compile Include="FileCreditUsedDetails.cs" />
     <Compile Include="MailRequests\RemoveDomainMailRequest.cs" />
     <Compile Include="MailRequests\SendPasswordMailRequest.cs" />
     <Compile Include="MailRequests\SendToFriendMailRequest.cs" />
@@ -476,6 +482,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="MediaIndexingObjects\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

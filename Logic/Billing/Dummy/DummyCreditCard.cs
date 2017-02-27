@@ -28,7 +28,8 @@ namespace Core.Billing
             return string.Empty;
         }
 
-        public override BillingResponse ChargeUser(string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
+        public override BillingResponse ChargeUser(string sSiteGUID, double dChargePrice, string sCurrencyCode, string sUserIP, string sCustomData, 
+            Int32 nPaymentNumber, Int32 nNumberOfPayments, string sExtraParameters)
         {
             BillingResponse ret = new BillingResponse();
             if (!Utils.IsUserExist(sSiteGUID, m_nGroupID))
@@ -38,6 +39,15 @@ namespace Core.Billing
                 ret.m_sRecieptCode = string.Empty;
                 ret.m_sStatusDescription = "Unknown or active user";
                 return ret;
+            }
+
+            bool isGiftCard = sExtraParameters == "GIFT_CARD";
+
+            int billingMethod = 7;
+
+            if (isGiftCard)
+            {
+                billingMethod = 700;
             }
 
             Int32 nTransactionLocalID = InsertNewDummyTransaction(sSiteGUID, dChargePrice, sCurrencyCode, sCustomData);
@@ -56,7 +66,21 @@ namespace Core.Billing
             }
             else
             {
-                ret = GetBillingResponse(nTransactionLocalID, sSiteGUID, nPaymentNumber, nNumberOfPayments, sCustomData);
+                ret = GetBillingResponse(nTransactionLocalID, sSiteGUID, nPaymentNumber, nNumberOfPayments, sCustomData, billingMethod);
+
+                if (ret != null && ret.m_oStatus == BillingResponseStatus.Success)
+                {
+                    int id = 0;
+                    if (!string.IsNullOrEmpty(ret.m_sRecieptCode))
+                    {
+                        id = int.Parse(ret.m_sRecieptCode);
+                    }
+
+                    if (isGiftCard)
+                    {
+                        SendGiftCardPurchaseMail(sCustomData, dChargePrice, sCurrencyCode, "Gift", sSiteGUID, id, "0");
+                    }
+                }
             }
 
             return ret;
@@ -83,7 +107,8 @@ namespace Core.Billing
                     {
                         nMediaID = int.Parse(sMediaID);
                         string sItemName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", nMediaID, "MAIN_CONNECTION_STRING").ToString();
-                        Core.Billing.Utils.SendMail(sPaymentMethod, sItemName, sSiteGuid, nBillingTransactionID, dChargePrice.ToString(), sCurrencyCode, sPSPReference, m_nGroupID, string.Empty, eMailTemplateType.Purchase);
+                        Billing.Utils.SendMail(sPaymentMethod, sItemName, sSiteGuid, 
+                            nBillingTransactionID, dChargePrice.ToString(), sCurrencyCode, sPSPReference, m_nGroupID, string.Empty, eMailTemplateType.Purchase);
                     }
                 }
                 else if (sType.Equals("sp"))
@@ -108,6 +133,74 @@ namespace Core.Billing
             }
         }
 
+        private void SendGiftCardPurchaseMail(string customData, double chargePrice, string currencyCode, string paymentMethod, string siteGuid, long billingTransactionID, string psPReference)
+        {
+            try
+            {
+                System.Xml.XmlDocument xml = new System.Xml.XmlDocument();
+                xml.LoadXml(customData);
+                System.Xml.XmlNode theRequest = xml.FirstChild;
+                string type = TVinciShared.XmlUtils.GetSafeParValue(".", "type", ref theRequest);
+
+                string preivewEnd = string.Empty;
+                string itemName = string.Empty;
+                eTransactionType transactionType = eTransactionType.PPV;
+
+                if (type.Equals("pp"))
+                {
+                    int mediaID = 0;
+                    string mediaIDString = TVinciShared.XmlUtils.GetSafeValue("m", ref theRequest);
+
+                    if (!string.IsNullOrEmpty(mediaIDString))
+                    {
+                        mediaID = int.Parse(mediaIDString);
+                        itemName = ODBCWrapper.Utils.GetTableSingleVal("media", "name", mediaID, "MAIN_CONNECTION_STRING").ToString();
+                    }
+                }
+                else if (type.Equals("sp"))
+                {
+                    int nSubID = 0;
+                    string sSubscriptionID = TVinciShared.XmlUtils.GetSafeValue("s", ref theRequest);
+
+                    if (!string.IsNullOrEmpty(sSubscriptionID))
+                    {
+                        nSubID = int.Parse(sSubscriptionID);
+                        itemName = ODBCWrapper.Utils.GetTableSingleVal("subscriptions", "name", nSubID, "pricing_connection").ToString();
+
+                        preivewEnd = TVinciShared.XmlUtils.GetSafeValue("prevlc", ref theRequest);
+                        transactionType = eTransactionType.Subscription;
+
+                        log.Debug("Name - " + itemName);
+                    }
+                }
+
+                try
+                {
+                    //get HH from siteGuid
+                    Users.User houseHoldUser = Utils.GetHHFromSiteGuid(siteGuid, this.m_nGroupID);
+                    PurchaseViaGiftCardMailRequest purchaseRequest =
+                        BillingMailTemplateFactory.GetGiftCardMailTemplate(this.m_nGroupID, siteGuid, houseHoldUser, itemName, transactionType);
+
+                    log.DebugFormat("params for gift card purchase mail ws_billing purchaseRequest.m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}", purchaseRequest.m_sSubject, houseHoldUser.m_sSiteGUID, purchaseRequest.m_sTemplateName);
+
+                    if (purchaseRequest != null && !string.IsNullOrEmpty(purchaseRequest.m_sTemplateName))
+                    {
+                        bool mailSuccess = Core.Api.Module.SendMailTemplate(this.m_nGroupID, purchaseRequest);
+
+                        log.DebugFormat("Gift card purchase, WS_API.SendMailTemplate result: {0}. For: siteGuid={1}, itemName={2}, type={3}, billingTransactionId={4}",
+                            mailSuccess, siteGuid, itemName, transactionType, billingTransactionID);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Send purchase mail - " + String.Concat("Exception. ", siteGuid, " | ", ex.Message, " | ", ex.StackTrace), ex);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + String.Concat(ex.Message, " || ", ex.StackTrace), ex);
+            }
+        }
         protected Int32 InsertNewDummyTransaction(string sSiteGUID, double dPrice, string sCurrency, string sCustomData)
         {
             Int32 nRet = 0;
@@ -165,13 +258,13 @@ namespace Core.Billing
         }
 
         protected BillingResponse GetBillingResponse(Int32 nTransactionLocalID, string sSiteGUID,
-            Int32 nPaymentNumber, Int32 nNumberOfPayments, string sCustomData)
+            Int32 nPaymentNumber, Int32 nNumberOfPayments, string sCustomData, int billingMethod = 7)
         {
-            return GetBillingResponse(nTransactionLocalID, sSiteGUID, nPaymentNumber, nNumberOfPayments, (int)eBillingProvider.Dummy, sCustomData);
+            return GetBillingResponse(nTransactionLocalID, sSiteGUID, nPaymentNumber, nNumberOfPayments, (int)eBillingProvider.Dummy, sCustomData, billingMethod);
         }
 
         protected BillingResponse GetBillingResponse(Int32 nTransactionLocalID, string sSiteGUID,
-          Int32 nPaymentNumber, Int32 nNumberOfPayments, Int32 nBillingProvider, string sCustomData)
+          Int32 nPaymentNumber, Int32 nNumberOfPayments, Int32 nBillingProvider, string sCustomData, int billingMethod = 7)
         {
             ODBCWrapper.UpdateQuery updateQuery = null;
             try
@@ -233,7 +326,7 @@ namespace Core.Billing
             long lTransID = Utils.InsertBillingTransaction(sSiteGUID, "", dChargePrice, sPriceCode,
                     sCurrencyCode, sCustomData, (int)(ret.m_oStatus), "", bIsRecurring, nMediaFileID, nMediaID, sPPVModuleCode,
                     sSubscriptionCode, "", m_nGroupID, nBillingProvider, nTransactionLocalID, 0.0, dChargePrice, nPaymentNumber, nNumberOfPayments, "",
-                    sCountryCd, sLanguageCode, sDeviceName, 4, 7, sRelevantPrePaid, sPreviewModuleID, sCollectionCode);
+                    sCountryCd, sLanguageCode, sDeviceName, 4, billingMethod, sRelevantPrePaid, sPreviewModuleID, sCollectionCode);
             ret.m_sRecieptCode = lTransID.ToString();
             return ret;
         }

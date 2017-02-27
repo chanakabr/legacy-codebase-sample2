@@ -843,6 +843,7 @@ namespace ApiObjects
         applehttp = 0, 
         mpegdash = 1,
         url = 2,
+        smothstreaming = 3
     }
 
     public enum eService
@@ -865,4 +866,18 @@ namespace ApiObjects
         Renew = 0,
         Reminder = 1
     }
+
+    public enum GrantContext
+    {
+        Grant = 0,
+        Swap = 1,
+        Renew = 2
+    }
+
+    public enum CompensationType
+    {
+        Percentage = 0,
+        FixedAmount = 1
+    }
+
 }

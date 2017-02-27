@@ -22,7 +22,6 @@ namespace Core.Catalog.Request
     public class ChannelsContainingMediaRequest : BaseRequest, IRequestImp
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
 
         [DataMember]
         public List<int> m_lChannles;
@@ -47,11 +46,16 @@ namespace Core.Catalog.Request
                 CheckSignature(request);
 
                 List<int> channels = null;
+                List<string> invalidationKeys = new List<string>()
+                {
+                    LayeredCacheKeys.GetGroupChannelsInvalidationKey(request.m_nGroupID),
+                    LayeredCacheKeys.GetMediaInvalidationKey(request.m_nGroupID, request.m_nMediaID)
+                };
 
-                string key = DAL.UtilsDal.GetChannelsContainingMediaKey(m_nMediaID);
+                string key = LayeredCacheKeys.GetChannelsContainingMediaKey(request.m_nMediaID);
 
                 bool cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref channels, GetMediaChannels, new Dictionary<string, object>() { { "groupId", request.m_nGroupID }, { "mediaId", request.m_nMediaID } },
-                    /*request.m_nGroupID,*/ CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME);
+                    request.m_nGroupID, LayeredCacheConfigNames.CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys);
 
                 if (cacheResult && channels != null && channels.Count > 0)
                 {

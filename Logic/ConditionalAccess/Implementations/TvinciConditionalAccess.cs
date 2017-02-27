@@ -14,6 +14,7 @@ using AdapterControllers;
 using Core.Pricing;
 using Core.Billing;
 using ApiObjects.ConditionalAccess;
+using Core.ConditionalAccess.Modules;
 
 
 namespace Core.ConditionalAccess
@@ -32,7 +33,7 @@ namespace Core.ConditionalAccess
         {
         }
 
-        protected override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
+        internal override string GetLicensedLink(int streamingCompany, Dictionary<string, string> dParams)
         {
             string response = null;
 
@@ -205,7 +206,7 @@ namespace Core.ConditionalAccess
             return bSuccesful;
         }
 
-        protected override BillingResponse HandleCCChargeUser(string sSiteGuid,
+        protected internal override BillingResponse HandleCCChargeUser(string sSiteGuid,
             double dPrice, string sCurrency, string sUserIP, string sCustomData, int nPaymentNumber, int nNumOfPayments,
             string sExtraParams, string sPaymentMethodID, string sEncryptedCVV, bool bIsDummy, bool bIsEntitledToPreviewModule)
         {
@@ -247,7 +248,7 @@ namespace Core.ConditionalAccess
 
             bool bUsageModuleExists = (theSub != null && theSub.m_oUsageModule != null);
             DateTime dtUtcNow = DateTime.UtcNow;
-            DateTime dtSubEndDate = CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
+            DateTime dtSubEndDate = Utils.CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
 
             lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode,
                 sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
@@ -372,7 +373,7 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        protected override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
+        protected internal override bool HandleChargeUserForMediaFileBillingSuccess(string sSiteGUID, int domianID,
             Subscription relevantSub, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
             string sCountryCd, string sLanguageCode, string sDeviceName, BillingResponse br, string sCustomData,
             PPVModule thePPVModule, long lMediaFileID, ref long lBillingTransactionID, ref long lPurchaseID, bool isDummy, 
@@ -700,9 +701,27 @@ namespace Core.ConditionalAccess
                 string subscriptionCode = relevantSub != null ? relevantSub.m_sObjectCode : null;
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(m_nGroupID, contentId, siteguid, price, currency, maxNumOfViews,
-                                                                        customData, subscriptionCode, billingTransactionId, startDate, endDate,
-                                                                        entitlementDate, country, string.Empty, deviceName, houseHoldId, billingGuid);
+                PpvPurchase ppvPurchase = new PpvPurchase(m_nGroupID)
+                {
+                    contentId = contentId,
+                    siteGuid = siteguid,
+                    price = price,
+                    currency = currency,
+                    maxNumOfViews = maxNumOfViews,
+                    customData = customData,
+                    subscriptionCode = subscriptionCode,
+                    billingTransactionId = billingTransactionId,
+                    startDate = startDate,
+                    endDate = endDate,
+                    entitlementDate = entitlementDate,
+                    country = country,
+                    deviceName = deviceName,
+                    houseHoldId = houseHoldId,
+                    billingGuid = billingGuid
+                };
+                ppvPurchase.Insert();
+                purchaseId = ppvPurchase.purchaseId;
+                               
                 if (purchaseId < 1)
                 {
                     // entitlement failed
@@ -754,7 +773,7 @@ namespace Core.ConditionalAccess
 
                 if (!subscriptionEndDate.HasValue)
                 {
-                    subscriptionEndDate = CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
+                    subscriptionEndDate = Utils.CalcSubscriptionEndDate(subscription, isEntitledToPreviewModule, entitlementDate.Value);
                 }
 
                 DateTime transactionStartDate = entitlementDate.Value;
@@ -783,9 +802,31 @@ namespace Core.ConditionalAccess
                 }
 
                 // grant entitlement
-                purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, productId.ToString(), siteguid, isEntitledToPreviewModule ? 0.0 : price, currency, customData, country,
-                             deviceName, usageModuleExists ? subscription.m_oUsageModule.m_nMaxNumberOfViews : 0, usageModuleExists ? subscription.m_oUsageModule.m_tsViewLifeCycle : 0, isRecurring, billingTransactionId,
-                             previewModuleID, transactionStartDate, subscriptionEndDate.Value, entitlementDate.Value, houseHoldId, billingGuid, (int)purchaseStatus);
+                SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
+                    {
+                        productId = productId.ToString(),
+                        price = price,
+                        siteGuid = siteguid,
+                        isEntitledToPreviewModule = isEntitledToPreviewModule,
+                        currency = currency,
+                        customData = customData,
+                        country = country,
+                        deviceName = deviceName,
+                        usageModuleExists = usageModuleExists,
+                        viewLifeCycle = subscription.m_oUsageModule.m_tsViewLifeCycle,
+                        maxNumberOfViews = subscription.m_oUsageModule.m_nMaxNumberOfViews,
+                        isRecurring = isRecurring,
+                        billingTransactionId = billingTransactionId,
+                        previewModuleId = previewModuleID,
+                        startDate = transactionStartDate,
+                        endDate = subscriptionEndDate,
+                        entitlementDate = entitlementDate,
+                        houseHoldId = houseHoldId,
+                        billingGuid = billingGuid
+                    };
+                subscriptionPurchase.Insert();
+                purchaseId = subscriptionPurchase.purchaseId;
+
 
                 if (purchaseId == 0)
                 {

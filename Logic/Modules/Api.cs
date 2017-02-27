@@ -95,7 +95,7 @@ namespace Core.Api
             {
                 xmlDoc.Load(strFile);
             }
-            catch (XmlException e)
+            catch (XmlException)
             {
                 //Console.WriteLine(e.Message);
             }
@@ -456,10 +456,17 @@ namespace Core.Api
             }
         }
 
-        public static string CheckGeoBlockMediaOld(int groupId, Int32 nMediaID, string sIP)
+        public static string CheckGeoBlockMedia(int groupId, Int32 nMediaID, string sIP)
         {
             string ruleName;
-            return Core.Api.api.CheckGeoBlockMediaOld(groupId, nMediaID, sIP, out ruleName);
+            if (Core.Api.api.CheckGeoBlockMedia(groupId, nMediaID, sIP, out ruleName))
+            {
+                return "Geo";
+            }
+            else
+            {
+                return "OK";
+            }
         }
 
         /// <summary>
@@ -1637,9 +1644,31 @@ namespace Core.Api
             return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual);
         }
 
-        public static int GetIPCountryCode(string ip)
+        public static Country GetCountryByIp(int groupId, string ip)
         {
-            return Core.Api.api.GetIPCountryCode(ip);
+            return Core.Api.api.GetCountryByIp(groupId, ip);
         }
+
+        public static string GetLayeredCacheGroupConfig(int groupId)
+        {
+            return Core.Api.api.GetLayeredCacheGroupConfig(groupId);
+        }
+
+        public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings)
+        {
+            return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
+        }
+
+        public static bool UpdateLayeredCacheGroupConfigST(int groupId, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings)
+        {
+            string[] layeredCacheSettingsToExclude = layeredCacheSettingsToExcludeCommaSeperated.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+            if (layeredCacheSettingsToExclude == null)
+            {
+                layeredCacheSettingsToExclude = new string[0];
+            }                
+
+            return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
+        }
+
     }
 }

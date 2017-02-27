@@ -321,6 +321,7 @@ namespace Core.Users
             selectQuery += " and ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("TYPE_CODE", "=", m_sType);
 
+
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;

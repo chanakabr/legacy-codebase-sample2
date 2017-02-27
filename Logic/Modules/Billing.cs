@@ -1197,5 +1197,18 @@ namespace Core.Billing
 
             return result;
         }
+
+        public static ApiObjects.Response.Status GetPaymentGatewayVerificationStatus(int nGroupID, string billingGuid)
+        {
+            ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+
+            BasePaymentGateway t = new BasePaymentGateway(nGroupID);
+            if (t != null)
+            {
+                result = t.GetPaymentGatewayVerificationStatus(billingGuid);
+            }
+
+            return result;
+        }
     }
 }

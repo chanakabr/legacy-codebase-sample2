@@ -160,7 +160,8 @@ namespace Core.Billing
             SendMail(sPaymentMethod, sItemName, sSiteGUID, lBillingTransID, stotalAmount, scurrency, sExternalNum, nGroupID, string.Empty, sPreviewEnd, templateType);
         }
 
-        public static void SendMail(string sPaymentMethod, string sItemName, string sSiteGUID, long lBillingTransID, string stotalAmount, string scurrency, string sExternalNum, Int32 nGroupID, string sLast4Digits, string sPreviewEnd, eMailTemplateType templateType)
+        public static void SendMail(string sPaymentMethod, string sItemName, string sSiteGUID, long lBillingTransID, string stotalAmount, string scurrency, string sExternalNum, 
+            Int32 nGroupID, string sLast4Digits, string sPreviewEnd, eMailTemplateType templateType, eTransactionType? transactionType = null)
         {
             try
             {                
@@ -168,8 +169,9 @@ namespace Core.Billing
                     templateType = eMailTemplateType.PurchaseWithPreviewModule;
                 //get HH from siteGuid
                 User houseHoldUser = GetHHFromSiteGuid(sSiteGUID, nGroupID);
-                PurchaseMailRequest purchaseRequest = 
-                    BillingMailTemplateFactory.GetMailTemplate(nGroupID, houseHoldUser.m_sSiteGUID, sExternalNum, double.Parse(stotalAmount), scurrency, sItemName, sPaymentMethod, sLast4Digits, sPreviewEnd, templateType, lBillingTransID, houseHoldUser);
+                MailRequestObj purchaseRequest = 
+                    BillingMailTemplateFactory.GetMailTemplate(nGroupID, houseHoldUser.m_sSiteGUID, sExternalNum, double.Parse(stotalAmount),
+                    scurrency, sItemName, sPaymentMethod, sLast4Digits, sPreviewEnd, templateType, lBillingTransID, houseHoldUser);
                 log.DebugFormat("params for purchase mail ws_billing purchaseRequest.m_sSubject={0}, houseHoldUser.m_sSiteGUID={1}, purchaseRequest.m_sTemplateName={2}", purchaseRequest.m_sSubject, houseHoldUser.m_sSiteGUID, purchaseRequest.m_sTemplateName);
                 
                 if (purchaseRequest != null && !string.IsNullOrEmpty(purchaseRequest.m_sTemplateName))
@@ -241,7 +243,8 @@ namespace Core.Billing
         {
             try
             {
-                PurchaseMailRequest purchaseRequest = BillingMailTemplateFactory.GetMailTemplate(nGroupID, sSiteGUID, sExternalNum, double.Parse(stotalAmount), scurrency, sItemName, sPaymentMethod, string.Empty, string.Empty, templateType, lBillingTransID);
+                PurchaseMailRequest purchaseRequest = BillingMailTemplateFactory.GetMailTemplate(nGroupID, sSiteGUID, sExternalNum, 
+                    double.Parse(stotalAmount), scurrency, sItemName, sPaymentMethod, string.Empty, string.Empty, templateType, lBillingTransID);
 
 
                 if (purchaseRequest != null && !string.IsNullOrEmpty(purchaseRequest.m_sTemplateName))
@@ -2154,7 +2157,7 @@ namespace Core.Billing
             return res ?? string.Empty;
         }
 
-        internal static string GetDateEmailFormat(int groupId)
+        public static string GetDateEmailFormat(int groupId)
         {
             string dateEmailFormat = string.Empty;
             try
@@ -2496,5 +2499,37 @@ namespace Core.Billing
         {
             return dataTable != null && dataTable.Rows != null && dataTable.Rows.Count > 0;
         }
+
+        internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)
+        {
+            ApiObjects.Country res = null;
+            try
+            {
+                res = Core.Api.Module.GetCountryByIp(groupId, ip);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetCountryByIp with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static string GetIP2CountryCode(int groupId, string ip)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Code : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
     }
 }

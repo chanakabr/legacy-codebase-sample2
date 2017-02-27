@@ -43,7 +43,7 @@ namespace Core.Catalog.Request
             int countryId = 0;
             try
             {
-                countryId = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(Ip);
+                countryId = Utils.GetIP2CountryId(m_nGroupID, Ip);
             }
             catch (Exception ex)
             {

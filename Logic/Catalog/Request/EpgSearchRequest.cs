@@ -40,8 +40,6 @@ namespace Core.Catalog.Request
         [DataMember]
         public List<long> m_oEPGChannelIDs;
 
-        private bool m_bIsLucene;
-
         public EpgSearchRequest()
             : base()
         {
@@ -55,7 +53,6 @@ namespace Core.Catalog.Request
 
             m_sSearch = string.Empty;
             m_oEPGChannelIDs = new List<long>();
-            m_bIsLucene = false;
         }
 
         public EpgSearchRequest(bool bSearchAnd, string sSearch, DateTime dStartDate, DateTime dEndDate, int nPageSize, int nPageIndex, int nGroupID, string sSignature, string sSignString, List<long> epgChannelIDs,

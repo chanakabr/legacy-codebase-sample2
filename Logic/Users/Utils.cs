@@ -1106,7 +1106,6 @@ namespace Core.Users
             sPass = uc.m_sPassword;
         }
 
-
         public static Tuple<List<long>, bool> Get_UserRoleIds(Dictionary<string, object> funcParams)
         {
             bool res = false;

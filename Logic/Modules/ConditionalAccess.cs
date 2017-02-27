@@ -2905,5 +2905,50 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
+
+        public static CompensationResponse AddCompensation(int groupID, string userId, Compensation compensation)
+        {
+            CompensationResponse response = new CompensationResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                response = t.AddCompensation(userId, compensation);
+            }
+            return response;
+        }
+
+        public static Status DeleteCompensation(int groupID, long compensationId)
+        {
+            Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                response = t.DeleteCompensation(compensationId);
+            }
+            return response;
+        }
+
+        public static CompensationResponse GetCompensation(int groupID, long compensationId)
+        {
+            CompensationResponse response = new CompensationResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                response = t.GetCompensation(compensationId);
+            }
+            return response;
+        }
     }
 }

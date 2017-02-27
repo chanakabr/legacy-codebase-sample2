@@ -50,5 +50,25 @@ namespace ApiObjects.Billing
         {
             Status = new Response.Status(statusCode, statusMessage);
         }
+
+        protected override bool DoInsert()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoUpdate()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override bool DoDelete()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override CoreObject CoreClone()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

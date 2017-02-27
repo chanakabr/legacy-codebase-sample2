@@ -40,48 +40,58 @@ namespace APILogic
                     }
                 }
                 string url = GetWSURL("URLMaxMind");
-                url = url.Replace("LicenseKey", liceneKey).Replace("ipAddress", sIP);
-                HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-                req.Method = "GET";
-                req.Referer = string.Empty;
-                try
+
+                log.DebugFormat("IsProxyAllowed rule:{0}, level:{1}, ip:{2}, groupId:{3}, liceneKey:{4}, url:{5}", nProxyRule, dProxyLevel, sIP, nGroupID, liceneKey, url);
+
+                if (!string.IsNullOrEmpty(liceneKey) && !string.IsNullOrEmpty(url))
                 {
-                    HttpWebResponse objResponse = (HttpWebResponse)req.GetResponse();
-                    using (StreamReader sr = new StreamReader(objResponse.GetResponseStream()))
+                    url = url.Replace("LicenseKey", liceneKey).Replace("ipAddress", sIP);
+                    HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+                    req.Method = "GET";
+                    req.Referer = string.Empty;
+                    try
                     {
-                        sProxyResponse = sr.ReadToEnd();
-                        sr.Close();
-                    }
-                    if (!string.IsNullOrEmpty(sProxyResponse))
-                    {
-                        //proxyScore= 0.00 (safe) / 1 or 2 (meduim risk) / 3 (high risk) 
-                        string[] aProxyResponse = sProxyResponse.Split('=');
-                        double dProxyResponseLevel = -1.0;
-                        //if proxy in risk , by the proxyLevel then bAllowed = false , else do nothing !!!!!
-                        if (aProxyResponse != null && aProxyResponse.Count() > 0)
+                        HttpWebResponse objResponse = (HttpWebResponse)req.GetResponse();
+                        using (StreamReader sr = new StreamReader(objResponse.GetResponseStream()))
                         {
-                            try
+                            sProxyResponse = sr.ReadToEnd();
+                            sr.Close();
+                        }
+                        if (!string.IsNullOrEmpty(sProxyResponse))
+                        {
+                            log.DebugFormat("IsProxyAllowed ip:{0}, response:{1}", sIP, sProxyResponse);
+
+                            //proxyScore= 0.00 (safe) / 1 or 2 (meduim risk) / 3 (high risk) 
+                            string[] aProxyResponse = sProxyResponse.Split('=');
+                            double dProxyResponseLevel = -1.0;
+                            //if proxy in risk , by the proxyLevel then bAllowed = false , else do nothing !!!!!
+                            if (aProxyResponse != null && aProxyResponse.Count() > 0)
                             {
-                                dProxyResponseLevel = APILogic.Utils.GetDoubleSafeVal(aProxyResponse[1]);
-                                if (dProxyResponseLevel >= dProxyLevel) // the proxy risk value from the webService is equal / greater than the one in the DB
-                                    bAllowed = false;
-                            }
-                            catch
-                            {
-                                bAllowed = true;
+                                try
+                                {
+                                    dProxyResponseLevel = APILogic.Utils.GetDoubleSafeVal(aProxyResponse[1]);
+                                    if (dProxyResponseLevel >= dProxyLevel) // the proxy risk value from the webService is equal / greater than the one in the DB
+                                        bAllowed = false;
+                                }
+                                catch
+                                {
+                                    bAllowed = true;
+                                }
                             }
                         }
                     }
-                }
-                catch (WebException ex)
-                {
-                    HttpWebResponse resp = (ex.Response as HttpWebResponse);
-                    if (resp != null)
+                    catch (WebException ex)
                     {
-                        log.Error("Geo Blocks - MaxMind.IsProxyAllowed : Call to MaxMind failed . exception :" + ex.Message, ex);
+                        HttpWebResponse resp = (ex.Response as HttpWebResponse);
+                        if (resp != null)
+                        {
+                            log.Error("Geo Blocks - MaxMind.IsProxyAllowed : Call to MaxMind failed . exception :" + ex.Message, ex);
+                        }
+                        bAllowed = true;
                     }
-                    bAllowed = true;
                 }
+
+                
             }
             return bAllowed;
         }

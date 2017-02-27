@@ -127,7 +127,9 @@ namespace ApiObjects.Response
         SeasonNumberNotMatch = 3052,
         ServiceAlreadyExists = 3053,
         NoFilesFound = 3054, 
-        
+        CompensationAlreadyExists = 3055,
+        CompensationNotFound = 3056,
+
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
         ConcurrencyLimitation = 4001,

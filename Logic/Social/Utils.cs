@@ -869,9 +869,9 @@ namespace Core.Social
                         documents = jsonObj.SelectToken("hits.hits").Select(item => new StatisticsView()
                         {
 
-                            ID = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken),
-                            GroupID = ((tempToken = item.SelectToken("fields.group_id")) == null ? 0 : (int)tempToken),
-                            MediaID = ((tempToken = item.SelectToken("fields.media_id")) == null ? 0 : (int)tempToken)
+                            ID = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, "_id"),
+                            GroupID = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, "group_id"),
+                            MediaID = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, "media_id")
                         }).ToList();
                     }
                 }

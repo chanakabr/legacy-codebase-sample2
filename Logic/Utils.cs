@@ -192,8 +192,9 @@ namespace APILogic
         /// <param name="groupId"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        public static eResponseStatus ValidateDomain(int groupId, int domainId)
+        public static eResponseStatus ValidateDomain(int groupId, int domainId, out Domain domain)
         {
+            domain = null;
             eResponseStatus responseStatus = eResponseStatus.Error;
 
             try
@@ -204,6 +205,8 @@ namespace APILogic
                 // validate response
                 if (!Enum.TryParse(response.Status.Code.ToString(), out responseStatus))
                     responseStatus = eResponseStatus.Error;
+
+                domain = response.Domain;
             }
             catch (Exception ex)
             {
@@ -375,32 +378,28 @@ namespace APILogic
             return ApiObjects.MetaType.All;
         }
 
-
         internal static Tuple<DataTable, bool> Get_GeoBlockPerMedia(Dictionary<string, object> funcParams)
         {
             bool res = false;
             DataTable dt = null;
             try
             {
-                if (funcParams != null && funcParams.Count == 2)
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
                 {
-                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                    int? groupId, mediaId;
+                    groupId = funcParams["groupId"] as int?;
+                    mediaId = funcParams["mediaId"] as int?;
+                    if (groupId.HasValue && mediaId.HasValue)
                     {
-                        int? groupId, mediaId;
-                        groupId = funcParams["groupId"] as int?;
-                        mediaId = funcParams["mediaId"] as int?;                        
-                        if (groupId.HasValue && mediaId.HasValue)
-                        {
-                            dt = DAL.ApiDAL.Get_GeoBlockRuleForMediaAndCountries(groupId.Value, mediaId.Value);
-                            res = dt != null;
-                        }
+                        dt = DAL.ApiDAL.Get_GeoBlockRuleForMediaAndCountries(groupId.Value, mediaId.Value);
+                        res = dt != null;
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Get_GeoBlockPerMedia faild params : {0}", string.Join(";",funcParams.Keys)), ex);
+                log.Error(string.Format("Get_GeoBlockPerMedia failed, parameters : {0}", string.Join(";",funcParams.Keys)), ex);
             }
             return new Tuple<DataTable,bool>(dt, res);
         }
@@ -409,7 +408,7 @@ namespace APILogic
         {
             bool res = false;
             bool? isMediaExistsToUserType = null;
-            if (funcParams != null && funcParams.Count == 3)
+            if (funcParams != null && funcParams.Count == 2)
             {
                 if (funcParams.ContainsKey("mediaId") && funcParams.ContainsKey("userTypeId"))
                 {
@@ -481,6 +480,31 @@ namespace APILogic
             return new Tuple<List<MediaConcurrencyRule>, bool>(result, res);
         }
 
+        internal static Tuple<ApiObjects.Country, bool> GetCountryByIpFromES(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            ApiObjects.Country country = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("ip"))
+                {
+                    string ip = funcParams["ip"].ToString();
+                    if (!string.IsNullOrEmpty(ip))
+                    {
+                        country = ElasticSearch.Utilities.IpToCountry.GetCountryByIp(ip);
+       
+                        res = country != null;
+                    }                    
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCountryByIpFromES failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<ApiObjects.Country, bool>(country, res);
+        }
 
         internal static Tuple<List<ParentalRule>, bool> GetGroupParentalRules(Dictionary<string, object> funcParams)
         {

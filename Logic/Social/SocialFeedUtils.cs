@@ -246,7 +246,7 @@ namespace Core.Social
 
                 if (resp != null)
                 {
-                    lstSocialFeed = ParsePlatformResp(resp, eSocialPlatform.InApp);
+                    lstSocialFeed = ParsePlatformResponse(resp, eSocialPlatform.InApp);
                 }
                 else
                 {
@@ -275,7 +275,7 @@ namespace Core.Social
 
         }
 
-        private static List<SocialFeedItem> ParsePlatformResp(object socialPlatformResp, eSocialPlatform platform)
+        private static List<SocialFeedItem> ParsePlatformResponse(object socialPlatformResp, eSocialPlatform platform)
         {
             ISocialFeed feed;
             JavaScriptSerializer serializer = new JavaScriptSerializer();
@@ -286,6 +286,29 @@ namespace Core.Social
                     break;
                 case eSocialPlatform.InApp:
                     feed = (AssetCommentsListResponse)socialPlatformResp;
+                    break;
+
+                case eSocialPlatform.Twitter:
+                    feed = serializer.Deserialize<TweeterResp>((string)socialPlatformResp);
+                    break;
+                default:
+                    return null;
+            }
+            return feed.ToBaseSocialFeedObj();
+
+        }
+
+        private static List<SocialFeedItem> ParsePlatformResp(object socialPlatformResp, eSocialPlatform platform)
+        {
+            ISocialFeed feed;
+            JavaScriptSerializer serializer = new JavaScriptSerializer();
+            switch (platform)
+            {
+                case eSocialPlatform.Facebook:
+                    feed = (FacebookResp)socialPlatformResp;
+                    break;
+                case eSocialPlatform.InApp:
+                    feed = (CommentsListResponse)socialPlatformResp;
                     break;
 
                 case eSocialPlatform.Twitter:
