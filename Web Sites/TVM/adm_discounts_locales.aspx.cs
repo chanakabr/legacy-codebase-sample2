@@ -107,7 +107,7 @@ public partial class adm_discounts_locales : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("pricing_connection");
-        theTable += "select q.is_active, q.Country, q.PRICE as 'Price', q.CODE3 as 'Currency', q.id,q.status, q.State from (select ml.COUNTRY_CODE as 'Country', ml.PRICE,lc.CODE3, ml.id, ml.status, lcs.description as 'State', ml.is_active from lu_currency lc, lu_content_status lcs, discount_codes_locales ml where lc.id=ml.CURRENCY_CD and lcs.id=ml.status and " + PageUtils.GetStatusQueryPart("ml") + "and";
+        theTable += "select q.is_active, q.Country, q.PRICE as 'Price', q.DISCOUNT_PERCENT as 'Percent', q.CODE3 as 'Currency', q.id,q.status, q.State from (select ml.COUNTRY_CODE as 'Country', ml.PRICE,lc.CODE3, ml.id, ml.status, lcs.description as 'State', ml.is_active from lu_currency lc, lu_content_status lcs, discount_codes_locales ml where lc.id=ml.CURRENCY_CD and lcs.id=ml.status and " + PageUtils.GetStatusQueryPart("ml") + "and";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("ml.discount_code_id", "=", int.Parse(Session["discount_code_id"].ToString()));
         theTable += ")q";
         theTable.AddHiddenField("ID");
