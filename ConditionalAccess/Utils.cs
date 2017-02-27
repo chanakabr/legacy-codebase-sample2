@@ -7600,7 +7600,7 @@ namespace ConditionalAccess
                     {
                         currencyCode = (from row in dt.AsEnumerable()
                                         where (Int64)row["ID"] == defaultGroupCurrencyId
-                                        select row.Field<string>("CD3")).FirstOrDefault();
+                                        select row.Field<string>("CODE3")).FirstOrDefault();
                         res = !string.IsNullOrEmpty(currencyCode);
                     }
                 }                

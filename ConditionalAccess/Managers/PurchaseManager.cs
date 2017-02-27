@@ -714,7 +714,8 @@ namespace ConditionalAccess
                 else
                 {
                     priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
-                        groupId, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
+                        groupId, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName,
+                        false, userIp, currency);
                 }
 
                 bool couponFullDiscount = (ePriceReason == PriceReason.Free) && coupon != null;
