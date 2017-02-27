@@ -109,6 +109,10 @@ public partial class adm_discounts : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
         */
+        DataTableLinkColumn localesLinkColumn = new DataTableLinkColumn("adm_discounts_locales.aspx", "Locale", "");
+        localesLinkColumn.AddQueryStringValue("discount_code_id", "field=id");
+        localesLinkColumn.AddQueryCounterValue("select count(*) as val from discount_codes_locales where status=1 and is_active=1 and discount_code_id=", "field=id");
+        theTable.AddLinkColumn(localesLinkColumn);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {

@@ -149,7 +149,7 @@ public partial class adm_price_code_locales_new : System.Web.UI.Page
         theRecord.AddRecord(dr_price);
 
         DataRecordDropDownField dr_currency = new DataRecordDropDownField("lu_currency", "name", "id", "", "", 60, false);
-        dr_currency.SetConnectionKey("main_connection");
+        dr_currency.SetConnectionKey("pricing_connection");
         dr_currency.Initialize("Currency", "adm_table_header_nbg", "FormInput", "CURRENCY_CD", false);
         dr_currency.SetDefault(2);
         theRecord.AddRecord(dr_currency);
