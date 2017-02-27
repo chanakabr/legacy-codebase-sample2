@@ -767,5 +767,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        public static List<KalturaLastPosition> ConvertBookmarks(List<AssetBookmarks> assetBookmarks)
+        {
+            List<KalturaLastPosition> lastPositions = null;
+            if (assetBookmarks != null)
+            {
+                lastPositions = new List<KalturaLastPosition>();
+
+                foreach (var assetBookmark in assetBookmarks)
+                {
+                    if (assetBookmark.Bookmarks != null)
+                    {
+                        foreach (var catalogBookmark in assetBookmark.Bookmarks)
+                        {
+                            lastPositions.Add(new KalturaLastPosition()
+                            {
+                                Position = catalogBookmark.Location,
+                                PositionOwner = ConvertPositionOwner(catalogBookmark.UserType),
+                                UserId = catalogBookmark.User.m_sSiteGUID,
+                            });
+                        }
+                    }
+                }
+            }
+            return lastPositions;
+        }
     }
 }

@@ -57,6 +57,19 @@ namespace WebAPI.Utils
             return (long)diff.TotalSeconds;
         }
 
+
+        public static long? ConvertToUnixTimestamp(DateTime? date)
+        {
+            if (date != null && date.HasValue)
+            {
+                return ConvertToUnixTimestamp(date.Value);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static long GetCurrentUtcTimeInUnixTimestamp()
         {
             return ConvertToUnixTimestamp(DateTime.UtcNow);

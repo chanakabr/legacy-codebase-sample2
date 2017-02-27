@@ -13,14 +13,13 @@ namespace WebAPI.Utils
     public static class DrmUtils
     {
         private const string BASE_UDRM_URL_TCM_KEY = "UDRM_URL";
-        private const string FAIRPLAY_CERTIFICATE_TCM_KEY = "FAIRPLAY_CERTIFICATE";
         private const string UDRM_CENC_LICENSED_URL_FORMAT = "{0}/cenc/{1}/license?custom_data={2}&signature={3}";
         private const string UDRM_LICENSED_URL_FORMAT = "{0}/{1}/license?custom_data={2}&signature={3}";
         private const string PLAYREADY = "playready";
         private const string WIDEVINE = "widevine";
         private const string FAIRPLAY = "fps";
 
-        public static string BuildCencCustomDataString(int fileId)
+        public static string BuildCencCustomDataString(string fileExternalId, string caSystemUrl)
         {
             string response = null;
 
@@ -29,16 +28,16 @@ namespace WebAPI.Utils
 
             CencCustomData customData = new CencCustomData()
             {
-                AccountId = ks.GroupId,
-                CaSystem = "OTT",
+                AccountId = group.MediaPrepAccountId,
+                CaSystem = caSystemUrl,
                 Files = string.Empty,
                 UserToken = ks.ToString(),
-                ContentId = fileId,
+                ContentId = fileExternalId.ToString(),
+                AdditionalCasSystem = ks.GroupId,
+                UDID = KSUtils.ExtractKSPayload().UDID
             };
 
             response = JsonConvert.SerializeObject(customData);
-
-            return Convert.ToBase64String(Encoding.ASCII.GetBytes(response));
 
             return response;
         }
@@ -52,14 +51,16 @@ namespace WebAPI.Utils
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
 
-            return HttpUtility.UrlDecode(Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response))));
+            return Convert.ToBase64String(EncryptionUtils.HashSHA1(Encoding.ASCII.GetBytes(response)));
         }
 
-        internal static string BuildUDrmUrl(KalturaDrmSchemeName schemeName, string customDataString, string signature)
+        internal static string BuildUDrmUrl(Group group, KalturaDrmSchemeName schemeName, string customDataString, string signature)
         {
             string response = null;
-            string baseUdrmUrl = TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
+            string baseUdrmUrl = !string.IsNullOrEmpty(group.UDrmUrl) ? group.UDrmUrl : TCMClient.Settings.Instance.GetValue<string>(BASE_UDRM_URL_TCM_KEY);
 
+            customDataString = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.ASCII.GetBytes(customDataString)));
+            signature = HttpUtility.UrlEncode(signature);
             switch (schemeName)
             {
                 case KalturaDrmSchemeName.PLAYREADY_CENC:
@@ -99,12 +100,18 @@ namespace WebAPI.Utils
                 case "url":
                     response.Add(KalturaDrmSchemeName.WIDEVINE);
                     break;
+                case "smothstreaming":
+                    {
+                        response.Add(KalturaDrmSchemeName.PLAYREADY_CENC);
+                        response.Add(KalturaDrmSchemeName.PLAYREADY);
+                    }
+                    break;
             }
 
             return response;
         }
 
-        internal static KalturaDrmPlaybackPluginData GetDrmPlaybackPluginData(KalturaDrmSchemeName scheme, KalturaPlaybackSource source)
+        internal static KalturaDrmPlaybackPluginData GetDrmPlaybackPluginData(Group group, KalturaDrmSchemeName scheme, KalturaPlaybackSource source, string caSystemUrl)
         {
             KalturaDrmPlaybackPluginData drmData;
             switch (scheme)
@@ -112,7 +119,7 @@ namespace WebAPI.Utils
                 case KalturaDrmSchemeName.FAIRPLAY:
                     {
                         drmData = new KalturaFairPlayPlaybackPluginData();
-                        ((KalturaFairPlayPlaybackPluginData)drmData).Certificate = TCMClient.Settings.Instance.GetValue<string>(FAIRPLAY_CERTIFICATE_TCM_KEY);
+                        ((KalturaFairPlayPlaybackPluginData)drmData).Certificate = group.FairplayCertificate;
                     }
                     break;
                 case KalturaDrmSchemeName.PLAYREADY_CENC:
@@ -122,10 +129,10 @@ namespace WebAPI.Utils
                     drmData = new KalturaDrmPlaybackPluginData();
                     break;
             }
-            var customDataString = DrmUtils.BuildCencCustomDataString(source.Id.HasValue ? source.Id.Value : 0);
+            var customDataString = DrmUtils.BuildCencCustomDataString(source.ExternalId, caSystemUrl);
             var signature = DrmUtils.BuildCencSignatureString(customDataString);
             drmData.Scheme = scheme;
-            drmData.LicenseURL = DrmUtils.BuildUDrmUrl(scheme, customDataString, signature);
+            drmData.LicenseURL = DrmUtils.BuildUDrmUrl(group, scheme, customDataString, signature);
             return drmData;
         }
     }

@@ -46,6 +46,10 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.4.0.0-ci1036\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\ComponentSpace.SAML2.dll</HintPath>
+    </Reference>
     <Reference Include="Couchbase.NetClient">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
@@ -152,6 +156,7 @@
     <Content Include="bin\WebAPI.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="clear_cache.aspx" />
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
@@ -159,13 +164,27 @@
     <Content Include="ws_catalog_service.svc" />
     <Content Include="WS_Modules\api.asmx" />
     <Content Include="WS_Modules\billing.asmx" />
+    <Content Include="WS_Modules\Billing\adyen_api.aspx" />
+    <Content Include="WS_Modules\Billing\GoogleInApp.aspx" />
+    <Content Include="WS_Modules\Billing\M1_Callback.aspx" />
+    <Content Include="WS_Modules\Billing\plimus_api.aspx" />
+    <Content Include="WS_Modules\Billing\Plimus_Callback.aspx" />
+    <Content Include="WS_Modules\Billing\sc_api.aspx" />
+    <Content Include="WS_Modules\Billing\tp_api.aspx" />
+    <Content Include="WS_Modules\Billing\winpl_api.aspx" />
     <Content Include="WS_Modules\cas.asmx" />
     <Content Include="WS_Modules\catalog.svc" />
     <Content Include="WS_Modules\domains.asmx" />
     <Content Include="WS_Modules\notification.svc" />
+    <Content Include="WS_Modules\Social\facebook_api.aspx" />
+    <Content Include="WS_Modules\Social\SocialFeed.aspx" />
+    <Content Include="WS_Modules\Social\SocialFeedTags.aspx" />
     <Content Include="WS_Modules\users.asmx" />
     <Content Include="WS_Modules\social.asmx" />
     <Content Include="WS_Modules\pricing.asmx" />
+    <Content Include="WS_Modules\Users\OAuth.aspx" />
+    <Content Include="WS_Modules\Users\OSaml.aspx" />
+    <Content Include="WS_Modules\Users\SSO.aspx" />
     <Content Include="ws_notification_service.svc" />
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
@@ -187,8 +206,13 @@
     <Content Include="Swagger.ashx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
+    <Compile Include="clear_cache.aspx.cs">
+      <DependentUpon>clear_cache.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
@@ -198,6 +222,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\CompensationController.cs" />
     <Compile Include="Controllers\ConfigurationGroupController.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -208,6 +233,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
@@ -219,7 +245,18 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Managers\CouchbaseManager.cs" />
+    <Compile Include="EventNotifications\EventConverter.cs" />
+    <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
+    <Compile Include="EventNotifications\Handlers\HttpNotificationHandler.cs" />
+    <Compile Include="EventNotifications\Handlers\RabbitQueueHandler.cs" />
+    <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
+    <Compile Include="Filters\EventNotificationsConfig.cs" />
+    <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
+    <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
+    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
+    <Compile Include="Handlers\ExtWsPagesHendler.cs" />
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
@@ -235,14 +272,16 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCompensation.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPpvEntitlement.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRuleAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionEntitlement.cs" />
@@ -502,6 +541,7 @@
     <Compile Include="Models\General\BaseReport.cs" />
     <Compile Include="Models\General\KalturaApiArgumentPermissionItem.cs" />
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaEventWrapper.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
@@ -581,6 +621,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaCouponGroupType.cs" />
     <Compile Include="Models\Pricing\KalturaPpvPrice.cs" />
     <Compile Include="Models\Pricing\KalturaProductPriceListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionFilter.cs" />
@@ -769,6 +810,63 @@
       <DependentUpon>billing.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="WS_Modules\Billing\AdyenRedirectMessages.cs" />
+    <Compile Include="WS_Modules\Billing\adyen_api.aspx.cs">
+      <DependentUpon>adyen_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\adyen_api.aspx.designer.cs">
+      <DependentUpon>adyen_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\GoogleInApp.aspx.cs">
+      <DependentUpon>GoogleInApp.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\GoogleInApp.aspx.designer.cs">
+      <DependentUpon>GoogleInApp.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\M1_Callback.aspx.cs">
+      <DependentUpon>M1_Callback.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\M1_Callback.aspx.designer.cs">
+      <DependentUpon>M1_Callback.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\plimus_api.aspx.cs">
+      <DependentUpon>plimus_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\plimus_api.aspx.designer.cs">
+      <DependentUpon>plimus_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\Plimus_Callback.aspx.cs">
+      <DependentUpon>Plimus_Callback.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\Plimus_Callback.aspx.designer.cs">
+      <DependentUpon>Plimus_Callback.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\sc_api.aspx.cs">
+      <DependentUpon>sc_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\sc_api.aspx.designer.cs">
+      <DependentUpon>sc_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\tp_api.aspx.cs">
+      <DependentUpon>tp_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\tp_api.aspx.designer.cs">
+      <DependentUpon>tp_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\winpl_api.aspx.cs">
+      <DependentUpon>winpl_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\winpl_api.aspx.designer.cs">
+      <DependentUpon>winpl_api.aspx</DependentUpon>
+    </Compile>
     <Compile Include="WS_Modules\cas.asmx.cs">
       <DependentUpon>cas.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -785,6 +883,27 @@
     <Compile Include="WS_Modules\notification.svc.cs">
       <DependentUpon>notification.svc</DependentUpon>
     </Compile>
+    <Compile Include="WS_Modules\Social\facebook_api.aspx.cs">
+      <DependentUpon>facebook_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Social\facebook_api.aspx.designer.cs">
+      <DependentUpon>facebook_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeed.aspx.cs">
+      <DependentUpon>SocialFeed.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeed.aspx.designer.cs">
+      <DependentUpon>SocialFeed.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeedTags.aspx.cs">
+      <DependentUpon>SocialFeedTags.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeedTags.aspx.designer.cs">
+      <DependentUpon>SocialFeedTags.aspx</DependentUpon>
+    </Compile>
     <Compile Include="WS_Modules\users.asmx.cs">
       <DependentUpon>users.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -796,6 +915,24 @@
     <Compile Include="WS_Modules\pricing.asmx.cs">
       <DependentUpon>pricing.asmx</DependentUpon>
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\OAuth.aspx.cs">
+      <DependentUpon>OAuth.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\OSaml.aspx.cs">
+      <DependentUpon>OSaml.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\OSaml.aspx.designer.cs">
+      <DependentUpon>OSaml.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Users\SSO.aspx.cs">
+      <DependentUpon>SSO.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\SSO.aspx.designer.cs">
+      <DependentUpon>SSO.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -831,13 +968,41 @@
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
       <Name>ApiLogic</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingManager\CachingManager.csproj">
+      <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
+      <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
+      <Name>GoogleAPI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
+      <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
+      <Name>M1BL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>

@@ -15,12 +15,18 @@ namespace WebAPI.Managers.Models
         public int AccountId { get; set; }
 
         [JsonProperty("content_id")]
-        public long ContentId { get; set; }
+        public string ContentId { get; set; }
 
         [JsonProperty("files")]
         public string Files { get; set; }
 
         [JsonProperty("user_token")]
         public string UserToken { get; set; }
+
+        [JsonProperty("udid")]
+        public string UDID { get; set; }
+
+        [JsonProperty("additional_cas_system")]
+        public int AdditionalCasSystem { get; set; }
     }
 }

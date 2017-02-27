@@ -559,6 +559,7 @@ namespace Validator.Managers.Scheme
                         ApiException.ClientExceptionType exceptionType = type as ApiException.ClientExceptionType;
                         writer.WriteAttributeString("name", exceptionType.statusCode.ToString());
                         writer.WriteAttributeString("code", exceptionType.statusCode.GetHashCode().ToString());
+                        writer.WriteAttributeString("description", exceptionType.description);
                     }
 
                     writer.WriteEndElement(); // error
@@ -657,7 +658,15 @@ namespace Validator.Managers.Scheme
 
         internal string getDescription(PropertyInfo property)
         {
-            return getDescription(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name));
+            if (property.ReflectedType.IsGenericType)
+            {
+                string name = property.ReflectedType.FullName.Substring(0, property.ReflectedType.FullName.IndexOf('['));
+                return getDescription(string.Format("//member[@name='P:{0}.{1}']", name, property.Name));
+            }
+            else
+            {
+                return getDescription(string.Format("//member[@name='P:{0}.{1}']", property.ReflectedType, property.Name));
+            }
         }
 
         internal string getDescription(Type type)

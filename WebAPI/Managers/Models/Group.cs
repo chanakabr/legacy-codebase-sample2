@@ -102,6 +102,15 @@ namespace WebAPI.Managers.Models
         [JsonProperty("account_private_key")]
         public string AccountPrivateKey { get; set; }
 
+        [JsonProperty("media_prep_account_id")]
+        public int MediaPrepAccountId { get; set; }
+
+        [JsonProperty("fairplay_certificate")]
+        public string FairplayCertificate { get; set; }
+
+        [JsonProperty("udrm_url")]
+        public string UDrmUrl { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 

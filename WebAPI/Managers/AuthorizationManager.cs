@@ -220,8 +220,7 @@ namespace WebAPI.Managers
                 }
             }
             catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
+            {               
             }
 
             if (user == null)
@@ -285,6 +284,7 @@ namespace WebAPI.Managers
                 log.ErrorFormat("StartSessionWithAppToken: AppToken expired, id = {0}", id);
                 throw new ForbiddenException(ForbiddenException.APP_TOKEN_EXPIRED);
             }
+            
 
             // if expiry was supplied - take the minimum
             if (expiry != null && expiry.Value > 0)

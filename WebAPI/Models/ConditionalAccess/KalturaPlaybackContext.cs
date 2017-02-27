@@ -29,7 +29,7 @@ namespace WebAPI.Models.ConditionalAccess
         public List<KalturaRuleAction> Actions { get; set; }
 
         /// <summary>
-        /// 
+        /// Messages
         /// </summary>
         [DataMember(Name = "messages")]
         [JsonProperty("messages")]

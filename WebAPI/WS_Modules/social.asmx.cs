@@ -756,6 +756,7 @@ namespace WS_Social
              }
              else
              {
+                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                  HttpContext.Current.Response.StatusCode = 404;
              }
              return response;

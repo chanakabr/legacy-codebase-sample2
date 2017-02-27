@@ -25,6 +25,7 @@ namespace WebAPI
             TCMClient.Settings.Instance.Init();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             AutoMapperConfig.RegisterMappings();
+            EventNotificationsConfig.SubscribeConsumers();
 
             // build log4net partial file name
             string partialLogName = string.Empty;

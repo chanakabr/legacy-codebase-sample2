@@ -2010,8 +2010,10 @@ namespace WebAPI.Clients
             }
 
             if (response.Status.Code != (int)eResponseStatus.OK && response.Status.Code != (int)eResponseStatus.ServiceNotAllowed && response.Status.Code != (int)eResponseStatus.NotEntitled &&
-                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation &&
-                response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel && 
+                response.Status.Code != (int)eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel &&
+                response.Status.Code != (int)eResponseStatus.ConcurrencyLimitation && response.Status.Code != (int)eResponseStatus.MediaConcurrencyLimitation && 
+                response.Status.Code != (int)eResponseStatus.DeviceTypeNotAllowed && response.Status.Code != (int)eResponseStatus.NoFilesFound)
             {
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
@@ -2030,30 +2032,7 @@ namespace WebAPI.Clients
 
             kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
 
-            if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
-            {
-                KalturaDrmPlaybackPluginData drmData;
-                List<KalturaDrmSchemeName> schemes;
-                foreach (var source in kalturaPlaybackContext.Sources)
-                {
-                    if (source.DrmId == (int)DrmType.UDRM)
-                    {
-                        schemes = DrmUtils.GetDrmSchemeName(source.Format);
-                        if (schemes != null && schemes.Count > 0)
-                        {
-                            source.Drm = new List<KalturaDrmPlaybackPluginData>();
-
-                            foreach (var scheme in schemes)
-                            {
-                                drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
-
-                                source.Drm.Add(drmData);
-                            }
-                        }
-                    }
-                }
-            }
-            else
+            if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
                 kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
                 kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });
@@ -2092,5 +2071,95 @@ namespace WebAPI.Clients
 
             return response.Url;
         }
+
+        internal KalturaCompensation AddCompensation(int groupId, string userId, KalturaCompensation compensation)
+        {
+            CompensationResponse response = null;
+            
+            Compensation wsCompensation = Mapper.Map<Compensation>(compensation);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.AddCompensation(groupId, userId, wsCompensation);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
+        }
+
+        internal void DeleteCompensation(int groupId, long compensationId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.DeleteCompensation(groupId, compensationId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+        }
+
+        internal KalturaCompensation GetCompensation(int groupId, long compensationId)
+        {
+            CompensationResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetCompensation(groupId, compensationId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
+        }
+        
     }
 }

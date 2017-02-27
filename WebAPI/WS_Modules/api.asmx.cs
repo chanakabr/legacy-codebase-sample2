@@ -904,7 +904,7 @@ namespace WS_API
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Api.Module.CheckGeoBlockMediaOld(nGroupID, nMediaID, sIP);
+                return Core.Api.Module.CheckGeoBlockMedia(nGroupID, nMediaID, sIP);
             }
             else
             {

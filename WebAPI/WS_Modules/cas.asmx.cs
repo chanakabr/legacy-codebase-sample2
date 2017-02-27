@@ -17,6 +17,7 @@ using Core.ConditionalAccess;
 using Core.ConditionalAccess.Response;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.TimeShiftedTv;
+using ApiObjects.Pricing;
 
 namespace WS_ConditionalAccess
 {
@@ -592,6 +593,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(WSInt32))]
         public MediaFileItemPricesContainer[] GetItemsPricesEx(string sWSUserName, string sWSPassword, WSInt32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -648,6 +651,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(WSInt32))]
         public MediaFileItemPricesContainer[] GetItemsPricesWithCouponsEx(string sWSUserName, string sWSPassword, WSInt32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
@@ -675,6 +680,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(Int32[]))]
         public MediaFileItemPricesContainer[] GetItemsPrices(string sWSUserName, string sWSPassword, Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
@@ -702,6 +709,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(Int32[]))]
         public MediaFileItemPricesContainer[] GetItemsPricesByIP(string sWSUserName, string sWSPassword, Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
@@ -729,6 +738,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainerResponse))]
         public MediaFileItemPricesContainerResponse GetItemsPricesWithCoupons(string sWSUserName, string sWSPassword, Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
@@ -758,6 +769,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
         public MediaFileItemPricesContainer[] GetItemsPricesWithCouponsByIP(string sWSUserName, string sWSPassword, Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
@@ -1140,6 +1153,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public MediaFileItemPricesContainer[] GetItemsPricesST(string sWSUserName, string sWSPassword, string sMediaFilesCommaSeperated, string sUserGUID, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
@@ -1173,6 +1188,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(Core.Pricing.Currency))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public MediaFileItemPricesContainer[] GetItemsPricesSTByIP(string sWSUserName, string sWSPassword, string sMediaFilesCommaSeperated, string sUserGUID, bool bOnlyLowest,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, string sClientIP)
         {
@@ -2326,6 +2343,8 @@ namespace WS_ConditionalAccess
         [System.Xml.Serialization.XmlInclude(typeof(PriceReason))]
         [System.Xml.Serialization.XmlInclude(typeof(ItemPriceContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(MediaFileItemPricesContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(ServiceObject))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         [System.Xml.Serialization.XmlInclude(typeof(Int32[]))]
         public AssetItemPriceResponse GetAssetPrices(string username, string password,
             string siteGuid,
@@ -3292,6 +3311,98 @@ namespace WS_ConditionalAccess
             return response;
         }
         
-        
+        [WebMethod]
+        public bool GiftCardReminder(string sWSUserName, string sWSPassword, string siteguid, long purchaseId, string billingGuid, long endDate)
+        {
+            bool response = false;
+
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Int32 groupId = Utils.GetGroupID(sWSUserName, sWSPassword, "GiftCardReminder", ref casImpl);
+
+            if (groupId != 0 && casImpl != null)
+            {
+                try
+                {
+                    response = casImpl.GiftCardReminder(siteguid, purchaseId, billingGuid, endDate);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to remind about gift card subscription", ex);
+                }
+            }
+            else
+            {
+                if (groupId == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+            }
+            return response;
+        }
+
+        [WebMethod]
+        public CompensationResponse AddCompensation(string sWSUserName, string sWSPassword, string userId, Compensation compensation)
+        {
+            CompensationResponse response = new CompensationResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseConditionalAccess t = null;
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword, "AddCompensation", ref t);
+            if (nGroupID != 0 && t != null)
+            {
+                response = t.AddCompensation(userId, compensation);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+            }
+            return response;
+        }
+
+        [WebMethod]
+        public Status DeleteCompensation(string sWSUserName, string sWSPassword, long compensationId)
+        {
+            Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            BaseConditionalAccess t = null;
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword, "DeleteCompensation", ref t);
+            if (nGroupID != 0 && t != null)
+            {
+                response = t.DeleteCompensation(compensationId);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+            }
+            return response;
+        }
+
+        [WebMethod]
+        public CompensationResponse GetCompensation(string sWSUserName, string sWSPassword, long compensationId)
+        {
+            CompensationResponse response = new CompensationResponse()
+            {
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BaseConditionalAccess t = null;
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword, "GetCompensation", ref t);
+            if (nGroupID != 0 && t != null)
+            {
+                response = t.GetCompensation(compensationId);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+            }
+            return response;
+        }
     }
 }
