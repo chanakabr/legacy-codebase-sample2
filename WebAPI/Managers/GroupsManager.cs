@@ -146,13 +146,13 @@ namespace WebAPI.ClientManagers
                 }
 
                 // get group languages
-                var languages = ClientsManager.ApiClient().GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                var languages = ClientsManager.ApiClient().GetGroupLanguages(groupId);
                 if (languages != null)
                     group.Languages = Mapper.Map<List<Language>>(languages);
 
 
                 // get group roles
-                roles = ClientsManager.ApiClient().GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                roles = ClientsManager.ApiClient().GetRoles(groupId);
             }
             else
             {

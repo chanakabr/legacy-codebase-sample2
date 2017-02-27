@@ -111,12 +111,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static Dictionary<string, object> ConvertToParms(string data)
         {
-            return JsonConvert.DeserializeObject < Dictionary<string, object>>(data);
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                StringEscapeHandling = StringEscapeHandling.EscapeHtml
+            };
+
+            return JsonConvert.DeserializeObject<Dictionary<string, object>>(data, settings);
         }
 
         private static string ConvertToContent(Dictionary<string, object> dictionary)
         {
-            return JsonConvert.SerializeObject(dictionary);
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                StringEscapeHandling = StringEscapeHandling.EscapeHtml
+            };
+
+            return JsonConvert.SerializeObject(dictionary, settings);
         }
 
         private static KalturaPlatform ConvertPlatform(KalturaPlatform kalturaePlatform)

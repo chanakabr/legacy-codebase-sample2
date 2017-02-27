@@ -18,7 +18,6 @@ using System.ServiceModel;
 using System.Linq;
 using ApiObjects.Billing;
 using ApiObjects.Response;
-using WS_Billing;
 
 
 namespace WebAPI.Clients
@@ -32,14 +31,6 @@ namespace WebAPI.Clients
 
         }
 
-        protected module Billing
-        {
-            get
-            {
-                return (Module as module);
-            }
-        }
-
 
         #region Payment GateWay
 
@@ -47,13 +38,13 @@ namespace WebAPI.Clients
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> KalturaPaymentGatewayProfileList = null;
             PaymentGatewaySettingsResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGatewateSettings(group.BillingCredentials.Username, group.BillingCredentials.Password);
+                    response = Core.Billing.Module.GetPaymentGatewateSettings(groupId);
                 }
             }
             catch (Exception ex)
@@ -82,13 +73,13 @@ namespace WebAPI.Clients
         {
             List<Models.Billing.KalturaPaymentGatewayProfile> KalturaPaymentGatewayProfileList = null;
             PaymentGatewayResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password);
+                    response = Core.Billing.Module.GetPaymentGateway(groupId);
                 }
             }
             catch (Exception ex)
@@ -116,13 +107,13 @@ namespace WebAPI.Clients
         {
             List<Models.Billing.KalturaHouseholdPaymentGateway> KalturaPaymentGatewayBaseProfileList = null;
             PaymentGatewayListResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetHouseholdPaymentGateways(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, (int)householdId);
+                    response = Core.Billing.Module.GetHouseholdPaymentGateways(groupId, siteGuid, (int)householdId);
                 }
             }
             catch (Exception ex)
@@ -149,13 +140,13 @@ namespace WebAPI.Clients
         public List<KalturaHouseholdPaymentMethod> GetHouseholdPaymentMethods(int groupId, string siteGuid, long householdId)
         {
             PaymentGatewayListResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetHouseholdPaymentGateways(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, (int)householdId);
+                    response = Core.Billing.Module.GetHouseholdPaymentGateways(groupId, siteGuid, (int)householdId);
                 }
             }
             catch (Exception ex)
@@ -205,13 +196,13 @@ namespace WebAPI.Clients
         {
             List<Models.Billing.KalturaPaymentGatewayBaseProfile> KalturaPaymentGatewayBaseProfileList = null;
             PaymentGatewayListResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetHouseholdPaymentGateways(group.BillingCredentials.Username, group.BillingCredentials.Password, siteGuid, (int)householdId);
+                    response = Core.Billing.Module.GetHouseholdPaymentGateways(groupId, siteGuid, (int)householdId);
                 }
             }
             catch (Exception ex)
@@ -238,14 +229,14 @@ namespace WebAPI.Clients
         internal KalturaPaymentGatewayProfile SetPaymentGateway(int groupId, int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
         {
             PaymentGatewayItemResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     PaymentGateway request = Mapper.Map<PaymentGateway>(paymentGateway);
-                    response = Billing.UpdatePaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, request);
+                    response = Core.Billing.Module.UpdatePaymentGateway(groupId, paymentGatewayId, request);
                 }
             }
             catch (Exception ex)
@@ -271,13 +262,13 @@ namespace WebAPI.Clients
         public bool SetPaymentGatewaySettings(int groupId, int paymentGWID, Dictionary<string, KalturaStringValue> payment_gateway_settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<PaymentGatewaySettings> configs = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
-                    response = Billing.SetPaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGWID, configs);
+                    response = Core.Billing.Module.SetPaymentGWSettings(groupId, paymentGWID, configs);
                 }
             }
             catch (Exception ex)
@@ -302,12 +293,12 @@ namespace WebAPI.Clients
         public bool DeletePaymentGateway(int groupId, int paymentGwID)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.DeletePaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID);
+                    response = Core.Billing.Module.DeletePaymentGateway(groupId, paymentGwID);
                 }
             }
             catch (Exception ex)
@@ -332,13 +323,13 @@ namespace WebAPI.Clients
         public bool DeletePaymentGatewaySettings(int groupId, int paymentGwID, Dictionary<string, KalturaStringValue> payment_gateway_settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<PaymentGatewaySettings> settings = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
-                    response = Billing.DeletePaymentGWSettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, settings);
+                    response = Core.Billing.Module.DeletePaymentGWSettings(groupId, paymentGwID, settings);
                 }
             }
             catch (Exception ex)
@@ -363,13 +354,13 @@ namespace WebAPI.Clients
         public bool DeleteHouseholdPaymentGateway(int groupId, int paymentGatewayId, string siteGuid, long householdID)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     int house_hold_id = (int)householdID;
-                    response = Billing.DeleteHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, siteGuid, house_hold_id);
+                    response = Core.Billing.Module.DeleteHouseholdPaymentGateway(groupId, paymentGatewayId, siteGuid, house_hold_id);
                 }
             }
             catch (Exception ex)
@@ -394,14 +385,14 @@ namespace WebAPI.Clients
         public KalturaPaymentGatewayProfile InsertPaymentGateway(int groupId, Models.Billing.KalturaPaymentGatewayProfile pgw)
         {
             PaymentGatewayItemResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     PaymentGateway request = Mapper.Map<PaymentGateway>(pgw);
-                    response = Billing.AddPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, request);
+                    response = Core.Billing.Module.AddPaymentGateway(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -427,14 +418,14 @@ namespace WebAPI.Clients
         public KalturaPaymentGatewayProfile InsertPaymentGatewaySettings(int groupId, int paymentGatewayId, SerializableDictionary<string, KalturaStringValue> payment_gateway_settings)
         {
             PaymentGatewayItemResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<PaymentGatewaySettings> request = BillingMappings.ConvertPaymentGatewaySettings(payment_gateway_settings);
-                    response = Billing.AddPaymentGatewaySettings(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, request);
+                    response = Core.Billing.Module.AddPaymentGatewaySettings(groupId, paymentGatewayId, request);
                 }
             }
             catch (Exception ex)
@@ -460,13 +451,13 @@ namespace WebAPI.Clients
         public bool SetHouseholdPaymentGateway(int groupId, int paymentGwID, string siteGuid, long householdID)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGwID, siteGuid, (int)householdID);
+                    response = Core.Billing.Module.SetHouseholdPaymentGateway(groupId, paymentGwID, siteGuid, (int)householdID);
                 }
             }
             catch (Exception ex)
@@ -491,13 +482,13 @@ namespace WebAPI.Clients
         internal bool SetHouseholdChargeID(int groupId, string externalIdentifier, int householdId, string chargeId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId, chargeId);
+                    response = Core.Billing.Module.SetHouseholdChargeID(groupId, externalIdentifier, householdId, chargeId);
                 }
             }
             catch (Exception ex)
@@ -523,13 +514,13 @@ namespace WebAPI.Clients
         {
             PaymentGatewayChargeIDResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetHouseholdChargeID(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId);
+                    response = Core.Billing.Module.GetHouseholdChargeID(groupId, externalIdentifier, householdId);
                 }
             }
             catch (Exception ex)
@@ -556,13 +547,13 @@ namespace WebAPI.Clients
             PaymentGatewayItemResponse response = null;
             KalturaPaymentGatewayProfile kalturaPaymentGatewayProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GeneratePaymentGatewaySharedSecret(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId);
+                    response = Core.Billing.Module.GeneratePaymentGatewaySharedSecret(groupId, paymentGatewayId);
                 }
             }
             catch (Exception ex)
@@ -592,14 +583,14 @@ namespace WebAPI.Clients
         internal bool SetPartnerConfiguration(int groupId, KalturaBillingPartnerConfig partnerConfig)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     PartnerConfiguration request = Mapper.Map<PartnerConfiguration>(partnerConfig);
-                    response = Billing.SetPartnerConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, request);
+                    response = Core.Billing.Module.SetPartnerConfiguration(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -625,14 +616,14 @@ namespace WebAPI.Clients
         {
             Models.Billing.KalturaPaymentGatewayConfiguration configuration = null;
             PaymentGatewayConfigurationResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             List<ApiObjects.KeyValuePair> keyValuePairs = Mapper.Map<List<ApiObjects.KeyValuePair>>(extraParams);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGatewayConfiguration(group.BillingCredentials.Username, group.BillingCredentials.Password, alias, intent, keyValuePairs);
+                    response = Core.Billing.Module.GetPaymentGatewayConfiguration(groupId, alias, intent, keyValuePairs);
                 }
             }
             catch (Exception ex)
@@ -659,13 +650,13 @@ namespace WebAPI.Clients
         internal int SetPaymentGatewayHouseholdPaymentMethod(int groupId, string externalIdentifier, int householdId, string paymentMethodName, string paymentDetails, string paymentMethodExternalId)
         {
             PaymentMethodIdResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.AddPaymentGatewayHouseholdPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, externalIdentifier, householdId, paymentMethodName,
+                    response = Core.Billing.Module.AddPaymentGatewayHouseholdPaymentMethod(groupId, externalIdentifier, householdId, paymentMethodName,
                         paymentDetails, paymentMethodExternalId);
                 }
             }
@@ -693,13 +684,13 @@ namespace WebAPI.Clients
             PaymentMethodsResponse response = null;
             List<KalturaPaymentMethodProfile> paymentMethods = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.GetPaymentGatewayPaymentMethods(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId);
+                    response = Core.Billing.Module.GetPaymentGatewayPaymentMethods(groupId, paymentGatewayId);
                 }
             }
             catch (Exception ex)
@@ -728,13 +719,13 @@ namespace WebAPI.Clients
             PaymentMethodsResponse response = null;
             KalturaPaymentMethodProfile paymentMethod = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.AddPaymentMethodToPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, name, allowMultiInstance);
+                    response = Core.Billing.Module.AddPaymentMethodToPaymentGateway(groupId, paymentGatewayId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)
@@ -767,13 +758,13 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.UpdatePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId, name, allowMultiInstance);
+                    response = Core.Billing.Module.UpdatePaymentGatewayPaymentMethod(groupId, paymentGatewayId, paymentMethodId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)
@@ -799,13 +790,13 @@ namespace WebAPI.Clients
         {
             PaymentMethodResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.UpdatePaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentMethodId, name, allowMultiInstance);
+                    response = Core.Billing.Module.UpdatePaymentMethod(groupId, paymentMethodId, name, allowMultiInstance);
                 }
             }
             catch (Exception ex)
@@ -832,13 +823,13 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.DeletePaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentMethodId);
+                    response = Core.Billing.Module.DeletePaymentMethod(groupId, paymentMethodId);
                 }
             }
             catch (Exception ex)
@@ -865,13 +856,13 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.DeletePaymentGatewayPaymentMethod(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, paymentMethodId);
+                    response = Core.Billing.Module.DeletePaymentGatewayPaymentMethod(groupId, paymentGatewayId, paymentMethodId);
                 }
             }
             catch (Exception ex)
@@ -896,13 +887,13 @@ namespace WebAPI.Clients
         internal bool SetPaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string userID, long householdId, int paymentMethodId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.SetPaymentMethodHouseholdPaymentGateway(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, userID,
+                    response = Core.Billing.Module.SetPaymentMethodHouseholdPaymentGateway(groupId, paymentGatewayId, userID,
                         (int)householdId, paymentMethodId);
                 }
             }
@@ -930,14 +921,14 @@ namespace WebAPI.Clients
         {
             Models.Billing.KalturaPaymentGatewayConfiguration configuration = null;
             PaymentGatewayConfigurationResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             List<ApiObjects.KeyValuePair> keyValuePairs = Mapper.Map<List<ApiObjects.KeyValuePair>>(extraParams);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.PaymentGatewayInvoke(group.BillingCredentials.Username, group.BillingCredentials.Password, paymentGatewayId, intent, keyValuePairs);
+                    response = Core.Billing.Module.PaymentGatewayInvoke(groupId, paymentGatewayId, intent, keyValuePairs);
                 }
             }
             catch (Exception ex)
@@ -965,7 +956,7 @@ namespace WebAPI.Clients
         {
             Models.Billing.KalturaHouseholdPaymentMethod householdPaymentMethodResponse = null;
             HouseholdPaymentMethodResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -973,7 +964,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Billing.AddPaymentGatewayPaymentMethodToHousehold(group.BillingCredentials.Username, group.BillingCredentials.Password, wsHouseholdPaymentMethod, (int)householdId);
+                    response = Core.Billing.Module.AddPaymentGatewayPaymentMethodToHousehold(groupId, wsHouseholdPaymentMethod, (int)householdId);
                 }
             }
             catch (Exception ex)
@@ -1002,13 +993,13 @@ namespace WebAPI.Clients
             Status status = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    status = Billing.RemoveAccount(group.BillingCredentials.Username, group.BillingCredentials.Password, householdId);
+                    status = Core.Billing.Module.RemoveAccount(groupId, householdId);
                 }
             }
             catch (Exception ex)

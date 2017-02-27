@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         /// get KalturaAssetFileContext
         /// </summary>
         /// <param name="id">Asset file identifier</param>
-        ///<param name=" contextType">Kaltura Context Type (none = 0, recording = 1)</param>
+        /// <param name="contextType">Kaltura Context Type (none = 0, recording = 1)</param>
         /// <remarks></remarks>
         [Route("getContext"), HttpPost]
         [ApiAuthorize]
@@ -130,6 +130,7 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(response))
                 {
+                    HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                     HttpContext.Current.Response.Redirect(response);
                 }
             }

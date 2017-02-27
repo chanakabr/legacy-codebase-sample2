@@ -17,6 +17,9 @@ namespace WebAPI.Models.Partner
     /// </summary>    
     public class KalturaPartnerConfigurationHolder : KalturaOTTObject
     {
+        /// <summary>
+        /// Partner configuration type
+        /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]

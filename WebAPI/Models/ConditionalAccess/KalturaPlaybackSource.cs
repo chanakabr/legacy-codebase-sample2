@@ -37,6 +37,8 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "drm")]
         public List<KalturaDrmPlaybackPluginData> Drm { get; set; }
 
+        internal string FileExtention { get; set; }
+
         internal int DrmId;
     }
 }

@@ -14,10 +14,10 @@ using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 using System.Net;
 using System.ServiceModel;
-using Pricing;
 using ApiObjects.Response;
-using WS_Pricing;
 using WebAPI.ObjectsConvertor.Mapping;
+using Core.Pricing;
+using ApiObjects.Pricing;
 
 namespace WebAPI.Clients
 {
@@ -29,27 +29,19 @@ namespace WebAPI.Clients
         {
         }
 
-        protected mdoule Pricing
-        {
-            get
-            {
-                return (Module as mdoule);
-            }
-        }
-
         internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string[] subscriptionsIds, string udid, string languageCode, KalturaSubscriptionOrderBy orderBy)
         {
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             SubscriptionOrderBy wsOrderBy = PricingMappings.ConvertSubscriptionOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetSubscriptions(group.PricingCredentials.Username, group.PricingCredentials.Password,
+                    response = Core.Pricing.Module.GetSubscriptions(groupId,
                         subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy);
                 }
             }
@@ -79,13 +71,13 @@ namespace WebAPI.Clients
             IdsResponse response = null;
             List<int> subscriptions = new List<int>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetSubscriptionIDsContainingMediaFile(group.PricingCredentials.Username, group.PricingCredentials.Password, 0, mediaFileID);
+                    response = Core.Pricing.Module.GetSubscriptionIDsContainingMediaFile(groupId, 0, mediaFileID);
                 }
             }
             catch (Exception ex)
@@ -114,13 +106,13 @@ namespace WebAPI.Clients
             CouponDataResponse response = null;
             KalturaCoupon coupon = new KalturaCoupon();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetCouponStatus(group.PricingCredentials.Username, group.PricingCredentials.Password, couponCode);
+                    response = Core.Pricing.Module.GetCouponStatus(groupId, couponCode);
                 }
             }
             catch (Exception ex)
@@ -149,13 +141,13 @@ namespace WebAPI.Clients
             PPVModuleDataResponse response = null;
             KalturaPpv result = new KalturaPpv();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.GetPPVModuleResponse(group.PricingCredentials.Username, group.PricingCredentials.Password, ppvCode.ToString(), string.Empty, string.Empty, string.Empty);
+                    response = Core.Pricing.Module.GetPPVModuleResponse(groupId, ppvCode.ToString(), string.Empty, string.Empty, string.Empty);
                 }
             }
             catch (Exception ex)

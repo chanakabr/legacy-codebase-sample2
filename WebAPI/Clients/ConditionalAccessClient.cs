@@ -21,10 +21,11 @@ using System.ServiceModel;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using ApiObjects;
-using ConditionalAccess.Response;
 using ApiObjects.Response;
 using ApiObjects.Billing;
-using ConditionalAccess;
+using Core.ConditionalAccess.Response;
+using ApiObjects.ConditionalAccess;
+using Core.ConditionalAccess;
 
 namespace WebAPI.Clients
 {
@@ -37,22 +38,10 @@ namespace WebAPI.Clients
 
         }
 
-        #region Properties
-
-        protected WS_ConditionalAccess.module ConditionalAccess
-        {
-            get
-            {
-                return (Module as WS_ConditionalAccess.module);
-            }
-        }
-
-        #endregion
-
         public bool CancelServiceNow(int groupId, int domain_id, int asset_id, Models.ConditionalAccess.KalturaTransactionType transaction_type, bool bIsForce)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -60,7 +49,7 @@ namespace WebAPI.Clients
                     // convert local enu, to ws enum
                     eTransactionType eTransactionType = Mapper.Map<eTransactionType>(transaction_type);
 
-                    response = ConditionalAccess.CancelServiceNow(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domain_id, asset_id, eTransactionType, bIsForce);
+                    response = Core.ConditionalAccess.Module.CancelServiceNow(groupId, domain_id, asset_id, eTransactionType, bIsForce);
                 }
             }
             catch (Exception ex)
@@ -85,12 +74,12 @@ namespace WebAPI.Clients
         public void CancelSubscriptionRenewal(int groupId, int domain_id, string subscription_code)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.CancelSubscriptionRenewal(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domain_id, subscription_code);
+                    response = Core.ConditionalAccess.Module.CancelSubscriptionRenewal(groupId, domain_id, subscription_code);
                 }
             }
             catch (Exception ex)
@@ -114,13 +103,13 @@ namespace WebAPI.Clients
         {
             List<WebAPI.Models.ConditionalAccess.KalturaEntitlement> entitlements = null;
             Entitlements response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetUserSubscriptions(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id);
+                    response = Core.ConditionalAccess.Module.GetUserSubscriptions(groupId, user_id);
                 }
             }
             catch (Exception ex)
@@ -148,14 +137,14 @@ namespace WebAPI.Clients
         {
             Models.ConditionalAccess.KalturaBillingTransactionListResponse transactions = null;
             BillingTransactions response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetUserBillingHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userid, page_number, page_size, wsOrderBy);
+                    response = Core.ConditionalAccess.Module.GetUserBillingHistory(groupId, userid, page_number, page_size, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -185,13 +174,13 @@ namespace WebAPI.Clients
             KalturaBillingResponse result = null;
             BillingStatusResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.CC_ChargeUserForMediaFile(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteGuid, price, currency, fileId,
+                    response = Core.ConditionalAccess.Module.CC_ChargeUserForMediaFile(groupId, siteGuid, price, currency, fileId,
                         ppvModuleCode, couponCode, Utils.Utils.GetClientIP(), extraParams, string.Empty, string.Empty, udid, string.Empty, encryptedCvv);
                 }
             }
@@ -226,13 +215,13 @@ namespace WebAPI.Clients
             KalturaBillingResponse result = null;
             BillingStatusResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.CC_ChargeUserForSubscription(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteGuid, price, currency, subscriptionId,
+                    response = Core.ConditionalAccess.Module.CC_ChargeUserForSubscription(groupId, siteGuid, price, currency, subscriptionId,
                         couponCode, Utils.Utils.GetClientIP(), extraParams, string.Empty, string.Empty, udid, string.Empty, encryptedCvv);
                 }
             }
@@ -267,13 +256,13 @@ namespace WebAPI.Clients
             SubscriptionsPricesResponse response = null;
             List<KalturaSubscriptionPrice> prices = new List<KalturaSubscriptionPrice>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetSubscriptionsPricesWithCoupon(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetSubscriptionsPricesWithCoupon(groupId,
                         subscriptionsIds.Select(x => x.ToString()).ToArray(), userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
                 }
             }
@@ -307,13 +296,13 @@ namespace WebAPI.Clients
             MediaFileItemPricesContainerResponse response = null;
             List<KalturaItemPrice> prices = new List<KalturaItemPrice>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetItemsPricesWithCoupons(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetItemsPricesWithCoupons(groupId,
                         mediaFileIds.ToArray(), userId, couponCode, shouldGetOnlyLowest, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
                 }
             }
@@ -343,13 +332,13 @@ namespace WebAPI.Clients
             MediaFileItemPricesContainerResponse response = null;
             List<KalturaPpvPrice> prices = new List<KalturaPpvPrice>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetItemsPricesWithCoupons(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetItemsPricesWithCoupons(groupId,
                         mediaFileIds.ToArray(), userId, couponCode, shouldGetOnlyLowest, string.Empty, languageCode, udid, Utils.Utils.GetClientIP());
                 }
             }
@@ -381,7 +370,7 @@ namespace WebAPI.Clients
             TransactionResponse wsResponse = new TransactionResponse();
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -391,7 +380,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.Purchase(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, houshold, price,
+                    wsResponse = Core.ConditionalAccess.Module.Purchase(groupId, siteguid, houshold, price,
                                                             currency, contentId, productId, transactionType, coupon, Utils.Utils.GetClientIP(), udid, paymentGatewayId, paymentMethodId, adapterData);
                 }
             }
@@ -426,7 +415,7 @@ namespace WebAPI.Clients
             TransactionResponse wsResponse = new TransactionResponse();
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -436,7 +425,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.ProcessReceipt(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), udid, purchaseToken, paymentGatewayName);
+                    wsResponse = Core.ConditionalAccess.Module.ProcessReceipt(groupId, siteguid, household, contentId, productId, transactionType, Utils.Utils.GetClientIP(), udid, purchaseToken, paymentGatewayName);
                 }
             }
             catch (Exception ex)
@@ -470,14 +459,14 @@ namespace WebAPI.Clients
             Status wsResponse = null;
 
             // get group 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.UpdatePendingTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, paymentGatewayId,
+                    wsResponse = Core.ConditionalAccess.Module.UpdatePendingTransaction(groupId, paymentGatewayId,
                         adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason, signature);
                 }
             }
@@ -506,14 +495,14 @@ namespace WebAPI.Clients
         //    PermittedMediaContainerResponse wsResponse = new PermittedMediaContainerResponse();
 
         //    // get group ID
-        //    Group group = GroupsManager.GetGroup(groupId);
+        //    
 
         //    try
         //    {
         //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
         //        {
         //            // fire request
-        //            wsResponse = ConditionalAccess.GetDomainPermittedItems(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId);
+        //            wsResponse = Core.ConditionalAccess.Module.GetDomainPermittedItems(groupId, domainId);
         //        }
         //    }
         //    catch (Exception ex)
@@ -549,7 +538,7 @@ namespace WebAPI.Clients
             eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
@@ -559,7 +548,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.GetDomainEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, wsType, isExpired,
+                    wsResponse = Core.ConditionalAccess.Module.GetDomainEntitlements(groupId, domainId, wsType, isExpired,
                         pageSize, pageIndex, wsOrderBy);
                 }
             }
@@ -602,7 +591,7 @@ namespace WebAPI.Clients
             eTransactionType wsType = ConditionalAccessMappings.ConvertTransactionType(type);
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             // convert order by
             EntitlementOrderBy wsOrderBy = ConditionalAccessMappings.ConvertEntitlementOrderBy(orderBy);
@@ -612,7 +601,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = ConditionalAccess.GetUserEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, wsType, isExpired,
+                    wsResponse = Core.ConditionalAccess.Module.GetUserEntitlements(groupId, userId, wsType, isExpired,
                         pageSize, pageIndex, wsOrderBy);
                 }
             }
@@ -651,7 +640,7 @@ namespace WebAPI.Clients
             Status response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -661,7 +650,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GrantEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, user_id, household_id, content_id,
+                    response = Core.ConditionalAccess.Module.GrantEntitlements(groupId, user_id, household_id, content_id,
                         product_id, transactionType, Utils.Utils.GetClientIP(), deviceName, history);
                 }
             }
@@ -690,14 +679,14 @@ namespace WebAPI.Clients
             DomainTransactionsHistoryResponse wsResponse = null;
 
             // get group by ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
             TransactionHistoryOrderBy wsOrderBy = ConditionalAccessMappings.ConvertTransactionHistoryOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    wsResponse = ConditionalAccess.GetDomainTransactionsHistory(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy);
+                    wsResponse = Core.ConditionalAccess.Module.GetDomainTransactionsHistory(groupId, domainId, startDate, endDate, pageSize, pageIndex, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -756,7 +745,7 @@ namespace WebAPI.Clients
             List<KalturaAssetPrice> assetPrices = new List<KalturaAssetPrice>();
             AssetItemPriceResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -764,7 +753,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetAssetPrices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetAssetPrices(groupId,
                         userId, couponCode, string.Empty, languageCode, udid, Utils.Utils.GetClientIP(), assetFiles);
                 }
             }
@@ -793,13 +782,13 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.ReconcileEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId);
+                    response = Core.ConditionalAccess.Module.ReconcileEntitlements(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -826,13 +815,13 @@ namespace WebAPI.Clients
             KalturaHouseholdPremiumServiceListResponse result;
             DomainServicesResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetDomainServices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId);
+                    response = Core.ConditionalAccess.Module.GetDomainServices(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -866,13 +855,13 @@ namespace WebAPI.Clients
             List<KalturaPremiumService> result;
             DomainServicesResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetDomainServices(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainId);
+                    response = Core.ConditionalAccess.Module.GetDomainServices(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -901,7 +890,7 @@ namespace WebAPI.Clients
             Status response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -911,7 +900,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.WaiverTransaction(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId, transactionType);
+                    response = Core.ConditionalAccess.Module.WaiverTransaction(groupId, userId, assetId, transactionType);
                 }
             }
             catch (Exception ex)
@@ -938,7 +927,7 @@ namespace WebAPI.Clients
             PurchaseSessionIdResponse response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -948,7 +937,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetPurchaseSessionID(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, price, currency, contentId,
+                    response = Core.ConditionalAccess.Module.GetPurchaseSessionID(groupId, userId, price, currency, contentId,
                         productId.ToString(), coupon, Utils.Utils.GetClientIP(), udid, transactionType, previewModuleId);
                 }
             }
@@ -977,14 +966,14 @@ namespace WebAPI.Clients
             KalturaLicensedUrl urls = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetLicensedLinks(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetLicensedLinks(groupId,
                         userId, contentId, basicLink, Utils.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, udid);
                 }
             }
@@ -1015,7 +1004,7 @@ namespace WebAPI.Clients
             KalturaLicensedUrl urls = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1024,7 +1013,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetEPGLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetEPGLicensedLink(groupId,
                         userId, contentId, epgId, startTime, baseUrl, Utils.Utils.GetClientIP(), string.Empty, string.Empty, string.Empty, udid, (int)streamType);
                 }
             }
@@ -1055,14 +1044,14 @@ namespace WebAPI.Clients
             KalturaLicensedUrl urls = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetRecordingLicensedLink(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password,
+                    response = Core.ConditionalAccess.Module.GetRecordingLicensedLink(groupId,
                         userId, recordingId, udid, Utils.Utils.GetClientIP(), fileType);
                 }
             }
@@ -1091,14 +1080,14 @@ namespace WebAPI.Clients
         {
             List<KalturaCDVRAdapterProfile> adapters = new List<KalturaCDVRAdapterProfile>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDVRAdapterResponseList response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetCDVRAdapters(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password);
+                    response = Core.ConditionalAccess.Module.GetCDVRAdapters(groupId);
                 }
             }
             catch (Exception ex)
@@ -1127,14 +1116,14 @@ namespace WebAPI.Clients
 
         internal bool DeleteCDVRAdapter(int groupId, int adapterId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.DeleteCDVRAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, adapterId);
+                    response = Core.ConditionalAccess.Module.DeleteCDVRAdapter(groupId, adapterId);
                 }
             }
             catch (Exception ex)
@@ -1160,7 +1149,7 @@ namespace WebAPI.Clients
         {
             KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDVRAdapterResponse response = null;
 
@@ -1170,7 +1159,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.InsertCDVRAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, wsAdapter);
+                    response = Core.ConditionalAccess.Module.InsertCDVRAdapter(groupId, wsAdapter);
                 }
             }
             catch (Exception ex)
@@ -1198,7 +1187,7 @@ namespace WebAPI.Clients
         {
             KalturaCDVRAdapterProfile adapterResponse = new KalturaCDVRAdapterProfile();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDVRAdapterResponse response = null;
 
@@ -1208,7 +1197,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.SetCDVRAdapter(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, wsAdapter);
+                    response = Core.ConditionalAccess.Module.SetCDVRAdapter(groupId, wsAdapter);
                 }
             }
             catch (Exception ex)
@@ -1236,14 +1225,14 @@ namespace WebAPI.Clients
         {
             KalturaCDVRAdapterProfile adapter = new KalturaCDVRAdapterProfile();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDVRAdapterResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GenerateCDVRSharedSecret(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, adapterId);
+                    response = Core.ConditionalAccess.Module.GenerateCDVRSharedSecret(groupId, adapterId);
                 }
             }
             catch (Exception ex)
@@ -1267,20 +1256,20 @@ namespace WebAPI.Clients
             return adapter;
         }
 
-        internal KalturaRecording GetRecord(int groupID, long domainID, long recordingID)
+        internal KalturaRecording GetRecord(int groupId, long domainID, long recordingID)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetRecordingByID(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, domainID, recordingID);
+                    response = Core.ConditionalAccess.Module.GetRecordingByID(groupId, domainID, recordingID);
                 }
             }
             catch (Exception ex)
@@ -1307,20 +1296,20 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecordingContextListResponse QueryRecords(int groupID, string userID, long[] assetIds)
+        internal KalturaRecordingContextListResponse QueryRecords(int groupId, string userID, long[] assetIds)
         {
             KalturaRecordingContextListResponse result = null;
             RecordingResponse response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.QueryRecords(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, assetIds);
+                    response = Core.ConditionalAccess.Module.QueryRecords(groupId, userID, assetIds);
                 }
             }
             catch (Exception ex)
@@ -1360,20 +1349,20 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaRecording Record(int groupID, string userID, long epgID)
+        internal KalturaRecording Record(int groupId, string userID, long epgID)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.Record(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, RecordingType.Single);
+                    response = Core.ConditionalAccess.Module.Record(groupId, userID, epgID, RecordingType.Single);
                 }
             }
             catch (Exception ex)
@@ -1400,7 +1389,7 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecordingListResponse SearchRecordings(int groupID, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
+        internal KalturaRecordingListResponse SearchRecordings(int groupId, string userID, long domainID, List<KalturaRecordingStatus> recordingStatuses, string ksqlFilter,
                                                                 int pageIndex, int? pageSize, KalturaRecordingOrderBy? orderBy)
         {
             KalturaRecordingListResponse result = new KalturaRecordingListResponse() { TotalCount = 0 };
@@ -1426,14 +1415,14 @@ namespace WebAPI.Clients
             List<TstvRecordingStatus> convertedRecordingStatuses = recordingStatuses.Select(x => ConditionalAccessMappings.ConvertKalturaRecordingStatus(x)).ToList();
 
             // get group configuration
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.SearchDomainRecordings(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, convertedRecordingStatuses.ToArray(),
+                    response = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, userID, domainID, convertedRecordingStatuses.ToArray(),
                                                                           ksqlFilter, pageIndex, pageSize.Value, order, false);
                 }
             }
@@ -1468,13 +1457,13 @@ namespace WebAPI.Clients
         internal bool RemovePaymentMethodHouseholdPaymentGateway(int payment_gateway_id, int groupId, string userID, long householdId, int paymentMethodId, bool force = false)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.RemovePaymentMethodHouseholdPaymentGateway(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, payment_gateway_id, userID,
+                    response = Core.ConditionalAccess.Module.RemovePaymentMethodHouseholdPaymentGateway(groupId, payment_gateway_id, userID,
                         (int)householdId, paymentMethodId, force);
                 }
             }
@@ -1503,14 +1492,14 @@ namespace WebAPI.Clients
             DomainQuotaResponse webServiceResponse = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    webServiceResponse = ConditionalAccess.GetDomainQuota(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId);
+                    webServiceResponse = Core.ConditionalAccess.Module.GetDomainQuota(groupId, userId, domainId);
                 }
             }
             catch (Exception ex)
@@ -1540,20 +1529,20 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaRecording CancelRecord(int groupID, string userID, long domainID, long id)
+        internal KalturaRecording CancelRecord(int groupId, string userID, long domainID, long id)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.CancelRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, id);
+                    response = Core.ConditionalAccess.Module.CancelRecord(groupId, userID, domainID, id);
                 }
             }
             catch (Exception ex)
@@ -1580,20 +1569,20 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecording DeleteRecord(int groupID, string userID, long domainID, long id)
+        internal KalturaRecording DeleteRecord(int groupId, string userID, long domainID, long id)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.DeleteRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, id);
+                    response = Core.ConditionalAccess.Module.DeleteRecord(groupId, userID, domainID, id);
                 }
             }
             catch (Exception ex)
@@ -1620,20 +1609,20 @@ namespace WebAPI.Clients
             return recording;
         }
 
-        internal KalturaRecording ProtectRecord(int groupID, string userID, long recordingID)
+        internal KalturaRecording ProtectRecord(int groupId, string userID, long recordingID)
         {
             KalturaRecording recording = null;
             Recording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.ProtectRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, recordingID);
+                    response = Core.ConditionalAccess.Module.ProtectRecord(groupId, userID, recordingID);
                 }
             }
             catch (Exception ex)
@@ -1666,14 +1655,14 @@ namespace WebAPI.Clients
             SeriesRecording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.CancelSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId, seasonNumber);
+                    response = Core.ConditionalAccess.Module.CancelSeriesRecord(groupId, userId, domainId, id, epgId, seasonNumber);
                 }
             }
             catch (Exception ex)
@@ -1706,14 +1695,14 @@ namespace WebAPI.Clients
             SeriesRecording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.DeleteSeriesRecord(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, domainId, id, epgId, seasonNumber);
+                    response = Core.ConditionalAccess.Module.DeleteSeriesRecord(groupId, userId, domainId, id, epgId, seasonNumber);
                 }
             }
             catch (Exception ex)
@@ -1740,13 +1729,13 @@ namespace WebAPI.Clients
             return seriesRecording;
         }
 
-        internal KalturaSeriesRecordingListResponse GetFollowSeries(int groupID, string userID, long domainID, KalturaSeriesRecordingOrderBy? orderBy)
+        internal KalturaSeriesRecordingListResponse GetFollowSeries(int groupId, string userID, long domainID, KalturaSeriesRecordingOrderBy? orderBy)
         {
             KalturaSeriesRecordingListResponse result = new KalturaSeriesRecordingListResponse() { TotalCount = 0 };
             SeriesResponse response = null;
 
             // get group configuration
-            Group group = GroupsManager.GetGroup(groupID);
+            
             // Create catalog order object
             SeriesRecordingOrderObj order = new SeriesRecordingOrderObj();
             if (orderBy == null)
@@ -1762,7 +1751,7 @@ namespace WebAPI.Clients
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 // fire request
-                response = ConditionalAccess.GetFollowSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, domainID, order);
+                response = Core.ConditionalAccess.Module.GetFollowSeries(groupId, userID, domainID, order);
             }
             if (response.SeriesRecordings != null && response.SeriesRecordings.Count > 0)
             {
@@ -1774,20 +1763,20 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSeriesRecording RecordSeasonOrSeries(int groupID, string userID, long epgID, KalturaRecordingType recordingType)
+        internal KalturaSeriesRecording RecordSeasonOrSeries(int groupId, string userID, long epgID, KalturaRecordingType recordingType)
         {
             KalturaSeriesRecording recording = null;
             SeriesRecording response = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupID);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.RecordSeasonOrSeries(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userID, epgID, ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType));
+                    response = Core.ConditionalAccess.Module.RecordSeasonOrSeries(groupId, userID, epgID, ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType));
                 }
             }
             catch (Exception ex)
@@ -1825,14 +1814,14 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = ConditionalAccess.GetEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, fileId.ToString(),
+                    response = Core.ConditionalAccess.Module.GetEntitlement(groupId, fileId.ToString(),
                         userID, true, string.Empty, language, udid, isRecording);
                 }
             }
@@ -1863,13 +1852,13 @@ namespace WebAPI.Clients
             Status status = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    status = ConditionalAccess.RemoveHouseholdEntitlements(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, householdId);
+                    status = Core.ConditionalAccess.Module.RemoveHouseholdEntitlements(groupId, householdId);
                 }
             }
             catch (Exception ex)
@@ -1900,7 +1889,7 @@ namespace WebAPI.Clients
            
 
             // get group 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1911,7 +1900,7 @@ namespace WebAPI.Clients
                         Entitlement entitlement = Mapper.Map<Entitlement>(kEntitlement);
                         entitlement.purchaseID = id;
                         // fire request                        
-                        response = ConditionalAccess.UpdateEntitlement(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, (int)domainID, entitlement);
+                        response = Core.ConditionalAccess.Module.UpdateEntitlement(groupId, (int)domainID, entitlement);
                     }
                 }
             }
@@ -1952,16 +1941,12 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    // fire request
-                    response = ConditionalAccess.SwapSubscription(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId,
-                        currentProductId, newProductId, Utils.Utils.GetClientIP(), string.Empty, history);
+            
+                    response = Core.ConditionalAccess.Module.SwapSubscription(groupId, userId, currentProductId, newProductId, Utils.Utils.GetClientIP(), string.Empty, history);
                 }
             }
             catch (Exception ex)
@@ -1990,8 +1975,6 @@ namespace WebAPI.Clients
 
             contextDataParams.Validate();
 
-            Group group = GroupsManager.GetGroup(groupId);
-
             PlayContextType wsContext = ConditionalAccessMappings.ConvertPlayContextType(contextDataParams.Context.Value);
 
             StreamerType? streamerType = null;
@@ -2009,8 +1992,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetPlaybackContext(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, udid, Utils.Utils.GetClientIP(),
-                        assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
+                    response = Core.ConditionalAccess.Module.GetPlaybackContext(groupId, userId, udid, Utils.Utils.GetClientIP(), assetId, ApiMappings.ConvertAssetType(assetType), contextDataParams.GetMediaFileIds(), streamerType, contextDataParams.MediaProtocol, wsContext);
                 }
             }
             catch (Exception ex)
@@ -2048,30 +2030,7 @@ namespace WebAPI.Clients
 
             kalturaPlaybackContext = Mapper.Map<KalturaPlaybackContext>(response);
 
-            if (kalturaPlaybackContext.Sources != null && kalturaPlaybackContext.Sources.Count > 0)
-            {
-                KalturaDrmPlaybackPluginData drmData;
-                List<KalturaDrmSchemeName> schemes;
-                foreach (var source in kalturaPlaybackContext.Sources)
-                {
-                    if (source.DrmId == (int)DrmType.UDRM)
-                    {
-                        schemes = DrmUtils.GetDrmSchemeName(source.Format);
-                        if (schemes != null && schemes.Count > 0)
-                        {
-                            source.Drm = new List<KalturaDrmPlaybackPluginData>();
-
-                            foreach (var scheme in schemes)
-                            {
-                                drmData = DrmUtils.GetDrmPlaybackPluginData(scheme, source);
-
-                                source.Drm.Add(drmData);
-                            }
-                        }
-                    }
-                }
-            }
-            else
+            if (kalturaPlaybackContext.Sources == null || kalturaPlaybackContext.Sources.Count == 0)
             {
                 kalturaPlaybackContext.Actions = new List<KalturaRuleAction>();
                 kalturaPlaybackContext.Actions.Add(new KalturaRuleAction() { Type = KalturaRuleActionType.BLOCK });
@@ -2084,14 +2043,11 @@ namespace WebAPI.Clients
         {
             PlayManifestResponse response = null;
 
-            // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ConditionalAccess.GetPlayManifest(group.ConditionalAccessCredentials.Username, group.ConditionalAccessCredentials.Password, userId, assetId, ApiMappings.ConvertAssetType(assetType),
+                    response = Core.ConditionalAccess.Module.GetPlayManifest(groupId, userId, assetId, ApiMappings.ConvertAssetType(assetType),
                         assetFileId, Utils.Utils.GetClientIP(), udid, ConditionalAccessMappings.ConvertPlayContextType(contextType));
                 }
             }
@@ -2113,5 +2069,95 @@ namespace WebAPI.Clients
 
             return response.Url;
         }
+
+        internal KalturaCompensation AddCompensation(int groupId, string userId, KalturaCompensation compensation)
+        {
+            CompensationResponse response = null;
+            
+            Compensation wsCompensation = Mapper.Map<Compensation>(compensation);
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.AddCompensation(groupId, userId, wsCompensation);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
+        }
+
+        internal void DeleteCompensation(int groupId, long compensationId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.DeleteCompensation(groupId, compensationId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+        }
+
+        internal KalturaCompensation GetCompensation(int groupId, long compensationId)
+        {
+            CompensationResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.ConditionalAccess.Module.GetCompensation(groupId, compensationId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.Status == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
+        }
+        
     }
 }

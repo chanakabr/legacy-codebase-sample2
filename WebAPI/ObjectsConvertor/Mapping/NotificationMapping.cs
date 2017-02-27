@@ -1,11 +1,13 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.Notification;
+using ApiObjects.SearchObjects;
+using AutoMapper;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
-using WebAPI.Notifications;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

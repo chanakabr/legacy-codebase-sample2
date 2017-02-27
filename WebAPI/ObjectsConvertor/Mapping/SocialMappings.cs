@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
-using Users;
-using Users;
 using DAL;
 using ApiObjects;
 using WebAPI.Exceptions;
@@ -12,10 +10,11 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Users;
 using WebAPI.Models.General;
-using Social;
-using Social.SocialFeed;
 using WebAPI.Models.Social;
 using ApiObjects.Social;
+using Core.Social;
+using Core.Social.SocialFeed;
+using Core.Social.Requests;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -59,7 +58,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.m_sSiteGuid));
 
             // Country
-            Mapper.CreateMap<Users.Country, KalturaCountry>()
+            Mapper.CreateMap<Core.Users.Country, KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
@@ -199,7 +198,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<ApiObjects.Social.UserSocialActionResponse, KalturaUserSocialActionResponse>().ConstructUsing(ConvertSocialActionResponse);
 
-            Mapper.CreateMap<KalturaSocialAction, Social.Requests.UserSocialActionQueryRequest>()                
+            Mapper.CreateMap<KalturaSocialAction, UserSocialActionQueryRequest>()                
                  .ForMember(dest => dest.m_eAssetType, opt => opt.MapFrom(src =>ConvertAssetType(src.AssetType)))
                  .ForMember(dest => dest.m_eUserActions, opt => opt.MapFrom(src => ConvertSocialActionType(src.ActionType)));
             
@@ -576,19 +575,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static Social.eSocialPlatform ConvertSocialPlatform(KalturaSocialPlatform socialPlatform)
+        internal static eSocialPlatform ConvertSocialPlatform(KalturaSocialPlatform socialPlatform)
         {
-            Social.eSocialPlatform result;
+            eSocialPlatform result;
             switch (socialPlatform)
             {
                 case KalturaSocialPlatform.IN_APP:
-                    result = Social.eSocialPlatform.InApp;
+                    result = eSocialPlatform.InApp;
                     break;
                 case KalturaSocialPlatform.FACEBOOK:
-                    result = Social.eSocialPlatform.Facebook;
+                    result = eSocialPlatform.Facebook;
                     break;
                 case KalturaSocialPlatform.TWITTER:
-                    result = Social.eSocialPlatform.Twitter;
+                    result = eSocialPlatform.Twitter;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown social platform");

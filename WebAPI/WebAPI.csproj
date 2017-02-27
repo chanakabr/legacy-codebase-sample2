@@ -46,6 +46,10 @@
     <Reference Include="AutoMapper">
       <HintPath>..\packages\AutoMapper.4.0.0-ci1036\lib\net40\AutoMapper.dll</HintPath>
     </Reference>
+    <Reference Include="ComponentSpace.SAML2, Version=2.5.0.8, Culture=neutral, PublicKeyToken=7c51d97b3a0a8ff9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvmcore\External\ComponentSpace.SAML2.dll</HintPath>
+    </Reference>
     <Reference Include="Couchbase.NetClient">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
@@ -114,6 +118,7 @@
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -151,16 +156,40 @@
     <Content Include="bin\WebAPI.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="clear_cache.aspx" />
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Service References\Notifications\NotificationService2.disco" />
+    <Content Include="ws_catalog_service.svc" />
+    <Content Include="WS_Modules\api.asmx" />
+    <Content Include="WS_Modules\billing.asmx" />
+    <Content Include="WS_Modules\Billing\adyen_api.aspx" />
+    <Content Include="WS_Modules\Billing\GoogleInApp.aspx" />
+    <Content Include="WS_Modules\Billing\M1_Callback.aspx" />
+    <Content Include="WS_Modules\Billing\plimus_api.aspx" />
+    <Content Include="WS_Modules\Billing\Plimus_Callback.aspx" />
+    <Content Include="WS_Modules\Billing\sc_api.aspx" />
+    <Content Include="WS_Modules\Billing\tp_api.aspx" />
+    <Content Include="WS_Modules\Billing\winpl_api.aspx" />
+    <Content Include="WS_Modules\cas.asmx" />
+    <Content Include="WS_Modules\catalog.svc" />
+    <Content Include="WS_Modules\domains.asmx" />
+    <Content Include="WS_Modules\notification.svc" />
+    <Content Include="WS_Modules\Social\facebook_api.aspx" />
+    <Content Include="WS_Modules\Social\SocialFeed.aspx" />
+    <Content Include="WS_Modules\Social\SocialFeedTags.aspx" />
+    <Content Include="WS_Modules\users.asmx" />
+    <Content Include="WS_Modules\social.asmx" />
+    <Content Include="WS_Modules\pricing.asmx" />
+    <Content Include="WS_Modules\Users\OAuth.aspx" />
+    <Content Include="WS_Modules\Users\OSaml.aspx" />
+    <Content Include="WS_Modules\Users\SSO.aspx" />
+    <Content Include="ws_notification_service.svc" />
     <Content Include="ws_users_module.asmx" />
     <Content Include="ws_pricing_module.asmx" />
     <Content Include="ws_social_module.asmx" />
     <Content Include="clientlibs\web.config" />
-    <Content Include="clear_cache.ashx" />
     <None Include="Properties\PublishProfiles\fdf.pubxml" />
     <None Include="Properties\PublishProfiles\rest.pubxml" />
     <None Include="Properties\Settings.settings">
@@ -171,434 +200,18 @@
     <EmbeddedResource Include="Resource\screen.css">
       <BrowseToURL>~/WebAPI/Resource/screen.css</BrowseToURL>
     </EmbeddedResource>
-    <None Include="Service References\Catalog\Service10.wsdl" />
-    <None Include="Service References\Catalog\Service17.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service171.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1710.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1711.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1712.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1713.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1714.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1715.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1716.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service1717.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service172.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service173.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service174.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service175.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service176.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service177.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service178.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service179.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service18.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service19.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service2.wsdl" />
-    <None Include="Service References\Catalog\Service20.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service21.wsdl" />
-    <None Include="Service References\Catalog\Service21.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service22.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service23.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service24.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service25.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service26.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service27.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service28.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service29.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service3.wsdl" />
-    <None Include="Service References\Catalog\Service30.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service31.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service32.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service33.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service34.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service35.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service36.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service37.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service38.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service39.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service4.wsdl" />
-    <None Include="Service References\Catalog\Service40.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service41.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service42.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service43.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service44.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service45.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service46.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service47.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service48.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service49.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service5.wsdl" />
-    <None Include="Service References\Catalog\Service50.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service51.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service52.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service53.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service54.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service55.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service56.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service57.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service58.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service59.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service60.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service61.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service62.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service63.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service64.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service65.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service66.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service67.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service68.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service69.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service70.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service71.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service72.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service73.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service74.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service75.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service76.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service77.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service78.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service79.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Catalog\Service9.wsdl" />
-    <None Include="Service References\Catalog\Service2.disco" />
-    <None Include="Service References\Catalog\Service5.disco" />
-    <None Include="Service References\Catalog\Service1.disco" />
-    <None Include="Service References\Catalog\Service11.disco" />
     <Content Include="ws_domains_module.asmx" />
     <Content Include="ws_cas_module.asmx" />
     <Content Include="ws_billing_module.asmx" />
-    <Content Include="Service References\Catalog\WebAPI.Catalog.BaseResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.EpgProgramResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.MediaResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.Response.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Catalog\WebAPI.Catalog.Status.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <None Include="Service References\Notifications\configuration91.svcinfo" />
-    <None Include="Service References\Notifications\configuration.svcinfo" />
-    <None Include="Service References\Catalog\configuration91.svcinfo" />
-    <None Include="Service References\Catalog\configuration.svcinfo" />
-    <None Include="Service References\Catalog\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Service References\Notifications\NotificationService1.wsdl" />
-    <None Include="Service References\Notifications\NotificationService10.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService11.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService12.wsdl" />
-    <None Include="Service References\Notifications\NotificationService12.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService13.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService14.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService15.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService16.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService17.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService18.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService19.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <Content Include="Service References\Notifications\NotificationService2.wsdl" />
-    <None Include="Service References\Notifications\NotificationService20.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService21.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService22.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService23.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService24.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService25.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService26.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService27.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService28.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService29.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService9.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService910.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService911.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService912.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService913.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService914.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService915.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService916.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService917.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\NotificationService918.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\Notifications\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Service References\Notifications\NotificationService1.disco" />
-    <None Include="Service References\Notifications\NotificationService12.disco" />
     <Content Include="Swagger.ashx" />
-    <Content Include="Service References\Notifications\WebAPI.Notifications.AddMessageAnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.AnnouncementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.FollowResponse1.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.GetAllMessageAnnouncementsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.GetUserFollowsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.IdListResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.IdsResponse1.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.InboxMessageResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageAnnouncementResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.MessageTemplateResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationMessage.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationPartnerSettingsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.NotificationSettingsResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.RegistryResponse1.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.Status.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\AssetXmlFormatter.cs" />
     <Compile Include="App_Start\CustomResponseFormatter.cs" />
     <Compile Include="App_Start\CustomXmlFormatter.cs" />
-    <Compile Include="clear_cache.ashx.cs">
-      <DependentUpon>clear_cache.ashx</DependentUpon>
+    <Compile Include="clear_cache.aspx.cs">
+      <DependentUpon>clear_cache.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Clients\DMSClient.cs" />
     <Compile Include="Controllers\AnnouncementController.cs" />
@@ -609,6 +222,7 @@
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />
     <Compile Include="Controllers\CDVRAdapterProfileController.cs" />
     <Compile Include="Controllers\CDNPartnerSettingsController.cs" />
+    <Compile Include="Controllers\CompensationController.cs" />
     <Compile Include="Controllers\ConfigurationGroupController.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -619,6 +233,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
@@ -630,8 +245,20 @@
     <Compile Include="Controllers\ReportController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EventNotifications\EventConverter.cs" />
+    <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
+    <Compile Include="EventNotifications\Handlers\HttpNotificationHandler.cs" />
+    <Compile Include="EventNotifications\Handlers\RabbitQueueHandler.cs" />
+    <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
+    <Compile Include="Filters\EventNotificationsConfig.cs" />
     <Compile Include="Handlers\ExtWsPagesHendler.cs" />
+    <Compile Include="Managers\CouchbaseManager.cs" />
     <Compile Include="Managers\Models\CencCustomData.cs" />
+    <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
+    <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
+    <Compile Include="Managers\Models\EventNotifications\EventNotification.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
+    <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
@@ -646,14 +273,16 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
+    <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaContextType.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaCompensation.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaDrmPlaybackPluginData.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContext.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextOptions.cs" />
+    <Compile Include="Models\ConditionalAccess\KalturaPlaybackContextType.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPlaybackSource.cs" />
-    <Compile Include="Models\ConditionalAccess\KalturaNpvrPremiumService.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaPpvEntitlement.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaRuleAction.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaSubscriptionEntitlement.cs" />
@@ -913,6 +542,7 @@
     <Compile Include="Models\General\BaseReport.cs" />
     <Compile Include="Models\General\KalturaApiArgumentPermissionItem.cs" />
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaEventWrapper.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
@@ -1159,16 +789,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Reflection\DataModel.cs" />
-    <Compile Include="Service References\Catalog\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Include="Service References\Notifications\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Swagger.ashx.cs">
       <DependentUpon>Swagger.ashx</DependentUpon>
     </Compile>
@@ -1183,6 +803,138 @@
     <Compile Include="Utils\SerializationUtils.cs" />
     <Compile Include="Utils\Utils.cs" />
     <Compile Include="Handlers\WsModuleHandler.cs" />
+    <Compile Include="WS_Modules\api.asmx.cs">
+      <DependentUpon>api.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\billing.asmx.cs">
+      <DependentUpon>billing.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\AdyenRedirectMessages.cs" />
+    <Compile Include="WS_Modules\Billing\adyen_api.aspx.cs">
+      <DependentUpon>adyen_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\adyen_api.aspx.designer.cs">
+      <DependentUpon>adyen_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\GoogleInApp.aspx.cs">
+      <DependentUpon>GoogleInApp.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\GoogleInApp.aspx.designer.cs">
+      <DependentUpon>GoogleInApp.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\M1_Callback.aspx.cs">
+      <DependentUpon>M1_Callback.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\M1_Callback.aspx.designer.cs">
+      <DependentUpon>M1_Callback.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\plimus_api.aspx.cs">
+      <DependentUpon>plimus_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\plimus_api.aspx.designer.cs">
+      <DependentUpon>plimus_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\Plimus_Callback.aspx.cs">
+      <DependentUpon>Plimus_Callback.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\Plimus_Callback.aspx.designer.cs">
+      <DependentUpon>Plimus_Callback.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\sc_api.aspx.cs">
+      <DependentUpon>sc_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\sc_api.aspx.designer.cs">
+      <DependentUpon>sc_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\tp_api.aspx.cs">
+      <DependentUpon>tp_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\tp_api.aspx.designer.cs">
+      <DependentUpon>tp_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\winpl_api.aspx.cs">
+      <DependentUpon>winpl_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Billing\winpl_api.aspx.designer.cs">
+      <DependentUpon>winpl_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\cas.asmx.cs">
+      <DependentUpon>cas.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\catalog.svc.cs">
+      <DependentUpon>catalog.svc</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\domains.asmx.cs">
+      <DependentUpon>domains.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\INotificationService.cs" />
+    <Compile Include="WS_Modules\Iservice.cs" />
+    <Compile Include="WS_Modules\notification.svc.cs">
+      <DependentUpon>notification.svc</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Social\facebook_api.aspx.cs">
+      <DependentUpon>facebook_api.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Social\facebook_api.aspx.designer.cs">
+      <DependentUpon>facebook_api.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeed.aspx.cs">
+      <DependentUpon>SocialFeed.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeed.aspx.designer.cs">
+      <DependentUpon>SocialFeed.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeedTags.aspx.cs">
+      <DependentUpon>SocialFeedTags.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Social\SocialFeedTags.aspx.designer.cs">
+      <DependentUpon>SocialFeedTags.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\users.asmx.cs">
+      <DependentUpon>users.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\social.asmx.cs">
+      <DependentUpon>social.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\pricing.asmx.cs">
+      <DependentUpon>pricing.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\OAuth.aspx.cs">
+      <DependentUpon>OAuth.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\OSaml.aspx.cs">
+      <DependentUpon>OSaml.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\OSaml.aspx.designer.cs">
+      <DependentUpon>OSaml.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="WS_Modules\Users\SSO.aspx.cs">
+      <DependentUpon>SSO.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WS_Modules\Users\SSO.aspx.designer.cs">
+      <DependentUpon>SSO.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web References\Social\SocialConfig.datasource">
@@ -1193,9 +945,6 @@
     </Content>
     <Content Include="Web.config">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Service References\Notifications\WebAPI.Notifications.RemindersResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
     </Content>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -1209,23 +958,24 @@
     <Folder Include="Models\API\KSQLChannel\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\Catalog\" />
-    <WCFMetadataStorage Include="Service References\Notifications\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
+      <Name>ApiLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\CachingManager\CachingManager.csproj">
       <Project>{ccda61b3-0e68-483c-ab7f-3ed36e3384e2}</Project>
       <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\ConditionalAccess\ConditionalAccess.csproj">
       <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>
@@ -1235,53 +985,41 @@
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\EventManager\EventManager.csproj">
+      <Project>{1168121b-fb3f-48d8-89b9-7e0be7e9c901}</Project>
+      <Name>EventManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GoogleAPI\GoogleAPI.csproj">
+      <Project>{27572ccd-362b-4f99-900d-72ca3bdd1ddf}</Project>
+      <Name>GoogleAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
+      <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
+      <Name>M1BL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ODBCWrapper\ODBCWrapper.csproj">
+      <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
+      <Name>ODBCWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\QueueWrapper\QueueWrapper.csproj">
+      <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
+      <Name>QueueWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
+      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
+      <Name>ScheduledTasks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\TvinciCache\TvinciCache.csproj">
       <Project>{d57b2371-da31-4035-8b00-6a6d0256ec00}</Project>
       <Name>TvinciCache</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\Users\Users.csproj">
-      <Project>{b21b1d6b-46af-40ca-9585-5506b1596aff}</Project>
-      <Name>Users</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_api\WS_API.csproj">
-      <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
-      <Name>WS_API</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_billing\Billing\Billing.csproj">
-      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
-      <Name>Billing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_billing\WS_Billing.csproj">
-      <Project>{944128c1-804a-4444-a697-37e019af5850}</Project>
-      <Name>WS_Billing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_conditionalaccess\WS_ConditionalAccess.csproj">
-      <Project>{5368db6d-5ac3-432c-b1b6-43276d42a869}</Project>
-      <Name>WS_ConditionalAccess</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_domains\WS_Domains.csproj">
-      <Project>{359cfa7e-bee9-4bc8-b1f7-e53e64f28aa7}</Project>
-      <Name>WS_Domains</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_pricing\Pricing\Pricing.csproj">
-      <Project>{143a9361-b461-42a7-b579-a75c0e7b1ea3}</Project>
-      <Name>Pricing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_pricing\WS_Pricing.csproj">
-      <Project>{2c08f19b-40e0-4ef1-9f7d-5132c795a184}</Project>
-      <Name>WS_Pricing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_social\Social\Social.csproj">
-      <Project>{9b08c03b-c3db-4850-8809-44f0059ed338}</Project>
-      <Name>Social</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_social\WS_Social.csproj">
-      <Project>{2f2a7c8d-bde1-43bc-acaf-86df0bc86815}</Project>
-      <Name>WS_Social</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_users\WS_Users.csproj">
-      <Project>{7a491492-fd8e-47da-ad3e-7fdc5fdf5e03}</Project>
-      <Name>WS_Users</Name>
+    <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
+      <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
+      <Name>TVinciShared</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

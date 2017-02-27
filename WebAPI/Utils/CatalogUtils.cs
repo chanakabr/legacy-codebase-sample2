@@ -6,7 +6,6 @@ using System.Reflection;
 using System.ServiceModel;
 using System.Web;
 using AutoMapper;
-using WebAPI.Catalog;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Models;
@@ -16,6 +15,11 @@ using WebAPI.Models.General;
 using KLogMonitor;
 using WebAPI.Managers.Models;
 using WebAPI.Managers;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using ApiObjects.SearchObjects;
+using ApiObjects;
 
 namespace WebAPI.Utils
 {
@@ -28,29 +32,26 @@ namespace WebAPI.Utils
         private const string RECORDING_CACHE_KEY_PREFIX = "recording";
         private const string CACHE_KEY_FORMAT = "{0}_lng{1}";
 
-        public static bool GetBaseResponse<T>(WebAPI.Catalog.IserviceClient client, BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
+        public static bool GetBaseResponse<T>(BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
             bool passed = false;
             response = null;
             BaseResponse baseResponse = new BaseResponse();
-            if (request != null && client != null)
+            if (request != null)
             {
                 try
                 {
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
-                        baseResponse = client.GetResponse(request);
+                        baseResponse = request.GetResponse(request);
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, request address: {2}, exception: {3}",
+                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, exception: {3}",
                         request.m_sSiteGuid != null ? request.m_sSiteGuid : string.Empty,                            // 0
                         request.GetType(),                                                                           // 1
-                        client.Endpoint != null &&
-                        client.Endpoint.Address != null &&
-                        client.Endpoint.Address.Uri != null ? client.Endpoint.Address.Uri.ToString() : string.Empty, // 2
-                        ex);                                                                                         // 3
+                        ex);                                                                                         // 2
 
 
                     ErrorUtils.HandleWSException(ex);
@@ -79,7 +80,7 @@ namespace WebAPI.Utils
             return passed;
         }
 
-        private static void GetAssetsFromCatalog(IserviceClient client, BaseRequest request, int cacheDuration, 
+        private static void GetAssetsFromCatalog(BaseRequest request, int cacheDuration, 
             List<long> missingMediaIds, List<long> missingEpgIds,
             out List<MediaObj> mediasFromCatalog, out List<ProgramObj> epgsFromCatalog)
         {
@@ -117,7 +118,7 @@ namespace WebAPI.Utils
                 };
 
                 AssetInfoResponse response = new AssetInfoResponse();
-                if (GetBaseResponse(client, assetsRequest, out response))
+                if (GetBaseResponse(assetsRequest, out response))
                 {
                     mediasFromCatalog = CleanNullsFromAssetsList(response.mediaList);
                     epgsFromCatalog = CleanNullsFromAssetsList(response.epgList);
@@ -261,9 +262,9 @@ namespace WebAPI.Utils
 
         
 
-        internal static List<KalturaIAssetable> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
+        internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
-            var assets = GetOrderedAssets(client, assetsBaseData, request, cacheDuration);
+            var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration);
             if (assets != null)
             {
                 return convertAssets(request.m_nGroupID, assets, withList);
@@ -272,9 +273,9 @@ namespace WebAPI.Utils
                 return null;
         }
 
-        internal static List<KalturaAsset> GetAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration)
+        internal static List<KalturaAsset> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration)
         {
-            var assets = GetOrderedAssets(client, assetsBaseData, request, cacheDuration);
+            var assets = GetOrderedAssets(assetsBaseData, request, cacheDuration);
 
             if (assets != null)
             {
@@ -284,7 +285,7 @@ namespace WebAPI.Utils
                 return null;
         }
 
-        private static List<BaseObject> GetOrderedAssets(IserviceClient client, List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration)
+        private static List<BaseObject> GetOrderedAssets(List<BaseObject> assetsBaseData, BaseRequest request, int cacheDuration)
         {
             List<BaseObject> finalResult = new List<BaseObject>();
             List<MediaObj> medias = new List<MediaObj>();
@@ -304,7 +305,7 @@ namespace WebAPI.Utils
                     (missingEpgIds != null && missingEpgIds.Count > 0))
                 {
                     // Get the assets from catalog that were missing in cache (and add them to cache) 
-                    GetAssetsFromCatalog(client, request, cacheDuration, missingMediaIds, missingEpgIds,
+                    GetAssetsFromCatalog(request, cacheDuration, missingMediaIds, missingEpgIds,
                         out mediasFromCatalog, out epgsFromCatalog);
 
                     // Append the medias from Catalog to the medias from cache
@@ -385,13 +386,13 @@ namespace WebAPI.Utils
             return finalResult;
         }
 
-        public static KalturaAssetInfoListResponse GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
+        public static KalturaAssetInfoListResponse GetMedia(BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // fire request
             UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out mediaIdsResponse, true, key))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -403,7 +404,7 @@ namespace WebAPI.Utils
                 List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -416,13 +417,13 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static KalturaAssetListResponse GetMedia(IserviceClient client, BaseRequest request, string key, int cacheDuration)
+        public static KalturaAssetListResponse GetMedia(BaseRequest request, string key, int cacheDuration)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // fire request
             UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out mediaIdsResponse, true, key))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -434,20 +435,20 @@ namespace WebAPI.Utils
                 List<BaseObject> assetsBaseDataList = mediaIdsResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
 
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;
         }
 
-        public static KalturaAssetInfoListResponse GetMediaWithStatus(IserviceClient client, BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
+        public static KalturaAssetInfoListResponse GetMediaWithStatus(BaseRequest request, string key, int cacheDuration, List<KalturaCatalogWith> with)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // fire request
             MediaIdsStatusResponse mediaIdsResponse = new MediaIdsStatusResponse();
-            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(client, request, out mediaIdsResponse, true, key)
+            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(request, out mediaIdsResponse, true, key)
                 || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
             {
                 if (mediaIdsResponse == null)
@@ -460,7 +461,7 @@ namespace WebAPI.Utils
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, cacheDuration, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
@@ -468,7 +469,7 @@ namespace WebAPI.Utils
             return result;
         }
 
-        public static List<KalturaAssetInfo> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> with)
+        public static List<KalturaAssetInfo> GetMediaByIds(List<SearchResult> mediaIds, BaseRequest request, int cacheDuration, List<KalturaCatalogWith> with)
         {
             List<KalturaAssetInfo> result = null;
 
@@ -481,7 +482,7 @@ namespace WebAPI.Utils
             }).ToList();
 
             // get assets from catalog/cache
-            List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+            List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
             // build AssetInfoWrapper response
             if (assetsInfo != null)
@@ -492,13 +493,13 @@ namespace WebAPI.Utils
             return result;
         }
 
-        internal static KalturaAssetListResponse GetMediaWithStatus(IserviceClient client, BaseRequest request, string key, int cacheDuration)
+        internal static KalturaAssetListResponse GetMediaWithStatus(BaseRequest request, string key, int cacheDuration)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // fire request
             MediaIdsStatusResponse mediaIdsResponse = new MediaIdsStatusResponse();
-            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(client, request, out mediaIdsResponse, true, key)
+            if (!CatalogUtils.GetBaseResponse<MediaIdsStatusResponse>(request, out mediaIdsResponse, true, key)
                 || mediaIdsResponse == null || mediaIdsResponse.Status.Code != (int)StatusCode.OK)
             {
                 if (mediaIdsResponse == null)
@@ -511,13 +512,13 @@ namespace WebAPI.Utils
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
 
-                result.Objects = CatalogUtils.GetMediaByIds(client, mediaIdsResponse.m_nMediaIds, request, cacheDuration);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, cacheDuration);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
             return result;
         }
 
-        internal static List<KalturaAsset> GetMediaByIds(IserviceClient client, List<SearchResult> mediaIds, BaseRequest request, int cacheDuration)
+        internal static List<KalturaAsset> GetMediaByIds(List<SearchResult> mediaIds, BaseRequest request, int cacheDuration)
         {
             List<KalturaAsset> result = null;
 
@@ -530,12 +531,12 @@ namespace WebAPI.Utils
             }).ToList();
 
             // get assets from catalog/cache
-            result = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
+            result = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
             return result;
         }
 
 
-        //internal static KalturaAssetListResponse GetBundleAssets(IserviceClient client, BundleAssetsRequest request, string key, int cacheDuration)
+        //internal static KalturaAssetListResponse GetBundleAssets(BundleAssetsRequest request, string key, int cacheDuration)
         //{
 
 
@@ -544,7 +545,7 @@ namespace WebAPI.Utils
 
         //    // fire request
         //    UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
-        //    if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(client, request, out mediaIdsResponse, true, key))
+        //    if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
         //    {
         //        // general error
         //        throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -556,7 +557,7 @@ namespace WebAPI.Utils
         //        List<BaseObject> assetsBaseDataList = mediaIdsResponse.m_nMediaIds.Select(x =>new BaseObject(){AssetId = x.assetID.ToString(), m_dUpdateDate = x.UpdateDate}).ToList();
 
         //        // get assets from catalog/cache
-        //        result.Objects = CatalogUtils.GetAssets(client, assetsBaseDataList, request, cacheDuration);
+        //        result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, cacheDuration);
 
         //        result.TotalCount = mediaIdsResponse.m_nTotalItems;
         //    }

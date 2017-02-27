@@ -6,19 +6,20 @@ using System.Web;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Catalog;
 using ApiObjects;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
-using ConditionalAccess;
-using Pricing;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
-using Billing;
-using ConditionalAccess.Response;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Catalog;
+using Core.ConditionalAccess;
+using Core.ConditionalAccess.Response;
+using Core.Pricing;
 using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
+using Core.ConditionalAccess.Modules;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -50,6 +51,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
                .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
                ;
+            Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
+              .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.productId))
+              //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+              //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.date)))
+              //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+              .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.entitlementDate)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+              //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+              .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+              //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src))
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfViews))
+              //.ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
+              //.ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
+              .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRecurring))
+              //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
+              //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
+              //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
+              //.ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
+              //.ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
+              ;
+
 
             Mapper.CreateMap<Entitlement, KalturaPpvEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
@@ -67,6 +90,24 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
                .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.mediaID)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
+               .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
+               ;
+            Mapper.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
+               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.contentId))
+               //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+               //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
+               //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
+               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.entitlementDate)))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+               //.ForMember(dest => dest.DeviceUDID, opt => opt.MapFrom(src => src.deviceUDID))
+               .ForMember(dest => dest.DeviceName, opt => opt.MapFrom(src => src.deviceName))
+               //.ForMember(dest => dest.IsCancelationWindowEnabled, opt => opt.MapFrom(src => src.cancelWindow))
+               //.ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
+               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
+               //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
+               //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
+               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.contentId)))
+               .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumOfViews))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                ;
 
@@ -346,7 +387,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<EntitlementResponse, KalturaAssetFileContext>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
-              .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
 
             Mapper.CreateMap<MediaFile, KalturaPlaybackSource>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.MediaId.ToString()))
@@ -356,6 +397,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.PlayManifestUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
+              .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.Url.Substring(src.Url.LastIndexOf('.'))))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))
               .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()));
 
@@ -366,6 +408,63 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<ApiObjects.Response.Status, KalturaAccessControlMessage>()
               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => ((ApiObjects.Response.eResponseStatus)src.Code).ToString()))
               .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message));
+
+            Mapper.CreateMap<KalturaCompensation, Compensation>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.TotalRenewals, opt => opt.MapFrom(src => src.TotalRenewalIterations))
+              .ForMember(dest => dest.CompensationType, opt => opt.MapFrom(src => ConvertCompensationType(src.CompensationType)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId));
+
+            Mapper.CreateMap<Compensation, KalturaCompensation>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.TotalRenewalIterations, opt => opt.MapFrom(src => src.TotalRenewals))
+              .ForMember(dest => dest.CompensationType, opt => opt.MapFrom(src => ConvertCompensationType(src.CompensationType)))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
+              .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
+              .ForMember(dest => dest.AppliedRenewalIterations, opt => opt.MapFrom(src => src.Renewals));
+        }
+
+        private static CompensationType ConvertCompensationType(KalturaCompensationType kalturaCompensationType)
+        {
+            CompensationType result;
+
+            switch (kalturaCompensationType)
+            {
+                case KalturaCompensationType.PERCENTAGE:
+                    result = CompensationType.Percentage;
+                    break;
+                case KalturaCompensationType.FIXED_AMOUNT:
+                    result = CompensationType.FixedAmount;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown compensation type");
+                    break;
+            }
+
+            return result;
+        }
+
+        private static KalturaCompensationType ConvertCompensationType(CompensationType kalturaCompensationType)
+        {
+            KalturaCompensationType result;
+
+            switch (kalturaCompensationType)
+            {
+                case CompensationType.Percentage:
+                    result = KalturaCompensationType.PERCENTAGE;
+                    break;
+                case CompensationType.FixedAmount:
+                    result = KalturaCompensationType.FIXED_AMOUNT;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown compensation type");
+                    break;
+            }
+
+            return result;
         }
 
         private static int? GetNullableInt(int p)
@@ -681,55 +780,55 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaPaymentMethodType ConvertPaymentMethod(ConditionalAccess.PaymentMethod paymentMethod)
+        public static KalturaPaymentMethodType ConvertPaymentMethod(ePaymentMethod paymentMethod)
         {
             KalturaPaymentMethodType result;
             switch (paymentMethod)
             {
-                case ConditionalAccess.PaymentMethod.Unknown:
+                case ePaymentMethod.Unknown:
                     result = KalturaPaymentMethodType.unknown;
                     break;
-                case ConditionalAccess.PaymentMethod.CreditCard:
+                case ePaymentMethod.CreditCard:
                     result = KalturaPaymentMethodType.credit_card;
                     break;
-                case ConditionalAccess.PaymentMethod.SMS:
+                case ePaymentMethod.SMS:
                     result = KalturaPaymentMethodType.sms;
                     break;
-                case ConditionalAccess.PaymentMethod.PayPal:
+                case ePaymentMethod.PayPal:
                     result = KalturaPaymentMethodType.pay_pal;
                     break;
-                case ConditionalAccess.PaymentMethod.DebitCard:
+                case ePaymentMethod.DebitCard:
                     result = KalturaPaymentMethodType.debit_card;
                     break;
-                case ConditionalAccess.PaymentMethod.Ideal:
+                case ePaymentMethod.Ideal:
                     result = KalturaPaymentMethodType.ideal;
                     break;
-                case ConditionalAccess.PaymentMethod.Incaso:
+                case ePaymentMethod.Incaso:
                     result = KalturaPaymentMethodType.incaso;
                     break;
-                case ConditionalAccess.PaymentMethod.Gift:
+                case ePaymentMethod.Gift:
                     result = KalturaPaymentMethodType.gift;
                     break;
-                case ConditionalAccess.PaymentMethod.Visa:
+                case ePaymentMethod.Visa:
                     result = KalturaPaymentMethodType.visa;
                     break;
-                case ConditionalAccess.PaymentMethod.MasterCard:
+                case ePaymentMethod.MasterCard:
                     result = KalturaPaymentMethodType.master_card;
                     break;
-                case ConditionalAccess.PaymentMethod.InApp:
+                case ePaymentMethod.InApp:
                     result = KalturaPaymentMethodType.in_app;
                     break;
-                case ConditionalAccess.PaymentMethod.M1:
+                case ePaymentMethod.M1:
                     result = KalturaPaymentMethodType.m1;
                     break;
-                case ConditionalAccess.PaymentMethod.ChangeSubscription:
+                case ePaymentMethod.ChangeSubscription:
                     result = KalturaPaymentMethodType.change_subscription;
                     break;
-                case ConditionalAccess.PaymentMethod.Offline:
+                case ePaymentMethod.Offline:
                     result = KalturaPaymentMethodType.offline;
                     break;                
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown ConditionalAccess.PaymentMethod type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown ePaymentMethod type");
             }
 
             return result;

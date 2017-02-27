@@ -22,7 +22,6 @@ using WebAPI.Models.Users;
 using ApiObjects;
 using ApiObjects.Rules;
 using ApiObjects.Response;
-using WS_API;
 using ApiObjects.TimeShiftedTv;
 using ApiObjects.Roles;
 using ApiObjects.CDNAdapter;
@@ -38,34 +37,21 @@ namespace WebAPI.Clients
         {
         }
 
-        protected API Api
+        public List<LanguageObj> GetGroupLanguages(int groupId)
         {
-            get
-            {
-                return (Module as API);
-            }
-        }
 
-        public List<LanguageObj> GetGroupLanguages(string username, string password)
-        {
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    return Api.GetGroupLanguages(username, password);
+                    return Core.Api.Module.GetGroupLanguages(groupId);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get languages. username: {0}, exception: {1}", username, ex);
+                log.ErrorFormat("Error while trying to get languages. group id: {0}, exception: {1}", groupId, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
-        }
-
-        public List<LanguageObj> GetGroupLanguages(int groupId)
-        {
-            Group group = GroupsManager.GetGroup(groupId);
-            return GetGroupLanguages(group.ApiCredentials.Username, group.ApiCredentials.Password);
         }
 
         #region Parental Rules
@@ -75,13 +61,13 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetParentalRules(groupId);
                 }
             }
             catch (Exception ex)
@@ -110,13 +96,13 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetUserParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, 0);
+                    response = Core.Api.Module.GetUserParentalRules(groupId, userId, 0);
                 }
             }
             catch (Exception ex)
@@ -145,13 +131,13 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetDomainParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId);
+                    response = Core.Api.Module.GetDomainParentalRules(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -179,7 +165,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -187,7 +173,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetUserParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, ruleId, isActive, 0);
+                    response = Core.Api.Module.SetUserParentalRules(groupId, userId, ruleId, isActive, 0);
                 }
             }
             catch (Exception ex)
@@ -217,7 +203,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -225,7 +211,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetDomainParentalRules(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, ruleId, isActive);
+                    response = Core.Api.Module.SetDomainParentalRules(groupId, domainId, ruleId, isActive);
                 }
             }
             catch (Exception ex)
@@ -255,7 +241,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinResponse webServiceResponse = null;
 
@@ -263,7 +249,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId, ruleId);
+                    webServiceResponse = Core.Api.Module.GetParentalPIN(groupId, householdId, userId, ruleId);
                 }
             }
             catch (Exception ex)
@@ -296,7 +282,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinResponse webServiceResponse = null;
 
@@ -304,7 +290,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId, ruleId);
+                    webServiceResponse = Core.Api.Module.GetParentalPIN(groupId, householdId, userId, ruleId);
                 }
             }
             catch (Exception ex)
@@ -338,7 +324,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinResponse webServiceResponse = null;
 
@@ -346,7 +332,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, ruleId);
+                    webServiceResponse = Core.Api.Module.GetParentalPIN(groupId, domainId, string.Empty, ruleId);
                 }
             }
             catch (Exception ex)
@@ -379,7 +365,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinResponse webServiceResponse = null;
 
@@ -387,7 +373,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, ruleId);
+                    webServiceResponse = Core.Api.Module.GetParentalPIN(groupId, domainId, string.Empty, ruleId);
                 }
             }
             catch (Exception ex)
@@ -419,7 +405,7 @@ namespace WebAPI.Clients
 
         internal KalturaPin SetUserParentalPIN(int groupId, string userId, string pin, int? ruleId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinResponse webServiceResponse = null;
 
@@ -427,7 +413,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin, ruleId);
+                    webServiceResponse = Core.Api.Module.UpdateParentalPIN(groupId, 0, userId, pin, ruleId);
                 }
             }
             catch (Exception ex)
@@ -457,7 +443,7 @@ namespace WebAPI.Clients
 
         internal KalturaPin SetDomainParentalPIN(int groupId, int domainId, string pin, int? ruleId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinResponse webServiceResponse = null;
 
@@ -465,7 +451,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin, ruleId);
+                    webServiceResponse = Core.Api.Module.UpdateParentalPIN(groupId, domainId, string.Empty, pin, ruleId);
                 }
             }
             catch (Exception ex)
@@ -495,7 +481,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetUserPurchaseSettings(int groupId, string userId, int settings)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -503,7 +489,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdatePurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, settings);
+                    webServiceResponse = Core.Api.Module.UpdatePurchaseSettings(groupId, 0, userId, settings);
                 }
             }
             catch (Exception ex)
@@ -529,7 +515,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetDomainPurchaseSettings(int groupId, int domainId, int settings)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -537,7 +523,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdatePurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, settings);
+                    webServiceResponse = Core.Api.Module.UpdatePurchaseSettings(groupId, domainId, string.Empty, settings);
                 }
             }
             catch (Exception ex)
@@ -565,7 +551,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -573,7 +559,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                    webServiceResponse = Core.Api.Module.GetPurchasePIN(groupId, householdId, userId);
                 }
             }
             catch (Exception ex)
@@ -606,7 +592,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -614,7 +600,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                    webServiceResponse = Core.Api.Module.GetPurchasePIN(groupId, householdId, userId);
                 }
             }
             catch (Exception ex)
@@ -648,7 +634,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -656,7 +642,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Core.Api.Module.GetPurchasePIN(groupId, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -689,7 +675,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -697,7 +683,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Core.Api.Module.GetPurchasePIN(groupId, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -731,7 +717,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -739,7 +725,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                    webServiceResponse = Core.Api.Module.GetPurchaseSettings(groupId, householdId, userId);
                 }
             }
             catch (Exception ex)
@@ -772,7 +758,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -780,7 +766,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, householdId, userId);
+                    webServiceResponse = Core.Api.Module.GetPurchaseSettings(groupId, householdId, userId);
                 }
             }
             catch (Exception ex)
@@ -814,7 +800,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -822,7 +808,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Core.Api.Module.GetPurchaseSettings(groupId, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -855,7 +841,7 @@ namespace WebAPI.Clients
         {
             string pin = string.Empty;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -863,7 +849,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.GetPurchaseSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty);
+                    webServiceResponse = Core.Api.Module.GetPurchaseSettings(groupId, domainId, string.Empty);
                 }
             }
             catch (Exception ex)
@@ -895,7 +881,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetUserPurchasePIN(int groupId, string userId, string pin)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -903,7 +889,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, 0, userId, pin);
+                    webServiceResponse = Core.Api.Module.UpdatePurchasePIN(groupId, 0, userId, pin);
                 }
             }
             catch (Exception ex)
@@ -929,7 +915,7 @@ namespace WebAPI.Clients
 
         internal KalturaPurchaseSettings SetDomainPurchasePIN(int groupId, int domainId, string pin)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PurchaseSettingsResponse webServiceResponse = null;
 
@@ -937,7 +923,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    webServiceResponse = Api.UpdatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId, string.Empty, pin);
+                    webServiceResponse = Core.Api.Module.UpdatePurchasePIN(groupId, domainId, string.Empty, pin);
                 }
             }
             catch (Exception ex)
@@ -966,13 +952,13 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetParentalMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, 0);
+                    response = Core.Api.Module.GetParentalMediaRules(groupId, userId, mediaId, 0);
                 }
             }
             catch (Exception ex)
@@ -1001,13 +987,13 @@ namespace WebAPI.Clients
             ParentalRulesResponse response = null;
             List<Models.API.KalturaParentalRule> rules = new List<Models.API.KalturaParentalRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetParentalEPGRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0);
+                    response = Core.Api.Module.GetParentalEPGRules(groupId, userId, epgId, 0);
                 }
             }
             catch (Exception ex)
@@ -1035,7 +1021,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -1043,7 +1029,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ValidateParentalPIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin, 0, ruleId);
+                    response = Core.Api.Module.ValidateParentalPIN(groupId, userId, pin, 0, ruleId);
                 }
             }
             catch (Exception ex)
@@ -1073,7 +1059,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -1081,7 +1067,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ValidatePurchasePIN(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, pin, 0);
+                    response = Core.Api.Module.ValidatePurchasePIN(groupId, userId, pin, 0);
                 }
             }
             catch (Exception ex)
@@ -1111,7 +1097,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -1119,7 +1105,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DisableUserDefaultParentalRule(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, 0);
+                    response = Core.Api.Module.DisableUserDefaultParentalRule(groupId, userId, 0);
                 }
             }
             catch (Exception ex)
@@ -1149,7 +1135,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -1157,7 +1143,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DisableDomainDefaultParentalRule(group.ApiCredentials.Username, group.ApiCredentials.Password, domainId);
+                    response = Core.Api.Module.DisableDomainDefaultParentalRule(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -1190,7 +1176,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1199,7 +1185,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid, wsOrderBy);
+                    response = Core.Api.Module.GetMediaRules(groupId, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -1228,7 +1214,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1237,7 +1223,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetMediaRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid, wsOrderBy);
+                    response = Core.Api.Module.GetMediaRules(groupId, userId, mediaId, domainId, Utils.Utils.GetClientIP(), udid, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -1267,7 +1253,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<Models.API.KalturaGenericRule> rules = new List<Models.API.KalturaGenericRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1276,7 +1262,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
+                    response = Core.Api.Module.GetEpgRules(groupId, userId, epgId, 0, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -1305,7 +1291,7 @@ namespace WebAPI.Clients
             GenericRuleResponse response = null;
             List<KalturaUserAssetRule> rules = new List<KalturaUserAssetRule>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             //convert order by
             GenericRuleOrderBy wsOrderBy = ApiMappings.ConvertUserAssetRuleOrderBy(orderBy);
@@ -1314,7 +1300,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetEpgRules(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, epgId, 0, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
+                    response = Core.Api.Module.GetEpgRules(groupId, userId, epgId, 0, domainId, Utils.Utils.GetClientIP(), wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -1348,7 +1334,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetErrorCodesDictionary("api_1", "11111");
+                    response = Core.Api.Module.GetErrorCodesDictionary();
                 }
             }
             catch (Exception ex)
@@ -1379,13 +1365,13 @@ namespace WebAPI.Clients
             List<KalturaOSSAdapterProfile> KalturaOSSAdapterBaseProfileList = null;
             OSSAdapterResponseList response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetOSSAdapter(groupId);
                 }
             }
             catch (Exception ex)
@@ -1414,13 +1400,13 @@ namespace WebAPI.Clients
             KalturaOSSAdapterProfile ossAdapter = null;
             OSSAdapterResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetOSSAdapterProfile(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
+                    response = Core.Api.Module.GetOSSAdapterProfile(groupId, ossAdapterId);
                 }
             }
             catch (Exception ex)
@@ -1447,12 +1433,12 @@ namespace WebAPI.Clients
         internal bool DeleteOSSAdapter(int groupId, int ossAdapterId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
+                    response = Core.Api.Module.DeleteOSSAdapter(groupId, ossAdapterId);
                 }
             }
             catch (Exception ex)
@@ -1479,14 +1465,14 @@ namespace WebAPI.Clients
             OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     OSSAdapter request = Mapper.Map<OSSAdapter>(ossAdapter);
-                    response = Api.InsertOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.InsertOSSAdapter(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -1515,14 +1501,14 @@ namespace WebAPI.Clients
             OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     OSSAdapter request = Mapper.Map<OSSAdapter>(ossAdapter);
-                    response = Api.SetOSSAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.SetOSSAdapter(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -1549,13 +1535,13 @@ namespace WebAPI.Clients
         {
             List<Models.API.KalturaOSSAdapterProfile> KalturaOSSAdapterProfileList = null;
             OSSAdapterSettingsResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetOSSAdapterSettings(groupId);
                 }
             }
             catch (Exception ex)
@@ -1583,13 +1569,13 @@ namespace WebAPI.Clients
         internal bool DeleteOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<OSSAdapterSettings> request = ApiMappings.ConvertOSSAdapterSettings(settings);
-                    response = Api.DeleteOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
+                    response = Core.Api.Module.DeleteOSSAdapterSettings(groupId, ossAdapterId, request);
                 }
             }
             catch (Exception ex)
@@ -1614,14 +1600,14 @@ namespace WebAPI.Clients
         internal bool InsertOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<OSSAdapterSettings> request = ApiMappings.ConvertOSSAdapterSettings(settings);
-                    response = Api.InsertOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, request);
+                    response = Core.Api.Module.InsertOSSAdapterSettings(groupId, ossAdapterId, request);
                 }
             }
             catch (Exception ex)
@@ -1646,13 +1632,13 @@ namespace WebAPI.Clients
         internal bool SetOSSAdapterSettings(int groupId, int ossAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<OSSAdapterSettings> configs = ApiMappings.ConvertOSSAdapterSettings(settings);
-                    response = Api.SetOSSAdapterSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId, configs);
+                    response = Core.Api.Module.SetOSSAdapterSettings(groupId, ossAdapterId, configs);
                 }
             }
             catch (Exception ex)
@@ -1679,13 +1665,13 @@ namespace WebAPI.Clients
             OSSAdapterResponse response = null;
             KalturaOSSAdapterProfile kalturaOSSAdapterProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GenerateOSSSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, ossAdapterId);
+                    response = Core.Api.Module.GenerateOSSSharedSecret(groupId, ossAdapterId);
                 }
             }
             catch (Exception ex)
@@ -1718,13 +1704,13 @@ namespace WebAPI.Clients
             List<Models.API.KalturaRecommendationProfile> kalturaRecommendationEngineProfile = null;
             RecommendationEnginesResponseList response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ListRecommendationEngines(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.ListRecommendationEngines(groupId);
                 }
             }
             catch (Exception ex)
@@ -1751,12 +1737,12 @@ namespace WebAPI.Clients
         internal bool DeleteRecommendationEngine(int groupId, int recommendatioEngineId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendatioEngineId);
+                    response = Core.Api.Module.DeleteRecommendationEngine(groupId, recommendatioEngineId);
                 }
             }
             catch (Exception ex)
@@ -1783,14 +1769,14 @@ namespace WebAPI.Clients
             RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     RecommendationEngine request = Mapper.Map<RecommendationEngine>(recommendationEngine);
-                    response = Api.InsertRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.InsertRecommendationEngine(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -1819,7 +1805,7 @@ namespace WebAPI.Clients
             RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1827,7 +1813,7 @@ namespace WebAPI.Clients
                 {
                     RecommendationEngine request = Mapper.Map<RecommendationEngine>(recommendationEngine);
                     request.ID = recommendationEngineId;
-                    response = Api.SetRecommendationEngine(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.SetRecommendationEngine(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -1854,13 +1840,13 @@ namespace WebAPI.Clients
         {
             List<Models.API.KalturaRecommendationProfile> KalturaRecommendationEngineList = null;
             RecommendationEngineSettinsResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetRecommendationEngineSettings(groupId);
                 }
             }
             catch (Exception ex)
@@ -1888,13 +1874,13 @@ namespace WebAPI.Clients
         internal bool DeleteRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<RecommendationEngineSettings> request = ApiMappings.ConvertRecommendationEngineSettings(settings);
-                    response = Api.DeleteRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                    response = Core.Api.Module.DeleteRecommendationEngineSettings(groupId, recommendationEngineId, request);
                 }
             }
             catch (Exception ex)
@@ -1919,14 +1905,14 @@ namespace WebAPI.Clients
         internal bool InsertRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<RecommendationEngineSettings> request = ApiMappings.ConvertRecommendationEngineSettings(settings);
-                    response = Api.InsertRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, request);
+                    response = Core.Api.Module.InsertRecommendationEngineSettings(groupId, recommendationEngineId, request);
                 }
             }
             catch (Exception ex)
@@ -1951,13 +1937,13 @@ namespace WebAPI.Clients
         internal bool SetRecommendationEngineSettings(int groupId, int recommendationEngineId, SerializableDictionary<string, KalturaStringValue> settings)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     List<RecommendationEngineSettings> configs = ApiMappings.ConvertRecommendationEngineSettings(settings);
-                    response = Api.SetRecommendationEngineSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId, configs);
+                    response = Core.Api.Module.SetRecommendationEngineSettings(groupId, recommendationEngineId, configs);
                 }
             }
             catch (Exception ex)
@@ -1984,13 +1970,13 @@ namespace WebAPI.Clients
             RecommendationEngineResponse response = null;
             KalturaRecommendationProfile kalturaRecommendationEngineProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GenerateRecommendationEngineSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, recommendationEngineId);
+                    response = Core.Api.Module.GenerateRecommendationEngineSharedSecret(groupId, recommendationEngineId);
                 }
             }
             catch (Exception ex)
@@ -2022,14 +2008,14 @@ namespace WebAPI.Clients
             ExternalChannelResponse response = null;
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     ExternalChannel request = Mapper.Map<ExternalChannel>(externalChannel);
-                    response = Api.InsertExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.InsertExternalChannel(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -2059,14 +2045,14 @@ namespace WebAPI.Clients
             KalturaExternalChannelProfile kalturaExternalChannelProfile = null;
 
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     ExternalChannel request = Mapper.Map<ExternalChannel>(externalChannel);
-                    response = Api.SetExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.SetExternalChannel(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -2092,12 +2078,12 @@ namespace WebAPI.Clients
         internal bool DeleteExternalChannel(int groupId, int externalChannelId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteExternalChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, externalChannelId);
+                    response = Core.Api.Module.DeleteExternalChannel(groupId, externalChannelId);
                 }
             }
             catch (Exception ex)
@@ -2124,13 +2110,13 @@ namespace WebAPI.Clients
             List<Models.API.KalturaExternalChannelProfile> kalturaExternalChannelList = null;
             ExternalChannelResponseList response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.ListExternalChannels(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.ListExternalChannels(groupId);
                 }
             }
             catch (Exception ex)
@@ -2160,7 +2146,7 @@ namespace WebAPI.Clients
         {
             KalturaExportTask task = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             BulkExportTaskResponse response = null;
 
@@ -2171,7 +2157,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.AddBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, externalKey, name, wsDataType, filter, wsExportType, frequency,
+                    response = Core.Api.Module.AddBulkExportTask(groupId, externalKey, name, wsDataType, filter, wsExportType, frequency,
                         notificationUrl, vodTypes != null ? vodTypes : null, isActive);
                 }
             }
@@ -2200,7 +2186,7 @@ namespace WebAPI.Clients
         internal KalturaExportTask UpdateBulkExportTask(int groupId, long id, string externalKey, string name, Models.API.KalturaExportDataType dataType, string filter, Models.API.KalturaExportType exportType, long frequency,
             string notificationUrl, List<int> vodTypes, bool? isActive)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             BulkExportTaskResponse response = null;
 
@@ -2211,7 +2197,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.UpdateBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey, name, wsDataType, filter, wsExportType, frequency,
+                    response = Core.Api.Module.UpdateBulkExportTask(groupId, id, externalKey, name, wsDataType, filter, wsExportType, frequency,
                         notificationUrl, vodTypes != null ? vodTypes : null, isActive);
                 }
             }
@@ -2241,7 +2227,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -2249,7 +2235,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteBulkExportTask(group.ApiCredentials.Username, group.ApiCredentials.Password, id, externalKey);
+                    response = Core.Api.Module.DeleteBulkExportTask(groupId, id, externalKey);
                 }
             }
             catch (Exception ex)
@@ -2281,7 +2267,7 @@ namespace WebAPI.Clients
             BulkExportTasksResponse response = null;
 
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             BulkExportTaskOrderBy wsOrderBy = ApiMappings.ConvertExportTaskOrderBy(orderBy);
 
 
@@ -2289,7 +2275,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetBulkExportTasks(group.ApiCredentials.Username, group.ApiCredentials.Password, ids, externalKeys, wsOrderBy);
+                    response = Core.Api.Module.GetBulkExportTasks(groupId, ids, externalKeys, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -2313,8 +2299,9 @@ namespace WebAPI.Clients
             return tasks;
         }
 
-        internal List<KalturaUserRole> GetRoles(string username, string password, List<long> roleIds = null)
+        public List<KalturaUserRole> GetRoles(int groupId, List<long> roleIds = null)
         {
+
             List<KalturaUserRole> roles = new List<KalturaUserRole>();
             RolesResponse response = null;
 
@@ -2322,7 +2309,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetRoles(username, password, roleIds);
+                    response = Core.Api.Module.GetRoles(groupId, roleIds);
                 }
             }
             catch (Exception ex)
@@ -2346,17 +2333,11 @@ namespace WebAPI.Clients
             return roles;
         }
 
-        public List<KalturaUserRole> GetRoles(int groupId, List<long> roleIds = null)
-        {
-            Group group = GroupsManager.GetGroup(groupId);
-            return GetRoles(group.ApiCredentials.Username, group.ApiCredentials.Password, roleIds);
-        }
-
         internal List<KalturaUserRole> GetRoles()
         {
             try
             {
-                return GetRoles("api_1", "11111");
+                return GetRoles(1);
             }
             catch (Exception ex)
             {
@@ -2370,13 +2351,13 @@ namespace WebAPI.Clients
             List<KalturaPermission> permissions = new List<KalturaPermission>();
             PermissionsResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetPermissions(group.ApiCredentials.Username, group.ApiCredentials.Password, ids);
+                    response = Core.Api.Module.GetPermissions(groupId, ids);
                 }
             }
             catch (Exception ex)
@@ -2405,13 +2386,13 @@ namespace WebAPI.Clients
             KalturaUserRole userRole = new KalturaUserRole();
             RolesResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    //response = Api.AddRole(group.ApiCredentials.Username, group.ApiCredentials.Password, role.Name, role.Permissions);
+                    //response = Core.Api.Module.AddRole(groupId, role.Name, role.Permissions);
                 }
             }
             catch (Exception ex)
@@ -2440,7 +2421,7 @@ namespace WebAPI.Clients
             KalturaPermission addedPermission = new KalturaPermission();
             PermissionResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             ePermissionType type;
             string usersGroup = null;
@@ -2465,7 +2446,7 @@ namespace WebAPI.Clients
                         permissionItemIds = new List<long>();
                         permissionItemIds.AddRange(permission.PermissionItems.Select(p => p.getId()));
                     }
-                    response = Api.AddPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permission.Name, permissionItemIds, type, usersGroup, 0);
+                    response = Core.Api.Module.AddPermission(groupId, permission.Name, permissionItemIds, type, usersGroup, 0);
                 }
             }
             catch (Exception ex)
@@ -2493,7 +2474,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -2501,7 +2482,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.AddPermissionToRole(group.ApiCredentials.Username, group.ApiCredentials.Password, roleId, permissionId);
+                    response = Core.Api.Module.AddPermissionToRole(groupId, roleId, permissionId);
                 }
             }
             catch (Exception ex)
@@ -2531,7 +2512,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
 
@@ -2539,7 +2520,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.AddPermissionItemToPermission(group.ApiCredentials.Username, group.ApiCredentials.Password, permissionId, permissionItemId);
+                    response = Core.Api.Module.AddPermissionItemToPermission(groupId, permissionId, permissionItemId);
                 }
             }
             catch (Exception ex)
@@ -2572,14 +2553,14 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannel profile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Api.InsertKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.InsertKSQLChannel(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -2607,14 +2588,14 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannel profile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Api.SetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.SetKSQLChannel(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -2643,14 +2624,14 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Api.InsertKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.InsertKSQLChannel(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -2679,14 +2660,14 @@ namespace WebAPI.Clients
             KSQLChannelResponse response = null;
             KalturaChannelProfile profile = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = Api.SetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, request);
+                    response = Core.Api.Module.SetKSQLChannel(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -2712,12 +2693,12 @@ namespace WebAPI.Clients
         internal bool DeleteKSQLChannel(int groupId, int channelId)
         {
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, channelId);
+                    response = Core.Api.Module.DeleteKSQLChannel(groupId, channelId);
                 }
             }
             catch (Exception ex)
@@ -2744,13 +2725,13 @@ namespace WebAPI.Clients
             KalturaChannelProfile profile = null;
             KSQLChannelResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetKSQLChannel(group.ApiCredentials.Username, group.ApiCredentials.Password, channelId);
+                    response = Core.Api.Module.GetKSQLChannel(groupId, channelId);
                 }
             }
             catch (Exception ex)
@@ -2779,7 +2760,7 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
             int mediaId = 0;
@@ -2795,7 +2776,7 @@ namespace WebAPI.Clients
                              && int.TryParse(assetType.Id, out mediaId)).Select(x => int.Parse(x.Id)).ToList();
                     }
 
-                    response = Api.CleanUserHistory(group.ApiCredentials.Username, group.ApiCredentials.Password, userId, mediaIds);
+                    response = Core.Api.Module.CleanUserHistory(groupId, userId, mediaIds);
                 }
             }
             catch (Exception ex)
@@ -2825,14 +2806,14 @@ namespace WebAPI.Clients
         {
             List<KalturaRegistrySettings> registrySettings = new List<KalturaRegistrySettings>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             RegistryResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetAllRegistry(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetAllRegistry(groupId);
                 }
             }
             catch (Exception ex)
@@ -2858,9 +2839,9 @@ namespace WebAPI.Clients
             }
         }
 
-        internal KalturaTimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupID)
+        internal KalturaTimeShiftedTvPartnerSettings GetTimeShiftedTvPartnerSettings(int groupId)
         {
-            Group group = GroupsManager.GetGroup(groupID);
+            
             TimeShiftedTvPartnerSettingsResponse response = null;
             KalturaTimeShiftedTvPartnerSettings settings = null;
 
@@ -2868,7 +2849,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetTimeShiftedTvPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetTimeShiftedTvPartnerSettings(groupId);
                 }
             }
             catch (Exception ex)
@@ -2893,11 +2874,11 @@ namespace WebAPI.Clients
             }
         }
 
-        internal bool UpdateTimeShiftedTvPartnerSettings(int groupID, KalturaTimeShiftedTvPartnerSettings settings)
+        internal bool UpdateTimeShiftedTvPartnerSettings(int groupId, KalturaTimeShiftedTvPartnerSettings settings)
         {
             bool isSuccess = false;
             Status response = null;
-            Group group = GroupsManager.GetGroup(groupID);
+            
             try
             {
 
@@ -2906,7 +2887,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.UpdateTimeShiftedTvPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, tstvSettings);
+                    response = Core.Api.Module.UpdateTimeShiftedTvPartnerSettings(groupId, tstvSettings);
                 }
             }
             catch (Exception ex)
@@ -2935,14 +2916,14 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfileListResponse result = new KalturaCDNAdapterProfileListResponse() { TotalCount = 0 };
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDNAdapterListResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetCDNAdapters(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetCDNAdapters(groupId);
                 }
             }
             catch (Exception ex)
@@ -2972,14 +2953,14 @@ namespace WebAPI.Clients
 
         internal bool DeleteCDNAdapter(int groupId, int adapterId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             Status response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.DeleteCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, adapterId);
+                    response = Core.Api.Module.DeleteCDNAdapter(groupId, adapterId);
                 }
             }
             catch (Exception ex)
@@ -3005,7 +2986,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfile adapter = new KalturaCDNAdapterProfile();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDNAdapterResponse response = null;
 
@@ -3015,7 +2996,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.InsertCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAdapter);
+                    response = Core.Api.Module.InsertCDNAdapter(groupId, wsAdapter);
                 }
             }
             catch (Exception ex)
@@ -3043,7 +3024,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfile adapterResponse = new KalturaCDNAdapterProfile();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDNAdapterResponse response = null;
 
@@ -3053,7 +3034,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.SetCDNAdapter(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAdapter, adapterId);
+                    response = Core.Api.Module.SetCDNAdapter(groupId, wsAdapter, adapterId);
                 }
             }
             catch (Exception ex)
@@ -3081,14 +3062,14 @@ namespace WebAPI.Clients
         {
             KalturaCDNAdapterProfile adapter = new KalturaCDNAdapterProfile();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDNAdapterResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GenerateCDNSharedSecret(group.ApiCredentials.Username, group.ApiCredentials.Password, adapterId);
+                    response = Core.Api.Module.GenerateCDNSharedSecret(groupId, adapterId);
                 }
             }
             catch (Exception ex)
@@ -3116,14 +3097,14 @@ namespace WebAPI.Clients
         {
             KalturaCDNPartnerSettings settings = new KalturaCDNPartnerSettings();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDNPartnerSettingsResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetCDNPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetCDNPartnerSettings(groupId);
                 }
             }
             catch (Exception ex)
@@ -3151,7 +3132,7 @@ namespace WebAPI.Clients
         {
             KalturaCDNPartnerSettings responseSettings = new KalturaCDNPartnerSettings();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             CDNPartnerSettingsResponse response = null;
             try
@@ -3159,7 +3140,7 @@ namespace WebAPI.Clients
                 CDNPartnerSettings requestSettings = AutoMapper.Mapper.Map<CDNPartnerSettings>(settings);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.UpdateCDNPartnerSettings(group.ApiCredentials.Username, group.ApiCredentials.Password, requestSettings);
+                    response = Core.Api.Module.UpdateCDNPartnerSettings(groupId, requestSettings);
                 }
             }
             catch (Exception ex)
@@ -3187,7 +3168,7 @@ namespace WebAPI.Clients
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             RegionsResponse response = null;
 
@@ -3196,7 +3177,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetRegions(group.ApiCredentials.Username, group.ApiCredentials.Password, externalIds != null ? externalIds : null, wsOrderBy);
+                    response = Core.Api.Module.GetRegions(groupId, externalIds != null ? externalIds : null, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -3222,14 +3203,14 @@ namespace WebAPI.Clients
 
         internal KalturaDeviceFamilyListResponse GetDeviceFamilyList(int groupId)
         {          
-            Group group = GroupsManager.GetGroup(groupId);
+            
             KalturaDeviceFamilyListResponse result = new KalturaDeviceFamilyListResponse() { TotalCount = 0 };
             DeviceFamilyResponse response = null;            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetDeviceFamilyList(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetDeviceFamilyList(groupId);
                 }
             }
             catch (Exception ex)
@@ -3256,14 +3237,14 @@ namespace WebAPI.Clients
 
         internal KalturaDeviceBrandListResponse GetDeviceBrandList(int groupId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
             KalturaDeviceBrandListResponse result = new KalturaDeviceBrandListResponse() { TotalCount = 0 };
             DeviceBrandResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetDeviceBrandList(group.ApiCredentials.Username, group.ApiCredentials.Password);
+                    response = Core.Api.Module.GetDeviceBrandList(groupId);
                 }
             }
             catch (Exception ex)
@@ -3290,14 +3271,14 @@ namespace WebAPI.Clients
 
         internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
             KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0 };
             CountryResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetCountryList(group.ApiCredentials.Username, group.ApiCredentials.Password, countryIds);
+                    response = Core.Api.Module.GetCountryList(groupId, countryIds);
                 }
             }
             catch (Exception ex)
@@ -3324,7 +3305,7 @@ namespace WebAPI.Clients
 
         internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType? assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
             KalturaMetaListResponse result = new KalturaMetaListResponse();
             MetaResponse response = null;
             try
@@ -3336,7 +3317,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Api.GetGroupMetaList(group.ApiCredentials.Username, group.ApiCredentials.Password, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual);
+                    response = Core.Api.Module.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual);
                 }
             }
             catch (Exception ex)
