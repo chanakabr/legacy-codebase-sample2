@@ -939,7 +939,7 @@ namespace Catalog
         /// <param name="totalItems"></param>
         /// <returns></returns>
         public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to, 
-            out Dictionary<string, Dictionary<string, int>> aggregationResult)
+            out ESAggregationsResult aggregationResult)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             aggregationResult = null;

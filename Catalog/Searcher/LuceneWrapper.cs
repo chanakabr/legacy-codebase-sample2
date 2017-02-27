@@ -311,12 +311,7 @@ namespace Catalog
             throw new NotImplementedException();
         }
 
-        #endregion
-
-        #region ISearcher Members
-
-
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out Dictionary<string, Dictionary<string, int>> aggregationResult)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult)
         {
             throw new NotImplementedException();
         }

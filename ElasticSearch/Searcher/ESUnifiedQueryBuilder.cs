@@ -97,6 +97,12 @@ namespace ElasticSearch.Searcher
             set;
         }
 
+        public List<ESBaseAggsItem> Aggregations
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Ctor
@@ -249,7 +255,7 @@ namespace ElasticSearch.Searcher
 
             if (this.SearchDefinitions.groupBy != null && this.SearchDefinitions.groupBy.Count > 0)
             {
-                List<ESBaseAggsItem> aggregations = new List<ESBaseAggsItem>();
+                this.Aggregations = new List<ESBaseAggsItem>();
                 ESBaseAggsItem currentAggregation = null;
 
                 foreach (var groupBy in this.SearchDefinitions.groupBy)
@@ -264,7 +270,7 @@ namespace ElasticSearch.Searcher
                             Type = eElasticAggregationType.terms
                         };
 
-                        aggregations.Add(currentAggregation);
+                        this.Aggregations.Add(currentAggregation);
                     }
                     else
                     {
@@ -284,7 +290,7 @@ namespace ElasticSearch.Searcher
 
                 filteredQueryBuilder.Append("\"aggs\": {");
 
-                foreach (ESBaseAggsItem item in aggregations)
+                foreach (ESBaseAggsItem item in this.Aggregations)
                 {
                     filteredQueryBuilder.AppendFormat("{0},", item.ToString());
                 }

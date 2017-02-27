@@ -1243,7 +1243,7 @@ namespace Catalog
         /// <returns></returns>
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to)
         {
-            Dictionary<string, Dictionary<string, int>> aggregationResult;
+            ESAggregationsResult aggregationResult;
 
             return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationResult);
         }
@@ -1254,7 +1254,7 @@ namespace Catalog
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to, 
-            out Dictionary<string, Dictionary<string, int>> aggregationResult)
+            out ESAggregationsResult aggregationResult)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
             aggregationResult = null;
@@ -1349,7 +1349,10 @@ namespace Catalog
                 {
                     #region Process ElasticSearch result
 
-                    aggregationResult = ESAggregationsResult.DeserializeAggrgations<string>(queryResultString);
+                    if (queryParser.Aggregations != null)
+                    {
+                        aggregationResult = ESAggregationsResult.FullParse(queryResultString, queryParser.Aggregations);
+                    }
 
                     List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
                         DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);

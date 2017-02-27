@@ -13,6 +13,7 @@ using KLogMonitor;
 using System.Reflection;
 using Catalog.Attributes;
 using Catalog.Cache;
+using ElasticSearch.Searcher;
 
 namespace Catalog.Request
 {
@@ -217,9 +218,9 @@ namespace Catalog.Request
                 int totalItems = 0;
                 int to = 0;
 
-                Dictionary<string, Dictionary<string, int>> aggregationResult;
+                ESAggregationsResult aggregationsResult;
 
-                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationResult);
+                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationsResult);
 
                 response.m_nTotalItems = totalItems;
 
@@ -233,27 +234,27 @@ namespace Catalog.Request
                     response.to = to;
                 }
 
-                if (aggregationResult != null)
+                if (aggregationsResult != null && aggregationsResult.Aggregations != null)
                 {
                     if (response.aggregationResults == null)
                     {
                         response.aggregationResults = new List<AggregationsResult>();
                     }
 
-                    foreach (var aggregation in aggregationResult)
+                    foreach (var aggregation in aggregationsResult.Aggregations)
                     {
                         var current = new AggregationsResult()
                         {
                             field = aggregation.Key,
                             results = new List<AggregationResult>()
                         };
-
-                        foreach (var term in aggregation.Value)
+                        
+                        foreach (var bucket in aggregation.Value.buckets)
                         {
                             current.results.Add(new AggregationResult()
                             {
-                                value = term.Key,
-                                count = term.Value
+                                value = bucket.key,
+                                count = bucket.doc_count
                             });
                         }
 
