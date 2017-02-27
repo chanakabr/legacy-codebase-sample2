@@ -201,7 +201,8 @@ namespace EpgIngest
 
             var languages = GroupsCacheManager.GroupsCache.Instance().GetGroup(m_Channels.groupid).GetLangauges();
 
-            #region each program  create CB objects                        
+            #region each program  create CB objects
+
             List<DateTime> deletedDays = new List<DateTime>();
             IngestAssetStatus ingestAssetStatus = null;
 

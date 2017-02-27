@@ -9,12 +9,15 @@ namespace CachingProvider.LayeredCache
     public class LayeredCacheKeys
     {
 
+<<<<<<< HEAD
         #region Constant Keys
 
         public const string GET_CURRENCIES_KEY = "currencies";
 
         #endregion
 
+=======
+>>>>>>> Merge-Logic
         public static string GetCheckGeoBlockMediaKey(int groupID, int mediaID)
         {
             return string.Format("groupId_{0}_mediaId_{1}", groupID, mediaID);
@@ -169,6 +172,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaInvalidationKey_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
+<<<<<<< HEAD
 
         public static string GetPriceCodeByCountryAndCurrencyKey(int groupId, int priceCodeId, string countryCode, string currencyCode)
         {
@@ -185,5 +189,7 @@ namespace CachingProvider.LayeredCache
             return string.Format("groupDefaultCurrency_groupId_{0}", groupId);
         }
 
+=======
+>>>>>>> Merge-Logic
     }
 }

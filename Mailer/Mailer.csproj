@@ -74,8 +74,8 @@
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
-      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
   </ItemGroup>
