@@ -101,6 +101,7 @@ namespace Catalog.Request
                     // If this is a KSQL channel
                     if (channel.m_nChannelTypeID == 4)
                     {
+                        log.WarnFormat("Old ChannelRequest received KSQL channel of ID {0}. Will return empty response.", channel.m_nChannelID);
                         response.m_nTotalItems = 0;
                         response.m_nMedias = null;
                         return response;

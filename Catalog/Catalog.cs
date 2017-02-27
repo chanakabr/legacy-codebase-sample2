@@ -938,9 +938,12 @@ namespace Catalog
         /// <param name="request"></param>
         /// <param name="totalItems"></param>
         /// <returns></returns>
-        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to)
+        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to, 
+            out Dictionary<string, Dictionary<string, int>> aggregationResult)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            aggregationResult = null;
+
             totalItems = 0;
 
             // Group have user types per media  +  siteGuid != empty
@@ -961,7 +964,7 @@ namespace Catalog
 
             if (searcher != null)
             {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
+                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, out aggregationResult);
 
                 if (searchResults != null)
                 {

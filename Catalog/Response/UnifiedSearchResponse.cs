@@ -21,6 +21,9 @@ namespace Catalog.Response
         public List<UnifiedSearchResult> searchResults;
 
         [DataMember]
+        public List<AggregationsResult> aggregationResults;
+
+        [DataMember]
         public ApiObjects.Response.Status status;
 
         [DataMember]
@@ -35,6 +38,7 @@ namespace Catalog.Response
         public UnifiedSearchResponse()
         {
             searchResults = new List<UnifiedSearchResult>();
+            aggregationResults = new List<AggregationsResult>();
             status = new ApiObjects.Response.Status();
         }
     }

@@ -1235,7 +1235,7 @@ namespace Catalog
         }
 
         #region Unified Search
-
+        
         /// <summary>
         /// Performs a search on several types of assets in a single call
         /// </summary>
@@ -1243,7 +1243,21 @@ namespace Catalog
         /// <returns></returns>
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to)
         {
+            Dictionary<string, Dictionary<string, int>> aggregationResult;
+
+            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationResult);
+        }
+
+        /// <summary>
+        /// Performs a search on several types of assets in a single call
+        /// </summary>
+        /// <param name="unifiedSearchDefinitions"></param>
+        /// <returns></returns>
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int to, 
+            out Dictionary<string, Dictionary<string, int>> aggregationResult)
+        {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            aggregationResult = null;
             totalItems = 0;
 
             OrderObj order = unifiedSearchDefinitions.order;
@@ -1334,6 +1348,8 @@ namespace Catalog
                 if (httpStatus == STATUS_OK)
                 {
                     #region Process ElasticSearch result
+
+                    aggregationResult = ESAggregationsResult.DeserializeAggrgations<string>(queryResultString);
 
                     List<ElasticSearchApi.ESAssetDocument> assetsDocumentsDecoded = 
                         DecodeAssetSearchJsonObject(queryResultString, ref totalItems, unifiedSearchDefinitions.extraReturnFields);

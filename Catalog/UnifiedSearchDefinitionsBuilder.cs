@@ -303,6 +303,15 @@ namespace Catalog
 
                 #endregion
 
+                #region Group By
+
+                if (request.groupBy != null)
+                {
+                    definitions.groupBy = new List<string>(request.groupBy);
+                }
+
+                #endregion
+
             }
             catch (Exception ex)
             {

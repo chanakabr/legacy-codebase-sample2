@@ -312,5 +312,15 @@ namespace Catalog
         }
 
         #endregion
+
+        #region ISearcher Members
+
+
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out Dictionary<string, Dictionary<string, int>> aggregationResult)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

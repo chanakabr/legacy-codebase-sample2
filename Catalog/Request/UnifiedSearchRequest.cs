@@ -80,12 +80,15 @@ namespace Catalog.Request
         [DataMember]
         public bool hasPredefinedRecordings;
 
+        [DataMember]
+        public List<string> groupBy;
+
         #endregion
 
         #region Ctor
 
         /// <summary>
-        /// Regulat constructor that initializes the request members
+        /// Regular constructor that initializes the request members
         /// </summary>
         /// <param name="nPageSize"></param>
         /// <param name="nPageIndex"></param>
@@ -213,7 +216,10 @@ namespace Catalog.Request
 
                 int totalItems = 0;
                 int to = 0;
-                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to);
+
+                Dictionary<string, Dictionary<string, int>> aggregationResult;
+
+                List<UnifiedSearchResult> assetsResults = Catalog.GetAssetIdFromSearcher(request, ref totalItems, ref to, out aggregationResult);
 
                 response.m_nTotalItems = totalItems;
 
@@ -225,6 +231,34 @@ namespace Catalog.Request
                 if (to > 0)
                 {
                     response.to = to;
+                }
+
+                if (aggregationResult != null)
+                {
+                    if (response.aggregationResults == null)
+                    {
+                        response.aggregationResults = new List<AggregationsResult>();
+                    }
+
+                    foreach (var aggregation in aggregationResult)
+                    {
+                        var current = new AggregationsResult()
+                        {
+                            field = aggregation.Key,
+                            results = new List<AggregationResult>()
+                        };
+
+                        foreach (var term in aggregation.Value)
+                        {
+                            current.results.Add(new AggregationResult()
+                            {
+                                value = term.Key,
+                                count = term.Value
+                            });
+                        }
+
+                        response.aggregationResults.Add(current);
+                    }
                 }
 
                 // Response request Id is identical to request's request Id

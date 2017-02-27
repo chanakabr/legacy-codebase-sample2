@@ -58,6 +58,7 @@ namespace Catalog.Request
     [KnownType(typeof(ExternalChannelRequest))]
     [KnownType(typeof(MediaRelatedExternalRequest))]
     [KnownType(typeof(MediaSearchExternalRequest))]
+    [KnownType(typeof(GroupedSearchRequest))]
     [ServiceKnownType(typeof(ChannelObjRequest))]
     [ServiceKnownType(typeof(CrowdsourceRequest))]
     [ServiceKnownType(typeof(AssetsBookmarksRequest))]    
@@ -68,6 +69,7 @@ namespace Catalog.Request
     [ServiceKnownType(typeof(AssetCommentsRequest))]
     [ServiceKnownType(typeof(AssetCommentAddRequest))]
     [ServiceKnownType(typeof(ScheduledRecordingsRequest))]
+    [ServiceKnownType(typeof(GroupedSearchRequest))]
     [DataContract]
     public class BaseRequest
     {

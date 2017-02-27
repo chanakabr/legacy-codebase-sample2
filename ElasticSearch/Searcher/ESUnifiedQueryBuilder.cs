@@ -246,6 +246,53 @@ namespace ElasticSearch.Searcher
             }
 
             filteredQueryBuilder.AppendFormat("{0}, ", sSort);
+
+            if (this.SearchDefinitions.groupBy != null && this.SearchDefinitions.groupBy.Count > 0)
+            {
+                List<ESBaseAggsItem> aggregations = new List<ESBaseAggsItem>();
+                ESBaseAggsItem currentAggregation = null;
+
+                foreach (var groupBy in this.SearchDefinitions.groupBy)
+                {
+                    if (currentAggregation == null)
+                    {
+                        currentAggregation = new ESBaseAggsItem()
+                        {
+                            Field = groupBy,
+                            Name = groupBy,
+                            Size = 0,
+                            Type = eElasticAggregationType.terms
+                        };
+
+                        aggregations.Add(currentAggregation);
+                    }
+                    else
+                    {
+                        var subAggregation = new ESBaseAggsItem()
+                        {
+                            Field = groupBy,
+                            Name = groupBy,
+                            Size = 0,
+                            Type = eElasticAggregationType.stats   
+                        };
+
+                        currentAggregation.SubAggrgations.Add(subAggregation);
+
+                        currentAggregation = subAggregation;
+                    }
+                }
+
+                filteredQueryBuilder.Append("\"aggs\": {");
+
+                foreach (ESBaseAggsItem item in aggregations)
+                {
+                    filteredQueryBuilder.AppendFormat("{0},", item.ToString());
+                }
+
+                filteredQueryBuilder.Remove(filteredQueryBuilder.Length - 1, 1);
+                filteredQueryBuilder.Append("},");
+            }
+
             filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
             if (queryTerm != null && !queryTerm.IsEmpty())

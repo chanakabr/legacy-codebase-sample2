@@ -323,6 +323,16 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        /// <summary>
+        /// List of fields to group
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public List<string> groupBy
+        {
+            get;
+            set;
+        }
         #endregion
 
         #region Ctor
