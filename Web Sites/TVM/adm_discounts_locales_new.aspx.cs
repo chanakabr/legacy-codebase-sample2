@@ -130,6 +130,11 @@ public partial class adm_discounts_locales_new : System.Web.UI.Page
         dr_price.SetDefault(0);
         theRecord.AddRecord(dr_price);
 
+        DataRecordShortDoubleField dr_per = new DataRecordShortDoubleField(true, 12, 12);
+        dr_per.Initialize("Percentage of: ", "adm_table_header_nbg", "FormInput", "DISCOUNT_PERCENT", true);
+        dr_per.SetDefault(0);
+        theRecord.AddRecord(dr_per);
+
         DataRecordDropDownField dr_currency = new DataRecordDropDownField("lu_currency", "name", "id", "", "", 60, false);
         dr_currency.SetConnectionKey("pricing_connection");
         dr_currency.Initialize("Currency", "adm_table_header_nbg", "FormInput", "CURRENCY_CD", false);
