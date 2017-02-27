@@ -779,7 +779,7 @@ namespace TVinciShared
                 //log.Debug("URL validated" + url);
                 return true;
             }
-            catch (WebException ex)
+            catch (WebException)
             {
                 log.Error("URL wasn't found" + url);
                 return false;

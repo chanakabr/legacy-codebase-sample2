@@ -12,14 +12,13 @@ namespace EventManager
         {
             bool shouldConsume = false;
 
-
             return shouldConsume;
         }
 
-        protected override bool Consume(KalturaEvent kalturaEvent)
+        protected override eEventConsumptionResult Consume(KalturaEvent kalturaEvent)
         {
             // dummy consumer
-            return false;
+            return eEventConsumptionResult.None;
         }
     }
 }

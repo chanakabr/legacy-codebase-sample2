@@ -17,7 +17,6 @@ namespace EventManager
         static EventManager()
         {
             eventConsumers = new List<BaseEventConsumer>();
-            eventConsumers.Add(new NotificationEventConsumer());
         }
 
         public static void Init()
@@ -29,19 +28,27 @@ namespace EventManager
             eventConsumers.Add(consumer);
         }
 
-        public static void HandleEvent(KalturaEvent kalturaEvent)
+        public static List<eEventConsumptionResult> HandleEvent(KalturaEvent kalturaEvent)
         {
+            List<eEventConsumptionResult> results = new List<eEventConsumptionResult>();
+
             foreach (var consumer in eventConsumers)
             {
+                eEventConsumptionResult currentResult = eEventConsumptionResult.None;
                 try
                 {
-                    consumer.HandleEvent(kalturaEvent);
+                    currentResult = consumer.HandleEvent(kalturaEvent);
                 }
                 catch (Exception ex)
                 {
                     log.ErrorFormat("Event manager - error when calling consumer {0}, ex = {1}", consumer.GetType().Name, ex);
+                    currentResult = eEventConsumptionResult.Failure;
                 }
+
+                results.Add(currentResult);
             }
+
+            return results;
         }
     }
 }

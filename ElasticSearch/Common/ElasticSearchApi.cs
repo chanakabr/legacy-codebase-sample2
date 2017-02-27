@@ -298,46 +298,46 @@ namespace ElasticSearch.Common
 
         #region Switch index, delete old indices (For rebuildind index)
 
-        public bool SwitchIndex(string sIndex, string sAlias, List<string> lIndicesForRemoval, string sSearchRouting = null)
+        public bool SwitchIndex(string index, string alias, List<string> indicesForRemoval, string sSearchRouting = null)
         {
-            bool bResult = false;
+            bool result = false;
 
-            if (!string.IsNullOrEmpty(sIndex) && !string.IsNullOrEmpty(sAlias))
+            if (!string.IsNullOrEmpty(index) && !string.IsNullOrEmpty(alias))
             {
-                StringBuilder sActionRequest = new StringBuilder();
-                sActionRequest.Append("{ \"actions\": [");
+                StringBuilder httpRequestBody = new StringBuilder();
+                httpRequestBody.Append("{ \"actions\": [");
 
-                if (lIndicesForRemoval != null)
+                if (indicesForRemoval != null && indicesForRemoval.Count > 0)
                 {
-                    foreach (string sOldIndex in lIndicesForRemoval)
+                    foreach (string sOldIndex in indicesForRemoval)
                     {
-                        sActionRequest.Append(@" { ""remove"": { ");
-                        sActionRequest.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", sAlias, sOldIndex);
-                        sActionRequest.Append(" } },");
+                        httpRequestBody.Append(@" { ""remove"": { ");
+                        httpRequestBody.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", alias, sOldIndex);
+                        httpRequestBody.Append(" } },");
                     }
                 }
-                sActionRequest.Append(@" { ""add"": { ");
-                sActionRequest.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", sAlias, sIndex);
+                httpRequestBody.Append(@" { ""add"": { ");
+                httpRequestBody.AppendFormat(" \"alias\": \"{0}\", \"index\": \"{1}\"", alias, index);
 
                 if (!string.IsNullOrEmpty(sSearchRouting))
                 {
-                    sActionRequest.AppendFormat(", \"routing\":\"{0}\"", sSearchRouting);
+                    httpRequestBody.AppendFormat(", \"routing\":\"{0}\"", sSearchRouting);
                 }
 
-                sActionRequest.Append(" } } ] }");
+                httpRequestBody.Append(" } } ] }");
 
-                string sUrl = string.Format("{0}/_aliases", baseUrl);
-                int nStatus = 0;
+                string url = string.Format("{0}/_aliases", baseUrl);
+                int httpStatus = 0;
 
-                string sRetVal = SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sActionRequest.ToString(), true);
+                string postResultString = SendPostHttpReq(url, ref httpStatus, string.Empty, string.Empty, httpRequestBody.ToString(), true);
 
-                bResult = (nStatus == 200) ? true : false;
+                result = (httpStatus == 200) ? true : false;
 
-                if (bResult == false)
-                    log.Error("Error - " + string.Format("error received when trying to switch indices. Message: {0}", sRetVal));
+                if (result == false)
+                    log.Error("Error - " + string.Format("error received when trying to switch indices. Message: {0}", postResultString));
             }
 
-            return bResult;
+            return result;
         }
 
         public void DeleteIndices(List<string> lIndices)

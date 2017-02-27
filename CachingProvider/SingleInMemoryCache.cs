@@ -19,8 +19,7 @@ namespace CachingProvider
          * 2. MemoryCache should be properly disposed.
          */
 
-        private static readonly string DEFAULT_CACHE_NAME = "Cache";
-        private static readonly uint DEFAULT_CACHE_TTL_IN_SECONDS = 7200;
+        private static readonly string DEFAULT_CACHE_NAME = "Cache";        
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private MemoryCache cache = null;
 
@@ -347,8 +346,9 @@ namespace CachingProvider
                         {
                             DateTime dtExpiresAt = DateTime.UtcNow.AddMinutes((double)expirationInSeconds / 60);
                             cache.Set(key, value, dtExpiresAt);
-                            return true;                        
                         }
+
+                        bRes = true;
                     }
                     catch
                     {
@@ -359,15 +359,49 @@ namespace CachingProvider
                         //unlock
                         mutex.ReleaseMutex();
                     }
-                }
-                return bRes;
+                }                
             }
+
             catch (Exception ex)
             {
                 log.Error("SetWithVersion<T>", ex);
                 return false;
-            }            
+            }
+
+            return bRes;
         }
+
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
+        {
+            bool res = false;
+            try
+            {
+                IDictionary<string, object> getResults = null;
+                getResults = GetValues(keys, shouldAllowPartialQuery);
+                if (getResults != null && getResults.Count > 0)
+                {
+                    results = getResults.ToDictionary(x => x.Key, x => (T)x.Value);
+                    if (results != null)
+                    {
+                        if (shouldAllowPartialQuery)
+                        {
+                            res = results.Count > 0;
+                        }
+                        else
+                        {
+                            res = keys.Count == results.Count;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetValues<T> from InMemoryCache while getting the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return res;
+        }
+
     }
 
 }

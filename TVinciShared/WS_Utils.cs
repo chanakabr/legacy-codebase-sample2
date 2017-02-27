@@ -37,20 +37,20 @@ namespace TVinciShared
             return XmlUtils.GetNodeParameterVal(ref theNode, sXpath, sParameterName);
         }
 
-        static public string GetIP2CountryCode(string sIP)
-        {
-            if (string.IsNullOrEmpty(sIP))
-            {
-                return "Israel";
-            }
+        //static public string GetIP2CountryCode(string sIP)
+        //{
+        //    if (string.IsNullOrEmpty(sIP))
+        //    {
+        //        return "Israel";
+        //    }
 
-            string retVal = string.Empty;
-            string[] splited = sIP.Split('.');
+        //    string retVal = string.Empty;
+        //    string[] splited = sIP.Split('.');
 
-            long nIPVal = Int64.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-            retVal = DAL.UtilsDal.GetIP2CountryCode(nIPVal);
-            return retVal;
-        }
+        //    long nIPVal = Int64.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
+        //    retVal = DAL.UtilsDal.GetIP2CountryCode(nIPVal);
+        //    return retVal;
+        //}
 
         static public Int32 GetGroupID(string sWSName, string sModuleName, string sUN, string sPass, string sIP)
         {

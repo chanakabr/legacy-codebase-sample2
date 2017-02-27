@@ -10,9 +10,9 @@ namespace EventManager
     {
         public abstract bool ShouldConsume(KalturaEvent kalturaEvent);
 
-        public bool HandleEvent(KalturaEvent kalturaEvent)
+        public eEventConsumptionResult HandleEvent(KalturaEvent kalturaEvent)
         {
-            bool result = false;
+            eEventConsumptionResult result = eEventConsumptionResult.None;
 
             if (ShouldConsume(kalturaEvent))
             {
@@ -22,6 +22,13 @@ namespace EventManager
             return result;
         }
 
-        protected abstract bool Consume(KalturaEvent kalturaEvent);
+        protected abstract eEventConsumptionResult Consume(KalturaEvent kalturaEvent);
+    }
+
+    public enum eEventConsumptionResult
+    {
+        Success,
+        None,
+        Failure
     }
 }

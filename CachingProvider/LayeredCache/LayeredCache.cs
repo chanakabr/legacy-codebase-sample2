@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace CachingProvider.LayeredCache
 {
     public class LayeredCache
-    {                
+    {
         private const string LAYERED_CACHE_TCM_CONFIG = "LayeredCache";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -40,27 +40,29 @@ namespace CachingProvider.LayeredCache
 
         #region Public Methods
 
-        public bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters, string layeredCacheConfigName = null, List<string> inValidationKeys = null)
+        public bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
+                            int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null)
         {
-            bool result = false;            
+            bool result = false;
             List<LayeredCacheConfig> insertToCacheConfig = null;
             try
             {
-                List<string> keys = new List<string>() { key };
-                AddVersionOnKeys(ref keys);
-                key = keys.First();
                 Tuple<T, long> tuple = null;
-                result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, inValidationKeys);
+                result = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, groupId, inValidationKeys);
                 genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
                 if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && result && tuple != null && tuple.Item1 != null)
                 {
                     // set validation to now
                     Tuple<T, long> tupleToInsert = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
-                    foreach (LayeredCacheConfig cacheConfig in insertToCacheConfig)
+                    Dictionary<string, string> keyMappings = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
+                    if (keyMappings != null && keyMappings.Count > 0)
                     {
-                        if (!TryInsert<T>(key, tupleToInsert, cacheConfig))
+                        foreach (LayeredCacheConfig cacheConfig in insertToCacheConfig)
                         {
-                            log.ErrorFormat("Failed inserting key {0} to {1}", key, cacheConfig.Type.ToString());
+                            if (!TryInsert<T>(keyMappings.Keys.First(), tupleToInsert, cacheConfig))
+                            {
+                                log.ErrorFormat("Failed inserting key {0} to {1}", keyMappings.Keys.First(), cacheConfig.Type.ToString());
+                            }
                         }
                     }
                 }
@@ -77,71 +79,166 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string,T>, bool>> fillObjectsMethod, Dictionary<string, object> funcParameters, string layeredCacheConfigName = null, Dictionary<string, List<string>> inValidationKeysMap = null, bool allowPartialResults = false)
+        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
+                                    Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
+            bool res = false;
+            Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfigMappings = null;
+            Dictionary<string, Tuple<T, long>> resultsMapping = null;
             try
             {
-                Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
-                results = tuple != null ? tuple.Item1 : null;                                
+                res = TryGetValuesFromCacheByConfig<T>(keys, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod, funcParameters, groupId, inValidationKeysMap);
+                results = resultsMapping != null && resultsMapping.Count > 0 ? resultsMapping.ToDictionary(x => x.Key, x => x.Value.Item1) : null;
+                if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null)
+                {
+                    Dictionary<string, string> keyToVersionMappings = GetOriginalKeyToVersionKeyMap(keys, groupId);
+                    if (keyToVersionMappings != null && keyToVersionMappings.Count > 0)
+                    {
+                        foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfigMappings)
+                        {
+                            foreach (string key in pair.Value)
+                            {
+                                if (results.ContainsKey(key) && results[key] != null)
+                                {
+                                    // set validation to now
+                                    Tuple<T, long> tupleToInsert = new Tuple<T, long>(results[key], Utils.UnixTimeStampNow());
+                                    if (!TryInsert<T>(keyToVersionMappings[key], tupleToInsert, pair.Key))
+                                    {
+                                        log.ErrorFormat("GetValues<T> - Failed inserting key {0} to {1}", keyToVersionMappings[key], pair.Key.Type.ToString());
+                                    }
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("GetValues<T> - key: {0} isn't contained in results or contained with null value", key);
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            catch (Exception)
-            {   
-                throw;
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", keys),
+                                        string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
+                                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
             }
-            return results != null;
-            //bool res = false;
-            //List<LayeredCacheConfig> insertToCacheConfig = null;
-            //try
-            //{                
-            //    AddVersionOnKeys(ref keys);
-            //    List<string> missingKeys = null;
-            //    Dictionary<string, Tuple<T, long>> tupleResults = null;
-            //    foreach (string key in keys)
-            //    {
-            //        bool keyResult = false;
-            //        Tuple<T, long> tuple = null;
-            //        keyResult = TryGetFromCacheByConfig<T>(key, ref tuple, layeredCacheConfigName, out insertToCacheConfig, fillObjectMethod, funcParameters, inValidationKeys);
-            //        genericParameter = tuple != null && tuple.Item1 != null ? tuple.Item1 : genericParameter;
-            //        if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && keyResult && tuple != null && tuple.Item1 != null)
-            //        {
-            //            foreach (LayeredCacheConfig cacheConfig in insertToCacheConfig)
-            //            {
-            //                if (!TryInsert<T>(key, tuple, cacheConfig))
-            //                {
-            //                    log.ErrorFormat("Failed inserting key {0} to {1}", key, cacheConfig.Type.ToString());
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
 
-            //catch (Exception ex)
-            //{
-            //    log.Error(string.Format("Failed to get key {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", key,
-            //                            string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
-            //                            fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-            //                            funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
-            //}
+            return res;
+        }
 
-            //return res;
+        public bool SetInvalidationKey(string key, DateTime? updatedAt = null)
+        {
+            bool res = false;
+            try
+            {
+                long valueToUpdate = Utils.UnixTimeStampNow();
+                if (updatedAt.HasValue)
+                {
+                    valueToUpdate = Utils.DateTimeToUnixTimestamp(updatedAt.Value);
+                }
+
+                res = TrySetInValidationKey(key, valueToUpdate);
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed SetInvalidationKey, key: {0}, updatedAt: {1}", key, updatedAt.HasValue ? updatedAt.Value.ToString() : "null"), ex);
+            }
+
+            return res;
+        }
+
+        public bool SetLayeredCacheGroupConfig(int groupId, int? version = null, bool? shouldDisableLayeredCache = null,
+                                                List<string> layeredCacheSettingsToExclude = null, bool? shouldOverrideExistingExludeSettings = false)
+        {
+            bool res = false;
+            try
+            {
+                string key = GetLayeredCacheGroupConfigKey(groupId);
+                LayeredCacheGroupConfig groupConfig;
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
+                {
+                    if (version.HasValue)
+                    {
+                        groupConfig.Version = version.Value;
+                    }
+
+                    if (shouldDisableLayeredCache.HasValue)
+                    {
+                        groupConfig.DisableLayeredCache = shouldDisableLayeredCache.Value;
+                    }
+
+                    if (layeredCacheSettingsToExclude != null)
+                    {
+                        if (shouldOverrideExistingExludeSettings.HasValue && shouldOverrideExistingExludeSettings.Value)
+                        {
+                            groupConfig.LayeredCacheSettingsToExclude = new HashSet<string>(layeredCacheSettingsToExclude);
+                        }
+                        else
+                        {
+                            foreach (string keyToAdd in layeredCacheSettingsToExclude)
+                            {
+                                if (!groupConfig.LayeredCacheSettingsToExclude.Contains(keyToAdd))
+                                {
+                                    groupConfig.LayeredCacheSettingsToExclude.Add(keyToAdd);
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+                if (groupConfig != null)
+                {
+
+                    res = TrySetLayeredGroupCacheConfig(key, groupConfig);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed SetLayeredCacheGroupConfig, groupId: {0}, version: {1}, shouldDisableLayeredCache: {2}, layeredCacheSettingsToExclude: {3}", groupId, version,
+                                            shouldDisableLayeredCache, layeredCacheSettingsToExclude != null ? string.Join(",", layeredCacheSettingsToExclude) : "null"), ex);
+            }
+
+            return res;
+        }
+
+        public LayeredCacheGroupConfig GetLayeredCacheGroupConfig(int groupId)
+        {
+            LayeredCacheGroupConfig groupConfig = null;
+            try
+            {
+                string key = GetLayeredCacheGroupConfigKey(groupId);                
+                if (!TryGetLayeredCacheGroupConfig(groupId, out groupConfig, false))
+                {
+                    log.DebugFormat("Failed getting GetLayeredCacheGroupConfig for groupId: {0}", groupId);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetLayeredCacheGroupConfig, groupId: {0}", groupId), ex);
+            }
+
+            return groupConfig;
         }
 
         // Is it needed? or we will just change version value
-        public bool Remove(string key, string layeredCacheConfigName = null, string version = null)
+        public bool Remove(string key, int groupId, string layeredCacheConfigName = null, string version = null)
         {
-            List<string> keys = new List<string>() { key };
-            AddVersionOnKeys(ref keys, version);
-            key = keys.First();
             bool result = false;
-            List<LayeredCacheConfig> layeredCacheConfig = null;
+            List<LayeredCacheConfig> layeredCacheConfig;
             try
             {
-                if (GetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig))
+                if (TryGetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig))
                 {
                     result = true;
                     foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
-                        result = TryRemove(key, cacheConfig) && result;
+                        result = TryRemove(key, cacheConfig, groupId, version) && result;
                     }
                 }
                 else
@@ -173,7 +270,7 @@ namespace CachingProvider.LayeredCache
                 LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
                 if (layeredCacheTcmConfig != null && layeredCacheTcmConfig.BucketSettings != null && layeredCacheTcmConfig.BucketSettings.Count > 0)
                 {
-                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType.HasFlag(cacheType)).FirstOrDefault();
+                    LayeredCacheBucketSettings bucketSettings = layeredCacheTcmConfig.BucketSettings.Where(x => x.CacheType == cacheType).FirstOrDefault();
                     if (bucketSettings != null && bucketSettings.Bucket != eCouchbaseBucket.DEFAULT)
                     {
                         bucketName = bucketSettings.Bucket.ToString();
@@ -207,21 +304,24 @@ namespace CachingProvider.LayeredCache
             }
 
             return layeredCacheTcmConfig;
-        }        
+        }
 
         #endregion
 
         #region Private Methods
 
+        #region Get
+
         private bool TryGetFromCacheByConfig<T>(string key, ref Tuple<T, long> tupleResult, string layeredCacheConfigName, out List<LayeredCacheConfig> insertToCacheConfig,
-                                                Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters, List<string> inValidationKeys = null)
+                                                Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
+                                                int groupId, List<string> inValidationKeys = null)
         {
             bool result = false;
             List<LayeredCacheConfig> layeredCacheConfig = null;
             insertToCacheConfig = new List<LayeredCacheConfig>();
             try
             {
-                if (GetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig))
+                if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
                     List<long> inValidationKeysResult = null;
                     if (TryGetInValidationKeys(inValidationKeys, ref inValidationKeysResult))
@@ -230,7 +330,7 @@ namespace CachingProvider.LayeredCache
                         long maxInValidationKey = inValidationKeysResult != null && inValidationKeysResult.Count > 0 ? inValidationKeysResult.Max() + 1 : 0;
                         foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                         {
-                            if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig))
+                            if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig, groupId))
                             {
                                 if (tupleResult != null && tupleResult.Item2 > maxInValidationKey)
                                 {
@@ -242,24 +342,33 @@ namespace CachingProvider.LayeredCache
                             // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
                             insertToCacheConfig.Add(cacheConfig);
                         }
-
-                        if (!result)
-                        {
-                            Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
-                            tupleResult = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
-                            result = tuple.Item2;
-                            if (!result)
-                            {
-                                log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", key,
-                                                fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-                                                funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
-                            }
-                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Didn't go to cache because of InvalidationKeys for key: {0}, layeredCacheConfigName: {1}, groupId: {2}, invalidationKeys: {3}",
+                            key, layeredCacheConfigName, groupId, inValidationKeys != null ? string.Join(",", inValidationKeys) : "null");
                     }
                 }
                 else
                 {
-                    log.ErrorFormat("Failed getting LayeredCacheConfig for configName: {0}", layeredCacheConfigName);
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", key, layeredCacheConfigName, groupId);
+                }
+
+                if (!result && fillObjectMethod != null)
+                {
+                    Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
+                    if (tuple != null)
+                    {
+                        tupleResult = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
+                        result = tuple.Item2;
+                    }
+
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", key,
+                                        fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
+                    }
                 }
             }
 
@@ -273,72 +382,96 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        private bool TryGetValuesFromCacheByConfig<T>(List<string> keys, ref Dictionary<string, Tuple<T, long>> tupleResults, string layeredCacheConfigName, out Dictionary<string, List<LayeredCacheConfig>> insertToCacheConfig,
-                                                Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectsMethod, Dictionary<string, object> funcParameters, Dictionary<string, List<string>> inValidationKeysMap = null)
+        private bool TryGetValuesFromCacheByConfig<T>(List<string> keys, ref Dictionary<string, Tuple<T, long>> tupleResults, string layeredCacheConfigName,
+                                                        out Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfig, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
+                                                        Dictionary<string, object> funcParameters, int groupId, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
-            throw new NotImplementedException();
-            //bool result = false;
-            //List<LayeredCacheConfig> layeredCacheConfig = null;
-            //insertToCacheConfig = new Dictionary<string, List<LayeredCacheConfig>>();
-            //try
-            //{
-            //    if (GetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig))
-            //    {
-            //        foreach (string key in keys)
-            //        {
-            //            List<long> inValidationKeysResult = null;
-            //            string originalKeyValue = GetOriginalKeyValue(key);
-            //            List<string> inValidationKeys = inValidationKeysMap != null && inValidationKeysMap.ContainsKey(originalKeyValue) ? inValidationKeysMap[originalKeyValue] : null;
-            //            if (TryGetInValidationKeys(inValidationKeys, ref inValidationKeysResult))
-            //            {
-            //                long maxInValidationKey = inValidationKeysResult != null && inValidationKeysResult.Count > 0 ? inValidationKeysResult.Max() : 0;
-            //                foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
-            //                {
-            //                    if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig))
-            //                    {
-            //                        if (tupleResult != null && tupleResult.Item2 > maxInValidationKey)
-            //                        {
-            //                            result = true;
-            //                            break;
-            //                        }
-            //                    }
+            bool result = false;
+            List<LayeredCacheConfig> layeredCacheConfig = null;
+            insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
+            try
+            {
+                if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
+                {
+                    Dictionary<string, List<long>> inValidationKeysResultMap = null;
+                    if (TryGetInValidationKeysMapping(inValidationKeysMap, ref inValidationKeysResultMap))
+                    {
+                        foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
+                        {
+                            if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig, groupId) && tupleResults != null && tupleResults.Count > 0)
+                            {
+                                foreach (KeyValuePair<string, Tuple<T, long>> pair in tupleResults)
+                                {
+                                    // if inValidationKeysResult.Max() we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
+                                    long maxInValidationKey = inValidationKeysResultMap != null && inValidationKeysResultMap.Count > 0 && inValidationKeysResultMap.ContainsKey(pair.Key) ? inValidationKeysResultMap[pair.Key].Max() + 1 : 0;
+                                    if (pair.Value == null || pair.Value.Item1 == null || pair.Value.Item2 <= maxInValidationKey)
+                                    {
+                                        if (insertToCacheConfig.ContainsKey(cacheConfig))
+                                        {
+                                            insertToCacheConfig[cacheConfig].Add(pair.Key);
+                                        }
+                                        else
+                                        {
+                                            insertToCacheConfig.Add(cacheConfig, new List<string>() { pair.Key });
+                                        }
+                                    }
+                                }
 
-            //                    // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
-            //                    insertToCacheConfig.Add(cacheConfig);
-            //                }
+                                if (!insertToCacheConfig.ContainsKey(cacheConfig) || insertToCacheConfig[cacheConfig].Count == 0)
+                                {
+                                    result = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                // if result=true we won't get here (break) and if it isn't we need to insert all the keys into this cache later
+                                insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Didn't go to cache because of InvalidationKeys for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keys), layeredCacheConfigName, groupId);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keys), layeredCacheConfigName, groupId);
+                }
 
-            //                if (!result)
-            //                {
-            //                    Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
-            //                    tupleResult = new Tuple<T, long>(tuple.Item1, Utils.UnixTimeStampNow());
-            //                    result = tuple.Item2;
-            //                    if (!result)
-            //                    {
-            //                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", key,
-            //                                        fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-            //                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
-            //                    }
-            //                }
-            //            }
-            //        }
-            //    }
-            //    else
-            //    {
-            //        log.ErrorFormat("Failed getting LayeredCacheConfig for configName: {0}", layeredCacheConfigName);
-            //    }                
-            //}
+                if (!result)
+                {
+                    Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
+                    if (tuple != null)
+                    {
+                        result = tuple.Item2;
+                        if (tuple.Item1 != null)
+                        {
+                            tupleResults = tuple.Item1.ToDictionary(x => x.Key, x => new Tuple<T, long>(x.Value, Utils.UnixTimeStampNow()));
+                        }
+                    }
 
-            //catch (Exception ex)
-            //{
-            //    log.Error(string.Format("Failed TryGetFromCacheByConfig with key {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", key, GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
-            //            fillObjectMethod.Method != null ? fillObjectMethod.Method.Name : "No_Method_Name",
-            //            funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
-            //}
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", string.Join(",", keys),
+                                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
+                                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
+                    }
+                }
+            }
 
-            //return result;
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", string.Join(",", keys), GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
+                        fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
+                        funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
+            }
+
+            return result;
         }
 
-        private bool TryGetFromICachingService<T>(string key, ref Tuple<T, long> tupleResult, LayeredCacheConfig cacheConfig)
+        private bool TryGetFromICachingService<T>(string key, ref Tuple<T, long> tupleResult, LayeredCacheConfig cacheConfig, int groupId)
         {
             bool res = false;
             try
@@ -346,7 +479,11 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    res = cache.Get<Tuple<T, long>>(key, ref tupleResult);                    
+                    Dictionary<string, string> keysMapping = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
+                    if (keysMapping != null && keysMapping.Count > 0)
+                    {
+                        res = cache.Get<Tuple<T, long>>(keysMapping.Keys.First(), ref tupleResult);
+                    }
                 }
             }
 
@@ -358,58 +495,32 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TryInsert<T>(string key, Tuple<T, long> tuple, LayeredCacheConfig cacheConfig)
+        private bool TryGetValuesFromICachingService<T>(List<string> keys, ref Dictionary<string, Tuple<T, long>> tupleResultsMap, LayeredCacheConfig cacheConfig, int groupId)
         {
             bool res = false;
             try
             {
-                ICachingService cache = cacheConfig.GetICachingService();                                
-                if (cache != null)
-                {
-                    ulong version = 0;
-                    if (cacheConfig.Type.HasFlag(LayeredCacheType.CbCache | LayeredCacheType.CbMemCache))
-                    {
-                        
-                        Tuple<T, long> getResult = default(Tuple<T, long>);
-                        cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);
-                        
-                    }
-                    
-                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed TryInsert with key {0}, LayeredCacheTypes {1}", key,
-                                        GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
-            }
-
-            return res;
-
-        }
-
-        private bool TryRemove(string key, LayeredCacheConfig cacheConfig)
-        {
-            bool result = false;            
-            try
-            {
-                bool res = false;
                 ICachingService cache = cacheConfig.GetICachingService();
                 if (cache != null)
                 {
-                    res = cache.RemoveKey(key);
+                    Dictionary<string, string> keysMapping = GetVersionKeyToOriginalKeyMap(keys, groupId);
+                    if (keysMapping != null && keysMapping.Count > 0)
+                    {
+                        IDictionary<string, Tuple<T, long>> getResults = null;
+                        res = cache.GetValues<Tuple<T, long>>(keysMapping.Keys.ToList(), ref getResults, true);
+                        if (getResults != null)
+                        {
+                            tupleResultsMap = getResults.ToDictionary(x => keysMapping[x.Key], x => x.Value);
+                        }
+                    }
                 }
-
-                return res;
             }
-
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryRemove with key {0}, LayeredCacheTypes {1}", key, GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
+                log.Error(string.Format("Failed TryGetValuesFromICachingService with keys {0}, LayeredCacheTypes {1}", string.Join(",", keys), GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
             }
 
-            return result;
+            return res;
         }
 
         private bool TryGetInValidationKeys(List<string> keys, ref List<long> inValidationKeys)
@@ -431,8 +542,8 @@ namespace CachingProvider.LayeredCache
                 ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
                 if (cache != null)
                 {
-                    IDictionary<string, object> resultMap = cache.GetValues(keys);
-                    if (resultMap != null)
+                    IDictionary<string, long> resultMap = null;
+                    if (cache.GetValues<long>(keys, ref resultMap, true) && resultMap != null)
                     {
                         inValidationKeys = new List<long>();
                         foreach (object obj in resultMap.Values)
@@ -455,10 +566,43 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
-        }        
+        }
 
-        private bool GetLayeredCacheConfig(string configurationName, out List<LayeredCacheConfig> layeredCacheConfig)
-        {            
+        private bool TryGetInValidationKeysMapping(Dictionary<string, List<string>> keyMappings, ref Dictionary<string, List<long>> inValidationKeysMapping)
+        {
+            bool res = true;
+            try
+            {
+                if (keyMappings == null || keyMappings.Count == 0)
+                {
+                    return res;
+                }
+
+                inValidationKeysMapping = new Dictionary<string, List<long>>();
+                foreach (KeyValuePair<string, List<string>> pair in keyMappings)
+                {
+                    List<long> invalidationKeys = null;
+                    if (TryGetInValidationKeys(pair.Value, ref invalidationKeys))
+                    {
+                        inValidationKeysMapping.Add(pair.Key, invalidationKeys);
+                    }
+                    else
+                    {
+                        res = false;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetInValidationKeysMapping with keys {0}", keyMappings != null ? string.Join(",", keyMappings.Values) : ""), ex);
+            }
+
+            return res;
+        }
+
+        private bool TryGetLayeredCacheConfig(string configurationName, out List<LayeredCacheConfig> layeredCacheConfig)
+        {
             layeredCacheConfig = null;
             try
             {
@@ -478,43 +622,161 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetLayeredCacheConfig for configurationName: {0}", configurationName), ex);
+                log.Error(string.Format("Failed TryGetLayeredCacheConfig for configurationName: {0}", configurationName), ex);
             }
 
             return layeredCacheConfig != null;
-        }        
-
-        private void AddVersionOnKeys(ref List<string> keys, string versionToAdd = null)
-        {
-            string versionValue = string.Empty;
-            if (!string.IsNullOrEmpty(versionToAdd))
-            {
-                versionValue = versionToAdd;
-            }
-            else
-            {
-                LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
-                versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;               
-            }
-
-            if (!string.IsNullOrEmpty(versionValue))
-            {
-                keys = keys.Select(x => string.Format("{0}_V{1}", x, versionValue)).ToList();
-            }
         }
 
-        private string GetOriginalKeyValue(string key)
+        private bool TryGetLayeredCacheGroupConfig(int groupId, out LayeredCacheGroupConfig groupConfig, bool shouldCreateIfNoneExists = true)
         {
-            string originalKey = key;
-            string versionValue = string.Empty;
-            LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
-            versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
-            if (!string.IsNullOrEmpty(versionValue))
+            bool res = false;
+            groupConfig = null;
+            string key = GetLayeredCacheGroupConfigKey(groupId);
+            try
             {
-                originalKey.Replace(string.Format("_V{1}", versionValue), "");
+                List<LayeredCacheConfig> GroupCacheSettings = GetLayeredCacheTcmConfig().GroupCacheSettings;
+                List<LayeredCacheConfig> insertToCacheConfig = new List<LayeredCacheConfig>();
+                if (GroupCacheSettings == null)
+                {
+                    return res;
+                }
+
+                foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
+                {
+                    ICachingService cache = cacheConfig.GetICachingService();
+                    if (cache != null)
+                    {                        
+                        if (cache.Get<LayeredCacheGroupConfig>(key, ref groupConfig) && groupConfig != null)
+                        {
+                            res = true;
+                            break;
+                        }
+
+                        // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
+                        insertToCacheConfig.Add(cacheConfig);
+                    }
+                }
+
+                if (res && groupConfig != null && insertToCacheConfig != null && insertToCacheConfig.Count > 0)
+                {
+                    if (!TrySetLayeredGroupCacheConfig(key, groupConfig, insertToCacheConfig))
+                    {
+                        log.ErrorFormat("Failed inserting LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
+                    }
+                }
+
+                if (shouldCreateIfNoneExists && !res && groupConfig == null)
+                {
+                    groupConfig = new LayeredCacheGroupConfig()
+                    {
+                        GroupId = groupId,
+                        Version = 0,
+                        DisableLayeredCache = false,
+                        LayeredCacheSettingsToExclude = new HashSet<string>()
+                    };
+
+                    res = TrySetLayeredGroupCacheConfig(key, groupConfig, insertToCacheConfig);
+                    if (!res)
+                    {
+                        log.ErrorFormat("Failed inserting Default LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
+                    }
+                }
+
             }
 
-            return originalKey;
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryGetLayeredCacheGroupConfig for groupId: {0}", groupId), ex);
+            }
+
+            return res;
+        }
+
+        private Dictionary<string, string> GetVersionKeyToOriginalKeyMap(List<string> keys, int groupId, string versionToAdd = null)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>();
+            string versionValue = string.Empty;
+            try
+            {
+                if (!string.IsNullOrEmpty(versionToAdd))
+                {
+                    versionValue = versionToAdd;
+                }
+                else
+                {
+                    LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
+                    versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
+                }
+
+                List<string> distinctKeys = keys.Distinct().ToList();
+                LayeredCacheGroupConfig groupConfig;
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null)
+                {                    
+                    if (!string.IsNullOrEmpty(versionValue))
+                    {
+                        res = distinctKeys.ToDictionary(x => string.Format("{0}_GV{1}_V{2}", x, groupConfig.Version, versionValue), x => x);
+                    }
+                    else
+                    {
+                        res = distinctKeys.ToDictionary(x => string.Format("{0}_GV{1}", x, groupConfig.Version), x => x);
+                    }
+                }
+                else
+                {
+                    res = distinctKeys.ToDictionary(x => x, x => x);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetVersionKeyToOriginalKeyMap for the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return res;
+        }
+
+        private Dictionary<string, string> GetOriginalKeyToVersionKeyMap(List<string> keys, int groupId, string versionToAdd = null)
+        {
+            Dictionary<string, string> res = new Dictionary<string, string>();
+            string versionValue = string.Empty;
+            try
+            {
+                if (!string.IsNullOrEmpty(versionToAdd))
+                {
+                    versionValue = versionToAdd;
+                }
+                else
+                {
+                    LayeredCacheTcmConfig layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
+                    versionValue = layeredCacheTcmConfig != null ? layeredCacheTcmConfig.Version : string.Empty;
+                }
+
+                List<string> distinctKeys = keys.Distinct().ToList();
+                LayeredCacheGroupConfig groupConfig;
+                if (TryGetLayeredCacheGroupConfig(groupId, out groupConfig) && groupConfig != null)
+                {
+                    if (!string.IsNullOrEmpty(versionValue))
+                    {
+                        res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_GV{1}_V{2}", x, groupConfig.Version, versionValue));
+                    }
+                    else
+                    {
+                        res = distinctKeys.ToDictionary(x => x, x => string.Format("{0}_GV{1}", x, groupConfig.Version));
+                    }
+                }
+                else 
+                {
+                    res = distinctKeys.ToDictionary(x => x, x => x);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetOriginalKeyToVersionKeyMap for the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return res;
         }
 
         private string GetLayeredCacheConfigTypesForLog(List<LayeredCacheConfig> layeredCacheConfig)
@@ -529,7 +791,186 @@ namespace CachingProvider.LayeredCache
             }
         }
 
+        private string GetLayeredCacheGroupConfigKey(int groupId)
+        {
+            return string.Format("layeredCacheGroupConfig_{0}", groupId);
+        }
+
         #endregion
-              
+
+        #region Insert
+
+        private bool TryInsert<T>(string key, Tuple<T, long> tuple, LayeredCacheConfig cacheConfig)
+        {
+            bool res = false;
+            try
+            {
+                ICachingService cache = cacheConfig.GetICachingService();
+                if (cache != null)
+                {
+                    ulong version = 0;
+                    if (cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache)
+                    {
+
+                        Tuple<T, long> getResult = default(Tuple<T, long>);
+                        cache.GetWithVersion<Tuple<T, long>>(key, out version, ref getResult);                        
+                    }
+
+                    res = cache.SetWithVersion<Tuple<T, long>>(key, tuple, version, cacheConfig.TTL);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryInsert with key {0}, LayeredCacheTypes {1}", key,
+                                        GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
+            }
+
+            return res;
+
+        }        
+
+        #endregion
+
+        #region Set
+
+        private bool TrySetInValidationKey(string key, long valueToUpdate)
+        {
+            bool res = false;
+            try
+            {
+                if (string.IsNullOrEmpty(key))
+                {
+                    return res;
+                }
+
+                LayeredCacheConfig invalidationKeyCacheConfigSettings = GetLayeredCacheTcmConfig().InvalidationKeySettings;
+                if (invalidationKeyCacheConfigSettings == null)
+                {
+                    return res;
+                }
+
+                ICachingService cache = invalidationKeyCacheConfigSettings.GetICachingService();
+                if (cache != null)
+                {
+                    ulong version = 0;
+                    long getResult = 0;
+                    cache.GetWithVersion<long>(key, out version, ref getResult);
+                    res = cache.SetWithVersion<long>(key, valueToUpdate, version, invalidationKeyCacheConfigSettings.TTL);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TrySetInValidationKey with key {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        private bool TrySetLayeredGroupCacheConfig(string key, LayeredCacheGroupConfig groupConfig, List<LayeredCacheConfig> layeredCacheConfig = null)
+        {
+            bool res = false;
+
+            try
+            {
+                if (string.IsNullOrEmpty(key))
+                {
+                    return res;
+                }
+
+                List<LayeredCacheConfig> GroupCacheSettings = layeredCacheConfig == null || layeredCacheConfig.Count == 0 ? GetLayeredCacheTcmConfig().GroupCacheSettings : layeredCacheConfig;
+                if (GroupCacheSettings == null)
+                {
+                    return res;
+                }
+
+                bool insertResult = true;
+                foreach (LayeredCacheConfig cacheConfig in GroupCacheSettings)
+                {
+                    ICachingService cache = cacheConfig.GetICachingService();
+                    if (cache != null)
+                    {
+                        ulong version = 0;
+                        if (cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache)
+                        {
+
+                            LayeredCacheGroupConfig getResult = null;
+                            cache.GetWithVersion<LayeredCacheGroupConfig>(key, out version, ref getResult);
+
+                        }
+
+                        insertResult = insertResult && cache.SetWithVersion<LayeredCacheGroupConfig>(key, groupConfig, version, cacheConfig.TTL);
+                    }
+                }
+
+                res = insertResult;
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TrySetLayeredGroupCacheConfig with key {0}", key), ex);
+            }
+
+            return res;
+        }
+
+        #endregion
+
+        #region Remove
+
+        private bool TryRemove(string key, LayeredCacheConfig cacheConfig, int groupId, string version = null)
+        {
+            bool result = false;
+            try
+            {
+                bool res = false;
+                ICachingService cache = cacheConfig.GetICachingService();
+                if (cache != null)
+                {
+                    Dictionary<string, string> keyMappings = GetVersionKeyToOriginalKeyMap(new List<string>() { key }, groupId);
+                    if (keyMappings != null && keyMappings.Count > 0)
+                    {
+                        res = cache.RemoveKey(keyMappings.Keys.First());
+                    }
+                }
+
+                return res;
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed TryRemove with key {0}, LayeredCacheTypes {1}", key, GetLayeredCacheConfigTypesForLog(new List<LayeredCacheConfig>() { cacheConfig }), ex));
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Other
+
+        private bool ShouldGoToCache(string layeredCacheConfigName, int groupId, ref List<LayeredCacheConfig> layeredCacheConfig)
+        {
+            bool res = false;
+            try
+            {
+                LayeredCacheGroupConfig layeredCacheGroupConfig;
+                res = TryGetLayeredCacheConfig(layeredCacheConfigName, out layeredCacheConfig) && TryGetLayeredCacheGroupConfig(groupId, out layeredCacheGroupConfig)
+                        && !layeredCacheGroupConfig.DisableLayeredCache && !layeredCacheGroupConfig.LayeredCacheSettingsToExclude.Contains(layeredCacheConfigName);
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed ShouldGoToCache with layeredCacheConfigName {0}, groupId {1}", layeredCacheConfigName, groupId), ex);
+            }
+
+            return res;
+        }
+
+        #endregion
+
+        #endregion
+
     }
 }

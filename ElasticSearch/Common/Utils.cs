@@ -78,9 +78,9 @@ namespace ElasticSearch.Common
         /// </summary>
         /// <param name="values"></param>
         /// <returns></returns>
-        public static string ReplaceDocumentReservedCharacters(ref string values)
+        public static string ReplaceDocumentReservedCharacters(ref string values, bool toLower = true)
         {
-            return Replace(ref values, m_dicDocumentReservedCharacters);
+            return Replace(ref values, m_dicDocumentReservedCharacters, toLower);
         }
 
         /// <summary>
@@ -93,21 +93,28 @@ namespace ElasticSearch.Common
             return Replace(ref values, m_dicQueryReservedCharacters);
         }
 
-        private static string Replace(ref string p_sValue, Dictionary<string, string> p_dicReplacements)
+        private static string Replace(ref string value, Dictionary<string, string> replacements, bool toLower = true)
         {
-            if (string.IsNullOrEmpty(p_sValue))
+            if (string.IsNullOrEmpty(value))
             {
-                return p_sValue;
+                return value;
             }
 
-            StringBuilder sb = new StringBuilder(p_sValue, p_sValue.Length * 2);
+            StringBuilder stringBuilder = new StringBuilder(value, value.Length * 2);
 
-            foreach (var kvpEscapeChar in p_dicReplacements)
+            foreach (var escapeChar in replacements)
             {
-                sb.Replace(kvpEscapeChar.Key, kvpEscapeChar.Value);
+                stringBuilder.Replace(escapeChar.Key, escapeChar.Value);
             }
 
-            return sb.ToString().ToLower();
+            string result = stringBuilder.ToString();
+            
+            if (toLower)
+            {
+                result = result.ToLower();
+            }
+
+            return result;
         }
 
         public static string GetKeyNameWithPrefix(string sKey, string sPrefix)
@@ -196,5 +203,66 @@ namespace ElasticSearch.Common
 
             return result;
         }
+
+        public static T ExtractValueFromToken<T>(JToken item, string fieldName)
+        {
+            T result = default(T);
+
+            JToken tempToken = null;
+
+            try
+            {
+                tempToken = item[fieldName];
+            }
+            catch
+            {
+            }
+
+            if (tempToken == null)
+            {
+                tempToken = item.SelectToken(fieldName);
+            }
+
+            result = ExtractValueFromToken<T>(tempToken);
+
+            return result;
+        }
+
+        public static T ExtractValueFromToken<T>(JToken tempToken)
+        {
+            T result = default(T);
+
+            JArray tempArray = null;
+
+            if (tempToken != null)
+            {
+                tempArray = tempToken as JArray;
+
+                if (tempArray != null && tempArray.Count > 0)
+                {
+                    result = tempArray[0].ToObject<T>();
+                }
+                else
+                {
+                    result = tempToken.ToObject<T>();
+                }
+            }
+
+            return result;
+        }
+
+        public static DateTime ExtractDateFromToken(JToken item, string fieldName)
+        {
+            DateTime result = new DateTime(1970, 1, 1, 0, 0, 0);
+            string dateString = ExtractValueFromToken<string>(item, fieldName);
+
+            if (!string.IsNullOrEmpty(dateString))
+            {
+                result = DateTime.ParseExact(dateString, ES_DATE_FORMAT, null);
+            }
+
+            return result;
+        }
+
     }
 }

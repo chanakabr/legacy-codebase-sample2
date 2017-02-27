@@ -1530,6 +1530,31 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
+        {
+            bool res = false;
+            try
+            {
+                results = GetValues<T>(keys, shouldAllowPartialQuery);
+                if (results != null)
+                {
+                    if (shouldAllowPartialQuery)
+                    {
+                        res = true;
+                    }
+                    else
+                    {
+                        res = keys.Count == results.Count;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetValues<T> from CB while getting the following keys: {0}", string.Join(",", keys)), ex);
+            }
+
+            return res;
+        }
 
         #region View Methods
 
@@ -1746,5 +1771,7 @@ namespace CouchbaseManager
         }
 
         #endregion
+
+
     }
 }

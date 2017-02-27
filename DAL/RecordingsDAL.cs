@@ -1333,5 +1333,60 @@ namespace DAL
 
             return result;
         }
+
+        public static bool UpdateDomainUsedQuota(long domainId, int quota, int defaultQuota, bool shouldForceUpdate = true)
+        {
+            bool result = false;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            string domainQuotaKey = UtilsDal.GetDomainQuotaKey(domainId);
+            if (string.IsNullOrEmpty(domainQuotaKey))
+            {
+                log.ErrorFormat("Failed getting domainQuotaKey for domainId: {0}", domainId);
+                return result;
+            }
+            
+            try
+            {
+                int numOfRetries = 0;
+                while (!result && numOfRetries < limitRetries)
+                {
+                    ulong version;
+                    Couchbase.IO.ResponseStatus status;
+                    DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
+                    if (status == Couchbase.IO.ResponseStatus.Success)
+                    {
+                        int total = domainQuota.Total == 0 ? defaultQuota : domainQuota.Total;
+                        if (shouldForceUpdate || total - domainQuota.Used >= quota)
+                        {
+                            domainQuota.Used += quota;
+                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
+                        }
+                    }
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        if (shouldForceUpdate || defaultQuota >= quota)
+                        {
+                            domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
+                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
+                        }
+                    }
+
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.ErrorFormat("Error while adding quota to domain. number of tries: {0}/{1}. domainId: {2}, domainQuota : {3}", numOfRetries, limitRetries, domainId, domainQuota.ToString());
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding quota to domain, domainId: {0}, quota: {1}, ex: {2}", domainId, quota, ex);
+            }
+
+            return result;
+        }
     }
 }

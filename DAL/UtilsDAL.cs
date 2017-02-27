@@ -25,7 +25,6 @@ namespace DAL
             //throw new NotImplementedException();
         }
 
-
         public static DataRow GetModuleImpementationID(int nGroupID, int moduleID, string connectionKey)
         {
             DataRow ret = null;
@@ -752,133 +751,9 @@ namespace DAL
             return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
         }
 
-        public static string GetCheckGeoBlockMediaKey(int groupID, int mediaID)
-        {
-            return string.Format("groupId_{0}_mediaId_{1}", groupID, mediaID);
-        }
-
-        public static string GetIsMediaExistsToUserTypeKey(int mediaID, int userTypeID)
-        {
-            return string.Format("mediaId_{0}_userTypeId_{1}", mediaID, userTypeID);
-        }
-
-        public static string GetFileAndMediaBasicDetailsKey(int fileID)
-        {
-            return string.Format("validate_fileId_{0}", fileID);
-        }
-
-        public static string GetFileCoGuidKey(string coGuid)
-        {
-            return string.Format("fileCoGuid_{0}", coGuid);
-        }
         public static string MediaIdGroupFileTypesKey(int mediaID)
         {
             return string.Format("media_group_file_type_{0}", mediaID.ToString());
-        }
-
-        public static string GetGroupMediaConcurrencyRules(int groupID)
-        {
-            return string.Format("group_{0}_media_concurrency_rules", groupID);
-        }
-
-        public static string GetMediaConcurrencyRules(int mediaId)
-        {
-            return string.Format("media_{0}_concurrency_rules", mediaId);
-        }
-
-        public static string GetChannelsContainingMediaKey(int mediaId)
-        {
-            return string.Format("channels_containing_media_{0}", mediaId);
-        }
-
-        public static string GetGroupCdnSettingsKey(int groupId)
-        {
-            return string.Format("group_{0}_cdn_settings", groupId);
-        }
-
-        public static string GetCDNAdapterKey(int groupId, int defaultAdapterId)
-        {
-            return string.Format("group_{0}_cdn_default_adapter_{1}", groupId, defaultAdapterId);
-        }
-
-        public static string GetGroupParentalRulesKey(int groupId)
-        {
-            return string.Format("parental_rules_group_{0}", groupId);
-        }
-
-        public static string GetUserParentalRulesKey(int groupId, string siteGuid)
-        {
-            return string.Format("parental_rules_user_{0}_group_{1}", siteGuid, groupId);
-        }
-
-        public static string GetMediaParentalRulesKey(int groupId, long mediaId)
-        {
-            return string.Format("parental_rules_media_{0}_group_{1}", mediaId, groupId);
-        }
-
-        public static string GetLastUseWithCreditForDomainKey(int groupId, long domainId, int mediaId)
-        {
-            return string.Format("domainPlayUses_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
-        }
-
-        public static string GetLastUseWithCreditForDomainInvalidationKey(int groupId, long domainId, int mediaId)
-        {
-            return string.Format("domainPlayUses_InvalidationKey_groupId_{0}_domainId_{1}_mediaId_{2}", groupId, domainId, mediaId);
-        }
-
-
-        public static Tuple<int, bool> Get_MediaFileIDByCoGuid(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            int mediaFileID = 0;
-            Dictionary<string, int> result = new Dictionary<string, int>();
-            try
-            {
-                int? groupID = 0;
-                string coGuid = string.Empty;
-                if (funcParams.ContainsKey("groupID"))
-                {
-                    groupID = funcParams["groupID"] as int?;
-                }
-                if (funcParams.ContainsKey(coGuid))
-                {
-                    coGuid = funcParams["coGuid"].ToString();
-                }
-                if (groupID > 0 && !string.IsNullOrEmpty(coGuid))
-                {
-                    res = ConditionalAccessDAL.Get_MediaFileIDByCoGuid(coGuid, groupID.Value, ref mediaFileID);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Get_MediaFileIDByCoGuid faild params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-            return new Tuple<int, bool>(mediaFileID, res);
-        }
-
-
-        public static Tuple<Dictionary<string, Dictionary<string, int>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
-        {
-            bool res = false;
-            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
-            try
-            {
-                if (funcParams.ContainsKey("mediaIDs"))
-                {
-                    int[] mediaIDs;
-                    mediaIDs = funcParams["mediaIDs"] != null ? funcParams["mediaIDs"] as int[] : null;
-                    if (mediaIDs != null)
-                    {
-                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIDs);
-                        res = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-            return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
         }
 
     }
