@@ -2758,12 +2758,18 @@ namespace ConditionalAccess
                             if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
                             {
                                 price = priceModule.GetPriceCodeDataByCountyAndCurrency(wsUserName, waPass, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-                                externalDisount = priceModule.GetDiscountCodeDataByCountryAndCurrency(wsUserName, waPass, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                                if (AppUsageModule.m_ext_discount_id > 0)
+                                {
+                                    externalDisount = priceModule.GetDiscountCodeDataByCountryAndCurrency(wsUserName, waPass, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                                }
                             }
                             else
                             {
                                 price = priceModule.GetPriceCodeData(wsUserName, waPass, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
-                                externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
+                                if (AppUsageModule.m_ext_discount_id > 0)
+                                {
+                                    externalDisount = priceModule.GetDiscountCodeData(wsUserName, waPass, AppUsageModule.m_ext_discount_id.ToString());
+                                }
                             }
 
                             if (price == null)
@@ -2771,19 +2777,20 @@ namespace ConditionalAccess
                                 throw new Exception(string.Format("PriceCode is null for priceCodeId: {0}, previousPurchaseCurrencyCode: {1}", AppUsageModule.m_pricing_id,
                                                                     !string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty));
                             }
-                            
+
+                            PriceCode clonedPrice = TVinciShared.ObjectCopier.Clone<PriceCode>(price);
                             if (externalDisount != null)
                             {
-                                Price priceAfterDiscount = Utils.GetPriceAfterDiscount(price.m_oPrise, externalDisount, 1);
+                                Price priceAfterDiscount = Utils.GetPriceAfterDiscount(clonedPrice.m_oPrise, externalDisount, 1);
                                 priceValue = priceAfterDiscount.m_dPrice;
                                 oCurrency = priceAfterDiscount.m_oCurrency;
                                 sCurrency = priceAfterDiscount.m_oCurrency.m_sCurrencyCD3;
                             }
                             else
                             {
-                                priceValue = price.m_oPrise.m_dPrice;
-                                oCurrency = price.m_oPrise.m_oCurrency;
-                                sCurrency = price.m_oPrise.m_oCurrency.m_sCurrencyCD3;
+                                priceValue = clonedPrice.m_oPrise.m_dPrice;
+                                oCurrency = clonedPrice.m_oPrise.m_oCurrency;
+                                sCurrency = clonedPrice.m_oPrise.m_oCurrency.m_sCurrencyCD3;
                             }
 
                             HandleRecurringCoupon(purchaseId, subscription, totalPaymentsNumber, oCurrency, isPurchasedWithPreviewModule, ref priceValue, ref couponCode);
@@ -2807,7 +2814,7 @@ namespace ConditionalAccess
                             isMPPRecurringInfinitely = subscription.m_bIsInfiniteRecurring;
                             maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
-                            customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, price, subscription.m_SubscriptionCode,
+                            customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
                                 siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
                                 string.Empty, string.Empty, compensation);
                         }
@@ -5598,7 +5605,7 @@ namespace ConditionalAccess
                             case eBundleType.SUBSCRIPTION:
                                 {
                                     Subscription theSub = null;
-                                    price = Utils.GetSubscriptionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                                    price = Utils.GetSubscriptionFinalPrice(m_nGroupID, sBundleCode, sSiteGUID, sCouponCode, ref theReason, ref theSub, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sUserIP, sCurrency);
                                     theBundle = theSub;
                                     break;
                                 }
@@ -6689,7 +6696,7 @@ namespace ConditionalAccess
             bool bCancellationWindow = false;
             string countryCode = string.Empty;
             try
-            {                
+            {
                 MediaFilePPVContainer[] oModules = null;
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sAPIUsername, ref sAPIPassword);
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
@@ -6730,7 +6737,7 @@ namespace ConditionalAccess
                     {
                         isValidCurrencyCode = true;
                     }
-                }                
+                }
 
                 foreach (int mf in notForPurchaseFiles)
                 {
@@ -6845,8 +6852,11 @@ namespace ConditionalAccess
                                     }
                                     else
                                     {                                        
-                                        ppvModules[j].PPVModule.m_oPriceCode = priceCodeWithCurrency;
-                                        ppvModules[j].PPVModule.m_oDiscountModule =  discountModuleWithCurrency;
+                                        ppvModules[j].PPVModule.m_oPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
+                                        if (shouldCheckDiscountModule)
+                                        {
+                                            ppvModules[j].PPVModule.m_oDiscountModule = TVinciShared.ObjectCopier.Clone<DiscountModule>(discountModuleWithCurrency);
+                                        }
                                     }
                                 }
 

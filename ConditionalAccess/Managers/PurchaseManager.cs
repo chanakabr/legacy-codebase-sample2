@@ -343,8 +343,8 @@ namespace ConditionalAccess
                 bool isGiftCard = false;
                 Price priceResponse = null;
 
-                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode, 
-                    ref priceReason,  ref subscription, country, string.Empty, deviceName);
+                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
+                    ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency);
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&

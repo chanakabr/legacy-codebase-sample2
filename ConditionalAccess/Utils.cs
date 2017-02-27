@@ -1255,7 +1255,7 @@ namespace ConditionalAccess
                             PriceCode priceCodeWithCurrency = pricingModule.GetPriceCodeDataByCountyAndCurrency(sWSUserName, sWSPass, theSub.m_oSubscriptionPriceCode.m_nObjectID, countryCode, currencyCode);
                             if (priceCodeWithCurrency != null)
                             {
-                                theSub.m_oSubscriptionPriceCode = priceCodeWithCurrency;
+                                theSub.m_oSubscriptionPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
                             }
                             else
                             {
@@ -1299,7 +1299,7 @@ namespace ConditionalAccess
 
                         CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
                         if (externalDisount != null)
-                        {                            
+                        {
                             price = GetPriceAfterDiscount(price, externalDisount, 1);
                         }
 
@@ -1522,8 +1522,8 @@ namespace ConditionalAccess
 
         internal static Price GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
                                                                                        ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
-                                                                                       ref PrePaidModule relevantPP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
-                                                                                       bool shouldIgnoreBundlePurchases = false)
+                                                                                       ref PrePaidModule relevantPP, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                                                                       bool shouldIgnoreBundlePurchases = false, string ip = null, string currencyCode = null)
         {
             Dictionary<int, int> mediaFileTypesMapping = null;
             List<int> allUsersInDomain = null;
@@ -1546,6 +1546,21 @@ namespace ConditionalAccess
             {
                 theReason = PriceReason.NotForPurchase;
                 return null;
+            }
+
+            bool isValidCurrencyCode = false;
+            // Validate currencyCode if it was passed in the request
+            if (!string.IsNullOrEmpty(currencyCode))
+            {
+                if (!Utils.IsValidCurrencyCode(nGroupID, currencyCode))
+                {
+                    theReason = PriceReason.InvalidCurrency;
+                    return new Price();
+                }
+                else
+                {
+                    isValidCurrencyCode = true;
+                }
             }
 
             if (nMediaFileID > 0)
@@ -1583,6 +1598,36 @@ namespace ConditionalAccess
             DateTime? dtStartDate = null;
             DateTime? dtEndDate = null;
             DateTime? dtDiscountEndDate = null;
+
+            if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(nGroupID, ref currencyCode))
+            {
+                using (mdoule objPricingModule = new mdoule())
+                {
+                    countryCode = GetIP2CountryCode(nGroupID, ip);
+                    PriceCode priceCodeWithCurrency = objPricingModule.GetPriceCodeDataByCountyAndCurrency(sPricingUsername, sPricingPassword, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
+                    bool shouldCheckDiscountModule = false;
+                    DiscountModule discountModuleWithCurrency = null;
+                    if (ppvModule.m_oDiscountModule != null)
+                    {
+                        discountModuleWithCurrency = objPricingModule.GetDiscountCodeDataByCountryAndCurrency(sPricingUsername, sPricingPassword, ppvModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
+                        shouldCheckDiscountModule = true;
+                    }
+
+                    if (priceCodeWithCurrency == null || (shouldCheckDiscountModule && discountModuleWithCurrency == null))
+                    {
+                        theReason = PriceReason.CurrencyNotDefinedOnPriceCode;
+                        return new Price();
+                    }
+                    else
+                    {
+                        ppvModule.m_oPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
+                        if (shouldCheckDiscountModule)
+                        {
+                            ppvModule.m_oDiscountModule = TVinciShared.ObjectCopier.Clone<DiscountModule>(discountModuleWithCurrency);
+                        }
+                    }
+                }
+            }
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
