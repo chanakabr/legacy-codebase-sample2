@@ -9,13 +9,13 @@ namespace ApiObjects
     [Serializable]
     public abstract class CoreObject
     {
-        protected int GroupId
+        public int GroupId
         {
             get;
             set;
         }
 
-        protected long Id
+        public long Id
         {
             get;
             set;

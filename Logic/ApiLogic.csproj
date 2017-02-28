@@ -583,6 +583,7 @@
     <Compile Include="Users\DeviceResponseObject.cs" />
     <Compile Include="Users\DLMResponse.cs" />
     <Compile Include="Users\Domain.cs" />
+    <Compile Include="Users\DomainDevice.cs" />
     <Compile Include="Users\DomainFactory.cs" />
     <Compile Include="Users\DomainInfo.cs" />
     <Compile Include="Users\DomainResponse.cs" />

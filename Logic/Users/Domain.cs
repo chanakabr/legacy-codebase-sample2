@@ -16,6 +16,7 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
 using CachingProvider.LayeredCache;
+using Users;
 
 namespace Core.Users
 {
@@ -164,7 +165,7 @@ namespace Core.Users
             m_oLimitationsManager = new LimitationsManager();
 
             m_oUDIDToDeviceFamilyMapping = new Dictionary<string, int>();
-            
+
         }
 
         public Domain(int nDomainID)
@@ -582,9 +583,18 @@ namespace Core.Users
             if (bDeviceExist)
             {
                 // set is_Active = 2; status = 2
-                bool bUpdate = DomainDal.UpdateDomainsDevicesStatus(m_nDomainID, m_nGroupID, sUDID, 2, 2);
+                DomainDevice domainDevice = new DomainDevice()
+                {
+                    Udid = sUDID,
+                    DeviceId = nDeviceID,
+                    GroupId = m_nGroupID,
+                    DomainId = m_nDomainID,
+                };
 
-                if (!bUpdate)
+                bool deleted = domainDevice.Delete();
+                //bool bUpdate = DomainDal.UpdateDomainsDevicesStatus(m_nDomainID, m_nGroupID, sUDID, 2, 2);
+
+                if (!deleted)
                 {
                     log.Debug("RemoveDeviceFromDomain - " + String.Format("Failed to update domains_device table. Status=2, Is_Active=2, ID in m_nDomainID={0}, sUDID={1}", m_nDomainID, sUDID));
                     return DomainResponseStatus.Error;
@@ -607,9 +617,9 @@ namespace Core.Users
                 if (bDeleteDevice)
                 {
                     // set is_Active = 2; status = 2
-                    bUpdate = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
+                    deleted = DomainDal.UpdateDeviceStatus(nDeviceID, 2, 2);
 
-                    if (!bUpdate)
+                    if (!deleted)
                     {
                         return DomainResponseStatus.Error;
                     }
@@ -1487,7 +1497,7 @@ namespace Core.Users
             int nDeviceRestriction = 0;
             int nGroupConcurrentLimit = 0;
             int regionId = 0;
-          
+
             DomainSuspentionStatus eSuspendStat = DomainSuspentionStatus.OK;
 
             bool res = DomainDal.GetDomainSettings(nDomainID, nGroupID, ref sName, ref sDescription, ref nDeviceLimitationModule, ref nDeviceLimit,
@@ -1858,9 +1868,24 @@ namespace Core.Users
             bRemoveDomain = true;
 
             string sActivationToken = Guid.NewGuid().ToString();
-            nDeviceDomainRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 3, 3, sActivationToken);
 
-            if (nDeviceDomainRecordID > 0)
+            DomainDevice domainDevice = new DomainDevice()
+            {
+                ActivataionStatus = DeviceState.Pending,
+                ActivationToken = sActivationToken,
+                DeviceBrandId = device.m_deviceBrandID,
+                DeviceId = deviceID,
+                DomainId = device.m_domainID,
+                Name = device.m_deviceName,
+                Udid = sDeviceUdid,
+                GroupId = m_nGroupID,
+            };
+
+            bool domainDeviceInsertSuccess = domainDevice.Insert();
+
+            //nDeviceDomainRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 3, 3, sActivationToken);
+
+            if (domainDeviceInsertSuccess && domainDevice.Id > 0)
             {
                 device.m_state = DeviceState.Pending;
                 container.AddDeviceInstance(device);
@@ -2313,7 +2338,20 @@ namespace Core.Users
                     // Pending master approval
                     if (status == 3 && isDevActive == 3)
                     {
-                        bool updated = DomainDal.UpdateDomainsDevicesStatus(nDbDomainDeviceID, 1, 1);
+                        DomainDevice domainDevice = new DomainDevice()
+                        {
+                            Id = nDbDomainDeviceID,
+                            ActivataionStatus = DeviceState.Activated,
+                            DeviceBrandId = brandID,
+                            DeviceId = tempDeviceID,
+                            DomainId = nDomainID,
+                            Name = deviceName,
+                            Udid = sUDID,
+                            ActivatedOn = DateTime.UtcNow,
+                            GroupId = m_nGroupID,
+                        };
+
+                        bool updated = domainDevice.Update();
                         if (updated)
                         {
                             eRetVal = DomainResponseStatus.OK;
@@ -2354,10 +2392,23 @@ namespace Core.Users
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
                 int deviceID = device.Save(1);
+                DomainDevice domainDevice = new DomainDevice()
+                {
+                    ActivataionStatus = DeviceState.Activated,
+                    DeviceId = deviceID,
+                    DomainId = m_nDomainID,
+                    DeviceBrandId = brandID,
+                    ActivatedOn = DateTime.UtcNow,
+                    Udid = sUDID,
+                    GroupId = m_nGroupID,
+                    Name = deviceName,
+                };
 
-                int domainDeviceRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 1, 1);
+                bool domainDeviceInsertSuccess = domainDevice.Insert();
 
-                if (domainDeviceRecordID > 0)
+                //int domainDeviceRecordID = DomainDal.InsertDeviceToDomain(deviceID, m_nDomainID, m_nGroupID, 1, 1);
+
+                if (domainDeviceInsertSuccess && domainDevice.Id > 0)
                 {
                     device.m_state = DeviceState.Activated;
                     m_oDeviceFamiliesMapping[device.m_deviceFamilyID].AddDeviceInstance(device);
@@ -2376,8 +2427,19 @@ namespace Core.Users
                 //Update device status if exists
                 if (isActive != 1)               // should be status != 1 ?
                 {
-                    // Set is_active = 1 and status = 1
-                    bool updated = DomainDal.UpdateDomainsDevicesStatus(nDomainsDevicesID, 1, 1);
+                    DomainDevice domainDevice = new DomainDevice()
+                    {
+                        Id = nDomainsDevicesID,
+                        ActivataionStatus = DeviceState.Activated,
+                        DeviceId = nDeviceID,
+                        DomainId = m_nDomainID,
+                        DeviceBrandId = brandID,
+                        ActivatedOn = DateTime.UtcNow,
+                        Udid = sUDID,
+                        GroupId = m_nGroupID,
+                    };
+
+                    bool updated = domainDevice.Update();
 
                     if (updated)
                     {
