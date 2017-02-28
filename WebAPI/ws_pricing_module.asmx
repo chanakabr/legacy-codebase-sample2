@@ -1,1 +1,1 @@
-﻿<%@ WebService Language="C#" Class="WS_Pricing.mdoule" %>
+﻿<%@ WebService Language="C#" Class="WS_Pricing.module" %>

@@ -173,24 +173,12 @@ namespace WebAPI
                         "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
                         kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, action.GetType().ToString(), ex);
 
-                    // If at least one of the actions failed - mark the consumption result as failed
                     result = eEventConsumptionResult.Failure;
-
-                    // Handle failure with follow-up actions (similar fashion to AJAX)
                     if (action.FailureHandlers != null && action.FailureHandlers.Count > 0)
                     {
                         foreach (var handler in action.FailureHandlers)
                         {
-                            try
-                            {
-                                PerformAction(handler, kalturaEvent, eventWrapper);
-                            }
-                            catch (Exception innerEx)
-                            {
-                                log.ErrorFormat(
-                                    "Error when performing action event for partner {0}, event type {1}, event action {2}, specific notification is {3}. ex = {4}",
-                                    kalturaEvent.PartnerId, actionEvent.Type, actionEvent.Action, handler.GetType().ToString(), innerEx);
-                            }
+                            PerformAction(action, kalturaEvent, eventWrapper);
                         }
                     }
                 }

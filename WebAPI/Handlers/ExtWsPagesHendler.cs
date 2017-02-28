@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
+using WS_Billing;
+using WS_Social;
+using WS_Social.SocialFeed;
+using WS_Users;
 
 namespace WebAPI
 {
@@ -20,49 +24,49 @@ namespace WebAPI
                 switch (context.Request.AppRelativeCurrentExecutionFilePath.ToLower())
                 {
                     case "~/adyen_api.aspx":
-                        Page adyen_api_page = new WS_Billing.adyen_api();
+                        Page adyen_api_page = new adyen_api();
                         adyen_api_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         adyen_api_page.ProcessRequest(context);
                         break;
 
                     case "~/googleinapp.aspx":
-                        Page GoogleInApp_page = new WS_Billing.GoogleInApp();
+                        Page GoogleInApp_page = new GoogleInApp();
                         GoogleInApp_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         GoogleInApp_page.ProcessRequest(context);
                         break;
 
                     case "~/m1_callback.aspx":
-                        Page M1_Callback_page = new WS_Billing.M1_Callback();
+                        Page M1_Callback_page = new M1_Callback();
                         M1_Callback_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         M1_Callback_page.ProcessRequest(context);
                         break;
 
                     case "~/plimus_api.aspx":
-                        Page plimus_api_page = new WS_Billing.plimus_api();
+                        Page plimus_api_page = new plimus_api();
                         plimus_api_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         plimus_api_page.ProcessRequest(context);
                         break;
 
                     case "~/plimus_callback.aspx":
-                        Page Plimus_Callback_page = new WS_Billing.Plimus_Callback();
+                        Page Plimus_Callback_page = new Plimus_Callback();
                         Plimus_Callback_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         Plimus_Callback_page.ProcessRequest(context);
                         break;
 
                     case "~/sc_api.aspx":
-                        Page sc_api_page = new WS_Billing.sc_api();
+                        Page sc_api_page = new sc_api();
                         sc_api_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         sc_api_page.ProcessRequest(context);
                         break;
 
                     case "~/tp_api.aspx":
-                        Page tp_api_page = new WS_Billing.tp_api();
+                        Page tp_api_page = new tp_api();
                         tp_api_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         tp_api_page.ProcessRequest(context);
                         break;
 
                     case "~/winpl_api.aspx":
-                        Page winpl_api_page = new WS_Billing.winpl_api();
+                        Page winpl_api_page = new winpl_api();
                         winpl_api_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         winpl_api_page.ProcessRequest(context);
                         break;
@@ -76,19 +80,19 @@ namespace WebAPI
                 switch (context.Request.AppRelativeCurrentExecutionFilePath.ToLower())
                 {
                     case "~/facebook_api.aspx":
-                        Page facebook_api_page = new WS_Social.facebook_api();
+                        Page facebook_api_page = new facebook_api();
                         facebook_api_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         facebook_api_page.ProcessRequest(context);
                         break;
 
                     case "~/socialfeed.aspx":
-                        Page SocialFeed_page = new WS_Social.SocialFeed.SocialFeed();
+                        Page SocialFeed_page = new SocialFeed();
                         SocialFeed_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         SocialFeed_page.ProcessRequest(context);
                         break;
 
                     case "~/socialfeedtags.aspx":
-                        Page SocialFeedTags_page = new WS_Social.SocialFeedTags();
+                        Page SocialFeedTags_page = new SocialFeedTags();
                         SocialFeedTags_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         SocialFeedTags_page.ProcessRequest(context);
                         break;
@@ -108,13 +112,13 @@ namespace WebAPI
                         break;
 
                     case "~/osaml.aspx":
-                        Page OSaml_page = new WS_Users.OSaml();
+                        Page OSaml_page = new OSaml();
                         OSaml_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         OSaml_page.ProcessRequest(context);
                         break;
 
                     case "~/sso.aspx":
-                        Page SSO_page = new WS_Users.SSO();
+                        Page SSO_page = new SSO();
                         SSO_page.AppRelativeVirtualPath = context.Request.AppRelativeCurrentExecutionFilePath;
                         SSO_page.ProcessRequest(context);
                         break;

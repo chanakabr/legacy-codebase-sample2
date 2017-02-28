@@ -1,9 +1,10 @@
-﻿using WebAPI.Catalog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Web;
+using Core.Catalog;
+using Core.Catalog.Response;
 
 namespace WebAPI.Managers
 {

@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Users;
 using DAL;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
@@ -12,6 +11,7 @@ using WebAPI.Models.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using ApiObjects;
+using Core.Users;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -26,12 +26,12 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ExpirationTime, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.expiredDate)));
 
             // UserType
-            Mapper.CreateMap<Users.UserType, KalturaOTTUserType>()
+            Mapper.CreateMap<UserType, KalturaOTTUserType>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             // Country
-            Mapper.CreateMap<Users.Country, KalturaCountry>()
+            Mapper.CreateMap<Core.Users.Country, KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));
@@ -136,13 +136,13 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.m_sZip, opt => opt.MapFrom(src => src.Zip));
 
             // Country
-            Mapper.CreateMap<KalturaCountry, Users.Country>()
+            Mapper.CreateMap<KalturaCountry, Core.Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.m_sCountryName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.m_sCountryCode, opt => opt.MapFrom(src => src.Code));
 
             // UserType
-            Mapper.CreateMap<KalturaOTTUserType, Users.UserType>()
+            Mapper.CreateMap<KalturaOTTUserType, UserType>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
@@ -182,13 +182,13 @@ namespace ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
 
             // Country
-            Mapper.CreateMap<int, Users.Country>()
+            Mapper.CreateMap<int, Core.Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src));
         }
 
-        private static Users.Country ConvertContry(KalturaCountry country, int? countryId)
+        private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)
         {
-            Users.Country response = new Users.Country();
+            Core.Users.Country response = new Core.Users.Country();
             if (countryId.HasValue && countryId.Value > 0)
             {
                 response.m_nObjecrtID = countryId.Value;
@@ -245,17 +245,17 @@ namespace ObjectsConvertor.Mapping
             return result;
         }
 
-        public static ItemType ConvertUserAssetsListItemType(KalturaUserAssetsListItemType itemType)
+        public static ListItemType ConvertUserAssetsListItemType(KalturaUserAssetsListItemType itemType)
         {
-            ItemType result;
+            ListItemType result;
 
             switch (itemType)
             {
                 case KalturaUserAssetsListItemType.all:
-                    result = ItemType.All;
+                    result = ListItemType.All;
                     break;
                 case KalturaUserAssetsListItemType.media:
-                    result = ItemType.Media;
+                    result = ListItemType.Media;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown user assets list item type");
@@ -263,13 +263,13 @@ namespace ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaUserAssetsListItemType ConvertUserAssetsListItemType(ItemType itemType)
+        private static KalturaUserAssetsListItemType ConvertUserAssetsListItemType(ListItemType itemType)
         {
             KalturaUserAssetsListItemType result;
 
             switch (itemType)
             {
-                case ItemType.Media:
+                case ListItemType.Media:
                     result = KalturaUserAssetsListItemType.media;
                     break;
                 default:

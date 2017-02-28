@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Web;
 using System.Web.Http;
-using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;

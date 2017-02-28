@@ -12,7 +12,6 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.ModelBinding;
-using WebAPI.Catalog;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -52,7 +51,6 @@ namespace WebAPI.Controllers
             KalturaAssetInfoListResponse response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-
             string udid = KSUtils.ExtractKSPayload().UDID;
 
             if (pager == null)

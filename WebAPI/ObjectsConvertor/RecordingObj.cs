@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Core.Catalog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using WebAPI.Catalog;
 
 namespace WebAPI.ObjectsConvertor
 {

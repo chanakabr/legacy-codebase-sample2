@@ -17,10 +17,9 @@ using System.Net;
 using System.Web;
 using System.ServiceModel;
 using ObjectsConvertor.Mapping;
-using Users;
-using WS_Users;
 using ApiObjects;
 using ApiObjects.Response;
+using Core.Users;
 
 
 namespace WebAPI.Clients
@@ -31,14 +30,6 @@ namespace WebAPI.Clients
 
         public UsersClient()
         {
-        }
-
-        protected UsersService Users
-        {
-            get
-            {
-                return (Module as UsersService);
-            }
         }
 
         public WebAPI.Models.Users.KalturaOTTUser Login(int groupId, string userName, string password, string deviceId,
@@ -57,7 +48,7 @@ namespace WebAPI.Clients
                     {
                         keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
                     }
-                    response = Users.LogIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
+                    response = Core.Users.Module.LogIn(groupId, userName, password, string.Empty, Utils.Utils.GetClientIP(), deviceId,
                         group.ShouldSupportSingleLogin, keyValueList);
                 }
             }
@@ -118,7 +109,7 @@ namespace WebAPI.Clients
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -130,7 +121,7 @@ namespace WebAPI.Clients
                     if (userDynamicData == null)
                         userDynamicData = new UserDynamicData();
 
-                    response = Users.SignUp(group.UsersCredentials.Username, group.UsersCredentials.Password, userBasicData, userDynamicData, password, userData.AffiliateCode);
+                    response = Core.Users.Module.SignUp(groupId, userBasicData, userDynamicData, password, userData.AffiliateCode);
                 }
             }
             catch (Exception ex)
@@ -157,12 +148,12 @@ namespace WebAPI.Clients
         public bool SendNewPassword(int groupId, string userName)
         {
             ApiObjects.Response.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.SendRenewalPasswordMail(group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                    response = Core.Users.Module.SendRenewalPasswordMail(groupId, userName);
                 }
             }
             catch (Exception ex)
@@ -187,12 +178,12 @@ namespace WebAPI.Clients
         public bool RenewPassword(int groupId, string userName, string password)
         {
             ApiObjects.Response.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.RenewPassword(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password);
+                    response = Core.Users.Module.RenewPassword(groupId, userName, password);
                 }
             }
             catch (Exception ex)
@@ -217,12 +208,12 @@ namespace WebAPI.Clients
         public bool ChangeUserPassword(int groupId, string userName, string oldPassword, string newPassword)
         {
             ApiObjects.Response.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.ReplacePassword(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, oldPassword, newPassword);
+                    response = Core.Users.Module.ReplacePassword(groupId, userName, oldPassword, newPassword);
                 }
             }
             catch (Exception ex)
@@ -247,7 +238,7 @@ namespace WebAPI.Clients
         //public WebAPI.Models.Users.ClientUser SignIn(int groupId, string userName, string password)
         //{
         //    WebAPI.Models.Users.ClientUser user = null;
-        //    Group group = GroupsManager.GetGroup(groupId);
+        //    
 
         //    try
         //    {
@@ -255,7 +246,7 @@ namespace WebAPI.Clients
         //        UserResponseObject response;
         //        using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
         //        {
-        //            response = Users.SignIn(group.UsersCredentials.Username, group.UsersCredentials.Password, userName, password, string.Empty, string.Empty, string.Empty, false);
+        //            response = Core.Users.Module.SignIn(groupId, userName, password, string.Empty, string.Empty, string.Empty, false);
         //        }
 
         //        user = Mapper.Map<WebAPI.Models.Users.ClientUser>(response);
@@ -271,14 +262,14 @@ namespace WebAPI.Clients
         public KalturaUserLoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
             KalturaUserLoginPin pinCode = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinCodeResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GenerateLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, secret);
+                    response = Core.Users.Module.GenerateLoginPIN(groupId, userId, secret);
                 }
             }
             catch (Exception ex)
@@ -305,14 +296,14 @@ namespace WebAPI.Clients
         public WebAPI.Models.Users.KalturaOTTUser LoginWithPin(int groupId, string deviceId, string pin, string secret)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             UserResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.LoginWithPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, pin, string.Empty, Utils.Utils.GetClientIP(), deviceId, false, null, secret);
+                    response = Core.Users.Module.LoginWithPIN(groupId, pin, string.Empty, Utils.Utils.GetClientIP(), deviceId, false, null, secret);
                 }
             }
             catch (Exception ex)
@@ -340,13 +331,13 @@ namespace WebAPI.Clients
         public Models.Users.KalturaOTTUser CheckPasswordToken(int groupId, string token)
         {
             UserResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             WebAPI.Models.Users.KalturaOTTUser user = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.CheckPasswordToken(group.UsersCredentials.Username, group.UsersCredentials.Password, token);
+                    response = Core.Users.Module.CheckPasswordToken(groupId, token);
                 }
             }
             catch (Exception ex)
@@ -373,14 +364,14 @@ namespace WebAPI.Clients
         public KalturaUserLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
         {
             KalturaUserLoginPin pinCode = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             PinCodeResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.SetLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, pin, secret);
+                    response = Core.Users.Module.SetLoginPIN(groupId, userId, pin, secret);
                 }
             }
             catch (Exception ex)
@@ -406,14 +397,14 @@ namespace WebAPI.Clients
 
         public bool ClearLoginPIN(int groupId, string userId, string pinCode)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             ApiObjects.Response.Status response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.ClearLoginPIN(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, pinCode);
+                    response = Core.Users.Module.ClearLoginPIN(groupId, userId, pinCode);
                 }
             }
             catch (Exception ex)
@@ -439,13 +430,13 @@ namespace WebAPI.Clients
         {
             List<WebAPI.Models.Users.KalturaOTTUser> users = null;
             UsersResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUsers(group.UsersCredentials.Username, group.UsersCredentials.Password, usersIds.ToArray(), Utils.Utils.GetClientIP());
+                    response = Core.Users.Module.GetUsers(groupId, usersIds.ToArray(), Utils.Utils.GetClientIP());
                 }
             }
             catch (Exception ex)
@@ -476,13 +467,13 @@ namespace WebAPI.Clients
 
             WebAPI.Models.Users.KalturaOTTUser responseUser = null;
             UserResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.SetUser(group.UsersCredentials.Username, group.UsersCredentials.Password, siteGuid, userBasicData, userDynamicData);
+                    response = Core.Users.Module.SetUser(groupId, siteGuid, userBasicData, userDynamicData);
                 }
             }
             catch (Exception ex)
@@ -509,14 +500,14 @@ namespace WebAPI.Clients
         public bool AddUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
         {
             bool res = false;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             ApiObjects.Response.Status response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.AddUserFavorit(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, domainID, deviceUDID, mediaType, mediaId, extraData);
+                    response = Core.Users.Module.AddUserFavorit(groupId, userId, domainID, deviceUDID, mediaType, mediaId, extraData);
                 }
             }
             catch (Exception ex)
@@ -542,14 +533,14 @@ namespace WebAPI.Clients
 
         public bool RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             ApiObjects.Response.Status response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.RemoveUserFavorit(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIDs);
+                    response = Core.Users.Module.RemoveUserFavorit(groupId, userId, mediaIDs);
                 }
             }
             catch (Exception ex)
@@ -575,7 +566,7 @@ namespace WebAPI.Clients
         {
             List<WebAPI.Models.Users.KalturaFavorite> favorites = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             FavoriteResponse response = null;
@@ -584,7 +575,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserFavorites(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, domainID, udid, mediaType, wsOrderBy);
+                    response = Core.Users.Module.GetUserFavorites(groupId, userId, domainID, udid, mediaType, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -612,17 +603,17 @@ namespace WebAPI.Clients
         {
             List<KalturaUserAssetsList> userAssetsList = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             UsersItemsListsResponse response = null;
             ListType wsListType = UsersMappings.ConvertUserAssetsListType(listType);
-            ItemType wsAssetType = UsersMappings.ConvertUserAssetsListItemType(assetType);
+            ListItemType wsAssetType = UsersMappings.ConvertUserAssetsListItemType(assetType);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetItemsFromUsersLists(group.UsersCredentials.Username, group.UsersCredentials.Password, userIds, wsListType, wsAssetType);
+                    response = Core.Users.Module.GetItemsFromUsersLists(groupId, userIds, wsListType, wsAssetType);
                 }
             }
             catch (Exception ex)
@@ -650,14 +641,14 @@ namespace WebAPI.Clients
         {
             FavoriteResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.FilterFavoriteMediaIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, mediaIds, udid, mediaType, wsOrderBy);
+                    response = Core.Users.Module.FilterFavoriteMediaIds(groupId, userId, mediaIds, udid, mediaType, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -684,13 +675,13 @@ namespace WebAPI.Clients
             List<long> roleIds = null;
             LongIdsResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserRoleIds(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                    response = Core.Users.Module.GetUserRoleIds(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -721,13 +712,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.AddRoleToUser(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, roleId);
+                    response = Core.Users.Module.AddRoleToUser(groupId, userId, roleId);
                 }
             }
             catch (Exception ex)
@@ -753,13 +744,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.DeleteUser(group.UsersCredentials.Username, group.UsersCredentials.Password, userId);
+                    response = Core.Users.Module.DeleteUser(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -790,12 +781,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.SignOut(group.UsersCredentials.Username, group.UsersCredentials.Password, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin);
+                    response = Core.Users.Module.SignOut(groupId, userId.ToString(), string.Empty, ip, deviceId, group.ShouldSupportSingleLogin);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while Login. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while Login. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -812,18 +803,18 @@ namespace WebAPI.Clients
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.ActivateAccount(group.UsersCredentials.Username, group.UsersCredentials.Password, username, token);
+                    response = Core.Users.Module.ActivateAccount(groupId, username, token);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -851,18 +842,18 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.ResendActivationToken(group.UsersCredentials.Username, group.UsersCredentials.Password, username);
+                    response = Core.Users.Module.ResendActivationToken(groupId, username);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -885,7 +876,7 @@ namespace WebAPI.Clients
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -893,12 +884,12 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.AddItemToUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                    response = Core.Users.Module.AddItemToUsersList(groupId, userId, item);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -926,13 +917,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 Item item = new Item()
                 {
-                    ItemType = ItemType.Media,
+                    ItemType = ListItemType.Media,
                     ItemId = int.Parse(assetId),
                     UserId = userId,
                     ListType = UsersMappings.ConvertUserAssetsListType(listType)
@@ -940,12 +931,12 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.DeleteItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                    response = Core.Users.Module.DeleteItemFromUsersList(groupId, userId, item);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -967,7 +958,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -975,12 +966,12 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.DeleteItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                    response = Core.Users.Module.DeleteItemFromUsersList(groupId, userId, item);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1002,7 +993,7 @@ namespace WebAPI.Clients
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1015,12 +1006,12 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                    response = Core.Users.Module.GetItemFromUsersList(groupId, userId, item);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1050,7 +1041,7 @@ namespace WebAPI.Clients
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
@@ -1058,12 +1049,12 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetItemFromUsersList(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, item);
+                    response = Core.Users.Module.GetItemFromUsersList(groupId, userId, item);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, ex);
+                log.ErrorFormat("Error while ActivateAccount. Username: {0}, Password: {1}, exception: {2}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1092,18 +1083,18 @@ namespace WebAPI.Clients
             KalturaOTTUserListResponse listUser = null;
             UserResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserByExternalID(group.UsersCredentials.Username, group.UsersCredentials.Password, externalID, -1);
+                    response = Core.Users.Module.GetUserByExternalID(groupId, externalID, -1);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, externalID: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, externalID);
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, externalID: {2}", groupId, externalID);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1138,18 +1129,18 @@ namespace WebAPI.Clients
             KalturaOTTUserListResponse listUser = null;
             UserResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.GetUserByName(group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                    response = Core.Users.Module.GetUserByName(groupId, userName);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, userNameFilter: {2}", group.UsersCredentials.Username, group.UsersCredentials.Password, userName);
+                log.ErrorFormat("Error while GetUserDataByCoGuid. Username: {0}, Password: {1}, userNameFilter: {2}", groupId, userName);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1182,12 +1173,12 @@ namespace WebAPI.Clients
         internal void UpdateUserPassword(int groupId, int userId, string password)
         {
             ApiObjects.Response.Status response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Users.UpdateUserPassword(group.UsersCredentials.Username, group.UsersCredentials.Password, userId, password);
+                    response = Core.Users.Module.UpdateUserPassword(groupId, userId, password);
                 }
             }
             catch (Exception ex)

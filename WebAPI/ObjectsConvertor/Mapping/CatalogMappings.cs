@@ -1,8 +1,16 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.Epg;
+using ApiObjects.SearchObjects;
+using ApiObjects.Statistics;
+using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.Response;
+using Core.Users;
+using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WebAPI.Catalog;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
@@ -142,7 +150,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
 
             //Channel (Catalog) to Channel
-            Mapper.CreateMap<WebAPI.Catalog.Channel, WebAPI.Models.Catalog.KalturaChannel>()
+            Mapper.CreateMap<Channel, WebAPI.Models.Catalog.KalturaChannel>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sName))
                 .ForMember(dest => dest.AssetTypes, opt => opt.MapFrom(src => src.m_nMediaType))
@@ -188,7 +196,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertAssetType(src.AssetType)));
 
             // Country
-            Mapper.CreateMap<Catalog.Country, WebAPI.Models.Users.KalturaCountry>()
+            Mapper.CreateMap<Core.Users.Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nObjecrtID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCountryName))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCountryCode));

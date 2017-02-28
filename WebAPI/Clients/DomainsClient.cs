@@ -16,8 +16,8 @@ using WebAPI.Models.Users;
 using WebAPI.Utils;
 using System.Net;
 using System.ServiceModel;
-using Users;
 using ApiObjects;
+using Core.Users;
 
 namespace WebAPI.Clients
 {
@@ -29,30 +29,17 @@ namespace WebAPI.Clients
         {
         }
 
-        #region Properties
-
-        protected WS_Domains.module Domains
-        {
-            get
-            {
-                return (Module as WS_Domains.module);
-            }
-        }
-
-        #endregion
-
-
         internal KalturaHousehold GetDomainInfo(int groupId, int domainId)
         {
             KalturaHousehold result = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             DomainResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDomainInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                    response = Core.Domains.Module.GetDomainInfo(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -127,7 +114,7 @@ namespace WebAPI.Clients
         internal KalturaHousehold AddDomain(int groupId, string domainName, string domainDescription, string masterUserId, string externalId = null)
         {
             KalturaHousehold result = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             DomainStatusResponse response = null;
             try
@@ -136,11 +123,11 @@ namespace WebAPI.Clients
                 {
                     if (string.IsNullOrEmpty(externalId))
                     {
-                        response = Domains.AddDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId));
+                        response = Core.Domains.Module.AddDomain(groupId, domainName, domainDescription, int.Parse(masterUserId));
                     }
                     else
                     {
-                        response = Domains.AddDomainWithCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainName, domainDescription, int.Parse(masterUserId), externalId);
+                        response = Core.Domains.Module.AddDomainWithCoGuid(groupId, domainName, domainDescription, int.Parse(masterUserId), externalId);
                     }
                 }
             }
@@ -172,14 +159,14 @@ namespace WebAPI.Clients
 
         internal bool RemoveUserFromDomain(int groupId, int domainId, string userId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.RemoveUserFromDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, userId);
+                    response = Core.Domains.Module.RemoveUserFromDomain(groupId, domainId, userId);
                 }
             }
             catch (Exception ex)
@@ -208,14 +195,14 @@ namespace WebAPI.Clients
 
         internal KalturaHousehold AddUserToDomain(int groupId, int domainId, string userId, string masterUserId, bool isMaster)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddUserToDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, int.Parse(userId), int.Parse(masterUserId), isMaster);
+                    response = Core.Domains.Module.AddUserToDomain(groupId, domainId, int.Parse(userId), int.Parse(masterUserId), isMaster);
                 }
             }
             catch (Exception ex)
@@ -244,14 +231,14 @@ namespace WebAPI.Clients
 
         internal bool RemoveDeviceFromDomain(int groupId, int domainId, string udid)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.RemoveDeviceFromDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, udid);
+                    response = Core.Domains.Module.RemoveDeviceFromDomain(groupId, domainId, udid);
                 }
             }
             catch (Exception ex)
@@ -283,13 +270,13 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result = null;
             DeviceResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.RegisterDeviceToDomainWithPIN(group.DomainsCredentials.Username, group.DomainsCredentials.Password, pin, domainId, deviceName);
+                    response = Core.Domains.Module.RegisterDeviceToDomainWithPIN(groupId, pin, domainId, deviceName);
                 }
             }
             catch (Exception ex)
@@ -323,13 +310,13 @@ namespace WebAPI.Clients
             KalturaDeviceRegistrationStatus result;
             DeviceRegistrationStatusResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDeviceRegistrationStatus(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, householdId);
+                    response = Core.Domains.Module.GetDeviceRegistrationStatus(groupId, udid, householdId);
                 }
             }
             catch (Exception ex)
@@ -358,13 +345,13 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, householdId);
+                    response = Core.Domains.Module.GetDevice(groupId, udid, householdId);
                 }
             }
             catch (Exception ex)
@@ -398,13 +385,13 @@ namespace WebAPI.Clients
             KalturaHousehold result;
             DomainResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDomainByUser(group.DomainsCredentials.Username, group.DomainsCredentials.Password, userId);
+                    response = Core.Domains.Module.GetDomainByUser(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -433,13 +420,13 @@ namespace WebAPI.Clients
             KalturaHousehold result;
             DomainStatusResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDeviceToDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, udid, deviceName, deviceBrandId);
+                    response = Core.Domains.Module.AddDeviceToDomain(groupId, domainId, udid, deviceName, deviceBrandId);
                 }
             }
             catch (Exception ex)
@@ -472,13 +459,13 @@ namespace WebAPI.Clients
         {
             DeviceResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, udid, deviceName, deviceBrandId);
+                    response = Core.Domains.Module.AddDevice(groupId, domainId, udid, deviceName, deviceBrandId);
                 }
             }
             catch (Exception ex)
@@ -512,13 +499,13 @@ namespace WebAPI.Clients
             KalturaDevicePin result;
             DevicePinResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetPINForDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceBrandId);
+                    response = Core.Domains.Module.GetPINForDevice(groupId, udid, deviceBrandId);
                 }
             }
             catch (Exception ex)
@@ -547,13 +534,13 @@ namespace WebAPI.Clients
             KalturaHouseholdLimitations result;
             DLMResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDLM(group.DomainsCredentials.Username, group.DomainsCredentials.Password, dlmId);
+                    response = Core.Domains.Module.GetDLM(groupId, dlmId);
                 }
             }
             catch (Exception ex)
@@ -582,14 +569,14 @@ namespace WebAPI.Clients
             KalturaHousehold result;
             DomainStatusResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     int frequency = DomainsMappings.ConvertKalturaHouseholdFrequency(householdFrequency);
-                    response = Domains.ResetDomainFrequency(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, frequency);
+                    response = Core.Domains.Module.ResetDomainFrequency(groupId, domainId, frequency);
                 }
             }
             catch (Exception ex)
@@ -623,13 +610,13 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SetDevice(group.DomainsCredentials.Username, group.DomainsCredentials.Password, udid, deviceName);
+                    response = Core.Domains.Module.SetDevice(groupId, udid, deviceName);
                 }
             }
             catch (Exception ex)
@@ -657,13 +644,13 @@ namespace WebAPI.Clients
         {
             KalturaHousehold result = null;
             DomainStatusResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SetDomainInfo(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, name, description);
+                    response = Core.Domains.Module.SetDomainInfo(groupId, domainId, name, description);
                 }
             }
             catch (Exception ex)
@@ -695,14 +682,14 @@ namespace WebAPI.Clients
         internal KalturaHousehold GetDomainByCoGuid(int groupId, string externalId)
         {
             KalturaHousehold result = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             DomainStatusResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDomainByCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, externalId);
+                    response = Core.Domains.Module.GetDomainByCoGuid(groupId, externalId);
                 }
             }
             catch (Exception ex)
@@ -735,13 +722,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.RemoveDomainById(group.DomainsCredentials.Username, group.DomainsCredentials.Password, householdId);
+                    response = Core.Domains.Module.RemoveDomainById(groupId, householdId);
                 }
             }
             catch (Exception ex)
@@ -767,13 +754,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.RemoveDomainByCoGuid(group.DomainsCredentials.Username, group.DomainsCredentials.Password, externalId);
+                    response = Core.Domains.Module.RemoveDomainByCoGuid(groupId, externalId);
                 }
             }
             catch (Exception ex)
@@ -799,13 +786,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SuspendDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                    response = Core.Domains.Module.SuspendDomain(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -831,13 +818,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.ResumeDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                    response = Core.Domains.Module.ResumeDomain(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -864,13 +851,13 @@ namespace WebAPI.Clients
             KalturaHomeNetwork result;
             HomeNetworkResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.AddDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
+                    response = Core.Domains.Module.AddDomainHomeNetwork(groupId, domainId, externalId, name, description, isActive);
                 }
             }
             catch (Exception ex)
@@ -899,13 +886,13 @@ namespace WebAPI.Clients
             List<KalturaHomeNetwork> result;
             HomeNetworksResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.GetDomainHomeNetworks(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId);
+                    response = Core.Domains.Module.GetDomainHomeNetworks(groupId, domainId);
                 }
             }
             catch (Exception ex)
@@ -933,13 +920,13 @@ namespace WebAPI.Clients
         {
             HomeNetworkResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SetDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId, name, description, isActive);
+                    response = Core.Domains.Module.SetDomainHomeNetwork(groupId, domainId, externalId, name, description, isActive);
                 }
             }
             catch (Exception ex)
@@ -966,13 +953,13 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.RemoveDomainHomeNetwork(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, externalId);
+                    response = Core.Domains.Module.RemoveDomainHomeNetwork(groupId, domainId, externalId);
                 }
             }
             catch (Exception ex)
@@ -999,14 +986,14 @@ namespace WebAPI.Clients
             bool result;
             DomainStatusResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             bool isActive = deviceStatus == KalturaDeviceStatus.ACTIVATED ? true : false;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.ChangeDeviceDomainStatus(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, udid, isActive);
+                    response = Core.Domains.Module.ChangeDeviceDomainStatus(groupId, domainId, udid, isActive);
                 }
             }
             catch (Exception ex)
@@ -1032,13 +1019,13 @@ namespace WebAPI.Clients
         {
             DeviceResponse response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SubmitAddDeviceToDomain(group.DomainsCredentials.Username, group.DomainsCredentials.Password, domainId, userId, udid, deviceName, deviceBrandId);
+                    response = Core.Domains.Module.SubmitAddDeviceToDomain(groupId, domainId, userId, udid, deviceName, deviceBrandId);
                 }
             }
             catch (Exception ex)
@@ -1071,7 +1058,7 @@ namespace WebAPI.Clients
         {
             KalturaHousehold household = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
 
             DomainStatusResponse response = null;
@@ -1080,7 +1067,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Domains.SubmitAddUserToDomainRequest(group.DomainsCredentials.Username, group.DomainsCredentials.Password, int.Parse(userId), householdMasterUsername);
+                    response = Core.Domains.Module.SubmitAddUserToDomainRequest(groupId, int.Parse(userId), householdMasterUsername);
                 }
             }
             catch (Exception ex)

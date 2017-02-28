@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using WebAPI.Catalog;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Models;
@@ -20,6 +19,12 @@ using WebAPI.ClientManagers;
 using WebAPI.ObjectsConvertor.Mapping;
 using System.Web;
 using WebAPI.Filters;
+using Core.Catalog.Request;
+using Core.Catalog;
+using Core.Catalog.Response;
+using ApiObjects.SearchObjects;
+using ApiObjects;
+using ApiObjects.Catalog;
 
 namespace WebAPI.Clients
 {
@@ -39,14 +44,6 @@ namespace WebAPI.Clients
         }
 
         public int CacheDuration { get; set; }
-
-        protected WebAPI.Catalog.IserviceClient CatalogClientModule
-        {
-            get
-            {
-                return (Module as WebAPI.Catalog.IserviceClient);
-            }
-        }
 
         private string GetSignature(string signString, string signatureKey)
         {
@@ -80,7 +77,7 @@ namespace WebAPI.Clients
             OrderObj order = new OrderObj();
             if (orderBy == null)
             {
-                order.m_eOrderBy = OrderBy.RELATED;
+                order.m_eOrderBy =  OrderBy.RELATED;
                 order.m_eOrderDir = OrderDir.DESC;
             }
             else
@@ -124,7 +121,7 @@ namespace WebAPI.Clients
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -142,7 +139,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -210,7 +207,7 @@ namespace WebAPI.Clients
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -228,7 +225,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
 
@@ -287,7 +284,7 @@ namespace WebAPI.Clients
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -305,7 +302,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToSlimAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -352,7 +349,7 @@ namespace WebAPI.Clients
 
             // fire history watched request
             WatchHistoryResponse watchHistoryResponse = new WatchHistoryResponse();
-            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out watchHistoryResponse))
+            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(request, out watchHistoryResponse))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -370,7 +367,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
@@ -439,7 +436,7 @@ namespace WebAPI.Clients
 
             // fire history watched request
             WatchHistoryResponse watchHistoryResponse = new WatchHistoryResponse();
-            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(CatalogClientModule, request, out watchHistoryResponse))
+            if (!CatalogUtils.GetBaseResponse<WatchHistoryResponse>(request, out watchHistoryResponse))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -457,7 +454,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = watchHistoryResponse.result.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, withList, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // combine asset info and watch history info
                 finalResults.TotalCount = watchHistoryResponse.m_nTotalItems;
@@ -501,7 +498,7 @@ namespace WebAPI.Clients
             };
 
             AssetStatsResponse response = null;
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
+            if (CatalogUtils.GetBaseResponse(request, out response))
             {
                 result = response.m_lAssetStat != null ?
                     Mapper.Map<List<KalturaAssetStatistics>>(response.m_lAssetStat) : null;
@@ -550,7 +547,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration, with);
 
             return result;
         }
@@ -594,7 +591,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration);
 
             return result;
         }
@@ -637,7 +634,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration, with);
 
             return result;
         }
@@ -678,7 +675,7 @@ namespace WebAPI.Clients
             key.AppendFormat("search_q={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 query, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(CatalogClientModule, request, key.ToString(), CacheDuration, with);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration, with);
 
             return result;
         }
@@ -735,7 +732,7 @@ namespace WebAPI.Clients
 
             // fire request
             ChannelResponse channelResponse = new ChannelResponse();
-            if (!CatalogUtils.GetBaseResponse<ChannelResponse>(CatalogClientModule, request, out channelResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<ChannelResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -743,7 +740,7 @@ namespace WebAPI.Clients
 
             if (channelResponse.m_nMedias != null && channelResponse.m_nMedias.Count > 0)
             {
-                result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, channelResponse.m_nMedias, request, CacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(channelResponse.m_nMedias, request, CacheDuration, with);
                 result.TotalCount = channelResponse.m_nTotalItems;
             }
             return result;
@@ -802,7 +799,7 @@ namespace WebAPI.Clients
 
             // fire request
             UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out channelResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -820,7 +817,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                List<KalturaIAssetable> assetsInfo = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -864,7 +861,7 @@ namespace WebAPI.Clients
             };
 
             MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
-            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(CatalogClientModule, request, out mediaIdsResponse))
+            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(request, out mediaIdsResponse))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -872,7 +869,7 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
-                result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, CacheDuration, with);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
@@ -908,7 +905,7 @@ namespace WebAPI.Clients
             };
 
             MediaIdsResponse mediaIdsResponse = new MediaIdsResponse();
-            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(CatalogClientModule, request, out mediaIdsResponse))
+            if (!CatalogUtils.GetBaseResponse<MediaIdsResponse>(request, out mediaIdsResponse))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -916,7 +913,7 @@ namespace WebAPI.Clients
 
             if (mediaIdsResponse.m_nMediaIds != null && mediaIdsResponse.m_nMediaIds.Count > 0)
             {
-                result.Objects = CatalogUtils.GetMediaByIds(CatalogClientModule, mediaIdsResponse.m_nMediaIds, request, CacheDuration);
+                result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request, CacheDuration);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
             }
 
@@ -955,7 +952,7 @@ namespace WebAPI.Clients
 
             EpgProgramResponse epgProgramResponse = null;
 
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            if (CatalogUtils.GetBaseResponse(request, out epgProgramResponse) && epgProgramResponse != null)
             {
 
                 var list = CatalogConvertor.ConvertBaseObjectsToAssetsInfo(groupId, epgProgramResponse.m_lObj, with);
@@ -1005,7 +1002,7 @@ namespace WebAPI.Clients
 
             EpgProgramResponse epgProgramResponse = null;
 
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            if (CatalogUtils.GetBaseResponse(request, out epgProgramResponse) && epgProgramResponse != null)
             {
                 result.Objects = Mapper.Map<List<KalturaAsset>>(epgProgramResponse.m_lObj);
 
@@ -1047,14 +1044,14 @@ namespace WebAPI.Clients
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                pids = epgIds,
-                eLang = Catalog.Language.English,
+                pids = epgIds.ToArray(),
+                eLang = ApiObjects.Language.English,
                 duration = 0
             };
 
             EpgProgramsResponse epgProgramResponse = null;
 
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null)
+            if (CatalogUtils.GetBaseResponse(request, out epgProgramResponse) && epgProgramResponse != null)
             {
 
                 var list = CatalogConvertor.ConvertEPGChannelProgrammeObjectToAssetsInfo(groupId, epgProgramResponse.lEpgList, with);
@@ -1098,14 +1095,14 @@ namespace WebAPI.Clients
                 m_nPageSize = pageSize.Value,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                pids = epgIds,
-                eLang = Catalog.Language.English,
+                pids = epgIds.ToArray(),
+                eLang = ApiObjects.Language.English,
                 duration = 0
             };
 
             EpgProgramsResponse epgProgramResponse = null;
 
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out epgProgramResponse) && epgProgramResponse != null && epgProgramResponse.lEpgList != null)
+            if (CatalogUtils.GetBaseResponse(request, out epgProgramResponse) && epgProgramResponse != null && epgProgramResponse.lEpgList != null)
             {
                 // get base objects list
                 DateTime updateDate;
@@ -1117,7 +1114,7 @@ namespace WebAPI.Clients
                 }).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
                 result.TotalCount = epgProgramResponse.m_nTotalItems;
 
                 if (result.Objects != null)
@@ -1165,7 +1162,7 @@ namespace WebAPI.Clients
 
             EpgResponse epgProgramResponse = null;
 
-            var isBaseResponse = CatalogUtils.GetBaseResponse <EpgResponse>(CatalogClientModule, request, out  epgProgramResponse);
+            var isBaseResponse = CatalogUtils.GetBaseResponse <EpgResponse>(request, out  epgProgramResponse);
             if (isBaseResponse && epgProgramResponse != null)
             {
                 result = CatalogConvertor.ConvertEPGChannelAssets(groupId, epgProgramResponse.programsPerChannel, with);
@@ -1201,7 +1198,7 @@ namespace WebAPI.Clients
             };
 
             ChannelObjResponse response = null;
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response))
+            if (CatalogUtils.GetBaseResponse(request, out response))
             {
                 result = response.ChannelObj != null ?
                     Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
@@ -1234,7 +1231,7 @@ namespace WebAPI.Clients
             };
 
             CategoryResponse response = null;
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) && response != null)
+            if (CatalogUtils.GetBaseResponse(request, out response) && response != null)
             {
                 result = Mapper.Map<KalturaOTTCategory>(response);
             }
@@ -1298,7 +1295,7 @@ namespace WebAPI.Clients
             };
 
             AssetsBookmarksResponse response = null;
-            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            if (!CatalogUtils.GetBaseResponse(request, out response) || response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -1364,7 +1361,7 @@ namespace WebAPI.Clients
             };
 
             AssetsBookmarksResponse response = null;
-            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            if (!CatalogUtils.GetBaseResponse(request, out response) || response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }
@@ -1433,7 +1430,7 @@ namespace WebAPI.Clients
             // fire search request
             UnifiedSearchExternalResponse searchResponse = new UnifiedSearchExternalResponse();
 
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1458,7 +1455,7 @@ namespace WebAPI.Clients
 
                 // get assets from catalog/cache
                 List<KalturaIAssetable> assetsInfo = 
-                    CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
+                    CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, with, CatalogConvertor.ConvertBaseObjectsToAssetsInfo);
 
                 // build AssetInfoWrapper response
                 if (assetsInfo != null)
@@ -1523,7 +1520,7 @@ namespace WebAPI.Clients
             // fire search request
             MediaMarkResponse response = new MediaMarkResponse();
 
-            if (!CatalogUtils.GetBaseResponse<MediaMarkResponse>(CatalogClientModule, request, out response))
+            if (!CatalogUtils.GetBaseResponse<MediaMarkResponse>(request, out response))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1563,13 +1560,13 @@ namespace WebAPI.Clients
                 m_nGroupID = groupId,
                 filterQuery = filter,
                 m_dServerTime = getServerTime(),
-                specificAssets = assets.Select(asset => new KeyValuePairOfeAssetTypeslongHVR2FNfI(){ key = eAssetTypes.MEDIA, value = asset.getId() }).ToList()
+                specificAssets = assets.Select(asset => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, asset.getId())).ToList()
                 //assetTypes = assetTypes,
             };
 
             // fire unified search request
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out searchResponse, true, null))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, null))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1605,8 +1602,8 @@ namespace WebAPI.Clients
                 Ip = ip
             };
 
-            CountryResponse response = null;
-            if (CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) && response != null && response.Status != null)
+            Core.Catalog.Response.CountryResponse response = null;
+            if (CatalogUtils.GetBaseResponse(request, out response) && response != null && response.Status != null)
             {
                 if (response.Status.Code == (int)StatusCode.OK)
                 {
@@ -1669,7 +1666,7 @@ namespace WebAPI.Clients
             // fire search request
             UnifiedSearchExternalResponse searchResponse = new UnifiedSearchExternalResponse();
 
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(CatalogClientModule, request, out searchResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchExternalResponse>(request, out searchResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1692,7 +1689,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
 
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
@@ -1740,7 +1737,7 @@ namespace WebAPI.Clients
             key.AppendFormat("related_media_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 mediaId, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(CatalogClientModule, request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration);
 
             return result;
         }
@@ -1782,7 +1779,7 @@ namespace WebAPI.Clients
             key.AppendFormat("search_q={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}",
                 query, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty);
 
-            result = CatalogUtils.GetMediaWithStatus(CatalogClientModule, request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMediaWithStatus(request, key.ToString(), CacheDuration);
 
             return result;
         }
@@ -1838,7 +1835,7 @@ namespace WebAPI.Clients
 
             // fire request
             UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out channelResponse, true, key.ToString()))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -1856,7 +1853,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = channelResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
                 result.TotalCount = channelResponse.m_nTotalItems;
             }
 
@@ -1912,7 +1909,7 @@ namespace WebAPI.Clients
             key.AppendFormat("bundle_id={0}_pi={1}_pz={2}_g={3}_l={4}_mt={5}_type={6}",
                 id, pageIndex, pageSize, groupId, language, mediaTypes != null ? string.Join(",", mediaTypes.ToArray()) : string.Empty, bundleType.ToString());
 
-            result = CatalogUtils.GetMedia(CatalogClientModule, request, key.ToString(), CacheDuration);
+            result = CatalogUtils.GetMedia(request, key.ToString(), CacheDuration);
            
             return result;
         }
@@ -1964,7 +1961,7 @@ namespace WebAPI.Clients
             key.AppendFormat("asset_id={0}_pi={1}_pz={2}_g={3}_l={4}_type={5}",
                 id, pageIndex, pageSize, groupId, language, eAssetType.PROGRAM.ToString());
             AssetCommentsListResponse commentResponse = new AssetCommentsListResponse();
-            if (CatalogUtils.GetBaseResponse<AssetCommentsListResponse>(CatalogClientModule, request, out commentResponse))
+            if (CatalogUtils.GetBaseResponse<AssetCommentsListResponse>(request, out commentResponse))
             {
                 if (commentResponse.status.Code != (int)StatusCode.OK)
                 {
@@ -2024,7 +2021,7 @@ namespace WebAPI.Clients
             };
 
             AssetCommentResponse assetCommentResponse = null;
-            if (CatalogUtils.GetBaseResponse<AssetCommentResponse>(CatalogClientModule, request, out assetCommentResponse))
+            if (CatalogUtils.GetBaseResponse<AssetCommentResponse>(request, out assetCommentResponse))
             {
                 if (assetCommentResponse.Status.Code != (int)StatusCode.OK)
                 {
@@ -2093,7 +2090,7 @@ namespace WebAPI.Clients
 
             // fire request
             UnifiedSearchResponse scheduledRecordingResponse = new UnifiedSearchResponse();
-            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(CatalogClientModule, request, out scheduledRecordingResponse))
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out scheduledRecordingResponse))
             {
                 // general error
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
@@ -2111,7 +2108,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = scheduledRecordingResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(CatalogClientModule, assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
                 result.TotalCount = scheduledRecordingResponse.m_nTotalItems;
             }
 
@@ -2169,7 +2166,7 @@ namespace WebAPI.Clients
             };
 
             AssetsBookmarksResponse response = null;
-            if (!CatalogUtils.GetBaseResponse(CatalogClientModule, request, out response) || response == null || response.Status == null)
+            if (!CatalogUtils.GetBaseResponse(request, out response) || response == null || response.Status == null)
             {
                 throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
             }

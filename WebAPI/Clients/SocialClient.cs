@@ -17,11 +17,11 @@ using System.Net;
 using System.ServiceModel;
 using WebAPI.Models.Catalog;
 using ApiObjects;
-using Social;
-using Social.Requests;
 using ObjectsConvertor.Mapping;
 using ApiObjects.Social;
-using Social.SocialFeed;
+using Core.Social;
+using Core.Social.Requests;
+using Core.Social.SocialFeed;
 
 namespace WebAPI.Clients
 {
@@ -33,27 +33,19 @@ namespace WebAPI.Clients
         {
         }
 
-        protected WS_Social.module Client
-        {
-            get
-            {
-                return (Module as WS_Social.module);
-            }
-        }
-
         internal KalturaFacebookSocial FBData(int groupId, string token)
         {
             FacebookResponse wsResponse = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserData(group.SocialCredentials.Username, group.SocialCredentials.Password, token);
+                    wsResponse = Core.Social.Module.FBUserData(groupId, token);
                 }
             }
             catch (Exception ex)
@@ -87,14 +79,14 @@ namespace WebAPI.Clients
             KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserData(group.SocialCredentials.Username, group.SocialCredentials.Password, token);
+                    wsResponse = Core.Social.Module.FBUserData(groupId, token);
                 }
             }
             catch (Exception ex)
@@ -126,14 +118,14 @@ namespace WebAPI.Clients
             FacebookResponse wsResponse = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserDataByUserId(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);
+                    wsResponse = Core.Social.Module.FBUserDataByUserId(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -165,14 +157,14 @@ namespace WebAPI.Clients
                 FacebookResponse wsResponse = null;
 
                 // get group ID
-                Group group = GroupsManager.GetGroup(groupId);
+                
 
                 try
                 {
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         // fire request
-                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters, ip);
+                        wsResponse = Core.Social.Module.FBUserRegister(groupId, token, extraParameters, ip);
                     }
                 }
                 catch (Exception ex)
@@ -208,14 +200,14 @@ namespace WebAPI.Clients
                 KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
                 // get group ID
-                Group group = GroupsManager.GetGroup(groupId);
+                
 
                 try
                 {
                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                     {
                         // fire request
-                        wsResponse = Client.FBUserRegister(group.SocialCredentials.Username, group.SocialCredentials.Password, token, extraParameters, ip);
+                        wsResponse = Core.Social.Module.FBUserRegister(groupId, token, extraParameters, ip);
                     }
                 }
                 catch (Exception ex)
@@ -250,14 +242,14 @@ namespace WebAPI.Clients
             KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserMerge(group.SocialCredentials.Username, group.SocialCredentials.Password, token, facebookId, username, password);
+                    wsResponse = Core.Social.Module.FBUserMerge(groupId, token, facebookId, username, password);
                 }
             }
             catch (Exception ex)
@@ -289,14 +281,14 @@ namespace WebAPI.Clients
             FacebookResponse wsResponse = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserMergeByUserId(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, token);
+                    wsResponse = Core.Social.Module.FBUserMergeByUserId(groupId, userId, token);
                 }
             }
             catch (Exception ex)
@@ -330,14 +322,14 @@ namespace WebAPI.Clients
             KalturaSocialResponse clientResponse = new KalturaSocialResponse();
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserUnmerge(group.SocialCredentials.Username, group.SocialCredentials.Password, token, username, password);
+                    wsResponse = Core.Social.Module.FBUserUnmerge(groupId, token, username, password);
                 }
             }
             catch (Exception ex)
@@ -369,14 +361,14 @@ namespace WebAPI.Clients
             FacebookResponse wsResponse = null;
 
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    wsResponse = Client.FBUserUnmergeByUserId(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);
+                    wsResponse = Core.Social.Module.FBUserUnmergeByUserId(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -413,7 +405,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Client.FBUserSignin(group.SocialCredentials.Username, group.SocialCredentials.Password, token, Utils.Utils.GetClientIP(), udid, group.ShouldSupportSingleLogin);
+                    response = Core.Social.Module.FBUserSignin(groupId, token, Utils.Utils.GetClientIP(), udid, group.ShouldSupportSingleLogin);
                 }
             }
             catch (Exception ex)
@@ -441,13 +433,13 @@ namespace WebAPI.Clients
         {
             KalturaSocialFacebookConfig config = null;
             FacebookConfigResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Client.FBConfig(group.SocialCredentials.Username, group.SocialCredentials.Password);
+                    response = Core.Social.Module.FBConfig(groupId);
                 }
             }
             catch (Exception ex)
@@ -475,7 +467,7 @@ namespace WebAPI.Clients
         {
             KalturaSocialFriendActivityListResponse friendsActivity = new KalturaSocialFriendActivityListResponse();
             SocialActivityResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             GetFriendsActionsRequest request = new GetFriendsActionsRequest()
             {
@@ -505,7 +497,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Client.GetFriendsActions(group.SocialCredentials.Username, group.SocialCredentials.Password, request);
+                    response = Core.Social.Module.GetFriendsActions(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -538,13 +530,13 @@ namespace WebAPI.Clients
 
             settings = AutoMapper.Mapper.Map<ApiObjects.Social.SocialPrivacySettings>(socialActionConfig);
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // change status to Status - first in social ws 
-                    response = Client.SetUserSocialPrivacySettings(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, settings);
+                    response = Core.Social.Module.SetUserSocialPrivacySettings(groupId, userId, settings);
                 }
             }
             catch (Exception ex)
@@ -575,13 +567,13 @@ namespace WebAPI.Clients
 
             ApiObjects.Social.SocialPrivacySettingsResponse response = new ApiObjects.Social.SocialPrivacySettingsResponse();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // change status to Status - first in social ws 
-                    response = Client.GetUserSocialPrivacySettings(group.SocialCredentials.Username, group.SocialCredentials.Password, userId);
+                    response = Core.Social.Module.GetUserSocialPrivacySettings(groupId, userId);
                 }
             }
             catch (Exception ex)
@@ -611,7 +603,7 @@ namespace WebAPI.Clients
 
             request = AutoMapper.Mapper.Map<ApiObjects.Social.UserSocialActionRequest>(socialAction);
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -619,7 +611,7 @@ namespace WebAPI.Clients
                     // change status to Status - first in social ws 
                     request.SiteGuid = userId;
                     request.DeviceUDID = udid;
-                    response = Client.AddUserSocialAction(group.SocialCredentials.Username, group.SocialCredentials.Password, request);
+                    response = Core.Social.Module.AddUserSocialAction(groupId, request);
                     
                 }
             }
@@ -649,7 +641,7 @@ namespace WebAPI.Clients
         {
             KalturaSocialCommentListResponse friendsActivity = new KalturaSocialCommentListResponse();
             SocialFeedResponse response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             eSocialPlatform wsPlatform = SocialMappings.ConvertSocialPlatform(socialPlatform);
             eAssetType wsAssetType = SocialMappings.ConvertAssetType(assetType);
@@ -659,7 +651,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Client.GetSocialFeed(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, (int)assetId, wsAssetType, wsPlatform,
+                    response = Core.Social.Module.GetSocialFeed(groupId, userId, (int)assetId, wsAssetType, wsPlatform,
                         pageSize, pageIndex, createDateSince, wsOrderBy);
                 }
             }
@@ -705,7 +697,7 @@ namespace WebAPI.Clients
             SocialActivityResponse response = new SocialActivityResponse();
             UserSocialActionQueryRequest request = new UserSocialActionQueryRequest();
 
-            Group group = GroupsManager.GetGroup(groupId);
+            
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -732,7 +724,7 @@ namespace WebAPI.Clients
                     request.m_nStartIndex = pageIndex;
                     request.m_nNumOfRecords = pageSize != null ? pageSize.Value : 0;
 
-                    response = Client.GetUserActions(group.SocialCredentials.Username, group.SocialCredentials.Password, request);
+                    response = Core.Social.Module.GetUserActions(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -769,14 +761,14 @@ namespace WebAPI.Clients
             List<KalturaNetworkActionStatus> deleteResponse = null;
             UserSocialActionResponse response = new UserSocialActionResponse();
             // get group ID
-            Group group = GroupsManager.GetGroup(groupId);
+            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Client.DeleteUserSocialAction(group.SocialCredentials.Username, group.SocialCredentials.Password, userId, id);
+                    response = Core.Social.Module.DeleteUserSocialAction(groupId, userId, id);
                 }
             }
             catch (Exception ex)
