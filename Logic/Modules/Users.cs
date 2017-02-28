@@ -95,7 +95,7 @@ namespace Core.Users
                 // get group ID + user type
                 Utils.GetBaseImpl(ref kUser, nGroupID, operatorId);
                 if (kUser != null)
-                    return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
+                    return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, sUserName, sPassword);
             }
             catch (Exception ex)
             {
