@@ -11,15 +11,13 @@ namespace Core.Users
     {
         public static UserResponseObject SignIn(Int32 siteGuid, KalturaBaseUsers user, int maxFailCount,
                                                 int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin,
-                                                List<KeyValuePair> keyValueList)
+                                                List<KeyValuePair> keyValueList, string username = null, string password = null)
         {
             UserResponseObject response = new UserResponseObject();
 
             try
             {
                 // pre
-                string username = string.Empty;
-                string password = string.Empty;
                 response = user.PreSignIn(ref siteGuid, ref username, ref password, ref maxFailCount, ref lockMin, ref groupId,
                                           ref sessionId, ref ip, ref deviceId, ref preventDoubleLogin, ref keyValueList);
 

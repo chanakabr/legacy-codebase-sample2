@@ -247,25 +247,7 @@ namespace Core.Catalog.Request
                         response.aggregationResults = new List<AggregationsResult>();
                     }
 
-                    foreach (var aggregation in aggregationsResult.Aggregations)
-                    {
-                        var current = new AggregationsResult()
-                        {
-                            field = aggregation.Key,
-                            results = new List<AggregationResult>()
-                        };
-                        
-                        foreach (var bucket in aggregation.Value.buckets)
-                        {
-                            current.results.Add(new AggregationResult()
-                            {
-                                value = bucket.key,
-                                count = bucket.doc_count
-                            });
-                        }
-
-                        response.aggregationResults.Add(current);
-                    }
+                    response.aggregationResults.Add(ConvertAggregationsResponse(aggregationsResult));
                 }
 
                 // Response request Id is identical to request's request Id
@@ -336,6 +318,91 @@ namespace Core.Catalog.Request
             }
 
             return (BaseResponse)response;
+        }
+
+        private AggregationsResult ConvertAggregationsResponse(ESAggregationsResult aggregationsResult)
+        {
+            string currentGroupBy = this.groupBy[0];
+
+            var esAggregation = aggregationsResult.Aggregations[currentGroupBy];
+
+            var result = new AggregationsResult()
+            {
+                field = currentGroupBy,
+                results = new List<AggregationResult>()
+            };
+
+            foreach (var bucket in esAggregation.buckets)
+            {
+                var bucketResult = new AggregationResult()
+                {
+                    value = bucket.key,
+                    count = bucket.doc_count,
+                };
+
+                // go for sub aggregations, if there are
+                if (this.groupBy.Count > 1)
+                {
+                    bucketResult.subs = new List<AggregationsResult>();
+
+                    string nextGroupBy = this.groupBy[1];
+
+                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1);
+
+                    if (sub != null)
+                    {
+                        bucketResult.subs.Add(sub);
+                    }
+                }
+
+                result.results.Add(bucketResult);
+            }
+
+            return result;
+        }
+
+        private AggregationsResult ConvertAggregationsResponse(ESAggregationResult aggregationsResult, int groupByIndex)
+        {
+            if (groupByIndex > this.groupBy.Count)
+            {
+                return null;
+            }
+
+            string currentGroupBy = this.groupBy[groupByIndex];
+
+            //var esAggregation = aggregationsResult.Aggregations[currentGroupBy];
+
+            var result = new AggregationsResult()
+            {
+                field = this.groupBy[groupByIndex],
+                results = new List<AggregationResult>()
+            };
+
+            foreach (var bucket in aggregationsResult.buckets)
+            {
+                var bucketResult = new AggregationResult()
+                {
+                    value = bucket.key,
+                    count = bucket.doc_count
+                };
+
+                // go for sub aggregations
+                if (this.groupBy.Count > groupByIndex + 1)
+                {
+                    string nextGroupBy = this.groupBy[groupByIndex + 1];
+
+                    var sub = ConvertAggregationsResponse(bucket.Aggregations[nextGroupBy], 1);
+
+                    if (sub != null)
+                    {
+                        bucketResult.subs.Add(sub);
+                    }
+                }
+
+                result.results.Add(bucketResult);
+            }
+
+            return result;
         }
 
         #endregion

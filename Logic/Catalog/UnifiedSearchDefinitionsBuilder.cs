@@ -303,6 +303,35 @@ namespace Core.Catalog
 
                 #endregion
 
+                HashSet<string> allMetas = new HashSet<string>();
+
+                foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
+                {
+                    foreach (var meta in metasInGroup)
+                    {
+                        allMetas.Add(meta.Value.ToLower());
+                    }
+                }
+
+                if (request.groupBy != null && request.groupBy.Count > 0)
+                {
+                    foreach (var groupBy in request.groupBy)
+                    {
+                        if (!allMetas.Contains(groupBy.ToLower()))
+                        {
+                            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
+                        }
+                    }
+
+                    definitions.groupBy = new List<KeyValuePair<string, string>>();
+
+                    // Transform the list of group bys to metas list
+                    definitions.groupBy.AddRange(request.groupBy.Select
+                        (
+                            meta => new KeyValuePair<string, string>(meta, string.Format("metas.{0}", meta.ToLower()))
+                        ));
+                }
+
             }
             catch (Exception ex)
             {
