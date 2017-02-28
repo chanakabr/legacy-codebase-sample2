@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost/ws_catalog/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+  <xs:simpleType name="eBundleType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SUBSCRIPTION" />
+      <xs:enumeration value="COLLECTION" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eBundleType" nillable="true" type="tns:eBundleType" />
+  <xs:simpleType name="StatusComment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SUCCESS">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">1</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="FAIL">
+        <xs:annotation>
+          <xs:appinfo>
+            <EnumerationValue xmlns="http://schemas.microsoft.com/2003/10/Serialization/">2</EnumerationValue>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="StatusComment" nillable="true" type="tns:StatusComment" />
+  <xs:simpleType name="eUserType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HOUSEHOLD" />
+      <xs:enumeration value="PERSONAL" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="eUserType" nillable="true" type="tns:eUserType" />
+</xs:schema>

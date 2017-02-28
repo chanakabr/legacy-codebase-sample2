@@ -58,7 +58,7 @@
     <Compile Include="WSCredentials.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>

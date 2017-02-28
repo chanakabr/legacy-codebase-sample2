@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
-using ApiObjects.Notification;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
@@ -5423,7 +5422,7 @@ namespace TvinciImporter
 
         static public ApiObjects.Response.Status SetMessageTemplate(int groupID, ref ApiObjects.Notification.MessageTemplate messageTemplate)
         {
-            MessageTemplateResponse response = null;
+            ApiObjects.Notification.MessageTemplateResponse response = null;
             try
             {
                 //Call Notifications WCF service
@@ -5438,7 +5437,7 @@ namespace TvinciImporter
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupID);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
 
-                MessageTemplate wcfMessageTemplate = new MessageTemplate()
+                ApiObjects.Notification.MessageTemplate wcfMessageTemplate = new ApiObjects.Notification.MessageTemplate()
                 {
                     AssetType = messageTemplate.AssetType,
                     Message = messageTemplate.Message,

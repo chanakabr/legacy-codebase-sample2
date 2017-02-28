@@ -46,9 +46,6 @@
     <Reference Include="Couchbase.NetClient">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseManager">
-      <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -93,6 +90,12 @@
     <Compile Include="SingleInMemoryCache.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="VersionModuleCache.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
