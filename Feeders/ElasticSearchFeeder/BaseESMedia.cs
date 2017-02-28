@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using ApiObjects.MediaIndexingObjects;
-using Catalog;
 using System.Data;
 using ApiObjects.SearchObjects;
 using QueueWrapper;
@@ -14,10 +13,10 @@ using ElasticSearch.Common;
 using ApiObjects;
 using ElasticSearchFeeder.IndexBuilders;
 using ElasticSearch.Common.DeleteResults;
-using Catalog.Cache;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
+using Core.Catalog;
 
 namespace ElasticSearchFeeder
 {
@@ -54,7 +53,7 @@ namespace ElasticSearchFeeder
         {
             try
             {
-                Catalog.Bootstrapper.Bootstrap();
+                Bootstrapper.Bootstrap();
                 //If requested, reload index
                 if (m_bRebuildIndex || !checkIndexExists(eESFeeder))
                 {

@@ -1,5 +1,4 @@
 ﻿using ApiObjects.SearchObjects;
-using Catalog;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using System;
@@ -8,7 +7,6 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Catalog.Cache;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
@@ -290,7 +288,7 @@ namespace ElasticSearchFeeder.IndexBuilders
                 tDS.Wait();
                 DataSet ds = tDS.Result;
 
-                Catalog.Utils.BuildMediaFromDataSet(ref dMediaTrans, ref medias, oGroup, ds);
+                Core.Catalog.Utils.BuildMediaFromDataSet(ref dMediaTrans, ref medias, oGroup, ds);
             }
             catch (Exception ex)
             {

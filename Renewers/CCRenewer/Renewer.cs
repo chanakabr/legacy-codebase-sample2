@@ -4,7 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using KLogMonitor;
-using Billing;
+using Core.ConditionalAccess;
+using ApiObjects.Billing;
 
 namespace CCRenewer
 {
@@ -149,7 +150,7 @@ namespace CCRenewer
                         Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                         for (int i = 0; i < nCount; i++)
                         {
-                            ConditionalAccess.BaseConditionalAccess t = null;
+                            BaseConditionalAccess t = null;
                             Int32 nGroupID = int.Parse(selectQuery.Table("query").DefaultView[i].Row["group_id"].ToString());
                             int nBillingMethod = 0;
                             object oBillingMethod = selectQuery.Table("query").DefaultView[i].Row["BILLING_METHOD"];
@@ -188,7 +189,7 @@ namespace CCRenewer
                                     if (oLanguageCode != null && oLanguageCode != DBNull.Value)
                                         sLanguageCode = oLanguageCode.ToString();
 
-                                    ConditionalAccess.Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
+                                    Utils.GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
                                     if (m_nBillingProvider == 10)
                                     {
                                         BillingResponse resp = t.DD_BaseRenewSubscription(sSiteGUID, dPrice, sCurrency, sSubscriptionCode, "1.1.1.1", sExtraParams,
