@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Users;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
@@ -99,6 +100,15 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.UserFrequency, opt => opt.MapFrom(src => src.UserFrequency))
                 .ForMember(dest => dest.UserFrequencyDescription, opt => opt.MapFrom(src => src.UserFrequencyDescrition))
                 .ForMember(dest => dest.DeviceFamiliesLimitations, opt => opt.MapFrom(src => src.lDeviceFamilyLimitations));
+
+            //DomainDevice
+            Mapper.CreateMap<DomainDevice, KalturaHouseholdDevice>()
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.ActivataionStatus)))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.DomainId))
+                .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.DeviceBrandId))
+                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.ActivatedOn)));
         }
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)
         {
