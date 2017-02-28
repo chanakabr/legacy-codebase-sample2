@@ -328,11 +328,12 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<string> groupBy
+        public List<KeyValuePair<string, string>> groupBy
         {
             get;
             set;
         }
+
         #endregion
 
         #region Ctor
