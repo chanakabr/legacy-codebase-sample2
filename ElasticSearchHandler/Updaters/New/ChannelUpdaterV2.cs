@@ -1,12 +1,10 @@
 ﻿using ApiObjects.SearchObjects;
-using Catalog;
 using ElasticSearch.Common.DeleteResults;
 using ElasticSearch.Searcher;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Catalog.Cache;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;

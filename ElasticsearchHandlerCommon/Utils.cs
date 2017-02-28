@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using Catalog;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,12 +7,13 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Catalog.Cache;
 using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
 using Tvinci.Core.DAL;
+using Core.Catalog.Request;
+using Core.Catalog;
 
 namespace ElasticsearchTasksCommon
 {
@@ -123,7 +123,7 @@ namespace ElasticsearchTasksCommon
                 //dataSetTask.Wait();
                 //DataSet dataSet = dataSetTask.Result;
 
-                Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
+                Core.Catalog.Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet);
 
                 // get media update dates
                 DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { mediaID });

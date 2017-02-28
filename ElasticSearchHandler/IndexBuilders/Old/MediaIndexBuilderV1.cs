@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using ElasticSearch.Common;
 using ElasticsearchTasksCommon;
-using Catalog;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 using GroupsCacheManager;

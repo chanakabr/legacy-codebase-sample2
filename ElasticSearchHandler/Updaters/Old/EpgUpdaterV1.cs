@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
-using Catalog;
-using Catalog.Cache;
 using KlogMonitorHelper;
 
 namespace ElasticSearchHandler.Updaters
