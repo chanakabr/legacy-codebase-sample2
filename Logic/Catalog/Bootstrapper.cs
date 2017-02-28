@@ -46,15 +46,18 @@ namespace Core.Catalog
 
         public static object GetInstance(Type serviceType)
         {
+            Bootstrap();
             return container.GetInstance(serviceType);
         }
         public static T GetInstance<T>() where T : class
         {
+            Bootstrap();
             return container.GetInstance<T>();
         }
 
         public static IEnumerable<T> GetAllInstances<T>() where T : class
         {
+            Bootstrap();
             return container.GetAllInstances<T>();
         }
     }
