@@ -246,6 +246,7 @@
     <Compile Include="Catalog\Request\EpgSearchRequest.cs" />
     <Compile Include="Catalog\Request\ExtendedSearchRequest.cs" />
     <Compile Include="Catalog\Request\ExternalChannelRequest.cs" />
+    <Compile Include="Catalog\Request\GroupedSearchRequest.cs" />
     <Compile Include="Catalog\Request\IMediasProtocolRequest.cs" />
     <Compile Include="Catalog\Request\InternalChannelRequest.cs" />
     <Compile Include="Catalog\Request\IProgramsRequest.cs" />
