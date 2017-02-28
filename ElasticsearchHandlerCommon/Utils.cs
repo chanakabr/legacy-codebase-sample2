@@ -512,7 +512,7 @@ namespace ElasticsearchTasksCommon
                     log.Error("Error - Could not load group from cache in GetGroupMedias");
                 }
 
-                var dummyRequest = new Catalog.Request.BaseRequest()
+                var dummyRequest = new BaseRequest()
                 {
                     domainId = 0,
                     m_nGroupID = channel.m_nParentGroupID,
@@ -523,7 +523,7 @@ namespace ElasticsearchTasksCommon
                     m_sUserIP = string.Empty
                 };
 
-                Catalog.Catalog.UpdateNodeTreeFields(dummyRequest,
+                CatalogLogic.UpdateNodeTreeFields(dummyRequest,
                     ref definitions.filterPhrase, definitions, group);
             }
 
