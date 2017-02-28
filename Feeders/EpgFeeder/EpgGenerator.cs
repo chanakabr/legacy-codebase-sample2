@@ -10,7 +10,6 @@ using Tvinci.Core.DAL;
 using System.Data;
 using EpgBL;
 using ApiObjects;
-using Catalog.Cache;
 using TvinciImporter;
 using ApiObjects.Epg;
 using GroupsCacheManager;

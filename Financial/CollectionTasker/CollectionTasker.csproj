@@ -81,10 +81,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\TvmCore\ConditionalAccess\ConditionalAccess.csproj">
-      <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>
-      <Name>ConditionalAccess</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
       <Name>ODBCWrapper</Name>

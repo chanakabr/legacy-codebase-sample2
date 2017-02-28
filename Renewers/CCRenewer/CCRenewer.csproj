@@ -65,9 +65,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Billing">
-      <HintPath>..\..\..\ws_billing\Billing\bin\Debug\Billing.dll</HintPath>
-    </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\..\tvincicommon\External\Jil.dll</HintPath>
     </Reference>
@@ -123,9 +120,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\TvmCore\ConditionalAccess\ConditionalAccess.csproj">
-      <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>
-      <Name>ConditionalAccess</Name>
+    <ProjectReference Include="..\..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
+      <Name>ApiLogic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\TvmCore\ODBCWrapper\ODBCWrapper.csproj">
       <Project>{48cb3b25-623b-4500-8e88-2e77a7074238}</Project>
@@ -135,10 +136,7 @@
       <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
       <Name>ScheduledTasks</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\ws_billing\Billing\Billing.csproj">
-      <Project>{0b4a22f7-e733-4bf3-a77d-fc2cf4f61a5a}</Project>
-      <Name>Billing</Name>
-    </ProjectReference>
+	
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
