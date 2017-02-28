@@ -20,6 +20,7 @@ using EpgBL;
 using ApiObjects.Response;
 using ApiObjects.PlayCycle;
 using GroupsCacheManager;
+using ApiObjects.Catalog;
 
 namespace Core.Catalog.Request
 {

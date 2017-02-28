@@ -311,6 +311,11 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out ElasticSearch.Searcher.ESAggregationsResult aggregationResult)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

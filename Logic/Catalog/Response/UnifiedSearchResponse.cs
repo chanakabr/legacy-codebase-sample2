@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Core.Catalog.Response;
+using Catalog.Response;
 
 namespace Core.Catalog.Response
 {
@@ -21,6 +22,9 @@ namespace Core.Catalog.Response
         public List<UnifiedSearchResult> searchResults;
 
         [DataMember]
+        public List<AggregationsResult> aggregationResults;
+
+        [DataMember]
         public ApiObjects.Response.Status status;
 
         [DataMember]
@@ -35,6 +39,7 @@ namespace Core.Catalog.Response
         public UnifiedSearchResponse()
         {
             searchResults = new List<UnifiedSearchResult>();
+            aggregationResults = new List<AggregationsResult>();
             status = new ApiObjects.Response.Status();
         }
     }
