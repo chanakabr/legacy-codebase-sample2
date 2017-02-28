@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
-using WS_Pricing;
 
 namespace Ingest.Clients
 {
@@ -19,14 +18,6 @@ namespace Ingest.Clients
         {
         }
 
-        protected mdoule Pricing
-        {
-            get
-            {
-                return (Module as mdoule);
-            }
-        }
-
         internal BusinessModuleResponse InsertPricePlan(int groupId, IngestPricePlan pricePlan)
         {
             BusinessModuleResponse response = null;
@@ -35,7 +26,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.InsertPricePlan(groupId, pricePlan);
+                    response = Core.Pricing.Module.InsertPricePlan(groupId, pricePlan);
                 }
             }
             catch (Exception ex)
@@ -54,7 +45,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.UpdatePricePlan(groupId, pricePlan);
+                    response = Core.Pricing.Module.UpdatePricePlan(groupId, pricePlan);
                 }
             }
             catch (Exception ex)
@@ -73,7 +64,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.DeletePricePlan(groupId, pricePlanCode);
+                    response = Core.Pricing.Module.DeletePricePlan(groupId, pricePlanCode);
                 }
             }
             catch (Exception ex)
@@ -92,7 +83,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.InsertMPP(groupId, multiPricePlan);
+                    response = Core.Pricing.Module.InsertMPP(groupId, multiPricePlan);
                 }
             }
             catch (Exception ex)
@@ -111,7 +102,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.UpdateMPP(groupId, multiPricePlan);
+                    response = Core.Pricing.Module.UpdateMPP(groupId, multiPricePlan);
                 }
             }
             catch (Exception ex)
@@ -130,7 +121,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.DeleteMPP(groupId, multiPricePlanCode);
+                    response = Core.Pricing.Module.DeleteMPP(groupId, multiPricePlanCode);
                 }
             }
             catch (Exception ex)
@@ -149,7 +140,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.InsertPPV(groupId, ppv);
+                    response = Core.Pricing.Module.InsertPPV(groupId, ppv);
                 }
             }
             catch (Exception ex)
@@ -168,7 +159,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.UpdatePPV(groupId, ppv);
+                    response = Core.Pricing.Module.UpdatePPV(groupId, ppv);
                 }
             }
             catch (Exception ex)
@@ -187,7 +178,7 @@ namespace Ingest.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Pricing.DeletePPV(groupId, ppvCode);
+                    response = Core.Pricing.Module.DeletePPV(groupId, ppvCode);
                 }
             }
             catch (Exception ex)

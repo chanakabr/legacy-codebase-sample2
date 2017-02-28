@@ -14,10 +14,10 @@ namespace Ingest.Clients.ClientManager
             switch (clientType)
             {
                 case ClientType.Api:
-                    client = new ApiClient() { Module = new WS_API.API() };
+                    client = new ApiClient();
                     break;
                 case ClientType.Pricing:
-                    client = new PricingClient() { Module = new WS_Pricing.mdoule() };
+                    client = new PricingClient();
                     break;
                 case ClientType.Catalog:
                     client = new CatalogClient()

@@ -225,11 +225,15 @@
     <WCFMetadataStorage Include="Service References\Catalog\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\ADIFeeder\ADIFeeder.csproj">
       <Project>{0b1d4349-8059-48f7-bf8b-31fb1e7a2260}</Project>
       <Name>ADIFeeder</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ApiObjects\ApiObjects.csproj">
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
@@ -256,14 +260,6 @@
     <ProjectReference Include="..\..\tvmcore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_api\WS_API.csproj">
-      <Project>{bef1df84-21c1-47da-bb2d-bb607ee1978e}</Project>
-      <Name>WS_API</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ws_pricing\WS_Pricing.csproj">
-      <Project>{2c08f19b-40e0-4ef1-9f7d-5132c795a184}</Project>
-      <Name>WS_Pricing</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

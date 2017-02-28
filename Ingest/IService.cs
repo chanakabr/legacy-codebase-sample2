@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using Core.Catalog;
 using Ingest.Models;
 using System;
 using System.Collections.Generic;

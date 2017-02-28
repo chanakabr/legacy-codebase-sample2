@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
+using Core.Catalog;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;

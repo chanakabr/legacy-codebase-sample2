@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
+using Core.Catalog;
 using Ingest.Clients.ClientManager;
 using Ingest.Importers;
 using Ingest.Models;
