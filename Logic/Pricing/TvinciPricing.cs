@@ -272,6 +272,47 @@ namespace Core.Pricing
             return tmp;
         }
 
+        public override PriceCode GetPriceCodeDataByCountyAndCurrency(int priceCodeId, string countryCode, string currencyCode)
+        {
+            PriceCode res = null;
+            try
+            {
+                DataSet ds = DAL.PricingDAL.GetPriceCodeLocale(priceCodeId, countryCode, currencyCode);
+                DataRow dr = null;
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables.Count == 2)
+                    {
+                        dr = ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count == 1 ? ds.Tables[1].Rows[0] : null;
+                    }
+                    else
+                    {
+                        dr = ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 ? ds.Tables[0].Rows[0] : null;
+                    }
+                }
+                if (dr != null)
+                {
+                    int currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");
+                    string priceCodeName = ODBCWrapper.Utils.GetSafeStr(dr, "CODE");
+                    if (currencyId > 0 && !string.IsNullOrEmpty(priceCodeName))
+                    {
+                        double price = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "PRICE");
+                        Price localePrice = new Price();
+                        localePrice.InitializeByCodeID(currencyId, price);
+                        res = new PriceCode();
+                        res.Initialize(priceCodeName, localePrice, GetPriceCodeDescription(priceCodeId), priceCodeId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetPriceCodeByCountyAndCurrency, priceCodeId: {0}, countryCode: {1}, currencyCode: {2}",
+                            priceCodeId, countryCode, !string.IsNullOrEmpty(currencyCode) ? currencyCode : string.Empty), ex);
+            }
+
+            return res;
+        }
+
         public override ApiObjects.Response.Status InsertPriceCode(int groupID, string code, Price price)
         {
             ApiObjects.Response.Status status = null;

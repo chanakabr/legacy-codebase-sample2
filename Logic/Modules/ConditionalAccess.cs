@@ -866,7 +866,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetSubscriptionsPrices(sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName);
+                return t.GetSubscriptionsPrices(sSubscriptions, sUserGUID, sCouponCode, sCountryCd2, sLanguageCode3, sDeviceName, null, null);
             }
             else
             {
@@ -2947,6 +2947,64 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 response = t.GetCompensation(compensationId);
+            }
+            return response;
+        }
+
+        public static MediaFileItemPricesContainerResponse GetItemsPricesWithCurrency(int groupID, Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest,
+            string languageCode, string udid, string ip, string currencyCode)
+        {
+            // add userId to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = userId != null ? userId : "null";
+
+            MediaFileItemPricesContainerResponse response = new MediaFileItemPricesContainerResponse();
+
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                response.ItemsPrices = t.GetItemsPrices(mediaFiles, userId, couponCode != null ? couponCode : string.Empty, onlyLowest, languageCode, udid, ip, currencyCode);
+                if (response.ItemsPrices != null)
+                    response.Status = new Status((int)eResponseStatus.OK, "OK");
+                else
+                    response.Status = new Status((int)eResponseStatus.Error, "Error");
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+            }
+            return response;
+        }
+
+        public static SubscriptionsPricesResponse GetSubscriptionsPricesWithCurrency(int groupID, string[] sSubscriptions, string userId, string couponCode, string countryCode,
+            string languageCode, string udid, string ip, string currencyCode)
+        {
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = userId != null ? userId : "null";
+
+            SubscriptionsPricesResponse response = new SubscriptionsPricesResponse();
+            ConditionalAccess.BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupID);
+            if (t != null)
+            {
+                try
+                {
+                    response.SubscriptionsPrices = t.GetSubscriptionsPrices(sSubscriptions, userId, couponCode != null ? couponCode : string.Empty, countryCode, languageCode, udid, ip, currencyCode);
+                }
+                catch (Exception)
+                {
+                    response.Status = new Status((int)eResponseStatus.Error, "Error");
+                }
+                if (response.SubscriptionsPrices != null)
+                {
+                    response.Status = new Status((int)eResponseStatus.OK, "OK");
+                }
+                else
+                    response.Status = new Status((int)eResponseStatus.Error, "Error");
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
             }
             return response;
         }

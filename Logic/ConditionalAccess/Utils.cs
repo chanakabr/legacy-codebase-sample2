@@ -288,11 +288,6 @@ namespace Core.ConditionalAccess
 
         internal static int GetMediaFileTypeID(int nGroupID, int nMediaFileID)
         {
-            return GetMediaFileTypeID(nGroupID, nMediaFileID, string.Empty, string.Empty);
-        }
-
-        internal static int GetMediaFileTypeID(int nGroupID, int nMediaFileID, string sAPIUsername, string sAPIPassword)
-        {
             return Api.Module.GetMediaFileTypeID(nGroupID, nMediaFileID);
         }
 
@@ -1099,118 +1094,123 @@ namespace Core.ConditionalAccess
                 sCouponCode, nGroupID, subCode, out dtDiscountEnd);
         }
 
-        internal static Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref Subscription theSub,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+                                                        string countryCode, string languageCode, string udid)
         {
-            return GetSubscriptionFinalPrice(nGroupID, sSubCode, sSiteGUID, sCouponCode, ref theReason, ref theSub,
-           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, string.Empty);
+            return GetSubscriptionFinalPrice(groupId, subCode, userId, couponCode, ref theReason, ref theSub, countryCode, languageCode, udid, string.Empty);
         }
 
-        //***********************************************
-        internal static Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref Subscription theSub,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr, string sClientIP)
+        internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
+                                                        string countryCode, string languageCode, string udid, string ip, string currencyCode = null)
         {
-            Price p = null;
-            Subscription s = null;
-            bool isGeoCommerceBlock = false;
-
+            Price price = null;
+            Subscription subscription = null;
             //create web service pricing insatance
-            s = Pricing.Module.GetSubscriptionData(nGroupID, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-
-            if (s == null)
+            try
             {
-                theReason = PriceReason.UnKnown;
-                return null;
-            }
-
-            isGeoCommerceBlock = IsGeoBlock(nGroupID, s.n_GeoCommerceID, sClientIP);
-
-            if (!isGeoCommerceBlock)
-            {
-                theSub = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(s));
-
-                if (s.m_oSubscriptionPriceCode != null)
-                    p = TVinciShared.ObjectCopier.Clone<Price>((Price)(s.m_oSubscriptionPriceCode.m_oPrise));
-                theReason = PriceReason.ForPurchase;
-
-                int domainID = 0;
-                List<int> lUsersIds = Utils.GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID, ref domainID);
-
-                DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, sSubCode, domainID);
-
-                if (dt != null)
+                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false);
+                if (subscription == null)
                 {
-                    Int32 nCount = dt.Rows.Count;
-                    if (nCount > 0)
+                    theReason = PriceReason.UnKnown;
+                    return null;
+                }
+
+                bool isGeoCommerceBlock = false;
+                if (!string.IsNullOrEmpty(ip))
+                {
+                    isGeoCommerceBlock = IsGeoBlock(groupId, subscription.n_GeoCommerceID, ip);
+                }
+
+                if (!isGeoCommerceBlock)
+                {
+                    theSub = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(subscription));
+                    DiscountModule externalDisount = null;
+                    if (subscription.m_oSubscriptionPriceCode != null)
                     {
-                        p.m_dPrice = 0.0;
-                        theReason = PriceReason.SubscriptionPurchased;
+                        bool isValidCurrencyCode = false;
+                        // Validate currencyCode if it was passed in the request
+                        if (!string.IsNullOrEmpty(currencyCode))
+                        {
+                            if (!Utils.IsValidCurrencyCode(groupId, currencyCode))
+                            {
+                                theReason = PriceReason.InvalidCurrency;
+                                return new Price();
+                            }
+                            else
+                            {
+                                isValidCurrencyCode = true;
+                            }
+                        }
+                        // Get subscription price code according to country and currency (if exists on the request)
+                        if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode))
+                        {
+                            countryCode = Utils.GetIP2CountryCode(groupId, ip);
+                            PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, theSub.m_oSubscriptionPriceCode.m_nObjectID, countryCode, currencyCode);
+                            if (priceCodeWithCurrency != null)
+                            {
+                                theSub.m_oSubscriptionPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
+                            }
+                            else
+                            {
+                                theReason = PriceReason.CurrencyNotDefinedOnPriceCode;
+                                return new Price();
+                            }
+
+                            if (theSub.m_oExtDisountModule != null)
+                            {
+                                externalDisount = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, theSub.m_oExtDisountModule.m_nObjectID, countryCode, currencyCode);
+                                if (externalDisount == null)
+                                {
+                                    externalDisount = theSub.m_oExtDisountModule != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule)) : null;
+                                }
+                            }
+                        }
+
+                        price = TVinciShared.ObjectCopier.Clone<Price>((Price)(theSub.m_oSubscriptionPriceCode.m_oPrise));
+                    }
+
+                    theReason = PriceReason.ForPurchase;
+                    int domainID = 0;
+                    List<int> lUsersIds = ConditionalAccess.Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainID);
+                    DataTable dt = DAL.ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, subCode, domainID);
+                    if (dt != null)
+                    {
+                        int nCount = dt.Rows.Count;
+                        if (nCount > 0)
+                        {
+                            price.m_dPrice = 0.0;
+                            theReason = PriceReason.SubscriptionPurchased;
+                        }
+                    }
+
+                    if (theReason != PriceReason.SubscriptionPurchased)
+                    {
+                        if (subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
+                        {
+                            return price;
+                        }
+
+                        CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
+                        if (externalDisount != null)
+                        {
+                            price = GetPriceAfterDiscount(price, externalDisount, 1);
+                        }
+
+                        price = CalculateCouponDiscount(ref price, couponGroups, couponCode, groupId);
                     }
                 }
-                if (theReason != PriceReason.SubscriptionPurchased)
+                else
                 {
-                    if (s.m_oPreviewModule != null)
-                        if (IsEntitledToPreviewModule(sSiteGUID, nGroupID, sSubCode, s, ref p, ref theReason, domainID))
-                            return p;
-                    CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
-                    if (theSub.m_oExtDisountModule != null)
-                    {
-                        DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule));
-                        p = GetPriceAfterDiscount(p, externalDisount, 1);
-                    }
-                    p = CalculateCouponDiscount(ref p, couponGroups, sCouponCode, nGroupID);
+                    theReason = PriceReason.GeoCommerceBlocked;
                 }
-                return p;
             }
-            else
+            catch (Exception ex)
             {
-                theReason = PriceReason.GeoCommerceBlocked;
-                return null;
-            }
-        }
-
-        //***********************************************
-        internal static Price GetSubscriptionFinalPrice(Int32 nGroupID, string sSubCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref Subscription theSub,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string connStr)
-        {
-            Price p = null;
-            Subscription s = null;
-            s = Pricing.Module.GetSubscriptionData(nGroupID, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
-            theSub = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(s));
-            if (s == null)
-            {
-                theReason = PriceReason.UnKnown;
-                return null;
+                log.Error(string.Format("GetSubscriptionFinalPrice failed, groupId: {0}, subCode: {1}, userId: {2}, couponCode: {3}, countryCode: {4}, languageCode: {5}, udid: {6}, ip: {7}, currency: {8}",
+                    groupId, subCode, userId, couponCode, countryCode, languageCode, udid, !string.IsNullOrEmpty(ip) ? ip : string.Empty, !string.IsNullOrEmpty(currencyCode) ? currencyCode : string.Empty), ex);
             }
 
-            if (s.m_oSubscriptionPriceCode != null)
-                p = TVinciShared.ObjectCopier.Clone<Price>((Price)(s.m_oSubscriptionPriceCode.m_oPrise));
-            theReason = PriceReason.ForPurchase;
-
-            int domainID = 0;
-            List<int> lUsersIds = GetAllUsersDomainBySiteGUID(sSiteGUID, nGroupID, ref domainID);
-
-            DataTable dt = ConditionalAccessDAL.Get_SubscriptionBySubscriptionCodeAndUserIDs(lUsersIds, sSubCode, domainID);
-
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                p.m_dPrice = 0.0;
-                theReason = PriceReason.SubscriptionPurchased;
-            }
-            if (theReason != PriceReason.SubscriptionPurchased)
-            {
-                if (s.m_oPreviewModule != null)
-                    if (IsEntitledToPreviewModule(sSiteGUID, nGroupID, sSubCode, s, ref p, ref theReason, domainID))
-                        return p;
-                CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
-                if (theSub.m_oExtDisountModule != null)
-                {
-                    DiscountModule externalDisount = TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule));
-                    p = GetPriceAfterDiscount(p, externalDisount, 1);
-                }
-                p = CalculateCouponDiscount(ref p, couponGroups, sCouponCode, nGroupID);
-            }
-            return p;
+            return price;
         }
 
         internal static Price GetCollectionFinalPrice(Int32 nGroupID, string sColCode, string sSiteGUID, string sCouponCode, ref PriceReason theReason, ref Collection theCol,
@@ -1412,8 +1412,8 @@ namespace Core.ConditionalAccess
 
         internal static Price GetMediaFileFinalPriceForNonGetItemsPrices(Int32 nMediaFileID, PPVModule ppvModule, string sSiteGUID, string sCouponCode, Int32 nGroupID,
                                                                                        ref PriceReason theReason, ref Subscription relevantSub, ref Collection relevantCol,
-                                                                                       ref PrePaidModule relevantPP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
-                                                                                       bool shouldIgnoreBundlePurchases = false)
+                                                                                       ref PrePaidModule relevantPP, string countryCode, string sLANGUAGE_CODE, string sDEVICE_NAME,
+                                                                                       bool shouldIgnoreBundlePurchases = false, string ip = null, string currencyCode = null)
         {
             Dictionary<int, int> mediaFileTypesMapping = null;
             List<int> allUsersInDomain = null;
@@ -1429,6 +1429,21 @@ namespace Core.ConditionalAccess
             {
                 theReason = PriceReason.NotForPurchase;
                 return null;
+            }
+
+            bool isValidCurrencyCode = false;
+            // Validate currencyCode if it was passed in the request
+            if (!string.IsNullOrEmpty(currencyCode))
+            {
+                if (!Utils.IsValidCurrencyCode(nGroupID, currencyCode))
+                {
+                    theReason = PriceReason.InvalidCurrency;
+                    return new Price();
+                }
+                else
+                {
+                    isValidCurrencyCode = true;
+                }
             }
 
             if (nMediaFileID > 0)
@@ -1466,6 +1481,33 @@ namespace Core.ConditionalAccess
             DateTime? dtStartDate = null;
             DateTime? dtEndDate = null;
             DateTime? dtDiscountEndDate = null;
+
+            if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(nGroupID, ref currencyCode))
+            {
+                countryCode = GetIP2CountryCode(nGroupID, ip);
+                PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(nGroupID, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
+                bool shouldCheckDiscountModule = false;
+                DiscountModule discountModuleWithCurrency = null;
+                if (ppvModule.m_oDiscountModule != null)
+                {
+                    discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(nGroupID, ppvModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
+                    shouldCheckDiscountModule = true;
+                }
+
+                if (priceCodeWithCurrency == null || (shouldCheckDiscountModule && discountModuleWithCurrency == null))
+                {
+                    theReason = PriceReason.CurrencyNotDefinedOnPriceCode;
+                    return new Price();
+                }
+                else
+                {
+                    ppvModule.m_oPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
+                    if (shouldCheckDiscountModule)
+                    {
+                        ppvModule.m_oDiscountModule = TVinciShared.ObjectCopier.Clone<DiscountModule>(discountModuleWithCurrency);
+                    }
+                }
+            }
 
             // relatedMediaFileIDs is needed only GetLicensedLinks (which calls GetItemsPrices in order to get to GetMediaFileFinalPrice)
             List<int> relatedMediaFileIDs = new List<int>();
@@ -6475,6 +6517,22 @@ namespace Core.ConditionalAccess
             return res;
         }
 
+        internal static string GetIP2CountryCode(int groupId, string ip)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByIp(groupId, ip);
+                res = country != null ? country.Code : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIP2CountryCode with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
         internal static int GetIP2CountryId(int groupId, string ip)
         {
             int res = 0;
@@ -7094,6 +7152,104 @@ namespace Core.ConditionalAccess
             }
 
             return subscription;
+        }
+
+        internal static bool GetGroupDefaultCurrency(int groupId, ref string currencyCode)
+        {
+            bool res = false;
+            try
+            {
+                int defaultGroupCurrencyId = 0;
+                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>()
+                                                    { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
+                {
+                    DataTable dt = null;
+                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        currencyCode = (from row in dt.AsEnumerable()
+                                        where (Int64)row["ID"] == defaultGroupCurrencyId
+                                        select row.Field<string>("CODE3")).FirstOrDefault();
+                        res = !string.IsNullOrEmpty(currencyCode);
+                    }
+                }                
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupDefaultCurrency, groupId: {0}", groupId), ex);
+            }
+
+            return res;
+
+        }
+
+        internal static bool IsValidCurrencyCode(int groupId, string currencyCode3)
+        {
+            bool res = false;
+            if (string.IsNullOrEmpty(currencyCode3))
+            {
+                return res;
+            }
+
+            try
+            {
+                DataTable dt = null;
+                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
+                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    res = (from row in dt.AsEnumerable()
+                           where ((string)row["CODE3"]).ToUpper() == currencyCode3.ToUpper()
+                           select row).Count() > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsValidCurrencyCode, groupId: {0}, currencyCode: {1}", groupId, currencyCode3), ex);
+            }
+
+            return res;
+        }
+
+        private static Tuple<DataTable, bool> GetAllCurrencies(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DataTable dt = null;
+            try
+            {
+                dt = ConditionalAccessDAL.GetAllCurrencies();
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllCurrencies failed, function parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            res = dt != null;
+            return new Tuple<DataTable, bool>(dt, res);
+        }
+
+        private static Tuple<int, bool> GetGroupDefaultCurrency(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int groupDefaultCurrencyId = 0;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue && groupId.Value > 0)
+                    {
+                        groupDefaultCurrencyId = ConditionalAccessDAL.GetGroupDefaultCurrency(groupId.Value);
+                        res = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGroupDefaultCurrency failed, function parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<int, bool>(groupDefaultCurrencyId, res);
         }
     }
 }

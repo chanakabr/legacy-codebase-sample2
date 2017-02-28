@@ -21,7 +21,9 @@ namespace ApiObjects.ConditionalAccess
         FirstDeviceLimitation =10,
         CollectionPurchased = 11,
         UserSuspended = 12, 
-        NotForPurchase = 13        
+        NotForPurchase = 13,
+        InvalidCurrency = 14,
+        CurrencyNotDefinedOnPriceCode = 15
     }
 
     public enum MediaFileStatus

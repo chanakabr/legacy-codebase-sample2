@@ -1094,5 +1094,33 @@ namespace Core.Pricing
                 return null;
             }
         }
+
+        public static PriceCode GetPriceCodeDataByCountyAndCurrency(int nGroupID, int priceCodeId, string countryCode, string currencyCode)
+        {
+            Pricing.BasePricing t = null;
+            Utils.GetBaseImpl(ref t, nGroupID);
+            if (t != null)
+            {
+                return (new PricingCacheWrapper(t)).GetPriceCodeDataByCountyAndCurrency(priceCodeId, countryCode, currencyCode);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static DiscountModule GetDiscountCodeDataByCountryAndCurrency(int nGroupID, int discountCodeId, string countryCode, string currencyCode)
+        {
+            Pricing.BaseDiscount t = null;
+            Utils.GetBaseImpl(ref t, nGroupID);
+            if (t != null)
+            {
+                return t.GetDiscountCodeDataByCountryAndCurrency(discountCodeId, countryCode, currencyCode);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

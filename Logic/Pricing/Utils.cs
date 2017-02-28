@@ -7,6 +7,7 @@ using ApiObjects;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Pricing;
+using System.Data;
 
 namespace Core.Pricing
 {
@@ -286,5 +287,123 @@ namespace Core.Pricing
             sUN = uc.m_sUsername;
             sPass = uc.m_sPassword;
         }
+
+        internal static Tuple<PriceCode, bool> GetPriceCodeByCountryAndCurrency(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            PriceCode priceCode = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 4)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("priceCodeId") && funcParams.ContainsKey("countryCode") && funcParams.ContainsKey("currencyCode"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? priceCodeId = funcParams["priceCodeId"] as int?;
+                        string countryCode = funcParams["countryCode"].ToString();
+                        string currencyCode = funcParams["currencyCode"].ToString();
+                        if (groupId.HasValue && priceCodeId.HasValue && !string.IsNullOrEmpty(countryCode) && !string.IsNullOrEmpty(currencyCode))
+                        {
+                            priceCode = new TvinciPricing(groupId.Value).GetPriceCodeDataByCountyAndCurrency(priceCodeId.Value, countryCode, currencyCode);
+                            if (priceCode != null)
+                            {
+                                res = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetPriceCodeByCountryAndCurrency failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<PriceCode, bool>(priceCode, res);
+        }
+
+        internal static Tuple<DiscountModule, bool> GetDiscountModuleByCountryAndCurrency(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            DiscountModule discountModule = null;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 4)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("discountCodeId") && funcParams.ContainsKey("countryCode") && funcParams.ContainsKey("currencyCode"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+                        int? discountCodeId = funcParams["discountCodeId"] as int?;
+                        string countryCode = funcParams["countryCode"].ToString();
+                        string currencyCode = funcParams["currencyCode"].ToString();
+                        if (groupId.HasValue && discountCodeId.HasValue && !string.IsNullOrEmpty(countryCode) && !string.IsNullOrEmpty(currencyCode))
+                        {
+                            discountModule = GetDiscountModuleByCountryAndCurrency(discountCodeId.Value, countryCode, currencyCode);
+                            if (discountModule != null)
+                            {
+                                res = true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDiscountModuleByCountryAndCurrency failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<DiscountModule, bool>(discountModule, res);
+        }
+
+        private static DiscountModule GetDiscountModuleByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode)
+        {
+            DiscountModule discountModule = null;
+            try
+            {
+                DataSet ds = DAL.PricingDAL.GetDiscountModuleLocale(discountCodeId, countryCode, currencyCode);
+                DataRow dr = null;
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables.Count == 2)
+                    {
+                        dr = ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count == 1 ? ds.Tables[1].Rows[0] : null;
+                    }
+                    else
+                    {
+                        dr = ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count == 1 ? ds.Tables[0].Rows[0] : null;
+                    }
+                }
+                if (dr != null)
+                {
+                    int currencyId = ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD");
+                    string discountCodeName = ODBCWrapper.Utils.GetSafeStr(dr, "CODE");
+                    double price = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "PRICE");
+                    double discountPercent = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "DISCOUNT_PERCENT");
+                    RelationTypes theRelationType = (RelationTypes)ODBCWrapper.Utils.GetIntSafeVal(dr, "RELATION_TYPE");
+                    Price localPrice = new Price();
+                    localPrice.InitializeByCodeID(currencyId, price);
+                    DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE");
+                    startDate = startDate.HasValue ? startDate : new DateTime(2000, 1, 1);
+                    DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
+                    endDate = endDate.HasValue ? endDate : new DateTime(2099, 1, 1);
+                    WhenAlgoType oWhenAlgoType = (WhenAlgoType)ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TYPE");
+                    int nWhenAlgoTimes = ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TIMES");
+                    WhenAlgo wa = new WhenAlgo();
+                    wa.Initialize(oWhenAlgoType, nWhenAlgoTimes);
+                    discountModule = new DiscountModule();
+                    discountModule.Initialize(discountCodeName, localPrice, DiscountModule.GetDiscountCodeDescription(discountCodeId), discountCodeId,
+                                              discountPercent, theRelationType, startDate.Value, endDate.Value, wa);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDiscountModuleByCountryAndCurrency, discountCodeId: {0}, countryCode: {1}, currencyCode: {2}",
+                            discountCodeId, countryCode, !string.IsNullOrEmpty(currencyCode) ? currencyCode : string.Empty), ex);
+            }
+
+            return discountModule;
+        }
+
     }
 }

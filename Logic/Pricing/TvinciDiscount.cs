@@ -1,13 +1,18 @@
 ﻿using ApiObjects.Pricing;
+using CachingProvider.LayeredCache;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Core.Pricing
 {
     public class TvinciDiscount: BaseDiscount
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public TvinciDiscount(Int32 nGroupID) : base(nGroupID)
         {
         }
@@ -109,6 +114,24 @@ namespace Core.Pricing
                     selectQuery.Finish();
                 }
             }
+        }
+
+        public override DiscountModule GetDiscountCodeDataByCountryAndCurrency(int discountCodeId, string countryCode, string currencyCode)
+        {
+            DiscountModule discountModule = null;
+            if (discountCodeId > 0)
+            {
+                string key = LayeredCacheKeys.GetDiscountModuleCodeByCountryAndCurrencyKey(m_nGroupID, discountCodeId, countryCode, currencyCode);
+                if (!LayeredCache.Instance.Get<DiscountModule>(key, ref discountModule, Utils.GetDiscountModuleByCountryAndCurrency, new Dictionary<string, object>() { { "groupId", m_nGroupID },
+                                                            { "discountCodeId", discountCodeId }, { "countryCode", countryCode }, { "currencyCode", currencyCode } },
+                                                            m_nGroupID, LayeredCacheConfigNames.DISCOUNT_MODULE_LOCALE_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting discountModule by countryCode and currencyCode from LayeredCache, priceCodeId: {0}, countryCode: {1},currencyCode: {2}, key: {3}",
+                                    discountCodeId, countryCode, currencyCode, key);
+                }
+            }
+
+            return discountModule;
         }
     }
 }
