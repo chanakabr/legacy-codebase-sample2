@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ElasticSearch.Searcher
 {
+    [DataContract]
     public class ESAggregationsResult
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -349,6 +351,7 @@ namespace ElasticSearch.Searcher
 
         #endregion
 
+        [DataMember]
         public Dictionary<string, ESAggregationResult> Aggregations;
     }
 

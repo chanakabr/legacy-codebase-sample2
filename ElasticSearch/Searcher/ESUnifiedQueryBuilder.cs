@@ -211,7 +211,7 @@ namespace ElasticSearch.Searcher
                 FilterSettings = filterRoot
             };
 
-            if (PageSize <= 0)
+            if (PageSize <= 0 && this.SearchDefinitions.groupBy == null)
             {
                 PageSize = MAX_RESULTS;
             }
@@ -264,8 +264,8 @@ namespace ElasticSearch.Searcher
                     {
                         currentAggregation = new ESBaseAggsItem()
                         {
-                            Field = groupBy,
-                            Name = groupBy,
+                            Field = groupBy.Value.ToLower(),
+                            Name = groupBy.Key,
                             Size = 0,
                             Type = eElasticAggregationType.terms
                         };
@@ -276,10 +276,10 @@ namespace ElasticSearch.Searcher
                     {
                         var subAggregation = new ESBaseAggsItem()
                         {
-                            Field = groupBy,
-                            Name = groupBy,
+                            Field = groupBy.Value.ToLower(),
+                            Name = groupBy.Key,
                             Size = 0,
-                            Type = eElasticAggregationType.stats   
+                            Type = eElasticAggregationType.terms   
                         };
 
                         currentAggregation.SubAggrgations.Add(subAggregation);
