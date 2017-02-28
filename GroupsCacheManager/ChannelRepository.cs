@@ -9,6 +9,7 @@ using ApiObjects;
 using ApiObjects.SearchObjects;
 using KLogMonitor;
 using Tvinci.Core.DAL;
+using ApiObjects.Catalog;
 
 namespace GroupsCacheManager
 {

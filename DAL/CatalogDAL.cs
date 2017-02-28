@@ -14,6 +14,7 @@ using ApiObjects.SearchObjects;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.PlayCycle;
+using ApiObjects.Catalog;
 
 namespace Tvinci.Core.DAL
 {
