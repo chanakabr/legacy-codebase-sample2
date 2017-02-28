@@ -977,10 +977,6 @@
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\tvmcore\ConditionalAccess\ConditionalAccess.csproj">
-      <Project>{d36bc548-5359-4db0-8692-ed3d1e9c38e7}</Project>
-      <Name>ConditionalAccess</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
