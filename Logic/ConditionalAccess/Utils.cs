@@ -1486,15 +1486,15 @@ namespace Core.ConditionalAccess
             {
                 countryCode = GetIP2CountryCode(nGroupID, ip);
                 PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(nGroupID, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
-                bool shouldCheckDiscountModule = false;
+                bool shouldUpdateDiscountModule = false;
                 DiscountModule discountModuleWithCurrency = null;
                 if (ppvModule.m_oDiscountModule != null)
                 {
                     discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(nGroupID, ppvModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
-                    shouldCheckDiscountModule = true;
+                    shouldUpdateDiscountModule = discountModuleWithCurrency != null;
                 }
 
-                if (priceCodeWithCurrency == null || (shouldCheckDiscountModule && discountModuleWithCurrency == null))
+                if (priceCodeWithCurrency == null || (shouldUpdateDiscountModule && discountModuleWithCurrency == null))
                 {
                     theReason = PriceReason.CurrencyNotDefinedOnPriceCode;
                     return new Price();
@@ -1502,7 +1502,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     ppvModule.m_oPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
-                    if (shouldCheckDiscountModule)
+                    if (shouldUpdateDiscountModule)
                     {
                         ppvModule.m_oDiscountModule = TVinciShared.ObjectCopier.Clone<DiscountModule>(discountModuleWithCurrency);
                     }

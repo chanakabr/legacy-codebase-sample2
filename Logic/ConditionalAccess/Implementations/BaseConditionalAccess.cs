@@ -2554,17 +2554,14 @@ namespace Core.ConditionalAccess
                         {
                             price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                             if (AppUsageModule.m_ext_discount_id > 0)
-                            {
-                                externalDisount = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                            {                                
+                                DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                                externalDisount = externalDisountByCountryAndCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountByCountryAndCurrency) : Core.Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
                             }
                         }
                         else
                         {
                             price = Core.Pricing.Module.GetPriceCodeData(m_nGroupID, AppUsageModule.m_pricing_id.ToString(), string.Empty, string.Empty, string.Empty);
-                            if (AppUsageModule.m_ext_discount_id > 0)
-                            {
-                                externalDisount = Core.Pricing.Module.GetDiscountCodeData(m_nGroupID, AppUsageModule.m_ext_discount_id.ToString());
-                            }
                         }
 
                         if (price == null)
@@ -6442,15 +6439,15 @@ namespace Core.ConditionalAccess
                                 if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
                                 {
                                     PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
-                                    bool shouldCheckDiscountModule = false;
+                                    bool shouldUpdateDiscountModule = false;
                                     DiscountModule discountModuleWithCurrency = null;
                                     if (ppvModules[j].PPVModule.m_oDiscountModule != null)
                                     {
                                         discountModuleWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, ppvModules[j].PPVModule.m_oDiscountModule.m_nObjectID, countryCode, currencyCode);
-                                        shouldCheckDiscountModule = true;
+                                        shouldUpdateDiscountModule = discountModuleWithCurrency != null;
                                     }
 
-                                    if (priceCodeWithCurrency == null || (shouldCheckDiscountModule && discountModuleWithCurrency == null))
+                                    if (priceCodeWithCurrency == null)
                                     {
                                         ItemPriceContainer invalidItemPriceContainer = new ItemPriceContainer();
                                         invalidItemPriceContainer.m_PriceReason = PriceReason.CurrencyNotDefinedOnPriceCode;
@@ -6460,7 +6457,7 @@ namespace Core.ConditionalAccess
                                     else
                                     {
                                         ppvModules[j].PPVModule.m_oPriceCode = TVinciShared.ObjectCopier.Clone<PriceCode>(priceCodeWithCurrency);
-                                        if (shouldCheckDiscountModule)
+                                        if (shouldUpdateDiscountModule)
                                         {
                                             ppvModules[j].PPVModule.m_oDiscountModule = TVinciShared.ObjectCopier.Clone<DiscountModule>(discountModuleWithCurrency);
                                         }
