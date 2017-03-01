@@ -288,7 +288,7 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaAssetFilter,WebAPI.Models.General.KalturaFilterPager)">
+        <member name="M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaAssetFilter,WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Catalog.KalturaAssetMetaGroupBy)">
             <summary>
             
             </summary>
@@ -871,6 +871,21 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCountListResponse.Objects">
             <summary>
             Assets
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.Value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.Count">
+            <summary>
+            Count
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetGroupBy.Value">
+            <summary>
+            Value
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLastPositionListResponse">

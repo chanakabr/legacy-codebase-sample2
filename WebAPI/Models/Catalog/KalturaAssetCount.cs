@@ -31,6 +31,9 @@ namespace WebAPI.Models.Catalog
 
     public class KalturaAssetCount : KalturaOTTObject
     {
+        /// <summary>
+        /// Value
+        /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]
         [XmlElement(ElementName = "value")]
@@ -40,6 +43,9 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
+        /// <summary>
+        /// Count
+        /// </summary>
         [DataMember(Name = "count")]
         [JsonProperty(PropertyName = "count")]
         [XmlElement(ElementName = "count")]

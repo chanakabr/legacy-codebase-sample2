@@ -11,6 +11,9 @@ namespace WebAPI.Models.Catalog
 {
     public class KalturaAssetGroupBy : KalturaOTTObject
     {
+        /// <summary>
+        /// Value
+        /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]
         [XmlElement(ElementName = "value")]
