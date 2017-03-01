@@ -288,7 +288,7 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaAssetFilter,WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Catalog.KalturaAssetMetaGroupBy)">
+        <member name="M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Catalog.KalturaAssetMetaGroupBy)">
             <summary>
             
             </summary>
