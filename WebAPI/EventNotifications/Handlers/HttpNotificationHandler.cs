@@ -28,7 +28,7 @@ namespace WebAPI.EventNotifications
 
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
         {
-            if (this.ValidHttpStatuses == null)
+            if (this.ValidHttpStatuses == null || this.ValidHttpStatuses.Count == 0)
             {
                 this.ValidHttpStatuses = new List<int>() { 200, 201, 202, 203, 204, 205, 206, 207, 208, 226 };
             }
