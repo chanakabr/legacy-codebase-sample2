@@ -28,6 +28,11 @@ namespace WebAPI.EventNotifications
 
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
         {
+            if (this.ValidHttpStatuses == null)
+            {
+                this.ValidHttpStatuses = new List<int>() { 200, 201, 202, 203, 204, 205, 206, 207, 208, 226 };
+            }
+
             this.SendRequest(
                 new KalturaHttpNotification()
                 {
@@ -57,8 +62,8 @@ namespace WebAPI.EventNotifications
             set;
         }
 
-        [JsonProperty("status_handling")]
-        public eHttpStatusHandling StatusHandling
+        [JsonProperty("valid_statuses")]
+        public List<int> ValidHttpStatuses
         {
             get;
             set;
@@ -318,39 +323,10 @@ namespace WebAPI.EventNotifications
                 log.Error("Error in SendPostHttpReq Exception", ex);
             }
 
-            //switch (this.StatusHandling)
-            //{
-            //    case eHttpStatusHandling.None:
-            //    break;
-            //    case eHttpStatusHandling.OnlySuccess:
-            //    {
-            if (statusCode < 200 || statusCode >= 300)
+            if (!this.ValidHttpStatuses.Contains(statusCode))
             {
                 throw new Exception("HTTP handler: received unwanted status code");
             }
-            //        break;
-            //    }
-            //    case eHttpStatusHandling.AllowRedirection:
-            //    {
-            //        if (statusCode < 200 || statusCode >= 400)
-            //        {
-            //            throw new Exception("HTTP handler: received unwanted status code");
-            //        }
-            //        break;
-            //    }
-            //    case eHttpStatusHandling.AllowClientError:
-            //    {
-            //        if (statusCode < 200 || statusCode >= 500)
-            //        {
-            //            throw new Exception("HTTP handler: received unwanted status code");
-            //        }
-            //        break;
-            //    }
-            //    case eHttpStatusHandling.AllowServerError:
-            //    break;
-            //    default:
-            //    break;
-            //}
         }
 
         public void Post(object phoenix)
@@ -564,15 +540,6 @@ namespace WebAPI.EventNotifications
         Post,
         Put,
         Delete
-    }
-
-    public enum eHttpStatusHandling
-    {
-        None,
-        OnlySuccess,
-        AllowRedirection,
-        AllowClientError,
-        AllowServerError
     }
 
     public enum eAuthenticationMethod
