@@ -37,7 +37,7 @@ namespace WebAPI.Filters
                     {
                         Assembly consumerAssembly = null;
 
-                        if (File.Exists(setting.DllLocation))
+                        if (!string.IsNullOrEmpty(setting.DllLocation) && File.Exists(setting.DllLocation))
                         {
                             consumerAssembly = Assembly.LoadFrom(setting.DllLocation);
                         }
