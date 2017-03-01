@@ -94,8 +94,42 @@ namespace WebAPI.Utils
 
         internal static string GetLanguageFromRequest()
         {
-            var language = HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE];
-            return language != null ? language.ToString() : null;
+            if (HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE] == null)
+            {
+                return null;
+            }
+
+            return HttpContext.Current.Items[RequestParser.REQUEST_LANGUAGE].ToString();
+        }
+
+        internal static int? GetGroupIdFromRequest()
+        {
+            if (HttpContext.Current.Items[RequestParser.REQUEST_GROUP_ID] == null)
+            {
+                return null;
+            }
+
+            return (int) HttpContext.Current.Items[RequestParser.REQUEST_GROUP_ID];
+        }
+
+        internal static string GetDefaultLanguage()
+        {
+            int? groupId = GetGroupIdFromRequest();
+            if (!groupId.HasValue)
+            {
+                return null;
+            }
+
+            // get all group languages
+            var languages = GroupsManager.GetGroup(groupId.Value).Languages;
+            Language langModel = languages.Where(l => l.IsDefault).FirstOrDefault();
+
+            if (langModel != null)
+            {
+                return langModel.Code;
+            }
+
+            return null;
         }
 
         internal static string GetCurrencyFromRequest()

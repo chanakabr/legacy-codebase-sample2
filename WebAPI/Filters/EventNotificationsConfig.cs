@@ -35,7 +35,16 @@ namespace WebAPI.Filters
                 {
                     try
                     {
-                        Assembly consumerAssembly = Assembly.LoadFrom(setting.DllLocation);
+                        Assembly consumerAssembly = null;
+
+                        if (!string.IsNullOrEmpty(setting.DllLocation) && File.Exists(setting.DllLocation))
+                        {
+                            consumerAssembly = Assembly.LoadFrom(setting.DllLocation);
+                        }
+                        else
+                        {
+                            consumerAssembly = Assembly.GetCallingAssembly();
+                        }
 
                         Type consumerType = consumerAssembly.GetType(setting.Type);
 
