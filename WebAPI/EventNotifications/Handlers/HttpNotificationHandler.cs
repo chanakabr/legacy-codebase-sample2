@@ -28,7 +28,15 @@ namespace WebAPI.EventNotifications
 
         internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
         {
-            this.SendRequest(eventWrapper);
+            this.SendRequest(
+                new KalturaHttpNotification()
+                {
+                    eventObject = eventWrapper.eventObject,
+                    eventObjectType = eventWrapper.eventObjectType,
+                    eventType = eventWrapper.eventType,
+                    objectType = eventWrapper.objectType
+                }
+                );
         }
 
         #endregion
@@ -180,7 +188,7 @@ namespace WebAPI.EventNotifications
 
         #region Protected and private methods
 
-        protected void SendRequest(object phoenixObject)
+        protected void SendRequest(KalturaHttpNotification phoenixObject)
         {
             try
             {

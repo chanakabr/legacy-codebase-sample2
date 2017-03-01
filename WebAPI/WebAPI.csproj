@@ -248,6 +248,7 @@
     <Compile Include="EventNotifications\EventConverter.cs" />
     <Compile Include="EventNotifications\Handlers\EmailNotificationHandler.cs" />
     <Compile Include="EventNotifications\Handlers\HttpNotificationHandler.cs" />
+    <Compile Include="EventNotifications\Handlers\KalturaHttpNotification.cs" />
     <Compile Include="EventNotifications\Handlers\RabbitQueueHandler.cs" />
     <Compile Include="EventNotifications\RestNotificationEventConsumer.cs" />
     <Compile Include="Filters\EventNotificationsConfig.cs" />
