@@ -21,6 +21,11 @@ namespace WebAPI.Managers
 
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
+        private const string REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY = "revoked_ks_max_ttl_seconds";
+        private const string USERS_SESSIONS_KEY_FORMAT_TCM_KEY = "users_sessions_key_format";
+        private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "eevoked_ks_key_format";
+        private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
+        private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
 
         private const string CB_SECTION_NAME = "tokens";
 
@@ -466,6 +471,8 @@ namespace WebAPI.Managers
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
                 Group group = GroupsManager.GetGroup(ks.GroupId);
+                int revokedKsMaxTtlSeconds = GetRevokedKsMaxTtlSeconds(group);
+                string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
 
                 ApiToken revokedToken = new ApiToken()
                 {
@@ -476,12 +483,12 @@ namespace WebAPI.Managers
                     UserId = ks.UserId
                 };
 
-                string revokedKsCbKey = string.Format(group.RevokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+                string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
 
                 uint expiration = (uint)(revokedToken.RefreshTokenExpiration - SerializationUtils.GetCurrentUtcTimeInUnixTimestamp());
-                if (group.RevokedKsMaxTtlSeconds > 0 && group.RevokedKsMaxTtlSeconds < expiration)
+                if (revokedKsMaxTtlSeconds > 0 && revokedKsMaxTtlSeconds < expiration)
                 {
-                    expiration = (uint)group.RevokedKsMaxTtlSeconds;
+                    expiration = (uint)revokedKsMaxTtlSeconds;
                 }
 
                 if (!cbManager.Add(revokedKsCbKey, revokedToken, expiration, true))
@@ -492,6 +499,27 @@ namespace WebAPI.Managers
 
             }
             return true;
+        }
+
+        private static string GetRevokedKsKeyFormat(Group group)
+        {
+            string revokedKsKeyFormat = group.RevokedKsKeyFormat;
+            if (string.IsNullOrEmpty(revokedKsKeyFormat))
+            {
+                revokedKsKeyFormat = TCMClient.Settings.Instance.GetValue<string>(REVOKED_KS_KEY_FORMAT_TCM_KEY);
+
+                if (string.IsNullOrEmpty(revokedKsKeyFormat))
+                {
+                    revokedKsKeyFormat = REVOKED_KS_KEY_FORMAT;
+                }
+            }
+
+            return revokedKsKeyFormat;
+        }
+
+        private static int GetRevokedKsMaxTtlSeconds(Group group)
+        {
+            return group.RevokedKsMaxTtlSeconds == 0 ? TCMClient.Settings.Instance.GetValue<int>(REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY) : group.RevokedKsMaxTtlSeconds;
         }
 
         internal static bool RevokeSessions(int groupId, string userId)
@@ -515,15 +543,17 @@ namespace WebAPI.Managers
             }
 
             Group group = GroupsManager.GetGroup(ks.GroupId);
+            string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
+            string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
 
-            string revokedKsCbKey = string.Format(group.RevokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
+            string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
             ApiToken revokedToken = cbManager.Get<ApiToken>(revokedKsCbKey, true);
             if (revokedToken != null)
             {
                 return false;
             }
-            
-            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, ks.UserId);
+
+            string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
             UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
 
             if (usersSessions != null)
@@ -544,12 +574,30 @@ namespace WebAPI.Managers
             return true;
         }
 
+        private static string GetUserSessionsKeyFormat(Group group)
+        {
+            string userSessionsKeyFormat = group.UserSessionsKeyFormat;
+            if (string.IsNullOrEmpty(userSessionsKeyFormat))
+            {
+                userSessionsKeyFormat = TCMClient.Settings.Instance.GetValue<string>(USERS_SESSIONS_KEY_FORMAT_TCM_KEY);
+
+                if (string.IsNullOrEmpty(userSessionsKeyFormat))
+                {
+                    userSessionsKeyFormat = USERS_SESSIONS_KEY_FORMAT;
+                }
+            }
+
+            return userSessionsKeyFormat;
+        }
+
         private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
         {
             if (!string.IsNullOrEmpty(userId) && userId != "0")
             {
+                string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
+
                 // get user sessions from CB
-                string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
+                string userSessionsCbKey = string.Format(userSessionsKeyFormat, userId);
 
                 ulong version;
                 UserSessions usersSessions = cbManager.GetWithVersion<UserSessions>(userSessionsCbKey, out version, true);
@@ -600,7 +648,8 @@ namespace WebAPI.Managers
 
         internal static void RemoveUserSessions(Group group, string userId)
         {
-            string userSessionsCbKey = string.Format(group.UserSessionsKeyFormat, userId);
+            string userSessionsKeyFormat = GetUserSessionsKeyFormat(group);
+            string userSessionsCbKey = string.Format(userSessionsKeyFormat, userId);
 
             if (!cbManager.Remove(userSessionsCbKey))
             {
