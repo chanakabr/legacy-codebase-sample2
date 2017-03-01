@@ -56,6 +56,6 @@ namespace WebAPI.Managers.Models
             set;
         }
 
-        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper wrapper);
+        internal abstract void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification wrapper);
     }
 }

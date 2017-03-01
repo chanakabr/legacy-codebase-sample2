@@ -19,7 +19,7 @@ namespace WebAPI.EventNotifications
         {
         }
 
-        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper theObject)
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification theObject)
         {
             //
             QueueWrapper.GenericCeleryQueue queue = new QueueWrapper.GenericCeleryQueue();

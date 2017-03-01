@@ -26,7 +26,7 @@ namespace WebAPI.EventNotifications
 
         #region Override Method
 
-        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper eventWrapper)
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
         {
             this.SendRequest(eventWrapper);
         }

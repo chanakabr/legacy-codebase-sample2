@@ -193,7 +193,7 @@ namespace WebAPI
 
         #region Protected methods
 
-        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaEventWrapper eventWrapper)
+        protected void PerformAction(NotificationAction action, KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
         {
             // first check action's status - if it isn't good,
             if (action.Status != 1)

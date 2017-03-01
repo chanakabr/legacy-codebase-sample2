@@ -8,30 +8,30 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.General
 {
-    public class KalturaEventWrapper : KalturaOTTObject
+    public class KalturaNotification : KalturaOTTObject
     {
-        [DataMember(Name = "eventObject")]
-        [JsonProperty(PropertyName = "eventObject")]
-        [XmlElement(ElementName = "eventObject")]
+        [DataMember(Name = "object")]
+        [JsonProperty(PropertyName = "object")]
+        [XmlElement(ElementName = "object")]
         public KalturaOTTObject eventObject
         {
             get;
             set;
         }
 
-        [DataMember(Name = "eventAction")]
-        [JsonProperty(PropertyName = "eventAction")]
-        [XmlElement(ElementName = "eventAction")]
-        public KalturaEventAction eventAction
+        [DataMember(Name = "eventType")]
+        [JsonProperty(PropertyName = "eventType")]
+        [XmlElement(ElementName = "eventType")]
+        public KalturaEventAction eventType
         {
             get;
             set;
         }
 
-        [DataMember(Name = "objectType")]
-        [JsonProperty(PropertyName = "objectType")]
-        [XmlElement(ElementName = "objectType")]
-        public string objectType
+        [DataMember(Name = "eventObjectType")]
+        [JsonProperty(PropertyName = "eventObjectType")]
+        [XmlElement(ElementName = "eventObjectType")]
+        public string eventObjectType
         {
             get;
             set;

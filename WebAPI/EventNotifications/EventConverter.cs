@@ -10,7 +10,7 @@ namespace WebAPI.EventNotifications
 {
     public class EventConverter
     {
-        public static KalturaEventWrapper ConvertEvent(string phoenixType, KalturaObjectActionEvent actionEvent)
+        public static KalturaNotification ConvertEvent(string phoenixType, KalturaObjectActionEvent actionEvent)
         {
             // convert the WS object to an API/rest/phoenixObject
             object phoenixObject = null;
@@ -42,10 +42,10 @@ namespace WebAPI.EventNotifications
                 }
             }
 
-            KalturaEventWrapper eventWrapper = new KalturaEventWrapper()
+            KalturaNotification eventWrapper = new KalturaNotification()
             {
                 eventObject = ottObject,
-                eventAction = ConvertKalturaAction(actionEvent.Action),
+                eventType = ConvertKalturaAction(actionEvent.Action),
                 objectType = destination.Name
             };
 

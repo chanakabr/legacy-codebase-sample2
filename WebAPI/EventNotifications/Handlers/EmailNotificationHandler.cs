@@ -17,7 +17,7 @@ namespace WebAPI.EventNotifications
         {
         }
 
-        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaEventWrapper t)
+        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification t)
         {
             // to do
         }
