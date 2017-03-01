@@ -106,6 +106,8 @@ namespace WebAPI.Filters
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
         public const string REQUEST_VERSION = "requestVersion";
         public const string REQUEST_USER_ID = "user_id";
+        public const string REQUEST_GROUP_ID = "group_id";
+        public const string REQUEST_KS = "KS";
         public const string REQUEST_LANGUAGE = "language";
         public const string REQUEST_CURRENCY = "currency";
         public const string REQUEST_GLOBAL_KS = "global_ks";

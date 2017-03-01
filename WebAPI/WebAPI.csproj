@@ -262,6 +262,7 @@
     <Compile Include="Managers\Models\EventNotifications\NotificationAction.cs" />
     <Compile Include="Managers\Models\EventNotifications\NotificationCondition.cs" />
     <Compile Include="Managers\Models\UserSessions.cs" />
+    <Compile Include="Managers\Scheme\Deprecated.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
@@ -547,6 +548,7 @@
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
     <Compile Include="Models\General\KalturaNotification.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
+    <Compile Include="Models\General\KalturaMultilingualString.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
