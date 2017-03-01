@@ -1124,7 +1124,7 @@ namespace Core.ConditionalAccess
                 if (!isGeoCommerceBlock)
                 {
                     theSub = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(subscription));
-                    DiscountModule externalDisount = null;
+                    DiscountModule externalDisount = theSub.m_oExtDisountModule != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule)) : null;                  
                     if (subscription.m_oSubscriptionPriceCode != null)
                     {
                         bool isValidCurrencyCode = false;
@@ -1141,6 +1141,7 @@ namespace Core.ConditionalAccess
                                 isValidCurrencyCode = true;
                             }
                         }
+                        
                         // Get subscription price code according to country and currency (if exists on the request)
                         if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode))
                         {
@@ -1156,13 +1157,10 @@ namespace Core.ConditionalAccess
                                 return new Price();
                             }
 
-                            if (theSub.m_oExtDisountModule != null)
+                            if (externalDisount != null)
                             {
-                                externalDisount = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, theSub.m_oExtDisountModule.m_nObjectID, countryCode, currencyCode);
-                                if (externalDisount == null)
-                                {
-                                    externalDisount = theSub.m_oExtDisountModule != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule)) : null;
-                                }
+                                DiscountModule externalDisountWithCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, externalDisount.m_nObjectID, countryCode, currencyCode);
+                                externalDisount = externalDisountWithCurrency != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>(externalDisountWithCurrency) : externalDisount;
                             }
                         }
 

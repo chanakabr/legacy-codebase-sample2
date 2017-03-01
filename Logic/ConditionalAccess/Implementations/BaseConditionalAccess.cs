@@ -15367,7 +15367,6 @@ namespace Core.ConditionalAccess
             return string.Format("Found {0} subscriptions to renew, {1} added to queue successfully", totalSubscriptionsToRenew, totalRenewTransactionsAdded);
         }
 
-
         public void RemoveHouseholdEntitlements(int householdId)
         {
             int deleted = DAL.ConditionalAccessDAL.DeleteHouseholdSubscriptions(householdId, (int)SubscriptionPurchaseStatus.HouseholdCancel);
@@ -15440,5 +15439,6 @@ namespace Core.ConditionalAccess
         {
             return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
         }
+
     }
 }
