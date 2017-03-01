@@ -29,7 +29,7 @@ namespace WebAPI.Models.Catalog
         }
     }
 
-    public class KalturaAssetCount
+    public class KalturaAssetCount : KalturaOTTObject
     {
     }
 }
