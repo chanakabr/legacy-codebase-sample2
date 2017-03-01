@@ -210,7 +210,17 @@ namespace WebAPI.Utils
         {
             public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
             {
-                JToken jToken = Enum.GetName(value.GetType(), value);
+                Type type = value.GetType();
+                JToken jToken;
+
+                if (type.IsEnum)
+                {
+                    jToken = Enum.GetName(type, value);
+                }
+                else
+                {
+                    jToken = Enum.GetName(Nullable.GetUnderlyingType(type), value);
+                }
                 jToken.WriteTo(writer);
             }
 
@@ -226,7 +236,7 @@ namespace WebAPI.Utils
 
             public override bool CanConvert(Type objectType)
             {
-                return objectType.IsEnum;
+                return objectType.IsEnum || (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>) && Nullable.GetUnderlyingType(objectType).IsEnum);
             }
         }
 
