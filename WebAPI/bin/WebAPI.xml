@@ -6478,6 +6478,16 @@
             API action type
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualString">
+            <summary>
+            Translated string
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualString.Values">
+            <summary>
+            All values in different languages
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
             <summary>
             OTT Asset Type
@@ -8248,9 +8258,19 @@
             Coupons group for the subscription
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Name">
+            <summary>
+            Name of the subscription
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Names">
             <summary>
             A list of the name of the subscription on different languages (language code and translation)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Description">
+            <summary>
+            description of the subscription
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.Descriptions">

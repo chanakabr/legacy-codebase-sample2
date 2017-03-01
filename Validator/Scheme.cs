@@ -748,6 +748,10 @@ namespace Validator.Managers.Scheme
                 if (obsolete != null)
                     continue;
 
+                DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>(true);
+                if (deprecated != null)
+                    continue;
+
                 var dataMemberAttr = property.GetCustomAttribute<DataMemberAttribute>();
                 if (dataMemberAttr == null)
                     continue;

@@ -20,6 +20,7 @@ using System.Dynamic;
 using Newtonsoft.Json;
 using WebAPI.App_Start;
 using WebAPI.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace WebAPI.Utils
 {
@@ -164,6 +165,47 @@ namespace WebAPI.Utils
             }
         }
 
+        public class MultiStringJsonConverter : JsonConverter
+        {
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                JToken jToken = value.ToString();
+                jToken.WriteTo(writer);
+
+                string language = Utils.GetLanguageFromRequest();
+                if (language == null || !language.Equals("*"))
+                {
+                    return;
+                }
+
+                string name = writer.Path.Substring(writer.Path.LastIndexOf('.') + 1);
+                string multilingualName = string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1));
+
+                KalturaMultilingualString multilingualString = (KalturaMultilingualString)value;
+                if (multilingualString.Values != null)
+                {
+                    writer.WritePropertyName(multilingualName);
+                    jToken = JToken.FromObject(multilingualString.Values);
+                    jToken.WriteTo(writer);
+                }
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
+            }
+
+            public override bool CanRead
+            {
+                get { return false; }
+            }
+
+            public override bool CanConvert(Type objectType)
+            {
+                return objectType == typeof(KalturaMultilingualString);
+            }
+        }
+
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
@@ -215,7 +257,12 @@ namespace WebAPI.Utils
                         statusWrapper.Result = list;
                     }
                 }
-                JSON.Serialize(value, streamWriter, _jilOptions);
+
+                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter());
+                streamWriter.Write(json);
+                
+                //JSON.Serialize(value, streamWriter, _jilOptions);
+
                 return Task.FromResult(writeStream);
             }
         }

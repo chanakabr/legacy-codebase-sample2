@@ -58,7 +58,7 @@ namespace WebAPI.App_Start
             [XmlArrayItem("item")]
             public object[] result { get; set; }
         }
-        
+
         private XmlDocument SerializeToXmlDocument(XmlReponseWrapper input, StatusWrapper wrapper)
         {
             List<Type> extraTypes = new List<Type>();

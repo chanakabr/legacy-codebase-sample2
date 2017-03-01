@@ -130,13 +130,30 @@ namespace WebAPI.Models.Pricing
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
+        /// Name of the subscription
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty("name")]
+        [XmlElement(ElementName = "name", IsNullable = true)]
+        public KalturaMultilingualString Name { get; set; }
+
+        /// <summary>
         /// A list of the name of the subscription on different languages (language code and translation)
         /// </summary>
         [DataMember(Name = "names")]
         [JsonProperty("names")]
         [XmlArray(ElementName = "names", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Deprecated]
         public List<KalturaTranslationToken> Names { get; set; } // TODO: change to object
+
+        /// <summary>
+        /// description of the subscription
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty("description")]
+        [XmlElement(ElementName = "description", IsNullable = true)]
+        public KalturaMultilingualString Description { get; set; }
 
         /// <summary>
         /// A list of the descriptions of the subscriptions on different languages (language code and translation)
@@ -145,6 +162,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [Deprecated]
         public List<KalturaTranslationToken> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
