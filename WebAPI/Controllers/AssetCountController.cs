@@ -1,6 +1,8 @@
-﻿using System;
+﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Http;
 using WebAPI.Models.Catalog;
@@ -10,6 +12,8 @@ namespace WebAPI.Controllers
 {
     public class AssetCountController : ApiController
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         /*
          Like list of AssetController
          KalturaAssetInfoFilter
@@ -30,7 +34,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetCountListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null)
+        public KalturaAssetCountListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null, KalturaAssetMetaGroupBy groupBy = null)
         {
             return null;
         }
