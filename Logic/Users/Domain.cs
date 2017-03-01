@@ -16,7 +16,6 @@ using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
 using CachingProvider.LayeredCache;
-using Users;
 
 namespace Core.Users
 {

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Users
+namespace Core.Users
 {
     public class DomainDevice : CoreObject
     {
