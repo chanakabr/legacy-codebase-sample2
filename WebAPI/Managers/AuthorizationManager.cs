@@ -23,7 +23,7 @@ namespace WebAPI.Managers
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
         private const string REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY = "revoked_ks_max_ttl_seconds";
         private const string USERS_SESSIONS_KEY_FORMAT_TCM_KEY = "users_sessions_key_format";
-        private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "eevoked_ks_key_format";
+        private const string REVOKED_KS_KEY_FORMAT_TCM_KEY = "revoked_ks_key_format";
         private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
         private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
 
