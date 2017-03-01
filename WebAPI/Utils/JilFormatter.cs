@@ -206,6 +206,30 @@ namespace WebAPI.Utils
             }
         }
 
+        public class EnumConverter : JsonConverter
+        {
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                JToken jToken = Enum.GetName(value.GetType(), value);
+                jToken.WriteTo(writer);
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
+            }
+
+            public override bool CanRead
+            {
+                get { return false; }
+            }
+
+            public override bool CanConvert(Type objectType)
+            {
+                return objectType.IsEnum;
+            }
+        }
+
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
@@ -258,7 +282,7 @@ namespace WebAPI.Utils
                     }
                 }
 
-                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter());
+                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter(), new EnumConverter());
                 streamWriter.Write(json);
                 
                 //JSON.Serialize(value, streamWriter, _jilOptions);
