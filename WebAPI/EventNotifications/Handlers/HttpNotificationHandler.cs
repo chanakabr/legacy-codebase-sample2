@@ -195,41 +195,34 @@ namespace WebAPI.EventNotifications
 
         protected void SendRequest(KalturaHttpNotification phoenixObject)
         {
-            try
+            int statusCode = -1;
+
+            System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
+
+            switch (this.Method)
             {
-                int statusCode = -1;
-
-                System.Net.ServicePointManager.CertificatePolicy = new KalturaPolicy();
-
-                switch (this.Method)
+                case eHttpMethod.Get:
                 {
-                    case eHttpMethod.Get:
-                    {
-                        this.SendGetHttpReq();
-                        break;
-                    }
-                    case eHttpMethod.Post:
-                    {
-                        this.SendHttpRequest(phoenixObject, "POST");
-                        break;
-                    }
-                    case eHttpMethod.Put:
-                    {
-                        this.SendHttpRequest(phoenixObject, "PUT");
-                        break;
-                    }
-                    case eHttpMethod.Delete:
-                    {
-                        this.SendHttpRequest(phoenixObject, "DELETE");
-                        break;
-                    }
-                    default:
+                    this.SendGetHttpReq();
                     break;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error in HttpNotificationHandler Exception", ex);
+                case eHttpMethod.Post:
+                {
+                    this.SendHttpRequest(phoenixObject, "POST");
+                    break;
+                }
+                case eHttpMethod.Put:
+                {
+                    this.SendHttpRequest(phoenixObject, "PUT");
+                    break;
+                }
+                case eHttpMethod.Delete:
+                {
+                    this.SendHttpRequest(phoenixObject, "DELETE");
+                    break;
+                }
+                default:
+                break;
             }
         }
 
@@ -246,6 +239,7 @@ namespace WebAPI.EventNotifications
             {
                 webRequest.ContentType = this.ContentType;
             }
+
             webRequest.Method = method;
 
             string postBody = JsonConvert.SerializeObject(phoenixObject, Newtonsoft.Json.Formatting.None);
@@ -303,8 +297,18 @@ namespace WebAPI.EventNotifications
                     }
                 }
             }
+            catch (HttpException ex)
+            {
+                log.Error("Error in SendPostHttpReq HttpException", ex);
+            }
             catch (WebException ex)
             {
+                if (ex.Response is HttpWebResponse)
+                {
+                    statusCode = (int)((HttpWebResponse)(ex.Response)).StatusCode;
+                }
+
+                //if (ex.Response
                 log.Error("Error in SendPostHttpReq WebException", ex);
                 StreamReader errorStream = null;
                 try
@@ -385,14 +389,15 @@ namespace WebAPI.EventNotifications
 
         public void SendGetHttpReq()
         {
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
             HttpWebResponse webResponse = null;
             Stream receiveStream = null;
-            Int32 statusCode = -1;
-            Encoding encoding = new UTF8Encoding(false);
 
             try
             {
+                HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(this.Url);
+                Int32 statusCode = -1;
+                Encoding encoding = new UTF8Encoding(false);
+
                 webRequest.Credentials = new NetworkCredential(this.Username, this.Password);
 
                 if (this.Timeout > 0)
@@ -429,64 +434,6 @@ namespace WebAPI.EventNotifications
                 }
             }
         }
-
-        //public string SendDeleteHttpReq(string sUrl, ref Int32 nStatus, string sUserName, string sPassword, string sParams, bool isFirstTry)
-        //{
-        //    Int32 nStatusCode = -1;
-
-        //    HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(sUrl);
-        //    webRequest.ContentType = "application/x-www-form-urlencoded";
-        //    webRequest.Method = "DELETE";
-        //    byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sParams);
-        //    webRequest.ContentLength = bytes.Length;
-        //    System.IO.Stream os = webRequest.GetRequestStream();
-        //    os.Write(bytes, 0, bytes.Length);
-        //    os.Close();
-
-        //    string res = string.Empty;
-        //    try
-        //    {
-        //        HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-        //        HttpStatusCode sCode = webResponse.StatusCode;
-        //        nStatusCode = GetResponseCode(sCode);
-        //        StreamReader sr = null;
-        //        try
-        //        {
-        //            sr = new StreamReader(webResponse.GetResponseStream());
-        //            res = sr.ReadToEnd();
-        //        }
-        //        finally
-        //        {
-        //            if (sr != null)
-        //                sr.Close();
-        //        }
-
-        //    }
-        //    catch (WebException ex)
-        //    {
-        //        StreamReader errorStream = null;
-        //        try
-        //        {
-        //            errorStream = new StreamReader(ex.Response.GetResponseStream());
-        //            res = errorStream.ReadToEnd();
-        //        }
-        //        finally
-        //        {
-        //            if (errorStream != null)
-        //                errorStream.Close();
-        //        }
-        //    }
-
-        //    //retry alternative URL if this is the original (=first) call, the result was not OK and there is an alternative URL
-        //    if (isFirstTry && nStatusCode != 200 && !string.IsNullOrEmpty(ALT_ES_URL))
-        //    {
-        //        string sAlternativeURL = sUrl.Replace(ES_URL, ALT_ES_URL);
-        //        res = SendDeleteHttpReq(sAlternativeURL, ref nStatus, sUserName, sPassword, sParams, false);
-        //    }
-
-        //    nStatus = nStatusCode;
-        //    return res;
-        //}
 
         public Int32 GetResponseCode(HttpStatusCode theCode)
         {
