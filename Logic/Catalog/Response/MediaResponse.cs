@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects;
 using System.Runtime.Serialization;
 namespace Core.Catalog.Response
 {
@@ -78,6 +75,13 @@ namespace Core.Catalog.Response
         public long TrickPlayBuffer;
         [DataMember]
         public bool EnableRecordingPlaybackNonEntitledChannel;
+
+        [DataMember]
+        public string WatchPermissionRule;
+        [DataMember]
+        public string GeoblockRule;
+        [DataMember]
+        public string DeviceRule;
 
         public MediaObj()
             : base()
