@@ -299,14 +299,7 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.General.KalturaFilterPager,WebAPI.Models.Catalog.KalturaAssetMetaGroupBy)">
-            <summary>
-            
-            </summary>
-            <param name="filter">Filtering the assets request</param>
-            <param name="pager">Paging the request</param>
-            <remarks></remarks>
-        </member>
+        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.Catalog.KalturaAssetMetaGroupBy)" -->
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext

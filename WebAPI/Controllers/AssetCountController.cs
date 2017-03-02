@@ -35,11 +35,11 @@ namespace WebAPI.Controllers
         /// 
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
-        /// <param name="pager">Paging the request</param>
+        /// <param name="groupBy">Group by field</groupBy>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetCountListResponse List(KalturaSearchAssetFilter filter = null, KalturaFilterPager pager = null, KalturaAssetMetaGroupBy groupBy = null)
+        public KalturaAssetCountListResponse List(KalturaSearchAssetFilter filter = null, KalturaAssetMetaGroupBy groupBy = null)
         {
             KalturaAssetCountListResponse response = null;
 
@@ -48,10 +48,6 @@ namespace WebAPI.Controllers
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
-
-            // parameters validation
-            if (pager == null)
-                pager = new KalturaFilterPager();
 
             if (filter == null)
             {
@@ -62,10 +58,15 @@ namespace WebAPI.Controllers
                 filter.Validate();
             }
 
+            if (groupBy == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
+            }
+
             try
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
-                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
+                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.KSql,
                     regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupBy);
             }
             catch (ClientException ex)

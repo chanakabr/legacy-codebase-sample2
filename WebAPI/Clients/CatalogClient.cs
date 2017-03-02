@@ -230,7 +230,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetCountListResponse GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
+        public KalturaAssetCountListResponse GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, 
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, KalturaAssetMetaGroupBy groupBy)
         {
             KalturaAssetCountListResponse result = new KalturaAssetCountListResponse();
@@ -242,7 +242,7 @@ namespace WebAPI.Clients
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
-            key.AppendFormat("Unified_search_g={0}_ps={1}_pi={2}_ob={3}_od={4}_ov={5}_f={6}", groupId, pageSize, pageIndex, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+            key.AppendFormat("asset_count__g={0}_ob={1}_od={2}_ov={3}_f={4}", groupId, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
 
             if (assetTypes != null && assetTypes.Count > 0)
             {
@@ -255,11 +255,13 @@ namespace WebAPI.Clients
                 key.AppendFormat("_ec={0}", strEpgChannelIds);
                 filter += string.Format(" epg_channel_id:'{0}'", strEpgChannelIds);
             }
+            
+            List<string> groupByList = new List<string>();
 
-            List<string> groupByList = new List<string>()
-            {
-                groupBy.Value
-            };
+            if (groupBy != null)
+            {   
+                groupByList.Add(groupBy.Value);
+            }
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -275,8 +277,8 @@ namespace WebAPI.Clients
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
-                m_nPageIndex = pageIndex,
-                m_nPageSize = pageSize.Value,
+                m_nPageIndex = 0,
+                m_nPageSize = 0,
                 filterQuery = filter,
                 m_dServerTime = getServerTime(),
                 order = order,
@@ -306,7 +308,8 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = null;
+                result.Objects =
+                Mapper.Map<List<KalturaAssetCount>>(searchResponse.aggregationResults);
                     //CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
                 result.TotalCount = searchResponse.m_nTotalItems;
             }

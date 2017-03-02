@@ -9,6 +9,7 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    [Serializable]
     public class KalturaAssetGroupBy : KalturaOTTObject
     {
         /// <summary>
@@ -24,6 +25,7 @@ namespace WebAPI.Models.Catalog
         }
     }
 
+    [Serializable]
     public class KalturaAssetMetaGroupBy : KalturaAssetGroupBy
     {
     }
