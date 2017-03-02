@@ -15,6 +15,7 @@ using WebAPI.Models.General;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace WebAPI.App_Start
 {
@@ -106,15 +107,23 @@ namespace WebAPI.App_Start
         [DataContract(Name = "error")]
         public class KalturaAPIExceptionWrapper
         {
+            [JsonProperty(PropertyName = "error")]
             public KalturaAPIException error { get; set; }
         }
 
         public class KalturaAPIException
         {
+            [JsonProperty(PropertyName = "objectType")]
             [DataMember(Name = "objectType")]
             public string objectType { get { return this.GetType().Name; } set { } }
+
+            [JsonProperty(PropertyName = "code")]
             public string code { get; set; }
+
+            [JsonProperty(PropertyName = "message")]
             public string message { get; set; }
+
+            [JsonProperty(PropertyName = "args")]
             public string[] args { get; set; }
         }
 
