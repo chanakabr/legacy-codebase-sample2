@@ -4474,5 +4474,38 @@ namespace Tvinci.Core.DAL
 
             return dt;
         }
+
+        public static DataTable GroupWatchPermissionsTypes(int groupId)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_WatchPermissionsTypes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
+
+        public static DataTable GroupGeoblockRules(int groupId)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_GeoBlockTypes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
+
+        public static DataTable GroupDeviceRules(int groupId)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_DeviceRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
     }
 }
