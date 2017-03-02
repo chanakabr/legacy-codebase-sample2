@@ -292,7 +292,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.EnableTrickPlay))
                 .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
                 .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
-                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel));
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
+                .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.m_oMediaType.m_sTypeName))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
+                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoblockRule))
+                .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
+                .ForMember(dest => dest.EntryIdentifier, opt => opt.MapFrom(src => src.EntryId));
 
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()

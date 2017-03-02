@@ -1,30 +1,28 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.SearchObjects;
+using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using AutoMapper;
+using System.Web;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Models;
-using WebAPI.Models.Catalog;
-using WebAPI.ObjectsConvertor;
-using WebAPI.Utils;
-using WebAPI.Models.General;
-using WebAPI.Managers.Models;
-using WebAPI.Models.Users;
-using KLogMonitor;
-using WebAPI.ClientManagers;
-using WebAPI.ObjectsConvertor.Mapping;
-using System.Web;
 using WebAPI.Filters;
-using Core.Catalog.Request;
-using Core.Catalog;
-using Core.Catalog.Response;
-using ApiObjects.SearchObjects;
-using ApiObjects;
-using ApiObjects.Catalog;
+using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.Users;
+using WebAPI.ObjectsConvertor;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -156,7 +154,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -225,7 +223,7 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
                 result.TotalCount = searchResponse.m_nTotalItems;
             }
 

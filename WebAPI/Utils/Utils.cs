@@ -138,6 +138,12 @@ namespace WebAPI.Utils
             return currency != null ? currency.ToString() : null;
         }
 
+        internal static string GetFormatFromRequest()
+        {
+            var format = HttpContext.Current.Items[RequestParser.REQUEST_FORMAT];
+            return format != null ? format.ToString() : null;
+        }
+
         public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
         {
             return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);
