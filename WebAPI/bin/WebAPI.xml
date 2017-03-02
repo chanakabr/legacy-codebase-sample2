@@ -4,6 +4,17 @@
         <name>WebAPI</name>
     </assembly>
     <members>
+        <member name="M:WebAPI.App_Start.AssetXmlFormatter.ManipulateImageUrl(System.String)">
+            <summary>
+            change image URL to request the original URL
+            Example:
+            GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100 
+            change to: 
+            GetImage/p/215/entry_id/123/version/10/width/0/height/0/quality/100
+            </summary>
+            <param name="url"></param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
             <summary>
             Add a new future scheduled system announcement push notification
@@ -4648,6 +4659,11 @@
             Enable trick-play
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExternalId">
+            <summary>
+            External identifier for the media file
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
             <summary>
             Program-asset info
@@ -4701,6 +4717,31 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
             <summary>
             Enable Recording playback for non entitled channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TypeDescription">
+            <summary>
+            Asset type description 
+            </summary>                
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryIdentifier">
+            <summary>
+            Entry Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRule">
+            <summary>
+            Device rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRule">
+            <summary>
+            Geo block rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.WatchPermissionRule">
+            <summary>
+            Watch permission rule
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
