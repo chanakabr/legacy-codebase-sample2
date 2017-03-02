@@ -164,7 +164,7 @@ namespace Core.ConditionalAccess
                         }
 
                         int[] arrMediaFileIDs = { mediaFileId };
-                        MediaFileItemPricesContainer[] arrPrices = cas.GetItemsPrices(arrMediaFileIDs, userId, string.Empty, true, countryCode, languageCode, deviceName);
+                        MediaFileItemPricesContainer[] arrPrices = cas.GetItemsPrices(arrMediaFileIDs, userId, string.Empty, true, languageCode, deviceName);
                         if (arrPrices != null && arrPrices.Length > 0)
                         {
                             MediaFileItemPricesContainer objPrice = arrPrices[0];

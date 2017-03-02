@@ -6288,10 +6288,9 @@ namespace Core.ConditionalAccess
             }
             return ret;
         }
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, string sCouponCode, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
+            return GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, "");
         }
 
         /// <summary>
@@ -7290,18 +7289,16 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// GetI tems Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
-            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, "");
+            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, "");
         }
         /// <summary>
         /// GetI tems Prices
         /// </summary>
-        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP = null)
+        public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] nMediaFiles, string sUserGUID, bool bOnlyLowest, string sLANGUAGE_CODE, string sDEVICE_NAME, string sClientIP = null)
         {
-            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
+            return GetItemsPrices(nMediaFiles, sUserGUID, "", bOnlyLowest, sLANGUAGE_CODE, sDEVICE_NAME, sClientIP);
         }
         /// <summary>
         /// Is Subscription Purchased
@@ -10077,8 +10074,7 @@ namespace Core.ConditionalAccess
                     return res;
                 }
 
-                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sCountryCode,
-                    sLanguageCode, sDeviceName, sUserIP);
+                MediaFileItemPricesContainer[] prices = GetItemsPrices(mediaFiles, sSiteGuid, sCouponCode, true, sLanguageCode, sDeviceName, sUserIP);
 
                 if (prices != null && prices.Length > 0)
                 {
@@ -11497,7 +11493,7 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, false, countryCd2, languageCode3, deviceName, clientIP);
+            var itemPrices = this.GetItemsPrices(mediaFiles.ToArray(), siteGuid, couponCode, false, languageCode3, deviceName, clientIP);
 
             if (itemPrices == null)
             {
