@@ -302,16 +302,16 @@ namespace WebAPI.Clients
                 throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
             }
 
-            if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
+            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
                 result.Objects =
-                Mapper.Map<List<KalturaAssetCount>>(searchResponse.aggregationResults);
+                Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
                     //CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
-                result.TotalCount = searchResponse.m_nTotalItems;
+                result.TotalCount = result.Objects.Count;
             }
 
             return result;

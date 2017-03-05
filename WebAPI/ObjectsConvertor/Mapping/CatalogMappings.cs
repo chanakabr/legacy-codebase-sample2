@@ -4,6 +4,7 @@ using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using AutoMapper;
+using Catalog.Response;
 using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Users;
@@ -323,6 +324,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter));
+
+            // Aggregations - asset counts
+            // Aggregation - asset count
+            Mapper.CreateMap<AggregationsResult, KalturaAssetsCount>()
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.field))
+                .ForMember(dest => dest.Objects, opt => opt.MapFrom(src => src.results))
+                ;
+            
+            Mapper.CreateMap<AggregationResult, KalturaAssetCount>()
+                .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.count))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
+                .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs))
+                ;
+
         }
 
         //eAssetTypes to KalturaAssetType

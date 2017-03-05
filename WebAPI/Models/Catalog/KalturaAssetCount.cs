@@ -22,7 +22,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaAssetCount> Objects
+        public List<KalturaAssetsCount> Objects
         {
             get;
             set;
@@ -50,6 +50,47 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "count")]
         [XmlElement(ElementName = "count")]
         public string Count
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Sub counts
+        /// </summary>
+        [DataMember(Name = "subs")]
+        [JsonProperty(PropertyName = "subs")]
+        [XmlArray(ElementName = "subs", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaAssetsCount> SubCounts
+        {
+            get;
+            set;
+        }
+    }
+
+    public class KalturaAssetsCount : KalturaOTTObject
+    {
+        /// <summary>
+        /// Field
+        /// </summary>
+        [DataMember(Name = "field")]
+        [JsonProperty(PropertyName = "field")]
+        [XmlElement(ElementName = "field")]
+        public string Field
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Assets
+        /// </summary>
+        [DataMember(Name = "objects")]
+        [JsonProperty(PropertyName = "objects")]
+        [XmlArray(ElementName = "objects", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaAssetCount> Objects
         {
             get;
             set;

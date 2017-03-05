@@ -887,6 +887,21 @@
             Count
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.SubCounts">
+            <summary>
+            Sub counts
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Field">
+            <summary>
+            Field
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Objects">
+            <summary>
+            Assets
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetGroupBy.Value">
             <summary>
             Value
