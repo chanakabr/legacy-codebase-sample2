@@ -640,6 +640,10 @@ namespace WebAPI.App_Start
                     {
                         resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
                         XmlDocument doc = SerializeToXmlDocument(resultFeed);
+
+                        // remove root attributes
+                        doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
+
                         var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
                         writeStream.Write(buf, 0, buf.Length);
                     }
