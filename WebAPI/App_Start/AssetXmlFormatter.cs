@@ -589,8 +589,9 @@ namespace WebAPI.App_Start
                                         ValueText = item.value ?? string.Empty
                                     });
                                 }
-                                
                             }
+
+                            // add meta (tag)
                             media.Structure.Metas.MetasList.Add(meta);
                         }
                     }
