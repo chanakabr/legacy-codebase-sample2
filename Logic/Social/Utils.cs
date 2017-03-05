@@ -33,7 +33,7 @@ namespace Core.Social
         static public Int32 GetGroupID(string sWSUserName, string sWSPassword)
         {
             ApiObjects.Credentials wsc = new ApiObjects.Credentials(sWSUserName, sWSPassword);
-            return TvinciCache.WSCredentials.GetGroupID(ApiObjects.eWSModules.BILLING, wsc);
+            return TvinciCache.WSCredentials.GetGroupID(ApiObjects.eWSModules.SOCIAL, wsc);
         }
 
         public static UserResponseObject GetUserDataByID(string sUserGuid, Int32 nGroupID)
