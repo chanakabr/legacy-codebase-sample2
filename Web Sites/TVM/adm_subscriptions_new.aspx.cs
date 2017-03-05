@@ -755,7 +755,7 @@ public partial class adm_subscriptions_new : System.Web.UI.Page
         //dr_block_rules.SetDefaultVal(sDefBR);
         theRecord.AddRecord(dr_block_rules);
 
-        DataRecordDropDownField dr_adsPolicy = new DataRecordDropDownField("", "NAME", "id", "", null, 60, false);
+        DataRecordDropDownField dr_adsPolicy = new DataRecordDropDownField("", "NAME", "id", "", null, 60, true);
         dr_adsPolicy.SetSelectsDT(GetAdsPolicyDT());
         dr_adsPolicy.Initialize("Ads Policy", "adm_table_header_nbg", "FormInput", "ADS_POLICY", false);
         theRecord.AddRecord(dr_adsPolicy);

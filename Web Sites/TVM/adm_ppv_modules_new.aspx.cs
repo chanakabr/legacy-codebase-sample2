@@ -492,9 +492,10 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
         theRecord.AddRecord(dr_groups);
 
-        DataRecordDropDownField dr_adsPolicy = new DataRecordDropDownField("", "NAME", "id", "", null, 60, false);
+        DataRecordDropDownField dr_adsPolicy = new DataRecordDropDownField("", "NAME", "id", "", null, 60, true);
         dr_adsPolicy.SetSelectsDT(GetAdsPolicyDT());
         dr_adsPolicy.Initialize("Ads Policy", "adm_table_header_nbg", "FormInput", "ADS_POLICY", false);
+        dr_adsPolicy.SetNoSelectStr("---");
         theRecord.AddRecord(dr_adsPolicy);
 
         DataRecordShortTextField dr_adsParam = new DataRecordShortTextField("ltr", true, 60, 128);
