@@ -17,6 +17,12 @@ namespace Core.Catalog
 {
     public class UnifiedSearchDefinitionsBuilder
     {
+        private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
+        {
+            "media_type",
+            "name",
+        };
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private bool shouldUseCache = false;
 
@@ -304,6 +310,7 @@ namespace Core.Catalog
                 #endregion
 
                 HashSet<string> allMetas = new HashSet<string>();
+                HashSet<string> allTags = new HashSet<string>();
 
                 foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
                 {
@@ -313,23 +320,43 @@ namespace Core.Catalog
                     }
                 }
 
+                foreach (var tagInGroup in group.m_oGroupTags.Values)
+                {
+                    allTags.Add(tagInGroup.ToLower());
+                }
+
                 if (request.groupBy != null && request.groupBy.Count > 0)
                 {
                     foreach (var groupBy in request.groupBy)
                     {
-                        if (!allMetas.Contains(groupBy.ToLower()))
+                        string lowered = groupBy.ToLower();
+
+                        if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
                         {
                             throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
                         }
                     }
 
+                    // Transform the list of group bys to metas list
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
 
-                    // Transform the list of group bys to metas list
-                    definitions.groupBy.AddRange(request.groupBy.Select
-                        (
-                            meta => new KeyValuePair<string, string>(meta, string.Format("metas.{0}", meta.ToLower()))
-                        ));
+                    foreach (var groupBy in request.groupBy)
+                    {
+                        string requestGroupBy = groupBy;
+
+                        if (allMetas.Contains(groupBy))
+                        {
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                        else if (allTags.Contains(groupBy))
+                        {
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }
+
+                        definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                    }
+
+                    definitions.groupByOrder = request.groupByOrder;
                 }
 
             }
