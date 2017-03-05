@@ -465,7 +465,7 @@ namespace Core.Catalog.Cache
             return watchPermissionsTypes;
         }
 
-        internal Dictionary<int, string> GetGroupGeoblockRules(int groupID)
+        internal Dictionary<int, string> GetGroupGeoBlockRules(int groupID)
         {
             Dictionary<int, string> geoblockRules = null;
             try
@@ -535,6 +535,42 @@ namespace Core.Catalog.Cache
                 log.ErrorFormat("Error while getting group device rules. GID {0}, ex: {1}", groupID, ex);
             }
             return deviceRules;
+        }
+
+        internal Dictionary<int, string> GetMediaQualities()
+        {
+            Dictionary<int, string> mediaQualities = null;
+            try
+            {
+                string sKey = "MediaQualities_0";
+                mediaQualities = Get<Dictionary<int, string>>(sKey);
+
+                if (mediaQualities == null || mediaQualities.Count == 0)
+                {
+                    DataTable dataTable = CatalogDAL.GetMediaQualities();
+
+                    if (dataTable == null || dataTable.Rows.Count == 0)
+                        return null;
+                    else
+                    {
+                        mediaQualities = new Dictionary<int, string>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            mediaQualities.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
+                        }
+                    }
+
+                    if (mediaQualities == null)
+                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
+                    else
+                        Set(sKey, mediaQualities);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting mediaQualities. ex: {0}", ex);
+            }
+            return mediaQualities;
         }
     }
 }

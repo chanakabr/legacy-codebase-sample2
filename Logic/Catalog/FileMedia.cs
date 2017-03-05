@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.Serialization;
 
 namespace Core.Catalog
@@ -51,6 +48,18 @@ namespace Core.Catalog
         public string m_sAltCoGUID;
         [DataMember]
         public int m_nMediaID;
+        [DataMember]
+        public string StreamingCompanyName;
+        [DataMember]
+        public string Quality;
+        [DataMember]
+        public string HandlingType;
+        [DataMember]
+        public string ProductCode;
+        [DataMember]
+        public string CdnCode;
+        [DataMember]
+        public string PPVModule;
 
         public FileMedia()
         {

@@ -349,7 +349,7 @@ namespace Core.Catalog
                             return null;
                         }
                         oMediaObj.m_lBranding = new List<Branding>();
-                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result);
+                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result, managementData);
                         if (!result)
                         {
                             return null;
@@ -873,10 +873,10 @@ namespace Core.Catalog
                 return false;
             }
         }
-
+       
         private static string GetGeoblockRuleName(int assetGroupId, int geoblockRuleId)
         {
-            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoblockRules(assetGroupId);
+            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRules(assetGroupId);
             if (geoblockRules == null || geoblockRules.Count == 0)
             {
                 log.ErrorFormat("group geoblockRules were not found. GID {0}", assetGroupId);
@@ -924,6 +924,24 @@ namespace Core.Catalog
             else
             {
                 log.ErrorFormat("group deviceRule {0} were not found. GID {1}", deviceRuleId, assetGroupId);
+                return string.Empty;
+            }
+        }
+
+        private static string GetMediaQuality(int mediaQualityId)
+        {
+            Dictionary<int, string> mediaQualities = CatalogCache.Instance().GetMediaQualities();
+            if (mediaQualities == null || mediaQualities.Count == 0)
+            {
+                log.ErrorFormat("mediaQualities were not found. mediaQuality {0}", mediaQualityId);
+                return string.Empty;
+            }
+
+            if (mediaQualities.ContainsKey(mediaQualityId))
+                return mediaQualities[mediaQualityId];
+            else
+            {
+                log.ErrorFormat("MediaQualityId {0} were not found.", mediaQualityId);
                 return string.Empty;
             }
         }
@@ -3965,7 +3983,7 @@ namespace Core.Catalog
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result)
+        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result, bool managementData = false)
         {
             try
             {
@@ -3975,7 +3993,8 @@ namespace Core.Catalog
                 {
                     lFileMedia = new List<FileMedia>(dtFileMedia.Rows.Count);
                     for (int i = 0; i < dtFileMedia.Rows.Count; i++)
-                    {
+                    {                      
+
                         if (IsBrand(dtFileMedia.Rows[i]))
                         {
                             Branding brand = new Branding();
@@ -3991,6 +4010,7 @@ namespace Core.Catalog
                         }
                         else
                         {
+
                             FileMedia fileMedia = new FileMedia();
                             int tempAdProvID = 0;
                             fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
@@ -4050,6 +4070,20 @@ namespace Core.Catalog
                                 fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
                                 fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
                             }
+
+                            if (!managementData)
+                            {
+                                if (Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID") > 0)
+                                {
+                                    fileMedia.Quality =  GetMediaQuality(Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID"));
+                                }
+
+                                fileMedia.HandlingType = "CLIP";
+                                fileMedia.ProductCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "Product_Code");
+                                fileMedia.CdnCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_CODE");
+                                fileMedia.StreamingCompanyName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_COMPANY_NAME");                           
+                            }
+
                             lFileMedia.Add(fileMedia);
                         }
                     }
@@ -4066,7 +4100,7 @@ namespace Core.Catalog
                 result = false;
                 return null;
             }
-        }
+        }        
 
         internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
         {
