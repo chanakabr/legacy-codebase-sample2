@@ -240,6 +240,53 @@ namespace WebAPI.Utils
             }
         }
 
+        public class DoubleConverter : JsonConverter
+        {
+            private JToken GetToken(double value)
+            {
+                if (value == 0)
+                {
+                    return (int)value;
+                }
+
+                return value;
+            }
+
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                JToken jToken = null;
+                if (value.GetType().IsGenericType)
+                {
+                    double? nullableValue = (double?)value;
+                    if (!nullableValue.HasValue)
+                    {
+                        jToken = GetToken(nullableValue.Value);
+                    }
+                }
+                else
+                {
+                    jToken = GetToken((double)value);
+                }
+
+                jToken.WriteTo(writer);
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+            {
+                throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
+            }
+
+            public override bool CanRead
+            {
+                get { return false; }
+            }
+
+            public override bool CanConvert(Type objectType)
+            {
+                return objectType == typeof(double) || (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>) && Nullable.GetUnderlyingType(objectType) == typeof(double));
+            }
+        }
+
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, TransportContext transportContext)
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
@@ -292,7 +339,7 @@ namespace WebAPI.Utils
                     }
                 }
 
-                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter(), new EnumConverter());
+                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter(), new EnumConverter(), new DoubleConverter() );
                 streamWriter.Write(json);
                 
                 //JSON.Serialize(value, streamWriter, _jilOptions);

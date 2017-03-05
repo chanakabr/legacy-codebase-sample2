@@ -43,13 +43,13 @@ namespace WebAPI.App_Start
         [XmlRoot("feed")]
         public class Feed
         {
-            [XmlElement("export", IsNullable = true)]
+            [XmlElement("export")]
             public Export Export { get; set; }
         }
 
         public class Export
         {
-            [XmlElement("export", IsNullable = true)]
+            [XmlElement("export")]
             public List<Media> Media { get; set; }
         }
 
@@ -77,49 +77,49 @@ namespace WebAPI.App_Start
                 this.Erase = "false";
             }
 
-            [XmlElement("basic", IsNullable = true)]
+            [XmlElement("basic")]
             public Basic Basic { get; set; }
 
-            [XmlElement("structure", IsNullable = true)]
+            [XmlElement("structure")]
             public Structure Structure { get; set; }
 
-            [XmlElement("files", IsNullable = true)]
+            [XmlElement("files")]
             public Files Files { get; set; }
         }
 
         public class Basic
         {
-            [XmlElement("media_type", IsNullable = true)]
+            [XmlElement("media_type")]
             public string MediaType { get; set; }
 
-            [XmlElement("name", IsNullable = true)]
+            [XmlElement("name")]
             public Name Name { get; set; }
 
-            [XmlElement("description", IsNullable = true)]
+            [XmlElement("description")]
             public Description Description { get; set; }
 
-            [XmlElement("thumb", IsNullable = true)]
+            [XmlElement("thumb")]
             public Thumb Thumb { get; set; }
 
-            [XmlElement("pic_ratios", IsNullable = true)]
+            [XmlElement("pic_ratios")]
             public PicsRatio PicsRatio { get; set; }
 
-            [XmlElement("rules", IsNullable = true)]
+            [XmlElement("rules")]
             public Rules Rules { get; set; }
 
-            [XmlElement("dates", IsNullable = true)]
+            [XmlElement("dates")]
             public Dates Dates { get; set; }
         }
 
         public class Name
         {
-            [XmlElement("value", IsNullable = true)]
+            [XmlElement("value")]
             public Value Value { get; set; }
         }
 
         public class Description
         {
-            [XmlElement("value", IsNullable = true)]
+            [XmlElement("value")]
             public Value Value { get; set; }
         }
 
@@ -131,7 +131,7 @@ namespace WebAPI.App_Start
 
         public class PicsRatio
         {
-            [XmlElement("ratio", IsNullable = true)]
+            [XmlElement("ratio")]
             public List<Ratio> Ratios { get; set; }
         }
 
@@ -146,34 +146,34 @@ namespace WebAPI.App_Start
 
         public class Rules
         {
-            [XmlElement("watch_per_rule", IsNullable = true)]
+            [XmlElement("watch_per_rule")]
             public string WatchPerRule { get; set; }
 
-            [XmlElement("geo_block_rule", IsNullable = true)]
+            [XmlElement("geo_block_rule")]
             public string GeoBlockRule { get; set; }
 
-            [XmlElement("device_rule", IsNullable = true)]
+            [XmlElement("device_rule")]
             public string DeviceRule { get; set; }
         }
 
         public class Dates
         {
-            [XmlElement("start", IsNullable = true)]
+            [XmlElement("start")]
             public string Start { get; set; }
 
-            [XmlElement("final_end", IsNullable = true)]
+            [XmlElement("final_end")]
             public string End { get; set; }
 
-            [XmlElement("catalog_start", IsNullable = true)]
+            [XmlElement("catalog_start")]
             public string CatalogStart { get; set; }
 
-            [XmlElement("catalog_end", IsNullable = true)]
+            [XmlElement("catalog_end")]
             public string CatalogEnd { get; set; }
         }
 
         public class Value
         {
-            [XmlElement("lang", IsNullable = true)]
+            [XmlAttribute("lang")]
             public string Lang { get; set; }
 
             // to add CDATA ValueText and ValueTextContent should be used
@@ -210,28 +210,28 @@ namespace WebAPI.App_Start
 
         public class Structure
         {
-            [XmlElement("strings", IsNullable = true)]
+            [XmlElement("strings")]
             public Strings Strings { get; set; }
 
-            [XmlElement("doubles", IsNullable = true)]
+            [XmlElement("doubles")]
             public Doubles Doubles { get; set; }
 
-            [XmlElement("booleans", IsNullable = true)]
+            [XmlElement("booleans")]
             public Booleans Booleans { get; set; }
 
-            [XmlElement("metas", IsNullable = true)]
+            [XmlElement("metas")]
             public Metas Metas { get; set; }
         }
 
         public class Strings
         {
-           [XmlElement("meta", IsNullable = true)]
+           [XmlElement("meta")]
             public List<Meta> Metas { get; set; }
         }
 
         public class Container
         {
-            [XmlElement("value", IsNullable = true)]
+            [XmlElement("value")]
             public List<Value> Values { get; set; }
         }
 
@@ -243,10 +243,10 @@ namespace WebAPI.App_Start
             [XmlAttribute("ml_handling")]
             public string MlHandling { get; set; }
 
-            [XmlElement("value", IsNullable = true)]
+            [XmlElement("value")]
             public Value Value { get; set; }
 
-            [XmlElement("container", IsNullable = true)]
+            [XmlElement("container")]
             public Container Container { get; set; }
 
             public Meta()
@@ -274,25 +274,25 @@ namespace WebAPI.App_Start
 
         public class Doubles
         {
-            [XmlElement("meta", IsNullable = true)]
+            [XmlElement("meta")]
             public List<MetaWithoutInnerElement> Metas { get; set; }
         }
 
         public class Booleans
         {
-            [XmlElement("booleans", IsNullable = true)]
+            [XmlElement("booleans")]
             public List<MetaWithoutInnerElement> BooleanList { get; set; }
         }
 
         public class Metas
         {
-            [XmlElement("meta", IsNullable = true)]
+            [XmlElement("meta")]
             public List<Meta> MetasList { get; set; }
         }
 
         public class Files
         {
-            [XmlElement("file", IsNullable = true)]
+            [XmlElement("file")]
             public List<MediaFile> MediaFiles { get; set; }
         }
 
