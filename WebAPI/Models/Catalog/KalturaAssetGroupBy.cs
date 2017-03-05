@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
@@ -22,6 +23,22 @@ namespace WebAPI.Models.Catalog
         {
             get;
             set;
+        }
+
+        public List<string> getValues()
+        {
+            if (string.IsNullOrEmpty(Value))
+                return null;
+
+            List<string> values = new List<string>();
+            string[] stringValues = Value.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string stringValue in stringValues)
+            {
+                values.Add(stringValue.Trim());
+            }
+
+            return values;
         }
     }
 

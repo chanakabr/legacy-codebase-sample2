@@ -231,7 +231,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetCountListResponse GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, 
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, KalturaAssetMetaGroupBy groupBy)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy)
         {
             KalturaAssetCountListResponse result = new KalturaAssetCountListResponse();
 
@@ -255,12 +255,10 @@ namespace WebAPI.Clients
                 key.AppendFormat("_ec={0}", strEpgChannelIds);
                 filter += string.Format(" epg_channel_id:'{0}'", strEpgChannelIds);
             }
-            
-            List<string> groupByList = new List<string>();
 
-            if (groupBy != null)
-            {   
-                groupByList.Add(groupBy.Value);
+            if (groupBy == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
             }
 
             // build request
@@ -285,7 +283,7 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                groupBy = groupByList
+                groupBy = groupBy
             };
 
             // fire unified search request

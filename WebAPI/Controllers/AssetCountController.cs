@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaAssetCountListResponse List(KalturaSearchAssetFilter filter = null, KalturaAssetMetaGroupBy groupBy = null)
+        public KalturaAssetCountListResponse List(KalturaSearchAssetFilter filter = null, KalturaAssetGroupBy groupBy = null)
         {
             KalturaAssetCountListResponse response = null;
 
@@ -58,16 +58,27 @@ namespace WebAPI.Controllers
                 filter.Validate();
             }
 
+            List<string> groupByValuesList = null;
+
             if (groupBy == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
+            }
+            else
+            {
+                groupByValuesList  = groupBy.getValues();
+
+                if (groupByValuesList == null || groupByValuesList.Count == 0)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
+                }
             }
 
             try
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                 response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.KSql,
-                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupBy);
+                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
             }
             catch (ClientException ex)
             {
