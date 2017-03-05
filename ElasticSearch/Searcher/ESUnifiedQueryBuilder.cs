@@ -258,6 +258,41 @@ namespace ElasticSearch.Searcher
                 this.Aggregations = new List<ESBaseAggsItem>();
                 ESBaseAggsItem currentAggregation = null;
 
+                string aggregationsOrder = string.Empty;
+                string aggregationsOrderDirection = string.Empty;
+
+                if (this.SearchDefinitions.groupByOrder != null && this.SearchDefinitions.groupByOrder.HasValue)
+                {
+                    switch (this.SearchDefinitions.groupByOrder.Value)
+                    {
+                        case AggregationOrder.Default:
+                        break;
+                        case AggregationOrder.Count_Asc:
+                        {
+                            aggregationsOrder = "_count";
+                            aggregationsOrderDirection = "asc";
+                            break;
+                        }
+                        case AggregationOrder.Count_Desc:
+                        break;
+                        case AggregationOrder.Value_Asc:
+                        {
+                            aggregationsOrder = "_term";
+                            aggregationsOrderDirection = "asc";
+                            break;
+                        }
+                        case AggregationOrder.Value_Desc:
+                        {
+                            aggregationsOrder = "_term";
+                            aggregationsOrderDirection = "desc";
+                            break;
+                        }
+                        default:
+                        break;
+                    }
+
+                }
+
                 foreach (var groupBy in this.SearchDefinitions.groupBy)
                 {
                     if (currentAggregation == null)
@@ -267,7 +302,9 @@ namespace ElasticSearch.Searcher
                             Field = groupBy.Value.ToLower(),
                             Name = groupBy.Key,
                             Size = 0,
-                            Type = eElasticAggregationType.terms
+                            Type = eElasticAggregationType.terms,
+                            Order = aggregationsOrder,
+                            OrderDirection = aggregationsOrderDirection
                         };
 
                         this.Aggregations.Add(currentAggregation);
@@ -279,7 +316,9 @@ namespace ElasticSearch.Searcher
                             Field = groupBy.Value.ToLower(),
                             Name = groupBy.Key,
                             Size = 0,
-                            Type = eElasticAggregationType.terms   
+                            Type = eElasticAggregationType.terms,
+                            Order = aggregationsOrder,
+                            OrderDirection = aggregationsOrderDirection 
                         };
 
                         currentAggregation.SubAggrgations.Add(subAggregation);

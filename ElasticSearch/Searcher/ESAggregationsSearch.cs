@@ -26,7 +26,7 @@ namespace ElasticSearch.Searcher
         filter,
         filters
     }
-    
+
     #region Aggregations
 
     public class ESBaseAggsItem
@@ -44,6 +44,9 @@ namespace ElasticSearch.Searcher
         public bool IsNumeric;
         public int Size;
         public int? ShardSize;
+
+        public string Order;
+        public string OrderDirection;
 
         #endregion
 
@@ -116,6 +119,19 @@ namespace ElasticSearch.Searcher
             sb.AppendFormat("\"{0}\":", this.Type);
             sb.Append("{");
             sb.AppendFormat("\"field\": \"{0}\"", this.Field);
+
+            if (!string.IsNullOrEmpty(this.Order))
+            {
+
+                if (string.IsNullOrEmpty(this.OrderDirection))
+                {
+                    this.OrderDirection = "desc";
+                }
+
+                sb.Append(",\"order\": { \"");
+                sb.AppendFormat("{0} \" : \"{1}\"", this.Order, this.OrderDirection);
+                sb.Append("}");
+            }
 
             if (this.Size > -1 && this.IsSizeable())
             {
