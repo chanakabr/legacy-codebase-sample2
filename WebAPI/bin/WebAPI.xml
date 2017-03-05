@@ -1217,6 +1217,46 @@
             External identifier for the media file
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.BillingType">
+            <summary>
+            Billing type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Quality">
+            <summary>
+            Quality
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.HandlingType">
+            <summary>
+            Handling type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.CdnName">
+            <summary>
+            CDN name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.CdnCode">
+            <summary>
+            CDN code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltCdnCode">
+            <summary>
+            Alt CDN code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.PpvModule">
+            <summary>
+            PPV Module 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ProductCode">
+            <summary>
+            Product code 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
             <summary>
             Source format according to delivery profile streamer type (applehttp, mpegdash etc.)
@@ -4732,7 +4772,7 @@
             Asset type description 
             </summary>                
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryIdentifier">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
             <summary>
             Entry Identifier
             </summary>

@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -15,6 +12,7 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     [OldStandard("assetId", "asset_id")]
     [OldStandard("externalId", "external_id")]
+    [Serializable]
     public class KalturaMediaFile : KalturaOTTObject
     {
         /// <summary>
@@ -65,5 +63,77 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "externalId")]
         [XmlElement(ElementName = "externalId")]
         public string ExternalId { get; set; }
+
+        /// <summary>
+        /// Billing type
+        /// </summary>
+        [DataMember(Name = "billingType")]
+        [JsonProperty(PropertyName = "billingType")]
+        [XmlElement(ElementName = "billingType")]
+        [JsonIgnore]
+        public string BillingType { get; set; }
+
+        /// <summary>
+        /// Quality
+        /// </summary>
+        [DataMember(Name = "quality")]
+        [JsonProperty(PropertyName = "quality")]
+        [XmlElement(ElementName = "quality")]
+        [JsonIgnore]
+        public string Quality { get; set; }
+
+        /// <summary>
+        /// Handling type
+        /// </summary>
+        [DataMember(Name = "handlingType")]
+        [JsonProperty(PropertyName = "handlingType")]
+        [XmlElement(ElementName = "handlingType")]
+        [JsonIgnore]
+        public string HandlingType { get; set; }
+
+        /// <summary>
+        /// CDN name
+        /// </summary>
+        [DataMember(Name = "cdnName")]
+        [JsonProperty(PropertyName = "cdnName")]
+        [XmlElement(ElementName = "cdnName")]
+        [JsonIgnore]
+        public string CdnName { get; set; }
+
+        /// <summary>
+        /// CDN code
+        /// </summary>
+        [DataMember(Name = "cdnCode")]
+        [JsonProperty(PropertyName = "cdnCode")]
+        [XmlElement(ElementName = "cdnCode")]
+        [JsonIgnore]
+        public string CdnCode { get; set; }
+
+        /// <summary>
+        /// Alt CDN code
+        /// </summary>
+        [DataMember(Name = "altCdnCode")]
+        [JsonProperty(PropertyName = "altCdnCode")]
+        [XmlElement(ElementName = "altCdnCode")]
+        [JsonIgnore]
+        public string AltCdnCode { get; set; }
+
+        /// <summary>
+        /// PPV Module 
+        /// </summary>
+        [DataMember(Name = "ppvModule")]
+        [JsonProperty(PropertyName = "ppvModule")]
+        [XmlElement(ElementName = "ppvModule")]
+        [JsonIgnore]
+        public string PpvModule { get; set; }
+
+        /// <summary>
+        /// Product code 
+        /// </summary>
+        [DataMember(Name = "productCode")]
+        [JsonProperty(PropertyName = "productCode")]
+        [XmlElement(ElementName = "productCode")]
+        [JsonIgnore]
+        public string ProductCode { get; set; }
     }
 }
