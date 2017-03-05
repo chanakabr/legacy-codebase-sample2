@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
-            string foramt = Utils.Utils.GetFormatFromRequest();
+            string format = Utils.Utils.GetFormatFromRequest();
       
             // parameters validation
             if (pager == null)
@@ -175,8 +175,8 @@ namespace WebAPI.Controllers
             {
                 filter.Validate();
             }
-            
-            bool managementData = !string.IsNullOrEmpty(foramt) && foramt == "30" ? true : false;
+
+            bool managementData = !string.IsNullOrEmpty(format) && format == "30" ? true : false;
            
             try
             {              
