@@ -129,7 +129,7 @@ namespace ElasticSearch.Searcher
                 }
 
                 sb.Append(",\"order\": { \"");
-                sb.AppendFormat("{0} \" : \"{1}\"", this.Order, this.OrderDirection);
+                sb.AppendFormat("{0}\" : \"{1}\"", this.Order, this.OrderDirection);
                 sb.Append("}");
             }
 
