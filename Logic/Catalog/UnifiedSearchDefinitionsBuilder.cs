@@ -19,7 +19,7 @@ namespace Core.Catalog
     {
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
-            "media_type",
+            "media_type_id",
             "name",
         };
 
@@ -309,24 +309,26 @@ namespace Core.Catalog
 
                 #endregion
 
-                HashSet<string> allMetas = new HashSet<string>();
-                HashSet<string> allTags = new HashSet<string>();
-
-                foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
-                {
-                    foreach (var meta in metasInGroup)
-                    {
-                        allMetas.Add(meta.Value.ToLower());
-                    }
-                }
-
-                foreach (var tagInGroup in group.m_oGroupTags.Values)
-                {
-                    allTags.Add(tagInGroup.ToLower());
-                }
+                #region Group By
 
                 if (request.groupBy != null && request.groupBy.Count > 0)
                 {
+                    HashSet<string> allMetas = new HashSet<string>();
+                    HashSet<string> allTags = new HashSet<string>();
+
+                    foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
+                    {
+                        foreach (var meta in metasInGroup)
+                        {
+                            allMetas.Add(meta.Value.ToLower());
+                        }
+                    }
+
+                    foreach (var tagInGroup in group.m_oGroupTags.Values)
+                    {
+                        allTags.Add(tagInGroup.ToLower());
+                    }
+
                     foreach (var groupBy in request.groupBy)
                     {
                         string lowered = groupBy.ToLower();
@@ -337,18 +339,50 @@ namespace Core.Catalog
                         }
                     }
 
+                    //Queue<SearchGroupBy> queueGroupBy = new Queue<SearchGroupBy>();
+
+                    //foreach (var groupBy in request.groupBy)
+                    //{
+                    //    string lowered = groupBy.Field.ToLower();
+
+                    //    if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
+                    //    {
+                    //        throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy.Field), (int)eResponseStatus.BadSearchRequest);
+                    //    }
+
+                    //    queueGroupBy.Enqueue(groupBy);
+                    //}
+
+                    //// "Recursive" run on all sub aggregations
+                    //while (queueGroupBy.Count > 0)
+                    //{
+                    //    var currentGroupBy = queueGroupBy.Dequeue();
+
+                    //    foreach (var groupBy in currentGroupBy.Subs)
+                    //    {
+                    //        string lowered = groupBy.Field.ToLower();
+
+                    //        if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
+                    //        {
+                    //            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy.Field), (int)eResponseStatus.BadSearchRequest);
+                    //        }
+
+                    //        queueGroupBy.Enqueue(groupBy);
+                    //    }
+                    //}
+                    
                     // Transform the list of group bys to metas list
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
 
                     foreach (var groupBy in request.groupBy)
                     {
-                        string requestGroupBy = groupBy;
+                        string requestGroupBy = groupBy.ToLower();
 
-                        if (allMetas.Contains(groupBy))
+                        if (allMetas.Contains(requestGroupBy))
                         {
                             requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
                         }
-                        else if (allTags.Contains(groupBy))
+                        else if (allTags.Contains(requestGroupBy))
                         {
                             requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
                         }
@@ -358,6 +392,8 @@ namespace Core.Catalog
 
                     definitions.groupByOrder = request.groupByOrder;
                 }
+
+                #endregion
 
             }
             catch (Exception ex)

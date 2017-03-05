@@ -390,6 +390,7 @@
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
+    <Compile Include="SearchObjects\SearchGroupBy.cs" />
     <Compile Include="Social\enums.cs" />
     <Compile Include="Social\SocialUserActionConfig.cs" />
     <Compile Include="Social\UserSocialActionRequest.cs" />
