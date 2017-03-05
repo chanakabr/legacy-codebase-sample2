@@ -1,5 +1,4 @@
-﻿using Jil;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -103,7 +102,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
         [XmlElement(ElementName = "externalId")]
-        [JilDirectiveAttribute(Ignore = true)]        
+        [JsonIgnore]        
         public string ExternalId { get; set; }
     }
 
@@ -198,18 +197,18 @@ namespace WebAPI.Models.Catalog
         /// </summary>                
         [DataMember(Name = "typeDescription")]
         [JsonProperty(PropertyName = "typeDescription")]
-        [XmlElement(ElementName = "typeDescription")]        
-        [JilDirectiveAttribute(Ignore = true)]
+        [XmlElement(ElementName = "typeDescription")]
+        [JsonIgnore]        
         public string TypeDescription { get; set; }
 
         /// <summary>
         /// Entry Identifier
         /// </summary>
-        [DataMember(Name = "entryIdentifier")]
-        [JsonProperty(PropertyName = "entryIdentifier")]
-        [XmlElement(ElementName = "entryIdentifier")]
-        [JilDirectiveAttribute(Ignore = true)]        
-        public string EntryIdentifier { get; set; }
+        [DataMember(Name = "entryId")]
+        [JsonProperty(PropertyName = "entryId")]
+        [XmlElement(ElementName = "entryId")]
+        [JsonIgnore]        
+        public string EntryId { get; set; }
 
         /// <summary>
         /// Device rule
@@ -217,7 +216,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "deviceRule")]
         [JsonProperty(PropertyName = "deviceRule")]
         [XmlElement(ElementName = "deviceRule")]
-        [JilDirectiveAttribute(Ignore = true)]        
+        [JsonIgnore]        
         public string DeviceRule { get; set; }
 
         /// <summary>
@@ -226,7 +225,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "geoBlockRule")]
         [JsonProperty(PropertyName = "geoBlockRule")]
         [XmlElement(ElementName = "geoBlockRule")]
-        [JilDirectiveAttribute(Ignore = true)]        
+        [JsonIgnore]        
         public string GeoBlockRule { get; set; }
 
         /// <summary>
@@ -235,8 +234,8 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "watchPermissionRule")]
         [JsonProperty(PropertyName = "watchPermissionRule")]
         [XmlElement(ElementName = "watchPermissionRule")]
-        [JilDirectiveAttribute(Ignore = true)]       
-        public string WatchPermissionRule { get; set; }       
+        [JsonIgnore]
+        public string WatchPermissionRule { get; set; }
     }
 
     /// <summary>

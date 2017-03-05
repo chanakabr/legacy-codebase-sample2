@@ -50,7 +50,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_sFileFormat))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sUrl))
                  .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.m_nDuration))
-                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGUID));
+                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGUID))
+                 .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.m_sBillingType))
+                 .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality))
+                 .ForMember(dest => dest.HandlingType, opt => opt.MapFrom(src => src.HandlingType))
+                 .ForMember(dest => dest.CdnName, opt => opt.MapFrom(src => src.StreamingCompanyName))
+                 .ForMember(dest => dest.CdnCode, opt => opt.MapFrom(src => src.m_nCdnID))
+                 .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
+                 .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => src.PPVModule))
+                 .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
+                 ;
 
             //BuzzScore
             Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
@@ -298,7 +307,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoblockRule))
                 .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
-                .ForMember(dest => dest.EntryIdentifier, opt => opt.MapFrom(src => src.EntryId));
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
