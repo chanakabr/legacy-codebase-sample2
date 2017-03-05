@@ -103,7 +103,7 @@ namespace Core.Catalog
 
         /*Get All Relevant Details About Media (by id) , 
          Use Stored Procedure */
-        internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex)
+        internal static bool CompleteDetailsForMediaResponse(MediasProtocolRequest mediaRequest, ref MediaResponse mediaResponse, int nStartIndex, int nEndIndex, bool managementData = false)
         {
             List<MediaObj> lMediaObj = new List<MediaObj>();
             int totalItems = 0;
@@ -114,7 +114,7 @@ namespace Core.Catalog
 
             try
             {
-                lMediaObj = CompleteMediaDetails(mediaIds, nStartIndex, ref nEndIndex, ref totalItems, groupId, filter, siteGuid);
+                lMediaObj = CompleteMediaDetails(mediaIds, nStartIndex, ref nEndIndex, ref totalItems, groupId, filter, siteGuid, managementData);
 
                 mediaResponse.m_nTotalItems = totalItems;
                 mediaResponse.m_lObj = lMediaObj.Select(media => (BaseObject)media).ToList();
@@ -137,13 +137,13 @@ namespace Core.Catalog
         /// <param name="filter"></param>
         /// <param name="siteGuid"></param>
         /// <returns></returns>
-        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int groupId, Filter filter, string siteGuid)
+        internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int groupId, Filter filter, string siteGuid, bool managementData = false)
         {
             int startIndex = 0;
             int endIndex = 0;
             int totalItems = 0;
 
-            return CatalogLogic.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, siteGuid);
+            return CatalogLogic.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, siteGuid,managementData );
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace Core.Catalog
         /// <param name="siteGuid"></param>
         /// <returns></returns>
         internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int nStartIndex, ref int nEndIndex,
-             ref int totalItems, int groupId, Filter filter, string siteGuid)
+             ref int totalItems, int groupId, Filter filter, string siteGuid, bool managementData = false)
         {
             List<MediaObj> mediaObjects = new List<MediaObj>();
 
@@ -204,7 +204,7 @@ namespace Core.Catalog
                     {
                         int taskMediaID = (int)obj;
 
-                        var currentMedia = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup);
+                        var currentMedia = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup, managementData);
                         dMediaObj[taskMediaID] = currentMedia;
 
                         // If couldn't get media details for this media - probably it doesn't exist, and it shouldn't appear in ES index
@@ -303,7 +303,7 @@ namespace Core.Catalog
             return GetMediaDetails(nMedia, mediaRequest.m_nGroupID, mediaRequest.m_oFilter, mediaRequest.m_sSiteGuid, bIsMainLang, lSubGroup);
         }
 
-        private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, string siteGuid, bool bIsMainLang, List<int> lSubGroup)
+        private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, string siteGuid, bool bIsMainLang, List<int> lSubGroup, bool managementData = false)
         {
             bool result = true;
 
@@ -333,7 +333,8 @@ namespace Core.Catalog
                 {
                     int assetGroupId = 0;
                     int isLinear = 0;
-                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId, ref isLinear);
+
+                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId, ref isLinear, managementData);
 
                     // only if we found basic details for media - media in status = 1 , and active if necessary. If not - return null.
                     if (!isMedia)
@@ -348,7 +349,7 @@ namespace Core.Catalog
                             return null;
                         }
                         oMediaObj.m_lBranding = new List<Branding>();
-                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result);
+                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result, managementData);
                         if (!result)
                         {
                             return null;
@@ -378,7 +379,7 @@ namespace Core.Catalog
                                 oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
                                 oMediaObj.EnableRecordingPlaybackNonEntitledChannel = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableRecordingPlaybackNonEntitledChannel;
                             }
-                        }
+                        }                    
 
                         /*last watched - By SiteGuid <> 0*/
 
@@ -728,7 +729,7 @@ namespace Core.Catalog
         }
 
         /*Insert all Basic Details about media  that return from the "CompleteDetailsForMediaResponse" into MediaObj*/
-        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId, ref int isLinear)
+        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId, ref int isLinear, bool managementData = false)
         {
             bool result = false;
             try
@@ -844,6 +845,24 @@ namespace Core.Catalog
 
                         // is active
                         oMediaObj.IsActive = Utils.GetIntSafeVal(dtMedia.Rows[0], "IS_ACTIVE") == 1 ? true : false;
+
+                        if (managementData)
+                        {
+                            if( Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id") > 0 )
+                            {
+                                oMediaObj.DeviceRule = GetDeviceRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id"));
+                            }
+
+                            if (Utils.GetIntSafeVal(dtMedia.Rows[0], "WATCH_PERMISSION_TYPE_ID") > 0)
+                            {
+                                oMediaObj.WatchPermissionRule = GetWatchPermissionTypeName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "WATCH_PERMISSION_TYPE_ID"));
+                            }
+
+                            if (Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID") > 0)
+                            {
+                                oMediaObj.GeoblockRule = GetGeoblockRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID"));
+                            }                            
+                        }
                     }
                 }
                 return result;
@@ -852,6 +871,78 @@ namespace Core.Catalog
             {
                 log.Error(ex.Message, ex);
                 return false;
+            }
+        }
+       
+        private static string GetGeoblockRuleName(int assetGroupId, int geoblockRuleId)
+        {
+            Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRules(assetGroupId);
+            if (geoblockRules == null || geoblockRules.Count == 0)
+            {
+                log.ErrorFormat("group geoblockRules were not found. GID {0}", assetGroupId);
+                return string.Empty;
+            }
+
+            if (geoblockRules.ContainsKey(geoblockRuleId))
+                return geoblockRules[geoblockRuleId];
+            else
+            {
+                log.ErrorFormat("group geoblockRule {0} were not found. GID {1}", geoblockRuleId, assetGroupId);
+                return string.Empty;
+            }
+        }
+
+        private static string GetWatchPermissionTypeName(int assetGroupId, int watchPermissionRuleId)
+        {
+            Dictionary<int, string> watchPermissionsTypes = CatalogCache.Instance().GetGroupWatchPermissionsTypes(assetGroupId);
+            if (watchPermissionsTypes == null || watchPermissionsTypes.Count == 0 )
+            {
+                log.ErrorFormat("group watchPermissionsTypes were not found. GID {0}", assetGroupId);
+                return string.Empty;           
+            }
+
+            if (watchPermissionsTypes.ContainsKey(watchPermissionRuleId))
+                return watchPermissionsTypes[watchPermissionRuleId];
+            else
+            {
+                log.ErrorFormat("group watchPermissionsType {0} were not found. GID {1}", watchPermissionRuleId, assetGroupId);
+                return string.Empty;
+            }
+        }
+
+        private static string GetDeviceRuleName(int assetGroupId, int deviceRuleId)
+        {
+            Dictionary<int, string> deviceRules = CatalogCache.Instance().GetGroupDeviceRules(assetGroupId);
+            if (deviceRules == null || deviceRules.Count == 0)
+            {
+                log.ErrorFormat("group deviceRules were not found. GID {0}", assetGroupId);
+                return string.Empty;
+            }
+
+            if (deviceRules.ContainsKey(deviceRuleId))
+                return deviceRules[deviceRuleId];
+            else
+            {
+                log.ErrorFormat("group deviceRule {0} were not found. GID {1}", deviceRuleId, assetGroupId);
+                return string.Empty;
+            }
+        }
+
+        private static string GetMediaQuality(int mediaQualityId)
+        {
+            Dictionary<int, string> mediaQualities = CatalogCache.Instance().GetMediaQualities();
+            if (mediaQualities == null || mediaQualities.Count == 0)
+            {
+                log.ErrorFormat("mediaQualities were not found. mediaQuality {0}", mediaQualityId);
+                return string.Empty;
+            }
+
+            if (mediaQualities.ContainsKey(mediaQualityId))
+                return mediaQualities[mediaQualityId];
+            else
+            {
+                log.ErrorFormat("MediaQualityId {0} were not found.", mediaQualityId);
+                return string.Empty;
             }
         }
 
@@ -3892,7 +3983,7 @@ namespace Core.Catalog
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result)
+        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result, bool managementData = false)
         {
             try
             {
@@ -3902,7 +3993,8 @@ namespace Core.Catalog
                 {
                     lFileMedia = new List<FileMedia>(dtFileMedia.Rows.Count);
                     for (int i = 0; i < dtFileMedia.Rows.Count; i++)
-                    {
+                    {                      
+
                         if (IsBrand(dtFileMedia.Rows[i]))
                         {
                             Branding brand = new Branding();
@@ -3918,6 +4010,7 @@ namespace Core.Catalog
                         }
                         else
                         {
+
                             FileMedia fileMedia = new FileMedia();
                             int tempAdProvID = 0;
                             fileMedia.m_nFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[i], "id");
@@ -3977,6 +4070,20 @@ namespace Core.Catalog
                                 fileMedia.m_oOverlayProvider.ProviderName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_TYPE_OVERLAY_NAME");
                                 fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
                             }
+
+                            if (managementData)
+                            {
+                                if (Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID") > 0)
+                                {
+                                    fileMedia.Quality =  GetMediaQuality(Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID"));
+                                }
+
+                                fileMedia.HandlingType = "CLIP";
+                                fileMedia.ProductCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "Product_Code");
+                                fileMedia.CdnCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_CODE");
+                                fileMedia.StreamingCompanyName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_COMPANY_NAME");                           
+                            }
+
                             lFileMedia.Add(fileMedia);
                         }
                     }
@@ -3993,7 +4100,7 @@ namespace Core.Catalog
                 result = false;
                 return null;
             }
-        }
+        }        
 
         internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
         {

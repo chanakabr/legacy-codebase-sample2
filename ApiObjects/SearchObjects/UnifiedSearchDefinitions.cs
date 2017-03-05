@@ -334,6 +334,14 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        [JsonProperty()]
+        [DataMember]
+        public AggregationOrder? groupByOrder
+        {
+            get;
+            set;
+        }
+
         #endregion
 
         #region Ctor
@@ -376,5 +384,17 @@ namespace ApiObjects.SearchObjects
 
 
         #endregion
+    }
+
+    /// <summary>
+    /// How to order the aggregation request result
+    /// </summary>
+    public enum AggregationOrder
+    {
+        Default,
+        Count_Asc,
+        Count_Desc,
+        Value_Asc,
+        Value_Desc
     }
 }

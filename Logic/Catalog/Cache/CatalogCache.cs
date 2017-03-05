@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ApiObjects;
 using CachingProvider;
 using DAL;
-using TvinciCache;
-using ApiObjects;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 using Tvinci.Core.DAL;
-using System.Data;
 
 namespace Core.Catalog.Cache
 {
@@ -431,5 +429,148 @@ namespace Core.Catalog.Cache
             return isTstvSettingsExists;
         }
 
+        public Dictionary<int,string> GetGroupWatchPermissionsTypes(int groupID)
+        {
+            Dictionary<int,string> watchPermissionsTypes = null;
+            try
+            {
+                string sKey = "GroupWatchPermissionsTypes_" + groupID.ToString();
+                watchPermissionsTypes = Get<Dictionary<int,string>>(sKey);
+
+                if (watchPermissionsTypes == null || watchPermissionsTypes.Count == 0)
+                {
+                    DataTable dataTable = CatalogDAL.GroupWatchPermissionsTypes(groupID);
+
+                    if (dataTable == null || dataTable.Rows.Count == 0)
+                        return null;
+                    else
+                    {
+                        watchPermissionsTypes = new Dictionary<int,string>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            watchPermissionsTypes.Add(Utils.GetIntSafeVal(row, "ID"),Utils.GetStrSafeVal(row, "NAME"));
+                        }
+                    }
+
+                    if (watchPermissionsTypes == null)
+                        Set(sKey, new Dictionary<int,string>(), SHORT_IN_CACHE_MINUTES);
+                    else
+                        Set(sKey, watchPermissionsTypes);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting group watch permissions types. GID {0}, ex: {1}", groupID, ex);
+            }
+            return watchPermissionsTypes;
+        }
+
+        internal Dictionary<int, string> GetGroupGeoBlockRules(int groupID)
+        {
+            Dictionary<int, string> geoblockRules = null;
+            try
+            {
+                string sKey = "GroupGeoblockRules_" + groupID.ToString();
+                geoblockRules = Get<Dictionary<int, string>>(sKey);
+
+                if (geoblockRules == null || geoblockRules.Count == 0)
+                {
+                    DataTable dataTable = CatalogDAL.GroupGeoblockRules(groupID);
+
+                    if (dataTable == null || dataTable.Rows.Count == 0)
+                        return null;
+                    else
+                    {
+                        geoblockRules = new Dictionary<int, string>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            geoblockRules.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
+                        }
+                    }
+
+                    if (geoblockRules == null)
+                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
+                    else
+                        Set(sKey, geoblockRules);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting group geo block Rules. GID {0}, ex: {1}", groupID, ex);
+            }
+            return geoblockRules;
+        }
+
+        internal Dictionary<int, string> GetGroupDeviceRules(int groupID)
+        {
+            Dictionary<int, string> deviceRules = null;
+            try
+            {
+                string sKey = "GroupDeviceRules_" + groupID.ToString();
+                deviceRules = Get<Dictionary<int, string>>(sKey);
+
+                if (deviceRules == null || deviceRules.Count == 0)
+                {
+                    DataTable dataTable = CatalogDAL.GroupDeviceRules(groupID);
+
+                    if (dataTable == null || dataTable.Rows.Count == 0)
+                        return null;
+                    else
+                    {
+                        deviceRules = new Dictionary<int, string>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            deviceRules.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
+                        }
+                    }
+
+                    if (deviceRules == null)
+                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
+                    else
+                        Set(sKey, deviceRules);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting group device rules. GID {0}, ex: {1}", groupID, ex);
+            }
+            return deviceRules;
+        }
+
+        internal Dictionary<int, string> GetMediaQualities()
+        {
+            Dictionary<int, string> mediaQualities = null;
+            try
+            {
+                string sKey = "MediaQualities_0";
+                mediaQualities = Get<Dictionary<int, string>>(sKey);
+
+                if (mediaQualities == null || mediaQualities.Count == 0)
+                {
+                    DataTable dataTable = CatalogDAL.GetMediaQualities();
+
+                    if (dataTable == null || dataTable.Rows.Count == 0)
+                        return null;
+                    else
+                    {
+                        mediaQualities = new Dictionary<int, string>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            mediaQualities.Add(Utils.GetIntSafeVal(row, "ID"), Utils.GetStrSafeVal(row, "NAME"));
+                        }
+                    }
+
+                    if (mediaQualities == null)
+                        Set(sKey, new Dictionary<int, string>(), SHORT_IN_CACHE_MINUTES);
+                    else
+                        Set(sKey, mediaQualities);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting mediaQualities. ex: {0}", ex);
+            }
+            return mediaQualities;
+        }
     }
 }

@@ -17,6 +17,12 @@ namespace Core.Catalog
 {
     public class UnifiedSearchDefinitionsBuilder
     {
+        private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
+        {
+            "media_type_id",
+            "name",
+        };
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private bool shouldUseCache = false;
 
@@ -303,34 +309,91 @@ namespace Core.Catalog
 
                 #endregion
 
-                HashSet<string> allMetas = new HashSet<string>();
-
-                foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
-                {
-                    foreach (var meta in metasInGroup)
-                    {
-                        allMetas.Add(meta.Value.ToLower());
-                    }
-                }
+                #region Group By
 
                 if (request.groupBy != null && request.groupBy.Count > 0)
                 {
+                    HashSet<string> allMetas = new HashSet<string>();
+                    HashSet<string> allTags = new HashSet<string>();
+
+                    foreach (var metasInGroup in group.m_oMetasValuesByGroupId.Values)
+                    {
+                        foreach (var meta in metasInGroup)
+                        {
+                            allMetas.Add(meta.Value.ToLower());
+                        }
+                    }
+
+                    foreach (var tagInGroup in group.m_oGroupTags.Values)
+                    {
+                        allTags.Add(tagInGroup.ToLower());
+                    }
+
                     foreach (var groupBy in request.groupBy)
                     {
-                        if (!allMetas.Contains(groupBy.ToLower()))
+                        string lowered = groupBy.ToLower();
+
+                        if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
                         {
                             throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
                         }
                     }
 
+                    //Queue<SearchGroupBy> queueGroupBy = new Queue<SearchGroupBy>();
+
+                    //foreach (var groupBy in request.groupBy)
+                    //{
+                    //    string lowered = groupBy.Field.ToLower();
+
+                    //    if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
+                    //    {
+                    //        throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy.Field), (int)eResponseStatus.BadSearchRequest);
+                    //    }
+
+                    //    queueGroupBy.Enqueue(groupBy);
+                    //}
+
+                    //// "Recursive" run on all sub aggregations
+                    //while (queueGroupBy.Count > 0)
+                    //{
+                    //    var currentGroupBy = queueGroupBy.Dequeue();
+
+                    //    foreach (var groupBy in currentGroupBy.Subs)
+                    //    {
+                    //        string lowered = groupBy.Field.ToLower();
+
+                    //        if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
+                    //        {
+                    //            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy.Field), (int)eResponseStatus.BadSearchRequest);
+                    //        }
+
+                    //        queueGroupBy.Enqueue(groupBy);
+                    //    }
+                    //}
+                    
+                    // Transform the list of group bys to metas list
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
 
-                    // Transform the list of group bys to metas list
-                    definitions.groupBy.AddRange(request.groupBy.Select
-                        (
-                            meta => new KeyValuePair<string, string>(meta, string.Format("metas.{0}", meta.ToLower()))
-                        ));
+                    foreach (var groupBy in request.groupBy)
+                    {
+                        string requestGroupBy = groupBy.ToLower();
+
+                        if (allMetas.Contains(requestGroupBy))
+                        {
+                            requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
+                        }
+                        else if (allTags.Contains(requestGroupBy))
+                        {
+                            requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
+                        }
+
+                        definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                    }
+
+                    definitions.groupByOrder = request.groupByOrder;
                 }
+
+                #endregion
 
             }
             catch (Exception ex)

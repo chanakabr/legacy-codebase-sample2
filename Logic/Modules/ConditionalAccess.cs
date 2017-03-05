@@ -536,7 +536,7 @@ namespace Core.ConditionalAccess
                 Int32[] nMediaFileIDs = new Int32[nSize];
                 for (int j = 0; j < nSize; j++)
                     nMediaFileIDs[j] = nMediaFiles[j].m_nInt32;
-                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, sCouponCode, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
@@ -554,7 +554,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetItemsPrices(nMediaFiles, sUserGUID, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                return t.GetItemsPrices(nMediaFiles, sUserGUID, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
@@ -572,7 +572,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetItemsPrices(nMediaFiles, sUserGUID, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                return t.GetItemsPrices(nMediaFiles, sUserGUID, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
@@ -592,7 +592,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response.ItemsPrices = t.GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode != null ? sCouponCode : string.Empty, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                response.ItemsPrices = t.GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode != null ? sCouponCode : string.Empty, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
                 if (response.ItemsPrices != null)
                     response.Status = new Status((int)eResponseStatus.OK, "OK");
                 else
@@ -615,7 +615,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                return t.GetItemsPrices(nMediaFiles, sUserGUID, sCouponCode, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
@@ -935,7 +935,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {
@@ -961,7 +961,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName, sClientIP);
+                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sLanguageCode3, sDeviceName, sClientIP);
             }
             else
             {

@@ -85,6 +85,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public List<string> groupBy;
 
+        [DataMember]
+        public AggregationOrder? groupByOrder;
+
         #endregion
 
         #region Ctor
@@ -361,16 +364,21 @@ namespace Core.Catalog.Request
             return result;
         }
 
+        /// <summary>
+        /// Converts the inner ESAggregationResult to the formal AggregationsResult
+        /// </summary>
+        /// <param name="aggregationsResult"></param>
+        /// <param name="groupByIndex"></param>
+        /// <returns></returns>
         private AggregationsResult ConvertAggregationsResponse(ESAggregationResult aggregationsResult, int groupByIndex)
         {
+            // validate parameter
             if (groupByIndex > this.groupBy.Count)
             {
                 return null;
             }
 
             string currentGroupBy = this.groupBy[groupByIndex];
-
-            //var esAggregation = aggregationsResult.Aggregations[currentGroupBy];
 
             var result = new AggregationsResult()
             {

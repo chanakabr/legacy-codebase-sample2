@@ -1,12 +1,10 @@
-﻿using ApiObjects;
+﻿using Core.Catalog.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using Core.Catalog.Response;
-using KLogMonitor;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Core.Catalog.Request
 {
@@ -31,6 +29,12 @@ namespace Core.Catalog.Request
         /// </summary>
         [DataMember]
         public List<long> epgIds;
+
+        /// <summary>
+        /// Management data
+        /// </summary>
+        [DataMember]
+        public bool ManagementData;
 
         #endregion
 
@@ -87,7 +91,7 @@ namespace Core.Catalog.Request
                 if (mediaIds != null && mediaIds.Count > 0)
                 {
                     response.mediaList = CatalogLogic.CompleteMediaDetails(mediaIds.Select(id => (int)id).ToList(),
-                        this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid);
+                        this.m_nGroupID, this.m_oFilter, this.m_sSiteGuid, this.ManagementData);
                 }
             }
             catch (Exception ex)
