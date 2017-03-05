@@ -153,7 +153,7 @@ namespace ConditionalAccess
             }
             return retVal;
         }
-
+        
         internal static Price GetPriceAfterDiscount(Price price, DiscountModule disc, Int32 nUseTime)
         {
             Price discRetPrice = CopyPrice(price);
@@ -163,7 +163,7 @@ namespace ConditionalAccess
 
             WhenAlgo whenAlgo = disc.m_oWhenAlgo;
             if (whenAlgo.m_eAlgoType == WhenAlgoType.N_FIRST_TIMES && whenAlgo.m_nNTimes != 0 && nUseTime >= whenAlgo.m_nNTimes)
-                return price;            
+                return price;
 
             if (whenAlgo.m_eAlgoType == WhenAlgoType.EVERY_N_TIMES && whenAlgo.m_nNTimes != 0 &&
                 (double)(((double)nUseTime) / ((double)(whenAlgo.m_nNTimes))) - (Int32)((double)(((double)nUseTime) / ((double)(whenAlgo.m_nNTimes)))) != 0)
@@ -192,7 +192,7 @@ namespace ConditionalAccess
                 }
             }
             return discRetPrice;
-        }
+        }        
 
         static public string GetWSURL(string sKey)
         {
