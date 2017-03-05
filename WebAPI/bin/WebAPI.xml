@@ -4,6 +4,17 @@
         <name>WebAPI</name>
     </assembly>
     <members>
+        <member name="M:WebAPI.App_Start.AssetXmlFormatter.ManipulateImageUrl(System.String)">
+            <summary>
+            change image URL to request the original URL
+            Example:
+            GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100 
+            change to: 
+            GetImage/p/215/entry_id/123/version/10/width/0/height/0/quality/100
+            </summary>
+            <param name="url"></param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AnnouncementController.Add(WebAPI.Models.Notifications.KalturaAnnouncement)">
             <summary>
             Add a new future scheduled system announcement push notification
@@ -288,6 +299,7 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
+        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.Catalog.KalturaAssetGroupBy)" -->
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
@@ -855,6 +867,46 @@
             A list of OSS adapter-profiles
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
+            <summary>
+            Asset wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCountListResponse.Objects">
+            <summary>
+            Assets
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.Value">
+            <summary>
+            Value
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.Count">
+            <summary>
+            Count
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.SubCounts">
+            <summary>
+            Sub counts
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Field">
+            <summary>
+            Field
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Objects">
+            <summary>
+            Assets
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetGroupBy.Value">
+            <summary>
+            Value - can be a meta, tag or media_type_id
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLastPositionListResponse">
             <summary>
             List of last positions
@@ -1163,6 +1215,46 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ExternalId">
             <summary>
             External identifier for the media file
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.BillingType">
+            <summary>
+            Billing type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.Quality">
+            <summary>
+            Quality
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.HandlingType">
+            <summary>
+            Handling type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.CdnName">
+            <summary>
+            CDN name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.CdnCode">
+            <summary>
+            CDN code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.AltCdnCode">
+            <summary>
+            Alt CDN code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.PpvModule">
+            <summary>
+            PPV Module 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.ProductCode">
+            <summary>
+            Product code 
             </summary>
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.Format">
@@ -4625,6 +4717,11 @@
             Enable trick-play
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.ExternalId">
+            <summary>
+            External identifier for the media file
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaProgramAsset">
             <summary>
             Program-asset info
@@ -4678,6 +4775,31 @@
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EnableRecordingPlaybackNonEntitledChannel">
             <summary>
             Enable Recording playback for non entitled channel
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.TypeDescription">
+            <summary>
+            Asset type description 
+            </summary>                
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
+            <summary>
+            Entry Identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.DeviceRule">
+            <summary>
+            Device rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.GeoBlockRule">
+            <summary>
+            Geo block rule
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.WatchPermissionRule">
+            <summary>
+            Watch permission rule
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">

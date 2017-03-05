@@ -1,30 +1,28 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.SearchObjects;
+using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using AutoMapper;
+using System.Web;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Models;
-using WebAPI.Models.Catalog;
-using WebAPI.ObjectsConvertor;
-using WebAPI.Utils;
-using WebAPI.Models.General;
-using WebAPI.Managers.Models;
-using WebAPI.Models.Users;
-using KLogMonitor;
-using WebAPI.ClientManagers;
-using WebAPI.ObjectsConvertor.Mapping;
-using System.Web;
 using WebAPI.Filters;
-using Core.Catalog.Request;
-using Core.Catalog;
-using Core.Catalog.Response;
-using ApiObjects.SearchObjects;
-using ApiObjects;
-using ApiObjects.Catalog;
+using WebAPI.Managers.Models;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.Users;
+using WebAPI.ObjectsConvertor;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -156,7 +154,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -225,8 +223,94 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // get assets from catalog/cache
-                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration, managementData);
                 result.TotalCount = searchResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
+        public KalturaAssetCountListResponse GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, 
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy)
+        {
+            KalturaAssetCountListResponse result = new KalturaAssetCountListResponse();
+
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+
+            // get group configuration 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            // build failover cache key
+            StringBuilder key = new StringBuilder();
+            key.AppendFormat("asset_count__g={0}_ob={1}_od={2}_ov={3}_f={4}", groupId, order.m_eOrderBy, order.m_eOrderDir, order.m_sOrderValue, filter);
+
+            if (assetTypes != null && assetTypes.Count > 0)
+            {
+                key.AppendFormat("_at={0}", string.Join(",", assetTypes.Select(at => at.ToString()).ToArray()));
+            }
+
+            if (epgChannelIds != null && epgChannelIds.Count > 0)
+            {
+                string strEpgChannelIds = string.Join(",", epgChannelIds.Select(at => at.ToString()).ToArray());
+                key.AppendFormat("_ec={0}", strEpgChannelIds);
+                filter += string.Format(" epg_channel_id:'{0}'", strEpgChannelIds);
+            }
+
+            if (groupBy == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
+            }
+
+            // build request
+            UnifiedSearchRequest request = new UnifiedSearchRequest()
+            {
+                m_sSignature = Signature,
+                m_sSignString = SignString,
+                m_oFilter = new Filter()
+                {
+                    m_sDeviceId = udid,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                    m_bUseStartDate = group.UseStartDate,
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                },
+                m_sUserIP = Utils.Utils.GetClientIP(),
+                m_nGroupID = groupId,
+                m_nPageIndex = 0,
+                m_nPageSize = 0,
+                filterQuery = filter,
+                m_dServerTime = getServerTime(),
+                order = order,
+                assetTypes = assetTypes,
+                m_sSiteGuid = siteGuid,
+                domainId = domainId,
+                groupBy = groupBy,
+                groupByOrder = AggregationOrder.Value_Asc
+            };
+
+            // fire unified search request
+            UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
+            if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, key.ToString()))
+            {
+                // general error
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (searchResponse.status.Code != (int)StatusCode.OK)
+            {
+                // Bad response received from WS
+                throw new ClientException(searchResponse.status.Code, searchResponse.status.Message);
+            }
+
+            if (searchResponse.aggregationResults != null && searchResponse.aggregationResults.Count > 0)
+            {
+                // get base objects list
+                List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
+
+                // get assets from catalog/cache
+                result.Objects =
+                Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
+                    //CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                result.TotalCount = result.Objects.Count;
             }
 
             return result;

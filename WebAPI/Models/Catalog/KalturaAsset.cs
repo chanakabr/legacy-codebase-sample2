@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -97,6 +95,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "enableTrickPlay")]
         [XmlElement(ElementName = "enableTrickPlay")]
         public bool? EnableTrickPlay { get; set; }
+
+        /// <summary>
+        /// External identifier for the media file
+        /// </summary>
+        [DataMember(Name = "externalId")]
+        [JsonProperty(PropertyName = "externalId")]
+        [XmlElement(ElementName = "externalId")]
+        [JsonIgnore]        
+        public string ExternalId { get; set; }
     }
 
     /// <summary>
@@ -144,7 +151,6 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "linearAssetId")]
         [XmlElement(ElementName = "linearAssetId")]
         public long? LinearAssetId { get; set; }
-
     }
 
     /// <summary>
@@ -185,7 +191,51 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
-        
+
+        /// <summary>
+        /// Asset type description 
+        /// </summary>                
+        [DataMember(Name = "typeDescription")]
+        [JsonProperty(PropertyName = "typeDescription")]
+        [XmlElement(ElementName = "typeDescription")]
+        [JsonIgnore]        
+        public string TypeDescription { get; set; }
+
+        /// <summary>
+        /// Entry Identifier
+        /// </summary>
+        [DataMember(Name = "entryId")]
+        [JsonProperty(PropertyName = "entryId")]
+        [XmlElement(ElementName = "entryId")]
+        [JsonIgnore]        
+        public string EntryId { get; set; }
+
+        /// <summary>
+        /// Device rule
+        /// </summary>
+        [DataMember(Name = "deviceRule")]
+        [JsonProperty(PropertyName = "deviceRule")]
+        [XmlElement(ElementName = "deviceRule")]
+        [JsonIgnore]        
+        public string DeviceRule { get; set; }
+
+        /// <summary>
+        /// Geo block rule
+        /// </summary>
+        [DataMember(Name = "geoBlockRule")]
+        [JsonProperty(PropertyName = "geoBlockRule")]
+        [XmlElement(ElementName = "geoBlockRule")]
+        [JsonIgnore]        
+        public string GeoBlockRule { get; set; }
+
+        /// <summary>
+        /// Watch permission rule
+        /// </summary>
+        [DataMember(Name = "watchPermissionRule")]
+        [JsonProperty(PropertyName = "watchPermissionRule")]
+        [XmlElement(ElementName = "watchPermissionRule")]
+        [JsonIgnore]
+        public string WatchPermissionRule { get; set; }
     }
 
     /// <summary>

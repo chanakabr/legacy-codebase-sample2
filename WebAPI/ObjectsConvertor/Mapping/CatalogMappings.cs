@@ -4,6 +4,7 @@ using ApiObjects.Epg;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using AutoMapper;
+using Catalog.Response;
 using Core.Catalog;
 using Core.Catalog.Response;
 using Core.Users;
@@ -50,7 +51,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_sFileFormat))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sUrl))
                  .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.m_nDuration))
-                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGUID));
+                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_sCoGUID))
+                 .ForMember(dest => dest.BillingType, opt => opt.MapFrom(src => src.m_sBillingType))
+                 .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality))
+                 .ForMember(dest => dest.HandlingType, opt => opt.MapFrom(src => src.HandlingType))
+                 .ForMember(dest => dest.CdnName, opt => opt.MapFrom(src => src.StreamingCompanyName))
+                 .ForMember(dest => dest.CdnCode, opt => opt.MapFrom(src => src.m_nCdnID))
+                 .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
+                 .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => src.PPVModule))
+                 .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
+                 ;
 
             //BuzzScore
             Mapper.CreateMap<BuzzWeightedAverScore, KalturaBuzzScore>()
@@ -292,7 +302,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableTrickPlay, opt => opt.MapFrom(src => src.EnableTrickPlay))
                 .ForMember(dest => dest.CatchUpBuffer, opt => opt.MapFrom(src => src.CatchUpBuffer))
                 .ForMember(dest => dest.TrickPlayBuffer, opt => opt.MapFrom(src => src.TrickPlayBuffer))
-                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel));
+                .ForMember(dest => dest.EnableRecordingPlaybackNonEntitledChannel, opt => opt.MapFrom(src => src.EnableRecordingPlaybackNonEntitledChannel))
+                .ForMember(dest => dest.TypeDescription, opt => opt.MapFrom(src => src.m_oMediaType.m_sTypeName))
+                .ForMember(dest => dest.DeviceRule, opt => opt.MapFrom(src => src.DeviceRule))
+                .ForMember(dest => dest.GeoBlockRule, opt => opt.MapFrom(src => src.GeoblockRule))
+                .ForMember(dest => dest.WatchPermissionRule, opt => opt.MapFrom(src => src.WatchPermissionRule))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.CoGuid))
+                .ForMember(dest => dest.EntryId, opt => opt.MapFrom(src => src.EntryId));
 
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
@@ -317,6 +333,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SubHeader, opt => opt.MapFrom(src => src.m_sSubHeader))
                 .ForMember(dest => dest.Text, opt => opt.MapFrom(src => src.m_sContentText))
                 .ForMember(dest => dest.Writer, opt => opt.MapFrom(src => src.m_sWriter));
+
+            // Aggregations - asset counts
+            // Aggregation - asset count
+            Mapper.CreateMap<AggregationsResult, KalturaAssetsCount>()
+                .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.field))
+                .ForMember(dest => dest.Objects, opt => opt.MapFrom(src => src.results))
+                ;
+            
+            Mapper.CreateMap<AggregationResult, KalturaAssetCount>()
+                .ForMember(dest => dest.Count, opt => opt.MapFrom(src => src.count))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value))
+                .ForMember(dest => dest.SubCounts, opt => opt.MapFrom(src => src.subs))
+                ;
+
         }
 
         //eAssetTypes to KalturaAssetType

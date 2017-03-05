@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Xml.Serialization;
 using System.Xml;
+using System.Linq;
 using System.Runtime.Serialization;
 using WebAPI.Models.General;
 using System.Text;
@@ -14,6 +15,9 @@ using WebAPI.Exceptions;
 using System.Web.Http;
 using System.Collections.Generic;
 using System.Collections;
+using WebAPI.Models.Catalog;
+using TVinciShared;
+using WebAPI.Models.Renderers;
 
 namespace WebAPI.App_Start
 {
@@ -37,54 +41,360 @@ namespace WebAPI.App_Start
             return true;
         }
 
-        abstract public class XmlReponseWrapper
+        [XmlRoot("feed")]
+        public class Feed
         {
-            [XmlElement("executionTime")]
-            public float ExecutionTime { get; set; }
+            [XmlElement("export")]
+            public Export Export { get; set; }
         }
 
-        [XmlRoot("xml")]
-        public class XmlSingleReponseWrapper : XmlReponseWrapper
+        public class Export
         {
-            [XmlElement("result", IsNullable = true)]
-            public object Result { get; set; }
+            [XmlElement("media")]
+            public List<Media> Media { get; set; }
         }
 
-        [XmlRoot("xml")]
-        public class XmlMultiReponseWrapper : XmlReponseWrapper
+        public class Media
         {
-            [XmlArrayItem("item")]
-            public object[] result { get; set; }
-        }
-        
-        private XmlDocument SerializeToXmlDocument(XmlReponseWrapper input, StatusWrapper wrapper)
-        {
-            List<Type> extraTypes = new List<Type>();
-            if(wrapper.Result != null)
+            [XmlAttribute("co_guid")]
+            public string CoGuid { get; set; }
+
+            [XmlAttribute("entry_id")]
+            public string EntryId { get; set; }
+
+            [XmlAttribute("action")]
+            public string Action { get; set; }
+
+            [XmlAttribute("is_active")]
+            public string IsActive { get; set; }
+
+            [XmlAttribute("erase")]
+            public string Erase { get; set; }
+
+            public Media()
             {
-                if (wrapper.Result is Array)
-                {
-                    foreach (object result in (object[])wrapper.Result)
-                    {
-                        extraTypes.Add(result.GetType());
-                    }
-                }
-                else
-                {
-                    extraTypes.Add(wrapper.Result.GetType());
-                }
+                this.Action = "insert";
+                this.IsActive = "true";
+                this.Erase = "false";
             }
 
-            XmlSerializer ser = new XmlSerializer(input.GetType(), extraTypes.ToArray());
+            [XmlElement("basic")]
+            public Basic Basic { get; set; }
 
+            [XmlElement("structure")]
+            public Structure Structure { get; set; }
+
+            [XmlElement("files")]
+            public Files Files { get; set; }
+        }
+
+        public class Basic
+        {
+            [XmlElement("media_type")]
+            public string MediaType { get; set; }
+
+            [XmlElement("name")]
+            public Name Name { get; set; }
+
+            [XmlElement("description")]
+            public Description Description { get; set; }
+
+            [XmlElement("thumb")]
+            public Thumb Thumb { get; set; }
+
+            [XmlElement("pic_ratios")]
+            public PicsRatio PicsRatio { get; set; }
+
+            [XmlElement("rules")]
+            public Rules Rules { get; set; }
+
+            [XmlElement("dates")]
+            public Dates Dates { get; set; }
+        }
+
+        public class Name
+        {
+            [XmlElement("value")]
+            public Value Value { get; set; }
+        }
+
+        public class Description
+        {
+            [XmlElement("value")]
+            public Value Value { get; set; }
+        }
+
+        public class Thumb
+        {
+            [XmlAttribute("url")]
+            public string Url { get; set; }
+        }
+
+        public class PicsRatio
+        {
+            [XmlElement("ratio")]
+            public List<Ratio> Ratios { get; set; }
+        }
+
+        public class Ratio
+        {
+            [XmlAttribute("thumb")]
+            public string Thumb { get; set; }
+
+            [XmlAttribute("ratio")]
+            public string RatioText { get; set; }
+        }
+
+        public class Rules
+        {
+            [XmlElement("watch_per_rule")]
+            public string WatchPerRule { get; set; }
+
+            [XmlElement("geo_block_rule")]
+            public string GeoBlockRule { get; set; }
+
+            [XmlElement("device_rule")]
+            public string DeviceRule { get; set; }
+        }
+
+        public class Dates
+        {
+            [XmlElement("start")]
+            public string Start { get; set; }
+
+            [XmlElement("final_end")]
+            public string End { get; set; }
+
+            [XmlElement("catalog_start")]
+            public string CatalogStart { get; set; }
+
+            [XmlElement("catalog_end")]
+            public string CatalogEnd { get; set; }
+        }
+
+        public class Value
+        {
+            [XmlAttribute("lang")]
+            public string Lang { get; set; }
+
+            // to add CDATA ValueText and ValueTextContent should be used
+            [XmlIgnore]
+            public string ValueText { get; set; }
+
+            [XmlText]
+            public XmlNode[] ValueTextContent
+            {
+                get
+                {
+                    var dummy = new XmlDocument();
+                    return new XmlNode[] { dummy.CreateCDataSection(ValueText) };
+                }
+                set
+                {
+                    if (value == null)
+                    {
+                        ValueText = null;
+                        return;
+                    }
+
+                    if (value.Length != 1)
+                    {
+                        throw new InvalidOperationException(
+                            String.Format(
+                                "Invalid array length {0}", value.Length));
+                    }
+
+                    ValueText = value[0].Value;
+                }
+            }
+        }
+
+        public class Structure
+        {
+            [XmlElement("strings")]
+            public Strings Strings { get; set; }
+
+            [XmlElement("doubles")]
+            public Doubles Doubles { get; set; }
+
+            [XmlElement("booleans")]
+            public Booleans Booleans { get; set; }
+
+            [XmlElement("metas")]
+            public Metas Metas { get; set; }
+        }
+
+        public class Strings
+        {
+            [XmlElement("meta")]
+            public List<Meta> Metas { get; set; }
+        }
+
+        public class Container
+        {
+            [XmlElement("value")]
+            public List<Value> Values { get; set; }
+        }
+
+        public class Meta
+        {
+            [XmlAttribute("name")]
+            public string Name { get; set; }
+
+            [XmlAttribute("ml_handling")]
+            public string MlHandling { get; set; }
+
+            [XmlElement("value")]
+            public Value Value { get; set; }
+
+            [XmlElement("container")]
+            public List<Container> Container { get; set; }
+
+            public Meta()
+            {
+                this.MlHandling = "unique";
+            }
+        }
+
+        public class MetaWithoutInnerElement
+        {
+            [XmlAttribute("name")]
+            public string Name { get; set; }
+
+            [XmlAttribute("ml_handling")]
+            public string MlHandling { get; set; }
+
+            [XmlText]
+            public string Value { get; set; }
+
+            public MetaWithoutInnerElement()
+            {
+                this.MlHandling = "unique";
+            }
+        }
+
+        public class Doubles
+        {
+            [XmlElement("meta")]
+            public List<MetaWithoutInnerElement> Metas { get; set; }
+        }
+
+        public class Booleans
+        {
+            [XmlElement("booleans")]
+            public List<MetaWithoutInnerElement> BooleanList { get; set; }
+        }
+
+        public class Metas
+        {
+            [XmlElement("meta")]
+            public List<Meta> MetasList { get; set; }
+        }
+
+        public class Files
+        {
+            [XmlElement("file")]
+            public List<MediaFile> MediaFiles { get; set; }
+        }
+
+        public class MediaFile
+        {
+            [XmlAttribute("type")]
+            public string Type { get; set; }
+
+            [XmlAttribute("assetDuration")]
+            public string AssetDuration { get; set; }
+
+            [XmlAttribute("quality")]
+            public string Quality { get; set; }
+
+            [XmlAttribute("handling_type")]
+            public string HandlingType { get; set; }
+
+            [XmlAttribute("cdn_name")]
+            public string CdnName { get; set; }
+
+            [XmlAttribute("cdn_code")]
+            public string CdnCode { get; set; }
+
+            [XmlAttribute("alt_cdn_code")]
+            public string AltCdnCode { get; set; }
+
+            [XmlAttribute("co_guid")]
+            public string CoGuid { get; set; }
+
+            [XmlAttribute("billing_type")]
+            public string BillingType { get; set; }
+
+            [XmlAttribute("PPV_MODULE")]
+            public string PpvModule { get; set; }
+
+            [XmlAttribute("product_code")]
+            public string ProductCode { get; set; }
+
+            public MediaFile()
+            {
+                this.Quality = "HIGH";
+            }
+        }
+
+        /// <summary>
+        /// change image URL to request the original URL
+        /// Example:
+        /// GetImage/p/215/entry_id/123/version/10/width/432/height/230/quality/100 
+        /// change to: 
+        /// GetImage/p/215/entry_id/123/version/10/width/0/height/0/quality/100
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        private string ManipulateImageUrl(string url)
+        {
+            if (url == null)
+                return string.Empty;
+
+            // to lower
+            url = url.ToLower();
+
+            // check URL contains new image server format
+            if (!url.Contains("entry_id/"))
+                return url;
+
+            var segments = new Uri(url).Segments;
+            if (segments == null)
+                return url;
+
+            string width = string.Empty;
+            string height = string.Empty;
+            for (int i = 0; i < segments.Length; i++)
+            {
+                // search for width/<number>
+                if (segments[i].Replace("/", string.Empty) == "width")
+                    width = segments[i + 1].Replace("/", string.Empty);
+
+                // search for height/<number>
+                if (segments[i].Replace("/", string.Empty) == "height")
+                    height = segments[i + 1].Replace("/", string.Empty);
+            }
+
+            // replace width/<number> to width/0
+            if (!string.IsNullOrEmpty(width))
+                url = url.Replace("width/" + width, "width/0");
+
+            // replace height/<number> to height/0
+            if (!string.IsNullOrEmpty(height))
+                url = url.Replace("height/" + height, "height/0");
+
+            return url;
+        }
+
+        private XmlDocument SerializeToXmlDocument(object input)
+        {
+            XmlSerializer ser = new XmlSerializer(input.GetType(), new Type[] { typeof(StatusWrapper) });
             XmlDocument xd = null;
-
             using (MemoryStream memStm = new MemoryStream())
             {
                 ser.Serialize(memStm, input);
-
                 memStm.Position = 0;
-
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.IgnoreWhitespace = true;
 
@@ -92,11 +402,237 @@ namespace WebAPI.App_Start
                 {
                     xd = new XmlDocument();
                     xd.Load(xtr);
-                    xd.FirstChild.InnerText = "version=\"1.0\" encoding=\"utf-8\"";
                 }
             }
 
             return xd;
+        }
+
+        public Feed ConvertResultToIngestObj(KalturaAssetListResponse listResponse)
+        {
+            Media media;
+            Feed feed = new Feed();
+            feed.Export = new Export();
+            feed.Export.Media = new List<Media>();
+
+            if (listResponse == null)
+                return feed;
+
+            if (listResponse.Objects != null)
+            {
+                foreach (var baseAsset in listResponse.Objects)
+                {
+                    // add media
+                    media = new Media();
+
+                    KalturaMediaAsset asset = (KalturaMediaAsset)baseAsset;
+
+                    // get co_guid
+                    media.CoGuid = asset.ExternalId;
+
+                    // get entry_id
+                    media.EntryId = asset.EntryId;
+
+                    // add basic
+                    media.Basic = new Basic();
+
+                    // get media_type
+                    media.Basic.MediaType = asset.TypeDescription;
+
+                    // add name
+                    media.Basic.Name = new Name()
+                    {
+                        Value = new Value()
+                        {
+                            ValueText = asset.Name ?? string.Empty,
+                            // TODO: add language
+                            Lang = string.Empty
+                        }
+                    };
+
+                    // add description
+                    media.Basic.Description = new Description()
+                    {
+                        Value = new Value()
+                        {
+                            ValueText = asset.Description ?? string.Empty,
+                            // TODO: add language
+                            Lang = string.Empty
+                        }
+                    };
+
+                    // add dates
+                    media.Basic.Dates = new Dates()
+                    {
+                        CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        End = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        Start = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
+                    };
+
+                    // add rules
+                    media.Basic.Rules = new Rules()
+                    {
+                        DeviceRule = asset.DeviceRule ?? string.Empty,
+                        GeoBlockRule = asset.GeoBlockRule ?? string.Empty,
+                        WatchPerRule = asset.WatchPermissionRule ?? string.Empty
+                    };
+
+                    // add pics_ratios
+                    media.Basic.PicsRatio = new PicsRatio() { Ratios = new List<Ratio>() };
+                    if (asset.Images != null)
+                    {
+                        // group by ratio, take max size 
+                        List<KalturaMediaImage> images = asset.Images.GroupBy(x => x.Ratio).Select(y => y.OrderByDescending(x => ((x.Height ?? 0) * (x.Width ?? 0))).First()).ToList();
+
+                        bool thumbUpdated = false;
+                        foreach (var image in images)
+                        {
+                            // add thumb
+                            if (!thumbUpdated)
+                            {
+                                media.Basic.Thumb = new Thumb() { Url = image.Url != null ? ManipulateImageUrl(image.Url) : string.Empty };
+                                thumbUpdated = true;
+                            }
+
+                            // ratio 
+                            media.Basic.PicsRatio.Ratios.Add(new Ratio()
+                            {
+                                RatioText = image.Ratio ?? string.Empty,
+                                Thumb = image.Url != null ? ManipulateImageUrl(image.Url) : string.Empty
+                            });
+                        }
+                    }
+
+                    // add structure
+                    media.Structure = new Structure()
+                    {
+                        Booleans = new Booleans() { BooleanList = new List<MetaWithoutInnerElement>() },
+                        Doubles = new Doubles() { Metas = new List<MetaWithoutInnerElement>() },
+                        Strings = new Strings() { Metas = new List<Meta>() }
+                    };
+
+                    if (asset.Metas != null)
+                    {
+                        foreach (KeyValuePair<string, KalturaValue> entry in asset.Metas)
+                        {
+                            // add strings
+                            if (entry.Value.GetType() == typeof(KalturaStringValue))
+                            {
+                                media.Structure.Strings.Metas.Add(new Meta()
+                                {
+                                    Name = entry.Key ?? string.Empty,
+                                    Value = new Value()
+                                    {
+                                        // TODO: fill language
+                                        Lang = string.Empty,
+                                        ValueText = ((KalturaStringValue)entry.Value).value ?? string.Empty
+                                    }
+                                });
+                            }
+
+                            // add doubles
+                            if (entry.Value.GetType() == typeof(KalturaDoubleValue))
+                            {
+                                media.Structure.Doubles.Metas.Add(new MetaWithoutInnerElement()
+                                {
+                                    Name = entry.Key ?? string.Empty,
+                                    Value = ((KalturaDoubleValue)entry.Value).value.ToString()
+                                });
+                            }
+
+                            // add doubles (from integers)
+                            if (entry.Value.GetType() == typeof(KalturaIntegerValue))
+                            {
+                                media.Structure.Doubles.Metas.Add(new MetaWithoutInnerElement()
+                                {
+                                    Name = entry.Key ?? string.Empty,
+                                    Value = ((KalturaIntegerValue)entry.Value).value.ToString()
+                                });
+                            }
+
+                            // add booleans 
+                            if (entry.Value.GetType() == typeof(KalturaBooleanValue))
+                            {
+                                media.Structure.Doubles.Metas.Add(new MetaWithoutInnerElement()
+                                {
+                                    Name = entry.Key ?? string.Empty,
+                                    Value = ((KalturaBooleanValue)entry.Value).value ? "true" : "false"
+                                });
+                            }
+                        }
+                    }
+
+                    // add tags
+                    media.Structure.Metas = new Metas() { MetasList = new List<Meta>() };
+                    if (asset.Tags != null)
+                    {
+                        Meta meta;
+                        foreach (KeyValuePair<string, KalturaStringValueArray> entry in asset.Tags)
+                        {
+                            // create new meta
+                            meta = new Meta()
+                            {
+                                Name = entry.Key ?? string.Empty,
+                                Container = new List<Container>()
+                            };
+
+                            if (entry.Value.Objects != null)
+                            {
+                                // add meta values
+                                foreach (KalturaStringValue item in entry.Value.Objects)
+                                {
+                                    var container = new Container() { Values = new List<Value>() };
+
+                                    container.Values.Add(new Value()
+                                    {
+                                        // TODO: update language
+                                        Lang = string.Empty,
+                                        ValueText = item.value ?? string.Empty
+                                    });
+
+                                    meta.Container.Add(container);
+                                }
+                            }
+
+                            // add meta (tag)
+                            media.Structure.Metas.MetasList.Add(meta);
+                        }
+                    }
+
+                    // add files
+                    media.Files = new Files() { MediaFiles = new List<MediaFile>() };
+
+                    if (asset.MediaFiles != null)
+                    {
+                        foreach (var file in asset.MediaFiles)
+                        {
+                            media.Files.MediaFiles.Add(new MediaFile()
+                            {
+                                AssetDuration = file.Duration != null ? file.Duration.ToString() : string.Empty,
+                                Type = file.Type ?? string.Empty,
+                                CdnCode = file.Url ?? string.Empty,
+
+                                // add external ID/co_guid
+                                CoGuid = file.ExternalId ?? string.Empty,
+
+                                // add file values
+                                AltCdnCode = file.AltCdnCode,
+                                BillingType = file.BillingType,
+                                CdnName = file.CdnName,
+                                HandlingType = file.HandlingType,
+                                PpvModule = file.PpvModule,
+                                ProductCode = file.ProductCode
+                            });
+                        }
+                    }
+
+                    // add media
+                    feed.Export.Media.Add(media);
+                }
+            }
+
+            return feed;
         }
 
         public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content,
@@ -104,52 +640,30 @@ namespace WebAPI.App_Start
         {
             return Task.Factory.StartNew(() =>
             {
-                StatusWrapper wrapper = (StatusWrapper)value;
-                XmlReponseWrapper xrw;
-
-                if (wrapper.Result is Array)
+                Feed resultFeed = new Feed();
+                if (value != null)
                 {
-                    xrw = new XmlMultiReponseWrapper()
+                    // validate expected type was received
+                    StatusWrapper restResultWrapper = (StatusWrapper)value;
+                    if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
                     {
-                        result = (object[])wrapper.Result
-                    };
-                }
-                else if (wrapper.Result is IList)
-                {
-                    IList result = (IList)wrapper.Result;
-                    object[] array = new object[result.Count];
-                    result.CopyTo(array, 0);
-                    xrw = new XmlMultiReponseWrapper()
+                        resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
+                        XmlDocument doc = SerializeToXmlDocument(resultFeed);
+
+                        // remove root attributes
+                        doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
+
+                        var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                        writeStream.Write(buf, 0, buf.Length);
+                    }
+                    else
                     {
-                        result = array
-                    };
+                        using (TextWriter streamWriter = new StreamWriter(writeStream))
+                        {
+                            streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                        }
+                    }
                 }
-                else
-                {
-                    xrw = new XmlSingleReponseWrapper()
-                    {
-                        Result = wrapper.Result
-                    };
-                }
-
-                xrw.ExecutionTime = wrapper.ExecutionTime;
-                
-                XmlDocument doc = SerializeToXmlDocument(xrw, wrapper);
-                var resnode = doc.GetElementsByTagName("result")[0];
-
-                //if (wrapper.Result != null)
-                //{
-                //    var otype = doc.CreateElement("objectType");
-                //    otype.InnerText = wrapper.Result != null ? wrapper.Result.GetType().Name : null;                    
-                //    resnode.PrependChild(otype);
-                //}
-
-                // Removing unnecessary attributes such as NS, and type
-                resnode.Attributes.RemoveAll();
-                doc.GetElementsByTagName("xml")[0].Attributes.RemoveAll();
-
-                var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                writeStream.Write(buf, 0, buf.Length);
             });
         }
     }

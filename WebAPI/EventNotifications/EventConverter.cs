@@ -46,7 +46,7 @@ namespace WebAPI.EventNotifications
             {
                 eventObject = ottObject,
                 eventType = ConvertKalturaAction(actionEvent.Action),
-                objectType = destination.Name
+                eventObjectType = destination.Name
             };
 
             return eventWrapper;

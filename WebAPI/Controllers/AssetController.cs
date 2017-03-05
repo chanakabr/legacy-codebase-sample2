@@ -4,18 +4,13 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Reflection;
 using System.Text;
 using System.Web;
 using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Http.ModelBinding;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
@@ -166,7 +161,8 @@ namespace WebAPI.Controllers
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
-
+            string format = Utils.Utils.GetFormatFromRequest();
+      
             // parameters validation
             if (pager == null)
                 pager = new KalturaFilterPager();
@@ -179,6 +175,8 @@ namespace WebAPI.Controllers
             {
                 filter.Validate();
             }
+
+            bool managementData = !string.IsNullOrEmpty(format) && format == "30" ? true : false;
            
             try
             {              
@@ -195,7 +193,7 @@ namespace WebAPI.Controllers
                 {
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
-                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn());
+                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData);
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 

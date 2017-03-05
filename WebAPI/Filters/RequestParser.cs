@@ -110,6 +110,7 @@ namespace WebAPI.Filters
         public const string REQUEST_KS = "KS";
         public const string REQUEST_LANGUAGE = "language";
         public const string REQUEST_CURRENCY = "currency";
+        public const string REQUEST_FORMAT = "format";
         public const string REQUEST_GLOBAL_KS = "global_ks";
         public const string REQUEST_GLOBAL_USER_ID = "global_user_id";
         public const string REQUEST_GLOBAL_LANGUAGE = "global_language";
@@ -270,6 +271,12 @@ namespace WebAPI.Filters
             {
                 HttpContext.Current.Items.Add(REQUEST_CURRENCY, HttpContext.Current.Items[REQUEST_GLOBAL_CURRENCY]);
             }
+
+            // format                        
+            if (!string.IsNullOrEmpty( HttpContext.Current.Request.QueryString[REQUEST_FORMAT]))
+            {
+                HttpContext.Current.Items.Add(REQUEST_FORMAT, HttpContext.Current.Request.QueryString[REQUEST_FORMAT]);                
+            }            
 
             if (HttpContext.Current.Items[REQUEST_TYPE] != null)
                 HttpContext.Current.Items.Remove(REQUEST_TYPE);
