@@ -574,7 +574,7 @@ namespace WebAPI.App_Start
                             meta = new Meta()
                             {
                                 Name = entry.Key ?? string.Empty,
-                               // Container = new Container() { Values = new List<Value>() }
+                                Container = new List<Container>()
                             };
 
                             if (entry.Value.Objects != null)
