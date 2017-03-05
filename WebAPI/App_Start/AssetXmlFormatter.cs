@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections;
 using WebAPI.Models.Catalog;
 using TVinciShared;
+using WebAPI.Models.Renderers;
 
 namespace WebAPI.App_Start
 {
@@ -225,7 +226,7 @@ namespace WebAPI.App_Start
 
         public class Strings
         {
-           [XmlElement("meta")]
+            [XmlElement("meta")]
             public List<Meta> Metas { get; set; }
         }
 
@@ -386,7 +387,7 @@ namespace WebAPI.App_Start
             return url;
         }
 
-        private XmlDocument SerializeToXmlDocument(Feed input)
+        private XmlDocument SerializeToXmlDocument(object input)
         {
             XmlSerializer ser = new XmlSerializer(input.GetType(), new Type[] { typeof(StatusWrapper) });
             XmlDocument xd = null;
@@ -636,11 +637,19 @@ namespace WebAPI.App_Start
                     // validate expected type was received
                     StatusWrapper restResultWrapper = (StatusWrapper)value;
                     if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
+                    {
                         resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
-
-                    XmlDocument doc = SerializeToXmlDocument(resultFeed);
-                    var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                    writeStream.Write(buf, 0, buf.Length);
+                        XmlDocument doc = SerializeToXmlDocument(resultFeed);
+                        var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                        writeStream.Write(buf, 0, buf.Length);
+                    }
+                    else
+                    {
+                        using (TextWriter streamWriter = new StreamWriter(writeStream))
+                        {
+                            streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                        }
+                    }
                 }
             });
         }
