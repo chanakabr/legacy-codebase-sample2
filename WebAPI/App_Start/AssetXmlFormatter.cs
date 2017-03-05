@@ -41,6 +41,7 @@ namespace WebAPI.App_Start
             return true;
         }
 
+        [XmlRoot("feed")]
         public class Feed
         {
             [XmlElement("export")]
