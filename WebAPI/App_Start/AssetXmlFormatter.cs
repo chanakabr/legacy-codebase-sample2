@@ -41,7 +41,6 @@ namespace WebAPI.App_Start
             return true;
         }
 
-        [XmlRoot("feed")]
         public class Feed
         {
             [XmlElement("export")]
@@ -50,7 +49,7 @@ namespace WebAPI.App_Start
 
         public class Export
         {
-            [XmlElement("export")]
+            [XmlElement("media")]
             public List<Media> Media { get; set; }
         }
 
