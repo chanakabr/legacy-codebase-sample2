@@ -636,7 +636,7 @@ namespace Tvinci.Core.DAL
 
                 // Get the current device's media mark, if it exists
                 UserMediaMark existdev = domainMediaMark.devices.Where(x => x.UDID == udid).FirstOrDefault();
-                
+
                 // If it exists, replace it
                 if (existdev != null)
                 {
@@ -1558,7 +1558,7 @@ namespace Tvinci.Core.DAL
             List<string> playActions = new List<string>() { MediaPlayActions.FINISH.ToString().ToLower(), MediaPlayActions.STOP.ToString().ToLower() };
 
             DomainMediaMark domainMarks = JsonConvert.DeserializeObject<DomainMediaMark>(data);
-            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow && 
+            domainMarks.devices = domainMarks.devices.Where(x => x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
                 // either the list is empty (which means all play types) or x's type is in the list)
                 (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType)) &&
                 !playActions.Contains(x.AssetAction.ToLower())).ToList();
@@ -1572,9 +1572,9 @@ namespace Tvinci.Core.DAL
 
                 DomainMediaMark dm = JsonConvert.DeserializeObject<DomainMediaMark>(marks);
 
-                dm.devices = dm.devices.Where(x => 
+                dm.devices = dm.devices.Where(x =>
                     x.CreatedAt.AddMilliseconds(ttl) > DateTime.UtcNow &&
-                    // either the list is empty (which means all play types) or x's type is in the list)
+                        // either the list is empty (which means all play types) or x's type is in the list)
                     (playTypesStrings.Count == 0 || playTypesStrings.Contains(x.playType))).ToList();
 
                 bool res = domainMarksManager.SetWithVersion(docKey, JsonConvert.SerializeObject(dm, Formatting.None), version);
@@ -3064,7 +3064,7 @@ namespace Tvinci.Core.DAL
                 }
             }
             catch (Exception ex)
-            {                
+            {
                 log.Error(string.Empty, ex);
             }
             return dt;
@@ -4176,7 +4176,7 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddParameter("@Description", description);
-                if( pendingThresholdInMinutes > 0)
+                if (pendingThresholdInMinutes > 0)
                     sp.AddParameter("@PendingThresholdInMinutes", pendingThresholdInMinutes);
                 if (activeThresholdInMinutes > 0)
                     sp.AddParameter("@ActiveThresholdInMinutes", activeThresholdInMinutes);
@@ -4469,7 +4469,7 @@ namespace Tvinci.Core.DAL
             StoredProcedure spGetEpgChannelIdToLinearMediaIdMap = new StoredProcedure("GetEpgChannelIdToLinearMediaIdMap");
             spGetEpgChannelIdToLinearMediaIdMap.SetConnectionKey("MAIN_CONNECTION_STRING");
             spGetEpgChannelIdToLinearMediaIdMap.AddParameter("@GroupId", groupId);
-            spGetEpgChannelIdToLinearMediaIdMap.AddIDListParameter<string>("@EpgChannelIds", epgChannelIds, "Id");            
+            spGetEpgChannelIdToLinearMediaIdMap.AddIDListParameter<string>("@EpgChannelIds", epgChannelIds, "Id");
             dt = spGetEpgChannelIdToLinearMediaIdMap.Execute();
 
             return dt;
@@ -4504,6 +4504,24 @@ namespace Tvinci.Core.DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             dt = sp.Execute();
+
+            return dt;
+        }
+
+        public static DataTable GetMediaQualities()
+        {
+            DataTable dt = null;
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select ID, DESCRIPTION  as 'NAME' from lu_media_quality";
+
+            if (selectQuery.Execute("lu_media_quality", true) != null && selectQuery.Table("lu_media_quality").DefaultView.Count > 0)
+            {
+                dt = selectQuery.Table("lu_media_quality");
+            }
+            else
+            {
+                log.Debug("Failed to get lu_media_quality");
+            }
 
             return dt;
         }
