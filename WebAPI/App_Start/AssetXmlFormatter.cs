@@ -570,6 +570,7 @@ namespace WebAPI.App_Start
                         Meta meta;
                         foreach (KeyValuePair<string, KalturaStringValueArray> entry in asset.Tags)
                         {
+                            // create new meta
                             meta = new Meta()
                             {
                                 Name = entry.Key ?? string.Empty,
@@ -578,18 +579,19 @@ namespace WebAPI.App_Start
 
                             if (entry.Value.Objects != null)
                             {
+                                // add meta values
                                 foreach (KalturaStringValue item in entry.Value.Objects)
                                 {
-                                    // add tag container
                                     meta.Container.Values.Add(new Value()
                                     {
                                         // TODO: update language
                                         Lang = string.Empty,
                                         ValueText = item.value ?? string.Empty
                                     });
-                                    media.Structure.Metas.MetasList.Add(meta);
                                 }
+                                
                             }
+                            media.Structure.Metas.MetasList.Add(meta);
                         }
                     }
 
