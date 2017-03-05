@@ -283,7 +283,8 @@ namespace WebAPI.Clients
                 assetTypes = assetTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                groupBy = groupBy
+                groupBy = groupBy,
+                groupByOrder = AggregationOrder.Value_Asc
             };
 
             // fire unified search request
