@@ -38,6 +38,10 @@ namespace ApiObjects
         public int CdnId { get; set; }
 
         public int DrmId { get; set; }
+
+        public AdsPolicy? AdsPolicy { get; set; }
+        
+        public string AdsParam { get; set; }
     }
 
     public class PlayManifestResponse

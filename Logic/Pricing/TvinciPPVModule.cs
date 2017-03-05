@@ -8,6 +8,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Response;
 using ApiObjects.Pricing;
+using ApiObjects;
 
 namespace Core.Pricing
 {
@@ -90,12 +91,20 @@ namespace Core.Pricing
                     bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
                     bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
                     string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
+                    string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["ADS_PARAM"]);
+
+                    int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["ADS_POLICY"]);
+                    AdsPolicy? adsPolicy = null;
+                    if (adsPolicyInt > 0)
+                    {
+                        adsPolicy = (AdsPolicy)adsPolicyInt;
+                    }
 
                     PPVModule t = new PPVModule();
                     if (!bShrink)
-                        t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(nPPVModuleID, m_nGroupID), bIsFirstDeviceLimitation, productCode);
+                        t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(nPPVModuleID, m_nGroupID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                     else
-                        t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode);
+                        t.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, GetPPVDescription(nPPVModuleID), m_nGroupID, nPPVModuleID.ToString(), bSubOnly, sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleID), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
                     if (t.m_oPriceCode != null)
                     {
                         tmp[nIndex] = t;
@@ -145,9 +154,17 @@ namespace Core.Pricing
                     bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
                     bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
                     string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
+                    string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["ADS_PARAM"]);
+
+                    int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["ADS_POLICY"]);
+                    AdsPolicy? adsPolicy = null;
+                    if (adsPolicyInt > 0)
+                    {
+                        adsPolicy = (AdsPolicy)adsPolicyInt;
+                    }
 
                     tmp.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, GetPPVDescription(nPPVModuleCode), m_nGroupID, sPPVModuleCode, bSubOnly,
-                                   sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleCode), bIsFirstDeviceLimitation, productCode);
+                                   sName, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, GetPPVFileTypes(m_nGroupID, nPPVModuleCode), bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
 
                     return tmp;
                 }

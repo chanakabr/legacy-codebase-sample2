@@ -608,7 +608,14 @@ namespace Core.Pricing
             string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["COUPON_GROUP_CODE"]);
             string sName = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["NAME"]);
             int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["GRACE_PERIOD_MINUTES"]);
+            string adsParam = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["ADS_PARAM"]);
 
+            int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["ADS_POLICY"]);
+            AdsPolicy? adsPolicy = null;
+            if (adsPolicyInt > 0)
+            {
+                adsPolicy = (AdsPolicy)adsPolicyInt;
+            }
 
             int nIsRecurring = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["IS_RECURRING"]);
             bool bIsRecurring = false;
@@ -644,7 +651,7 @@ namespace Core.Pricing
             {
                 retSubscription.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID, gracePeriodMinutes);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID, gracePeriodMinutes, adsPolicy, adsParam);
 
 
             }
@@ -652,7 +659,7 @@ namespace Core.Pricing
             {
                 retSubscription.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID, gracePeriodMinutes);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID, gracePeriodMinutes, adsPolicy, adsParam);
             }
 
 

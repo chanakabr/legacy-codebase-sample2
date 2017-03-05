@@ -117,30 +117,31 @@ namespace Core.Pricing
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName, int nGeoCommerceID = 0, int dlmID = 0)
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName, 
+            int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
-            Initialize(0, oPriceCode, oUsageModule,
-            oDiscountModule, oCouponsGroup, sDescriptions,
-            sSubscriptionCode, sCodes, dStart, dEnd,
-            sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, dlmID);
+            Initialize(0, oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions, sSubscriptionCode, sCodes, dStart, dEnd,
+                        sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, 0, dlmID, adsPolicy, adsParam);
         }
 
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, DiscountModule extDisountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName, int nGeoCommerceID = 0, int dlmID = 0)
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
+            int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             Initialize(0, oPriceCode, oUsageModule,
             oDiscountModule, oCouponsGroup, sDescriptions,
             sSubscriptionCode, sCodes, dStart, dEnd,
-            sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, nGeoCommerceID, dlmID);
+            sFileTypes, bIsRecurring, nNumOfRecPeriods, sName, subPriceCode, oSubUsageModule, sObjectVirtualName, nGeoCommerceID, dlmID, adsPolicy, adsParam);
             m_oExtDisountModule = extDisountModule;
         }
 
         public void Initialize(Int32 nGroupID, PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName, int nGeoCommerceID = 0, int dlmID = 0)
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
+            int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             base.Initialize(oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions,
                 sSubscriptionCode, false, sObjectVirtualName, null, false);
@@ -159,6 +160,8 @@ namespace Core.Pricing
             GetFictivicMediaID(nGroupID, int.Parse(sSubscriptionCode));
             n_GeoCommerceID = nGeoCommerceID;
             m_nDomainLimitationModule = dlmID;
+            AdsPolicy = adsPolicy;
+            AdsParam = adsParam;
 
         }
 
@@ -167,7 +170,7 @@ namespace Core.Pricing
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
             Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, string subPriceCode,
             string sSubUsageModule, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, int nGeoCommerceID = 0, int dlmID = 0)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -196,6 +199,8 @@ namespace Core.Pricing
             m_sName = sName;
             n_GeoCommerceID = nGeoCommerceID;
             m_nDomainLimitationModule = dlmID;
+            AdsPolicy = adsPolicy;
+            AdsParam = adsParam;
 
             if (!string.IsNullOrEmpty(priority))
             {
@@ -223,7 +228,8 @@ namespace Core.Pricing
            string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, string subPriceCode,
            string sSubUsageModule, string sObjectVirtualName,
-           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services, long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0)
+           string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
+            long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -289,6 +295,8 @@ namespace Core.Pricing
             InitializeMultiUsageModule(nGroupID, sSubscriptionCode);
             m_oPreviewModule = GetPreviewModule(nGroupID, lPreviewModuleID);
             m_lServices = services;
+            AdsPolicy = adsPolicy;
+            AdsParam = adsParam;
         }
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)

@@ -1,10 +1,12 @@
 ﻿using AdapterControllers;
 using AdapterControllers.CDVR;
+using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using Core.Catalog.Response;
+using Core.Pricing;
 using Core.Users;
 using DAL;
 using KLogMonitor;
@@ -107,7 +109,7 @@ namespace Core.ConditionalAccess
                 }
 
                 List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
-                List<long> assetFileIds = new List<long>();
+                Dictionary<long, AdsData> assetFileIdsAds = new Dictionary<long, AdsData>();
 
                 if (files != null && files.Count > 0)
                 {
@@ -115,7 +117,7 @@ namespace Core.ConditionalAccess
 
                     if (assetType == eAssetTypes.NPVR && (epgChannelLinearMedia == null || epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                     {
-                        assetFileIds = files.Select(f => f.Id).ToList();
+                        assetFileIdsAds = files.ToDictionary(f => f.Id, f => new AdsData());
                     }
                     else
                     {
@@ -126,7 +128,7 @@ namespace Core.ConditionalAccess
                             {
                                 if (Utils.IsFreeItem(price) || Utils.IsItemPurchased(price))
                                 {
-                                    assetFileIds.Add(price.m_nMediaFileID);
+                                    assetFileIdsAds.Add(price.m_nMediaFileID, GetFileAdsData(groupId, price, udid));
                                 }
 
                                 filePrice = price;
@@ -134,18 +136,24 @@ namespace Core.ConditionalAccess
                         }
                     }
 
-                    if (assetFileIds.Count > 0)
+                    if (assetFileIdsAds.Count > 0)
                     {
                         int domainID = 0;
                         List<int> ruleIds = new List<int>();
-                        DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIds[0], udid, prices, int.Parse(assetId), ip, ref ruleIds, ref domainID);
+                        DomainResponseStatus mediaConcurrencyResponse = cas.CheckMediaConcurrency(userId, (int)assetFileIdsAds.First().Key, udid, prices, int.Parse(assetId), ip, ref ruleIds, ref domainID);
                         if (mediaConcurrencyResponse != DomainResponseStatus.OK)
                         {
                             response.Status = Utils.ConcurrencyResponseToResponseStatus(mediaConcurrencyResponse);
                             return response;
                         }
 
-                        response.Files = files.Where(f => assetFileIds.Contains(f.Id)).ToList();
+                        response.Files = files.Where(f => assetFileIdsAds.Keys.Contains(f.Id)).ToList();
+                        foreach (MediaFile file in response.Files)
+                        {
+                            var assetFileAds = assetFileIdsAds[file.Id];
+                            file.AdsParam = assetFileAds.AdsParam;
+                            file.AdsPolicy = assetFileAds.AdsPolicy;
+                        }
                     }
                     else if (assetType == eAssetTypes.NPVR)
                     {
@@ -175,6 +183,35 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        private static AdsData GetFileAdsData(int groupId, MediaFileItemPricesContainer price, string udid)
+        {
+            AdsData adsData = null;
+
+            // TODO: ask Ira why is it list
+            if (price.m_oItemPrices != null && price.m_oItemPrices.Length > 0)
+            {
+                adsData = new AdsData();
+                Subscription subscription = null;
+                ItemPriceContainer itemPrice = price.m_oItemPrices[0];
+                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null)
+                {
+                    adsData.AdsPolicy = subscription.AdsPolicy;
+                    adsData.AdsParam = subscription.AdsParam;
+                }
+                else
+                {
+                    PPVModule ppv = Core.Pricing.Module.GetPPVModuleData(groupId, price.m_oItemPrices[0].m_sPPVModuleCode, string.Empty, string.Empty, udid);
+                    if (ppv != null)
+                    {
+                        adsData.AdsPolicy = ppv.AdsPolicy;
+                        adsData.AdsParam = ppv.AdsParam;
+                    }
+                }
+            }
+
+            return adsData;
         }
 
         public static PlayManifestResponse GetPlayManifest(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType)

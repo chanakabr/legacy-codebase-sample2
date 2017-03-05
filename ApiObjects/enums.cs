@@ -819,4 +819,9 @@ namespace ApiObjects
         FixedAmount = 1
     }
 
+    public enum AdsPolicy
+    {
+        NoAds = 1,
+        KeepAds = 2
+    }
 }

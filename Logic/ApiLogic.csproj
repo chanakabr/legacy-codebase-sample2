@@ -332,6 +332,7 @@
     <Compile Include="Catalog\TagMeta.cs" />
     <Compile Include="Catalog\UnifiedSearchDefinitionsBuilder.cs" />
     <Compile Include="Catalog\Utils.cs" />
+    <Compile Include="ConditionalAccess\AdsData.cs" />
     <Compile Include="ConditionalAccess\BaseCampaignActionImpl.cs" />
     <Compile Include="ConditionalAccess\BillingTransactionContainer.cs" />
     <Compile Include="ConditionalAccess\Commands\BaseNPVRCommand.cs" />

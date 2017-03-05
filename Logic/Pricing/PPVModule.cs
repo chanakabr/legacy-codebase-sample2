@@ -1,4 +1,5 @@
-﻿using ApiObjects.Pricing;
+﻿using ApiObjects;
+using ApiObjects.Pricing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace Core.Pricing
         public string m_Product_Code;
         public bool m_bFirstDeviceLimitation;
         public string alias;
+        public ApiObjects.AdsPolicy? AdsPolicy { get; set; }
+        public string AdsParam { get; set; }
         #endregion
 
         public override string ToString()
@@ -51,7 +54,7 @@ namespace Core.Pricing
 
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
-            string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, int dlmID = 0)
+            string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             m_oCouponsGroup = oCouponsGroup;
             m_oDiscountModule = oDiscountModule;
@@ -63,13 +66,15 @@ namespace Core.Pricing
             m_sObjectVirtualName = sObjectVirtualName;
             m_relatedFileTypes = fileTypes;
             m_bFirstDeviceLimitation = bFirstDeviceLimitation;
+            AdsPolicy = adsPolicy;
+            AdsParam = adsParam;
 
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, int dlmID = 0)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             m_bSubscriptionOnly = bSubscriptionOnly;
             m_sObjectVirtualName = sObjectVirtualName;
@@ -126,23 +131,26 @@ namespace Core.Pricing
             m_sObjectCode = sPPVCode;
             m_bFirstDeviceLimitation = bFirstDeviceLimitation;
             m_Product_Code = productCode;
+            AdsPolicy = adsPolicy;
+            AdsParam = adsParam;
         }
 
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
                DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
-               string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, string alias ,int dlmID = 0)
+               string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, string alias ,int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
-            Initialize(oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions, sPPVCode, bSubscriptionOnly, sObjectVirtualName, fileTypes, bFirstDeviceLimitation, dlmID);
+            Initialize(oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions, sPPVCode, bSubscriptionOnly, sObjectVirtualName, fileTypes, bFirstDeviceLimitation, dlmID, adsPolicy, adsParam);
             this.alias = alias;
         }
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
             string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, string alias, int dlmID = 0)
+            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, string alias, int dlmID = 0, 
+            AdsPolicy? adsPolicy = null, string adsParam = null)
         {
-            Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, sDescriptions, nGroupID, sPPVCode, bSubscriptionOnly, sObjectVirtualName, sCountryCd, sLANGUAGE_CODE, 
-                sDEVICE_NAME, fileTypes, bFirstDeviceLimitation, productCode, dlmID);
+            Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, sDescriptions, nGroupID, sPPVCode, bSubscriptionOnly, sObjectVirtualName, sCountryCd, sLANGUAGE_CODE,
+                sDEVICE_NAME, fileTypes, bFirstDeviceLimitation, productCode, dlmID, adsPolicy, adsParam);
             this.alias = alias;
         }
     
