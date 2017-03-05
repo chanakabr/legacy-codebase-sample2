@@ -14,7 +14,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetGroupBy : KalturaOTTObject
     {
         /// <summary>
-        /// Value
+        /// Value - can be a meta, tag or media_type_id
         /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]

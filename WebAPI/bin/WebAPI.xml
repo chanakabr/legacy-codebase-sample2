@@ -904,7 +904,7 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetGroupBy.Value">
             <summary>
-            Value
+            Value - can be a meta, tag of media_type_id
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLastPositionListResponse">
