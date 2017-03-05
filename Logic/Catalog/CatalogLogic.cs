@@ -4071,7 +4071,7 @@ namespace Core.Catalog
                                 fileMedia.m_sOverlaypoints = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "COMMERCIAL_OVERLAY_POINTS");
                             }
 
-                            if (!managementData)
+                            if (managementData)
                             {
                                 if (Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID") > 0)
                                 {
