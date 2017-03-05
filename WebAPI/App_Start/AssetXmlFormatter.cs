@@ -420,22 +420,24 @@ namespace WebAPI.App_Start
 
             if (listResponse.Objects != null)
             {
-                foreach (var asset in listResponse.Objects)
+                foreach (var baseAsset in listResponse.Objects)
                 {
                     // add media
                     media = new Media();
 
-                    // TODO: get co_guid
-                    media.CoGuid = string.Empty;
+                    KalturaMediaAsset asset = (KalturaMediaAsset)baseAsset;
 
-                    // TODO: get entry_id
-                    media.EntryId = string.Empty;
+                    // get co_guid
+                    media.CoGuid = asset.ExternalId;
+
+                    // get entry_id
+                    media.EntryId = asset.EntryId;
 
                     // add basic
                     media.Basic = new Basic();
 
-                    // TODO: get media_type
-                    media.Basic.MediaType = string.Empty;
+                    // get media_type
+                    media.Basic.MediaType = asset.TypeDescription;
 
                     // add name
                     media.Basic.Name = new Name()
@@ -468,12 +470,12 @@ namespace WebAPI.App_Start
                         Start = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
                     };
 
-                    // TODO: add rules
+                    // add rules
                     media.Basic.Rules = new Rules()
                     {
-                        DeviceRule = string.Empty,
-                        GeoBlockRule = string.Empty,
-                        WatchPerRule = string.Empty
+                        DeviceRule = asset.DeviceRule ?? string.Empty,
+                        GeoBlockRule = asset.GeoBlockRule ?? string.Empty,
+                        WatchPerRule = asset.WatchPermissionRule ?? string.Empty
                     };
 
                     // add pics_ratios
@@ -604,16 +606,16 @@ namespace WebAPI.App_Start
                                 Type = file.Type ?? string.Empty,
                                 CdnCode = file.Url ?? string.Empty,
 
-                                // TODO: check if external ID = co_guid
+                                // add external ID/co_guid
                                 CoGuid = file.ExternalId ?? string.Empty,
 
-                                // TODO: fill all missing values
-                                AltCdnCode = string.Empty,
-                                BillingType = string.Empty,
-                                CdnName = string.Empty,
-                                HandlingType = string.Empty,
-                                PpvModule = string.Empty,
-                                ProductCode = string.Empty
+                                // add file values
+                                AltCdnCode = file.AltCdnCode,
+                                BillingType = file.BillingType,
+                                CdnName = file.CdnName,
+                                HandlingType = file.HandlingType,
+                                PpvModule = file.PpvModule,
+                                ProductCode = file.ProductCode
                             });
                         }
                     }
