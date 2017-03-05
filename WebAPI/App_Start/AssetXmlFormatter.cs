@@ -248,7 +248,7 @@ namespace WebAPI.App_Start
             public Value Value { get; set; }
 
             [XmlElement("container")]
-            public Container Container { get; set; }
+            public List<Container> Container { get; set; }
 
             public Meta()
             {
@@ -574,7 +574,7 @@ namespace WebAPI.App_Start
                             meta = new Meta()
                             {
                                 Name = entry.Key ?? string.Empty,
-                                Container = new Container() { Values = new List<Value>() }
+                               // Container = new Container() { Values = new List<Value>() }
                             };
 
                             if (entry.Value.Objects != null)
@@ -582,12 +582,16 @@ namespace WebAPI.App_Start
                                 // add meta values
                                 foreach (KalturaStringValue item in entry.Value.Objects)
                                 {
-                                    meta.Container.Values.Add(new Value()
+                                    var container = new Container() { Values = new List<Value>() };
+
+                                    container.Values.Add(new Value()
                                     {
                                         // TODO: update language
                                         Lang = string.Empty,
                                         ValueText = item.value ?? string.Empty
                                     });
+
+                                    meta.Container.Add(container);
                                 }
                             }
 
