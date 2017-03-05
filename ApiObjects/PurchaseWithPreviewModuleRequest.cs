@@ -65,8 +65,8 @@ namespace ApiObjects
             addressNumMergeVar.content = this.m_sAddress;
             retVal.Add(addressNumMergeVar);
             MCGlobalMergeVars previewEndVar = new MCGlobalMergeVars();
-            addressNumMergeVar.name = "PREVIEWEND";
-            addressNumMergeVar.content = this.m_sPreviewModuleEndDate;
+            previewEndVar.name = "PREVIEWEND";
+            previewEndVar.content = this.m_sPreviewModuleEndDate;
             retVal.Add(previewEndVar);
 
             return retVal;
