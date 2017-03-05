@@ -37,6 +37,22 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "drm")]
         public List<KalturaDrmPlaybackPluginData> Drm { get; set; }
 
+        /// <summary>
+        /// Ads policy 
+        /// </summary>
+        [DataMember(Name = "adsPolicy")]
+        [JsonProperty("adsPolicy")]
+        [XmlElement(ElementName = "adsPolicy")]
+        public KalturaAdsPolicy? AdsPolicy { get; set; }
+
+        /// <summary>
+        /// Key value pairs of parameters to pass to the ads server 
+        /// </summary>
+        [DataMember(Name = "adsParams")]
+        [JsonProperty("adsParams")]
+        [XmlElement(ElementName = "adsParams")]
+        public List<KalturaKeyValue> AdsParams { get; set; }
+
         internal string FileExtention { get; set; }
 
         internal int DrmId;

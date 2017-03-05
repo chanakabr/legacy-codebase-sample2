@@ -1180,6 +1180,16 @@
             DRM data object containing relevant license URL ,scheme name and certificate
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsPolicy">
+            <summary>
+            Ads policy 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsParams">
+            <summary>
+            Key value pairs of parameters to pass to the ads server 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">
             <summary>
             KalturaPpvEntitlement

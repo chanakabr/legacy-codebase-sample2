@@ -399,7 +399,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))
               .ForMember(dest => dest.FileExtention, opt => opt.MapFrom(src => src.Url.Substring(src.Url.LastIndexOf('.'))))
               .ForMember(dest => dest.Protocols, opt => opt.MapFrom(src => src.Url.StartsWith("https") ? "https" : src.Url.StartsWith("http") ? "http" : string.Empty))
-              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()));
+              .ForMember(dest => dest.Format, opt => opt.MapFrom(src => src.StreamerType.ToString()))
+              .ForMember(dest => dest.AdsParams, opt => opt.MapFrom(src => src.AdsParam))
+              .ForMember(dest => dest.AdsPolicy, opt => opt.MapFrom(src => ConvertAdsPolicy(src.AdsPolicy)));
 
             Mapper.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
               .ForMember(dest => dest.Sources, opt => opt.MapFrom(src => src.Files))
@@ -425,6 +427,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.SubscriptionId, opt => opt.MapFrom(src => src.SubscriptionId))
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.PurchaseId))
               .ForMember(dest => dest.AppliedRenewalIterations, opt => opt.MapFrom(src => src.Renewals));
+        }
+
+        private static KalturaAdsPolicy? ConvertAdsPolicy(AdsPolicy? adsPolicy)
+        {
+            if (!adsPolicy.HasValue)
+            {
+                return null;
+            }
+            switch (adsPolicy.Value)
+            {
+                case AdsPolicy.NoAds:
+                    return KalturaAdsPolicy.NO_ADS;
+                    break;
+                case AdsPolicy.KeepAds:
+                    return KalturaAdsPolicy.KEEP_ADS;
+                    break;
+                default:
+                    return null;
+                    break;
+            }
         }
 
         private static CompensationType ConvertCompensationType(KalturaCompensationType kalturaCompensationType)
