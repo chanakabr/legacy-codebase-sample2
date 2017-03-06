@@ -1279,7 +1279,7 @@
         </member>
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaPlaybackSource.AdsParams">
             <summary>
-            Key value pairs of parameters to pass to the ads server 
+            The parameters to pass to the ads server 
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaPpvEntitlement">

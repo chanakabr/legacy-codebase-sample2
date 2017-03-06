@@ -46,12 +46,12 @@ namespace WebAPI.Models.ConditionalAccess
         public KalturaAdsPolicy? AdsPolicy { get; set; }
 
         /// <summary>
-        /// Key value pairs of parameters to pass to the ads server 
+        /// The parameters to pass to the ads server 
         /// </summary>
-        [DataMember(Name = "adsParams")]
-        [JsonProperty("adsParams")]
-        [XmlElement(ElementName = "adsParams")]
-        public List<KalturaKeyValue> AdsParams { get; set; }
+        [DataMember(Name = "adsParam")]
+        [JsonProperty("adsParam")]
+        [XmlElement(ElementName = "adsParam")]
+        public string AdsParams { get; set; }
 
         internal string FileExtention { get; set; }
 
