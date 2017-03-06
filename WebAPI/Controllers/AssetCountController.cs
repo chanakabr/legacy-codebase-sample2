@@ -18,24 +18,12 @@ namespace WebAPI.Controllers
     public class AssetCountController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        /*
-         Like list of AssetController
-         KalturaAssetInfoFilter
-         KalturaAssetGroupBy
-         * KalturaAssetMetaGroupBy
-         * 
-         Returns: List KalturaAssetCount
-         * Count
-         * String - the value of the meta
-         * 
-         */
-
+        
         /// <summary>
-        /// 
+        /// Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
         /// </summary>
         /// <param name="filter">Filtering the assets request</param>
-        /// <param name="groupBy">Group by field</groupBy>
+        /// <param name="groupBy">Fields to group by</groupBy>
         /// <remarks></remarks>
         [Route("list"), HttpPost]
         [ApiAuthorize]

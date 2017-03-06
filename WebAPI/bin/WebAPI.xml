@@ -869,12 +869,17 @@
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
             <summary>
-            Asset wrapper
+            Asset counts wrapper - represents a group
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCountListResponse.Objects">
             <summary>
-            Assets
+            List of groupings (field name and sub-list of values and their counts)
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetCount">
+            <summary>
+            Asset count - represents a specific value of the field, its count and its sub groups.
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.Value">
@@ -889,17 +894,17 @@
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.SubCounts">
             <summary>
-            Sub counts
+            Sub groups
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Field">
             <summary>
-            Field
+            Field name
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Objects">
             <summary>
-            Assets
+            Values, their count and sub groups
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetGroupBy.Value">

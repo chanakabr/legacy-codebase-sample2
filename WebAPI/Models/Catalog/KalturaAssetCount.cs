@@ -10,13 +10,13 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Catalog
 {
     /// <summary>
-    /// Asset wrapper
+    /// Asset counts wrapper - represents a group
     /// </summary>
     [Serializable]
     public class KalturaAssetCountListResponse : KalturaListResponse
     {
         /// <summary>
-        /// Assets
+        /// List of groupings (field name and sub-list of values and their counts)
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
@@ -29,6 +29,9 @@ namespace WebAPI.Models.Catalog
         }
     }
 
+    /// <summary>
+    /// Asset count - represents a specific value of the field, its count and its sub groups.
+    /// </summary>
     public class KalturaAssetCount : KalturaOTTObject
     {
         /// <summary>
@@ -56,7 +59,7 @@ namespace WebAPI.Models.Catalog
         }
 
         /// <summary>
-        /// Sub counts
+        /// Sub groups
         /// </summary>
         [DataMember(Name = "subs")]
         [JsonProperty(PropertyName = "subs")]
@@ -72,7 +75,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetsCount : KalturaOTTObject
     {
         /// <summary>
-        /// Field
+        /// Field name
         /// </summary>
         [DataMember(Name = "field")]
         [JsonProperty(PropertyName = "field")]
@@ -84,7 +87,7 @@ namespace WebAPI.Models.Catalog
         }
 
         /// <summary>
-        /// Assets
+        /// Values, their count and sub groups
         /// </summary>
         [DataMember(Name = "objects")]
         [JsonProperty(PropertyName = "objects")]
