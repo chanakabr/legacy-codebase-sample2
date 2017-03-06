@@ -26,8 +26,6 @@ namespace Core.ConditionalAccess
         public static PlaybackContextResponse GetPlaybackContext(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType, List<long> fileIds, StreamerType? streamerType, string mediaProtocol,
             PlayContextType context, string ip, string udid, out MediaFileItemPricesContainer filePrice)
         {
-            // TODO: add cache
-
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
