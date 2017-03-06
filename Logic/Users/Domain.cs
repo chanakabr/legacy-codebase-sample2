@@ -588,6 +588,7 @@ namespace Core.Users
                     DeviceId = nDeviceID,
                     GroupId = m_nGroupID,
                     DomainId = m_nDomainID,
+                    ActivataionStatus = isActive == 1 ? DeviceState.Activated : DeviceState.UnActivated
                 };
 
                 bool deleted = domainDevice.Delete();
