@@ -41,9 +41,4 @@ namespace WebAPI.Models.Catalog
             return values;
         }
     }
-
-    [Serializable]
-    public class KalturaAssetMetaGroupBy : KalturaAssetGroupBy
-    {
-    }
 }
