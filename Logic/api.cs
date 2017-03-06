@@ -4094,8 +4094,6 @@ namespace Core.Api
             return epg;
         }
 
-
-
         internal static Tuple<List<int>, bool> Get_MCRulesIdsByMediaId(Dictionary<string, object> funcParams)
         {
             bool res = false;
@@ -4157,8 +4155,6 @@ namespace Core.Api
             }
             return new Tuple<List<int>, bool>(ruleIds.Distinct().ToList(), res);
         }
-
-
 
         /***************************************************************************************************************************
          * 
@@ -8960,7 +8956,6 @@ namespace Core.Api
             return scheduledTask;
         }
 
-
         public static UnifiedSearchResult[] SearchAssets(int groupID, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
                string Udid, string UserIP, string SiteGuid, int DomainId, int ExectGroupId, bool IgnoreDeviceRule)
         {
@@ -9328,6 +9323,7 @@ namespace Core.Api
             }
 
             return result;
-        }
+        }        
+
     }
 }

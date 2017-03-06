@@ -16,6 +16,7 @@ using System.Web;
 using System.ServiceModel;
 using Core.Users;
 using ApiObjects.SearchObjects;
+using ApiObjects.AssetLifeCycleRules;
 
 namespace APILogic
 {
@@ -566,5 +567,165 @@ namespace APILogic
 
             return new Tuple<Dictionary<long, eRuleLevel>, bool>(result, res);
         }
+
+        internal static List<AssetLifeCycleRule> GetAllLifeCycleRules(int groupId)
+        {
+            List<AssetLifeCycleRule> rules = null;
+            try
+            {
+                DataSet ds = DAL.ApiDAL.GetAllLifeCycleRules(groupId);
+                if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
+                {
+                    Dictionary<long, AssetLifeCycleRule> mappedRules = new Dictionary<long, AssetLifeCycleRule>();
+                    DataTable rulesDt = ds.Tables[0];
+                    if (rulesDt != null && rulesDt.Rows != null && rulesDt.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in rulesDt.Rows)
+                        {
+                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                            if (id > 0 && !mappedRules.ContainsKey(id))
+                            {
+                                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                                string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
+                                string filter = ODBCWrapper.Utils.GetSafeStr(dr, "FILTER");
+                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, name, filter, description);
+                                mappedRules.Add(id, alcr);
+                            }
+                        }
+
+                        DataTable dtRulesTags = ds.Tables[1];
+                        DataTable dtRulesFileTypesAndPpvs = ds.Tables[2];
+                        DataTable dtRulesGeoBlock = ds.Tables[3];
+                        Dictionary<long, List<int>> ruleIdToTagIdsToAddMap = new Dictionary<long, List<int>>();
+                        Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap = new Dictionary<long, List<int>>();
+                        Dictionary<long, Dictionary<int, List<int>>> ruleIdToFileTypesToPpvsMapToAdd = new Dictionary<long, Dictionary<int, List<int>>>();
+                        Dictionary<long, Dictionary<int, List<int>>> ruleIdToFileTypesToPpvsMapToRemove = new Dictionary<long, Dictionary<int, List<int>>>();
+                        Dictionary<long, int?> ruleIdToGeoBlockMap = new Dictionary<long, int?>();
+                        if (FillRulesToTags(dtRulesTags, mappedRules, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
+                            FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, mappedRules, ref ruleIdToFileTypesToPpvsMapToAdd, ref ruleIdToFileTypesToPpvsMapToRemove) &&
+                            FillRulesToGeoBlock(dtRulesGeoBlock, mappedRules, ref ruleIdToGeoBlockMap))
+                        {
+                            foreach (long alcrId in mappedRules.Keys)
+                            {
+                                mappedRules[alcrId].Actions = new LifeCycleTransitions(ruleIdToTagIdsToAddMap.ContainsKey(alcrId) ? ruleIdToTagIdsToAddMap[alcrId] : new List<int>(),
+                                                                                       ruleIdToTagIdsToRemoveMap.ContainsKey(alcrId) ? ruleIdToTagIdsToRemoveMap[alcrId] : new List<int>(),
+                                                                                       ruleIdToFileTypesToPpvsMapToAdd.ContainsKey(alcrId) ? ruleIdToFileTypesToPpvsMapToAdd[alcrId] : new Dictionary<int, List<int>>(),
+                                                                                       ruleIdToFileTypesToPpvsMapToRemove.ContainsKey(alcrId) ? ruleIdToFileTypesToPpvsMapToRemove[alcrId] : new Dictionary<int, List<int>>(),
+                                                                                       ruleIdToGeoBlockMap.ContainsKey(alcrId) ? ruleIdToGeoBlockMap[alcrId] : null);
+                            }
+                        }                        
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAllLifeCycleRules failed, groupId : {0}", groupId), ex);
+            }
+
+            return rules;
+        }
+
+        private static bool FillRulesToTags(DataTable dt, Dictionary<long, AssetLifeCycleRule> mappedRules, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap, ref Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap)
+        {
+            bool res = false;
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        if (id > 0 && mappedRules.ContainsKey(id))
+                        {
+                            int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TAG_ID", 0);
+                            string actionId = ODBCWrapper.Utils.GetSafeStr(dr, "ACTION_ID");
+                            AssetLifeCycleRuleAction action;
+                            if (tagId > 0 && Enum.TryParse<AssetLifeCycleRuleAction>(actionId, out action))
+                            {
+                                switch (action)
+                                {
+                                    case AssetLifeCycleRuleAction.Add:
+                                        if (ruleIdToTagIdsToAddMap.ContainsKey(id))
+                                        {
+                                            ruleIdToTagIdsToAddMap[id].Add(tagId);
+                                        }
+                                        else
+                                        {
+                                            ruleIdToTagIdsToAddMap.Add(id, new List<int>() { tagId });
+                                        }
+                                        break;
+                                    case AssetLifeCycleRuleAction.Remove:
+                                        if (ruleIdToTagIdsToRemoveMap.ContainsKey(id))
+                                        {
+                                            ruleIdToTagIdsToRemoveMap[id].Add(tagId);
+                                        }
+                                        else
+                                        {
+                                            ruleIdToTagIdsToRemoveMap.Add(id, new List<int>() { tagId });
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                    }
+
+                    res = true;
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("FillRulesToTags failed", ex);
+            }
+
+            return res;
+        }
+
+        private static bool FillRulesToFileTypesAndPpvs(DataTable dt, Dictionary<long, AssetLifeCycleRule> mappedRules, ref Dictionary<long, Dictionary<int, List<int>>> ruleIdToFileTypesToPpvsMapToAdd, ref Dictionary<long, Dictionary<int, List<int>>> ruleIdToFileTypesToPpvsMapToRemove)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static bool FillRulesToGeoBlock(DataTable dt, Dictionary<long, AssetLifeCycleRule> mappedRules, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
+        {
+            bool res = false;
+            try
+            {
+                if (dt != null && dt.Rows != null)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                        if (id > 0 && mappedRules.ContainsKey(id))
+                        {
+                            int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GEO_BLOCK_RULE_ID", -1);
+                            geoBlockRuleId = geoBlockRuleId.HasValue && geoBlockRuleId.Value == -1 ? null : geoBlockRuleId;
+                            if (ruleIdToGeoBlockMap.ContainsKey(id))
+                            {
+                                ruleIdToGeoBlockMap[id] = geoBlockRuleId;
+                            }
+                            else
+                            {
+                                ruleIdToGeoBlockMap.Add(id, geoBlockRuleId);
+                            }
+                        }
+                    }
+
+                    res = true;
+                }
+
+                return res;
+            }
+            catch (Exception ex)
+            {
+                log.Error("FillRulesToGeoBlock failed", ex);
+            }
+
+            return res;
+        }
+
     }
 }

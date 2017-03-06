@@ -824,4 +824,10 @@ namespace ApiObjects
         NoAds = 1,
         KeepAds = 2
     }
+
+    public enum AssetLifeCycleRuleAction
+    {
+        Add = 0,
+        Remove = 1
+    }
 }
