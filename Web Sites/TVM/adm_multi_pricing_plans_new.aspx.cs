@@ -1123,6 +1123,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         dr_adsPolicy.SetSelectsDT(GetAdsPolicyDT());
         dr_adsPolicy.Initialize("Ads Policy", "adm_table_header_nbg", "FormInput", "ADS_POLICY", false);
         dr_adsPolicy.SetNoSelectStr("---");
+        dr_domain_limitation_module.SetFieldType("string");
         theRecord.AddRecord(dr_adsPolicy);
 
         DataRecordShortTextField dr_adsParam = new DataRecordShortTextField("ltr", true, 60, 128);
@@ -1200,9 +1201,9 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         System.Data.DataTable dt = new System.Data.DataTable();
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
-        foreach (ApiObjects.DrmType r in Enum.GetValues(typeof(ApiObjects.AdsPolicy)))
+        foreach (ApiObjects.AdsPolicy r in Enum.GetValues(typeof(ApiObjects.AdsPolicy)))
         {
-            dt.Rows.Add((int)r, dt.Rows.Add((int)r, r));
+            dt.Rows.Add((int)r, r);
         }
         return dt;
     }

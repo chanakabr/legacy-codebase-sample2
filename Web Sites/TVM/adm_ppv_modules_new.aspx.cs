@@ -512,7 +512,7 @@ public partial class adm_ppv_module_new : System.Web.UI.Page
         System.Data.DataTable dt = new System.Data.DataTable();
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
-        foreach (ApiObjects.DrmType r in Enum.GetValues(typeof(ApiObjects.AdsPolicy)))
+        foreach (ApiObjects.AdsPolicy r in Enum.GetValues(typeof(ApiObjects.AdsPolicy)))
         {
             dt.Rows.Add((int)r, r);
         }
