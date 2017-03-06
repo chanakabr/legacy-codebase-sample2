@@ -1189,7 +1189,6 @@ namespace DAL
             return sp.Execute();
         }
 
-
         public static int InsertPPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int couponGroupID, List<long> fileTypes)
         {
             StoredProcedure sp = new StoredProcedure("Insert_PPVModule");

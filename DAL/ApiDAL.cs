@@ -4056,5 +4056,14 @@ namespace DAL
             }
             return res;
         }
+
+        public static DataSet GetAllLifeCycleRules(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllLifeCycleRules");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            return sp.ExecuteDataSet();
+        }
+
     }
 }
