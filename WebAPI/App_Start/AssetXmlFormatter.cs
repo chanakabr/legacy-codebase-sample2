@@ -177,36 +177,39 @@ namespace WebAPI.App_Start
             [XmlAttribute("lang")]
             public string Lang { get; set; }
 
-            // to add CDATA ValueText and ValueTextContent should be used
-            [XmlIgnore]
-            public string ValueText { get; set; }
-
             [XmlText]
-            public XmlNode[] ValueTextContent
-            {
-                get
-                {
-                    var dummy = new XmlDocument();
-                    return new XmlNode[] { dummy.CreateCDataSection(ValueText) };
-                }
-                set
-                {
-                    if (value == null)
-                    {
-                        ValueText = null;
-                        return;
-                    }
+            public string Text { get; set; }
 
-                    if (value.Length != 1)
-                    {
-                        throw new InvalidOperationException(
-                            String.Format(
-                                "Invalid array length {0}", value.Length));
-                    }
+            // to add CDATA ValueText and ValueTextContent should be used
+            //[XmlIgnore]
+            //public string ValueText { get; set; }
 
-                    ValueText = value[0].Value;
-                }
-            }
+            //[XmlText]
+            //public XmlNode[] ValueTextContent
+            //{
+            //    get
+            //    {
+            //        var dummy = new XmlDocument();
+            //        return new XmlNode[] { dummy.CreateCDataSection(ValueText) };
+            //    }
+            //    set
+            //    {
+            //        if (value == null)
+            //        {
+            //            ValueText = null;
+            //            return;
+            //        }
+
+            //        if (value.Length != 1)
+            //        {
+            //            throw new InvalidOperationException(
+            //                String.Format(
+            //                    "Invalid array length {0}", value.Length));
+            //        }
+
+            //        ValueText = value[0].Value;
+            //    }
+            //}
         }
 
         public class Structure
@@ -444,7 +447,7 @@ namespace WebAPI.App_Start
                     {
                         Value = new Value()
                         {
-                            ValueText = asset.Name ?? string.Empty,
+                            Text = asset.Name,
                             // TODO: add language
                             Lang = string.Empty
                         }
@@ -455,7 +458,7 @@ namespace WebAPI.App_Start
                     {
                         Value = new Value()
                         {
-                            ValueText = asset.Description ?? string.Empty,
+                            Text = asset.Description,
                             // TODO: add language
                             Lang = string.Empty
                         }
@@ -526,7 +529,7 @@ namespace WebAPI.App_Start
                                     {
                                         // TODO: fill language
                                         Lang = string.Empty,
-                                        ValueText = ((KalturaStringValue)entry.Value).value ?? string.Empty
+                                        Text = ((KalturaStringValue)entry.Value).value ?? string.Empty
                                     }
                                 });
                             }
@@ -588,7 +591,7 @@ namespace WebAPI.App_Start
                                     {
                                         // TODO: update language
                                         Lang = string.Empty,
-                                        ValueText = item.value ?? string.Empty
+                                        Text = item.value
                                     });
 
                                     meta.Container.Add(container);
