@@ -3548,7 +3548,11 @@ namespace DAL
 
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowRecordingPlaybackNonEntitled", settings.IsRecordingPlaybackNonEntitledChannelEnabled);
                 spUpdateTimeShiftedTvPartnerSettings.AddParameter("@AllowRecordingPlaybackNonExisting", settings.IsRecordingPlaybackNonExistingChannelEnabled);
-       
+                if (!settings.quotaOveragePolicy.HasValue)
+                {
+                    spUpdateTimeShiftedTvPartnerSettings.AddParameter("@QuotaOveragePolicy", (int)settings.quotaOveragePolicy.Value);
+                }
+
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
 
