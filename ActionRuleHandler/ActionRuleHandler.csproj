@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4DACAC2D-5673-466F-8133-40DA97130D85}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ActionRuleHandler</RootNamespace>
+    <AssemblyName>ActionRuleHandler</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="KLogMonitor">
+      <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
+    </Reference>
+    <Reference Include="KlogMonitorHelper">
+      <HintPath>..\..\tvincicommon\External\KlogMonitorHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TCMClient">
+      <HintPath>..\..\tvincicommon\External\TCMClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActionRuleRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj">
+      <Project>{6E476AD6-433C-4345-A26D-0E34BC03D9A9}</Project>
+      <Name>ApiObjects</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj">
+      <Project>{27C6F3ED-B660-466A-9415-DE2D43E58FF0}</Project>
+      <Name>ApiLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\CachingManager\CachingManager.csproj">
+      <Project>{CCDA61B3-0E68-483C-AB7F-3ED36E3384E2}</Project>
+      <Name>CachingManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{B44DC37D-5658-4B85-8CC4-0EC72838CAFC}</Project>
+      <Name>CouchbaseManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\DAL\DAL.csproj">
+      <Project>{932109FA-5260-4709-BD4B-4A8D77E4CF01}</Project>
+      <Name>DAL</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
+      <Project>{25037A8A-7C6D-4496-B757-6FA85ABDD3CF}</Project>
+      <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
+      <Project>{BF33E5BD-0536-4BF8-9D26-86B6A2DACA5F}</Project>
+      <Name>TVinciShared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RemoteTasksCommon\RemoteTasksCommon.csproj">
+      <Project>{680b9d3b-e9de-4d05-9280-f8e8b3128c48}</Project>
+      <Name>RemoteTasksCommon</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

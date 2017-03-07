@@ -140,6 +140,10 @@
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ActionRuleHandler\ActionRuleHandler.csproj">
+      <Project>{4dacac2d-5673-466f-8133-40da97130d85}</Project>
+      <Name>ActionRuleHandler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ElasticSearchHandler\ElasticSearchHandler.csproj">
       <Project>{338e6394-a9e9-4d5c-8a6a-95797f6c429f}</Project>
       <Name>ElasticSearchHandler</Name>
