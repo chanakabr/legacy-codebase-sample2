@@ -332,7 +332,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.MapFrom(src => src.CleanupNoticePeriod))
                 .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled))
                 .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
-                .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled));
+                .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
+                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.quotaOveragePolicy))); ;
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -353,7 +354,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CleanupNoticePeriod, opt => opt.MapFrom(src => src.CleanupNoticePeriod))
                 .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.NonEntitledChannelPlaybackEnabled))
-                .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled));
+                .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
+                .ForMember(dest => dest.quotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)));
 
             #endregion
 
@@ -448,6 +450,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
              ;
 
             #endregion
+        }
+
+        private static KalturaQuotaOveragePolicy? ConvertQuotaOveragePolicy(QuotaOveragePolicy? quotaOveragePolicy)
+        {
+            KalturaQuotaOveragePolicy? result = null;
+
+            if (quotaOveragePolicy.HasValue)
+            {
+                switch (quotaOveragePolicy)
+                {
+                    case QuotaOveragePolicy.QuotaOverage:
+                        result = KalturaQuotaOveragePolicy.QuotaOverage;
+                        break;
+                    case QuotaOveragePolicy.StopAtQuota:
+                        result = KalturaQuotaOveragePolicy.StopAtQuota;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown quota overage policy value");
+                }
+            }
+            return result;    
+        }
+
+        private static ApiObjects.QuotaOveragePolicy? ConvertQuotaOveragePolicy(KalturaQuotaOveragePolicy? kalturaQuotaOveragePolicy)
+        {
+            ApiObjects.QuotaOveragePolicy? result = null;
+
+            if (kalturaQuotaOveragePolicy.HasValue)
+            {
+                switch (kalturaQuotaOveragePolicy)
+                {
+                    case KalturaQuotaOveragePolicy.QuotaOverage:
+                        result = QuotaOveragePolicy.QuotaOverage;
+                        break;
+                    case KalturaQuotaOveragePolicy.StopAtQuota:
+                        result = QuotaOveragePolicy.StopAtQuota;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown quota overage policy value");
+                }
+            }
+            return result;           
         }
 
         private static KalturaApiParameterPermissionItemAction ConvertApiParameterPermissionItemAction(string action)

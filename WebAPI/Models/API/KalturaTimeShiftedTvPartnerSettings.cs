@@ -169,7 +169,21 @@ namespace WebAPI.Models.API
         [JsonProperty("nonExistingChannelPlaybackEnabled")]
         [XmlElement(ElementName = "nonExistingChannelPlaybackEnabled", IsNullable = true)]
         public bool? NonExistingChannelPlaybackEnabled { get; set; }
-        
 
+        /// <summary>
+        ///  Quota Policy
+        /// </summary>
+        [DataMember(Name = "quotaOveragePolicy")]
+        [JsonProperty(PropertyName = "quotaOveragePolicy", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "quotaOveragePolicy", IsNullable = true)]
+        public KalturaQuotaOveragePolicy? QuotaOveragePolicy { get; set; }
+
+    }
+
+
+    public enum KalturaQuotaOveragePolicy
+    {
+        StopAtQuota = 0,
+        QuotaOverage = 1
     }
 }
