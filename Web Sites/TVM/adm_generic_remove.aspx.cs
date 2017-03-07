@@ -139,7 +139,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
             }
         }
         else
-        {
+        {           
             DomainsWS.module domainWS;
             string sIP = "1.1.1.1";
             string sWSUserName = "";
@@ -150,22 +150,11 @@ public partial class adm_generic_remove : System.Web.UI.Page
 
             if (m_sTable.ToLower() == "domains")
             {
-                domainWS = new DomainsWS.module();
-                TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
-                sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
-                if (sWSURL != "")
-                    domainWS.Url = sWSURL;
-                try
-                {
-                    DomainsWS.DomainResponseStatus resp = domainWS.RemoveDomain(sWSUserName, sWSPass, m_nID);
-                    log.Debug("RemoveDomain - " + string.Format("DomainId:{0}, res:{1}", m_nID, resp.ToString()));
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Exception - " + string.Format("DomainId:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
-                }
+                // select  status  if = 4 then remove domain 
+                if (RemoveDomain())
+                    return;
             }
-
+            //continue other cases that are not remove domain 
             
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery.SetConnectionKey(m_sDB);
@@ -329,6 +318,59 @@ public partial class adm_generic_remove : System.Web.UI.Page
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
         else
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+    }
+
+    private bool RemoveDomain()
+    {
+        bool isRemoved = false;
+        int domainStatus = ODBCWrapper.Utils.GetIntSafeVal(ODBCWrapper.Utils.GetTableSingleVal("domains", "status", m_nID, m_sDB));
+        if (domainStatus == 4)
+        {
+            // change status back to 1 so  we can remove domain 
+
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
+            updateQuery.SetConnectionKey(m_sDB);
+            // double confirm for remove
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+            updateQuery += "where";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", m_nID);
+            updateQuery += "and";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 4);
+            int rowsChanged = updateQuery.ExecuteAffectedRows();
+            updateQuery.Finish();
+            updateQuery = null;
+
+            if (rowsChanged == 0)
+            {
+                return false;
+            }
+
+            DomainsWS.module domainWS = new DomainsWS.module();           
+            string sIP = "1.1.1.1";
+            string sWSUserName = "";
+            string sWSPass = "";
+            string sWSURL;
+
+            TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
+            sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+            if (sWSURL != "")
+                domainWS.Url = sWSURL;
+            try
+            {
+                DomainsWS.DomainResponseStatus resp = domainWS.RemoveDomain(sWSUserName, sWSPass, m_nID);
+                if (resp == DomainsWS.DomainResponseStatus.OK)
+                {
+                    isRemoved = true;
+                }
+                log.Debug("RemoveDomain - " + string.Format("DomainId:{0}, res:{1}", m_nID, resp.ToString()));
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception - " + string.Format("DomainId:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
+                isRemoved = false;
+            }
+        }
+        return isRemoved;
     }
 
     private string GetWSURL(string sKey)

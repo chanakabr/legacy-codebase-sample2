@@ -66,7 +66,7 @@ public partial class adm_users_domains : System.Web.UI.Page
             theTable += " join users u on ud.user_id=u.id and u.status=1 and u.Is_Active=1 and u.username like (N'%"+Session["search_user_name"].ToString().ToLower().Trim() + "%')";
         }
 
-        theTable += "where d.status=1 and ";
+        theTable += "where d.status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("d.group_id", "=", nGroupID);
         if (Session["search_domain_id"] != null && Session["search_domain_id"].ToString() != "")
         {
