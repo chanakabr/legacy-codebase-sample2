@@ -223,15 +223,12 @@ namespace Core.Recordings
                     if (DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus))
                     {
                         bRes = true;
+                        break;
                     }
                     if (!bRes)
                     {
                         Thread.Sleep(r.Next(50));
                         limitRetries--;
-                    }
-                    else
-                    {
-                        break;
                     }
                 }
 
