@@ -157,7 +157,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
             List<int> lIds = new List<int>() { m_nID };
 
             // media changed from pending to deleted - delete index
-            if(rowsChanged > 0 && m_sTable.ToLower() == "media")
+            if (rowsChanged > 0 && m_sTable.ToLower() == "media")
             {
                 if (!ImporterImpl.UpdateIndex(lIds, logedInGroupID, ApiObjects.eAction.Delete))
                 {
@@ -176,7 +176,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
             updateQuery1.Execute();
             updateQuery1.Finish();
             updateQuery1 = null;
-            
+
             // media changed from active to pending - update index
             if (rowsChanged > 0 && m_sTable.ToLower() == "media")
             {
@@ -194,9 +194,9 @@ public partial class adm_generic_remove : System.Web.UI.Page
 
             // if its not media
             if (m_sTable.ToLower() != "media")
-            { 
+            {
                 switch (m_sTable.ToLower())
-                {                        
+                {
                     case "ppv_modules":
                         if (!ImporterImpl.UpdateFreeFileTypeOfModule(logedInGroupID, m_nID))
                         {
@@ -273,6 +273,22 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         catch (Exception ex)
                         {
                             log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
+                        }
+                        break;
+                    case "domains":
+                        domainWS = new DomainsWS.module();
+                        TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
+                        sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+                        if (sWSURL != "")
+                            domainWS.Url = sWSURL;
+                        try
+                        {
+                            DomainsWS.DomainResponseStatus resp = domainWS.RemoveDomain(sWSUserName, sWSPass, m_nID);
+                            log.Debug("RemoveDomain - " + string.Format("DomainId:{0}, res:{1}", m_nID, resp.ToString()));
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error("Exception - " + string.Format("DomainId:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
                         }
                         break;
                     default:
