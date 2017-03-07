@@ -224,6 +224,15 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         dr_enableRecordingPlaybackNonExisting.SetDefault(0);
         theRecord.AddRecord(dr_enableRecordingPlaybackNonExisting);
 
+        //lu_quota_overage_policy
+        DataRecordDropDownField dr_quota_overage_policy = new DataRecordDropDownField("time_shifted_tv_settings", "quota_overage_policy", "id", "", null, 60, true);
+        sQuery = "select description as txt, id as id from lu_quota_overage_policy";
+        dr_quota_overage_policy.SetSelectsQuery(sQuery);
+        dr_quota_overage_policy.Initialize("Quota Overage Policy", "adm_table_header_nbg", "FormInput", "quota_overage_policy", false);
+       // dr_quota_overage_policy.SetDefaultVal("---");
+        theRecord.AddRecord(dr_quota_overage_policy);
+
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
