@@ -3919,13 +3919,14 @@ namespace Core.ConditionalAccess
                                 int enableSeriesRecording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
                                 int recordingPlaybackNonEntitledChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
                                 int recordingPlaybackNonExistingChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
-
+                                int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0); 
+ 
                                 if (recordingScheduleWindow > -1)
                                 {
                                     settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                                                                 trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                                                                 protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
-                                                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1);
+                                                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy);
                                     TvinciCache.WSCache.Instance.Add(key, settings);
                                 }
                             }
@@ -6470,7 +6471,24 @@ namespace Core.ConditionalAccess
                         userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
                     }
                     else
-                    {
+                    {                       
+                        // get current user quota                         
+                        DomainQuotaResponse hhQuota = QuotaManager.Instance.GetDomainQuotaResponse(groupId, householdId);
+                        if (hhQuota != null && hhQuota.Status.Code == (int)eResponseStatus.OK)
+                        {
+                            int usedQuota = hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
+                            if (usedQuota > npvrObject.Quota)
+                            {
+                                // call the handel to delete all recordings
+                                QuotaManager.Instance.HandleDominQuotaOvarge(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.Downgrade);
+                            }
+                        }
+
+                        if (!QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota))
+                        {
+                            // what do do if it's fail ? ???? 
+                        }
+
                         userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
                     }
                 }
@@ -7249,5 +7267,6 @@ namespace Core.ConditionalAccess
 
             return new Tuple<int, bool>(groupDefaultCurrencyId, res);
         }
+              
     }
 }

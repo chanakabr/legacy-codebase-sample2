@@ -27,6 +27,7 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsSeriesRecordingEnabled { get; set; }
         public bool? IsRecordingPlaybackNonEntitledChannelEnabled { get; set; }
         public bool? IsRecordingPlaybackNonExistingChannelEnabled { get; set; }
+        public QuotaOveragePolicy? quotaOveragePolicy { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -35,7 +36,7 @@ namespace ApiObjects.TimeShiftedTv
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
             bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
-            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled)
+            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -55,6 +56,10 @@ namespace ApiObjects.TimeShiftedTv
             this.IsSeriesRecordingEnabled = isSeriesRecordingEnabled;
             this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
             this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
+            if (quotaOveragePolicy.HasValue)
+            {
+                this.quotaOveragePolicy = (QuotaOveragePolicy)quotaOveragePolicy.Value;
+            }
         }
 
         public override string ToString()
@@ -78,7 +83,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonEntitledChannelEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonExistingChannelEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));
-                        
+            sb.Append(string.Format("QuotaOveragePolicy: {0}, ", quotaOveragePolicy.ToString()));
+   
             return sb.ToString();
         }
 

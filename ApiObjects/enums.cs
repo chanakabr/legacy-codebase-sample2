@@ -582,7 +582,8 @@ namespace ApiObjects
         Deleted = 3,
         DeletedBySystem = 4,
         SeriesCancel = 5,
-        SeriesDelete = 6
+        SeriesDelete = 6,
+        Downgrade = 7
     }
 
     public enum RecordingInternalStatus
@@ -823,5 +824,11 @@ namespace ApiObjects
     {
         NoAds = 1,
         KeepAds = 2
+    }
+
+    public enum QuotaOveragePolicy
+    {
+        StopAtQuota = 0,
+        QuotaOverage = 1
     }
 }

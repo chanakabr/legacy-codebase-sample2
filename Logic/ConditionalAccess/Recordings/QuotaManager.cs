@@ -194,6 +194,109 @@ namespace Core.Recordings
             return status;
         }
 
+
+        public bool SetDomainTotalQuota(int groupId, long domainId, long totalQuota)
+        {
+            int defaultQuota = 0;
+            bool result = false;
+            DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
+            if (domainQuota != null)
+            {
+                domainQuota.Total = (int)totalQuota;
+                result = RecordingsDAL.SetDomainQuota(domainId, domainQuota);
+            }
+            return result;
+        }
+
+        public bool HandleDominQuotaOvarge(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        {
+            bool bRes = false;
+            try
+            {
+                for (int i = 0; i < 3 && !bRes; i++)
+                {
+                    if (DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus))
+                    {
+                        bRes = true;
+                    }
+                    // sleep
+                }
+                if (!bRes) // fail to delete and free some quota 
+                {
+                    log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}", groupId, domainId, recordingDuration);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, ex: {3}", groupId, domainId, recordingDuration, ex);
+            }
+            return bRes;
+        }
+
+        private bool DeleteDomainOldestRecordings(int groupId, long domainId, int recordingQuota, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        {
+            bool response = false;
+            try
+            {
+                List<long> domainRecordingIds = new List<long>();
+                List<TstvRecordingStatus> recordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
+                Dictionary<long, Recording> domainRecordingIdToRecordingMap = Utils.GetDomainRecordingsByTstvRecordingStatuses(groupId, domainId, recordingStatuses);
+                if (domainRecordingIdToRecordingMap != null && domainRecordingIdToRecordingMap.Count > 0)
+                {
+                    var ordered = domainRecordingIdToRecordingMap.OrderBy(x => x.Value.ViewableUntilDate.HasValue ? x.Value.ViewableUntilDate.Value : 0);
+                    Dictionary<long, Recording> recordings = ordered.ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
+
+                    // build list of domain recordings id - Least as needed   
+                    int tempQuotaOverage = 0;
+                    int recordingDuration = 0;
+                    long currentUtcTime = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+                    foreach (KeyValuePair<long, Recording> recording in recordings)
+                    {
+                        // check if record is protected - ignore it 
+                        if (recording.Value.ProtectedUntilDate.HasValue && recording.Value.ProtectedUntilDate.Value > currentUtcTime)
+                        {
+                            continue;
+                        }
+
+                        recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
+                        domainRecordingIds.Add(recording.Key);
+                        tempQuotaOverage += recordingDuration;
+
+                        if (tempQuotaOverage >= recordingQuota)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (tempQuotaOverage >= recordingQuota)
+                    {
+                        if (domainRecordingIds != null && domainRecordingIds.Count > 0) // delete all and DecreaseDomainUsedQuota
+                        {   
+                            if (QuotaManager.Instance.DecreaseDomainUsedQuota(groupId, domainId, tempQuotaOverage))
+                            {
+                                log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), tempQuotaOverage);
+                                if (!RecordingsDAL.DeleteDomainRecording(domainRecordingIds, domainRecordingStatus))
+                                {
+                                    QuotaManager.Instance.IncreaseDomainUsedQuota(groupId, domainId, tempQuotaOverage);
+                                    log.ErrorFormat("fail in DeleteDomainOldestRecordings to perform delete domainRecordingID = {0}", string.Join(",", domainRecordingIds));
+                                }
+                                else
+                                {
+                                    response = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in 'DeleteDomainOldestRecordings' for domainId = {0}", domainId), ex);
+            }
+
+            return response;
+        }
+
         #endregion
 
         #region Private Methods
