@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
@@ -503,7 +504,6 @@ namespace DAL
             return null;
         }
 
-
         public static DataTable Get_GroupPlayers()
         {
             ODBCWrapper.StoredProcedure spMapMediaFiles = new ODBCWrapper.StoredProcedure("Get_GroupPlayers");
@@ -528,7 +528,6 @@ namespace DAL
                 return ds;
             return null;
         }
-
 
         public static MediaMarkObject Get_MediaMark(int nMediaID, string sSiteGUID, int nGroupID)
         {
@@ -648,8 +647,6 @@ namespace DAL
 
             return retVal;
         }
-
-
 
         public static int Update_UserGroupRule(int nIsActive, string sPIN, string sSiteGuid, int nUserRuleID)
         {
@@ -781,8 +778,6 @@ namespace DAL
 
         }
 
-
-
         public static DataTable Get_DeviceMediaRules(int nMediaID, int nGroupID, string deviceUdid)
         {
             ODBCWrapper.StoredProcedure spGroupRules = new ODBCWrapper.StoredProcedure("Get_DeviceMediaRules");
@@ -825,12 +820,10 @@ namespace DAL
             return null;
         }
 
-
         private static void HandleException(Exception ex)
         {
             //throw new NotImplementedException();
         }
-
 
         public static bool InsertNewDomainGroupRule(string sInGroups, int nDomainID, int nRuleID, string sPIN, int nIsActive, int nStatus)
         {
@@ -909,7 +902,6 @@ namespace DAL
             return returnedDataTable;
         }
 
-
         public static DataTable Get_EPGRules(string sSiteGuid, int nGroupID)
         {
             DataTable returnedDataTable = null;
@@ -931,7 +923,6 @@ namespace DAL
             }
             return returnedDataTable;
         }
-
 
         public static DataTable GetProgramSchedule(int nProgramId)
         {
@@ -1392,7 +1383,6 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-
         public static bool Update_BillingStatusAndReason_ByBillingGuid(string billingGuid, int billingStatus, string billingReason)
         {
             bool result = false;
@@ -1477,7 +1467,6 @@ namespace DAL
             return null;
         }
 
-
         public static DataSet Get_MCRulesByGroup(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MCRulesByGroup");
@@ -1489,7 +1478,6 @@ namespace DAL
                 return ds;
             return null;
         }
-
 
         public static DataSet GetMCRules(int bmID, int groupID, int type)
         {
@@ -4058,11 +4046,58 @@ namespace DAL
         }
 
         public static DataSet GetAllLifeCycleRules(int groupId)
-        {
+        {            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllLifeCycleRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             return sp.ExecuteDataSet();
+        }
+
+        public static bool RemoveTagsFromAssets(List<int> assetIds, List<int> tagIdsToRemove)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveTagsFromAssets");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddIDListParameter("@TagIds", tagIdsToRemove, "id");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool AddTagsToAssets(List<int> assetIds, List<int> tagIdsToAdd)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddTagsToAssets");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddIDListParameter("@TagIds", tagIdsToAdd, "id");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }        
+
+        public static bool RemoveFileTypesAndPpvsFromAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove)
+        {         
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveFileTypesAndPpvsFromAssets");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddIDListParameter("@FileTypeIds", fileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
+            sp.AddIDListParameter("@PpvIds", fileTypesAndPpvsToRemove.PpvIds.ToList(), "id");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool AddFileTypesAndPpvsToAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddFileTypesAndPpvsToAssets");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddIDListParameter("@FileTypeIds", fileTypesAndPpvsToAdd.FileTypeIds.ToList(), "id");
+            sp.AddIDListParameter("@PpvIds", fileTypesAndPpvsToAdd.PpvIds.ToList(), "id");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool SetGeoBlockRuleIdOnAssets(List<int> assetIds, int geoBlockRuleId)
+        {            
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetGeoBlockRuleIdOnAssets");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddParameter("@GeoBlockRuleId", geoBlockRuleId);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
     }
