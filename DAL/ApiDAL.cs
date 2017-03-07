@@ -1097,7 +1097,6 @@ namespace DAL
             }
         }
 
-
         public static bool Is_MediaExistsToUserType(int nMediaID, int nUserTypeID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsMediaExistsToUserType");
@@ -1143,8 +1142,6 @@ namespace DAL
 
             return res;
         }
-
-
 
         public static void Update_Last4Digits(long lID, string sLast4Digits)
         {
@@ -4050,7 +4047,7 @@ namespace DAL
         }
 
         public static DataSet GetAllLifeCycleRules(int groupId)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllLifeCycleRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
@@ -4058,25 +4055,25 @@ namespace DAL
         }
 
         public static bool RemoveTagsFromAssets(List<int> assetIds, List<int> tagIdsToRemove)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveTagsFromAssets");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");            
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
             sp.AddIDListParameter("@TagIds", tagIdsToRemove, "id");
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static bool AddTagsToAssets(List<int> assetIds, List<int> tagIdsToAdd)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddTagsToAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
             sp.AddIDListParameter("@TagIds", tagIdsToAdd, "id");
             return sp.ExecuteReturnValue<int>() > 0;
-        }        
+        }
 
         public static bool RemoveFileTypesAndPpvsFromAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove)
-        {         
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveFileTypesAndPpvsFromAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
@@ -4086,7 +4083,7 @@ namespace DAL
         }
 
         public static bool AddFileTypesAndPpvsToAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddFileTypesAndPpvsToAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
@@ -4096,7 +4093,7 @@ namespace DAL
         }
 
         public static bool SetGeoBlockRuleIdOnAssets(List<int> assetIds, int geoBlockRuleId)
-        {            
+        {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetGeoBlockRuleIdOnAssets");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
