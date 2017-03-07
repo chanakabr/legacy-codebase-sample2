@@ -12,7 +12,8 @@ namespace ApiObjects.AssetLifeCycleRules
         public long Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string KsqlFilter { get; set; }
+        public string KsqlFilter { get; set; }        
+        public int TransitionIntervalInDays { get; set; }
         public LifeCycleTransitions Actions { get; set; }
 
         public AssetLifeCycleRule()
@@ -21,26 +22,34 @@ namespace ApiObjects.AssetLifeCycleRules
             this.Name = string.Empty;
             this.Description = string.Empty;
             this.KsqlFilter = string.Empty;
+            this.TransitionIntervalInDays = 0;
             this.Actions = new LifeCycleTransitions();
         }
 
-        public AssetLifeCycleRule(long id, string name, string filter, string description)
+        public AssetLifeCycleRule(long id, string name, string description, string filter, int transitionIntervalInDays)
         {
             this.Id = id;
             this.Name = name;
             this.Description = description;
             this.KsqlFilter = filter;
+            this.TransitionIntervalInDays = transitionIntervalInDays;
             this.Actions = new LifeCycleTransitions();
         }
 
-        public AssetLifeCycleRule(long id, string name, string filter, string description, List<int> tagIdsToAdd, List<int> tagIdsToRemove, 
-                                    Dictionary<int, List<int>> fileTypesToPpvsMapToAdd,Dictionary<int, List<int>> fileTypesToPpvsMapToRemove, int? geoBlockRuleToSet = null)
+        public AssetLifeCycleRule(long id, string name, string description, string filter, int transitionIntervalInDays, List<int> tagIdsToAdd, List<int> tagIdsToRemove,
+                                    LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove, int? geoBlockRuleToSet = null)
         {
             this.Id = id;
             this.Name = name;
             this.Description = description;
             this.KsqlFilter = filter;
-            this.Actions = new LifeCycleTransitions(tagIdsToAdd, tagIdsToRemove, fileTypesToPpvsMapToAdd, fileTypesToPpvsMapToRemove, geoBlockRuleToSet);
+            this.TransitionIntervalInDays = transitionIntervalInDays;
+            this.Actions = new LifeCycleTransitions(tagIdsToAdd, tagIdsToRemove, fileTypesAndPpvsToAdd, fileTypesAndPpvsToRemove, geoBlockRuleToSet);
+        }
+
+        public override string ToString()
+        {
+            throw new NotImplementedException();
         }
 
     }    

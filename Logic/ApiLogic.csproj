@@ -135,8 +135,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdaptersController.cs" />
-    <Compile Include="api.cs" />
-    <Compile Include="ApiCache.cs" />
+    <Compile Include="Api\api.cs" />
+    <Compile Include="Api\ApiCache.cs" />
+    <Compile Include="Api\Managers\AssetLifeCycleRuleManager.cs" />
     <Compile Include="Billing\999SMS.cs" />
     <Compile Include="Billing\AdaptersController.cs">
       <SubType>Code</SubType>
