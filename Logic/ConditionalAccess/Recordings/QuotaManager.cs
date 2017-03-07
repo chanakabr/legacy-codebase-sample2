@@ -11,12 +11,14 @@ using KLogMonitor;
 using System.Reflection;
 using Synchronizer;
 using Core.ConditionalAccess;
+using System.Threading;
 
 namespace Core.Recordings
 {
     public class QuotaManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int RETRY_LIMIT = 3;
 
         #region SingleTon
         
@@ -211,16 +213,28 @@ namespace Core.Recordings
         public bool HandleDominQuotaOvarge(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
             bool bRes = false;
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+
             try
             {
-                for (int i = 0; i < 3 && !bRes; i++)
+                while (limitRetries > 0)
                 {
                     if (DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus))
                     {
                         bRes = true;
                     }
-                    // sleep
+                    if (!bRes)
+                    {
+                        Thread.Sleep(r.Next(50));
+                        limitRetries--;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
+
                 if (!bRes) // fail to delete and free some quota 
                 {
                     log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}", groupId, domainId, recordingDuration);
