@@ -360,7 +360,16 @@ namespace DAL
             spDeleteDomainRecording.AddParameter("@RecordingState", (int)recordingState);
             return spDeleteDomainRecording.ExecuteReturnValue<bool>();
         }
-        
+
+        public static bool DeleteDomainRecording(List<long> domainRecordingIds, DomainRecordingStatus recordingState)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteDomainMultiRecordings");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddIDListParameter<long>("@RecordIDs", domainRecordingIds, "Id");
+            sp.AddParameter("@RecordingState", (int)recordingState);
+            return sp.ExecuteReturnValue<bool>();
+        }
+
         public static DataTable GetDomainProtectedRecordings(int groupID, long domainID, long unixTimeStampNow)
         {
             DataTable dt = null;
@@ -1317,7 +1326,10 @@ namespace DAL
                     {   
                         result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
                     }
-
+                    else if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                    {
+                        result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
+                    }
                     if (!result)
                     {
                         numOfRetries++;
