@@ -329,67 +329,50 @@ namespace Core.Catalog
                         allTags.Add(tagInGroup.ToLower());
                     }
 
-                    foreach (var groupBy in request.groupBy)
+                    foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                     {
-                        string lowered = groupBy.ToLower();
-
-                        if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
-                        {
-                            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
-                        }
+                        allMetas.Add(meta);
                     }
 
-                    //Queue<SearchGroupBy> queueGroupBy = new Queue<SearchGroupBy>();
+                    foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
+                    {
+                        allTags.Add(tag);
+                    }
 
-                    //foreach (var groupBy in request.groupBy)
-                    //{
-                    //    string lowered = groupBy.Field.ToLower();
-
-                    //    if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
-                    //    {
-                    //        throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy.Field), (int)eResponseStatus.BadSearchRequest);
-                    //    }
-
-                    //    queueGroupBy.Enqueue(groupBy);
-                    //}
-
-                    //// "Recursive" run on all sub aggregations
-                    //while (queueGroupBy.Count > 0)
-                    //{
-                    //    var currentGroupBy = queueGroupBy.Dequeue();
-
-                    //    foreach (var groupBy in currentGroupBy.Subs)
-                    //    {
-                    //        string lowered = groupBy.Field.ToLower();
-
-                    //        if (!allMetas.Contains(lowered) && !allTags.Contains(lowered) && !reservedGroupByFields.Contains(lowered))
-                    //        {
-                    //            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy.Field), (int)eResponseStatus.BadSearchRequest);
-                    //        }
-
-                    //        queueGroupBy.Enqueue(groupBy);
-                    //    }
-                    //}
-                    
-                    // Transform the list of group bys to metas list
                     definitions.groupBy = new List<KeyValuePair<string, string>>();
 
                     foreach (var groupBy in request.groupBy)
                     {
-                        string requestGroupBy = groupBy.ToLower();
+                        string lowered = groupBy.ToLower();
+                        string requestGroupBy = lowered;
+                        bool valid = false;
 
-                        if (allMetas.Contains(requestGroupBy))
+                        if (allMetas.Contains(lowered))
                         {
+                            valid = true;
                             requestGroupBy = string.Format("metas.{0}", groupBy.ToLower());
                         }
-                        else if (allTags.Contains(requestGroupBy))
+                        else if (allTags.Contains(lowered))
                         {
+                            valid = true;
                             requestGroupBy = string.Format("tags.{0}", groupBy.ToLower());
                         }
+                        else if (reservedGroupByFields.Contains(lowered))
+                        {
+                            valid = true;
+                        }
 
-                        definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                        if (!valid)
+                        {
+                            throw new KalturaException(string.Format("Invalid group by field was sent: {0}", groupBy), (int)eResponseStatus.BadSearchRequest);
+                        }
+                        else
+                        {
+                            // Transform the list of group bys to metas/tags list
+                            definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                        }
                     }
-
+                    
                     definitions.groupByOrder = request.groupByOrder;
                 }
 

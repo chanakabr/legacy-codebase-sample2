@@ -12586,6 +12586,7 @@ namespace Core.ConditionalAccess
             try
             {
                 long domainID = 0;
+                bool quotaOverage = false;
 
                 recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
@@ -12598,9 +12599,23 @@ namespace Core.ConditionalAccess
                 recording = recordingResponse.Recordings[0];
                 if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                    return recording;
+                    //check if it setting for quota_overage if so asuncronize action to delete oldest recordings 
+                    //else return exceedeQuota  
+                    if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
+                    {
+                        TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+                        if (accountSettings != null && accountSettings.quotaOveragePolicy == QuotaOveragePolicy.QuotaOverage)
+                        {
+                            quotaOverage = true;
+                        }
+                    }
+                    if (!quotaOverage)
+                    {
+                        log.DebugFormat("Recording status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                        return recording;
+                    }
                 }
+              
 
                 if (recording.Id == 0 || !Utils.IsValidRecordingStatus(recording.RecordingStatus))
                 {
@@ -12610,25 +12625,23 @@ namespace Core.ConditionalAccess
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-                        if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
-                        {
-                            recording.Type = recordingType;
-                            if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
-                            {
-                                // increase the quota back to the user
-                                if (!QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
-                                {
-                                    log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                                }
 
+                        if (quotaOverage) // if QuotaOverage then call delete recorded as needed       
+                        {
+                            // handel delete to overage quota                                
+                            if (QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration))
+                            {
+                                UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
+                            }
+                            else
+                            {
                                 log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                                 recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                             }
                         }
                         else
                         {
-                            log.ErrorFormat("Not enough quota to record, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                            recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                            UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
                         }
                     }
                     else
@@ -12650,6 +12663,36 @@ namespace Core.ConditionalAccess
             }
 
             return recording;
+        }
+
+        private void UpdateOrInsertDomainRecording(string userID, long epgID, long domainSeriesRecordingId, ref Recording recording, long domainID, int recordingDuration, RecordingType recordingType)
+        {
+            try
+            {
+                if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
+                {
+                    recording.Type = recordingType;
+                    if (!RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
+                    {
+                        // increase the quota back to the user                               
+                        if (!QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
+                        {
+                            log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                        }
+
+                        log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Not enough quota to record, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
 
         public Recording CancelOrDeleteRecord(string userId, long domainId, long domainRecordingId, TstvRecordingStatus tstvRecordingStatus, bool shouldValidateUserAndDomain = true)
