@@ -140,7 +140,33 @@ public partial class adm_generic_remove : System.Web.UI.Page
         }
         else
         {
+            DomainsWS.module domainWS;
+            string sIP = "1.1.1.1";
+            string sWSUserName = "";
+            string sWSPass = "";
+            string sWSURL;
+
             int logedInGroupID = LoginManager.GetLoginGroupID();
+
+            if (m_sTable.ToLower() == "domains")
+            {
+                domainWS = new DomainsWS.module();
+                TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
+                sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
+                if (sWSURL != "")
+                    domainWS.Url = sWSURL;
+                try
+                {
+                    DomainsWS.DomainResponseStatus resp = domainWS.RemoveDomain(sWSUserName, sWSPass, m_nID);
+                    log.Debug("RemoveDomain - " + string.Format("DomainId:{0}, res:{1}", m_nID, resp.ToString()));
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Exception - " + string.Format("DomainId:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
+                }
+            }
+
+            
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
             updateQuery.SetConnectionKey(m_sDB);
             // double confirm for remove
@@ -185,12 +211,6 @@ public partial class adm_generic_remove : System.Web.UI.Page
                     log.Error(string.Format("Failed updating index for mediaIDs: {0}, groupID: {1}", lIds, logedInGroupID));
                 }
             }
-
-            DomainsWS.module domainWS;
-            string sIP = "1.1.1.1";
-            string sWSUserName = "";
-            string sWSPass = "";
-            string sWSURL;
 
             // if its not media
             if (m_sTable.ToLower() != "media")
@@ -274,23 +294,7 @@ public partial class adm_generic_remove : System.Web.UI.Page
                         {
                             log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
                         }
-                        break;
-                    case "domains":
-                        domainWS = new DomainsWS.module();
-                        TVinciShared.WS_Utils.GetWSUNPass(logedInGroupID, "RemoveDomain", "domains", sIP, ref sWSUserName, ref sWSPass);
-                        sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("domains_ws");
-                        if (sWSURL != "")
-                            domainWS.Url = sWSURL;
-                        try
-                        {
-                            DomainsWS.DomainResponseStatus resp = domainWS.RemoveDomain(sWSUserName, sWSPass, m_nID);
-                            log.Debug("RemoveDomain - " + string.Format("DomainId:{0}, res:{1}", m_nID, resp.ToString()));
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Error("Exception - " + string.Format("DomainId:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
-                        }
-                        break;
+                        break;                   
                     default:
                         break;
                 }
