@@ -23,5 +23,14 @@ namespace ApiObjects.AssetLifeCycleRules
             this.PpvIds = ppvIds;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(string.Format("FileTypeIds: {0}, ", FileTypeIds != null ? string.Join(",", FileTypeIds) : string.Empty));
+            sb.Append(string.Format("PpvIds: {0}, ", PpvIds != null ? string.Join(",", PpvIds) : string.Empty));
+
+            return sb.ToString();
+        }
+
     }
 }

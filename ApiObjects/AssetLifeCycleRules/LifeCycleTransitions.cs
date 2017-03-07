@@ -33,5 +33,17 @@ namespace ApiObjects.AssetLifeCycleRules
             this.GeoBlockRuleToSet = geoBlockRuleToSet;
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(string.Format("TagIdsToAdd: {0}, ", TagIdsToAdd != null ? string.Join(",", TagIdsToAdd) : string.Empty));
+            sb.Append(string.Format("TagIdsToRemove: {0}, ", TagIdsToRemove != null ? string.Join(",", TagIdsToRemove) : string.Empty));
+            sb.Append(string.Format("FileTypesAndPpvsToAdd: {0}, ", FileTypesAndPpvsToAdd != null ? FileTypesAndPpvsToAdd.ToString() : string.Empty));
+            sb.Append(string.Format("FileTypesAndPpvsToRemove: {0}, ", FileTypesAndPpvsToRemove != null ? FileTypesAndPpvsToRemove.ToString() : string.Empty));
+            sb.Append(string.Format("GeoBlockRuleToSet: {0}, ", GeoBlockRuleToSet.HasValue ? GeoBlockRuleToSet.Value.ToString() : string.Empty));            
+
+            return sb.ToString();
+        }
+
     }
 }

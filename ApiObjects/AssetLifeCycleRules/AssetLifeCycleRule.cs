@@ -49,7 +49,15 @@ namespace ApiObjects.AssetLifeCycleRules
 
         public override string ToString()
         {
-            throw new NotImplementedException();
+            StringBuilder sb = new StringBuilder();            
+            sb.Append(string.Format("Id: {0}, ", Id));
+            sb.Append(string.Format("Name: {0}, ", string.IsNullOrEmpty(Name) ? string.Empty : Name));
+            sb.Append(string.Format("Description: {0}, ", string.IsNullOrEmpty(Description) ? string.Empty : Description));
+            sb.Append(string.Format("KsqlFilter: {0}, ", string.IsNullOrEmpty(KsqlFilter) ? string.Empty : KsqlFilter));
+            sb.Append(string.Format("TransitionIntervalInDays: {0}, ", TransitionIntervalInDays));
+            sb.Append(string.Format("Actions: {0}, ", Actions != null ? Actions.ToString() : string.Empty));
+
+            return sb.ToString();
         }
 
     }    
