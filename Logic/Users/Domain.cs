@@ -575,7 +575,10 @@ namespace Core.Users
             }
 
             // try to get device from cache 
-            bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID);
+            DateTime activationDate = DateTime.MaxValue;
+            string name = null;
+            int brandId = 0;
+            bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name);
 
             //int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
             //if (nDomainDeviceID > 0)
@@ -588,6 +591,10 @@ namespace Core.Users
                     DeviceId = nDeviceID,
                     GroupId = m_nGroupID,
                     DomainId = m_nDomainID,
+                    ActivataionStatus = isActive == 1 ? DeviceState.Activated : DeviceState.UnActivated,
+                    DeviceBrandId = brandId,
+                    ActivatedOn = activationDate,
+                    Name = name
                 };
 
                 bool deleted = domainDevice.Delete();
@@ -655,7 +662,7 @@ namespace Core.Users
             return bRes;
         }
 
-        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID)
+        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID, ref DateTime activationDate, ref int brandId, ref string name)
         {
             try
             {
@@ -672,6 +679,9 @@ namespace Core.Users
                                 isActive = device.IsActivated() ? 1 : 0;
                                 nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(device.m_id);
                                 bContinue = false;
+                                activationDate = device.m_activationDate;
+                                brandId = device.m_deviceBrandID;
+                                name = device.m_deviceName;
                             }
                         }
                     }

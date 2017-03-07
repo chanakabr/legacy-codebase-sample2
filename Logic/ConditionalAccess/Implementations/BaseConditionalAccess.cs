@@ -6435,7 +6435,7 @@ namespace Core.ConditionalAccess
                             {
                                 string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
                                 // Get PPV price code according to country and currency (if exists on the request)
-                                if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
+                                if (!string.IsNullOrEmpty(countryCode)  && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode)))
                                 {
                                     PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
                                     bool shouldUpdateDiscountModule = false;
