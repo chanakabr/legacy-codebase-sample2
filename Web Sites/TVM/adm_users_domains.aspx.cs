@@ -59,8 +59,24 @@ public partial class adm_users_domains : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("users_connection");
-        theTable += "select id, name, description, max_limit, status, is_active from domains where status=1 and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
+        theTable += "select d.id, d.name, d.description, d.status, d.is_active from domains d";
+        if (Session["search_user_name"] != null && Session["search_user_name"].ToString() != "")
+        {
+            theTable += " join users_domains ud on ud.domain_id=d.id and ud.status=1 and ud.Is_Active=1 and ud.Is_Master=1";
+            theTable += " join users u on ud.user_id=u.id and u.status=1 and u.Is_Active=1 and u.username like (N'%"+Session["search_user_name"].ToString().ToLower().Trim() + "%')";
+        }
+
+        theTable += "where d.status=1 and ";
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("d.group_id", "=", nGroupID);
+        if (Session["search_domain_id"] != null && Session["search_domain_id"].ToString() != "")
+        {
+            int domainId = 0;
+            if (int.TryParse(Session["search_domain_id"].ToString(), out domainId) && domainId > 0)
+            {
+                theTable += " and d.id=" + domainId;
+            }
+        }
+
         if (sOrderBy != "")
         {
             theTable += " order by ";
@@ -96,8 +112,17 @@ public partial class adm_users_domains : System.Web.UI.Page
         }
     }
 
-    public string GetPageContent(string sOrderBy, string sPageNum)
+    public string GetPageContent(string sOrderBy, string sPageNum, string search_user_name, string search_domain_id)
     {
+        if (search_user_name != "")
+            Session["search_user_name"] = search_user_name.Replace("'", "''");
+        else if (Session["search_save"] == null)
+            Session["search_user_name"] = "";
+
+        if (search_domain_id != "")
+            Session["search_domain_id"] = search_domain_id.Replace("'", "''");
+        else if (Session["search_save"] == null)
+            Session["search_domain_id"] = "";
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();

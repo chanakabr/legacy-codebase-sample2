@@ -17,7 +17,9 @@
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
 <script type="text/javascript">
     function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_users_domains.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
+        search_user_name = GetSafeDocumentIDVal("search_user_name");
+        search_domain_id = GetSafeDocumentIDVal("search_domain_id");
+        RS.Execute("adm_users_domains.aspx", "GetPageContent", orderBy, pageNum, search_user_name, search_domain_id, callback_page_content, errorCallback);
     }
     function create_csv() {
         RS.Execute("adm_users_domains.aspx", "GetTableCSV", callback_create_csv, errorCallback);
@@ -96,7 +98,30 @@
 										</table>
 									</td>
 								</tr>
-								
+								<!-- content -->
+								<tr>
+									<td class="formInputs">
+										<div>
+											<table>
+												<tr>
+													<td>
+														<table width="100%">
+															<tr>
+																<td><% TVinciShared.DBTableWebEditor.GetSearchFree("Master user name", "search_user_name", "ltr"); %></td>
+																<td class="space01">&nbsp;&nbsp;</td>
+																<td><% TVinciShared.DBTableWebEditor.GetSearchFree("Domain Id", "search_domain_id", "ltr"); %></td>
+																<td>
+																	<a class="btn2" onclick="GetPageTable('',1);" href="javascript:void(0);"></a>
+															    </td>
+															    <td nowrap="nowrap" width="100%">&nbsp;</td>
+															</tr>
+														</table>
+													</td>
+												</tr>
+											</table>
+										</div>
+									</td>
+								</tr>
 								<tr>
 									<td id="page_content">
 									    <!-- the actual content -->
