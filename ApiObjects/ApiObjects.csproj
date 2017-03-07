@@ -241,7 +241,7 @@
     <Compile Include="PlayBackContext\PlayBackContext.cs" />
     <Compile Include="Pricing\BundleCodeContainer.cs" />
     <Compile Include="Pricing\enums.cs" />
-    <Compile Include="Pricing\LanguageContainer.cs" />
+    <Compile Include="LanguageContainer.cs" />
     <Compile Include="Pricing\ServiceObject.cs" />
     <Compile Include="QueueObjects\MessageReminderData.cs" />
     <Compile Include="QueueObjects\RecordingModificationData.cs" />
