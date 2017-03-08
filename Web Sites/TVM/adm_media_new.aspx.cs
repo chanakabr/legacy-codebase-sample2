@@ -355,11 +355,6 @@ public partial class adm_media_new : System.Web.UI.Page
         dr_end_date.Initialize("Catalog End Date", "adm_table_header_nbg", "FormInput", "END_DATE", false);
         theRecord.AddRecord(dr_end_date);
 
-        DataRecordDateTimeField dr_life_cycle_start_date = new DataRecordDateTimeField(true);
-        dr_life_cycle_start_date.Initialize("Life Cycle Start Date", "adm_table_header_nbg", "FormInput", "LIFE_CYCLE_START_DATE", false);
-        dr_life_cycle_start_date.SetDefault(DateTime.Now);
-        theRecord.AddRecord(dr_life_cycle_start_date);
-
         DataRecordDateTimeField dr_final_end_date = new DataRecordDateTimeField(true);
         dr_final_end_date.Initialize("Final End Date", "adm_table_header_nbg", "FormInput", "FINAL_END_DATE", false);
         theRecord.AddRecord(dr_final_end_date);
