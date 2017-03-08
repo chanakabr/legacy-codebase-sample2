@@ -1670,5 +1670,9 @@ namespace Core.Api
             return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
         }
 
+        public static bool DoActionRules(int groupId, List<int> ruleIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

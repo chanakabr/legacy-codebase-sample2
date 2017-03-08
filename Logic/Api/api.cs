@@ -9325,7 +9325,13 @@ namespace Core.Api
             }
 
             return result;
-        }        
+        }
 
+        public static bool DoActionRules(int groupId, int[] ruleIds)
+        {
+            bool result = false;
+
+            return result;
+        }
     }
 }
