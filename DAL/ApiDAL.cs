@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
@@ -4069,26 +4068,6 @@ namespace DAL
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddIDListParameter("@AssetIds", assetIds, "id");
             sp.AddIDListParameter("@TagIds", tagIdsToAdd, "id");
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
-        public static bool RemoveFileTypesAndPpvsFromAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveFileTypesAndPpvsFromAssets");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter("@AssetIds", assetIds, "id");
-            sp.AddIDListParameter("@FileTypeIds", fileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
-            sp.AddIDListParameter("@PpvIds", fileTypesAndPpvsToRemove.PpvIds.ToList(), "id");
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
-        public static bool AddFileTypesAndPpvsToAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddFileTypesAndPpvsToAssets");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddIDListParameter("@AssetIds", assetIds, "id");
-            sp.AddIDListParameter("@FileTypeIds", fileTypesAndPpvsToAdd.FileTypeIds.ToList(), "id");
-            sp.AddIDListParameter("@PpvIds", fileTypesAndPpvsToAdd.PpvIds.ToList(), "id");
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
