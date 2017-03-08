@@ -471,10 +471,10 @@ namespace WebAPI.App_Start
                     // add dates
                     media.Basic.Dates = new Dates()
                     {
-                        CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        End = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        Start = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
+                        CatalogEnd = asset.EndDate != null && asset.EndDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.EndDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        End = asset.EndDate != null && asset.EndDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.EndDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        CatalogStart = asset.StartDate != null && asset.StartDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.StartDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
+                        Start = asset.StartDate != null && asset.StartDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.StartDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
                     };
 
                     // add rules
