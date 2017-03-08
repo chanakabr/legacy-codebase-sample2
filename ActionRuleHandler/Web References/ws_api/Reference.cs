@@ -27,29 +27,16 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="APISoap", Namespace="http://api.tvinci.com/")]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EPGChannelProgrammeObject))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseObject))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(BaseCacheObject))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(OSSAdapterBase))]
     public partial class API : System.Web.Services.Protocols.SoapHttpClientProtocol {
         
-        private System.Threading.SendOrPostCallback GetDeviceBrandListOperationCompleted;
-        
         private System.Threading.SendOrPostCallback GetCountryListOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetGroupMetaListOperationCompleted;
         
-        private System.Threading.SendOrPostCallback GetCountryByIpOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetLayeredCacheGroupConfigOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback UpdateLayeredCacheGroupConfigOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback UpdateLayeredCacheGroupConfigSTOperationCompleted;
-        
         private System.Threading.SendOrPostCallback DoActionRulesOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback GetPurchasePINOperationCompleted;
         
         private System.Threading.SendOrPostCallback UpdatePurchasePINOperationCompleted;
         
@@ -218,6 +205,8 @@ namespace ActionRuleHandler.ws_api {
         private System.Threading.SendOrPostCallback UpdateScheduledTaskNextRunIntervalInSecondsOperationCompleted;
         
         private System.Threading.SendOrPostCallback GetDeviceFamilyListOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback GetDeviceBrandListOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
@@ -389,6 +378,8 @@ namespace ActionRuleHandler.ws_api {
         
         private System.Threading.SendOrPostCallback UpdatePurchaseSettingsOperationCompleted;
         
+        private System.Threading.SendOrPostCallback GetPurchasePINOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -428,31 +419,13 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
-        public event GetDeviceBrandListCompletedEventHandler GetDeviceBrandListCompleted;
-        
-        /// <remarks/>
         public event GetCountryListCompletedEventHandler GetCountryListCompleted;
         
         /// <remarks/>
         public event GetGroupMetaListCompletedEventHandler GetGroupMetaListCompleted;
         
         /// <remarks/>
-        public event GetCountryByIpCompletedEventHandler GetCountryByIpCompleted;
-        
-        /// <remarks/>
-        public event GetLayeredCacheGroupConfigCompletedEventHandler GetLayeredCacheGroupConfigCompleted;
-        
-        /// <remarks/>
-        public event UpdateLayeredCacheGroupConfigCompletedEventHandler UpdateLayeredCacheGroupConfigCompleted;
-        
-        /// <remarks/>
-        public event UpdateLayeredCacheGroupConfigSTCompletedEventHandler UpdateLayeredCacheGroupConfigSTCompleted;
-        
-        /// <remarks/>
         public event DoActionRulesCompletedEventHandler DoActionRulesCompleted;
-        
-        /// <remarks/>
-        public event GetPurchasePINCompletedEventHandler GetPurchasePINCompleted;
         
         /// <remarks/>
         public event UpdatePurchasePINCompletedEventHandler UpdatePurchasePINCompleted;
@@ -705,6 +678,9 @@ namespace ActionRuleHandler.ws_api {
         
         /// <remarks/>
         public event GetDeviceFamilyListCompletedEventHandler GetDeviceFamilyListCompleted;
+        
+        /// <remarks/>
+        public event GetDeviceBrandListCompletedEventHandler GetDeviceBrandListCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -962,35 +938,7 @@ namespace ActionRuleHandler.ws_api {
         public event UpdatePurchaseSettingsCompletedEventHandler UpdatePurchaseSettingsCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetDeviceBrandList", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public DeviceBrandResponse GetDeviceBrandList(string sWSUserName, string sWSPassword) {
-            object[] results = this.Invoke("GetDeviceBrandList", new object[] {
-                        sWSUserName,
-                        sWSPassword});
-            return ((DeviceBrandResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetDeviceBrandListAsync(string sWSUserName, string sWSPassword) {
-            this.GetDeviceBrandListAsync(sWSUserName, sWSPassword, null);
-        }
-        
-        /// <remarks/>
-        public void GetDeviceBrandListAsync(string sWSUserName, string sWSPassword, object userState) {
-            if ((this.GetDeviceBrandListOperationCompleted == null)) {
-                this.GetDeviceBrandListOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDeviceBrandListOperationCompleted);
-            }
-            this.InvokeAsync("GetDeviceBrandList", new object[] {
-                        sWSUserName,
-                        sWSPassword}, this.GetDeviceBrandListOperationCompleted, userState);
-        }
-        
-        private void OnGetDeviceBrandListOperationCompleted(object arg) {
-            if ((this.GetDeviceBrandListCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetDeviceBrandListCompleted(this, new GetDeviceBrandListCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event GetPurchasePINCompletedEventHandler GetPurchasePINCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCountryList", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1065,148 +1013,6 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetCountryByIp", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public Country GetCountryByIp(string sWSUserName, string sWSPassword, string ip) {
-            object[] results = this.Invoke("GetCountryByIp", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        ip});
-            return ((Country)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetCountryByIpAsync(string sWSUserName, string sWSPassword, string ip) {
-            this.GetCountryByIpAsync(sWSUserName, sWSPassword, ip, null);
-        }
-        
-        /// <remarks/>
-        public void GetCountryByIpAsync(string sWSUserName, string sWSPassword, string ip, object userState) {
-            if ((this.GetCountryByIpOperationCompleted == null)) {
-                this.GetCountryByIpOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetCountryByIpOperationCompleted);
-            }
-            this.InvokeAsync("GetCountryByIp", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        ip}, this.GetCountryByIpOperationCompleted, userState);
-        }
-        
-        private void OnGetCountryByIpOperationCompleted(object arg) {
-            if ((this.GetCountryByIpCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetCountryByIpCompleted(this, new GetCountryByIpCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetLayeredCacheGroupConfig", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetLayeredCacheGroupConfig(string sWSUserName, string sWSPassword) {
-            object[] results = this.Invoke("GetLayeredCacheGroupConfig", new object[] {
-                        sWSUserName,
-                        sWSPassword});
-            return ((string)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword) {
-            this.GetLayeredCacheGroupConfigAsync(sWSUserName, sWSPassword, null);
-        }
-        
-        /// <remarks/>
-        public void GetLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, object userState) {
-            if ((this.GetLayeredCacheGroupConfigOperationCompleted == null)) {
-                this.GetLayeredCacheGroupConfigOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetLayeredCacheGroupConfigOperationCompleted);
-            }
-            this.InvokeAsync("GetLayeredCacheGroupConfig", new object[] {
-                        sWSUserName,
-                        sWSPassword}, this.GetLayeredCacheGroupConfigOperationCompleted, userState);
-        }
-        
-        private void OnGetLayeredCacheGroupConfigOperationCompleted(object arg) {
-            if ((this.GetLayeredCacheGroupConfigCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetLayeredCacheGroupConfigCompleted(this, new GetLayeredCacheGroupConfigCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateLayeredCacheGroupConfig", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<int> version, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)] System.Nullable<bool> shouldOverrideExistingExludeSettings) {
-            object[] results = this.Invoke("UpdateLayeredCacheGroupConfig", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        version,
-                        disableLayeredCache,
-                        layeredCacheSettingsToExclude,
-                        shouldOverrideExistingExludeSettings});
-            return ((bool)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, System.Nullable<int> version, System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, System.Nullable<bool> shouldOverrideExistingExludeSettings) {
-            this.UpdateLayeredCacheGroupConfigAsync(sWSUserName, sWSPassword, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings, null);
-        }
-        
-        /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigAsync(string sWSUserName, string sWSPassword, System.Nullable<int> version, System.Nullable<bool> disableLayeredCache, string[] layeredCacheSettingsToExclude, System.Nullable<bool> shouldOverrideExistingExludeSettings, object userState) {
-            if ((this.UpdateLayeredCacheGroupConfigOperationCompleted == null)) {
-                this.UpdateLayeredCacheGroupConfigOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateLayeredCacheGroupConfigOperationCompleted);
-            }
-            this.InvokeAsync("UpdateLayeredCacheGroupConfig", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        version,
-                        disableLayeredCache,
-                        layeredCacheSettingsToExclude,
-                        shouldOverrideExistingExludeSettings}, this.UpdateLayeredCacheGroupConfigOperationCompleted, userState);
-        }
-        
-        private void OnUpdateLayeredCacheGroupConfigOperationCompleted(object arg) {
-            if ((this.UpdateLayeredCacheGroupConfigCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.UpdateLayeredCacheGroupConfigCompleted(this, new UpdateLayeredCacheGroupConfigCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/UpdateLayeredCacheGroupConfigST", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool UpdateLayeredCacheGroupConfigST(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings) {
-            object[] results = this.Invoke("UpdateLayeredCacheGroupConfigST", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        version,
-                        disableLayeredCache,
-                        layeredCacheSettingsToExcludeCommaSeperated,
-                        shouldOverrideExistingExludeSettings});
-            return ((bool)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigSTAsync(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings) {
-            this.UpdateLayeredCacheGroupConfigSTAsync(sWSUserName, sWSPassword, version, disableLayeredCache, layeredCacheSettingsToExcludeCommaSeperated, shouldOverrideExistingExludeSettings, null);
-        }
-        
-        /// <remarks/>
-        public void UpdateLayeredCacheGroupConfigSTAsync(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings, object userState) {
-            if ((this.UpdateLayeredCacheGroupConfigSTOperationCompleted == null)) {
-                this.UpdateLayeredCacheGroupConfigSTOperationCompleted = new System.Threading.SendOrPostCallback(this.OnUpdateLayeredCacheGroupConfigSTOperationCompleted);
-            }
-            this.InvokeAsync("UpdateLayeredCacheGroupConfigST", new object[] {
-                        sWSUserName,
-                        sWSPassword,
-                        version,
-                        disableLayeredCache,
-                        layeredCacheSettingsToExcludeCommaSeperated,
-                        shouldOverrideExistingExludeSettings}, this.UpdateLayeredCacheGroupConfigSTOperationCompleted, userState);
-        }
-        
-        private void OnUpdateLayeredCacheGroupConfigSTOperationCompleted(object arg) {
-            if ((this.UpdateLayeredCacheGroupConfigSTCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.UpdateLayeredCacheGroupConfigSTCompleted(this, new UpdateLayeredCacheGroupConfigSTCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DoActionRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public bool DoActionRules(string sWSUserName, string sWSPassword, int[] ruleIds) {
             object[] results = this.Invoke("DoActionRules", new object[] {
@@ -1236,41 +1042,6 @@ namespace ActionRuleHandler.ws_api {
             if ((this.DoActionRulesCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
                 this.DoActionRulesCompleted(this, new DoActionRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public PurchaseSettingsResponse GetPurchasePIN(string userName, string password, int domainId, string siteGuid) {
-            object[] results = this.Invoke("GetPurchasePIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid});
-            return ((PurchaseSettingsResponse)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid) {
-            this.GetPurchasePINAsync(userName, password, domainId, siteGuid, null);
-        }
-        
-        /// <remarks/>
-        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, object userState) {
-            if ((this.GetPurchasePINOperationCompleted == null)) {
-                this.GetPurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPurchasePINOperationCompleted);
-            }
-            this.InvokeAsync("GetPurchasePIN", new object[] {
-                        userName,
-                        password,
-                        domainId,
-                        siteGuid}, this.GetPurchasePINOperationCompleted, userState);
-        }
-        
-        private void OnGetPurchasePINOperationCompleted(object arg) {
-            if ((this.GetPurchasePINCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.GetPurchasePINCompleted(this, new GetPurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -4139,6 +3910,37 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetDeviceBrandList", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public DeviceBrandResponse GetDeviceBrandList(string sWSUserName, string sWSPassword) {
+            object[] results = this.Invoke("GetDeviceBrandList", new object[] {
+                        sWSUserName,
+                        sWSPassword});
+            return ((DeviceBrandResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetDeviceBrandListAsync(string sWSUserName, string sWSPassword) {
+            this.GetDeviceBrandListAsync(sWSUserName, sWSPassword, null);
+        }
+        
+        /// <remarks/>
+        public void GetDeviceBrandListAsync(string sWSUserName, string sWSPassword, object userState) {
+            if ((this.GetDeviceBrandListOperationCompleted == null)) {
+                this.GetDeviceBrandListOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetDeviceBrandListOperationCompleted);
+            }
+            this.InvokeAsync("GetDeviceBrandList", new object[] {
+                        sWSUserName,
+                        sWSPassword}, this.GetDeviceBrandListOperationCompleted, userState);
+        }
+        
+        private void OnGetDeviceBrandListOperationCompleted(object arg) {
+            if ((this.GetDeviceBrandListCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetDeviceBrandListCompleted(this, new GetDeviceBrandListCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/TVAPI_GetTvinciGUID", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
         public UserIMRequestObject TVAPI_GetTvinciGUID(string sWSUserName, string sWSPassword, InitializationObject oInitObj) {
             object[] results = this.Invoke("TVAPI_GetTvinciGUID", new object[] {
@@ -6696,12 +6498,12 @@ namespace ActionRuleHandler.ws_api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetProgramDetails", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public EPGChannelProgrammeObject1 GetProgramDetails(string sWSUserName, string sWSPass, int nProgramId) {
+        public EPGChannelProgrammeObject GetProgramDetails(string sWSUserName, string sWSPass, int nProgramId) {
             object[] results = this.Invoke("GetProgramDetails", new object[] {
                         sWSUserName,
                         sWSPass,
                         nProgramId});
-            return ((EPGChannelProgrammeObject1)(results[0]));
+            return ((EPGChannelProgrammeObject)(results[0]));
         }
         
         /// <remarks/>
@@ -7232,6 +7034,41 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/GetPurchasePIN", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public PurchaseSettingsResponse GetPurchasePIN(string userName, string password, int domainId, string siteGuid) {
+            object[] results = this.Invoke("GetPurchasePIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid});
+            return ((PurchaseSettingsResponse)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid) {
+            this.GetPurchasePINAsync(userName, password, domainId, siteGuid, null);
+        }
+        
+        /// <remarks/>
+        public void GetPurchasePINAsync(string userName, string password, int domainId, string siteGuid, object userState) {
+            if ((this.GetPurchasePINOperationCompleted == null)) {
+                this.GetPurchasePINOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetPurchasePINOperationCompleted);
+            }
+            this.InvokeAsync("GetPurchasePIN", new object[] {
+                        userName,
+                        password,
+                        domainId,
+                        siteGuid}, this.GetPurchasePINOperationCompleted, userState);
+        }
+        
+        private void OnGetPurchasePINOperationCompleted(object arg) {
+            if ((this.GetPurchasePINCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.GetPurchasePINCompleted(this, new GetPurchasePINCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -7256,13 +7093,11 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class DeviceBrandResponse {
+    public partial class CountryResponse {
         
         private Status statusField;
         
-        private DeviceBrand[] deviceBrandsField;
-        
-        private int totalItemsField;
+        private Country[] countriesField;
         
         /// <remarks/>
         public Status Status {
@@ -7275,22 +7110,12 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
-        public DeviceBrand[] DeviceBrands {
+        public Country[] Countries {
             get {
-                return this.deviceBrandsField;
+                return this.countriesField;
             }
             set {
-                this.deviceBrandsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int TotalItems {
-            get {
-                return this.totalItemsField;
-            }
-            set {
-                this.totalItemsField = value;
+                this.countriesField = value;
             }
         }
     }
@@ -7734,488 +7559,6 @@ namespace ActionRuleHandler.ws_api {
         
         /// <remarks/>
         Subscription,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName="EpgPicture", Namespace="http://api.tvinci.com/")]
-    public partial class EpgPicture1 {
-        
-        private ExtensionDataObject extensionDataField;
-        
-        private int picHeightField;
-        
-        private int picIDField;
-        
-        private int picWidthField;
-        
-        private string ratioField;
-        
-        private string urlField;
-        
-        /// <remarks/>
-        public ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int PicHeight {
-            get {
-                return this.picHeightField;
-            }
-            set {
-                this.picHeightField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int PicID {
-            get {
-                return this.picIDField;
-            }
-            set {
-                this.picIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int PicWidth {
-            get {
-                return this.picWidthField;
-            }
-            set {
-                this.picWidthField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Ratio {
-            get {
-                return this.ratioField;
-            }
-            set {
-                this.ratioField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Url {
-            get {
-                return this.urlField;
-            }
-            set {
-                this.urlField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ExtensionDataObject {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName="EPGDictionary", Namespace="http://api.tvinci.com/")]
-    public partial class EPGDictionary1 {
-        
-        private ExtensionDataObject extensionDataField;
-        
-        private string keyField;
-        
-        private string valueField;
-        
-        /// <remarks/>
-        public ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Key {
-            get {
-                return this.keyField;
-            }
-            set {
-                this.keyField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Value {
-            get {
-                return this.valueField;
-            }
-            set {
-                this.valueField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName="EPGChannelProgrammeObject", Namespace="http://api.tvinci.com/")]
-    public partial class EPGChannelProgrammeObject1 {
-        
-        private ExtensionDataObject extensionDataField;
-        
-        private long cHANNEL_CATCH_UP_BUFFERField;
-        
-        private string cREATE_DATEField;
-        
-        private string cRIDField;
-        
-        private string dESCRIPTIONField;
-        
-        private int eNABLE_CATCH_UPField;
-        
-        private int eNABLE_CDVRField;
-        
-        private int eNABLE_START_OVERField;
-        
-        private int eNABLE_TRICK_PLAYField;
-        
-        private string eND_DATEField;
-        
-        private string ePG_CHANNEL_IDField;
-        
-        private long ePG_IDField;
-        
-        private string ePG_IDENTIFIERField;
-        
-        private EPGDictionary1[] ePG_MetaField;
-        
-        private EpgPicture1[] ePG_PICTURESField;
-        
-        private EPGDictionary1[] ePG_TAGSField;
-        
-        private string gROUP_IDField;
-        
-        private string iS_ACTIVEField;
-        
-        private int lIKE_COUNTERField;
-        
-        private string nAMEField;
-        
-        private int pIC_IDField;
-        
-        private string pIC_URLField;
-        
-        private string pUBLISH_DATEField;
-        
-        private string sTART_DATEField;
-        
-        private string sTATUSField;
-        
-        private string uPDATER_IDField;
-        
-        private string uPDATE_DATEField;
-        
-        private string media_idField;
-        
-        /// <remarks/>
-        public ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long CHANNEL_CATCH_UP_BUFFER {
-            get {
-                return this.cHANNEL_CATCH_UP_BUFFERField;
-            }
-            set {
-                this.cHANNEL_CATCH_UP_BUFFERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CREATE_DATE {
-            get {
-                return this.cREATE_DATEField;
-            }
-            set {
-                this.cREATE_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string CRID {
-            get {
-                return this.cRIDField;
-            }
-            set {
-                this.cRIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string DESCRIPTION {
-            get {
-                return this.dESCRIPTIONField;
-            }
-            set {
-                this.dESCRIPTIONField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_CATCH_UP {
-            get {
-                return this.eNABLE_CATCH_UPField;
-            }
-            set {
-                this.eNABLE_CATCH_UPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_CDVR {
-            get {
-                return this.eNABLE_CDVRField;
-            }
-            set {
-                this.eNABLE_CDVRField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_START_OVER {
-            get {
-                return this.eNABLE_START_OVERField;
-            }
-            set {
-                this.eNABLE_START_OVERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int ENABLE_TRICK_PLAY {
-            get {
-                return this.eNABLE_TRICK_PLAYField;
-            }
-            set {
-                this.eNABLE_TRICK_PLAYField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string END_DATE {
-            get {
-                return this.eND_DATEField;
-            }
-            set {
-                this.eND_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string EPG_CHANNEL_ID {
-            get {
-                return this.ePG_CHANNEL_IDField;
-            }
-            set {
-                this.ePG_CHANNEL_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public long EPG_ID {
-            get {
-                return this.ePG_IDField;
-            }
-            set {
-                this.ePG_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string EPG_IDENTIFIER {
-            get {
-                return this.ePG_IDENTIFIERField;
-            }
-            set {
-                this.ePG_IDENTIFIERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public EPGDictionary1[] EPG_Meta {
-            get {
-                return this.ePG_MetaField;
-            }
-            set {
-                this.ePG_MetaField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public EpgPicture1[] EPG_PICTURES {
-            get {
-                return this.ePG_PICTURESField;
-            }
-            set {
-                this.ePG_PICTURESField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute(IsNullable=false)]
-        public EPGDictionary1[] EPG_TAGS {
-            get {
-                return this.ePG_TAGSField;
-            }
-            set {
-                this.ePG_TAGSField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string GROUP_ID {
-            get {
-                return this.gROUP_IDField;
-            }
-            set {
-                this.gROUP_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string IS_ACTIVE {
-            get {
-                return this.iS_ACTIVEField;
-            }
-            set {
-                this.iS_ACTIVEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int LIKE_COUNTER {
-            get {
-                return this.lIKE_COUNTERField;
-            }
-            set {
-                this.lIKE_COUNTERField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string NAME {
-            get {
-                return this.nAMEField;
-            }
-            set {
-                this.nAMEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int PIC_ID {
-            get {
-                return this.pIC_IDField;
-            }
-            set {
-                this.pIC_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PIC_URL {
-            get {
-                return this.pIC_URLField;
-            }
-            set {
-                this.pIC_URLField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string PUBLISH_DATE {
-            get {
-                return this.pUBLISH_DATEField;
-            }
-            set {
-                this.pUBLISH_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string START_DATE {
-            get {
-                return this.sTART_DATEField;
-            }
-            set {
-                this.sTART_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string STATUS {
-            get {
-                return this.sTATUSField;
-            }
-            set {
-                this.sTATUSField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UPDATER_ID {
-            get {
-                return this.uPDATER_IDField;
-            }
-            set {
-                this.uPDATER_IDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string UPDATE_DATE {
-            get {
-                return this.uPDATE_DATEField;
-            }
-            set {
-                this.uPDATE_DATEField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string media_id {
-            get {
-                return this.media_idField;
-            }
-            set {
-                this.media_idField = value;
-            }
-        }
     }
     
     /// <remarks/>
@@ -9510,21 +8853,21 @@ namespace ActionRuleHandler.ws_api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -9717,49 +9060,145 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangedPinMailRequest : MailRequestObj {
+    public partial class EmailNotificationRequest : MailRequestObj {
         
-        private string m_sTokenField;
+        private string m_sTagToFollowField;
         
-        private string m_sSiteGuidField;
+        private string m_sMediaNameField;
         
-        private string m_sRuleNameField;
+        private string m_mediaPicURLField;
+        
+        private string m_mediaTypeField;
+        
+        private string m_contentField;
+        
+        private string m_mediaIdField;
+        
+        private TagPair[] m_tagListField;
+        
+        private string m_runTimeField;
+        
+        private string m_userFollowTagsField;
+        
+        private string m_catalogStartDateField;
+        
+        private string m_startDateField;
         
         /// <remarks/>
-        public string m_sToken {
+        public string m_sTagToFollow {
             get {
-                return this.m_sTokenField;
+                return this.m_sTagToFollowField;
             }
             set {
-                this.m_sTokenField = value;
+                this.m_sTagToFollowField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sSiteGuid {
+        public string m_sMediaName {
             get {
-                return this.m_sSiteGuidField;
+                return this.m_sMediaNameField;
             }
             set {
-                this.m_sSiteGuidField = value;
+                this.m_sMediaNameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sRuleName {
+        public string m_mediaPicURL {
             get {
-                return this.m_sRuleNameField;
+                return this.m_mediaPicURLField;
             }
             set {
-                this.m_sRuleNameField = value;
+                this.m_mediaPicURLField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_mediaType {
+            get {
+                return this.m_mediaTypeField;
+            }
+            set {
+                this.m_mediaTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_content {
+            get {
+                return this.m_contentField;
+            }
+            set {
+                this.m_contentField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_mediaId {
+            get {
+                return this.m_mediaIdField;
+            }
+            set {
+                this.m_mediaIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public TagPair[] m_tagList {
+            get {
+                return this.m_tagListField;
+            }
+            set {
+                this.m_tagListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_runTime {
+            get {
+                return this.m_runTimeField;
+            }
+            set {
+                this.m_runTimeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_userFollowTags {
+            get {
+                return this.m_userFollowTagsField;
+            }
+            set {
+                this.m_userFollowTagsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_catalogStartDate {
+            get {
+                return this.m_catalogStartDateField;
+            }
+            set {
+                this.m_catalogStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_startDate {
+            get {
+                return this.m_startDateField;
+            }
+            set {
+                this.m_startDateField = value;
             }
         }
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -9918,15 +9357,6 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
         
         private string m_sPreviewModuleEndDateField;
@@ -9949,6 +9379,15 @@ namespace ActionRuleHandler.ws_api {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseFailRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -10004,48 +9443,6 @@ namespace ActionRuleHandler.ws_api {
             }
             set {
                 this.m_sUsernameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ForgotPasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
             }
         }
     }
@@ -10134,6 +9531,117 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ForgotPasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class SendPasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sUsernameField;
+        
+        private string m_sPasswordField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUsername {
+            get {
+                return this.m_sUsernameField;
+            }
+            set {
+                this.m_sUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPassword {
+            get {
+                return this.m_sPasswordField;
+            }
+            set {
+                this.m_sPasswordField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangedPinMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sSiteGuidField;
+        
+        private string m_sRuleNameField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sSiteGuid {
+            get {
+                return this.m_sSiteGuidField;
+            }
+            set {
+                this.m_sSiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sRuleName {
+            get {
+                return this.m_sRuleNameField;
+            }
+            set {
+                this.m_sRuleNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class AddUserMailRequest : MailRequestObj {
         
         private string m_sTokenField;
@@ -10181,96 +9689,6 @@ namespace ActionRuleHandler.ws_api {
             }
             set {
                 this.m_sNewFirstNameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendAdminTokenRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sIPField;
-        
-        private string m_sDurationField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sIP {
-            get {
-                return this.m_sIPField;
-            }
-            set {
-                this.m_sIPField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sDuration {
-            get {
-                return this.m_sDurationField;
-            }
-            set {
-                this.m_sDurationField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendPasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sUsernameField;
-        
-        private string m_sPasswordField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPassword {
-            get {
-                return this.m_sPasswordField;
-            }
-            set {
-                this.m_sPasswordField = value;
             }
         }
     }
@@ -10338,137 +9756,62 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class EmailNotificationRequest : MailRequestObj {
+    public partial class SendAdminTokenRequest : MailRequestObj {
         
-        private string m_sTagToFollowField;
+        private string m_sTokenField;
         
-        private string m_sMediaNameField;
+        private string m_sIPField;
         
-        private string m_mediaPicURLField;
-        
-        private string m_mediaTypeField;
-        
-        private string m_contentField;
-        
-        private string m_mediaIdField;
-        
-        private TagPair[] m_tagListField;
-        
-        private string m_runTimeField;
-        
-        private string m_userFollowTagsField;
-        
-        private string m_catalogStartDateField;
-        
-        private string m_startDateField;
+        private string m_sDurationField;
         
         /// <remarks/>
-        public string m_sTagToFollow {
+        public string m_sToken {
             get {
-                return this.m_sTagToFollowField;
+                return this.m_sTokenField;
             }
             set {
-                this.m_sTagToFollowField = value;
+                this.m_sTokenField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sMediaName {
+        public string m_sIP {
             get {
-                return this.m_sMediaNameField;
+                return this.m_sIPField;
             }
             set {
-                this.m_sMediaNameField = value;
+                this.m_sIPField = value;
             }
         }
         
         /// <remarks/>
-        public string m_mediaPicURL {
+        public string m_sDuration {
             get {
-                return this.m_mediaPicURLField;
+                return this.m_sDurationField;
             }
             set {
-                this.m_mediaPicURLField = value;
+                this.m_sDurationField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangePasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
         
         /// <remarks/>
-        public string m_mediaType {
+        public string m_sToken {
             get {
-                return this.m_mediaTypeField;
+                return this.m_sTokenField;
             }
             set {
-                this.m_mediaTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_content {
-            get {
-                return this.m_contentField;
-            }
-            set {
-                this.m_contentField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_mediaId {
-            get {
-                return this.m_mediaIdField;
-            }
-            set {
-                this.m_mediaIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public TagPair[] m_tagList {
-            get {
-                return this.m_tagListField;
-            }
-            set {
-                this.m_tagListField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_runTime {
-            get {
-                return this.m_runTimeField;
-            }
-            set {
-                this.m_runTimeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_userFollowTags {
-            get {
-                return this.m_userFollowTagsField;
-            }
-            set {
-                this.m_userFollowTagsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_catalogStartDate {
-            get {
-                return this.m_catalogStartDateField;
-            }
-            set {
-                this.m_catalogStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_startDate {
-            get {
-                return this.m_startDateField;
-            }
-            set {
-                this.m_startDateField = value;
+                this.m_sTokenField = value;
             }
         }
     }
@@ -10777,23 +10120,11 @@ namespace ActionRuleHandler.ws_api {
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class BaseObject {
         
-        private ExtensionDataObject extensionDataField;
-        
         private string assetIdField;
-        
-        private eAssetTypes1 assetTypeField;
         
         private System.DateTime m_dUpdateDateField;
         
-        /// <remarks/>
-        public ExtensionDataObject ExtensionData {
-            get {
-                return this.extensionDataField;
-            }
-            set {
-                this.extensionDataField = value;
-            }
-        }
+        private eAssetTypes assetTypeField;
         
         /// <remarks/>
         public string AssetId {
@@ -10806,16 +10137,6 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
-        public eAssetTypes1 AssetType {
-            get {
-                return this.assetTypeField;
-            }
-            set {
-                this.assetTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
         public System.DateTime m_dUpdateDate {
             get {
                 return this.m_dUpdateDateField;
@@ -10824,13 +10145,23 @@ namespace ActionRuleHandler.ws_api {
                 this.m_dUpdateDateField = value;
             }
         }
+        
+        /// <remarks/>
+        public eAssetTypes AssetType {
+            get {
+                return this.assetTypeField;
+            }
+            set {
+                this.assetTypeField = value;
+            }
+        }
     }
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName="eAssetTypes", Namespace="http://api.tvinci.com/")]
-    public enum eAssetTypes1 {
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/eAssetTypes1")]
+    public enum eAssetTypes {
         
         /// <remarks/>
         UNKNOWN,
@@ -13405,6 +12736,96 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class DeviceBrand {
+        
+        private int idField;
+        
+        private string nameField;
+        
+        private int deviceFamilyIdField;
+        
+        /// <remarks/>
+        public int Id {
+            get {
+                return this.idField;
+            }
+            set {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int DeviceFamilyId {
+            get {
+                return this.deviceFamilyIdField;
+            }
+            set {
+                this.deviceFamilyIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class DeviceBrandResponse {
+        
+        private Status statusField;
+        
+        private DeviceBrand[] deviceBrandsField;
+        
+        private int totalItemsField;
+        
+        /// <remarks/>
+        public Status Status {
+            get {
+                return this.statusField;
+            }
+            set {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public DeviceBrand[] DeviceBrands {
+            get {
+                return this.deviceBrandsField;
+            }
+            set {
+                this.deviceBrandsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public int TotalItems {
+            get {
+                return this.totalItemsField;
+            }
+            set {
+                this.totalItemsField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class DeviceFamily {
         
         private int idField;
@@ -14801,8 +14222,8 @@ namespace ActionRuleHandler.ws_api {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiActionPermissionItem))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiArgumentPermissionItem))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiParameterPermissionItem))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiArgumentPermissionItem))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -14874,51 +14295,6 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ApiArgumentPermissionItem : PermissionItem {
-        
-        private string serviceField;
-        
-        private string actionField;
-        
-        private string parameterField;
-        
-        /// <remarks/>
-        public string Service {
-            get {
-                return this.serviceField;
-            }
-            set {
-                this.serviceField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Action {
-            get {
-                return this.actionField;
-            }
-            set {
-                this.actionField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Parameter {
-            get {
-                return this.parameterField;
-            }
-            set {
-                this.parameterField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ApiParameterPermissionItem : PermissionItem {
         
         private string objectField;
@@ -14954,6 +14330,51 @@ namespace ActionRuleHandler.ws_api {
             }
             set {
                 this.actionField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ApiArgumentPermissionItem : PermissionItem {
+        
+        private string serviceField;
+        
+        private string actionField;
+        
+        private string parameterField;
+        
+        /// <remarks/>
+        public string Service {
+            get {
+                return this.serviceField;
+            }
+            set {
+                this.serviceField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Action {
+            get {
+                return this.actionField;
+            }
+            set {
+                this.actionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Parameter {
+            get {
+                return this.parameterField;
+            }
+            set {
+                this.parameterField = value;
             }
         }
     }
@@ -16731,25 +16152,6 @@ namespace ActionRuleHandler.ws_api {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/schemas/eAssetTypes1")]
-    public enum eAssetTypes {
-        
-        /// <remarks/>
-        UNKNOWN,
-        
-        /// <remarks/>
-        EPG,
-        
-        /// <remarks/>
-        NPVR,
-        
-        /// <remarks/>
-        MEDIA,
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
@@ -16821,84 +16223,6 @@ namespace ActionRuleHandler.ws_api {
             }
             set {
                 this.codeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CountryResponse {
-        
-        private Status statusField;
-        
-        private Country[] countriesField;
-        
-        /// <remarks/>
-        public Status Status {
-            get {
-                return this.statusField;
-            }
-            set {
-                this.statusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public Country[] Countries {
-            get {
-                return this.countriesField;
-            }
-            set {
-                this.countriesField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class DeviceBrand {
-        
-        private int idField;
-        
-        private string nameField;
-        
-        private int deviceFamilyIdField;
-        
-        /// <remarks/>
-        public int Id {
-            get {
-                return this.idField;
-            }
-            set {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Name {
-            get {
-                return this.nameField;
-            }
-            set {
-                this.nameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public int DeviceFamilyId {
-            get {
-                return this.deviceFamilyIdField;
-            }
-            set {
-                this.deviceFamilyIdField = value;
             }
         }
     }
@@ -17065,32 +16389,6 @@ namespace ActionRuleHandler.ws_api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    public delegate void GetDeviceBrandListCompletedEventHandler(object sender, GetDeviceBrandListCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetDeviceBrandListCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetDeviceBrandListCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public DeviceBrandResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((DeviceBrandResponse)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
     public delegate void GetCountryListCompletedEventHandler(object sender, GetCountryListCompletedEventArgs e);
     
     /// <remarks/>
@@ -17143,110 +16441,6 @@ namespace ActionRuleHandler.ws_api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    public delegate void GetCountryByIpCompletedEventHandler(object sender, GetCountryByIpCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetCountryByIpCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetCountryByIpCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public Country Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((Country)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    public delegate void GetLayeredCacheGroupConfigCompletedEventHandler(object sender, GetLayeredCacheGroupConfigCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetLayeredCacheGroupConfigCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetLayeredCacheGroupConfigCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public string Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    public delegate void UpdateLayeredCacheGroupConfigCompletedEventHandler(object sender, UpdateLayeredCacheGroupConfigCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class UpdateLayeredCacheGroupConfigCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal UpdateLayeredCacheGroupConfigCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public bool Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    public delegate void UpdateLayeredCacheGroupConfigSTCompletedEventHandler(object sender, UpdateLayeredCacheGroupConfigSTCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class UpdateLayeredCacheGroupConfigSTCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal UpdateLayeredCacheGroupConfigSTCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public bool Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((bool)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
     public delegate void DoActionRulesCompletedEventHandler(object sender, DoActionRulesCompletedEventArgs e);
     
     /// <remarks/>
@@ -17267,32 +16461,6 @@ namespace ActionRuleHandler.ws_api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    public delegate void GetPurchasePINCompletedEventHandler(object sender, GetPurchasePINCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class GetPurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal GetPurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public PurchaseSettingsResponse Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((PurchaseSettingsResponse)(this.results[0]));
             }
         }
     }
@@ -19483,6 +18651,32 @@ namespace ActionRuleHandler.ws_api {
     
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    public delegate void GetDeviceBrandListCompletedEventHandler(object sender, GetDeviceBrandListCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetDeviceBrandListCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetDeviceBrandListCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public DeviceBrandResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((DeviceBrandResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
     public delegate void TVAPI_GetTvinciGUIDCompletedEventHandler(object sender, TVAPI_GetTvinciGUIDCompletedEventArgs e);
     
     /// <remarks/>
@@ -21351,10 +20545,10 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
-        public EPGChannelProgrammeObject1 Result {
+        public EPGChannelProgrammeObject Result {
             get {
                 this.RaiseExceptionIfNecessary();
-                return ((EPGChannelProgrammeObject1)(this.results[0]));
+                return ((EPGChannelProgrammeObject)(this.results[0]));
             }
         }
     }
@@ -21710,6 +20904,32 @@ namespace ActionRuleHandler.ws_api {
         private object[] results;
         
         internal UpdatePurchaseSettingsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public PurchaseSettingsResponse Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((PurchaseSettingsResponse)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    public delegate void GetPurchasePINCompletedEventHandler(object sender, GetPurchasePINCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class GetPurchasePINCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal GetPurchasePINCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

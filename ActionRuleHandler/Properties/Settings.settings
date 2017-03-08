@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ActionRuleHandler_ws_api_API" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://localhost:82/ws_api/api.asmx</Value>
+      <Value Profile="(Default)">http://localhost:82/Rest/api.asmx</Value>
     </Setting>
   </Settings>
 </SettingsFile>

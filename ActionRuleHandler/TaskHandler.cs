@@ -40,7 +40,12 @@ namespace ActionRuleHandler
                         ruleIds = request.RuleIds.ToArray();
                     }
 
-                    api.DoActionRules(username, password, ruleIds);
+                    bool apiResult = api.DoActionRules(username, password, ruleIds);
+
+                    if (!apiResult)
+                    {
+                        throw new Exception("api.DoActionRules returned false");
+                    }
                 }
                 
             }

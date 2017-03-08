@@ -26,7 +26,7 @@ namespace ActionRuleHandler.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/ws_api/api.asmx")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost:82/Rest/api.asmx")]
         public string ActionRuleHandler_ws_api_API {
             get {
                 return ((string)(this["ActionRuleHandler_ws_api_API"]));

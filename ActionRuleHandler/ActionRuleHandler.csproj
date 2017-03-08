@@ -108,10 +108,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:82/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://localhost:82/Rest/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\ws_api\</RelPath>
-      <UpdateFromURL>http://localhost:82/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://localhost:82/Rest/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -151,9 +151,6 @@
     <None Include="Web References\ws_api\ChannelObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\ws_api\Country.datasource">
-      <DependentUpon>Reference.map</DependentUpon>
-    </None>
     <None Include="Web References\ws_api\CountryResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -169,7 +166,7 @@
     <None Include="Web References\ws_api\EPGChannelObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\ws_api\EPGChannelProgrammeObject1.datasource">
+    <None Include="Web References\ws_api\EPGChannelProgrammeObject.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\ws_api\ExternalChannelResponse.datasource">
