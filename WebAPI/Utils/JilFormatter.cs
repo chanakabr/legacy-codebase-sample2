@@ -123,6 +123,13 @@ namespace WebAPI.Utils
 
             SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
             SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));
+            
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                Formatting = Formatting.None,
+                Converters = new List<JsonConverter> { new MultiStringJsonConverter(), new EnumConverter(), new DoubleConverter() },
+                NullValueHandling = NullValueHandling.Ignore
+            };
         }
 
         public override bool CanReadType(Type type)
@@ -244,7 +251,7 @@ namespace WebAPI.Utils
         {
             private JToken GetToken(double value)
             {
-                if (value == 0)
+                if ((value % 1) == 0)
                 {
                     return (int)value;
                 }
@@ -339,7 +346,7 @@ namespace WebAPI.Utils
                     }
                 }
 
-                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter(), new EnumConverter(), new DoubleConverter() );
+                string json = JsonConvert.SerializeObject(value);
                 streamWriter.Write(json);
                 
                 //JSON.Serialize(value, streamWriter, _jilOptions);
