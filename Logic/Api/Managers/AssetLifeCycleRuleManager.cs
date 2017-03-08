@@ -4,6 +4,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,6 +18,8 @@ namespace APILogic.Api.Managers
 {
     public class AssetLifeCycleRuleManager
     {
+
+        private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
@@ -228,6 +231,22 @@ namespace APILogic.Api.Managers
 
                     task.Dispose();
                 }
+            }
+
+            // If proper interval was set, enqueue follow-up message so that task is run indefinitely
+            int actionRuleTaskIntervalHours = TVinciShared.WS_Utils.GetTcmIntValue("action_rule_task_interval");
+
+            if (actionRuleTaskIntervalHours > 0)
+            {
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+
+                string dataId = Guid.NewGuid().ToString();
+                BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, groupId, ruleIds);
+
+                bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
+
+                // Success of this method is dependent on enqueing the follow-up message
+                result &= enqueueResult;
             }
 
             return result;

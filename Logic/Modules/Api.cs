@@ -1676,12 +1676,11 @@ namespace Core.Api
 
             try
             {
-                AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds);
-
-                result = true;
+                result = AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds);
             }
             catch (Exception ex)
             {
+                result = false;
                 log.ErrorFormat("Error in DoActionRules. groupId = {0}, ex = {1}", groupId, ex);
             }
 
