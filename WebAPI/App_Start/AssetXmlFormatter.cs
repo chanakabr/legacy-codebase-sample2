@@ -18,11 +18,15 @@ using System.Collections;
 using WebAPI.Models.Catalog;
 using TVinciShared;
 using WebAPI.Models.Renderers;
+using KLogMonitor;
+using System.Reflection;
 
 namespace WebAPI.App_Start
 {
     public class AssetXmlFormatter : MediaTypeFormatter
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public AssetXmlFormatter()
         {
             MediaTypeMappings.Add(new QueryStringMapping("format", "30", "application/xml"));
@@ -464,14 +468,28 @@ namespace WebAPI.App_Start
                         }
                     };
 
-                    // add dates
-                    media.Basic.Dates = new Dates()
+                    // add dates (protecting formatting incase illegal date value received)
+                    media.Basic.Dates = new Dates();
+
+                    try
                     {
-                        CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        End = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        Start = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
-                    };
+                        media.Basic.Dates.CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.End = media.Basic.Dates.CatalogEnd;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.DebugFormat("Illegal end date received while formatting asset list to XML. asset ID: {0}, asset name: {1}, end date: {2}, ex: {3}", asset.Id, asset.Name, asset.EndDate, ex);
+                    }
+
+                    try
+                    {
+                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.Start = media.Basic.Dates.CatalogStart;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.DebugFormat("Illegal start date received while formatting asset list to XML. asset ID: {0}, asset name: {1}, start date: {2}. ex: {3}", asset.Id, asset.Name, asset.StartDate, ex);
+                    }
 
                     // add rules
                     media.Basic.Rules = new Rules()
@@ -643,29 +661,36 @@ namespace WebAPI.App_Start
         {
             return Task.Factory.StartNew(() =>
             {
-                Feed resultFeed = new Feed();
-                if (value != null)
+                try
                 {
-                    // validate expected type was received
-                    StatusWrapper restResultWrapper = (StatusWrapper)value;
-                    if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
+                    Feed resultFeed = new Feed();
+                    if (value != null)
                     {
-                        resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
-                        XmlDocument doc = SerializeToXmlDocument(resultFeed);
-
-                        // remove root attributes
-                        doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
-
-                        var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                        writeStream.Write(buf, 0, buf.Length);
-                    }
-                    else
-                    {
-                        using (TextWriter streamWriter = new StreamWriter(writeStream))
+                        // validate expected type was received
+                        StatusWrapper restResultWrapper = (StatusWrapper)value;
+                        if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
                         {
-                            streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
+                            XmlDocument doc = SerializeToXmlDocument(resultFeed);
+
+                            // remove root attributes
+                            doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
+
+                            var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                            writeStream.Write(buf, 0, buf.Length);
+                        }
+                        else
+                        {
+                            using (TextWriter streamWriter = new StreamWriter(writeStream))
+                            {
+                                streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while formatting asset list to XML ingest", ex);
                 }
             });
         }
