@@ -83,7 +83,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonEntitledChannelEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonExistingChannelEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));
-            sb.Append(string.Format("QuotaOveragePolicy: {0}, ", quotaOveragePolicy.ToString()));
+            sb.Append(string.Format("QuotaOveragePolicy: {0}, ", quotaOveragePolicy.HasValue ? ((QuotaOveragePolicy)quotaOveragePolicy.Value).ToString() : "Null"));
    
             return sb.ToString();
         }
