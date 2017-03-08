@@ -4,6 +4,7 @@ using ApiObjects.Epg;
 using ApiObjects.Response;
 using EpgBL;
 using KLogMonitor;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -197,7 +198,7 @@ namespace EpgIngest
             Dictionary<string, List<EpgTagTranslate>> dTags = new Dictionary<string, List<EpgTagTranslate>>(); // tagType, List<EpgTagTranslate>
 
             //update log topic with kaltura channelID
-            OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("save channel programs for kalturaChannelID:{0}", kalturaChannelID);
+            MonitorLogsHelper.SetContext(Constants.TOPIC, string.Format("save channel programs for kalturaChannelID:{0}", kalturaChannelID));
 
             var languages = GroupsCacheManager.GroupsCache.Instance().GetGroup(m_Channels.groupid).GetLangauges();
 

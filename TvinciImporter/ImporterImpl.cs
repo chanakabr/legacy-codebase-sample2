@@ -4,6 +4,7 @@ using ApiObjects.DRM;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
+using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper;
 using System;
@@ -551,7 +552,7 @@ namespace TvinciImporter
             //update log topic with EPGIdentifier
             if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
             {
-                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import epg_identifier:{0}", sEPGIdentifier);
+                MonitorLogsHelper.SetContext(Constants.TOPIC, string.Format("ingest import epg_identifier:{0}", sEPGIdentifier));
             }
 
             ingestAssetStatus.Status.Code = (int)eResponseStatus.OK;
@@ -1586,7 +1587,7 @@ namespace TvinciImporter
             //update log topic with media's co guid
             if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
             {
-                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = string.Format("ingest import co_guid:{0}", sCoGuid);
+                MonitorLogsHelper.SetContext(Constants.TOPIC, string.Format("ingest import co_guid:{0}", sCoGuid));
             }
 
             ingestAssetStatus.ExternalAssetId = sCoGuid;
