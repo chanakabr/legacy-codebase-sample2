@@ -38,35 +38,4 @@ namespace Core.Social
     }
 }
     
-namespace Core.Catalog.Response
-{
-    public partial class AssetCommentsListResponse : ISocialFeed
-    {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public List<SocialFeedItem> ToBaseSocialFeedObj()
-        {
-            List<SocialFeedItem> retVal = new List<SocialFeedItem>();
-
-            if (this.Comments != null)
-            {
-                foreach (var item in this.Comments)
-                {
-                    retVal.Add(new SocialFeedItem()
-                    {
-                        Title = item.m_sHeader,
-                        Body = item.m_sContentText,
-                        CreatorName = item.m_sWriter,
-                        CreateDate = TVinciShared.DateUtils.DateTimeToUnixTimestamp(item.m_dCreateDate),
-                        CreatorImageUrl = item.m_sUserPicURL
-                    });
-                }
-            }
-
-            log.Debug("ToBaseSocialFeedObj - " + string.Format("ToBaseSocialFeedObj: length = {0}", retVal.Count));
-
-            return retVal;
-        }
-    }
-
-}
