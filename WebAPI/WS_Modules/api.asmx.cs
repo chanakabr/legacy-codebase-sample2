@@ -4124,5 +4124,28 @@ namespace WS_API
 
             return null;
         }
+        
+        [WebMethod]
+        public bool DoActionRules(string sWSUserName, string sWSPassword, List<int> ruleIds = null)
+        {
+            bool result = false;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+
+            if (groupId > 0)
+            {
+                if (ruleIds == null)
+                {
+                    ruleIds = new List<int>();
+                }
+
+                result = Core.Api.Module.DoActionRules(groupId, ruleIds);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
     }
 }
