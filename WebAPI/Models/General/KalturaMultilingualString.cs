@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Pricing;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;

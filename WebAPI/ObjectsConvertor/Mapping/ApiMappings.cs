@@ -473,9 +473,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;    
         }
 
-        private static ApiObjects.QuotaOveragePolicy? ConvertQuotaOveragePolicy(KalturaQuotaOveragePolicy? kalturaQuotaOveragePolicy)
+        private static QuotaOveragePolicy? ConvertQuotaOveragePolicy(KalturaQuotaOveragePolicy? kalturaQuotaOveragePolicy)
         {
-            ApiObjects.QuotaOveragePolicy? result = null;
+            QuotaOveragePolicy? result = null;
 
             if (kalturaQuotaOveragePolicy.HasValue)
             {
