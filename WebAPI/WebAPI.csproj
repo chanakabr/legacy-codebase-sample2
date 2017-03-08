@@ -544,8 +544,10 @@
     <Compile Include="Models\Domains\KalturaHouseholdLimitations.cs" />
     <Compile Include="Models\Domains\KalturaDevicePin.cs" />
     <Compile Include="Models\General\BaseReport.cs" />
+    <Compile Include="Models\General\KalturaMultilingualStringValueArray.cs" />
     <Compile Include="Models\General\KalturaApiArgumentPermissionItem.cs" />
     <Compile Include="Models\General\KalturaApiParameterPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaMultilingualStringValue.cs" />
     <Compile Include="Models\General\KalturaNotification.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaMultilingualString.cs" />

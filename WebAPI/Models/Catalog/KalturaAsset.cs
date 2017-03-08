@@ -39,14 +39,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "metas")]
         [XmlElement("metas", IsNullable = true)]
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
-
+        
         /// <summary>
         /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
         /// </summary>
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
         [XmlElement("tags", IsNullable = true)]
-        public SerializableDictionary<string, KalturaStringValueArray> Tags { get; set; }
+        public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
