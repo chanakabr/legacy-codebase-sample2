@@ -16,7 +16,10 @@ using KLogMonitor;
 using ApiObjects.TimeShiftedTv;
 using ScheduledTasks;
 using Core.Catalog.Response;
-
+using APILogic.Api.Managers;
+using ApiObjects.AssetLifeCycleRules;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Core.Api
 {
@@ -1670,9 +1673,37 @@ namespace Core.Api
             return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
         }
 
-        public static bool DoActionRules(int groupId, List<int> ruleIds)
+        public static bool DoActionRules(int groupId, List<long> ruleIds)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            try
+            {
+                List<AssetLifeCycleRule> allRules = AssetLifeCycleRuleManager.Instance.GetAllLifeCycleRules(groupId);
+                List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
+
+                if (ruleIds == null)
+                {
+                    rules = allRules;
+                }
+                else
+                {
+                    rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
+                }
+
+                foreach (var rule in rules)
+                {
+
+                }
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in DoActionRules. groupId = {0}, ex = {1}", groupId, ex);
+            }
+
+            return result;
         }
     }
 }
