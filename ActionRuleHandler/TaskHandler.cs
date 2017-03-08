@@ -22,6 +22,26 @@ namespace ActionRuleHandler
                 log.DebugFormat("starting action rule request. data={0}", data);
 
                 ActionRuleRequest request = JsonConvert.DeserializeObject<ActionRuleRequest>(data);
+
+                string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_API");
+                using (ws_api.API api = new ws_api.API())
+                {
+                    api.Url = url;
+
+                    string username = string.Empty;
+                    string password = string.Empty;
+
+                    TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
+
+                    int[] ruleIds = null;
+
+                    if (request.RuleIds != null)
+                    {
+                        ruleIds = request.RuleIds.ToArray();
+                    }
+
+                    api.DoActionRules(username, password, ruleIds);
+                }
                 
             }
             catch (Exception ex)
