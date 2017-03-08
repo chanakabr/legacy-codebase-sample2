@@ -512,9 +512,6 @@ namespace Core.Api
             return Core.Api.api.GetChannelsMediaIDs(nChannels, nFileTypeIDs, bWithCache, groupId, sDevice, activeAssets, useStartDate);
         }
 
-
-
-
         public static UnifiedSearchResult[] GetChannelAssets(int groupId, int channelId, int pageIndex, int pageSize)
         {
             return Api.Module.GetChannelAssets(channelId, groupId, pageIndex, pageSize);
@@ -1679,22 +1676,7 @@ namespace Core.Api
 
             try
             {
-                List<AssetLifeCycleRule> allRules = AssetLifeCycleRuleManager.Instance.GetAllLifeCycleRules(groupId);
-                List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
-
-                if (ruleIds == null)
-                {
-                    rules = allRules;
-                }
-                else
-                {
-                    rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
-                }
-
-                foreach (var rule in rules)
-                {
-
-                }
+                AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds);
 
                 result = true;
             }
