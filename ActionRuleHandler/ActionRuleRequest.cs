@@ -19,7 +19,7 @@ namespace ActionRuleHandler
         }
 
         [JsonProperty("rule_ids")]
-        public List<int> RuleIds
+        public List<long> RuleIds
         {
             get;
             set;

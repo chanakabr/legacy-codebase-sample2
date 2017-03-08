@@ -33,7 +33,7 @@ namespace ActionRuleHandler
 
                     TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
 
-                    int[] ruleIds = null;
+                    long[] ruleIds = null;
 
                     if (request.RuleIds != null)
                     {
@@ -47,7 +47,6 @@ namespace ActionRuleHandler
                         throw new Exception("api.DoActionRules returned false");
                     }
                 }
-                
             }
             catch (Exception ex)
             {
