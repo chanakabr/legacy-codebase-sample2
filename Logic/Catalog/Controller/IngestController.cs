@@ -2,6 +2,7 @@
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using KLogMonitor;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -68,7 +69,7 @@ namespace Core.Catalog.Controller
                     {
                         case eIngestType.Tvinci:
                             {
-                                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "VOD Ingest";
+                                MonitorLogsHelper.SetContext(Constants.TOPIC, "VOD Ingest");
 
                                 if (TvinciImporter.ImporterImpl.DoTheWorkInner(request.Data, groupID, string.Empty, ref response, false, out ingestResponse))
                                 {
@@ -85,7 +86,7 @@ namespace Core.Catalog.Controller
                             }
                         case eIngestType.KalturaEpg:
                             {
-                                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "EPG Ingest";
+                                MonitorLogsHelper.SetContext(Constants.TOPIC, "EPG Ingest");
                                 
                                 bool isSucceeded = false;
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();

@@ -13,6 +13,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using KlogMonitorHelper;
 
 namespace Core.Notification
 {
@@ -30,10 +31,10 @@ namespace Core.Notification
         public static bool AddNotificationRequest(int nGroupID, string siteGuid, NotificationTriggerType triggerType, int nMediaID)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             log.Debug("AddNotificationRequest - " + string.Format("{0}", nGroupID));
 
@@ -90,7 +91,7 @@ namespace Core.Notification
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = partnerId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, partnerId);
 
             log.DebugFormat("EpgEvent - Program ID: {0}, partner ID: {1}", string.Join(",", programIds.ToArray(), partnerId));
             try
@@ -116,10 +117,10 @@ namespace Core.Notification
         public static List<NotificationMessage> GetDeviceNotifications(int nGroupID, string siteGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, int? messageCount)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             List<NotificationMessage> resault = null;
             try
@@ -137,12 +138,12 @@ namespace Core.Notification
         public static bool SetNotificationMessageViewStatus(int nGroupID, string siteGuid, long? notificationRequestID, long? notificationMessageID, NotificationMessageViewStatus viewStatus)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             bool res = false;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -160,12 +161,12 @@ namespace Core.Notification
         public static bool SubscribeByTag(int nGroupID, string siteGuid, Dictionary<string, List<string>> tags)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             bool resault = false;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -184,7 +185,7 @@ namespace Core.Notification
             bool resault = false;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -202,12 +203,12 @@ namespace Core.Notification
         public static bool UnsubscribeFollowUpByTag(int nGroupID, string siteGuid, Dictionary<string, List<string>> tags)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             bool resault = false;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -224,12 +225,12 @@ namespace Core.Notification
         public static Dictionary<string, List<string>> GetUserStatusSubscriptions(int nGroupID, string siteGuid)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             Dictionary<string, List<string>> resault;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -248,7 +249,7 @@ namespace Core.Notification
             bool resault = false;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -267,7 +268,7 @@ namespace Core.Notification
             Dictionary<string, List<string>> resault;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {

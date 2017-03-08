@@ -83,10 +83,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
     </Reference>
-    <Reference Include="KlogMonitorHelper, Version=3.4.583.29708, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\KlogMonitorHelper.dll</HintPath>
-    </Reference>
     <Reference Include="LinqToTwitter">
       <HintPath>..\..\tvmcore\External\LinqToTwitter.dll</HintPath>
     </Reference>
@@ -732,6 +728,10 @@
     <ProjectReference Include="..\..\tvmcore\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\KlogMonitorHelper\KlogMonitorHelper.csproj">
+      <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
+      <Name>KlogMonitorHelper</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\M1BL\M1BL.csproj">
       <Project>{d5dc1e20-5e10-4d3c-bc6f-6f596d890981}</Project>
