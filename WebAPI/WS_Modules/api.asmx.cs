@@ -4126,7 +4126,7 @@ namespace WS_API
         }
         
         [WebMethod]
-        public bool DoActionRules(string sWSUserName, string sWSPassword, List<int> ruleIds = null)
+        public bool DoActionRules(string sWSUserName, string sWSPassword, List<long> ruleIds = null)
         {
             bool result = false;
             int groupId = GetGroupID(sWSUserName, sWSPassword);
@@ -4135,7 +4135,7 @@ namespace WS_API
             {
                 if (ruleIds == null)
                 {
-                    ruleIds = new List<int>();
+                    ruleIds = new List<long>();
                 }
 
                 result = Core.Api.Module.DoActionRules(groupId, ruleIds);
