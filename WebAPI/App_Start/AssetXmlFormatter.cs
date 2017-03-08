@@ -478,7 +478,7 @@ namespace WebAPI.App_Start
                     }
                     catch (Exception ex)
                     {
-                        log.DebugFormat("Illegal end date received while formatting asset list to XML. Co-Guid: {0}, end date: {1}, ex: {2}", media.CoGuid, asset.EndDate, ex);
+                        log.DebugFormat("Illegal end date received while formatting asset list to XML. asset ID: {0}, asset name: {1}, end date: {2}, ex: {3}", asset.Id, asset.Name, asset.EndDate, ex);
                     }
 
                     try
@@ -488,7 +488,7 @@ namespace WebAPI.App_Start
                     }
                     catch (Exception ex)
                     {
-                        log.DebugFormat("Illegal start date received while formatting asset list to XML. Co-Guid: {0}, start date: {0}. ex: {1}", media.CoGuid, asset.StartDate, ex);
+                        log.DebugFormat("Illegal start date received while formatting asset list to XML. asset ID: {0}, asset name: {1}, start date: {2}. ex: {3}", asset.Id, asset.Name, asset.StartDate, ex);
                     }
 
                     // add rules
