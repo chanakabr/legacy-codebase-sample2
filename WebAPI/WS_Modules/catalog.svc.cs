@@ -7,6 +7,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -68,16 +69,16 @@ namespace WS_Catalog
                 return null;
 
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = request.m_sSiteGuid != null ? request.m_sSiteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, request.m_sSiteGuid != null ? request.m_sSiteGuid : "null");
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = request.m_nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, request.m_nGroupID);
 
             IFactoryImp f = new FactoryImp(request);
             IRequestImp imp = f.GetTypeImp(request);
 
             // get action ID
-            OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = imp.GetType();
+            MonitorLogsHelper.SetContext(Constants.ACTION, imp.GetType());
 
             BaseResponse resp = imp.GetResponse(request);
 

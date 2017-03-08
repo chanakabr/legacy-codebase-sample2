@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Notification;
 using KLogMonitor;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -32,13 +33,13 @@ namespace WS_Notification
         public bool AddNotificationRequest(string sWSUserName, string sWSPassword, string siteGuid, NotificationTriggerType triggerType, int nMediaID)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "AddNotificationRequest", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             log.Debug("AddNotificationRequest - " + string.Format("{0},{1},{2},{3}", sWSUserName, sWSPassword, TVinciShared.PageUtils.GetCallerIP(), nGroupID));
 
@@ -59,7 +60,7 @@ namespace WS_Notification
             string sIP = TVinciShared.PageUtils.GetCallerIP();
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = partnerId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, partnerId);
 
             log.DebugFormat("EpgEvent - Source IP: {0}, Program ID: {1}, partner ID: {2}", TVinciShared.PageUtils.GetCallerIP(), string.Join(",", programIds.ToArray(), partnerId));
             if (partnerId > 0)
@@ -83,13 +84,13 @@ namespace WS_Notification
         public List<NotificationMessage> GetDeviceNotifications(string sWSUserName, string sWSPassword, string siteGuid, string sDeviceUDID, NotificationMessageType notificationType, NotificationMessageViewStatus viewStatus, int? messageCount)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "GetDeviceNotifications", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -106,14 +107,14 @@ namespace WS_Notification
         public bool SetNotificationMessageViewStatus(string sWSUserName, string sWSPassword, string siteGuid, long? notificationRequestID, long? notificationMessageID, NotificationMessageViewStatus viewStatus)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             bool res = false;
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -133,14 +134,14 @@ namespace WS_Notification
         public bool SubscribeByTag(string sWSUserName, string sWSPassword, string siteGuid, Dictionary<string, List<string>> tags)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             bool resault = false;
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             int nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -161,7 +162,7 @@ namespace WS_Notification
             int nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -179,14 +180,14 @@ namespace WS_Notification
         public bool UnsubscribeFollowUpByTag(string sWSUserName, string sWSPassword, string siteGuid, Dictionary<string, List<string>> tags)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             bool resault = false;
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             int nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -203,14 +204,14 @@ namespace WS_Notification
         public Dictionary<string, List<string>> GetUserStatusSubscriptions(string sWSUserName, string sWSPassword, string siteGuid)
         {
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, siteGuid != null ? siteGuid : "null");
 
             Dictionary<string, List<string>> resault;
             string sIP = TVinciShared.PageUtils.GetCallerIP();
             int nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -231,7 +232,7 @@ namespace WS_Notification
             Int32 nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
@@ -252,7 +253,7 @@ namespace WS_Notification
             int nGroupID = TVinciShared.WS_Utils.GetGroupID("notifications", "SetNotificationMessageViewStatus", sWSUserName, sWSPassword, sIP);
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             if (nGroupID != 0)
             {
