@@ -76,7 +76,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\ESSerializer.cs" />
     <Compile Include="Common\Serializer\ESSerializerV1.cs" />
     <Compile Include="Common\Serializer\ESSerializerV2.cs" />
     <Compile Include="Common\DeleteResults\ESDeleteResult.cs" />
