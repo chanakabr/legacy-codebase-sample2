@@ -1695,14 +1695,12 @@ namespace TvinciImporter
                 string sCreateDate = GetNodeValue(ref theItem, "basic/dates/create");
                 string sCatalogEndDate = GetNodeValue(ref theItem, "basic/dates/catalog_end");
                 string sFinalEndDate = GetNodeValue(ref theItem, "basic/dates/final_end");
-                string sLifeCycleStartDate = GetNodeValue(ref theItem, "basic/dates/life_cycle_start_date");
 
                 DateTime dStartDate = GetDateTimeFromStrUTF(sStartDate, DateTime.UtcNow);
                 DateTime dCatalogStartDate = GetDateTimeFromStrUTF(sCatalogStartDate, dStartDate);//catalog_start_date default value is start_date
                 DateTime dCreate = GetDateTimeFromStrUTF(sCreateDate, DateTime.UtcNow);
                 DateTime dCatalogEndDate = GetDateTimeFromStrUTF(sCatalogEndDate, new DateTime(2099, 1, 1));
                 DateTime dFinalEndDate = GetDateTimeFromStrUTF(sFinalEndDate, dCatalogEndDate);
-                DateTime dLifeCycleStartDate = GetDateTimeFromStrUTF(sLifeCycleStartDate, dCatalogEndDate);
 
                 string sThumb = GetNodeParameterVal(ref theItem, "basic/thumb", "url");
 
@@ -1721,7 +1719,7 @@ namespace TvinciImporter
                 GetLangData(nGroupID, ref sMainLang, ref nLangID);
 
                 UpdateInsertBasicMainLangData(nGroupID, ref nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule,
-                    nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, dLifeCycleStartDate, sMainLang, ref theItemName,
+                    nPlayersRule, nDeviceRule, dCatalogStartDate, dStartDate, dCatalogEndDate, dFinalEndDate, sMainLang, ref theItemName,
                     ref theItemDesc, isActive, dCreate, entryId);
 
                 //update InternalAssetId 
@@ -4510,7 +4508,7 @@ namespace TvinciImporter
 
         static protected bool UpdateInsertBasicMainLangData(Int32 nGroupID, ref Int32 nMediaID, Int32 nItemType, string sCoGuid,
             string sEpgIdentifier, Int32 nWatchPerRule, Int32 nGeoBlockRule, Int32 nPlayersRule, Int32 nDeviceRule,
-            DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, DateTime dLifeCycleStartDate, string sMainLang,
+            DateTime dCatalogStartDate, DateTime dStartDate, DateTime dCatalogEndDate, DateTime dFinalEndDate, string sMainLang,
             ref XmlNode theItemNames, ref XmlNode theItemDesc, bool isActive, DateTime dCreate, string entryId)
         {
             string sName = GetMultiLangValue(sMainLang, ref theItemNames);
@@ -4537,7 +4535,6 @@ namespace TvinciImporter
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dCatalogEndDate);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("FINAL_END_DATE", "=", dFinalEndDate);
-                insertQuery += ODBCWrapper.Parameter.NEW_PARAM("LIFE_CYCLE_START_DATE", "=", dLifeCycleStartDate);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", dCreate);
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
                 insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
@@ -4576,7 +4573,6 @@ namespace TvinciImporter
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dCatalogEndDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("FINAL_END_DATE", "=", dFinalEndDate);
-                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("LIFE_CYCLE_START_DATE", "=", dLifeCycleStartDate);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("EDITOR_REMARKS", "=", "Created by auto importer process");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 if (isActive)
@@ -4598,9 +4594,9 @@ namespace TvinciImporter
 
             log.DebugFormat("End UpdateInsertBasicMainLangData. GID:{0}, MediaID:{1}, ItemType:{2}, CoGuid:{3}, EpgIdentifier:{4}, WatchPerRule:{5}, GeoBlockRule:{6}, "
                + "PlayersRule:{7}, DeviceRule:{8}, CatalogStartDate:{9}, StartDate:{10}, CatalogEndDate:{11}, FinalEndDate:{12}, MainLang:{13}, isActive:{14}, Create:{15}, "
-               + "entryId:{16}, Name:{17}, Description:{18}, LifeCycleStartDate: {19}.",
+               + "entryId:{16}, Name:{17}, Description:{18}.",
                nGroupID, nMediaID, nItemType, sCoGuid, sEpgIdentifier, nWatchPerRule, nGeoBlockRule, nPlayersRule, nDeviceRule, dCatalogStartDate.ToString(),
-               dStartDate.ToString(), dCatalogEndDate.ToString(), dFinalEndDate.ToString(), sMainLang, isActive, dCreate.ToString(), entryId, sName, sDescription, dLifeCycleStartDate.ToString());
+               dStartDate.ToString(), dCatalogEndDate.ToString(), dFinalEndDate.ToString(), sMainLang, isActive, dCreate.ToString(), entryId, sName, sDescription);
             return true;
         }
 
