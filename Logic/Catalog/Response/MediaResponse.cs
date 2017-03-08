@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 namespace Core.Catalog.Response
@@ -82,6 +83,12 @@ namespace Core.Catalog.Response
         public string GeoblockRule;
         [DataMember]
         public string DeviceRule;
+
+        [DataMember]
+        public LanguageContainer[] Name;
+        [DataMember]
+        public LanguageContainer[] Description;
+
 
         public MediaObj()
             : base()

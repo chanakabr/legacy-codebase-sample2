@@ -134,7 +134,7 @@ namespace Core.Catalog
         /// </summary>
         /// <param name="mediaIds"></param>
         /// <param name="groupId"></param>
-        /// <param name="filter"></param>
+        /// <param name="filter"></param>        
         /// <param name="siteGuid"></param>
         /// <returns></returns>
         internal static List<MediaObj> CompleteMediaDetails(List<int> mediaIds, int groupId, Filter filter, string siteGuid, bool managementData = false)
@@ -143,7 +143,7 @@ namespace Core.Catalog
             int endIndex = 0;
             int totalItems = 0;
 
-            return CatalogLogic.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, siteGuid,managementData );
+            return CatalogLogic.CompleteMediaDetails(mediaIds, startIndex, ref endIndex, ref totalItems, groupId, filter, siteGuid, managementData);
         }
 
         /// <summary>
@@ -306,6 +306,8 @@ namespace Core.Catalog
         private static MediaObj GetMediaDetails(int nMedia, int groupId, Filter filter, string siteGuid, bool bIsMainLang, List<int> lSubGroup, bool managementData = false)
         {
             bool result = true;
+            GroupManager groupManager = new GroupManager();
+            Group group = groupManager.GetGroup(groupId);
 
             try
             {
@@ -314,7 +316,7 @@ namespace Core.Catalog
                 string sEndDate = string.Empty;
                 bool bOnlyActiveMedia = true;
                 bool bUseStartDate = true;
-                int nLanguage = 0;
+                List<int> languages = new List<int>();
 
                 sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
 
@@ -322,10 +324,16 @@ namespace Core.Catalog
                 {
                     bOnlyActiveMedia = filter.m_bOnlyActiveMedia;
                     bUseStartDate = filter.m_bUseStartDate;
-                    nLanguage = filter.m_nLanguage;
+                    languages.Add(filter.m_nLanguage);
                 }
 
-                DataSet ds = CatalogDAL.Get_MediaDetails(groupId, nMedia, siteGuid, bOnlyActiveMedia, nLanguage, sEndDate, bUseStartDate, lSubGroup);
+                foreach (var languageId in group.GetLangauges().Select(x => x.ID))
+                {
+                    if (!languages.Contains(languageId))
+                        languages.Add(languageId);
+                }
+
+                DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languages, sEndDate, bUseStartDate );
 
                 if (ds == null)
                     return null;
@@ -334,7 +342,7 @@ namespace Core.Catalog
                     int assetGroupId = 0;
                     int isLinear = 0;
 
-                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[5], bIsMainLang, ref assetGroupId, ref isLinear, managementData);
+                    bool isMedia = GetMediaBasicDetails(ref oMediaObj, ds.Tables[0], ds.Tables[3], group.GetLangauges(), ds.Tables[5], bIsMainLang, ref assetGroupId, ref isLinear, managementData);
 
                     // only if we found basic details for media - media in status = 1 , and active if necessary. If not - return null.
                     if (!isMedia)
@@ -354,12 +362,12 @@ namespace Core.Catalog
                         {
                             return null;
                         }
-                        oMediaObj.m_lMetas = GetMetaDetails(ds.Tables[3], ref result);
+                        oMediaObj.m_lMetas = GetMetaDetails(ds.Tables[0], ds.Tables[3], group, ref result);
                         if (!result)
                         {
                             return null;
                         }
-                        oMediaObj.m_lTags = GetTagsDetails(ds.Tables[4], bIsMainLang, ref result);
+                        oMediaObj.m_lTags = GetTagsDetails(ds.Tables[6], ds.Tables[4], bIsMainLang, group, ref result);
                         if (!result)
                         {
                             return null;
@@ -379,28 +387,28 @@ namespace Core.Catalog
                                 oMediaObj.TrickPlayBuffer = linearChannelSettings[oMediaObj.m_ExternalIDs].TrickPlayBuffer;
                                 oMediaObj.EnableRecordingPlaybackNonEntitledChannel = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableRecordingPlaybackNonEntitledChannel;
                             }
-                        }                    
+                        }
 
                         /*last watched - By SiteGuid <> 0*/
 
-                        if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
-                        {
-                            DateTime? dtLastWatch = null;
+                        //if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
+                        //{
+                        //    DateTime? dtLastWatch = null;
 
-                            // ask CB for it
-                            try
-                            {
-                                dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, siteGuid);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error("Error - " +
-                                    string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", siteGuid, nMedia, ex.Message),
-                                    ex);
-                            }
+                        //    // ask CB for it
+                        //    try
+                        //    {
+                        //        dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, siteGuid);
+                        //    }
+                        //    catch (Exception ex)
+                        //    {
+                        //        log.Error("Error - " +
+                        //            string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", siteGuid, nMedia, ex.Message),
+                        //            ex);
+                        //    }
 
-                            oMediaObj.m_dLastWatchedDate = dtLastWatch;
-                        }
+                        //    oMediaObj.m_dLastWatchedDate = dtLastWatch;
+                        //}
                     }
                 }
 
@@ -414,44 +422,91 @@ namespace Core.Catalog
             }
         }
 
-
-
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
-        private static List<Tags> GetTagsDetails(DataTable dtTags, bool bIsMainLang, ref bool result)
+        private static List<Tags> GetTagsDetails(DataTable tagLangs, DataTable dtTags, bool bIsMainLang, Group group, ref bool result)
         {
             try
             {
                 result = true;
-                List<Tags> lTags = new List<Tags>();
-                Tags oTags = new Tags();
-                int nTagId;
-                int i = 0;
+                List<Tags> tagList = new List<Tags>();
+                Tags tags = new Tags();
+                string tagTypeName = string.Empty;
+                string tagValue = string.Empty;
+                int tagId = 0;
+
+                Dictionary<string, List<KeyValuePair<int, string>>> tagTypeNameAndValues = null; // hold foreach tagType: list of values
+                Dictionary<string, List<KeyValuePair<int, List<LanguageContainer>>>> dicTagIdLanguageContainers = null; // hold foreach tagType/tagId: list of LanguageContainer
+                Dictionary<int, List<LanguageContainer>> tagIdLanguageContainers = null;
+                List<KeyValuePair<int, string>> tagValues = null;
+                List<LanguageContainer> tagLangContainerList = null;
+
                 if (dtTags != null)
                 {
-                    while (i < dtTags.Rows.Count)
+                    tagTypeNameAndValues = new Dictionary<string, List<KeyValuePair<int, string>>>();
+                    dicTagIdLanguageContainers = new Dictionary<string, List<KeyValuePair<int, List<LanguageContainer>>>>();
+
+                    for (int rowIndex = 0; rowIndex < dtTags.Rows.Count; rowIndex++)
                     {
-                        oTags = new Tags();
-                        oTags.m_lValues = new List<string>();
+                        tagIdLanguageContainers = new Dictionary<int, List<LanguageContainer>>();
+                        tagLangContainerList = new List<LanguageContainer>();
 
-                        oTags.m_oTagMeta = new TagMeta(Utils.GetStrSafeVal(dtTags.Rows[i], "tag_type_name"), typeof(string).ToString());
-                        nTagId = Utils.GetIntSafeVal(dtTags.Rows[i], "tag_type_id");
-                        oTags.m_lValues.Add(Utils.GetStrSafeVal(dtTags.Rows[i], "value"));
-                        int j = i + 1;
-                        for (; j < dtTags.Rows.Count; j++)
-                        {
-                            if (nTagId != Utils.GetIntSafeVal(dtTags.Rows[j], "tag_type_id"))
-                                break;
-                            oTags.m_lValues.Add(Utils.GetStrSafeVal(dtTags.Rows[j], "value"));
-                        }
+                        tagTypeName = Utils.GetStrSafeVal(dtTags.Rows[rowIndex], "tag_type_name");
+                        tagValue = Utils.GetStrSafeVal(dtTags.Rows[rowIndex], "value");
+                        tagId = Utils.GetIntSafeVal(dtTags.Rows[rowIndex], "tag_id");
 
-                        if (oTags.m_lValues != null && oTags.m_lValues.Count > 0)
+                        if (!string.IsNullOrEmpty(tagTypeName))
                         {
-                            lTags.Add(oTags);
+                            // bundle tags by tagTypeName
+                            if (!tagTypeNameAndValues.ContainsKey(tagTypeName))
+                            {
+                                tagTypeNameAndValues.Add(tagTypeName, new List<KeyValuePair<int, string>>());
+                            }
+
+                            tagValues = tagTypeNameAndValues[tagTypeName];
+                            tagValues.Add(new KeyValuePair<int, string>(tagId, tagValue));
+
+                            //add is default lang values
+                            LanguageObj language = group.GetLangauges().Where(x => x.IsDefault).FirstOrDefault();
+                            if (language != null)
+                                tagLangContainerList.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = tagValue });
+
+                            if (tagLangs != null && tagLangs.Rows.Count > 0)
+                            {
+                                // check for translated tags according to tag id
+                                DataRow[] translationRows = tagLangs.Select(string.Format("tag_id = {0}", tagId));
+                                tagLangContainerList.AddRange(GetTagsLanguageContainer(translationRows, group.GetLangauges()));
+                            }
+
+                            // bundle LanguageContainers by tag id
+                            if (!tagIdLanguageContainers.ContainsKey(tagId))
+                            {
+                                tagIdLanguageContainers.Add(tagId, tagLangContainerList);
+                            }
+
+                            if (!dicTagIdLanguageContainers.ContainsKey(tagTypeName))
+                            {
+                                dicTagIdLanguageContainers.Add(tagTypeName, new List<KeyValuePair<int, List<LanguageContainer>>>());
+                            }
+
+                            var k = new KeyValuePair<int, List<LanguageContainer>>(tagId, tagIdLanguageContainers[tagId]);
+                            dicTagIdLanguageContainers[tagTypeName].Add(k);
                         }
-                        i = j;
                     }
                 }
-                return lTags;
+
+                foreach (var tagType in tagTypeNameAndValues)
+                {
+                    tags = new Tags() { m_oTagMeta = new TagMeta(tagType.Key, typeof(string).ToString()), m_lValues = tagType.Value.Select(x => x.Value).ToList() };
+                    tags.Values = new List<LanguageContainer[]>();
+                    foreach (var n in dicTagIdLanguageContainers[tagType.Key])
+                    {
+                        tags.Values.Add(n.Value.ToArray());
+                    }
+
+                    tagList.Add(tags);
+                }
+
+                return tagList;
             }
             catch (Exception ex)
             {
@@ -462,75 +517,60 @@ namespace Core.Catalog
         }
 
         /*Insert all metas that return from the "CompleteDetailsForMediaResponse" into List<Metas>*/
-        private static List<Metas> GetMetaDetails(DataTable dtMeta, ref bool result)
+        private static List<Metas> GetMetaDetails(DataTable dtMedia, DataTable dtMeta, Group group, ref bool result)
         {
             try
             {
                 result = true;
+                Dictionary<string, string> metasValue = null;
                 List<Metas> lMetas = new List<Metas>();
+                int mediaGroupId = Utils.GetIntSafeVal(dtMedia.Rows[0], "GROUP_ID");
+                if (group.m_oMetasValuesByGroupId.ContainsKey(mediaGroupId))
+                {
+                    metasValue = group.m_oMetasValuesByGroupId[mediaGroupId];
+                }
 
                 if (dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0)
                 {
                     Metas oMeta = new Metas();
-                    string sFieldName;
                     string sFieldVal;
-                    string sName;
                     for (int i = 1; i <= 20; i++)
                     {
-                        sFieldName = "META" + i.ToString() + "_STR_NAME";
-                        sFieldVal = "META" + i.ToString() + "_STR";
-                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        sFieldVal = string.Format("META{0}_STR", i);
+                        if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
+                            dtMedia.Rows[0][sFieldVal] != DBNull.Value)
                         {
-                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                            if (!string.IsNullOrEmpty(sName))
-                            {
-                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                                {
-                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(string).ToString());
-                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                    lMetas.Add(oMeta);
-                                }
-                            }
+                            oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(string).ToString());
+                            oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
+                            oMeta.Value = GetMediaLanguageContainer(dtMedia.Rows[0], dtMeta, group.GetLangauges(), sFieldVal);
+                            lMetas.Add(oMeta);
                         }
                         oMeta = new Metas();
                     }
 
                     for (int i = 1; i < 11; i++)
                     {
-                        sFieldName = "META" + i.ToString() + "_DOUBLE_NAME";
-                        sFieldVal = "META" + i.ToString() + "_DOUBLE";
-                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        sFieldVal = string.Format("META{0}_DOUBLE", i);
+                        if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
+                            dtMedia.Rows[0][sFieldVal] != DBNull.Value)
                         {
-                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                            if (!string.IsNullOrEmpty(sName))
-                            {
-                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                                {
-                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(double).ToString());
-                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                    lMetas.Add(oMeta);
-                                }
-                            }
+                            oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(double).ToString());
+                            oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
+                            lMetas.Add(oMeta);
                         }
                         oMeta = new Metas();
                     }
 
                     for (int i = 1; i < 11; i++)
                     {
-                        sFieldName = "META" + i.ToString() + "_BOOL_NAME";
-                        sFieldVal = "META" + i.ToString() + "_BOOL";
-                        if (dtMeta.Rows[0][sFieldName] != DBNull.Value)
+                        sFieldVal = string.Format("META{0}_BOOL", i);
+
+                        if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
+                            dtMedia.Rows[0][sFieldVal] != DBNull.Value)
                         {
-                            sName = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldName);
-                            if (!string.IsNullOrEmpty(sName))
-                            {
-                                if (dtMeta.Rows[0][sFieldVal] != DBNull.Value && !string.IsNullOrEmpty(dtMeta.Rows[0][sFieldVal].ToString()))
-                                {
-                                    oMeta.m_oTagMeta = new TagMeta(sName, typeof(bool).ToString());
-                                    oMeta.m_sValue = Utils.GetStrSafeVal(dtMeta.Rows[0], sFieldVal);
-                                    lMetas.Add(oMeta);
-                                }
-                            }
+                            oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(bool).ToString());
+                            oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
+                            lMetas.Add(oMeta);
                         }
                         oMeta = new Metas();
                     }
@@ -729,7 +769,8 @@ namespace Core.Catalog
         }
 
         /*Insert all Basic Details about media  that return from the "CompleteDetailsForMediaResponse" into MediaObj*/
-        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable dtUpdateDate, bool bIsMainLang, ref int assetGroupId, ref int isLinear, bool managementData = false)
+        private static bool GetMediaBasicDetails(ref MediaObj oMediaObj, DataTable dtMedia, DataTable mediaMetas, List<LanguageObj> groupLanguages, DataTable dtUpdateDate
+            , bool bIsMainLang, ref int assetGroupId, ref int isLinear, bool managementData = false)
         {
             bool result = false;
             try
@@ -743,16 +784,10 @@ namespace Core.Catalog
                         oMediaObj.AssetId = Utils.GetStrSafeVal(dtMedia.Rows[0], "ID");
                         oMediaObj.EntryId = Utils.GetStrSafeVal(dtMedia.Rows[0], "ENTRY_ID");
                         oMediaObj.CoGuid = Utils.GetStrSafeVal(dtMedia.Rows[0], "CO_GUID");
-                        if (!bIsMainLang)
-                        {
-                            oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateName");
-                            oMediaObj.m_sDescription = Utils.GetStrSafeVal(dtMedia.Rows[0], "TranslateDescription");
-                        }
-                        else
-                        {
-                            oMediaObj.m_sName = Utils.GetStrSafeVal(dtMedia.Rows[0], "NAME");
-                            oMediaObj.m_sDescription = Utils.GetStrSafeVal(dtMedia.Rows[0], "DESCRIPTION");
-                        }
+
+                        oMediaObj.Name = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "NAME");
+                        oMediaObj.Description = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "DESCRIPTION");
+
                         oMediaObj.m_oMediaType = new MediaType();
                         oMediaObj.m_oMediaType.m_nTypeID = Utils.GetIntSafeVal(dtMedia.Rows[0], "MEDIA_TYPE_ID");
                         oMediaObj.m_oMediaType.m_sTypeName = Utils.GetStrSafeVal(dtMedia.Rows[0], "typeDescription");
@@ -848,7 +883,7 @@ namespace Core.Catalog
 
                         if (managementData)
                         {
-                            if( Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id") > 0 )
+                            if (Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id") > 0)
                             {
                                 oMediaObj.DeviceRule = GetDeviceRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "device_rule_id"));
                             }
@@ -861,7 +896,7 @@ namespace Core.Catalog
                             if (Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID") > 0)
                             {
                                 oMediaObj.GeoblockRule = GetGeoblockRuleName(assetGroupId, Utils.GetIntSafeVal(dtMedia.Rows[0], "BLOCK_TEMPLATE_ID"));
-                            }                            
+                            }
                         }
                     }
                 }
@@ -873,7 +908,65 @@ namespace Core.Catalog
                 return false;
             }
         }
-       
+
+        private static LanguageContainer[] GetMediaLanguageContainer(DataRow mediaRow, DataTable metasTranslations, List<LanguageObj> groupLanguages, string columnName)
+        {
+            List<LanguageContainer> langContainers = null;
+            LanguageObj language = null;
+
+            if (metasTranslations != null && metasTranslations.Rows.Count > 0)
+            {
+                langContainers = new List<LanguageContainer>();
+                string value = string.Empty;
+                int langId = 0;
+
+                foreach (DataRow row in metasTranslations.Rows)
+                {
+                    langId = Utils.GetIntSafeVal(row, "LANGUAGE_ID");
+                    value = Utils.GetStrSafeVal(row, columnName);
+                    if (!string.IsNullOrEmpty(value) && langId > 0)
+                    {
+                        language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
+                        if (language != null)
+                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+                    }
+                }
+
+                //add is default lang values
+                language = groupLanguages.Where(x => x.IsDefault).FirstOrDefault();
+                value = Utils.GetStrSafeVal(mediaRow, columnName);
+                if (language != null)
+                    langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+
+            }
+            return langContainers.ToArray();
+        }
+
+        private static List<LanguageContainer> GetTagsLanguageContainer(DataRow[] translatedTags, List<LanguageObj> groupLanguages)
+        {
+            List<LanguageContainer> langContainers = new List<LanguageContainer>();
+            LanguageObj language = null;
+
+            if (translatedTags != null)
+            {
+                string value = string.Empty;
+                int langId = 0;
+
+                foreach (DataRow row in translatedTags)
+                {
+                    langId = Utils.GetIntSafeVal(row, "LANGUAGE_ID");
+                    value = Utils.GetStrSafeVal(row, "value");
+                    if (!string.IsNullOrEmpty(value) && langId > 0)
+                    {
+                        language = groupLanguages.Where(x => x.ID == langId).FirstOrDefault();
+                        if (language != null)
+                            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+                    }
+                }
+            }
+            return langContainers;
+        }
+
         private static string GetGeoblockRuleName(int assetGroupId, int geoblockRuleId)
         {
             Dictionary<int, string> geoblockRules = CatalogCache.Instance().GetGroupGeoBlockRules(assetGroupId);
@@ -895,10 +988,10 @@ namespace Core.Catalog
         private static string GetWatchPermissionTypeName(int assetGroupId, int watchPermissionRuleId)
         {
             Dictionary<int, string> watchPermissionsTypes = CatalogCache.Instance().GetGroupWatchPermissionsTypes(assetGroupId);
-            if (watchPermissionsTypes == null || watchPermissionsTypes.Count == 0 )
+            if (watchPermissionsTypes == null || watchPermissionsTypes.Count == 0)
             {
                 log.ErrorFormat("group watchPermissionsTypes were not found. GID {0}", assetGroupId);
-                return string.Empty;           
+                return string.Empty;
             }
 
             if (watchPermissionsTypes.ContainsKey(watchPermissionRuleId))
@@ -1025,7 +1118,7 @@ namespace Core.Catalog
         /// <param name="request"></param>
         /// <param name="totalItems"></param>
         /// <returns></returns>
-        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to, 
+        public static List<UnifiedSearchResult> GetAssetIdFromSearcher(UnifiedSearchRequest request, ref int totalItems, ref int to,
             out ESAggregationsResult aggregationResult)
         {
             List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
@@ -2561,7 +2654,7 @@ namespace Core.Catalog
                 {
                     case eObjectType.Unknown:
                         break;
-                    case eObjectType.Media:                        
+                    case eObjectType.Media:
                         foreach (long id in ids)
                         {
                             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
@@ -3993,7 +4086,7 @@ namespace Core.Catalog
                 {
                     lFileMedia = new List<FileMedia>(dtFileMedia.Rows.Count);
                     for (int i = 0; i < dtFileMedia.Rows.Count; i++)
-                    {                      
+                    {
 
                         if (IsBrand(dtFileMedia.Rows[i]))
                         {
@@ -4075,13 +4168,13 @@ namespace Core.Catalog
                             {
                                 if (Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID") > 0)
                                 {
-                                    fileMedia.Quality =  GetMediaQuality(Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID"));
+                                    fileMedia.Quality = GetMediaQuality(Utils.GetIntSafeVal(dtFileMedia.Rows[i], "MEDIA_QUALITY_ID"));
                                 }
 
                                 fileMedia.HandlingType = "CLIP";
                                 fileMedia.ProductCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "Product_Code");
                                 fileMedia.CdnCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_CODE");
-                                fileMedia.StreamingCompanyName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_COMPANY_NAME");                           
+                                fileMedia.StreamingCompanyName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_COMPANY_NAME");
                             }
 
                             lFileMedia.Add(fileMedia);
@@ -4100,7 +4193,7 @@ namespace Core.Catalog
                 result = false;
                 return null;
             }
-        }        
+        }
 
         internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
         {
@@ -4532,7 +4625,7 @@ namespace Core.Catalog
             DateTime dtEndDate, string action)
         {
             List<int> result = new List<int>(lMediaIds);
-            
+
             var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
 
             // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
@@ -4544,24 +4637,24 @@ namespace Core.Catalog
                 switch (action)
                 {
                     case STAT_ACTION_FIRST_PLAY:
-                    {
-                        orderBy = OrderBy.VIEWS;
-                        break;
-                    }
+                        {
+                            orderBy = OrderBy.VIEWS;
+                            break;
+                        }
                     case STAT_ACTION_LIKE:
-                    {
-                        orderBy = OrderBy.LIKE_COUNTER;
-                        break;
-                    }
+                        {
+                            orderBy = OrderBy.LIKE_COUNTER;
+                            break;
+                        }
                     case STAT_ACTION_RATES:
-                    {
-                        orderBy = OrderBy.RATING;
-                        break;
-                    }
+                        {
+                            orderBy = OrderBy.RATING;
+                            break;
+                        }
                     default:
-                    {
-                        break;
-                    }
+                        {
+                            break;
+                        }
                 }
 
                 var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
@@ -4755,24 +4848,24 @@ namespace Core.Catalog
                 switch (action)
                 {
                     case STAT_ACTION_FIRST_PLAY:
-                    {
-                        orderBy = OrderBy.VIEWS;
-                        break;
-                    }
+                        {
+                            orderBy = OrderBy.VIEWS;
+                            break;
+                        }
                     case STAT_ACTION_LIKE:
-                    {
-                        orderBy = OrderBy.LIKE_COUNTER;
-                        break;
-                    }
+                        {
+                            orderBy = OrderBy.LIKE_COUNTER;
+                            break;
+                        }
                     case STAT_ACTION_RATES:
-                    {
-                        orderBy = OrderBy.RATING;
-                        break;
-                    }
+                        {
+                            orderBy = OrderBy.RATING;
+                            break;
+                        }
                     default:
-                    {
-                        break;
-                    }
+                        {
+                            break;
+                        }
                 }
 
                 var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
