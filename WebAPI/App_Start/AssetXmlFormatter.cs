@@ -18,11 +18,15 @@ using System.Collections;
 using WebAPI.Models.Catalog;
 using TVinciShared;
 using WebAPI.Models.Renderers;
+using KLogMonitor;
+using System.Reflection;
 
 namespace WebAPI.App_Start
 {
     public class AssetXmlFormatter : MediaTypeFormatter
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public AssetXmlFormatter()
         {
             MediaTypeMappings.Add(new QueryStringMapping("format", "30", "application/xml"));
@@ -643,29 +647,36 @@ namespace WebAPI.App_Start
         {
             return Task.Factory.StartNew(() =>
             {
-                Feed resultFeed = new Feed();
-                if (value != null)
+                try
                 {
-                    // validate expected type was received
-                    StatusWrapper restResultWrapper = (StatusWrapper)value;
-                    if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
+                    Feed resultFeed = new Feed();
+                    if (value != null)
                     {
-                        resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
-                        XmlDocument doc = SerializeToXmlDocument(resultFeed);
-
-                        // remove root attributes
-                        doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
-
-                        var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                        writeStream.Write(buf, 0, buf.Length);
-                    }
-                    else
-                    {
-                        using (TextWriter streamWriter = new StreamWriter(writeStream))
+                        // validate expected type was received
+                        StatusWrapper restResultWrapper = (StatusWrapper)value;
+                        if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
                         {
-                            streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
+                            XmlDocument doc = SerializeToXmlDocument(resultFeed);
+
+                            // remove root attributes
+                            doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
+
+                            var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                            writeStream.Write(buf, 0, buf.Length);
+                        }
+                        else
+                        {
+                            using (TextWriter streamWriter = new StreamWriter(writeStream))
+                            {
+                                streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while formatting asset list to XML ingest", ex);
                 }
             });
         }
