@@ -339,6 +339,24 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         log.Error("Exception - " + string.Format("Dlm:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
                     }
                     break;
+                case "domains":
+                    domainWS = new DomainsWS.module();
+                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "DLM", "domains", sIP, ref sWSUserName, ref sWSPass);
+                    sWSURL = GetWSURL("domains_ws");
+                    if (sWSURL != "")
+                        domainWS.Url = sWSURL;
+                    try
+                    {
+                        int val = UpdateDomain(m_nID);
+
+                        DomainsWS.DomainResponseStatus resp = domainWS.RemoveDomain(sWSUserName, sWSPass, m_nID);
+                        log.Debug("RemoveDomain - " + string.Format("DomainId:{0}, res:{1}", m_nID, resp.ToString()));
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error("Exception - " + string.Format("DomainId:{0}, msg:{1}, st:{2}", m_nID, ex.Message, ex.StackTrace), ex);
+                    }
+                    break;
                 case "payment_gateway_config":
                     // set adapter configuration
                     object oPaymentGatewayId = ODBCWrapper.Utils.GetTableSingleVal("payment_gateway_config", "payment_gateway_id", m_nID, "billing_connection");
@@ -546,5 +564,24 @@ public partial class adm_generic_confirm : System.Web.UI.Page
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "?search_save=1'</script>");
         else
             Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1'</script>");
+    }
+
+    protected int UpdateDomain(int domainId)
+    {
+        // change status back to 1 so  we can remove domain 
+
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("domains");
+        updateQuery.SetConnectionKey(m_sDB);
+        // double confirm for remove
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        updateQuery += "where";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", domainId);
+        updateQuery += "and";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        int rowsChanged = updateQuery.ExecuteAffectedRows();
+        updateQuery.Finish();
+        updateQuery = null;
+
+        return rowsChanged;
     }
 }

@@ -110,6 +110,34 @@ public partial class adm_users_domains : System.Web.UI.Page
             linkColumn.AddQueryStringValue("db", "users_connection");
             theTable.AddLinkColumn(linkColumn);
         }
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+        {
+            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
+            linkColumn.AddQueryStringValue("id", "field=id");
+            linkColumn.AddQueryStringValue("table", "domains");
+            linkColumn.AddQueryStringValue("confirm", "true");
+            linkColumn.AddQueryStringValue("main_menu", "7");
+            linkColumn.AddQueryStringValue("sub_menu", "1");
+            linkColumn.AddQueryStringValue("rep_field", "NAME");
+            linkColumn.AddQueryStringValue("rep_name", "שם");
+            linkColumn.AddQueryStringValue("db", "users_connection");
+            theTable.AddLinkColumn(linkColumn);
+        }
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+        {
+            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
+            linkColumn.AddQueryStringValue("id", "field=id");
+            linkColumn.AddQueryStringValue("table", "domains");
+            linkColumn.AddQueryStringValue("confirm", "false");
+            linkColumn.AddQueryStringValue("main_menu", "7");
+            linkColumn.AddQueryStringValue("sub_menu", "1");
+            linkColumn.AddQueryStringValue("rep_field", "NAME");
+            linkColumn.AddQueryStringValue("rep_name", "שם");
+            linkColumn.AddQueryStringValue("db", "users_connection");
+            theTable.AddLinkColumn(linkColumn);
+        }
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum, string search_user_name, string search_domain_id)
