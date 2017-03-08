@@ -36,8 +36,11 @@ namespace Core.Social
             return retVal;
         }
     }
-
-    public partial class AssetCommentsListResponse : Core.Catalog.Response.AssetCommentsListResponse, ISocialFeed
+}
+    
+namespace Core.Catalog.Response
+{
+    public partial class AssetCommentsListResponse : ISocialFeed
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

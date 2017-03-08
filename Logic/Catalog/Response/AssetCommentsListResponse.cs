@@ -11,7 +11,7 @@ namespace Core.Catalog.Response
     /// asset comments
     /// </summary>
     [DataContract]
-    public class AssetCommentsListResponse : BaseResponse
+    public partial class AssetCommentsListResponse : BaseResponse
     {
         /// <summary>
         /// List of comments

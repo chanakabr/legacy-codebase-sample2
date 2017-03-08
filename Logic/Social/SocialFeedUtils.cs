@@ -19,6 +19,7 @@ using ApiObjects.Response;
 using Core.Catalog.Request;
 using Core.Catalog;
 using ApiObjects.Social;
+using Core.Catalog.Response;
 
 namespace Core.Social
 {
