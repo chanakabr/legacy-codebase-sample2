@@ -39,7 +39,7 @@ namespace WebAPI.Managers
                 JToken jToken = value.ToString();
                 jToken.WriteTo(writer);
 
-                string language = Utils.GetLanguageFromRequest();
+                string language = Utils.Utils.GetLanguageFromRequest();
                 if (language == null || !language.Equals("*"))
                 {
                     return;
