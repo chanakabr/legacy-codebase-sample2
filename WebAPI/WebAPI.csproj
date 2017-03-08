@@ -255,6 +255,7 @@
     <Compile Include="Filters\EventNotificationsConfig.cs" />
     <Compile Include="Handlers\ExtWsPagesHendler.cs" />
     <Compile Include="Managers\CouchbaseManager.cs" />
+    <Compile Include="Managers\JsonManager.cs" />
     <Compile Include="Managers\Models\CencCustomData.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationBooleanCondition.cs" />
     <Compile Include="Managers\Models\EventNotifications\Conditions\NotificationFieldEqualsCondition.cs" />
