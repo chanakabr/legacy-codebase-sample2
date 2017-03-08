@@ -468,14 +468,28 @@ namespace WebAPI.App_Start
                         }
                     };
 
-                    // add dates
-                    media.Basic.Dates = new Dates()
+                    // add dates (protecting formatting incase illegal date value received)
+                    media.Basic.Dates = new Dates();
+
+                    try
                     {
-                        CatalogEnd = asset.EndDate != null && asset.EndDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.EndDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        End = asset.EndDate != null && asset.EndDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.EndDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        CatalogStart = asset.StartDate != null && asset.StartDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.StartDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        Start = asset.StartDate != null && asset.StartDate >= DateUtils.DateTimeToUnixTimestamp(DateTime.MinValue) && asset.StartDate <= DateUtils.DateTimeToUnixTimestamp(DateTime.MaxValue) ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
-                    };
+                        media.Basic.Dates.CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.End = media.Basic.Dates.CatalogEnd;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.DebugFormat("Illegal end date received while formatting asset list to XML. end date: {0}. ex: {1}", asset.EndDate, ex);
+                    }
+
+                    try
+                    {
+                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.Start = media.Basic.Dates.CatalogStart;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.DebugFormat("Illegal start date received while formatting asset list to XML. start date: {0}. ex: {1}", asset.StartDate, ex);
+                    }
 
                     // add rules
                     media.Basic.Rules = new Rules()
