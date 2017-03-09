@@ -16,7 +16,10 @@ using KLogMonitor;
 using ApiObjects.TimeShiftedTv;
 using ScheduledTasks;
 using Core.Catalog.Response;
-
+using APILogic.Api.Managers;
+using ApiObjects.AssetLifeCycleRules;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Core.Api
 {
@@ -508,9 +511,6 @@ namespace Core.Api
         {
             return Core.Api.api.GetChannelsMediaIDs(nChannels, nFileTypeIDs, bWithCache, groupId, sDevice, activeAssets, useStartDate);
         }
-
-
-
 
         public static UnifiedSearchResult[] GetChannelAssets(int groupId, int channelId, int pageIndex, int pageSize)
         {
@@ -1670,9 +1670,21 @@ namespace Core.Api
             return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
         }
 
-        public static bool DoActionRules(int groupId, List<int> ruleIds)
+        public static bool DoActionRules(int groupId, List<long> ruleIds)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            try
+            {
+                result = AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds);
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.ErrorFormat("Error in DoActionRules. groupId = {0}, ex = {1}", groupId, ex);
+            }
+
+            return result;
         }
     }
 }

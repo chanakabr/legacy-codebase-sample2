@@ -1,7 +1,10 @@
 ﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
+using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,11 +12,14 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using TVinciShared;
 
 namespace APILogic.Api.Managers
 {
     public class AssetLifeCycleRuleManager
     {
+
+        private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
@@ -126,6 +132,129 @@ namespace APILogic.Api.Managers
             }
 
             return res;
+        }
+
+        public bool DoActionRules(int groupId, List<long> ruleIds)
+        {
+            bool result = true;
+
+            // Get all rules of this group
+            List<AssetLifeCycleRule> allRules = GetAllLifeCycleRules(groupId);
+            List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
+
+            // If parameter is null - we want to run all rules
+            if (ruleIds == null)
+            {
+                rules = allRules;
+            }
+            else
+            {
+                // If parameter is not null, we want to run only specific rules
+                rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
+            }
+
+            Task<bool>[] tasks = new Task<bool>[rules.Count];
+
+            for (int i = 0; i < rules.Count; i++)
+            {
+                tasks[i] = Task.Factory.StartNew<bool>(
+                    (index) =>
+                    {
+                        long ruleId = -1;
+
+                        try
+                        {
+                            var rule = rules[(int)index];
+                            ruleId = rule.Id;
+
+                            #region UnifiedSearchRequest
+
+                            // Initialize unified search request:
+                            // SignString/Signature (basic catalog parameters)
+                            string sSignString = Guid.NewGuid().ToString();
+                            string sSignatureString = WS_Utils.GetTcmConfigValue("CatalogSignatureKey");
+                            string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
+
+                            // page size should be max_results so it will return everything
+                            int pageSize = WS_Utils.GetTcmIntValue("MAX_RESULTS");
+
+                            UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
+                            {
+                                m_sSignature = sSignature,
+                                m_sSignString = sSignString,
+                                m_nGroupID = groupId,
+                                m_oFilter = new Core.Catalog.Filter()
+                                {
+                                    m_bOnlyActiveMedia = true
+                                },
+                                m_nPageIndex = 0,
+                                m_nPageSize = pageSize,
+                                shouldIgnoreDeviceRuleID = true,
+                                shouldDateSearchesApplyToAllTypes = true,
+                                order = new ApiObjects.SearchObjects.OrderObj()
+                                {
+                                    m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                                },
+                                filterQuery = rule.KsqlFilter
+                            };
+
+                            #endregion
+
+                            // Call catalog
+                            var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                            if (response != null && response.searchResults != null)
+                            {
+                                List<int> assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                // Apply rule on assets that returned from search
+                                this.ApplyLifeCycleRuleActionsOnAssets(assetIds, rule);
+                            }
+
+                            return true;
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
+                            return false;
+                        }
+                    }, i);
+            }
+
+            Task.WaitAll(tasks);
+
+            // Return false if one of the tasks returned false
+            foreach (var task in tasks)
+            {
+                if (task != null)
+                {
+                    if (!task.Result)
+                    {
+                        result = false;
+                    }
+
+                    task.Dispose();
+                }
+            }
+
+            // If proper interval was set, enqueue follow-up message so that task is run indefinitely
+            int actionRuleTaskIntervalHours = TVinciShared.WS_Utils.GetTcmIntValue("action_rule_task_interval");
+
+            if (actionRuleTaskIntervalHours > 0)
+            {
+                GenericCeleryQueue queue = new GenericCeleryQueue();
+
+                string dataId = Guid.NewGuid().ToString();
+                BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, groupId, ruleIds);
+
+                bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
+
+                // Success of this method is dependent on enqueing the follow-up message
+                result &= enqueueResult;
+            }
+
+            return result;
         }
 
         #endregion
