@@ -4101,10 +4101,12 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-
-        public static bool UpdateAssetLifeCycleLastRunDate(long p)
+        public static bool UpdateAssetLifeCycleLastRunDate(long id)
         {
-            throw new NotImplementedException();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateAssetLifeCycleLastRunDate");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@Id", id);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static bool DisableRule(int groupId, long ruleId)
