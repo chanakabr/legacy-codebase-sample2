@@ -4106,5 +4106,15 @@ namespace DAL
         {
             throw new NotImplementedException();
         }
+
+        public static bool DisableRule(int groupId, long ruleId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DisableActionRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@RuleId", ruleId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
