@@ -831,4 +831,10 @@ namespace ApiObjects
         StopAtQuota = 0,
         QuotaOverage = 1
     }
+
+    public enum ProtectionPolicy
+    {
+        UnlimitedByRecordingLifetime = 0,
+        LimitedByRecordingLifetime = 1
+    }
 }

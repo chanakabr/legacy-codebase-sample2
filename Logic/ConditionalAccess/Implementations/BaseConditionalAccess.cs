@@ -12604,7 +12604,7 @@ namespace Core.ConditionalAccess
                     if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
                     {
                         TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                        if (accountSettings != null && accountSettings.quotaOveragePolicy == QuotaOveragePolicy.QuotaOverage)
+                        if (accountSettings != null && accountSettings.QuotaOveragePolicy == QuotaOveragePolicy.QuotaOverage)
                         {
                             quotaOverage = true;
                         }
@@ -13679,7 +13679,13 @@ namespace Core.ConditionalAccess
                 // update recording ID to domainRecordingId
                 recording.Id = domainRecordingID;
                 DateTime protectedUntilDate = DateTime.UtcNow.AddDays(accountSettings.ProtectionPeriod.Value);
-                long protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate);
+                 long protectedUntilEpoch = TVinciShared.DateUtils.DateTimeToUnixTimestamp(protectedUntilDate);
+                //if protectedUntilDate > recording.visuable until 
+                if (accountSettings.ProtectionPolicy == ProtectionPolicy.LimitedByRecordingLifetime && protectedUntilEpoch > recording.ViewableUntilDate.Value)
+                {
+                    protectedUntilEpoch = recording.ViewableUntilDate.Value;
+                }
+               
                 // Try to Update protection details for domain recording and update recording status
                 if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                 {
