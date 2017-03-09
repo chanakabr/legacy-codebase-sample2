@@ -1670,18 +1670,18 @@ namespace Core.Api
             return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
         }
 
-        public static bool DoActionRules(int groupId, List<long> ruleIds)
+        public static bool DoActionRules(List<long> ruleIds)
         {
             bool result = false;
 
             try
-            {
-                result = AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds);
+            {               
+                result = Core.Api.api.DoActionRules(ruleIds);
             }
             catch (Exception ex)
             {
                 result = false;
-                log.ErrorFormat("Error in DoActionRules. groupId = {0}, ex = {1}", groupId, ex);
+                log.Error(string.Format("Error in DoActionRules. ruleIds = {0}, ex = {1}", ruleIds != null && ruleIds.Count > 0 ? string.Join(",", ruleIds) : string.Empty), ex);
             }
 
             return result;

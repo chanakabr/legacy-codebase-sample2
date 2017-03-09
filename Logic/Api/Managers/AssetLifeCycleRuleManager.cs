@@ -21,10 +21,6 @@ namespace Core.Api.Managers
     public class AssetLifeCycleRuleManager
     {
 
-        private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
-        private const double MAX_SERVER_TIME_DIF = 5;
-        internal const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
         private static AssetLifeCycleRuleManager instance = null;
@@ -144,34 +140,9 @@ namespace Core.Api.Managers
         public bool DoActionRules(int groupId, List<long> ruleIds)
         {
             bool result = false;
-            double scheduledTaskIntervalSec = 0;
-            bool shouldEnqueueFollowUp = false;
 
             try
             {
-                // try to get interval for next run take default
-                BaseScheduledTaskLastRunDetails AssetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
-                ScheduledTaskLastRunDetails lastRunDetails = AssetLifeCycleRuleScheduledTask.GetLastRunDetails();
-                AssetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
-                if (AssetLifeCycleRuleScheduledTask != null && AssetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
-                {
-                    scheduledTaskIntervalSec = AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
-                    if (AssetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
-                    {
-                        result = true;
-                        return result;
-                    }
-                    else
-                    {
-                        shouldEnqueueFollowUp = ruleIds == null;
-                    }
-                }
-                else
-                {
-                    shouldEnqueueFollowUp = true;
-                    scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
-                }
-
                 // Get all rules of this group
                 List<AssetLifeCycleRule> allRules = GetAllLifeCycleRules(groupId);
                 List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
@@ -298,28 +269,7 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in DoActionRules: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
-                shouldEnqueueFollowUp = true;
-            }
-            finally
-            {
-                // enqueue follow up only for task that is general for the entire group.
-                // If this task was run for specific rules, then it is singular, one-time
-                if ((ruleIds == null || ruleIds.Count == 0) && shouldEnqueueFollowUp)
-                {
-                    if (scheduledTaskIntervalSec == 0)
-                    {
-                        scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
-                    }
-
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
-                    GenericCeleryQueue queue = new GenericCeleryQueue();
-                    string dataId = Guid.NewGuid().ToString();
-                    var args = new List<object>() { groupId, ruleIds };
-
-                    BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, args, nextExecutionDate);
-                    bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
-                }
+                log.ErrorFormat("Error in DoActionRules: groupId: {0}, ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace);                
             }
 
             return true;

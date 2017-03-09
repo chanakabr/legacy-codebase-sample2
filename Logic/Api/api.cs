@@ -14,6 +14,7 @@ using ApiObjects.Statistics;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
+using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -82,7 +83,7 @@ namespace Core.Api
         private const string PURCHASE_SETTINGS_TYPE_INVALID = "Purchase settings type invalid";
 
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-        protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";
+        protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";        
 
         protected const string QUEUE_ASSEMBLY_NAME = "QueueWrapper";
 
@@ -91,6 +92,11 @@ namespace Core.Api
         private const string GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "groupParentalRules";
         private const string USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "userParentalRules";
         private const string MEDIA_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "mediaParentalRules";
+
+        private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
+        private const double MAX_SERVER_TIME_DIF = 5;
+        private const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
+        private const string ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE = "PROCESS_ACTION_RULE";
 
         #endregion
 
@@ -691,7 +697,7 @@ namespace Core.Api
         static public List<int> GetChannelsMediaIDs(Int32[] nChannels, Int32[] nFileTypeIDs, bool bWithCache, Int32 nGroupID, string sDevice, bool activeAssets, bool useStartDate)
         {
             List<int> nMedias = new List<int>();
-            
+
             try
             {
                 string sSignString = Guid.NewGuid().ToString();
@@ -1324,7 +1330,7 @@ namespace Core.Api
                 , ref nVotes5Cnt, true);
 
             rmo.Initialize(nVotesSum, nVotesCnt, dAvg);
-            
+
             int mediaType = Tvinci.Core.DAL.CatalogDAL.Get_MediaTypeIdByMediaId(nMediaID);
 
             // Insert statistic record to ElasticSearch
@@ -2247,7 +2253,7 @@ namespace Core.Api
 
         public static Country GetCountryByIp(int groupId, string ip)
         {
-            Country country = null;            
+            Country country = null;
             try
             {
                 string key = LayeredCacheKeys.GetKeyForIp(ip);
@@ -2260,7 +2266,7 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);                
+                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
             }
 
             return country;
@@ -2275,7 +2281,7 @@ namespace Core.Api
 
             ruleName = string.Empty;
             string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
-            DataTable dt = null;            
+            DataTable dt = null;
             // try to get from cache            
             bool cacheResult = LayeredCache.Instance.Get<DataTable>(key, ref dt, APILogic.Utils.Get_GeoBlockPerMedia, new Dictionary<string, object>() { { "groupId", groupId },
                                                                     { "mediaId", mediaId } }, groupId, LayeredCacheConfigNames.CHECK_GEO_BLOCK_MEDIA_LAYERED_CACHE_CONFIG_NAME,
@@ -2292,7 +2298,7 @@ namespace Core.Api
 
                     DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
                     bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
-                                                                             
+
                     log.Debug("Geo Blocks - Geo Block ID " + nGeoBlockID + " Country ID " + nCountryID);
 
                     if (nGeoBlockID > 0)
@@ -2396,7 +2402,7 @@ namespace Core.Api
             request.m_sFirstName = sNameTo;
             request.m_sMediaID = nMediaID.ToString();
             request.m_sMediaType = HttpUtility.UrlEncode(sMediaType);
-            
+
             request.m_sSenderFrom = sender_mail;
             request.m_sSenderName = sSenderName;
             request.m_sSenderTo = sMailTo;
@@ -3475,7 +3481,7 @@ namespace Core.Api
             bool GeoCommersRes = false;
             if (SubscriptionGeoCommerceID != 0)
             {
-            //convert IP to country ID
+                //convert IP to country ID
                 Country country = GetCountryByIp(nGroupID, sIP);
                 Int32 nCountryID = country != null ? country.Id : 0;
                 string sGroupID = PageUtils.GetAllGroupTreeStr(nGroupID);
@@ -3543,7 +3549,7 @@ namespace Core.Api
                 {
                     lMediaIDs = new List<int>();
                 }
-                
+
                 var succeeded = DAL.ApiDAL.CleanUserHistory(siteGuid, lMediaIDs);
                 if (succeeded)
                 {
@@ -3552,7 +3558,7 @@ namespace Core.Api
                 else
                 {
                     return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -3665,7 +3671,7 @@ namespace Core.Api
                         }
                 }
 
-                
+
                 bundleMediaRequest.m_nPageIndex = 0;
                 bundleMediaRequest.m_nPageSize = 0;
                 bundleMediaRequest.m_nGroupID = nGroupID;
@@ -4112,12 +4118,12 @@ namespace Core.Api
                         groupId = funcParams["groupId"] as int?;
                         mediaId = funcParams["mediaId"] as int?;
                         mcr = funcParams["mcr"] as List<MediaConcurrencyRule>;
-                        
+
                         if (groupId.HasValue && mediaId.HasValue && mcr != null && mcr.Count > 0)
                         {
                             // find all asset ids that match the tag + tag value ==> if so save the rule id
                             //build serach for each tag and tag values
-                                                        
+
                             List<string> tempFilter = new List<string>();
 
 
@@ -4141,8 +4147,8 @@ namespace Core.Api
                                         ruleIds.Add(rule.RuleID);
                                     }
                                 }
-                            });                            
-                            
+                            });
+
                             res = true;
                         }
                     }
@@ -4176,16 +4182,16 @@ namespace Core.Api
                 bool cacheResult = LayeredCache.Instance.Get<List<MediaConcurrencyRule>>(key, ref mcr, APILogic.Utils.Get_MCRulesByGroup, new Dictionary<string, object>() { { "groupId", groupId } },
                                                                                         groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME);
                 if (!cacheResult)
-                {                 
+                {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId = {0}", groupId));
                     return null;
                 }
-               
+
                 // get all related rules to media 
                 key = LayeredCacheKeys.GetMediaConcurrencyRulesKey(mediaId);
                 cacheResult = LayeredCache.Instance.Get<List<int>>(key, ref ruleIds, Get_MCRulesIdsByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId }, { "mcr", mcr } },
                                                                     groupId, LayeredCacheConfigNames.MEDIA_CONCURRENCY_RULES_LAYERED_CACHE_CONFIG_NAME,
-                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) } );
+                                                                    new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
                 if (!cacheResult)
                 {
                     log.Error(string.Format("GetMediaConcurrencyRules - Failed get data from cache groupId={0}, mediaId={1}", groupId, mediaId));
@@ -4194,7 +4200,7 @@ namespace Core.Api
                 else if (ruleIds != null && ruleIds.Count > 0)
                 {
                     res = mcr.Where(x => ruleIds.Contains(x.RuleID) && x.bmId == bmID && x.Type == type).ToList();
-                }               
+                }
                 return res;
             }
             catch (Exception ex)
@@ -4212,7 +4218,7 @@ namespace Core.Api
                 MediasProtocolRequest request = new MediasProtocolRequest();
 
                 request.m_nGroupID = nGroupID;
-                request.m_lMediasIds = new List<int> { nMediaID  };
+                request.m_lMediasIds = new List<int> { nMediaID };
                 request.m_oFilter = new Filter();
                 request.m_oFilter.m_bOnlyActiveMedia = true;
 
@@ -4381,7 +4387,7 @@ namespace Core.Api
                     return response;
                 }
 
-                response.rules = rules; 
+                response.rules = rules;
                 response.status = new ApiObjects.Response.Status()
                 {
                     Code = (int)eResponseStatus.OK
@@ -5055,7 +5061,7 @@ namespace Core.Api
                     // group rules                 
                     string key = LayeredCacheKeys.GetGroupParentalRulesKey(groupId);
                     // try to get from cache  
-                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key, 
+                    bool cacheResult = LayeredCache.Instance.Get<List<ParentalRule>>(key,
                         ref groupsParentalRules, APILogic.Utils.GetGroupParentalRules,
                         new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GROUP_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME);
 
@@ -5093,7 +5099,7 @@ namespace Core.Api
 
                         // user rules 
                         key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
-                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules, 
+                        cacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(key, ref userParentalRules,
                             APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", siteGuid } },
                             groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, userParentalRulesInvalidationKeys);
 
@@ -5175,7 +5181,7 @@ namespace Core.Api
 
                             groupsParentalRules = groupsParentalRules.Where(x => !string.IsNullOrEmpty(x.mediaTagType)).ToList();
                             Parallel.ForEach(groupsParentalRules, (rule) =>
-                            {       
+                            {
                                 tempFilter = rule.mediaTagValues.Select(x => string.Format("{0}='{1}'", rule.mediaTagType, x)).ToList();
 
                                 if (tempFilter != null && tempFilter.Count > 0)
@@ -5208,7 +5214,7 @@ namespace Core.Api
                 log.Error(string.Format("GetMediaParentalRules faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<List<long>, bool>(ruleIds.Distinct().ToList(), result);
-        }      
+        }
 
         public static GenericRuleResponse GetMediaRules(int groupId, string siteGuid, long mediaId, long domainId, string ip, string udid, GenericRuleOrderBy orderBy = GenericRuleOrderBy.NameAsc)
         {
@@ -5234,7 +5240,7 @@ namespace Core.Api
                     }
 
                     ParentalRulesResponse parentalRulesResponse = GetParentalMediaRules(groupId, siteGuid, mediaId, domainId);
-                    if (parentalRulesResponse!= null && parentalRulesResponse.rules != null)
+                    if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
                     {
                         foreach (ParentalRule rule in parentalRulesResponse.rules)
                         {
@@ -5486,7 +5492,7 @@ namespace Core.Api
                                 Description = string.Empty
                             });
                         }
-                       
+
                         ParentalRulesResponse parentalRulesResponse = GetParentalEPGRules(groupId, siteGuid, epgId, domainId);
                         if (parentalRulesResponse != null && parentalRulesResponse.rules != null)
                         {
@@ -5878,7 +5884,7 @@ namespace Core.Api
                 ossAdapter.SharedSecret = null;
 
                 // check OssAdapter with this ID exists
-                OSSAdapter existingOssAdapter = DAL.ApiDAL.GetOSSAdapter(groupID, ossAdapter.ID);                
+                OSSAdapter existingOssAdapter = DAL.ApiDAL.GetOSSAdapter(groupID, ossAdapter.ID);
                 if (existingOssAdapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OSSAdapterNotExist, ADAPTER_NOT_EXIST);
@@ -7985,7 +7991,7 @@ namespace Core.Api
                 string catalogSignatureString = GetWSURL("CatalogSignatureKey");
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
-                
+
                 try
                 {
                     InternalChannelRequest channelRequest = new InternalChannelRequest()
@@ -8000,7 +8006,7 @@ namespace Core.Api
                         m_sSignature = catalogSignature,
                         m_sSignString = catalogSignString,
                         m_nPageIndex = pageIndex,
-                        m_nPageSize = pageSize, 
+                        m_nPageSize = pageSize,
                         m_bIgnoreDeviceRuleID = true
                     };
 
@@ -8067,7 +8073,7 @@ namespace Core.Api
 
                 if (adapterResponse.Status.Code != (int)OSSAdapterStatus.OK)
                 {
-                    log.ErrorFormat("GetEntitlements: OSS Adapter Response not ok. Message = {0}, Code = {1}", 
+                    log.ErrorFormat("GetEntitlements: OSS Adapter Response not ok. Message = {0}, Code = {1}",
                         adapterResponse.Status.Message != null ? adapterResponse.Status.Message : string.Empty, adapterResponse.Status.Code);
 
                     response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.AdapterAppFailure, Message = "OSS Adapter failed" };
@@ -8124,7 +8130,7 @@ namespace Core.Api
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -8152,7 +8158,7 @@ namespace Core.Api
                 int totalAssetsToInitialize = 0;
                 int totalEnqueuedItems = 0;
                 while (freeItemsToInitialize != null && freeItemsToInitialize.Count > 0)
-                {                    
+                {
                     totalAssetsToInitialize += freeItemsToInitialize.Count;
                     foreach (KeyValuePair<int, DateTime> itemToUpdate in freeItemsToInitialize)
                     {
@@ -8215,9 +8221,9 @@ namespace Core.Api
                     int catchup = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_catch_up", 0);
                     int cdvr = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_cdvr", 0);
                     int startOver = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_start_over", 0);
-                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);                    
+                    int trickPlay = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_trick_play", 0);
                     long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "catch_up_buffer", 7);
-                    long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);                    
+                    long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "trick_play_buffer", 1);
                     long recordingScheduleWindowBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "recording_schedule_window_buffer", 0);
                     int recordingScheduleWindow = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_schedule_window", -1);
                     long paddingAfterProgramEnds = ODBCWrapper.Utils.GetLongSafeVal(dr, "padding_after_program_ends", 0);
@@ -8230,7 +8236,7 @@ namespace Core.Api
                     int series_recording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
                     int enable_recording_playback_non_entitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
                     int enable_recording_playback_non_existing = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
-                    int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0); 
+                    int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
 
                     if (recordingScheduleWindow > -1)
                     {
@@ -8255,7 +8261,7 @@ namespace Core.Api
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
-            {                
+            {
                 if (settings == null || (settings.IsCatchUpEnabled == null && settings.IsCdvrEnabled == null && settings.IsStartOverEnabled == null && settings.IsTrickPlayEnabled == null
                                          && settings.CatchUpBufferLength == null && settings.TrickPlayBufferLength == null && settings.IsRecordingScheduleWindowEnabled == null
                                          && settings.RecordingScheduleWindow == null && settings.PaddingBeforeProgramStarts == null && settings.PaddingAfterProgramEnds == null
@@ -8264,7 +8270,7 @@ namespace Core.Api
                                          && !settings.quotaOveragePolicy.HasValue))
                 {
                     response.Code = (int)ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent;
-                    response.Message = ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent.ToString();                    
+                    response.Message = ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent.ToString();
                 }
                 else if ((settings.CatchUpBufferLength.HasValue && settings.CatchUpBufferLength.Value < 0) || (settings.TrickPlayBufferLength.HasValue && settings.TrickPlayBufferLength.Value < 0))
                 {
@@ -8276,7 +8282,7 @@ namespace Core.Api
                     if (DAL.ApiDAL.UpdateTimeShiftedTvPartnerSettings(groupID, settings))
                     {
                         response = UpdateTimeShiftedTvEpgChannelsSettings(groupID, settings);
-                    }                                                
+                    }
                 }
             }
 
@@ -8284,7 +8290,7 @@ namespace Core.Api
             {
                 log.Error("UpdateTimeShiftedTvPartnerSettings - " + string.Format("Error in UpdateTimeShiftedTvPartnerSettings: groupID = {0}, settings = {1}, ex = {2}", groupID, ex.Message, settings.ToString(), ex.StackTrace), ex);
                 response.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.Message = ApiObjects.Response.eResponseStatus.Error.ToString();  
+                response.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
             }
 
             return response;
@@ -8706,7 +8712,7 @@ namespace Core.Api
             try
             {
                 List<int> adaptersIds = new List<int>();
-               
+
                 if (settings.DefaultRecordingAdapter.HasValue && settings.DefaultRecordingAdapter.Value != 0)
                 {
                     adaptersIds.Add(settings.DefaultRecordingAdapter.Value);
@@ -8746,7 +8752,7 @@ namespace Core.Api
             return response;
         }
 
-        public static CDNAdapterResponse GetCdnAdapter(int groupId , int adapterId)
+        public static CDNAdapterResponse GetCdnAdapter(int groupId, int adapterId)
         {
             CDNAdapterResponse response = new CDNAdapterResponse();
 
@@ -8778,7 +8784,7 @@ namespace Core.Api
             try
             {
                 // get group cdn settings
-                CDNPartnerSettings settings = CdnAdapterCache.Instance.GetCdnAdapterSettings(groupId);                
+                CDNPartnerSettings settings = CdnAdapterCache.Instance.GetCdnAdapterSettings(groupId);
 
                 if (settings != null)
                 {
@@ -8809,7 +8815,7 @@ namespace Core.Api
                     }
 
                     // get the adapter                   
-                    CDNAdapter cdnAdapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, defaultAdapterId);                    
+                    CDNAdapter cdnAdapter = CdnAdapterCache.Instance.GetCdnAdapter(groupId, defaultAdapterId);
                     if (cdnAdapter == null)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterNotExists, eResponseStatus.AdapterNotExists.ToString());
@@ -8827,7 +8833,7 @@ namespace Core.Api
             }
 
             return response;
-        }    
+        }
 
         public static ApiObjects.Response.Status UpdateTimeShiftedTvEpgChannelsSettings(int groupId, TimeShiftedTvPartnerSettings settings)
         {
@@ -8848,7 +8854,7 @@ namespace Core.Api
                         response.Message = ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent.ToString();
                     }
                 }
-                else if ((settings.CatchUpBufferLength.HasValue && settings.CatchUpBufferLength.Value < 0) || 
+                else if ((settings.CatchUpBufferLength.HasValue && settings.CatchUpBufferLength.Value < 0) ||
                     (settings.TrickPlayBufferLength.HasValue && settings.TrickPlayBufferLength.Value < 0))
                 {
                     response.Code = (int)ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNegativeBufferSent;
@@ -8937,7 +8943,7 @@ namespace Core.Api
                 return scheduledTask.SetNextRunIntervalInSeconds(nextRunIntervalInSeconds);
             }
 
-            return false;     
+            return false;
         }
 
         private static ScheduledTaskLastRunDetails GetScheduledTaskImplementationByType(ScheduledTaskType scheduledTaskType)
@@ -8969,18 +8975,18 @@ namespace Core.Api
                 string catalogSignatureString = GetWSURL("CatalogSignatureKey");
 
                 string catalogSignature = TVinciShared.WS_Utils.GetCatalogSignature(catalogSignString, catalogSignatureString);
-                
+
                 try
                 {
                     UnifiedSearchRequest assetRequest = new UnifiedSearchRequest()
                     {
-                        m_nGroupID = groupID,                            
+                        m_nGroupID = groupID,
                         m_oFilter = new Filter()
                         {
                             m_bOnlyActiveMedia = OnlyIsActive,
                             m_nLanguage = languageID,
                             m_bUseStartDate = UseStartDate,
-                            m_sDeviceId = Udid, 
+                            m_sDeviceId = Udid,
                         },
                         m_sSignature = catalogSignature,
                         m_sSignString = catalogSignString,
@@ -9004,8 +9010,8 @@ namespace Core.Api
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error - " + string.Format("SearchAssets filter :{0}, languageID:{1}, Udid:{2}, UserIP:{3}, SiteGuid:{4}, DomainId:{5},OnlyIsActive:{6}, UseStartDate:{7},msg:{8}", 
-                        filter, languageID, Udid, UserIP, SiteGuid, DomainId,OnlyIsActive,UseStartDate, ex.Message), ex);
+                    log.Error("Error - " + string.Format("SearchAssets filter :{0}, languageID:{1}, Udid:{2}, UserIP:{3}, SiteGuid:{4}, DomainId:{5},OnlyIsActive:{6}, UseStartDate:{7},msg:{8}",
+                        filter, languageID, Udid, UserIP, SiteGuid, DomainId, OnlyIsActive, UseStartDate, ex.Message), ex);
                 }
             }
             catch (Exception ex)
@@ -9021,14 +9027,14 @@ namespace Core.Api
             DeviceFamilyResponse result = new DeviceFamilyResponse();
             DataTable dt = DAL.ApiDAL.GetDeviceFamilies();
             if (dt != null && dt.Rows != null)
-            {                
+            {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow dr = dt.Rows[i];
                     if (dr != null)
                     {
                         int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
-                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");                        
+                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                         if (id > 0 && !string.IsNullOrEmpty(name))
                         {
                             DeviceFamily deviceFamily = new DeviceFamily(id, name);
@@ -9327,11 +9333,83 @@ namespace Core.Api
             return result;
         }
 
-        public static bool DoActionRules(int groupId, int[] ruleIds)
+        public static bool DoActionRules(List<long> ruleIds)
         {
-            bool result = false;
+            double scheduledTaskIntervalSec = 0;
+            bool shouldEnqueueFollowUp = false;
+            bool shouldGetAllRules = ruleIds == null || ruleIds.Count == 0;
+            try
+            {
+                // should check last run only if its specific rules
+                if (shouldGetAllRules)
+                {
+                    // try to get interval for next run take default
+                    BaseScheduledTaskLastRunDetails AssetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+                    ScheduledTaskLastRunDetails lastRunDetails = AssetLifeCycleRuleScheduledTask.GetLastRunDetails();
+                    AssetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+                    if (AssetLifeCycleRuleScheduledTask != null && AssetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
+                    {
+                        scheduledTaskIntervalSec = AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
+                        if (AssetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
+                        {
+                            return true;
+                        }
+                        else
+                        {                        
+                            shouldEnqueueFollowUp = true;
+                        }
+                    }
+                    else
+                    {
+                        shouldEnqueueFollowUp = true;
+                        scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                    }
+                }
 
-            return result;
+                // if ruleIds contains rules we will get a ruleId to groupId Map, otherwise we will get all the groupIds that have active rules defined (key will be 0 in dictionary)
+                Dictionary<long, List<int>> groupIdsWithRules = APILogic.Utils.GetGroupIdsWithRules(ruleIds);
+                foreach (KeyValuePair<long, List<int>> pair in groupIdsWithRules)
+                {
+                    if (pair.Value != null && pair.Value.Count > 0)
+                    {
+                        foreach (int groupId in pair.Value)
+                        {
+                            if (!AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds))
+                            {
+                                log.ErrorFormat("Failed AssetLifeCycleRuleManager.Instance.DoActionRules for groupId: {0}, ruleIds: {1}", groupId, string.Join(",", ruleIds));
+                                // if its only specific rulesIds, return false
+                                if (!shouldGetAllRules)
+                                {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in DoActionRules, ruleIds: {0}, ex = {1}, ST = {2}", ruleIds != null && ruleIds.Count > 0 ? string.Join(",", ruleIds) : string.Empty), ex);
+                shouldEnqueueFollowUp = true;
+            }
+            finally
+            {               
+                if (shouldEnqueueFollowUp)
+                {
+                    if (scheduledTaskIntervalSec == 0)
+                    {
+                        scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                    }
+
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, new List<object>(), nextExecutionDate);
+                    bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
+                }
+            }
+
+            return true;
         }
+
     }
 }

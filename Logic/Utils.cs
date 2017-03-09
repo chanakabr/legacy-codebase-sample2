@@ -568,5 +568,10 @@ namespace APILogic
             return new Tuple<Dictionary<long, eRuleLevel>, bool>(result, res);
         }
 
+        internal static Dictionary<long, List<int>> GetGroupIdsWithRules(List<long> ruleIds)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
