@@ -606,30 +606,35 @@ namespace WebAPI.App_Start
                     if (asset.Tags != null)
                     {
                         Meta meta;
-                        foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> entry in asset.Tags)
+                        foreach (var entry in asset.Tags)
                         {
-                            // create new meta
+                            // create new meta - add it's name
                             meta = new Meta()
                             {
                                 Name = entry.Key,
                                 Container = new List<Container>()
                             };
 
-                            if (entry.Value.Objects != null)
+                            if (entry.Value != null && entry.Value.Objects != null)
                             {
                                 // add meta values
-                                foreach (KalturaMultilingualStringValue item in entry.Value.Objects)
+                                foreach (KalturaMultilingualStringValue containerObj in entry.Value.Objects)
                                 {
-                                    var container = new Container() { Values = new List<Value>() };
-
-                                    container.Values.Add(new Value()
+                                    if (containerObj.value != null && containerObj.value.Values != null)
                                     {
-                                        // TODO: update language
-                                        Lang = string.Empty,
-                                        Text = item.value.ToString()
-                                    });
+                                        var container = new Container() { Values = new List<Value>() };
 
-                                    meta.Container.Add(container);
+                                        // add meta value languages
+                                        foreach (var value in containerObj.value.Values)
+                                        {
+                                            container.Values.Add(new Value()
+                                            {
+                                                Lang = value.Language,
+                                                Text = value.Value
+                                            });
+                                        }
+                                        meta.Container.Add(container);
+                                    }
                                 }
                             }
 
