@@ -357,7 +357,15 @@ namespace Core.Catalog
                             return null;
                         }
                         oMediaObj.m_lBranding = new List<Branding>();
-                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result, managementData);
+
+
+                        Dictionary<int, List<string>> mediaFilePPVModules = null;
+                        if (managementData)
+                        {
+                            mediaFilePPVModules = GetMediaFilePPVModules(ds.Tables[2]);
+                        }
+
+                        oMediaObj.m_lFiles = FilesValues(ds.Tables[2], ref oMediaObj.m_lBranding, filter.m_noFileUrl, ref result, managementData, mediaFilePPVModules);
                         if (!result)
                         {
                             return null;
@@ -388,27 +396,6 @@ namespace Core.Catalog
                                 oMediaObj.EnableRecordingPlaybackNonEntitledChannel = linearChannelSettings[oMediaObj.m_ExternalIDs].EnableRecordingPlaybackNonEntitledChannel;
                             }
                         }
-
-                        /*last watched - By SiteGuid <> 0*/
-
-                        //if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
-                        //{
-                        //    DateTime? dtLastWatch = null;
-
-                        //    // ask CB for it
-                        //    try
-                        //    {
-                        //        dtLastWatch = CatalogDAL.Get_MediaUserLastWatch(nMedia, siteGuid);
-                        //    }
-                        //    catch (Exception ex)
-                        //    {
-                        //        log.Error("Error - " +
-                        //            string.Format("Failed getting last watched date of SiteGuid = {0}, Media = {1}, error of type: {2}", siteGuid, nMedia, ex.Message),
-                        //            ex);
-                        //    }
-
-                        //    oMediaObj.m_dLastWatchedDate = dtLastWatch;
-                        //}
                     }
                 }
 
@@ -420,6 +407,70 @@ namespace Core.Catalog
                 result = false;
                 return null;
             }
+        }
+
+        private static Dictionary<int, List<string>> GetMediaFilePPVModules(DataTable dtFileMedia)
+        {
+            List<int> mediaFileIds = null;
+            int mediaFileId = 0;
+            Dictionary<int, List<string>> dicMediaFilePPVModules = null;
+
+            if (dtFileMedia != null && dtFileMedia.Rows.Count > 0)
+            {
+                dicMediaFilePPVModules = new Dictionary<int, List<string>>();
+                mediaFileIds = new List<int>();
+                for (int index = 0; index < dtFileMedia.Rows.Count; index++)
+                {
+                    mediaFileId = Utils.GetIntSafeVal(dtFileMedia.Rows[index], "id");
+                    if (mediaFileId > 0)
+                        mediaFileIds.Add(mediaFileId);
+                }
+
+                if (mediaFileIds.Count > 0)
+                {
+                    var mediaFilePPVModulesTable = CatalogDAL.GetMediaFilePPVModules(mediaFileIds);
+                    var name = string.Empty;
+                    DateTime? startDate = null;
+                    DateTime? endDate = null;
+                    string ppbMoudleName = string.Empty;
+
+                    for (int index = 0; index < mediaFilePPVModulesTable.Rows.Count; index++)
+                    {
+                        mediaFileId = Utils.GetIntSafeVal(mediaFilePPVModulesTable.Rows[index], "MEDIA_FILE_ID");
+                        name = Utils.GetStrSafeVal(mediaFilePPVModulesTable.Rows[index], "NAME");
+                        startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "START_DATE");
+                        endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "END_DATE");
+
+                        ppbMoudleName = BuildPPVMoudleName(name, startDate, endDate);
+
+                        if (!dicMediaFilePPVModules.ContainsKey(mediaFileId))
+                        {
+                            dicMediaFilePPVModules.Add(mediaFileId, new List<string>());
+                        }
+
+                        dicMediaFilePPVModules[mediaFileId].Add(ppbMoudleName);
+                    }
+                }
+            }
+
+            return dicMediaFilePPVModules;
+        }
+
+        private static string BuildPPVMoudleName(string name, DateTime? startDate, DateTime? endDate)
+        {
+            StringBuilder ppvMoudleName = new StringBuilder();
+            ppvMoudleName.Append(name);
+            if (startDate.HasValue)
+            {
+                ppvMoudleName.AppendFormat(";{0}", startDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
+            }
+
+            if (endDate.HasValue)
+            {
+                ppvMoudleName.AppendFormat(";{0}", endDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
+            }
+
+            return ppvMoudleName.Length> 0 ? ppvMoudleName.ToString(): string.Empty;
         }
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
@@ -4075,7 +4126,7 @@ namespace Core.Catalog
         }
 
         /*Insert all files that return from the "CompleteDetailsForMediaResponse" into List<FileMedia>*/
-        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result, bool managementData = false)
+        private static List<FileMedia> FilesValues(DataTable dtFileMedia, ref List<Branding> lBranding, bool noFileUrl, ref bool result, bool managementData = false, Dictionary<int, List<string>> dicMediaFilePPVModules = null)
         {
             try
             {
@@ -4174,6 +4225,9 @@ namespace Core.Catalog
                                 fileMedia.ProductCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "Product_Code");
                                 fileMedia.CdnCode = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_CODE");
                                 fileMedia.StreamingCompanyName = Utils.GetStrSafeVal(dtFileMedia.Rows[i], "STREAMING_COMPANY_NAME");
+                                // call SP
+                                if (dicMediaFilePPVModules.ContainsKey(fileMedia.m_nFileId))
+                                    fileMedia.PPVModules = dicMediaFilePPVModules[fileMedia.m_nFileId];
                             }
 
                             lFileMedia.Add(fileMedia);

@@ -439,7 +439,7 @@ namespace Core.Catalog.Cache
 
                 if (watchPermissionsTypes == null || watchPermissionsTypes.Count == 0)
                 {
-                    DataTable dataTable = CatalogDAL.GroupWatchPermissionsTypes(groupID);
+                    DataTable dataTable = CatalogDAL.GetGroupWatchPermissionsTypes(groupID);
 
                     if (dataTable == null || dataTable.Rows.Count == 0)
                         return null;
@@ -475,7 +475,7 @@ namespace Core.Catalog.Cache
 
                 if (geoblockRules == null || geoblockRules.Count == 0)
                 {
-                    DataTable dataTable = CatalogDAL.GroupGeoblockRules(groupID);
+                    DataTable dataTable = CatalogDAL.GetGroupGeoblockRules(groupID);
 
                     if (dataTable == null || dataTable.Rows.Count == 0)
                         return null;
@@ -511,7 +511,7 @@ namespace Core.Catalog.Cache
 
                 if (deviceRules == null || deviceRules.Count == 0)
                 {
-                    DataTable dataTable = CatalogDAL.GroupDeviceRules(groupID);
+                    DataTable dataTable = CatalogDAL.GetGroupDeviceRules(groupID);
 
                     if (dataTable == null || dataTable.Rows.Count == 0)
                         return null;
