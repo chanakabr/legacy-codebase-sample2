@@ -233,6 +233,14 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         theRecord.AddRecord(dr_quota_overage_policy);
 
 
+        //lu_protection_policy
+        DataRecordDropDownField dr_protection_policy = new DataRecordDropDownField("time_shifted_tv_settings", "protection_policy", "id", "", null, 60, true);
+        sQuery = "select description as txt, id as id from lu_protection_policy";
+        dr_protection_policy.SetSelectsQuery(sQuery);
+        dr_protection_policy.Initialize("Protection Policy", "adm_table_header_nbg", "FormInput", "protection_policy", false);
+        // dr_quota_overage_policy.SetDefaultVal("---");
+        theRecord.AddRecord(dr_protection_policy);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
