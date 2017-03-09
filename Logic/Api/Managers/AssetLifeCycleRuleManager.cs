@@ -204,12 +204,33 @@ namespace APILogic.Api.Managers
                             // Call catalog
                             var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
 
-                            if (response != null && response.searchResults != null)
+                            if (response != null && response.searchResults != null && response.searchResults.Count > 0)
                             {
+                                // Remember count, first and last result - to verify that action was succesful
+                                int count = response.m_nTotalItems;
+                                string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                string lastAssetId = response.searchResults.LastOrDefault().AssetId;
+
                                 List<int> assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                 // Apply rule on assets that returned from search
                                 this.ApplyLifeCycleRuleActionsOnAssets(assetIds, rule);
+
+                                var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                                if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
+                                {
+                                    int verificationCount = verificationResponse.m_nTotalItems;
+                                    string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                    string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                    // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
+                                    if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                    {
+                                        this.DisableRule(rule);
+                                    }
+                                }
+
                             }
 
                             return true;
@@ -221,6 +242,8 @@ namespace APILogic.Api.Managers
                         }
                     }, i);
             }
+
+            #region Finish tasks
 
             Task.WaitAll(tasks);
 
@@ -238,22 +261,29 @@ namespace APILogic.Api.Managers
                 }
             }
 
+            #endregion
+
+            #region Enqueue follow up message
+
             // If proper interval was set, enqueue follow-up message so that task is run indefinitely
             int actionRuleTaskIntervalHours = TVinciShared.WS_Utils.GetTcmIntValue("action_rule_task_interval");
 
-            if (actionRuleTaskIntervalHours > 0)
+            // default is 24 hours
+            if (actionRuleTaskIntervalHours <= 0)
             {
-                GenericCeleryQueue queue = new GenericCeleryQueue();
-
-                string dataId = Guid.NewGuid().ToString();
-                BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, groupId, ruleIds);
-
-                bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
-
-                // Success of this method is dependent on enqueing the follow-up message
-                result &= enqueueResult;
+                actionRuleTaskIntervalHours = 24;
             }
+            GenericCeleryQueue queue = new GenericCeleryQueue();
 
+            string dataId = Guid.NewGuid().ToString();
+            BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, groupId, ruleIds);
+
+            bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
+
+            // Success of this method is dependent on enqueing the follow-up message
+            result &= enqueueResult;
+
+            #endregion
             return result;
         }
 
@@ -528,6 +558,11 @@ namespace APILogic.Api.Managers
             {
                 return string.Empty;
             }
+        }
+
+        private void DisableRule(AssetLifeCycleRule rule)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
