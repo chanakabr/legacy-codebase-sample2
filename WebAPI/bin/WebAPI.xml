@@ -9699,6 +9699,198 @@
             
             </summary>
         </member>
+        <member name="M:WebAPI.Controllers.OttUserController.AnonymousLogin(System.Int32,System.String)">
+            <summary>
+            Returns tokens (KS and refresh token) for anonymous access
+            </summary>
+            <param name="partnerId">The partner ID</param>
+            <param name="udid">The caller device's UDID</param>
+            <returns>KalturaLoginResponse</returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.LoginWithPin(System.Int32,System.String,System.String,System.String)">
+            <summary>
+            User sign-in via a time-expired sign-in PIN.        
+            </summary>
+            <param name="partnerId">Partner Identifier</param>
+            <param name="pin">pin code</param>
+            <param name="secret">Additional security parameter to validate the login</param>
+            <param name="udid">Device UDID</param>
+            <remarks>Possible status codes: 
+            UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
+            LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+            UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Login(System.Int32,System.String,System.String,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue},System.String)">
+            <summary>
+            login with user name and password.
+            </summary>        
+            <param name="partnerId">Partner identifier</param>
+            <param name="username">user name</param>
+            <param name="password">password</param>
+            <param name="extraParams">extra params</param>
+            <param name="udid">Device UDID</param>
+            <remarks>        
+            UserNotInDomain = 1005, Wrong username or password = 1011, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+            UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, User does not exist = 2000
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.RefreshSession(System.String,System.String)">
+            <summary>
+            Returns new Kaltura session (ks) for the user, using the supplied refresh_token (only if it's valid and not expired)
+            </summary>
+            <param name="refreshToken">Refresh token</param>
+            <param name="udid">Device UDID</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.FacebookLogin(System.Int32,System.String,System.String)">
+            <summary>
+            Login via Facebook credentials
+            </summary>        
+            <param name="partnerId">Partner identifier</param>
+            <param name="token">Facebook token</param>
+            <param name="udid">Device UDID</param>
+            <remarks>        
+            User does not exist = 2000
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Register(System.Int32,WebAPI.Models.Users.KalturaOTTUser,System.String)">
+            <summary>
+            Sign up a new user.      
+            </summary>        
+            <param name="partnerId">Partner identifier</param>        
+            <param name="password">password</param>
+            <param name="user">The user model to add</param>
+            <remarks>        
+            Wrong username or password = 1011, User exists = 2014
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.resetPassword(System.Int32,System.String)">
+            <summary>
+            Send an e-mail with URL to enable the user to set new password.
+            </summary>        
+            <param name="partnerId">Partner Identifier</param>
+            <param name="username">user name</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.setInitialPassword(System.Int32,System.String,System.String)">
+            <summary>
+            Renew the user's password after validating the token that sent as part of URL in e-mail.
+            </summary>        
+            <param name="partnerId">Partner Identifier</param>
+            <param name="token">Token that sent by e-mail</param>
+            <param name="password">New password</param>
+            <remarks>Possible status codes: User does not exist = 2000</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.setPassword(System.Int32,System.String,System.String)">
+            <summary>
+            Renew the user's password without validating the existing password, used internally after validating token that sent as part of URL in e-mail.
+            </summary>        
+            <param name="partnerId">Partner Identifier</param>
+            <param name="username">user name</param>
+            <param name="password">new password</param>
+            <remarks>Possible status codes: User does not exist = 2000</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.updatePassword(System.Int32,System.String)">
+            <summary>
+            Update the user's existing password.
+            </summary>        
+            <param name="userId">User Identifier</param>        
+            <param name="password">new password</param>
+            <remarks>Possible status codes: User does not exist = 2000</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.validateToken(System.Int32,System.String)">
+            <summary>
+            Returns the user associated with a temporary reset token.
+            </summary>        
+            <param name="partnerId">Partner Identifier</param>
+            <param name="token">token</param>
+            <remarks>Possible status codes: 2000 = User does not exist</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.UpdateLoginData(System.String,System.String,System.String)">
+            <summary>
+            Given a user name and existing password, change to a new password.        
+            </summary>        
+            <param name="username">user name</param>
+            <param name="oldPassword">old password</param>
+            <param name="newPassword">new password</param>
+            <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Get">
+            <summary>
+            Retrieving users' data
+            </summary>        
+            <remarks></remarks>
+            <remarks></remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.GetOldStandard">
+            <summary>
+            Retrieving users' data
+            </summary>        
+            <remarks></remarks>
+            <remarks></remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Update(WebAPI.Models.Users.KalturaOTTUser)">
+            <summary>Update user information      
+            </summary>
+            <param name="user"> UserData Object (include basic and dynamic data)</param>
+            <remarks>         User suspended = 2001, User does not exist = 2000
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.AddRole(System.Int64)">
+            <summary>Edit user details.        
+            </summary>
+            <param name="roleId"> The role identifier to add</param>
+            <remarks>
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Delete">
+            <summary>
+            Permanently delete a user. User to delete cannot be an exclusive household master, and cannot be default user.
+            </summary>        
+            <remarks>        
+            Possible status codes: 
+            Household suspended = 1009, Limitation period = 1014,  User does not exist = 2000, Default user cannot be deleted = 2030, Exclusive master user cannot be deleted = 2031
+            </remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Logout">
+            <summary>
+            Logout the calling user.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.Activate(System.Int32,System.String,System.String)">
+            <summary>
+            Activate the account by activation token
+            </summary>
+            <param name="partnerId">The partner ID</param>
+            <param name="activationToken">Activation token of the user</param>
+            <param name="username">Username of the user to activate</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.ResendActivationToken(System.Int32,System.String)">
+            <summary>
+            Resend the activation token to a user
+            </summary>
+            <param name="partnerId">The partner ID</param>
+            <param name="username">Username of the user to activate</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.GetEncryptedUserId">
+            <summary>
+            Returns the identifier of the user encrypted with SHA1 using configured key
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.OttUserController.List(WebAPI.Models.Users.KalturaOTTUserFilter)">
+            <summary>
+            Retrieve user by external identifier or username or if filter is null all user in the master or the user itself
+            </summary>
+            <param name="filter">Filter request</param>
+            <remarks>Possible status codes: 
+            UserDoesNotExist = 2000 </remarks>
+            <returns></returns>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfoListResponse">
             <summary>
             Asset info wrapper
@@ -9961,6 +10153,246 @@
             Summary description for Service1
             </summary>
         </member>
+        <member name="M:WS_API.API.CheckGeoCommerceBlock(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Check subscription Geo Commerce Block Roule
+            </summary>
+            <param name="sWSUserName">Set web service user name</param>
+            <param name="sWSPassword">Set web service password</param>
+            <param name="SubscriptionGeoCommerceID">set subscription geo commerce roule ID</param>
+            <param name="sIP">set client IP</param>
+            <returns>return true if the enable purchase subscription in spasfic country by IP</returns>
+        </member>
+        <member name="M:WS_API.API.GetParentalRules(System.String,System.String)">
+            <summary>
+            All of the parental rules for the account.
+            Includes specification of what of which is the default rule/s for the account
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetDomainParentalRules(System.String,System.String,System.Int32)">
+            <summary>
+            Gets the parental rules that applies for the domain
+            Includes distinction if rule was defined at account, HH or user level
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetUserParentalRules(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Gets the parental rules that applies for the User.
+            Includes distinction if rule was defined at account, HH or user level
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.SetUserParentalRules(System.String,System.String,System.String,System.Int64,System.Int32,System.Int32)">
+            <summary>
+            Enable or disable a parental rule for the user
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="siteGuid"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.SetDomainParentalRules(System.String,System.String,System.Int32,System.Int64,System.Int32)">
+            <summary>
+            Enable or disable a parental rule for the domain 
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="domainId"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetParentalPIN(System.String,System.String,System.Int32,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Get the parental PIN for the household or user.
+            Includes specification of where the PIN was defined at – account, household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.UpdateParentalPIN(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Set a parental PIN for the household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.SetParentalPIN(System.String,System.String,System.Int32,System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Set a parental PIN for the household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetPurchaseSettings(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Get purchase settings.
+            Includes specification of where these settings were defined – account, household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.SetPurchaseSettings(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <summary>
+            Set purchase settings for the household or user.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="setting"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.UpdatePurchaseSettings(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <summary>
+            Set purchase settings for the household or user.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="setting"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetPurchasePIN(System.String,System.String,System.Int32,System.String)">
+            <summary>
+            Get the purchase PIN for the household or user.
+            Includes specification of where the PIN was defined at – household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.UpdatePurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Set purchase pin for household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.SetPurchasePIN(System.String,System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Set purchase pin for household or user
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.ValidateParentalPIN(System.String,System.String,System.String,System.String,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            Validate that a given parental PIN for a user is valid.
+            Take into account PIN definition hierarchy.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.ValidatePurchasePIN(System.String,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Validate that a given purchase PIN for a user is valid.
+            Take into account PIN definition hierarchy.
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="pin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetParentalMediaRules(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <summary>
+            Get all the rules that applies for a specific media and a specific user according to the user parental settings.
+            Take into account that rules are hierarchically defined – and get the rules that applies for the user regardless of where the rule was defined
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="mediaId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetParentalEPGRules(System.String,System.String,System.String,System.Int64,System.Int64)">
+            <summary>
+            Get all the rules that applies for a specific EPG and a specific user according to the user parental settings.
+            Take into account that rules are hierarchically defined – and get the rules that applies for the user regardless of where the rule was defined
+            </summary>
+            <param name="userName"></param>
+            <param name="password"></param>
+            <param name="siteGuid"></param>
+            <param name="mediaId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.DisableUserDefaultParentalRule(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Disable the default parental rule for the user
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="siteGuid"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.DisableDomainDefaultParentalRule(System.String,System.String,System.Int32)">
+            <summary>
+            Disable the default parental rule for the domain 
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="domainId"></param>
+            <param name="ruleId"></param>
+            <param name="isActive"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_API.API.GetMediaRules(System.String,System.String,System.String,System.Int64,System.Int64,System.String,System.String,ApiObjects.GenericRuleOrderBy)">
+            <summary>
+            Retrieve all the rules (parental, geo, device or user-type) that applies for this user and media 
+            </summary>
+            <param name="userName"></param>
+            <param name="webServicePassword"></param>
+            <param name="domainId"></param>
+            <param name="siteGuid"></param>
+            <param name="mediaId"></param>
+            <param name="ip"></param>
+            <param name="udid"></param>
+            <returns></returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:WS_API.API.GetEpgRules(System.String,System.String,System.String,System.Int64,System.Int64,System.Int64,System.String,ApiObjects.GenericRuleOrderBy)" -->
         <member name="T:WS_Billing.module">
             <summary>
             Summary description for Service1
@@ -9972,6 +10404,177 @@
             of the redirected page after adyen purchased
             </summary>
         </member>
+        <member name="M:WS_Billing.adyen_api.Page_Load(System.Object,System.EventArgs)">
+            <summary>
+            Page loaf
+            </summary>
+            <param name="sender">onject sender</param>
+            <param name="e">Event Args</param>
+        </member>
+        <member name="M:WS_Billing.adyen_api.RedirectPage(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.String)">
+            <summary>
+             Redirect a client current a new page. Specifies SkinCode to excecute the redirect page.
+            </summary>
+            <param name="skinCode">Skin Code</param>
+            <param name="status">Indicates wether redirect paramter status value.</param>
+            <param name="description">Indicates wether redirect paramter description value</param>
+            <param name="endResponse">Indicates whether execution of the current page should terminate.</param>
+            <param name="enableLog">Optional,Enable write log, by default false.</param>
+            <param name="logMessage">Optional,description write log, by default string empty.</param>
+        </member>
+        <member name="M:WS_Billing.adyen_api.RefundPayment(System.Int32,System.String,System.Double,System.String,System.String,System.Int64,System.Int32,System.Int32)">
+            <summary>
+            Refund payment using the suitable BaseDirectDebit
+            according to Utils.GetBaseDirectDebitImpl()
+            </summary>
+            <param name="nGroupID"></param>
+            <param name="sPSPReference"></param>
+            <param name="dChargePrice"></param>
+            <param name="sCurrencyCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.GetUserPrePaidAmount(System.String,System.String)">
+            <summary>
+            Get User PrePaid Amount
+            </summary>
+            <param name="sSiteGUID"></param>
+            <param name="sCurrencyCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.GetSafeValue(System.String)">
+            <summary>
+            Get Safe Value
+            </summary>
+            <param name="sQueryKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.GetSafeValue(System.String,System.Xml.XmlNode@)">
+            <summary>
+            GetSafeValue
+            </summary>
+            <param name="sQueryKey"></param>
+            <param name="theRoot"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.GetSafeParValue(System.String,System.String,System.Xml.XmlNode@)">
+            <summary>
+            Get Safe Par Value
+            </summary>
+            <param name="sQueryKey"></param>
+            <param name="sParName"></param>
+            <param name="theRoot"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.HandleCouponUse(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Handle Coupon Use
+            </summary>
+            <param name="sCouponCode"></param>
+            <param name="sSiteGUID"></param>
+            <param name="nMediaFileID"></param>
+            <param name="sSubCode"></param>
+            <param name="nGroupID"></param>
+        </member>
+        <member name="M:WS_Billing.adyen_api.UpdateAdyenPPVPurchaseID(System.Int32,System.Int32)">
+            <summary>
+            Update Adyen PPV Purchase ID
+            </summary>
+            <param name="adyenID"></param>
+            <param name="ppvID"></param>
+        </member>
+        <member name="M:WS_Billing.adyen_api.HandlePrePaidTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String)">
+            <summary>
+            Handle PrePaid Transaction
+            </summary>
+            <param name="groupID"></param>
+            <param name="sPrePaidID"></param>
+            <param name="sSiteGUID"></param>
+            <param name="paymentMethod"></param>
+            <param name="price"></param>
+            <param name="sPPCreditValue"></param>
+            <param name="scurrency"></param>
+            <param name="sCustomData"></param>
+            <param name="sCountryCode"></param>
+            <param name="sLangCode"></param>
+            <param name="sDevice"></param>
+            <param name="smnou"></param>
+            <param name="smaxusagemodulelifecycle"></param>
+            <param name="lBillingTransactionID"></param>
+            <param name="adyenID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.HandleCampaignUse(System.Int32,System.String,System.Int32,System.String)">
+            <summary>
+            Handle Campaign Use
+            </summary>
+            <param name="campaignID"></param>
+            <param name="siteGuid"></param>
+            <param name="maxNumOfUses"></param>
+            <param name="maxLifeCycle"></param>
+        </member>
+        <member name="M:WS_Billing.adyen_api.HandleCollectionTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.Int64@)">
+            <summary>
+            Handle Collection Transaction
+            </summary>
+            <param name="groupID"></param>
+            <param name="sCollectionID"></param>
+            <param name="sSiteGUID"></param>
+            <param name="paymentMethod"></param>
+            <param name="price"></param>
+            <param name="scurrency"></param>
+            <param name="sCustomData"></param>
+            <param name="sCountryCode"></param>
+            <param name="sLangCode"></param>
+            <param name="sDevice"></param>
+            <param name="smnou"></param>
+            <param name="smaxusagemodulelifecycle"></param>
+            <param name="lBillingTransactionID"></param>
+            <param name="adyenID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.HandleSubscrptionTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32,System.String,System.String,System.String,System.Int64@,System.Int32)">
+            <summary>
+            Handle Subscrption Transaction
+            </summary>
+            <param name="groupID"></param>
+            <param name="sSubscriptionID"></param>
+            <param name="sSiteGUID"></param>
+            <param name="paymentMethod"></param>
+            <param name="price"></param>
+            <param name="scurrency"></param>
+            <param name="sCustomData"></param>
+            <param name="sCountryCode"></param>
+            <param name="sLangCode"></param>
+            <param name="sDevice"></param>
+            <param name="smnou"></param>
+            <param name="sviewlifecyclesecs"></param>
+            <param name="isRecurringStr"></param>
+            <param name="smaxusagemodulelifecycle"></param>
+            <param name="lBillingTransactionID"></param>
+            <param name="adyenID"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.adyen_api.HandlePPVTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.String,System.Int32,System.String,System.String,System.Int32)">
+            <summary>
+            Handle PPV Transaction
+            </summary>
+            <param name="groupID"></param>
+            <param name="srelevantsub"></param>
+            <param name="smedia_file"></param>
+            <param name="sSiteGUID"></param>
+            <param name="paymentMethod"></param>
+            <param name="price"></param>
+            <param name="scurrency"></param>
+            <param name="sCustomData"></param>
+            <param name="sCountryCode"></param>
+            <param name="sLangCode"></param>
+            <param name="sDevice"></param>
+            <param name="smnou"></param>
+            <param name="lBillingTransactionID"></param>
+            <param name="smaxusagemodulelifecycle"></param>
+            <param name="adyenID"></param>
+            <returns></returns>
+        </member>
         <member name="F:WS_Billing.adyen_api.form1">
             <summary>
             form1 control.
@@ -9981,3 +10584,435 @@
             To modify move field declaration from designer file to code-behind file.
             </remarks>
         </member>
+        <member name="M:WS_Billing.GoogleInApp.GetSafeValue(System.String)">
+            <summary>
+            Get Safe Value
+            </summary>
+            <param name="sQueryKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.GetSafeValue(System.String,System.Xml.XmlNode@)">
+            <summary>
+            GetSafeValue
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.GetSafeParValue(System.String,System.String,System.Xml.XmlNode@)">
+            <summary>
+            Get Safe Par Value
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.HandleCouponUse(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <summary>
+            Handle Coupon Use
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.HandleCampaignUse(System.Int32,System.String,System.Int32,System.String)">
+            <summary>
+            Handle Campaign Use
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.HandlePPVTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.String,System.Int32)">
+            <summary>
+            Handle PPV Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.HandleSubscrptionTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Handle Subscrption Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.HandlePrePaidTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Handle PrePaid Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.WriteToUserLog(System.Int32,System.String,System.String)">
+            <summary>
+            Write To User Log
+            </summary>
+        </member>
+        <member name="M:WS_Billing.GoogleInApp.GetUserPrePaidAmount(System.String,System.String)">
+            <summary>
+            Get User PrePaid Amount
+            </summary>
+        </member>
+        <member name="F:WS_Billing.GoogleInApp.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="M:WS_Billing.M1_Callback.HandleCampaignUse(System.Int32,System.String,System.Int32,System.String)">
+            <summary>
+            Handle Campaign Use
+            </summary>
+            <param name="campaignID"></param>
+            <param name="siteGuid"></param>
+            <param name="maxNumOfUses"></param>
+            <param name="maxLifeCycle"></param>
+        </member>
+        <member name="M:WS_Billing.M1_Callback.UpdateM1PurchaseID(System.Int32,System.Int32)">
+            <summary>
+            Update M1 Purchase ID
+            </summary>
+            <param name="adyenID"></param>
+            <param name="ppvID"></param>
+        </member>
+        <member name="M:WS_Billing.M1_Callback.WriteToUserLog(System.Int32,System.String,System.String)">
+            <summary>
+            Write To User Log
+            </summary>
+            <param name="nGroupID"></param>
+            <param name="sSiteGUID"></param>
+            <param name="sMessage"></param>
+        </member>
+        <member name="M:WS_Billing.M1_Callback.HandleCouponUse(System.String,System.String,System.Int32,System.String,System.Int32,System.Int32)">
+            <summary>
+            Handle Coupon Use
+            </summary>
+            <param name="sCouponCode"></param>
+            <param name="sSiteGUID"></param>
+            <param name="nMediaFileID"></param>
+            <param name="sSubCode"></param>
+            <param name="nPrePaidCode"></param>
+            <param name="nGroupID"></param>
+        </member>
+        <member name="F:WS_Billing.M1_Callback.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="M:WS_Billing.plimus_api.GetSafeValue(System.String)">
+            <summary>
+            Get Safe Value
+            </summary>
+            <param name="sQueryKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.plimus_api.GetBillingMethods(System.String)">
+            <summary>
+            Get Billing Methods Number
+            </summary>
+            <param name="sPaymentMethod"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.plimus_api.GetSafeValue(System.String,System.Xml.XmlNode@)">
+            <summary>
+            GetSafeValue
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.GetSafeParValue(System.String,System.String,System.Xml.XmlNode@)">
+            <summary>
+            Get Safe Par Value
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.HandleCouponUse(System.String,System.String,System.Int32,System.String,System.Int32)">
+            <summary>
+            Handle Coupon Use
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.HandleCampaignUse(System.Int32,System.String,System.Int32,System.String)">
+            <summary>
+            Handle Campaign Use
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.HandlePPVTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.String,System.Int32,System.Int32)">
+            <summary>
+            Handle PPV Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.HandleSubscrptionTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32,System.Int32)">
+            <summary>
+            Handle Subscrption Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.HandlePrePaidTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Handle PrePaid Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.GetSubName(System.String)">
+            <summary>
+            Get SubName
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.GetUserPrePaidAmount(System.String,System.String)">
+            <summary>
+            Get User PrePaid Amount
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.UpdatePlimusTransactionsPurchaseID(System.Int32,System.Int32)">
+            <summary>
+            Update Plimus Purchase ID
+            </summary>
+        </member>
+        <member name="M:WS_Billing.plimus_api.WriteToUserLog(System.Int32,System.String,System.String)">
+            <summary>
+            Write To User Log
+            </summary>
+        </member>
+        <member name="F:WS_Billing.plimus_api.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.RenewSubscrptionTransaction(System.Int32,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Handle Subscrption Transaction
+            </summary>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.UpdatePlimusTransactionsPurchaseID(System.Int32,System.Int32)">
+            <summary>
+            Update Plimus Purchase ID
+            </summary>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.UpdatePlimustransactionsPurchaseID(System.Int32,System.String)">
+            <summary>
+            Update Plimus PPV Purchase ID
+            </summary>
+            <param name="plimusID"></param>
+            <param name="ppvID"></param>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.GetSafeValue(System.String)">
+            <summary>
+            Get Safe Value
+            </summary>
+            <param name="sQueryKey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.GetBillingMethods(System.String)">
+            <summary>
+            Get Billing Methods Number
+            </summary>
+            <param name="sPaymentMethod"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.GetSafeValue(System.String,System.Xml.XmlNode@)">
+            <summary>
+            GetSafeValue
+            </summary>
+            <param name="sQueryKey"></param>
+            <param name="theRoot"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.GetSafeParValue(System.String,System.String,System.Xml.XmlNode@)">
+            <summary>
+            Get Safe Par Value
+            </summary>
+            <param name="sQueryKey"></param>
+            <param name="sParName"></param>
+            <param name="theRoot"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Billing.Plimus_Callback.WriteToUserLog(System.Int32,System.String,System.String)">
+            <summary>
+            Write To User Log
+            </summary>
+            <param name="nGroupID"></param>
+            <param name="sSiteGUID"></param>
+            <param name="sMessage"></param>
+        </member>
+        <member name="F:WS_Billing.Plimus_Callback.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="T:WS_ConditionalAccess.module">
+            <summary>
+            Summary description for Service1
+            </summary>
+        </member>
+        <member name="M:WS_ConditionalAccess.module.Purchase(System.String,System.String,System.String,System.Int64,System.Double,System.String,System.Int32,System.Int32,ApiObjects.eTransactionType,System.String,System.String,System.String,System.Int32,System.Int32,System.String)">
+            Charge a household for specific content utilizing the household’s pre-assigned payment gateway. 
+            Online, one-time charge only of various content types. 
+            Upon successful charge, watch entitlements are granted.
+            siteGUID : User’s household to charge 
+            price : Net sum to charge
+            currency	: Identifier for paying currency, according to ISO 4217
+            contentID : Identifier for the content to purchase. Relevant only if Product type = PPV
+            productID : Identifier for the package from which this content is offered  
+            transactionType : Package type. Possible values: PPV, Subscription, Collection (eTransactionType not include prepaid)
+            coupon :	A valid coupon to apply for this purchase
+        </member>
+        <member name="M:WS_Catalog.Service.UpdateChannelIndex(System.Collections.Generic.List{System.Int32},System.Int32,ApiObjects.eAction)">
+            <summary>
+            Updates channel index AND CACHE as well
+            </summary>
+            <param name="channelIds"></param>
+            <param name="groupId"></param>
+            <param name="action"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WS_Domains.module">
+            <summary>
+            Summary description for Service1
+            </summary>
+        </member>
+        <member name="M:WS_Notification.NotificationService.AddNotificationRequest(System.String,System.String,System.String,ApiObjects.Notification.NotificationTriggerType,System.Int32)">
+            <summary>
+            Add notification request to the db, using NotificationManager object.
+            </summary>
+            <param name="groupID"></param>
+            <param name="userID"></param>
+            <param name="triggerType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.GetDeviceNotifications(System.String,System.String,System.String,System.String,ApiObjects.Notification.NotificationMessageType,ApiObjects.Notification.NotificationMessageViewStatus,System.Nullable{System.Int32})">
+            <summary>
+            Get Device Notification
+            </summary>
+            <param name="nGroupID"></param>
+            <param name="nUserID"></param>
+            <param name="sDeviceUDID"></param>
+            <param name="status"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.AddMessageAnnouncement(System.String,System.String,ApiObjects.Notification.MessageAnnouncement)">
+            <summary>
+            Add a Message Announcement to DB and send to rabbit.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.SendMessageAnnouncement(System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Sends a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.SendMessageReminder(System.String,System.String,System.Int64,System.Int32)">
+            <summary>
+            Sends a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.UpdateMessageAnnouncement(System.String,System.String,System.Int32,ApiObjects.Notification.MessageAnnouncement)">
+            <summary>
+            Updates a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.DeleteAnnouncement(System.String,System.String,System.Int64)">
+            <summary>
+            Deletes an announcement (topic)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.UpdateMessageAnnouncementStatus(System.String,System.String,System.Int64,System.Boolean)">
+            <summary>
+            Updates a Message Announcement status.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.DeleteMessageAnnouncement(System.String,System.String,System.Int64)">
+            <summary>
+            Deletes a Message Announcement.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.DeleteAnnouncementsOlderThan(System.String,System.String)">
+            <summary>
+            Deletes announcements (topics) older than partner configured date. 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WS_Notification.NotificationService.DeleteOldReminders(System.String,System.String)">
+            <summary>
+            Deletes reminder (topics) older than yesterday
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:WS_Social.facebook_api.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="F:WS_Social.facebook_api.innerIframe">
+            <summary>
+            innerIframe control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="F:WS_Social.facebook_api.iframe">
+            <summary>
+            iframe control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="F:WS_Social.facebook_api.Image1">
+            <summary>
+            Image1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="F:WS_Social.facebook_api.Lbl1">
+            <summary>
+            Lbl1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="T:WS_Users.UsersService">
+            <summary>
+            Summary description for Service1
+            </summary>
+        </member>
+        <member name="T:WS_Social.module">
+            <summary>
+            Summary description for Service1
+            </summary>
+        </member>
+        <member name="T:WS_Pricing.module">
+            <summary>
+            Summary description for Service1
+            </summary>
+        </member>
+        <member name="F:WS_Users.OSaml.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+        <member name="F:WS_Users.SSO.form1">
+            <summary>
+            form1 control.
+            </summary>
+            <remarks>
+            Auto-generated field.
+            To modify move field declaration from designer file to code-behind file.
+            </remarks>
+        </member>
+    </members>
+</doc>
