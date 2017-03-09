@@ -333,7 +333,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SeriesRecordingEnabled, opt => opt.MapFrom(src => src.IsSeriesRecordingEnabled))
                 .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
-                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.quotaOveragePolicy))); ;
+                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)));
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -355,7 +356,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsSeriesRecordingEnabled, opt => opt.MapFrom(src => src.SeriesRecordingEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.NonEntitledChannelPlaybackEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
-                .ForMember(dest => dest.quotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)));
+                .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)));
 
             #endregion
 
@@ -450,6 +452,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
              ;
 
             #endregion
+        }
+
+        private static ProtectionPolicy? ConvertProtectionPolicy(KalturaProtectionPolicy? protectionPolicy)
+        {
+            ProtectionPolicy? result = null;
+
+            if (protectionPolicy.HasValue)
+            {
+                switch (protectionPolicy)
+                {
+                    case KalturaProtectionPolicy.UnlimitedByRecordingLifetime:
+                        result = ProtectionPolicy.UnlimitedByRecordingLifetime;
+                        break;
+                    case KalturaProtectionPolicy.LimitedByRecordingLifetime:
+                        result = ProtectionPolicy.LimitedByRecordingLifetime;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown protection policy value");
+                }
+            }
+            return result;    
+        }
+
+        private static KalturaProtectionPolicy? ConvertProtectionPolicy(ProtectionPolicy? protectionPolicy)
+        {
+            KalturaProtectionPolicy? result = null;
+
+            if (protectionPolicy.HasValue)
+            {
+                switch (protectionPolicy)
+                {
+                    case ProtectionPolicy.UnlimitedByRecordingLifetime:
+                        result = KalturaProtectionPolicy.UnlimitedByRecordingLifetime;
+                        break;
+                    case ProtectionPolicy.LimitedByRecordingLifetime:
+                        result = KalturaProtectionPolicy.LimitedByRecordingLifetime;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown protection policy value");
+                }
+            }
+            return result;    
         }
 
         private static KalturaQuotaOveragePolicy? ConvertQuotaOveragePolicy(QuotaOveragePolicy? quotaOveragePolicy)

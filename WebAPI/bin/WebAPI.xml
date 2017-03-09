@@ -8887,6 +8887,11 @@
              Quota Policy
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings.ProtectionPolicy">
+            <summary>
+             Protection Policy
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialActionFilter.AssetIdIn">
             <summary>
             Comma separated list of asset identifiers.
