@@ -333,7 +333,7 @@ namespace Core.Catalog
                         languages.Add(languageId);
                 }
 
-                DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languages, sEndDate, bUseStartDate );
+                DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languages, sEndDate, bUseStartDate);
 
                 if (ds == null)
                     return null;
@@ -530,50 +530,50 @@ namespace Core.Catalog
                     metasValue = group.m_oMetasValuesByGroupId[mediaGroupId];
                 }
 
-                if (dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0)
+                Metas oMeta = new Metas();
+                string sFieldVal;
+                for (int i = 1; i <= 20; i++)
                 {
-                    Metas oMeta = new Metas();
-                    string sFieldVal;
-                    for (int i = 1; i <= 20; i++)
+                    sFieldVal = string.Format("META{0}_STR", i);
+                    if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
+                        dtMedia.Rows[0][sFieldVal] != DBNull.Value)
                     {
-                        sFieldVal = string.Format("META{0}_STR", i);
-                        if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
-                            dtMedia.Rows[0][sFieldVal] != DBNull.Value)
+                        oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(string).ToString());
+                        oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
+                        if (dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0)
                         {
-                            oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(string).ToString());
-                            oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
                             oMeta.Value = GetMediaLanguageContainer(dtMedia.Rows[0], dtMeta, group.GetLangauges(), sFieldVal);
-                            lMetas.Add(oMeta);
                         }
-                        oMeta = new Metas();
+                        lMetas.Add(oMeta);
                     }
+                    oMeta = new Metas();
+                }
 
-                    for (int i = 1; i < 11; i++)
+                for (int i = 1; i < 11; i++)
+                {
+                    sFieldVal = string.Format("META{0}_DOUBLE", i);
+                    if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
+                        dtMedia.Rows[0][sFieldVal] != DBNull.Value)
                     {
-                        sFieldVal = string.Format("META{0}_DOUBLE", i);
-                        if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
-                            dtMedia.Rows[0][sFieldVal] != DBNull.Value)
-                        {
-                            oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(double).ToString());
-                            oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
-                            lMetas.Add(oMeta);
-                        }
-                        oMeta = new Metas();
+                        oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(double).ToString());
+                        oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
+                        lMetas.Add(oMeta);
                     }
+                    oMeta = new Metas();
+                }
 
-                    for (int i = 1; i < 11; i++)
+                for (int i = 1; i < 11; i++)
+                {
+                    sFieldVal = string.Format("META{0}_BOOL", i);
+
+                    if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
+                        dtMedia.Rows[0][sFieldVal] != DBNull.Value)
                     {
-                        sFieldVal = string.Format("META{0}_BOOL", i);
-
-                        if (metasValue != null && metasValue.ContainsKey(sFieldVal) && !string.IsNullOrEmpty(metasValue[sFieldVal]) &&
-                            dtMedia.Rows[0][sFieldVal] != DBNull.Value)
-                        {
-                            oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(bool).ToString());
-                            oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
-                            lMetas.Add(oMeta);
-                        }
-                        oMeta = new Metas();
+                        oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(bool).ToString());
+                        oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
+                        lMetas.Add(oMeta);
                     }
+                    oMeta = new Metas();
                 }
 
                 return lMetas;
@@ -911,14 +911,16 @@ namespace Core.Catalog
 
         private static LanguageContainer[] GetMediaLanguageContainer(DataRow mediaRow, DataTable metasTranslations, List<LanguageObj> groupLanguages, string columnName)
         {
-            List<LanguageContainer> langContainers = null;
+            List<LanguageContainer> langContainers = new List<LanguageContainer>();
             LanguageObj language = null;
+            string value = string.Empty;
+            int langId = 0;
 
             if (metasTranslations != null && metasTranslations.Rows.Count > 0)
             {
                 langContainers = new List<LanguageContainer>();
-                string value = string.Empty;
-                int langId = 0;
+                value = string.Empty;
+                langId = 0;
 
                 foreach (DataRow row in metasTranslations.Rows)
                 {
@@ -931,14 +933,14 @@ namespace Core.Catalog
                             langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
                     }
                 }
-
-                //add is default lang values
-                language = groupLanguages.Where(x => x.IsDefault).FirstOrDefault();
-                value = Utils.GetStrSafeVal(mediaRow, columnName);
-                if (language != null)
-                    langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
-
             }
+
+            //add is default lang values
+            language = groupLanguages.Where(x => x.IsDefault).FirstOrDefault();
+            value = Utils.GetStrSafeVal(mediaRow, columnName);
+            if (language != null)
+                langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
+
             return langContainers.ToArray();
         }
 
