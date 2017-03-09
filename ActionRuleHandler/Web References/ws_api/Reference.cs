@@ -2446,23 +2446,27 @@ namespace ActionRuleHandler.ws_api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DoActionRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool DoActionRules(long[] ruleIds) {
+        public bool DoActionRules(string sWSUserName, string sWSPassword, long[] ruleIds) {
             object[] results = this.Invoke("DoActionRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
                         ruleIds});
             return ((bool)(results[0]));
         }
         
         /// <remarks/>
-        public void DoActionRulesAsync(long[] ruleIds) {
-            this.DoActionRulesAsync(ruleIds, null);
+        public void DoActionRulesAsync(string sWSUserName, string sWSPassword, long[] ruleIds) {
+            this.DoActionRulesAsync(sWSUserName, sWSPassword, ruleIds, null);
         }
         
         /// <remarks/>
-        public void DoActionRulesAsync(long[] ruleIds, object userState) {
+        public void DoActionRulesAsync(string sWSUserName, string sWSPassword, long[] ruleIds, object userState) {
             if ((this.DoActionRulesOperationCompleted == null)) {
                 this.DoActionRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDoActionRulesOperationCompleted);
             }
             this.InvokeAsync("DoActionRules", new object[] {
+                        sWSUserName,
+                        sWSPassword,
                         ruleIds}, this.DoActionRulesOperationCompleted, userState);
         }
         

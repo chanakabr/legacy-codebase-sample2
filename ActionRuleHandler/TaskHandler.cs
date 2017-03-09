@@ -27,13 +27,7 @@ namespace ActionRuleHandler
                 using (ws_api.API api = new ws_api.API())
                 {
                     api.Url = url;
-                    long[] ruleIds = null;
-                    if (request.RuleIds != null)
-                    {
-                        ruleIds = request.RuleIds.ToArray();
-                    }
-
-                    bool apiResult = api.DoActionRules(ruleIds);
+                    bool apiResult = api.DoActionRules();
 
                     if (!apiResult)
                     {
