@@ -6480,7 +6480,7 @@ namespace Core.ConditionalAccess
                             if (usedQuota > npvrObject.Quota)
                             {
                                 // call the handel to delete all recordings
-                                QuotaManager.Instance.HandleDominQuotaOvarge(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.Downgrade);
+                                QuotaManager.Instance.HandleDominQuotaOvarge(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.DeletePending);
                             }
                         }
 
