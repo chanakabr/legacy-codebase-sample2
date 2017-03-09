@@ -290,7 +290,11 @@ namespace Core.Catalog
         public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = groupId;
+
+            if (OperationContext.Current != null && OperationContext.Current.IncomingMessageProperties != null)
+            {
+                OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = groupId;
+            }
 
             bool updateSuccess = false;
 

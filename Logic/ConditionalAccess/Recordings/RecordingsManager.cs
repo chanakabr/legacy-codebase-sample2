@@ -178,10 +178,9 @@ namespace Core.Recordings
                     EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
                 }
             }
-
             catch (Exception ex)
             {
-                log.ErrorFormat("RecordingsManager - Record: Error getting recording of program {0}. error = {1}", programId, ex);
+                log.ErrorFormat("RecordingsManager - Record: in record of program {0}. error = {1}", programId, ex);
                 recording = null;
             }
 
