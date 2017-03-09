@@ -119,13 +119,13 @@ namespace WebAPI.App_Start
         public class Name
         {
             [XmlElement("value")]
-            public Value Value { get; set; }
+            public List<Value> Value { get; set; }
         }
 
         public class Description
         {
             [XmlElement("value")]
-            public Value Value { get; set; }
+            public List<Value> Value { get; set; }
         }
 
         public class Thumb
@@ -252,7 +252,7 @@ namespace WebAPI.App_Start
             public string MlHandling { get; set; }
 
             [XmlElement("value")]
-            public Value Value { get; set; }
+            public List<Value> Value { get; set; }
 
             [XmlElement("container")]
             public List<Container> Container { get; set; }
@@ -447,26 +447,32 @@ namespace WebAPI.App_Start
                     media.Basic.MediaType = asset.TypeDescription;
 
                     // add name
-                    media.Basic.Name = new Name()
+                    media.Basic.Name = new Name() { Value = new List<Value>() };
+                    if (asset.Name != null && asset.Name.Values != null)
                     {
-                        Value = new Value()
+                        foreach (var nameItem in asset.Name.Values)
                         {
-                            Text = asset.Name.ToString(),
-                            // TODO: add language
-                            Lang = string.Empty
+                            media.Basic.Name.Value.Add(new Value()
+                            {
+                                Lang = nameItem.Language,
+                                Text = nameItem.Value
+                            });
                         }
-                    };
+                    }
 
                     // add description
-                    media.Basic.Description = new Description()
+                    media.Basic.Description = new Description() { Value = new List<Value>() };
+                    if (asset.Description != null && asset.Description.Values != null)
                     {
-                        Value = new Value()
+                        foreach (var nameItem in asset.Description.Values)
                         {
-                            Text = asset.Description.ToString(),
-                            // TODO: add language
-                            Lang = string.Empty
+                            media.Basic.Description.Value.Add(new Value()
+                            {
+                                Lang = nameItem.Language,
+                                Text = nameItem.Value
+                            });
                         }
-                    };
+                    }
 
                     // add dates (protecting formatting incase illegal date value received)
                     media.Basic.Dates = new Dates();
@@ -535,21 +541,32 @@ namespace WebAPI.App_Start
 
                     if (asset.Metas != null)
                     {
-                        foreach (KeyValuePair<string, KalturaValue> entry in asset.Metas)
+                        foreach (var entry in asset.Metas)
                         {
                             // add strings
-                            if (entry.Value.GetType() == typeof(KalturaStringValue))
+                            if (entry.Value.GetType() == typeof(KalturaMultilingualStringValue) && entry.Value != null)
                             {
-                                media.Structure.Strings.Metas.Add(new Meta()
+                                // add string key
+                                Meta newMeta = new Meta()
                                 {
-                                    Name = entry.Key ?? string.Empty,
-                                    Value = new Value()
+                                    Name = entry.Key,
+                                    Value = new List<Value>()
+                                };
+
+                                // add strings languages
+                                if (((KalturaMultilingualStringValue)entry.Value).value != null && ((KalturaMultilingualStringValue)entry.Value).value.Values != null)
+                                {
+                                    foreach (KalturaTranslationToken item in ((KalturaMultilingualStringValue)entry.Value).value.Values)
                                     {
-                                        // TODO: fill language
-                                        Lang = string.Empty,
-                                        Text = ((KalturaStringValue)entry.Value).value ?? string.Empty
+                                        newMeta.Value.Add(new Value()
+                                        {
+                                            Text = item.Value,
+                                            Lang = item.Language
+                                        });
                                     }
-                                });
+                                }
+
+                                media.Structure.Strings.Metas.Add(newMeta);
                             }
 
                             // add doubles
@@ -594,7 +611,7 @@ namespace WebAPI.App_Start
                             // create new meta
                             meta = new Meta()
                             {
-                                Name = entry.Key ?? string.Empty,
+                                Name = entry.Key,
                                 Container = new List<Container>()
                             };
 
