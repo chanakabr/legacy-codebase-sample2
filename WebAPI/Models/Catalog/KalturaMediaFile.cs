@@ -121,11 +121,11 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// PPV Module 
         /// </summary>
-        [DataMember(Name = "ppvModule")]
-        [JsonProperty(PropertyName = "ppvModule")]
-        [XmlElement(ElementName = "ppvModule")]
+        [DataMember(Name = "ppvModules")]
+        [JsonProperty(PropertyName = "ppvModules")]
+        [XmlElement(ElementName = "ppvModules")]
         [JsonIgnore]
-        public string PpvModule { get; set; }
+        public KalturaStringValueArray PPVModules { get; set; }
 
         /// <summary>
         /// Product code 

@@ -664,7 +664,7 @@ namespace WebAPI.App_Start
                                 BillingType = file.BillingType,
                                 CdnName = file.CdnName,
                                 HandlingType = file.HandlingType,
-                                PpvModule = file.PpvModule,
+                                PpvModule = file.PPVModules != null && file.PPVModules.Objects != null && file.PPVModules.Objects.Count > 0 ? string.Join(";", file.PPVModules.Objects.Select(x => x.value).ToArray()) : string.Empty,
                                 ProductCode = file.ProductCode
                             });
                         }
