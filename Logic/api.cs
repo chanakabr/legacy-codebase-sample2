@@ -8234,14 +8234,15 @@ namespace Core.Api
                     int series_recording = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_series_recording", 1); //Default = enabled
                     int enable_recording_playback_non_entitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
                     int enable_recording_playback_non_existing = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
-                    int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0); 
+                    int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
+                    int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0); 
 
                     if (recordingScheduleWindow > -1)
                     {
                         response.Settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                                                     trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                                                     protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod,
-                                                                    series_recording == 1, enable_recording_playback_non_entitled == 1, enable_recording_playback_non_existing == 1, quotaOveragePolicy);
+                                                                    series_recording == 1, enable_recording_playback_non_entitled == 1, enable_recording_playback_non_existing == 1, quotaOveragePolicy, protectionPolicy);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
@@ -8265,7 +8266,7 @@ namespace Core.Api
                                          && settings.RecordingScheduleWindow == null && settings.PaddingBeforeProgramStarts == null && settings.PaddingAfterProgramEnds == null
                                          && settings.ProtectionPeriod == null && settings.ProtectionQuotaPercentage == null && settings.IsSeriesRecordingEnabled == null
                                          && settings.IsRecordingPlaybackNonEntitledChannelEnabled == null && settings.IsRecordingPlaybackNonExistingChannelEnabled == null
-                                         && !settings.quotaOveragePolicy.HasValue))
+                                         && !settings.QuotaOveragePolicy.HasValue && !settings.ProtectionPolicy.HasValue ))
                 {
                     response.Code = (int)ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent;
                     response.Message = ApiObjects.Response.eResponseStatus.TimeShiftedTvPartnerSettingsNotSent.ToString();                    
