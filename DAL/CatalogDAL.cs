@@ -4492,7 +4492,7 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GroupWatchPermissionsTypes(int groupId)
+        public static DataTable GetGroupWatchPermissionsTypes(int groupId)
         {
             DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Get_WatchPermissionsTypes");
@@ -4503,7 +4503,7 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GroupGeoblockRules(int groupId)
+        public static DataTable GetGroupGeoblockRules(int groupId)
         {
             DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Get_GeoBlockTypes");
@@ -4514,12 +4514,23 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GroupDeviceRules(int groupId)
+        public static DataTable GetGroupDeviceRules(int groupId)
         {
             DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Get_DeviceRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
+
+        public static DataTable GetMediaFilePPVModules(List<int> mediaFiles)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_MediaFilePPVModules");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddIDListParameter<int>("@MediaFiles", mediaFiles, "Id");
             dt = sp.Execute();
 
             return dt;
