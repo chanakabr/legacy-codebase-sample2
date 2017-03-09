@@ -463,6 +463,55 @@ namespace TvinciImporter
             }
         }
 
+        public static DateTime? GetDateTimeFromStrUTF(string sDate)
+        {
+            DateTime? date = null; 
+            try
+            {
+                string sTime = "";
+                if (sDate == "")
+                {
+                    return date;
+                }
+
+                string[] timeHour = sDate.Split(' ');
+                if (timeHour.Length == 2)
+                {
+                    sDate = timeHour[0];
+                    sTime = timeHour[1];
+                }
+                else
+                    return date;
+
+                string[] splited = sDate.Split('/');
+
+                Int32 nYear = 1;
+                Int32 nMounth = 1;
+                Int32 nDay = 1;
+                Int32 nHour = 0;
+                Int32 nMin = 0;
+                Int32 nSec = 0;
+                nYear = int.Parse(splited[2].ToString());
+                nMounth = int.Parse(splited[1].ToString());
+                nDay = int.Parse(splited[0].ToString());
+                if (timeHour.Length == 2)
+                {
+                    string[] splited1 = sTime.Split(':');
+                    nHour = int.Parse(splited1[0].ToString());
+                    nMin = int.Parse(splited1[1].ToString());
+                    nSec = int.Parse(splited1[2].ToString());
+                }
+
+                date = new DateTime(nYear, nMounth, nDay, nHour, nMin, nSec);
+            }
+            catch
+            {
+                
+            }
+
+            return date;
+        }
+
         static protected void ClearMediaValues(Int32 nMediaID)
         {
             ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media");
@@ -532,6 +581,21 @@ namespace TvinciImporter
             updateQuery += " tag_id in (select id from tags where TAG_TYPE_ID=" + nMediaTagType.ToString() + ") and ";
             //}
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", nMediaID);
+            updateQuery.Execute();
+            updateQuery.Finish();
+            updateQuery = null;
+        }
+
+        static protected void ClearMediaDates(int mediaId)
+        {
+            ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_date_metas_values");
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 2);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+            updateQuery += " where ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", mediaId);
+            updateQuery += " and ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "<>", 2);
             updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
@@ -1637,6 +1701,7 @@ namespace TvinciImporter
                 {
                     ClearMediaValues(nMediaID);
                     ClearMediaTranslateValues(nMediaID);
+                    ClearMediaDates(nMediaID);
                     //ClearMediaTags(nMediaID , 0);
                     ClearMediaFiles(nMediaID);
                     log.DebugFormat("ProcessItem - Action insert/update clear media files, values.. mediaId:{0}", nMediaID);
@@ -1711,6 +1776,7 @@ namespace TvinciImporter
                 XmlNodeList theStrings = theItem.SelectNodes("structure/strings/meta");
                 XmlNodeList theDoubles = theItem.SelectNodes("structure/doubles/meta");
                 XmlNodeList theBools = theItem.SelectNodes("structure/booleans/meta");
+                XmlNodeList theDates = theItem.SelectNodes("structure/dates/meta");
                 XmlNodeList theMetas = theItem.SelectNodes("structure/metas/meta");
                 XmlNodeList theFiles = theItem.SelectNodes("files/file");
 
@@ -1755,6 +1821,7 @@ namespace TvinciImporter
                 UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
                 UpdateDoublesData(nGroupID, nMediaID, sMainLang, ref theDoubles, ref sErrorMessage);
                 UpdateBoolsData(nGroupID, nMediaID, sMainLang, ref theBools, ref sErrorMessage);
+                UpdateDatesData(nGroupID, nMediaID, sMainLang, ref theDates, ref sErrorMessage);
                 UpdateMetas(nGroupID, nMediaID, sMainLang, ref theMetas, ref sErrorMessage);
                 UpdateFiles(nGroupID, sMainLang, nMediaID, ref theFiles, ref sErrorMessage);
 
@@ -4084,6 +4151,84 @@ namespace TvinciImporter
                 updateQuery.Execute();
             updateQuery.Finish();
             updateQuery = null;
+            return true;
+        }
+
+        static protected bool UpdateDatesData(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theDates, ref string sError)
+        {
+            if (theDates == null || theDates.Count <= 0)
+                return true;
+
+            Dictionary<string, Tuple<int, int>> dates = new Dictionary<string, Tuple<int, int>>();
+
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery += "select gdm.id gdmId, gdm.NAME, mdmv.ID mdmvId from groups_date_metas gdm";
+            selectQuery += "left join media_date_metas_values mdmv";
+            selectQuery += "on mdmv.DATE_META_ID=gdm.id";
+            selectQuery += "where gdm.status=1 and";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdm.group_id", "=", nGroupID);
+            {
+                Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                for (int i = 0; i < nCount; i++)
+                {
+                    string gdmName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "NAME", i).ToLower();
+                    int gdmId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "gdmId", i);
+                    int mdmvId = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "mdmvId", i);
+
+                    dates.Add(gdmName, new Tuple<int, int>(gdmId, mdmvId));
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+
+            for (int i = 0; i < theDates.Count; i++)
+            {
+                XmlNode theItem = theDates[i];
+                string name = GetItemParameterVal(ref theItem, "name");
+                string value = GetNodeValue(ref theItem, "");
+
+                DateTime? date = GetDateTimeFromStrUTF(value);
+                if (!date.HasValue)
+                    continue;
+
+                if (dates.ContainsKey(name.ToLower()))
+                {
+                    var res = dates[name.ToLower()];
+                    if (res.Item2 == 0)
+                    {
+                        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("media_date_metas_values");
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("MEDIA_ID", "=", nMediaID);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("DATE_META_ID", "=", res.Item1);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", date.Value);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                        bool bRes = insertQuery.Execute();
+                        insertQuery.Finish();
+                        insertQuery = null;
+                    }
+                    else
+                    {
+                        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("media_date_metas_values");
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", date.Value);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
+                        updateQuery += "where";
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", res.Item2);
+                        bool bRes = updateQuery.Execute();
+                        updateQuery.Finish();
+                        updateQuery = null;
+                    }
+                }
+                else
+                {
+                    AddError(ref sError, "date value: " + name + " not exsits");
+                }
+            }
+
             return true;
         }
 
