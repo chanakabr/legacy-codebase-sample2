@@ -58,7 +58,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.CdnName, opt => opt.MapFrom(src => src.StreamingCompanyName))
                  .ForMember(dest => dest.CdnCode, opt => opt.MapFrom(src => src.m_nCdnID))
                  .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
-                 .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => src.PPVModule))
+                 .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
                  ;
 
@@ -292,7 +292,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))                
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.m_ExternalIDs))
@@ -580,7 +580,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 tags.Add(tag.m_oTagMeta.m_sName, new KalturaMultilingualStringValueArray()
                 {
-                    Objects = tag.Values.Select(v => new KalturaMultilingualStringValue() { value =  new KalturaMultilingualString(v) }).ToList()
+                    Objects = tag.Values.Select(v => new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(v) }).ToList()
                 });
             }
 
@@ -611,7 +611,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue) };
                 }
-                                
+
                 else
                 {
                     throw new ClientException((int)StatusCode.Error, "Unknown meta type");
@@ -822,6 +822,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 }
             }
             return lastPositions;
+        }
+
+        public static KalturaStringValueArray BuildPPVModulesList(List<string> list)
+        {
+            if (list == null)
+            {
+                return null;
+            }
+
+            KalturaStringValueArray ppvModules = new KalturaStringValueArray();
+
+            foreach (var ppvModule in list)
+            {
+                ppvModules.Objects.Add(new KalturaStringValue() { value = ppvModule });
+            }
+
+            return ppvModules;
         }
     }
 }

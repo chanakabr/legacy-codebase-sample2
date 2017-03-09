@@ -1252,7 +1252,7 @@
             Alt CDN code
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.PpvModule">
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaFile.PPVModules">
             <summary>
             PPV Module 
             </summary>
