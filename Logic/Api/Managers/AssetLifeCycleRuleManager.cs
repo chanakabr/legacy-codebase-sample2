@@ -14,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
 
-namespace APILogic.Api.Managers
+namespace Core.Api.Managers
 {
     public class AssetLifeCycleRuleManager
     {
@@ -68,10 +68,9 @@ namespace APILogic.Api.Managers
                                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                                 string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
                                 string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
-                                int transitionIntervalInDays = ODBCWrapper.Utils.GetIntSafeVal(dr, "TRANSITION_INTERVAL");
                                 string metaDateName = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATE_NAME");
-                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, name, description, filter, metaDateName, transitionIntervalInDays);
-                                mappedRules.Add(id, alcr);
+                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, name, description, filter, metaDateName);
+                                mappedRules.Add(id, alcr);                                
                             }
                         }
 
@@ -107,7 +106,7 @@ namespace APILogic.Api.Managers
             return rules;
         }
 
-        public bool ApplyLifeCycleRuleActionsOnAssets(List<int> assetIds, AssetLifeCycleRule ruleToApply) // currency assetIds=mediaIds
+        public bool ApplyLifeCycleRuleActionsOnAssets(int groupId, List<int> assetIds, AssetLifeCycleRule ruleToApply) // currency assetIds=mediaIds
         {
             bool res = false;
             try
@@ -119,7 +118,11 @@ namespace APILogic.Api.Managers
                           (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
                     if (!ApiDAL.UpdateAssetLifeCycleLastRunDate(ruleToApply.Id))
                     {
-                        log.WarnFormat("failed to update asset life cycle last run date for rule: {0}", ruleToApply);
+                        log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, ruleToApply);
+                    }
+                    if (!Catalog.Module.UpdateIndex(assetIds, groupId, eAction.Update))
+                    {
+                        log.WarnFormat("failed to update index of assetIds: {0} after applying rule: {1} for groupId: {2}",string.Join(",", assetIds), ruleToApply, groupId);
                     }
                 }
 
@@ -209,7 +212,7 @@ namespace APILogic.Api.Managers
                                 List<int> assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                 // Apply rule on assets that returned from search
-                                this.ApplyLifeCycleRuleActionsOnAssets(assetIds, rule);
+                                this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
                             }
 
                             return true;
