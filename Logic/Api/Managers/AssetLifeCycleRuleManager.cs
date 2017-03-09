@@ -63,7 +63,8 @@ namespace APILogic.Api.Managers
                                 string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
                                 string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
                                 int transitionIntervalInDays = ODBCWrapper.Utils.GetIntSafeVal(dr, "TRANSITION_INTERVAL");
-                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, name, description, filter, transitionIntervalInDays);
+                                string metaDateName = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATE_NAME");
+                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, name, description, filter, metaDateName, transitionIntervalInDays);
                                 mappedRules.Add(id, alcr);
                             }
                         }
@@ -110,6 +111,10 @@ namespace APILogic.Api.Managers
                     res = ApplyLifeCycleRuleTagTransitionsOnAssets(assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
                           (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
+                    if (!ApiDAL.UpdateAssetLifeCycleLastRunDate(ruleToApply.Id))
+                    {
+                        log.WarnFormat("failed to update asset life cycle last run date for rule: {0}", ruleToApply);
+                    }
                 }
 
                 return res;
