@@ -27,20 +27,13 @@ namespace ActionRuleHandler
                 using (ws_api.API api = new ws_api.API())
                 {
                     api.Url = url;
-
-                    string username = string.Empty;
-                    string password = string.Empty;
-
-                    TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
-
                     long[] ruleIds = null;
-
                     if (request.RuleIds != null)
                     {
                         ruleIds = request.RuleIds.ToArray();
                     }
 
-                    bool apiResult = api.DoActionRules(username, password, ruleIds);
+                    bool apiResult = api.DoActionRules(ruleIds);
 
                     if (!apiResult)
                     {
