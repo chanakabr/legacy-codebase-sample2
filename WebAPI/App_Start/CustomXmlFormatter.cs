@@ -59,6 +59,27 @@ namespace WebAPI.App_Start
             public object[] result { get; set; }
         }
 
+        public class CustomXmlWriter : XmlTextWriter
+        {
+            private string currentElementName = null;
+
+            public CustomXmlWriter(Stream stream)
+                : base(stream, Encoding.UTF8)
+            {
+            }
+
+            public override void WriteStartElement(string prefix, string localName, string ns)
+            {
+                currentElementName = localName;
+                base.WriteStartElement(prefix, localName, ns);
+            }
+
+            public string GetCurrentElementName()
+            {
+                return currentElementName;
+            }
+        }
+
         private XmlDocument SerializeToXmlDocument(XmlReponseWrapper input, StatusWrapper wrapper)
         {
             List<Type> extraTypes = new List<Type>();
@@ -83,18 +104,21 @@ namespace WebAPI.App_Start
 
             using (MemoryStream memStm = new MemoryStream())
             {
-                ser.Serialize(memStm, input);
-
-                memStm.Position = 0;
-
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.IgnoreWhitespace = true;
-
-                using (var xtr = XmlReader.Create(memStm, settings))
+                using (XmlWriter xmlWriter = new CustomXmlWriter(memStm))
                 {
-                    xd = new XmlDocument();
-                    xd.Load(xtr);
-                    xd.FirstChild.InnerText = "version=\"1.0\" encoding=\"utf-8\"";
+                    ser.Serialize(xmlWriter, input);
+
+                    memStm.Position = 0;
+
+                    XmlReaderSettings settings = new XmlReaderSettings();
+                    settings.IgnoreWhitespace = true;
+
+                    using (var xtr = XmlReader.Create(memStm, settings))
+                    {
+                        xd = new XmlDocument();
+                        xd.Load(xtr);
+                        xd.FirstChild.InnerText = "version=\"1.0\" encoding=\"utf-8\"";
+                    }
                 }
             }
 
