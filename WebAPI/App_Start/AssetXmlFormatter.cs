@@ -698,6 +698,11 @@ namespace WebAPI.App_Start
                             // remove root attributes
                             doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
 
+                            // remove declaration 
+                            var declaration = doc.ChildNodes.OfType<XmlNode>().FirstOrDefault(x => x.NodeType == XmlNodeType.XmlDeclaration);
+                            if (declaration != null)
+                                doc.RemoveChild(declaration);
+
                             var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
                             writeStream.Write(buf, 0, buf.Length);
                         }
