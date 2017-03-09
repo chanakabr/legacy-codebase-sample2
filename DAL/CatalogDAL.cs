@@ -48,6 +48,23 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+        public static DataSet Get_MediaDetailsWithLanguages(int groupID, int mediaID, bool onlyActiveMedia, List<int> languages, string endDate, bool useStartDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaDetailsWithLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@OnlyActiveMedia", onlyActiveMedia);
+            sp.AddIDListParameter<int>("@Languages", languages, "Id");
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@UseStartDate", useStartDate);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            return ds;
+        }
+
+
         /// <summary>
         /// For a given user and media, returns the last time the user watched the media
         /// </summary>

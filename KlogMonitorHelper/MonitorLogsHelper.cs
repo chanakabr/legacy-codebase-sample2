@@ -147,27 +147,27 @@ namespace KlogMonitorHelper
                         if (requestMessage.Headers.Action != null)
                         {
                             string actionName = requestMessage.Headers.Action.Substring(requestMessage.Headers.Action.LastIndexOf("/") + 1);
-                            OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = actionName;
+                            MonitorLogsHelper.SetContext(Constants.ACTION, actionName);
                         }
                         else
-                            OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = "null";
+                            MonitorLogsHelper.SetContext(Constants.ACTION, "null");
                     }
 
                     // get request ID
                     if (OperationContext.Current.IncomingMessageHeaders.FindHeader(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty) == -1)
-                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = Guid.NewGuid().ToString();
+                        MonitorLogsHelper.SetContext(KLogMonitor.Constants.REQUEST_ID_KEY, Guid.NewGuid().ToString());
                     else
-                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty);
+                        MonitorLogsHelper.SetContext(KLogMonitor.Constants.REQUEST_ID_KEY, OperationContext.Current.IncomingMessageHeaders.GetHeader<string>(KLogMonitor.Constants.REQUEST_ID_KEY, string.Empty));
 
                     // get user agent
-                    OperationContext.Current.IncomingMessageProperties[Constants.CLIENT_TAG] = Dns.GetHostName();
+                    MonitorLogsHelper.SetContext(Constants.CLIENT_TAG, Dns.GetHostName());
 
                     // get host IP
                     if (requestMessage.Properties != null && requestMessage.Properties[RemoteEndpointMessageProperty.Name] != null)
-                        OperationContext.Current.IncomingMessageProperties[Constants.HOST_IP] = (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address;
+                        MonitorLogsHelper.SetContext(Constants.HOST_IP, (requestMessage.Properties[RemoteEndpointMessageProperty.Name] as RemoteEndpointMessageProperty).Address);
 
                     // start k-monitor
-                    OperationContext.Current.IncomingMessageProperties[K_MON_KEY] = new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START);
+                    MonitorLogsHelper.SetContext(K_MON_KEY, new KMonitor(KLogMonitor.Events.eEvent.EVENT_API_START));
 
                     // log request
                     if (requestString.Length > MAX_LOG_REQUEST_SIZE)
@@ -255,6 +255,14 @@ namespace KlogMonitorHelper
                 {
                     request.Headers.Add(KLogMonitor.Constants.REQUEST_ID_KEY, HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString());
                 }
+            }
+        }
+
+        public static void SetContext(string key, object value)
+        {
+            if (OperationContext.Current != null)
+            {
+                OperationContext.Current.IncomingMessageProperties[key] = value;
             }
         }
     }
