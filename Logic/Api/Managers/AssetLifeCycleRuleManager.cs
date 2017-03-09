@@ -227,10 +227,9 @@ namespace APILogic.Api.Managers
                                     // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
                                     if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
                                     {
-                                        this.DisableRule(rule);
+                                        this.DisableRule(groupId, rule);
                                     }
                                 }
-
                             }
 
                             return true;
@@ -273,6 +272,7 @@ namespace APILogic.Api.Managers
             {
                 actionRuleTaskIntervalHours = 24;
             }
+
             GenericCeleryQueue queue = new GenericCeleryQueue();
 
             string dataId = Guid.NewGuid().ToString();
@@ -560,9 +560,22 @@ namespace APILogic.Api.Managers
             }
         }
 
-        private void DisableRule(AssetLifeCycleRule rule)
+        private void DisableRule(int groupId, AssetLifeCycleRule rule)
         {
-            throw new NotImplementedException();
+            if (rule != null)
+            {
+                try
+                {
+                    if (!ApiDAL.DisableRule(groupId, rule.Id))
+                    {
+                        log.ErrorFormat("Error when disabling rule {0} in group {1}", rule.Id, groupId);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error when disabling rule {0} in group {1}, ex = {2}", rule.Id, groupId, ex);
+                }
+            }
         }
 
         #endregion
