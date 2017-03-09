@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
+﻿using ApiObjects;
 using ApiObjects.Catalog;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Core.Catalog
 {
@@ -30,6 +28,8 @@ namespace Core.Catalog
         public TagMeta m_oTagMeta;
         [DataMember]
         public string m_sValue;
+        [DataMember]
+        public LanguageContainer[] Value;
 
         public Metas()
         {
@@ -42,6 +42,9 @@ namespace Core.Catalog
         public TagMeta m_oTagMeta;
         [DataMember]
         public List<string> m_lValues;
+
+        [DataMember]
+        public List<LanguageContainer[]> Values;
 
         public Tags()
         {

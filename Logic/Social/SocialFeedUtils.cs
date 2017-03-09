@@ -309,7 +309,13 @@ namespace Core.Social
                     feed = (FacebookResp)socialPlatformResp;
                     break;
                 case eSocialPlatform.InApp:
-                    feed = (CommentsListResponse)socialPlatformResp;
+                    AssetCommentsListResponse response = (AssetCommentsListResponse)socialPlatformResp;
+                    feed = new CommentsListResponse()
+                    {
+                        m_lComments = response.Comments,
+                        m_lObj = response.m_lObj,
+                        m_nTotalItems = response.m_nTotalItems
+                    };
                     break;
 
                 case eSocialPlatform.Twitter:

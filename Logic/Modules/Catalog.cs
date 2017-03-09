@@ -7,6 +7,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
+using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,16 +47,16 @@ namespace Core.Catalog
                 return null;
 
             // add siteguid to logs/monitor
-            OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = request.m_sSiteGuid != null ? request.m_sSiteGuid : "null";
+            MonitorLogsHelper.SetContext(Constants.USER_ID, request.m_sSiteGuid != null ? request.m_sSiteGuid : "null");
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = request.m_nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, request.m_nGroupID);
 
             IFactoryImp f = new FactoryImp(request);
             IRequestImp imp = f.GetTypeImp(request);
 
             // get action ID
-            OperationContext.Current.IncomingMessageProperties[Constants.ACTION] = imp.GetType();
+            MonitorLogsHelper.SetContext(Constants.ACTION, imp.GetType());
 
             BaseResponse resp = imp.GetResponse(request);
 
@@ -68,10 +69,10 @@ namespace Core.Catalog
             if (mediaRequest != null)
             {
                 // add siteguid to logs/monitor
-                OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = mediaRequest.m_sSiteGuid != null ? mediaRequest.m_sSiteGuid : "null";
+                MonitorLogsHelper.SetContext(Constants.USER_ID, mediaRequest.m_sSiteGuid != null ? mediaRequest.m_sSiteGuid : "null");
 
                 // get group ID
-                OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = mediaRequest.m_nGroupID;
+                MonitorLogsHelper.SetContext(Constants.GROUP_ID, mediaRequest.m_nGroupID);
 
                 return mediaRequest.GetMediasByIDs(mediaRequest);
             }
@@ -84,10 +85,10 @@ namespace Core.Catalog
             if (programRequest != null)
             {
                 // add siteguid to logs/monitor
-                OperationContext.Current.IncomingMessageProperties[Constants.USER_ID] = programRequest.m_sSiteGuid != null ? programRequest.m_sSiteGuid : "null";
+                MonitorLogsHelper.SetContext(Constants.USER_ID, programRequest.m_sSiteGuid != null ? programRequest.m_sSiteGuid : "null");
 
                 // get group ID
-                OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = programRequest.m_nGroupID;
+                MonitorLogsHelper.SetContext(Constants.GROUP_ID, programRequest.m_nGroupID);
 
                 return programRequest.GetProgramsByIDs(programRequest);
             }
@@ -98,7 +99,7 @@ namespace Core.Catalog
         public static bool UpdateChannel(int nGroupId, int nChannelId)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupId);
 
             bool isChannelUpdatingSucceeded = false;
 
@@ -119,7 +120,7 @@ namespace Core.Catalog
         public static bool RemoveChannelFromCache(int nGroupId, int nChannelId)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupId);
 
             bool isChannelUpdatingSucceeded = false;
 
@@ -143,7 +144,7 @@ namespace Core.Catalog
             var action = eAction;
 
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = groupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
 
             bool bIsUpdateIndexSucceeded = false;
 
@@ -172,7 +173,7 @@ namespace Core.Catalog
         public static bool UpdateChannelIndex(List<int> channelIds, int groupId, eAction action)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = groupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
 
             bool bIsUpdateIndexSucceeded = false;
 
@@ -200,7 +201,7 @@ namespace Core.Catalog
         public static bool UpdateOperator(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupID;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
             try
             {
@@ -227,7 +228,7 @@ namespace Core.Catalog
         public static bool UpdateEpgIndex(List<int> lEpgIds, int nGroupId, eAction eAction)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupId);
 
             bool bIsUpdateIndexSucceeded = false;
 
@@ -249,7 +250,7 @@ namespace Core.Catalog
         public static bool UpdateEpgChannelIndex(List<int> lEpgChannelIds, int nGroupId, eAction eAction)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = nGroupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupId);
 
             bool bIsUpdateIndexSucceeded = false;
 
@@ -290,7 +291,7 @@ namespace Core.Catalog
         public static bool UpdateRecordingsIndex(List<long> recordingsIds, int groupId, eAction action)
         {
             // get group ID
-            OperationContext.Current.IncomingMessageProperties[Constants.GROUP_ID] = groupId;
+            MonitorLogsHelper.SetContext(Constants.GROUP_ID, groupId);
 
             bool updateSuccess = false;
 
