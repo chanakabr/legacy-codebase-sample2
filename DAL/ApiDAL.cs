@@ -4101,5 +4101,10 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+
+        public static bool UpdateAssetLifeCycleLastRunDate(long p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
