@@ -137,7 +137,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        public bool DoActionRules(int groupId, List<long> ruleIds)
+        public bool DoActionRules(int groupId, List<long> ruleIds, ref int ImpactedItems)
         {
             bool result = false;
 
@@ -158,11 +158,11 @@ namespace Core.Api.Managers
                     rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
                 }
 
-                Task<bool>[] tasks = new Task<bool>[rules.Count];
+                Task<Tuple<int, bool>>[] tasks = new Task<Tuple<int,bool>>[rules.Count];
 
                 for (int i = 0; i < rules.Count; i++)
                 {
-                    tasks[i] = Task.Factory.StartNew<bool>(
+                    tasks[i] = Task.Factory.StartNew<Tuple<int, bool>>(
                         (index) =>
                         {
                             long ruleId = -1;
@@ -208,7 +208,7 @@ namespace Core.Api.Managers
 
                                 // Call catalog
                                 var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-
+                                List<int> assetIds = new List<int>();
                                 if (response != null && response.searchResults != null && response.searchResults.Count > 0)
                                 {
                                     // Remember count, first and last result - to verify that action was successful
@@ -216,7 +216,7 @@ namespace Core.Api.Managers
                                     string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
                                     string lastAssetId = response.searchResults.LastOrDefault().AssetId;
 
-                                    List<int> assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+                                    assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                     // Apply rule on assets that returned from search
                                     this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
@@ -237,12 +237,12 @@ namespace Core.Api.Managers
                                     }
                                 }
 
-                                return true;
+                                return new Tuple<int, bool>(assetIds.Count, true);
                             }
                             catch (Exception ex)
                             {
                                 log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
-                                return false;
+                                return new Tuple<int,bool>(0, false);
                             }
                         }, i);
                 }
@@ -250,15 +250,17 @@ namespace Core.Api.Managers
                 #region Finish tasks
 
                 Task.WaitAll(tasks);
+                result = true;
 
                 // Return false if one of the tasks returned false
                 foreach (var task in tasks)
                 {
                     if (task != null)
                     {
-                        if (!task.Result)
+                        if (task.Result != null)
                         {
-                            result = false;
+                            ImpactedItems += task.Result.Item1;
+                            result = result && task.Result.Item2;
                         }
 
                         task.Dispose();
@@ -272,7 +274,7 @@ namespace Core.Api.Managers
                 log.ErrorFormat("Error in DoActionRules: groupId: {0}, ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace);                
             }
 
-            return true;
+            return result;
         }
 
         #endregion

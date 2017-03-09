@@ -9335,22 +9335,23 @@ namespace Core.Api
 
         public static bool DoActionRules(List<long> ruleIds)
         {
-            double scheduledTaskIntervalSec = 0;
+            double alcrScheduledTaskIntervalSec = 0;
             bool shouldEnqueueFollowUp = false;
             bool shouldGetAllRules = ruleIds == null || ruleIds.Count == 0;
             try
             {
+                BaseScheduledTaskLastRunDetails assetLifeCycleRuleScheduledTask = null;
                 // should check last run only if its specific rules
                 if (shouldGetAllRules)
                 {
                     // try to get interval for next run take default
-                    BaseScheduledTaskLastRunDetails AssetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
-                    ScheduledTaskLastRunDetails lastRunDetails = AssetLifeCycleRuleScheduledTask.GetLastRunDetails();
-                    AssetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
-                    if (AssetLifeCycleRuleScheduledTask != null && AssetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
+                    assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+                    ScheduledTaskLastRunDetails lastRunDetails = assetLifeCycleRuleScheduledTask.GetLastRunDetails();
+                    assetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+                    if (assetLifeCycleRuleScheduledTask != null && assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
                     {
-                        scheduledTaskIntervalSec = AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
-                        if (AssetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
+                        alcrScheduledTaskIntervalSec = assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
+                        if (assetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(alcrScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                         {
                             return true;
                         }
@@ -9362,19 +9363,21 @@ namespace Core.Api
                     else
                     {
                         shouldEnqueueFollowUp = true;
-                        scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                        alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
                 }
 
                 // if ruleIds contains rules we will get a ruleId to groupId Map, otherwise we will get all the groupIds that have active rules defined (key will be 0 in dictionary)
                 Dictionary<long, List<int>> groupIdsWithRules = APILogic.Utils.GetGroupIdsWithRules(ruleIds);
+                int ImpactedItems = 0;
                 foreach (KeyValuePair<long, List<int>> pair in groupIdsWithRules)
                 {
                     if (pair.Value != null && pair.Value.Count > 0)
                     {
                         foreach (int groupId in pair.Value)
                         {
-                            if (!AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds))
+                            int ImpactedItemsForGroup = 0;
+                            if (!AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds, ref ImpactedItemsForGroup))
                             {
                                 log.ErrorFormat("Failed AssetLifeCycleRuleManager.Instance.DoActionRules for groupId: {0}, ruleIds: {1}", groupId, string.Join(",", ruleIds));
                                 // if its only specific rulesIds, return false
@@ -9383,9 +9386,25 @@ namespace Core.Api
                                     return false;
                                 }
                             }
+
+                            ImpactedItems += ImpactedItemsForGroup;
                         }
                     }
                 }
+
+                if (assetLifeCycleRuleScheduledTask != null)
+                {
+                    assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, ImpactedItems, alcrScheduledTaskIntervalSec, ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+                    if (!assetLifeCycleRuleScheduledTask.SetLastRunDetails())
+                    {
+                        log.InfoFormat("Failed updating asset life cycle rules scheduled task last run details, AssetLifeCycleRuleScheduledTask: {0}", assetLifeCycleRuleScheduledTask.ToString());
+                    }
+                    else
+                    {
+                        log.Debug("Successfully updated asset life cycle rules scheduled task last run date");
+                    }
+                }
+
             }
             catch (Exception ex)
             {
@@ -9396,12 +9415,12 @@ namespace Core.Api
             {               
                 if (shouldEnqueueFollowUp)
                 {
-                    if (scheduledTaskIntervalSec == 0)
+                    if (alcrScheduledTaskIntervalSec == 0)
                     {
-                        scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                        alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
 
-                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(alcrScheduledTaskIntervalSec);
                     GenericCeleryQueue queue = new GenericCeleryQueue();
                     BaseCeleryData data = new BaseCeleryData(Guid.NewGuid().ToString(), ACTION_RULE_TASK, new List<object>(), nextExecutionDate);
                     bool enqueueResult = queue.Enqueue(data, ROUTING_KEY_RECORDINGS_ASSET_LIFE_CYCLE_RULE);
