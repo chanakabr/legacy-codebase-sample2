@@ -48,29 +48,30 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        public List<AssetLifeCycleRule> GetAllLifeCycleRules(int groupId)
+        public Dictionary<int, List<AssetLifeCycleRule>> GetAllLifeCycleRules(int groupId = 0, List<long> rulesIds = null)
         {
-            List<AssetLifeCycleRule> rules = null;
+            Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int,List<AssetLifeCycleRule>>();
             try
             {
-                DataSet ds = DAL.ApiDAL.GetAllLifeCycleRules(groupId);
+                DataSet ds = DAL.ApiDAL.GetAllLifeCycleRules(groupId, rulesIds);
                 if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
                 {
-                    Dictionary<long, AssetLifeCycleRule> mappedRules = new Dictionary<long, AssetLifeCycleRule>();
+                    List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
                     DataTable rulesDt = ds.Tables[0];
                     if (rulesDt != null && rulesDt.Rows != null && rulesDt.Rows.Count > 0)
                     {
                         foreach (DataRow dr in rulesDt.Rows)
                         {
                             long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                            if (id > 0 && !mappedRules.ContainsKey(id))
+                            groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                            if (id > 0 && groupId > 0)
                             {
                                 string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                                 string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
                                 string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
                                 string metaDateName = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATE_NAME");
-                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, name, description, filter, metaDateName);
-                                mappedRules.Add(id, alcr);                                
+                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter, metaDateName);
+                                rules.Add(alcr);                              
                             }
                         }
 
@@ -82,17 +83,23 @@ namespace Core.Api.Managers
                         Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToAdd = new Dictionary<long,LifeCycleFileTypesAndPpvsTransitions>();
                         Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToRemove = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
                         Dictionary<long, int?> ruleIdToGeoBlockMap = new Dictionary<long, int?>();
-                        if (FillRulesToTags(dtRulesTags, mappedRules, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
-                            FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, mappedRules, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
-                            FillRulesToGeoBlock(dtRulesGeoBlock, mappedRules, ref ruleIdToGeoBlockMap))
-                        {
-                            foreach (long alcrId in mappedRules.Keys)
+                        if (FillRulesToTags(dtRulesTags, rules, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
+                            FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, rules, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
+                            FillRulesToGeoBlock(dtRulesGeoBlock, rules, ref ruleIdToGeoBlockMap))
+                        {                            
+                            foreach (AssetLifeCycleRule alcr in rules)
                             {
-                                mappedRules[alcrId].Actions = new LifeCycleTransitions(ruleIdToTagIdsToAddMap.ContainsKey(alcrId) ? ruleIdToTagIdsToAddMap[alcrId] : new List<int>(),
-                                                                                       ruleIdToTagIdsToRemoveMap.ContainsKey(alcrId) ? ruleIdToTagIdsToRemoveMap[alcrId] : new List<int>(),
-                                                                                       fileTypesAndPpvsToAdd.ContainsKey(alcrId) ? fileTypesAndPpvsToAdd[alcrId] : new LifeCycleFileTypesAndPpvsTransitions(),
-                                                                                       fileTypesAndPpvsToRemove.ContainsKey(alcrId) ? fileTypesAndPpvsToRemove[alcrId] : new LifeCycleFileTypesAndPpvsTransitions(),
-                                                                                       ruleIdToGeoBlockMap.ContainsKey(alcrId) ? ruleIdToGeoBlockMap[alcrId] : null);
+                                alcr.Actions = new LifeCycleTransitions(ruleIdToTagIdsToAddMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToAddMap[alcr.Id] : new List<int>(),
+                                                                                       ruleIdToTagIdsToRemoveMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToRemoveMap[alcr.Id] : new List<int>(),
+                                                                                       fileTypesAndPpvsToAdd.ContainsKey(alcr.Id) ? fileTypesAndPpvsToAdd[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                                                                       fileTypesAndPpvsToRemove.ContainsKey(alcr.Id) ? fileTypesAndPpvsToRemove[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                                                                       ruleIdToGeoBlockMap.ContainsKey(alcr.Id) ? ruleIdToGeoBlockMap[alcr.Id] : null);
+                                if (!groupIdToRulesMap.ContainsKey(alcr.GroupId))
+                                {
+                                    groupIdToRulesMap.Add(alcr.GroupId, new List<AssetLifeCycleRule>());
+                                }
+
+                                groupIdToRulesMap[alcr.GroupId].Add(alcr);
                             }
                         }
                     }
@@ -100,10 +107,10 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetAllLifeCycleRules failed, groupId : {0}", groupId), ex);
+                log.ErrorFormat("GetAllLifeCycleRules failed", ex);
             }
 
-            return rules;
+            return groupIdToRulesMap;
         }
 
         public bool ApplyLifeCycleRuleActionsOnAssets(int groupId, List<int> assetIds, AssetLifeCycleRule ruleToApply) // currency assetIds=mediaIds
@@ -137,133 +144,118 @@ namespace Core.Api.Managers
             return res;
         }
 
-        public bool DoActionRules(int groupId, List<long> ruleIds, ref int ImpactedItems)
+        public int DoActionRules(int groupId = 0, List<long> rulesIds = null)
         {
-            bool result = false;
+            int result = 0;
 
             try
             {
                 // Get all rules of this group
-                List<AssetLifeCycleRule> allRules = GetAllLifeCycleRules(groupId);
-                List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
-
-                // If parameter is null - we want to run all rules
-                if (ruleIds == null)
+                Dictionary<int, List<AssetLifeCycleRule>> allRules = GetAllLifeCycleRules(groupId, rulesIds);                
+                foreach (KeyValuePair<int, List<AssetLifeCycleRule>> pair in allRules)
                 {
-                    rules = allRules;
-                }
-                else
-                {
-                    // If parameter is not null, we want to run only specific rules
-                    rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
-                }
+                    groupId = pair.Key;
+                    List<AssetLifeCycleRule> rules = pair.Value;
+                    Task<int>[] tasks = new Task<int>[rules.Count];
 
-                Task<Tuple<int, bool>>[] tasks = new Task<Tuple<int,bool>>[rules.Count];
-
-                for (int i = 0; i < rules.Count; i++)
-                {
-                    tasks[i] = Task.Factory.StartNew<Tuple<int, bool>>(
-                        (index) =>
-                        {
-                            long ruleId = -1;
-
-                            try
+                    for (int i = 0; i < rules.Count; i++)
+                    {
+                        tasks[i] = Task.Factory.StartNew<int>(
+                            (index) =>
                             {
-                                var rule = rules[(int)index];
-                                ruleId = rule.Id;
+                                long ruleId = -1;
 
-                                #region UnifiedSearchRequest
-
-                                // Initialize unified search request:
-                                // SignString/Signature (basic catalog parameters)
-                                string sSignString = Guid.NewGuid().ToString();
-                                string sSignatureString = WS_Utils.GetTcmConfigValue("CatalogSignatureKey");
-                                string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
-
-                                // page size should be max_results so it will return everything
-                                int pageSize = WS_Utils.GetTcmIntValue("MAX_RESULTS");
-
-                                UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
+                                try
                                 {
-                                    m_sSignature = sSignature,
-                                    m_sSignString = sSignString,
-                                    m_nGroupID = groupId,
-                                    m_oFilter = new Core.Catalog.Filter()
+                                    var rule = rules[(int)index];
+                                    ruleId = rule.Id;
+
+                                    #region UnifiedSearchRequest
+
+                                    // Initialize unified search request:
+                                    // SignString/Signature (basic catalog parameters)
+                                    string sSignString = Guid.NewGuid().ToString();
+                                    string sSignatureString = WS_Utils.GetTcmConfigValue("CatalogSignatureKey");
+                                    string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
+
+                                    // page size should be max_results so it will return everything
+                                    int pageSize = WS_Utils.GetTcmIntValue("MAX_RESULTS");
+
+                                    UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
                                     {
-                                        m_bOnlyActiveMedia = true
-                                    },
-                                    m_nPageIndex = 0,
-                                    m_nPageSize = pageSize,
-                                    shouldIgnoreDeviceRuleID = true,
-                                    shouldDateSearchesApplyToAllTypes = true,
-                                    order = new ApiObjects.SearchObjects.OrderObj()
-                                    {
-                                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
-                                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
-                                    },
-                                    filterQuery = rule.KsqlFilter
-                                };
-
-                                #endregion
-
-                                // Call catalog
-                                var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-                                List<int> assetIds = new List<int>();
-                                if (response != null && response.searchResults != null && response.searchResults.Count > 0)
-                                {
-                                    // Remember count, first and last result - to verify that action was successful
-                                    int count = response.m_nTotalItems;
-                                    string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                    string lastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                    assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                    // Apply rule on assets that returned from search
-                                    this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
-
-                                    var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-
-                                    if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
-                                    {
-                                        int verificationCount = verificationResponse.m_nTotalItems;
-                                        string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                        string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                        // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
-                                        if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                        m_sSignature = sSignature,
+                                        m_sSignString = sSignString,
+                                        m_nGroupID = groupId,
+                                        m_oFilter = new Core.Catalog.Filter()
                                         {
-                                            this.DisableRule(groupId, rule);
+                                            m_bOnlyActiveMedia = true
+                                        },
+                                        m_nPageIndex = 0,
+                                        m_nPageSize = pageSize,
+                                        shouldIgnoreDeviceRuleID = true,
+                                        shouldDateSearchesApplyToAllTypes = true,
+                                        order = new ApiObjects.SearchObjects.OrderObj()
+                                        {
+                                            m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                                            m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                                        },
+                                        filterQuery = rule.KsqlFilter
+                                    };
+
+                                    #endregion
+
+                                    // Call catalog
+                                    var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+                                    List<int> assetIds = new List<int>();
+                                    if (response != null && response.searchResults != null && response.searchResults.Count > 0)
+                                    {
+                                        // Remember count, first and last result - to verify that action was successful
+                                        int count = response.m_nTotalItems;
+                                        string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                        string lastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                        assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                        // Apply rule on assets that returned from search
+                                        this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
+
+                                        var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                                        if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
+                                        {
+                                            int verificationCount = verificationResponse.m_nTotalItems;
+                                            string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                            string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                            // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
+                                            if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                            {
+                                                this.DisableRule(groupId, rule);
+                                            }
                                         }
                                     }
+
+                                    return assetIds.Count;
                                 }
+                                catch (Exception ex)
+                                {
+                                    log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
+                                    return 0;
+                                }
+                            }, i);
+                    }
 
-                                return new Tuple<int, bool>(assetIds.Count, true);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
-                                return new Tuple<int,bool>(0, false);
-                            }
-                        }, i);
-                }
+                    #region Finish tasks
 
-                #region Finish tasks
-
-                Task.WaitAll(tasks);
-                result = true;
-
-                // Return false if one of the tasks returned false
-                foreach (var task in tasks)
-                {
-                    if (task != null)
+                    Task.WaitAll(tasks);                    
+                    
+                    foreach (var task in tasks)
                     {
-                        if (task.Result != null)
+                        if (task != null)
                         {
-                            ImpactedItems += task.Result.Item1;
-                            result = result && task.Result.Item2;
+                            result += task.Result;
+                            task.Dispose();
                         }
-
-                        task.Dispose();
                     }
                 }
 
@@ -271,7 +263,7 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error in DoActionRules: groupId: {0}, ex = {1}, ST = {2}", groupId, ex.Message, ex.StackTrace);                
+                log.ErrorFormat("Error in DoActionRules", ex);                
             }
 
             return result;
@@ -281,7 +273,7 @@ namespace Core.Api.Managers
 
         #region Private Methods
 
-        private bool FillRulesToTags(DataTable dt, Dictionary<long, AssetLifeCycleRule> mappedRules, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
+        private bool FillRulesToTags(DataTable dt, List<AssetLifeCycleRule> rules, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
                                             ref Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap)
         {
             bool res = false;
@@ -291,8 +283,8 @@ namespace Core.Api.Managers
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                        if (id > 0 && mappedRules.ContainsKey(id))
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALCR_ID", 0);
+                        if (id > 0)
                         {
                             int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TAG_ID", 0);
                             string actionId = ODBCWrapper.Utils.GetSafeStr(dr, "ACTION_ID");
@@ -341,7 +333,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool FillRulesToFileTypesAndPpvs(DataTable dt, Dictionary<long, AssetLifeCycleRule> mappedRules, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
+        private bool FillRulesToFileTypesAndPpvs(DataTable dt, List<AssetLifeCycleRule> rules, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
                                                         ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToRemove)
         {
             bool res = false;
@@ -351,8 +343,8 @@ namespace Core.Api.Managers
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                        if (id > 0 && mappedRules.ContainsKey(id))
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALCR_ID", 0);
+                        if (id > 0)
                         {
                             int ppvId = ODBCWrapper.Utils.GetIntSafeVal(dr, "PPV_ID", 0);
                             int fileTypeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "FILE_TYPE_ID", 0);
@@ -414,7 +406,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool FillRulesToGeoBlock(DataTable dt, Dictionary<long, AssetLifeCycleRule> mappedRules, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
+        private bool FillRulesToGeoBlock(DataTable dt, List<AssetLifeCycleRule> rules, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
         {
             bool res = false;
             try
@@ -423,8 +415,8 @@ namespace Core.Api.Managers
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
-                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                        if (id > 0 && mappedRules.ContainsKey(id))
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ALCR_ID", 0);
+                        if (id > 0)
                         {
                             int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GEO_BLOCK_RULE_ID", -1);
                             geoBlockRuleId = geoBlockRuleId.HasValue && geoBlockRuleId.Value == -1 ? null : geoBlockRuleId;

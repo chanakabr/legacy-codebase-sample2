@@ -10,6 +10,7 @@ namespace ApiObjects.AssetLifeCycleRules
     {
 
         public long Id { get; set; }
+        public int GroupId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string KsqlFilter { get; set; }
@@ -19,6 +20,7 @@ namespace ApiObjects.AssetLifeCycleRules
         public AssetLifeCycleRule()
         {
             this.Id = 0;
+            this.GroupId = 0;
             this.Name = string.Empty;
             this.Description = string.Empty;
             this.KsqlFilter = string.Empty;
@@ -26,9 +28,10 @@ namespace ApiObjects.AssetLifeCycleRules
             this.Actions = new LifeCycleTransitions();
         }
 
-        public AssetLifeCycleRule(long id, string name, string description, string filter, string metaDateName)
+        public AssetLifeCycleRule(long id, int groupId, string name, string description, string filter, string metaDateName)
         {
             this.Id = id;
+            this.GroupId = groupId;
             this.Name = name;
             this.Description = description;
             this.KsqlFilter = filter;
@@ -36,10 +39,11 @@ namespace ApiObjects.AssetLifeCycleRules
             this.Actions = new LifeCycleTransitions();
         }
 
-        public AssetLifeCycleRule(long id, string name, string description, string filter, string metaDateName, List<int> tagIdsToAdd, List<int> tagIdsToRemove,
+        public AssetLifeCycleRule(long id, int groupId, string name, string description, string filter, string metaDateName, List<int> tagIdsToAdd, List<int> tagIdsToRemove,
                                   LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove, int? geoBlockRuleToSet = null)
         {
             this.Id = id;
+            this.GroupId = groupId;
             this.Name = name;
             this.Description = description;
             this.KsqlFilter = filter;
@@ -51,6 +55,7 @@ namespace ApiObjects.AssetLifeCycleRules
         {
             StringBuilder sb = new StringBuilder();            
             sb.Append(string.Format("Id: {0}, ", Id));
+            sb.Append(string.Format("GroupId: {0}, ", GroupId));
             sb.Append(string.Format("Name: {0}, ", string.IsNullOrEmpty(Name) ? string.Empty : Name));
             sb.Append(string.Format("Description: {0}, ", string.IsNullOrEmpty(Description) ? string.Empty : Description));
             sb.Append(string.Format("KsqlFilter: {0}, ", string.IsNullOrEmpty(KsqlFilter) ? string.Empty : KsqlFilter));

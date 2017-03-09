@@ -9333,82 +9333,57 @@ namespace Core.Api
             return result;
         }
 
-        public static bool DoActionRules(List<long> ruleIds)
+        public static bool DoActionRules()
         {
             double alcrScheduledTaskIntervalSec = 0;
-            bool shouldEnqueueFollowUp = false;
-            bool shouldGetAllRules = ruleIds == null || ruleIds.Count == 0;
+            bool shouldEnqueueFollowUp = false;            
             try
             {
-                BaseScheduledTaskLastRunDetails assetLifeCycleRuleScheduledTask = null;
-                // should check last run only if its specific rules
-                if (shouldGetAllRules)
+                // try to get interval for next run take default
+                BaseScheduledTaskLastRunDetails assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+                ScheduledTaskLastRunDetails lastRunDetails = assetLifeCycleRuleScheduledTask.GetLastRunDetails();
+                assetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+                if (assetLifeCycleRuleScheduledTask != null && assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
                 {
-                    // try to get interval for next run take default
-                    assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
-                    ScheduledTaskLastRunDetails lastRunDetails = assetLifeCycleRuleScheduledTask.GetLastRunDetails();
-                    assetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
-                    if (assetLifeCycleRuleScheduledTask != null && assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
+                    alcrScheduledTaskIntervalSec = assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
+                    if (assetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(alcrScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                     {
-                        alcrScheduledTaskIntervalSec = assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
-                        if (assetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(alcrScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
-                        {
-                            return true;
-                        }
-                        else
-                        {                        
-                            shouldEnqueueFollowUp = true;
-                        }
+                        return true;
                     }
                     else
-                    {
+                    {                        
                         shouldEnqueueFollowUp = true;
-                        alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
                 }
-
-                // if ruleIds contains rules we will get a ruleId to groupId Map, otherwise we will get all the groupIds that have active rules defined (key will be 0 in dictionary)
-                Dictionary<long, List<int>> groupIdsWithRules = APILogic.Utils.GetGroupIdsWithRules(ruleIds);
-                int ImpactedItems = 0;
-                foreach (KeyValuePair<long, List<int>> pair in groupIdsWithRules)
+                else
                 {
-                    if (pair.Value != null && pair.Value.Count > 0)
-                    {
-                        foreach (int groupId in pair.Value)
-                        {
-                            int ImpactedItemsForGroup = 0;
-                            if (!AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds, ref ImpactedItemsForGroup))
-                            {
-                                log.ErrorFormat("Failed AssetLifeCycleRuleManager.Instance.DoActionRules for groupId: {0}, ruleIds: {1}", groupId, string.Join(",", ruleIds));
-                                // if its only specific rulesIds, return false
-                                if (!shouldGetAllRules)
-                                {
-                                    return false;
-                                }
-                            }
-
-                            ImpactedItems += ImpactedItemsForGroup;
-                        }
-                    }
+                    shouldEnqueueFollowUp = true;
+                    alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                if (assetLifeCycleRuleScheduledTask != null)
+                int impactedItems = AssetLifeCycleRuleManager.Instance.DoActionRules();
+                if (impactedItems > 0)
                 {
-                    assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, ImpactedItems, alcrScheduledTaskIntervalSec, ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
-                    if (!assetLifeCycleRuleScheduledTask.SetLastRunDetails())
-                    {
-                        log.InfoFormat("Failed updating asset life cycle rules scheduled task last run details, AssetLifeCycleRuleScheduledTask: {0}", assetLifeCycleRuleScheduledTask.ToString());
-                    }
-                    else
-                    {
-                        log.Debug("Successfully updated asset life cycle rules scheduled task last run date");
-                    }
+                    log.DebugFormat("Successfully applied asset life cycle rules on: {0} assets", impactedItems);
+                }
+                else
+                {
+                    log.DebugFormat("No assets were modified on DoActionRules");
                 }
 
+                assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, impactedItems, alcrScheduledTaskIntervalSec, ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+                if (!assetLifeCycleRuleScheduledTask.SetLastRunDetails())
+                {
+                    log.InfoFormat("Failed updating asset life cycle rules scheduled task last run details, AssetLifeCycleRuleScheduledTask: {0}", assetLifeCycleRuleScheduledTask.ToString());
+                }
+                else
+                {
+                    log.Debug("Successfully updated asset life cycle rules scheduled task last run date");
+                }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in DoActionRules, ruleIds: {0}, ex = {1}, ST = {2}", ruleIds != null && ruleIds.Count > 0 ? string.Join(",", ruleIds) : string.Empty), ex);
+                log.ErrorFormat("Error in DoActionRules", ex);
                 shouldEnqueueFollowUp = true;
             }
             finally
@@ -9430,5 +9405,9 @@ namespace Core.Api
             return true;
         }
 
+        public static bool DoActionRules(int groupId, List<long> ruleIds)
+        {
+            return AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds) > 0;
+        }
     }
 }
