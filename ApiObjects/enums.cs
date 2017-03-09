@@ -677,7 +677,8 @@ namespace ApiObjects
         recordingsScheduledTasks = 1,
         recordingsCleanup = 2,
         notificationCleanup = 3,
-        reminderCleanup = 4
+        reminderCleanup = 4,
+        assetLifeCycleRuleScheduledTasks = 5
     }
 
     public enum SearchSeriesRecordingsTimeOptions

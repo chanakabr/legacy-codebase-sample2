@@ -1,10 +1,12 @@
 ﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.Response;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
 using KLogMonitor;
 using QueueWrapper;
+using ScheduledTasks;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,6 +22,8 @@ namespace Core.Api.Managers
     {
 
         private const string ACTION_RULE_TASK = "distributed_tasks.process_action_rule";
+        private const double MAX_SERVER_TIME_DIF = 5;
+        internal const double HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC = 21600; // 6 hours
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
@@ -139,154 +143,186 @@ namespace Core.Api.Managers
 
         public bool DoActionRules(int groupId, List<long> ruleIds)
         {
-            bool result = true;
+            bool result = false;
+            double scheduledTaskIntervalSec = 0;
+            bool shouldEnqueueFollowUp = false;
 
-            // Get all rules of this group
-            List<AssetLifeCycleRule> allRules = GetAllLifeCycleRules(groupId);
-            List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
-
-            // If parameter is null - we want to run all rules
-            if (ruleIds == null)
+            try
             {
-                rules = allRules;
-            }
-            else
-            {
-                // If parameter is not null, we want to run only specific rules
-                rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
-            }
-
-            Task<bool>[] tasks = new Task<bool>[rules.Count];
-
-            for (int i = 0; i < rules.Count; i++)
-            {
-                tasks[i] = Task.Factory.StartNew<bool>(
-                    (index) =>
+                // try to get interval for next run take default
+                BaseScheduledTaskLastRunDetails AssetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+                ScheduledTaskLastRunDetails lastRunDetails = AssetLifeCycleRuleScheduledTask.GetLastRunDetails();
+                AssetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
+                if (AssetLifeCycleRuleScheduledTask != null && AssetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
+                {
+                    scheduledTaskIntervalSec = AssetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
+                    if (AssetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(scheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                     {
-                        long ruleId = -1;
+                        result = true;
+                        return result;
+                    }
+                    else
+                    {
+                        shouldEnqueueFollowUp = ruleIds == null;
+                    }
+                }
+                else
+                {
+                    shouldEnqueueFollowUp = true;
+                    scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
+                }
 
-                        try
+                // Get all rules of this group
+                List<AssetLifeCycleRule> allRules = GetAllLifeCycleRules(groupId);
+                List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
+
+                // If parameter is null - we want to run all rules
+                if (ruleIds == null)
+                {
+                    rules = allRules;
+                }
+                else
+                {
+                    // If parameter is not null, we want to run only specific rules
+                    rules = allRules.Where(rule => ruleIds.Contains(rule.Id)).ToList();
+                }
+
+                Task<bool>[] tasks = new Task<bool>[rules.Count];
+
+                for (int i = 0; i < rules.Count; i++)
+                {
+                    tasks[i] = Task.Factory.StartNew<bool>(
+                        (index) =>
                         {
-                            var rule = rules[(int)index];
-                            ruleId = rule.Id;
+                            long ruleId = -1;
 
-                            #region UnifiedSearchRequest
-
-                            // Initialize unified search request:
-                            // SignString/Signature (basic catalog parameters)
-                            string sSignString = Guid.NewGuid().ToString();
-                            string sSignatureString = WS_Utils.GetTcmConfigValue("CatalogSignatureKey");
-                            string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
-
-                            // page size should be max_results so it will return everything
-                            int pageSize = WS_Utils.GetTcmIntValue("MAX_RESULTS");
-
-                            UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
+                            try
                             {
-                                m_sSignature = sSignature,
-                                m_sSignString = sSignString,
-                                m_nGroupID = groupId,
-                                m_oFilter = new Core.Catalog.Filter()
+                                var rule = rules[(int)index];
+                                ruleId = rule.Id;
+
+                                #region UnifiedSearchRequest
+
+                                // Initialize unified search request:
+                                // SignString/Signature (basic catalog parameters)
+                                string sSignString = Guid.NewGuid().ToString();
+                                string sSignatureString = WS_Utils.GetTcmConfigValue("CatalogSignatureKey");
+                                string sSignature = TVinciShared.WS_Utils.GetCatalogSignature(sSignString, sSignatureString);
+
+                                // page size should be max_results so it will return everything
+                                int pageSize = WS_Utils.GetTcmIntValue("MAX_RESULTS");
+
+                                UnifiedSearchRequest unifiedSearchRequest = new UnifiedSearchRequest()
                                 {
-                                    m_bOnlyActiveMedia = true
-                                },
-                                m_nPageIndex = 0,
-                                m_nPageSize = pageSize,
-                                shouldIgnoreDeviceRuleID = true,
-                                shouldDateSearchesApplyToAllTypes = true,
-                                order = new ApiObjects.SearchObjects.OrderObj()
-                                {
-                                    m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
-                                    m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
-                                },
-                                filterQuery = rule.KsqlFilter
-                            };
-
-                            #endregion
-
-                            // Call catalog
-                            var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-
-                            if (response != null && response.searchResults != null && response.searchResults.Count > 0)
-                            {
-                                // Remember count, first and last result - to verify that action was succesful
-                                int count = response.m_nTotalItems;
-                                string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                string lastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                List<int> assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                // Apply rule on assets that returned from search
-                                this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
-
-                                var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-
-                                if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
-                                {
-                                    int verificationCount = verificationResponse.m_nTotalItems;
-                                    string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                    string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                    // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
-                                    if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                    m_sSignature = sSignature,
+                                    m_sSignString = sSignString,
+                                    m_nGroupID = groupId,
+                                    m_oFilter = new Core.Catalog.Filter()
                                     {
-                                        this.DisableRule(rule);
+                                        m_bOnlyActiveMedia = true
+                                    },
+                                    m_nPageIndex = 0,
+                                    m_nPageSize = pageSize,
+                                    shouldIgnoreDeviceRuleID = true,
+                                    shouldDateSearchesApplyToAllTypes = true,
+                                    order = new ApiObjects.SearchObjects.OrderObj()
+                                    {
+                                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID,
+                                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                                    },
+                                    filterQuery = rule.KsqlFilter
+                                };
+
+                                #endregion
+
+                                // Call catalog
+                                var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                                if (response != null && response.searchResults != null && response.searchResults.Count > 0)
+                                {
+                                    // Remember count, first and last result - to verify that action was successful
+                                    int count = response.m_nTotalItems;
+                                    string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                    string lastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                    List<int> assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
+
+                                    // Apply rule on assets that returned from search
+                                    this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
+
+                                    var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                                    if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
+                                    {
+                                        int verificationCount = verificationResponse.m_nTotalItems;
+                                        string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                        string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                        // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
+                                        if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                        {
+                                            this.DisableRule(rule);
+                                        }
                                     }
                                 }
+
+                                return true;
                             }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
+                                return false;
+                            }
+                        }, i);
+                }
 
-                            return true;
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
-                            return false;
-                        }
-                    }, i);
-            }
+                #region Finish tasks
 
-            #region Finish tasks
+                Task.WaitAll(tasks);
 
-            Task.WaitAll(tasks);
-
-            // Return false if one of the tasks returned false
-            foreach (var task in tasks)
-            {
-                if (task != null)
+                // Return false if one of the tasks returned false
+                foreach (var task in tasks)
                 {
-                    if (!task.Result)
+                    if (task != null)
                     {
-                        result = false;
+                        if (!task.Result)
+                        {
+                            result = false;
+                        }
+
+                        task.Dispose();
+                    }
+                }
+
+                #endregion
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in DoActionRules: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
+                shouldEnqueueFollowUp = true;
+            }
+            finally
+            {
+                // enqueue follow up only for task that is general for the entire group.
+                // If this task was run for specific rules, then it is singular, one-time
+                if ((ruleIds == null || ruleIds.Count == 0) && shouldEnqueueFollowUp)
+                {
+                    if (scheduledTaskIntervalSec == 0)
+                    {
+                        scheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                     }
 
-                    task.Dispose();
+                    DateTime nextExecutionDate = DateTime.UtcNow.AddSeconds(scheduledTaskIntervalSec);
+                    GenericCeleryQueue queue = new GenericCeleryQueue();
+                    string dataId = Guid.NewGuid().ToString();
+                    var args = new List<object>() { groupId, ruleIds };
+
+                    BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, args, nextExecutionDate);
+                    bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
                 }
             }
 
-            #endregion
-
-            #region Enqueue follow up message
-
-            // If proper interval was set, enqueue follow-up message so that task is run indefinitely
-            int actionRuleTaskIntervalHours = TVinciShared.WS_Utils.GetTcmIntValue("action_rule_task_interval");
-
-            // default is 24 hours
-            if (actionRuleTaskIntervalHours <= 0)
-            {
-                actionRuleTaskIntervalHours = 24;
-            }
-            GenericCeleryQueue queue = new GenericCeleryQueue();
-
-            string dataId = Guid.NewGuid().ToString();
-            BaseCeleryData data = new BaseCeleryData(dataId, ACTION_RULE_TASK, groupId, ruleIds);
-
-            bool enqueueResult = queue.Enqueue(data, string.Format("PROCESS_ACTION_RULE\\{0}", groupId));
-
-            // Success of this method is dependent on enqueing the follow-up message
-            result &= enqueueResult;
-
-            #endregion
-            return result;
+            return true;
         }
 
         #endregion
