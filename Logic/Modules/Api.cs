@@ -16,10 +16,10 @@ using KLogMonitor;
 using ApiObjects.TimeShiftedTv;
 using ScheduledTasks;
 using Core.Catalog.Response;
-using APILogic.Api.Managers;
 using ApiObjects.AssetLifeCycleRules;
 using System.Linq;
 using System.Linq.Expressions;
+using Core.Api.Managers;
 
 namespace Core.Api
 {

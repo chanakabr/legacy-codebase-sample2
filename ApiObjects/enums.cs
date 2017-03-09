@@ -834,8 +834,8 @@ namespace ApiObjects
 
     public enum AssetLifeCycleRuleAction
     {
-        Add = 0,
-        Remove = 1
+        Add = 2,
+        Remove = 3
     }
 
 }
