@@ -244,7 +244,7 @@ namespace WebAPI.EventNotifications
             webRequest.Method = method;
 
             JsonManager jsonManager = JsonManager.GetInstance();
-            string postBody = jsonManager.Serialize(phoenixObject);
+            string postBody = jsonManager.Serialize(phoenixObject, true);
 
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
             webRequest.ContentLength = bytes.Length;

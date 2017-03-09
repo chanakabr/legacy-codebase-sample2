@@ -144,7 +144,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("names")]
         [XmlArray(ElementName = "names", IsNullable = true)]
         [XmlArrayItem("item")]
-        [Deprecated]
+        [Deprecated("3.6.287.27312")]
         public List<KalturaTranslationToken> Names { get; set; } // TODO: change to object
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions", IsNullable = true)]
         [XmlArrayItem("item")]
-        [Deprecated]
+        [Deprecated("3.6.287.27312")]
         public List<KalturaTranslationToken> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>

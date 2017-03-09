@@ -1,10 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using WebAPI.Models.General;
+using WebAPI.Reflection;
 
 namespace WebAPI.Managers
 {
@@ -13,7 +15,7 @@ namespace WebAPI.Managers
         private static JsonManager instance;
 
         private JsonManager()
-        {
+        {   
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings
             {
                 Formatting = Formatting.None,
@@ -30,6 +32,37 @@ namespace WebAPI.Managers
             }
 
             return instance;
+        }
+
+        public class KalturaObjectContractResolver : DefaultContractResolver
+        {
+            private bool shouldOmitObsolete;
+
+            public KalturaObjectContractResolver(bool omitObsolete)
+            {
+                shouldOmitObsolete = omitObsolete;
+            }
+
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+            {
+                IList<JsonProperty> properties = base.CreateProperties(type, memberSerialization);
+
+                if (typeof(KalturaOTTObject).IsAssignableFrom(type))
+                {
+                    if (shouldOmitObsolete)
+                    {
+                        return properties.Where(property => !DataModel.IsObsolete(type, property.UnderlyingName)).ToList();
+                    }
+                    else
+                    {
+                        return properties.Where(property => !DataModel.IsDeprecated(type, property.UnderlyingName)).ToList();
+                    }
+                }
+                else
+                {
+                    return properties;
+                }
+            }
         }
 
         public class MultiStringJsonConverter : JsonConverter
@@ -154,9 +187,9 @@ namespace WebAPI.Managers
             }
         }
 
-        public string Serialize(object value)
+        public string Serialize(object value, bool omitObsolete = false)
         {
-            return JsonConvert.SerializeObject(value);
+            return JsonConvert.SerializeObject(value, new JsonSerializerSettings{ContractResolver = new KalturaObjectContractResolver(omitObsolete)});
         }
     }
 }
