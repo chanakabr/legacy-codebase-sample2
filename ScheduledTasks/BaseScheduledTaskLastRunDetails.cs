@@ -44,6 +44,9 @@ namespace ScheduledTasks
                 case ApiObjects.ScheduledTaskType.reminderCleanup:
                     key = "reminder_cleanup";
                     break;
+                case ApiObjects.ScheduledTaskType.assetLifeCycleRuleScheduledTasks:
+                    key = "alcr_scheduledTasks";
+                    break;
                 default:
                     break;
             }
