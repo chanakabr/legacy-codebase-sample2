@@ -4046,11 +4046,16 @@ namespace DAL
             return res;
         }
 
-        public static DataSet GetAllLifeCycleRules(int groupId)
+        public static DataSet GetAllLifeCycleRules(int groupId = 0, List<long> ruleIds = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllLifeCycleRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
+            if (groupId > 0 && ruleIds != null && ruleIds.Count > 0)
+            {
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddIDListParameter("@RuleIds", ruleIds, "id");
+            }
+
             return sp.ExecuteDataSet();
         }
 
@@ -4118,5 +4123,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
+
     }
 }
