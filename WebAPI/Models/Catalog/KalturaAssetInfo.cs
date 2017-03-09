@@ -52,6 +52,15 @@ namespace WebAPI.Models.Catalog
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
 
         /// <summary>
+        /// Dynamic collection of key-value pairs according to the String Meta defined in the system
+        /// </summary>
+        [DataMember(Name = "metasNew")]
+        [JsonProperty(PropertyName = "metasNew")]
+        [XmlElement("metasNew", IsNullable = true)]
+        public SerializableDictionary<string, KalturaMultilingualString> MetasNew { get; set; }
+
+
+        /// <summary>
         /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
         /// </summary>
         [DataMember(Name = "tags")]

@@ -15,6 +15,7 @@ using WebAPI.Managers.Models;
 using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using WebAPI.Managers;
 
 namespace WebAPI.EventNotifications
 {
@@ -242,7 +243,9 @@ namespace WebAPI.EventNotifications
 
             webRequest.Method = method;
 
-            string postBody = JsonConvert.SerializeObject(phoenixObject, Newtonsoft.Json.Formatting.None);
+            JsonManager jsonManager = JsonManager.GetInstance();
+            string postBody = jsonManager.Serialize(phoenixObject);
+
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(postBody);
             webRequest.ContentLength = bytes.Length;
 

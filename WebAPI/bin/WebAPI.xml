@@ -6575,6 +6575,16 @@
             Device pin
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValueArray">
+            <summary>
+            Array of translated strings
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValueArray.Objects">
+            <summary>
+            List of string values
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaPermissionItem.Id">
             <summary>
             Permission item identifier
@@ -6613,6 +6623,26 @@
         <member name="P:WebAPI.Models.General.KalturaApiParameterPermissionItem.Action">
             <summary>
             API action type
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaMultilingualStringValue">
+            <summary>
+            Array of translated strings
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.General.KalturaValue">
+            <summary>
+            A representation to return an array of values
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaValue.description">
+            <summary>
+            Description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaMultilingualStringValue.value">
+            <summary>
+            Value
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaMultilingualString">
@@ -6743,16 +6773,6 @@
         <member name="T:WebAPI.Models.General.KalturaLongValue">
             <summary>
             A string representation to return an array of longs
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaValue">
-            <summary>
-            A representation to return an array of values
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaValue.description">
-            <summary>
-            Description
             </summary>
         </member>
         <member name="P:WebAPI.Models.General.KalturaLongValue.value">
@@ -9887,6 +9907,11 @@
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetInfo.Metas">
+            <summary>
+            Dynamic collection of key-value pairs according to the String Meta defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetInfo.MetasNew">
             <summary>
             Dynamic collection of key-value pairs according to the String Meta defined in the system
             </summary>

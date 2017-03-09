@@ -2,9 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -48,7 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public int? Type { get; set; }
+        public int? Type { get; set; }      
 
         /// <summary>
         /// Asset name
@@ -56,7 +54,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
+        public KalturaMultilingualString Name { get; set; } 
 
         /// <summary>
         /// Asset description
@@ -64,7 +62,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
         [XmlElement(ElementName = "description")]
-        public string Description { get; set; }
+        public KalturaMultilingualString Description { get; set; }
 
         /// <summary>
         /// Collection of images details that can be used to represent this asset

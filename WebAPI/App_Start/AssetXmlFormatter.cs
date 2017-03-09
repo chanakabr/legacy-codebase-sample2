@@ -451,7 +451,7 @@ namespace WebAPI.App_Start
                     {
                         Value = new Value()
                         {
-                            Text = asset.Name,
+                            Text = asset.Name.ToString(),
                             // TODO: add language
                             Lang = string.Empty
                         }
@@ -462,7 +462,7 @@ namespace WebAPI.App_Start
                     {
                         Value = new Value()
                         {
-                            Text = asset.Description,
+                            Text = asset.Description.ToString(),
                             // TODO: add language
                             Lang = string.Empty
                         }
@@ -589,7 +589,7 @@ namespace WebAPI.App_Start
                     if (asset.Tags != null)
                     {
                         Meta meta;
-                        foreach (KeyValuePair<string, KalturaStringValueArray> entry in asset.Tags)
+                        foreach (KeyValuePair<string, KalturaMultilingualStringValueArray> entry in asset.Tags)
                         {
                             // create new meta
                             meta = new Meta()
@@ -601,7 +601,7 @@ namespace WebAPI.App_Start
                             if (entry.Value.Objects != null)
                             {
                                 // add meta values
-                                foreach (KalturaStringValue item in entry.Value.Objects)
+                                foreach (KalturaMultilingualStringValue item in entry.Value.Objects)
                                 {
                                     var container = new Container() { Values = new List<Value>() };
 
@@ -609,7 +609,7 @@ namespace WebAPI.App_Start
                                     {
                                         // TODO: update language
                                         Lang = string.Empty,
-                                        Text = item.value
+                                        Text = item.value.ToString()
                                     });
 
                                     meta.Container.Add(container);
