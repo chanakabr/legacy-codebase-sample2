@@ -540,10 +540,7 @@ namespace Core.Catalog
                     {
                         oMeta.m_oTagMeta = new TagMeta(metasValue[sFieldVal], typeof(string).ToString());
                         oMeta.m_sValue = Utils.GetStrSafeVal(dtMedia.Rows[0], sFieldVal);
-                        if (dtMeta != null && dtMeta.Rows != null && dtMeta.Rows.Count > 0)
-                        {
-                            oMeta.Value = GetMediaLanguageContainer(dtMedia.Rows[0], dtMeta, group.GetLangauges(), sFieldVal);
-                        }
+                        oMeta.Value = GetMediaLanguageContainer(dtMedia.Rows[0], dtMeta, group.GetLangauges(), sFieldVal);
                         lMetas.Add(oMeta);
                     }
                     oMeta = new Metas();
