@@ -48,6 +48,23 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
+        public static DataSet Get_MediaDetailsWithLanguages(int groupID, int mediaID, bool onlyActiveMedia, List<int> languages, string endDate, bool useStartDate)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MediaDetailsWithLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@MediaID", mediaID);
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@OnlyActiveMedia", onlyActiveMedia);
+            sp.AddIDListParameter<int>("@Languages", languages, "Id");
+            sp.AddParameter("@EndDate", endDate);
+            sp.AddParameter("@UseStartDate", useStartDate);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            return ds;
+        }
+
+
         /// <summary>
         /// For a given user and media, returns the last time the user watched the media
         /// </summary>
@@ -4475,7 +4492,7 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GroupWatchPermissionsTypes(int groupId)
+        public static DataTable GetGroupWatchPermissionsTypes(int groupId)
         {
             DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Get_WatchPermissionsTypes");
@@ -4486,7 +4503,7 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GroupGeoblockRules(int groupId)
+        public static DataTable GetGroupGeoblockRules(int groupId)
         {
             DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Get_GeoBlockTypes");
@@ -4497,12 +4514,23 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GroupDeviceRules(int groupId)
+        public static DataTable GetGroupDeviceRules(int groupId)
         {
             DataTable dt = null;
             StoredProcedure sp = new StoredProcedure("Get_DeviceRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
+            dt = sp.Execute();
+
+            return dt;
+        }
+
+        public static DataTable GetMediaFilePPVModules(List<int> mediaFiles)
+        {
+            DataTable dt = null;
+            StoredProcedure sp = new StoredProcedure("Get_MediaFilePPVModules");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddIDListParameter<int>("@MediaFiles", mediaFiles, "Id");
             dt = sp.Execute();
 
             return dt;
