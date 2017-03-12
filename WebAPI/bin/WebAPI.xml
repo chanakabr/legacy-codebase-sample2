@@ -4657,16 +4657,6 @@
             Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Name">
-            <summary>
-            Asset name
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Description">
-            <summary>
-            Asset description
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Images">
             <summary>
             Collection of images details that can be used to represent this asset
@@ -4685,11 +4675,6 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.Metas">
             <summary>
             Dynamic collection of key-value pairs according to the String Meta defined in the system
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Tags">
-            <summary>
-            Dynamic collection of key-value pairs according to the Tag Types defined in the system
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAsset.StartDate">
@@ -4732,6 +4717,21 @@
             Program-asset info
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Tags">
+            <summary>
+            Dynamic collection of key-value pairs according to the Tag Types defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Name">
+            <summary>
+            Asset name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.Description">
+            <summary>
+            Asset description
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaProgramAsset.EpgChannelId">
             <summary>
             EPG channel identifier
@@ -4760,6 +4760,21 @@
         <member name="T:WebAPI.Models.Catalog.KalturaMediaAsset">
             <summary>
             Media-asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.Tags">
+            <summary>
+            Dynamic collection of key-value pairs according to the Tag Types defined in the system
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.Name">
+            <summary>
+            Asset name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.Description">
+            <summary>
+            Asset description
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.ExternalIds">
@@ -9904,6 +9919,16 @@
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfo">
             <summary>
             Asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetInfo.Name">
+            <summary>
+            Asset name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetInfo.Description">
+            <summary>
+            Asset description
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetInfo.Metas">
