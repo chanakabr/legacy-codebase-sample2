@@ -4104,8 +4104,9 @@ namespace WS_API
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
-                return null;
             }
+
+            return null;
         }
 
         [WebMethod]
@@ -4129,7 +4130,7 @@ namespace WS_API
         {
             return Core.Api.Module.DoActionRules();
         }
-        
+
         [WebMethod]
         public bool DoActionByRuleIds(string sWSUserName, string sWSPassword, List<long> ruleIds)
         {
@@ -4143,6 +4144,36 @@ namespace WS_API
                 HttpContext.Current.Response.StatusCode = 404;
                 return false;
             }
+        }
+
+        [WebMethod]
+        public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
+            out string tagType,
+            out string tagValue,
+            out string dateMeta,
+            out int dateValue)
+        {
+            bool result = false;
+            tagType = string.Empty;
+            tagValue = string.Empty;
+            dateMeta = string.Empty;
+            dateValue = 0;
+
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
+                    out tagValue,
+                    out dateMeta,
+                    out dateValue);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
         }
     }
 }
