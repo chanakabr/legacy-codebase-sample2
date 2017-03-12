@@ -232,21 +232,29 @@ namespace Core.Api.Managers
             dateMeta = string.Empty;
             dateValue = 0;
 
+            // Get the rule's data from Database
             var rules = GetLifeCycleRules(groupId, new List<long>() { ruleId });
 
             if (rules != null && rules.Count > 0)
             {
+                // There should be only one rule
                 var rule = rules[groupId].First();
 
                 BooleanPhraseNode phrase = null;
+
+                // Parse the rule's KSQL
                 var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
 
+                // Validate parse result
                 if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
                 {
+                    // It should be a phrase, because it is (and ...)
                     if (phrase is BooleanPhrase)
                     {
                         var nodes = (phrase as BooleanPhrase).nodes;
 
+                        // Validate there is at least one node
+                        // First node should be a LEAF, looking like: cycletag='A'
                         if (nodes.Count > 0)
                         {
                             var firstNode = nodes[0] as BooleanLeaf;
@@ -258,6 +266,8 @@ namespace Core.Api.Managers
                             }
                         }
 
+                        // Validate that date nodes actually exist - there should be two
+                        // Second and third nodes should be LEAFs as well, looking like: cycledate>='-3days'  cycledate<'-2days'
                         if (nodes.Count > 2)
                         {
                             var secondNode = nodes[1] as BooleanLeaf;
@@ -268,13 +278,23 @@ namespace Core.Api.Managers
                                 dateMeta = thirdNode.field;
 
                                 long thirdNodeValue = Convert.ToInt64(thirdNode.value);
-                                dateValue = (int)(thirdNodeValue / 60 / 60 / 24);
+
+                                // the value is the days-back represented in seconds
+                                dateValue = -1 * (int)(thirdNodeValue / 60 / 60 / 24);
+
+                                result = true;
                             }
                         }
                     }
                 }
             }
+
             return result;
+        }
+
+        public bool BuildActionRuleKsqlFromData(int groupId, string tagType, string tagValue, string dateMeta, int dateValue, out string ksql)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -625,5 +645,6 @@ namespace Core.Api.Managers
         }
 
         #endregion
+
     }
 }

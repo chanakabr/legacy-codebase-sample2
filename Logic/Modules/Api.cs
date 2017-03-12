@@ -1722,7 +1722,29 @@ namespace Core.Api
             catch (Exception ex)
             {
                 result = false;
-                log.Error(string.Format("Error in BuildActionRuleKsql. ruleId = {0}, groupId = {1}, ex = {2}", ruleId, groupId, ex));
+                log.Error(string.Format("Error in BuildActionRuleDataFromKsql. ruleId = {0}, groupId = {1}, ex = {2}", ruleId, groupId, ex));
+            }
+
+            return result;
+        }
+
+        public static bool BuildActionRuleKsqlFromData(int groupId, string tagType, string tagValue, string dateMeta, int dateValue, out string ksql)
+        {
+            bool result = false;
+            ksql = string.Empty;
+
+            try
+            {
+                result = AssetLifeCycleRuleManager.Instance.BuildActionRuleKsqlFromData(groupId, tagType,
+                    tagValue,
+                    dateMeta,
+                    dateValue,
+                    out ksql);
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.Error(string.Format("Error in BuildActionRuleKsqlFromData. ruleId = {0}, groupId = {1}, ex = {2}", ruleId, groupId, ex));
             }
 
             return result;
