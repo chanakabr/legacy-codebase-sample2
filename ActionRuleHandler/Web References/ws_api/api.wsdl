@@ -271,17 +271,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ApiArgumentPermissionItem">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PermissionItem">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ApiParameterPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -289,6 +278,17 @@
               <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ApiArgumentPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1245,6 +1245,16 @@
         </s:sequence>
       </s:complexType>
       <s:element name="DoActionRules">
+        <s:complexType />
+      </s:element>
+      <s:element name="DoActionRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoActionRulesResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoActionByRuleIds">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
@@ -1253,10 +1263,30 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="DoActionRulesResponse">
+      <s:element name="DoActionByRuleIdsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="DoActionRulesResult" type="s:boolean" />
+            <s:element minOccurs="1" maxOccurs="1" name="DoActionByRuleIdsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BuildActionRuleDataFromKsql">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ruleId" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="BuildActionRuleDataFromKsqlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="BuildActionRuleDataFromKsqlResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="tagType" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="tagValue" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateMeta" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dateValue" type="s:int" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1469,6 +1499,23 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="MetaDoubleObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseCacheObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_dMetaValue" type="s:double" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oDoubleRange" type="tns:DoubleRange" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DoubleRange">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_dMin" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dMax" type="s:double" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="MetaStrObject">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseCacheObject">
@@ -1519,23 +1566,6 @@
       <s:complexType name="ArrayOfMetaDoubleObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="MetaDoubleObject" nillable="true" type="tns:MetaDoubleObject" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="MetaDoubleObject">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseCacheObject">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_dMetaValue" type="s:double" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oDoubleRange" type="tns:DoubleRange" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="DoubleRange">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_dMin" type="s:double" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dMax" type="s:double" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfMetaBoolObject">
@@ -2631,11 +2661,66 @@
           <s:enumeration value="GiftCardRenewReminder" />
         </s:restriction>
       </s:simpleType>
-      <s:complexType name="ChangePasswordMailRequest">
+      <s:complexType name="EmailNotificationRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfTagPair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TagPair" nillable="true" type="tns:TagPair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TagPair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2647,18 +2732,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2675,18 +2748,7 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendPasswordMailRequest">
+      <s:complexType name="WelcomeMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
@@ -2706,23 +2768,11 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
+      <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2759,11 +2809,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
@@ -2778,35 +2823,20 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="EmailNotificationRequest">
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ArrayOfTagPair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="TagPair" nillable="true" type="tns:TagPair" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="TagPair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
         <s:complexType>
@@ -5122,6 +5152,18 @@
   <wsdl:message name="DoActionRulesSoapOut">
     <wsdl:part name="parameters" element="tns:DoActionRulesResponse" />
   </wsdl:message>
+  <wsdl:message name="DoActionByRuleIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:DoActionByRuleIds" />
+  </wsdl:message>
+  <wsdl:message name="DoActionByRuleIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:DoActionByRuleIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="BuildActionRuleDataFromKsqlSoapIn">
+    <wsdl:part name="parameters" element="tns:BuildActionRuleDataFromKsql" />
+  </wsdl:message>
+  <wsdl:message name="BuildActionRuleDataFromKsqlSoapOut">
+    <wsdl:part name="parameters" element="tns:BuildActionRuleDataFromKsqlResponse" />
+  </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
   </wsdl:message>
@@ -6077,6 +6119,14 @@
       <wsdl:input message="tns:DoActionRulesSoapIn" />
       <wsdl:output message="tns:DoActionRulesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="DoActionByRuleIds">
+      <wsdl:input message="tns:DoActionByRuleIdsSoapIn" />
+      <wsdl:output message="tns:DoActionByRuleIdsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="BuildActionRuleDataFromKsql">
+      <wsdl:input message="tns:BuildActionRuleDataFromKsqlSoapIn" />
+      <wsdl:output message="tns:BuildActionRuleDataFromKsqlSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
       <wsdl:output message="tns:TVAPI_GetTvinciGUIDSoapOut" />
@@ -6994,6 +7044,24 @@
     </wsdl:operation>
     <wsdl:operation name="DoActionRules">
       <soap:operation soapAction="http://api.tvinci.com/DoActionRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionByRuleIds">
+      <soap:operation soapAction="http://api.tvinci.com/DoActionByRuleIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuildActionRuleDataFromKsql">
+      <soap:operation soapAction="http://api.tvinci.com/BuildActionRuleDataFromKsql" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8563,6 +8631,24 @@
     </wsdl:operation>
     <wsdl:operation name="DoActionRules">
       <soap12:operation soapAction="http://api.tvinci.com/DoActionRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionByRuleIds">
+      <soap12:operation soapAction="http://api.tvinci.com/DoActionByRuleIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="BuildActionRuleDataFromKsql">
+      <soap12:operation soapAction="http://api.tvinci.com/BuildActionRuleDataFromKsql" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

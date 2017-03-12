@@ -122,6 +122,10 @@ namespace ActionRuleHandler.ws_api {
         
         private System.Threading.SendOrPostCallback DoActionRulesOperationCompleted;
         
+        private System.Threading.SendOrPostCallback DoActionByRuleIdsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback BuildActionRuleDataFromKsqlOperationCompleted;
+        
         private System.Threading.SendOrPostCallback TVAPI_GetTvinciGUIDOperationCompleted;
         
         private System.Threading.SendOrPostCallback TVAPI_GetMediasOperationCompleted;
@@ -552,6 +556,12 @@ namespace ActionRuleHandler.ws_api {
         
         /// <remarks/>
         public event DoActionRulesCompletedEventHandler DoActionRulesCompleted;
+        
+        /// <remarks/>
+        public event DoActionByRuleIdsCompletedEventHandler DoActionByRuleIdsCompleted;
+        
+        /// <remarks/>
+        public event BuildActionRuleDataFromKsqlCompletedEventHandler BuildActionRuleDataFromKsqlCompleted;
         
         /// <remarks/>
         public event TVAPI_GetTvinciGUIDCompletedEventHandler TVAPI_GetTvinciGUIDCompleted;
@@ -2446,8 +2456,35 @@ namespace ActionRuleHandler.ws_api {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DoActionRules", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public bool DoActionRules(string sWSUserName, string sWSPassword, long[] ruleIds) {
-            object[] results = this.Invoke("DoActionRules", new object[] {
+        public bool DoActionRules() {
+            object[] results = this.Invoke("DoActionRules", new object[0]);
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void DoActionRulesAsync() {
+            this.DoActionRulesAsync(null);
+        }
+        
+        /// <remarks/>
+        public void DoActionRulesAsync(object userState) {
+            if ((this.DoActionRulesOperationCompleted == null)) {
+                this.DoActionRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDoActionRulesOperationCompleted);
+            }
+            this.InvokeAsync("DoActionRules", new object[0], this.DoActionRulesOperationCompleted, userState);
+        }
+        
+        private void OnDoActionRulesOperationCompleted(object arg) {
+            if ((this.DoActionRulesCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.DoActionRulesCompleted(this, new DoActionRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/DoActionByRuleIds", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool DoActionByRuleIds(string sWSUserName, string sWSPassword, long[] ruleIds) {
+            object[] results = this.Invoke("DoActionByRuleIds", new object[] {
                         sWSUserName,
                         sWSPassword,
                         ruleIds});
@@ -2455,25 +2492,62 @@ namespace ActionRuleHandler.ws_api {
         }
         
         /// <remarks/>
-        public void DoActionRulesAsync(string sWSUserName, string sWSPassword, long[] ruleIds) {
-            this.DoActionRulesAsync(sWSUserName, sWSPassword, ruleIds, null);
+        public void DoActionByRuleIdsAsync(string sWSUserName, string sWSPassword, long[] ruleIds) {
+            this.DoActionByRuleIdsAsync(sWSUserName, sWSPassword, ruleIds, null);
         }
         
         /// <remarks/>
-        public void DoActionRulesAsync(string sWSUserName, string sWSPassword, long[] ruleIds, object userState) {
-            if ((this.DoActionRulesOperationCompleted == null)) {
-                this.DoActionRulesOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDoActionRulesOperationCompleted);
+        public void DoActionByRuleIdsAsync(string sWSUserName, string sWSPassword, long[] ruleIds, object userState) {
+            if ((this.DoActionByRuleIdsOperationCompleted == null)) {
+                this.DoActionByRuleIdsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnDoActionByRuleIdsOperationCompleted);
             }
-            this.InvokeAsync("DoActionRules", new object[] {
+            this.InvokeAsync("DoActionByRuleIds", new object[] {
                         sWSUserName,
                         sWSPassword,
-                        ruleIds}, this.DoActionRulesOperationCompleted, userState);
+                        ruleIds}, this.DoActionByRuleIdsOperationCompleted, userState);
         }
         
-        private void OnDoActionRulesOperationCompleted(object arg) {
-            if ((this.DoActionRulesCompleted != null)) {
+        private void OnDoActionByRuleIdsOperationCompleted(object arg) {
+            if ((this.DoActionByRuleIdsCompleted != null)) {
                 System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.DoActionRulesCompleted(this, new DoActionRulesCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+                this.DoActionByRuleIdsCompleted(this, new DoActionByRuleIdsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("http://api.tvinci.com/BuildActionRuleDataFromKsql", RequestNamespace="http://api.tvinci.com/", ResponseNamespace="http://api.tvinci.com/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId, out string tagType, out string tagValue, out string dateMeta, out int dateValue) {
+            object[] results = this.Invoke("BuildActionRuleDataFromKsql", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        ruleId});
+            tagType = ((string)(results[1]));
+            tagValue = ((string)(results[2]));
+            dateMeta = ((string)(results[3]));
+            dateValue = ((int)(results[4]));
+            return ((bool)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void BuildActionRuleDataFromKsqlAsync(string sWSUserName, string sWSPassword, long ruleId) {
+            this.BuildActionRuleDataFromKsqlAsync(sWSUserName, sWSPassword, ruleId, null);
+        }
+        
+        /// <remarks/>
+        public void BuildActionRuleDataFromKsqlAsync(string sWSUserName, string sWSPassword, long ruleId, object userState) {
+            if ((this.BuildActionRuleDataFromKsqlOperationCompleted == null)) {
+                this.BuildActionRuleDataFromKsqlOperationCompleted = new System.Threading.SendOrPostCallback(this.OnBuildActionRuleDataFromKsqlOperationCompleted);
+            }
+            this.InvokeAsync("BuildActionRuleDataFromKsql", new object[] {
+                        sWSUserName,
+                        sWSPassword,
+                        ruleId}, this.BuildActionRuleDataFromKsqlOperationCompleted, userState);
+        }
+        
+        private void OnBuildActionRuleDataFromKsqlOperationCompleted(object arg) {
+            if ((this.BuildActionRuleDataFromKsqlCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.BuildActionRuleDataFromKsqlCompleted(this, new BuildActionRuleDataFromKsqlCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
             }
         }
         
@@ -10312,21 +10386,21 @@ namespace ActionRuleHandler.ws_api {
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisPurchaseMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CinepolisRenewalFailMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangePasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ForgotPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WelcomeMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddUserMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendAdminTokenRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ChangedPinMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SendPasswordMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AddDeviceMailRequest))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(EmailNotificationRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -10519,145 +10593,37 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class EmailNotificationRequest : MailRequestObj {
+    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
         
-        private string m_sTagToFollowField;
+        private string m_sPurchaseDateField;
         
-        private string m_sMediaNameField;
-        
-        private string m_mediaPicURLField;
-        
-        private string m_mediaTypeField;
-        
-        private string m_contentField;
-        
-        private string m_mediaIdField;
-        
-        private TagPair[] m_tagListField;
-        
-        private string m_runTimeField;
-        
-        private string m_userFollowTagsField;
-        
-        private string m_catalogStartDateField;
-        
-        private string m_startDateField;
+        private string m_sItemNameField;
         
         /// <remarks/>
-        public string m_sTagToFollow {
+        public string m_sPurchaseDate {
             get {
-                return this.m_sTagToFollowField;
+                return this.m_sPurchaseDateField;
             }
             set {
-                this.m_sTagToFollowField = value;
+                this.m_sPurchaseDateField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sMediaName {
+        public string m_sItemName {
             get {
-                return this.m_sMediaNameField;
+                return this.m_sItemNameField;
             }
             set {
-                this.m_sMediaNameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_mediaPicURL {
-            get {
-                return this.m_mediaPicURLField;
-            }
-            set {
-                this.m_mediaPicURLField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_mediaType {
-            get {
-                return this.m_mediaTypeField;
-            }
-            set {
-                this.m_mediaTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_content {
-            get {
-                return this.m_contentField;
-            }
-            set {
-                this.m_contentField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_mediaId {
-            get {
-                return this.m_mediaIdField;
-            }
-            set {
-                this.m_mediaIdField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public TagPair[] m_tagList {
-            get {
-                return this.m_tagListField;
-            }
-            set {
-                this.m_tagListField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_runTime {
-            get {
-                return this.m_runTimeField;
-            }
-            set {
-                this.m_runTimeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_userFollowTags {
-            get {
-                return this.m_userFollowTagsField;
-            }
-            set {
-                this.m_userFollowTagsField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_catalogStartDate {
-            get {
-                return this.m_catalogStartDateField;
-            }
-            set {
-                this.m_catalogStartDateField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_startDate {
-            get {
-                return this.m_startDateField;
-            }
-            set {
-                this.m_startDateField = value;
+                this.m_sItemNameField = value;
             }
         }
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseWithPreviewModuleRequest))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PurchaseFailRequest))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PreviewModuleCancelOrRefundRequest))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -10816,6 +10782,15 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseWithPreviewModuleRequest : PurchaseMailRequest {
         
         private string m_sPreviewModuleEndDateField;
@@ -10838,15 +10813,6 @@ namespace ActionRuleHandler.ws_api {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class PurchaseFailRequest : PurchaseMailRequest {
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class PreviewModuleCancelOrRefundRequest : PurchaseMailRequest {
     }
     
     /// <remarks/>
@@ -10912,29 +10878,38 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class CinepolisRenewalFailMailRequest : MailRequestObj {
+    public partial class ChangePasswordMailRequest : MailRequestObj {
         
-        private string m_sPurchaseDateField;
-        
-        private string m_sItemNameField;
+        private string m_sTokenField;
         
         /// <remarks/>
-        public string m_sPurchaseDate {
+        public string m_sToken {
             get {
-                return this.m_sPurchaseDateField;
+                return this.m_sTokenField;
             }
             set {
-                this.m_sPurchaseDateField = value;
+                this.m_sTokenField = value;
             }
         }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ForgotPasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
         
         /// <remarks/>
-        public string m_sItemName {
+        public string m_sToken {
             get {
-                return this.m_sItemNameField;
+                return this.m_sTokenField;
             }
             set {
-                this.m_sItemNameField = value;
+                this.m_sTokenField = value;
             }
         }
     }
@@ -10980,117 +10955,6 @@ namespace ActionRuleHandler.ws_api {
             }
             set {
                 this.m_sPasswordField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ForgotPasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendPasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sUsernameField;
-        
-        private string m_sPasswordField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sUsername {
-            get {
-                return this.m_sUsernameField;
-            }
-            set {
-                this.m_sUsernameField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sPassword {
-            get {
-                return this.m_sPasswordField;
-            }
-            set {
-                this.m_sPasswordField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangedPinMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
-        
-        private string m_sSiteGuidField;
-        
-        private string m_sRuleNameField;
-        
-        /// <remarks/>
-        public string m_sToken {
-            get {
-                return this.m_sTokenField;
-            }
-            set {
-                this.m_sTokenField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sSiteGuid {
-            get {
-                return this.m_sSiteGuidField;
-            }
-            set {
-                this.m_sSiteGuidField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string m_sRuleName {
-            get {
-                return this.m_sRuleNameField;
-            }
-            set {
-                this.m_sRuleNameField = value;
             }
         }
     }
@@ -11158,6 +11022,141 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class SendAdminTokenRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sIPField;
+        
+        private string m_sDurationField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sIP {
+            get {
+                return this.m_sIPField;
+            }
+            set {
+                this.m_sIPField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sDuration {
+            get {
+                return this.m_sDurationField;
+            }
+            set {
+                this.m_sDurationField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ChangedPinMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sSiteGuidField;
+        
+        private string m_sRuleNameField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sSiteGuid {
+            get {
+                return this.m_sSiteGuidField;
+            }
+            set {
+                this.m_sSiteGuidField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sRuleName {
+            get {
+                return this.m_sRuleNameField;
+            }
+            set {
+                this.m_sRuleNameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class SendPasswordMailRequest : MailRequestObj {
+        
+        private string m_sTokenField;
+        
+        private string m_sUsernameField;
+        
+        private string m_sPasswordField;
+        
+        /// <remarks/>
+        public string m_sToken {
+            get {
+                return this.m_sTokenField;
+            }
+            set {
+                this.m_sTokenField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sUsername {
+            get {
+                return this.m_sUsernameField;
+            }
+            set {
+                this.m_sUsernameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_sPassword {
+            get {
+                return this.m_sPasswordField;
+            }
+            set {
+                this.m_sPasswordField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class AddDeviceMailRequest : MailRequestObj {
         
         private string m_sTokenField;
@@ -11215,62 +11214,137 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class SendAdminTokenRequest : MailRequestObj {
+    public partial class EmailNotificationRequest : MailRequestObj {
         
-        private string m_sTokenField;
+        private string m_sTagToFollowField;
         
-        private string m_sIPField;
+        private string m_sMediaNameField;
         
-        private string m_sDurationField;
+        private string m_mediaPicURLField;
+        
+        private string m_mediaTypeField;
+        
+        private string m_contentField;
+        
+        private string m_mediaIdField;
+        
+        private TagPair[] m_tagListField;
+        
+        private string m_runTimeField;
+        
+        private string m_userFollowTagsField;
+        
+        private string m_catalogStartDateField;
+        
+        private string m_startDateField;
         
         /// <remarks/>
-        public string m_sToken {
+        public string m_sTagToFollow {
             get {
-                return this.m_sTokenField;
+                return this.m_sTagToFollowField;
             }
             set {
-                this.m_sTokenField = value;
+                this.m_sTagToFollowField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sIP {
+        public string m_sMediaName {
             get {
-                return this.m_sIPField;
+                return this.m_sMediaNameField;
             }
             set {
-                this.m_sIPField = value;
+                this.m_sMediaNameField = value;
             }
         }
         
         /// <remarks/>
-        public string m_sDuration {
+        public string m_mediaPicURL {
             get {
-                return this.m_sDurationField;
+                return this.m_mediaPicURLField;
             }
             set {
-                this.m_sDurationField = value;
+                this.m_mediaPicURLField = value;
             }
         }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ChangePasswordMailRequest : MailRequestObj {
-        
-        private string m_sTokenField;
         
         /// <remarks/>
-        public string m_sToken {
+        public string m_mediaType {
             get {
-                return this.m_sTokenField;
+                return this.m_mediaTypeField;
             }
             set {
-                this.m_sTokenField = value;
+                this.m_mediaTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_content {
+            get {
+                return this.m_contentField;
+            }
+            set {
+                this.m_contentField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_mediaId {
+            get {
+                return this.m_mediaIdField;
+            }
+            set {
+                this.m_mediaIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public TagPair[] m_tagList {
+            get {
+                return this.m_tagListField;
+            }
+            set {
+                this.m_tagListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_runTime {
+            get {
+                return this.m_runTimeField;
+            }
+            set {
+                this.m_runTimeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_userFollowTags {
+            get {
+                return this.m_userFollowTagsField;
+            }
+            set {
+                this.m_userFollowTagsField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_catalogStartDate {
+            get {
+                return this.m_catalogStartDateField;
+            }
+            set {
+                this.m_catalogStartDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string m_startDate {
+            get {
+                return this.m_startDateField;
+            }
+            set {
+                this.m_startDateField = value;
             }
         }
     }
@@ -15896,8 +15970,8 @@ namespace ActionRuleHandler.ws_api {
     
     /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiActionPermissionItem))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiParameterPermissionItem))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiArgumentPermissionItem))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ApiParameterPermissionItem))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -15969,51 +16043,6 @@ namespace ActionRuleHandler.ws_api {
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
-    public partial class ApiParameterPermissionItem : PermissionItem {
-        
-        private string objectField;
-        
-        private string parameterField;
-        
-        private string actionField;
-        
-        /// <remarks/>
-        public string Object {
-            get {
-                return this.objectField;
-            }
-            set {
-                this.objectField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Parameter {
-            get {
-                return this.parameterField;
-            }
-            set {
-                this.parameterField = value;
-            }
-        }
-        
-        /// <remarks/>
-        public string Action {
-            get {
-                return this.actionField;
-            }
-            set {
-                this.actionField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
     public partial class ApiArgumentPermissionItem : PermissionItem {
         
         private string serviceField;
@@ -16049,6 +16078,51 @@ namespace ActionRuleHandler.ws_api {
             }
             set {
                 this.parameterField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.0.30319.36366")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://api.tvinci.com/")]
+    public partial class ApiParameterPermissionItem : PermissionItem {
+        
+        private string objectField;
+        
+        private string parameterField;
+        
+        private string actionField;
+        
+        /// <remarks/>
+        public string Object {
+            get {
+                return this.objectField;
+            }
+            set {
+                this.objectField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Parameter {
+            get {
+                return this.parameterField;
+            }
+            set {
+                this.parameterField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Action {
+            get {
+                return this.actionField;
+            }
+            set {
+                this.actionField = value;
             }
         }
     }
@@ -17556,6 +17630,90 @@ namespace ActionRuleHandler.ws_api {
             get {
                 this.RaiseExceptionIfNecessary();
                 return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    public delegate void DoActionByRuleIdsCompletedEventHandler(object sender, DoActionByRuleIdsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class DoActionByRuleIdsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal DoActionByRuleIdsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    public delegate void BuildActionRuleDataFromKsqlCompletedEventHandler(object sender, BuildActionRuleDataFromKsqlCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.0.30319.36366")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class BuildActionRuleDataFromKsqlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal BuildActionRuleDataFromKsqlCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public bool Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((bool)(this.results[0]));
+            }
+        }
+        
+        /// <remarks/>
+        public string tagType {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[1]));
+            }
+        }
+        
+        /// <remarks/>
+        public string tagValue {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[2]));
+            }
+        }
+        
+        /// <remarks/>
+        public string dateMeta {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[3]));
+            }
+        }
+        
+        /// <remarks/>
+        public int dateValue {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((int)(this.results[4]));
             }
         }
     }
