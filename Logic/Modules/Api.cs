@@ -1744,7 +1744,7 @@ namespace Core.Api
             catch (Exception ex)
             {
                 result = false;
-                log.Error(string.Format("Error in BuildActionRuleKsqlFromData. ruleId = {0}, groupId = {1}, ex = {2}", ruleId, groupId, ex));
+                log.Error(string.Format("Error in BuildActionRuleKsqlFromData. groupId = {0}, ex = {!}", groupId, ex));
             }
 
             return result;
