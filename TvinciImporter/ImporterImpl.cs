@@ -1821,7 +1821,7 @@ namespace TvinciImporter
                 UpdateStringSubLangData(nGroupID, nMediaID, sMainLang, ref theStrings);
                 UpdateDoublesData(nGroupID, nMediaID, sMainLang, ref theDoubles, ref sErrorMessage);
                 UpdateBoolsData(nGroupID, nMediaID, sMainLang, ref theBools, ref sErrorMessage);
-                UpdateDatesData(nGroupID, nMediaID, sMainLang, ref theDates, ref sErrorMessage);
+                UpdateDatesData(nGroupID, nMediaID, ref theDates, ref sErrorMessage);
                 UpdateMetas(nGroupID, nMediaID, sMainLang, ref theMetas, ref sErrorMessage);
                 UpdateFiles(nGroupID, sMainLang, nMediaID, ref theFiles, ref sErrorMessage);
 
@@ -4154,7 +4154,7 @@ namespace TvinciImporter
             return true;
         }
 
-        static protected bool UpdateDatesData(Int32 nGroupID, Int32 nMediaID, string sMainLang, ref XmlNodeList theDates, ref string sError)
+        static public bool UpdateDatesData(Int32 nGroupID, Int32 nMediaID, ref XmlNodeList theDates, ref string sError)
         {
             if (theDates == null || theDates.Count <= 0)
                 return true;
