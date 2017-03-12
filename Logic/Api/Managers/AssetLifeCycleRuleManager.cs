@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
@@ -48,61 +49,15 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        public Dictionary<int, List<AssetLifeCycleRule>> GetAllLifeCycleRules(int groupId = 0, List<long> rulesIds = null)
+        public Dictionary<int, List<AssetLifeCycleRule>> GetLifeCycleRules(int groupId = 0, List<long> rulesIds = null)
         {
             Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int,List<AssetLifeCycleRule>>();
             try
             {
-                DataSet ds = DAL.ApiDAL.GetAllLifeCycleRules(groupId, rulesIds);
+                DataSet ds = DAL.ApiDAL.GetLifeCycleRules(groupId, rulesIds);
                 if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
                 {
-                    List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
-                    DataTable rulesDt = ds.Tables[0];
-                    if (rulesDt != null && rulesDt.Rows != null && rulesDt.Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in rulesDt.Rows)
-                        {
-                            long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                            groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
-                            if (id > 0 && groupId > 0)
-                            {
-                                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                                string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
-                                string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
-                                string metaDateName = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATE_NAME");
-                                AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter, metaDateName);
-                                rules.Add(alcr);                              
-                            }
-                        }
-
-                        DataTable dtRulesTags = ds.Tables[1];
-                        DataTable dtRulesFileTypesAndPpvs = ds.Tables[2];
-                        DataTable dtRulesGeoBlock = ds.Tables[3];
-                        Dictionary<long, List<int>> ruleIdToTagIdsToAddMap = new Dictionary<long, List<int>>();
-                        Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap = new Dictionary<long, List<int>>();
-                        Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToAdd = new Dictionary<long,LifeCycleFileTypesAndPpvsTransitions>();
-                        Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToRemove = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
-                        Dictionary<long, int?> ruleIdToGeoBlockMap = new Dictionary<long, int?>();
-                        if (FillRulesToTags(dtRulesTags, rules, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
-                            FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, rules, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
-                            FillRulesToGeoBlock(dtRulesGeoBlock, rules, ref ruleIdToGeoBlockMap))
-                        {                            
-                            foreach (AssetLifeCycleRule alcr in rules)
-                            {
-                                alcr.Actions = new LifeCycleTransitions(ruleIdToTagIdsToAddMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToAddMap[alcr.Id] : new List<int>(),
-                                                                                       ruleIdToTagIdsToRemoveMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToRemoveMap[alcr.Id] : new List<int>(),
-                                                                                       fileTypesAndPpvsToAdd.ContainsKey(alcr.Id) ? fileTypesAndPpvsToAdd[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
-                                                                                       fileTypesAndPpvsToRemove.ContainsKey(alcr.Id) ? fileTypesAndPpvsToRemove[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
-                                                                                       ruleIdToGeoBlockMap.ContainsKey(alcr.Id) ? ruleIdToGeoBlockMap[alcr.Id] : null);
-                                if (!groupIdToRulesMap.ContainsKey(alcr.GroupId))
-                                {
-                                    groupIdToRulesMap.Add(alcr.GroupId, new List<AssetLifeCycleRule>());
-                                }
-
-                                groupIdToRulesMap[alcr.GroupId].Add(alcr);
-                            }
-                        }
-                    }
+                    groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(groupId, ds);
                 }
             }
             catch (Exception ex)
@@ -151,7 +106,7 @@ namespace Core.Api.Managers
             try
             {
                 // Get all rules of this group
-                Dictionary<int, List<AssetLifeCycleRule>> allRules = GetAllLifeCycleRules(groupId, rulesIds);                
+                Dictionary<int, List<AssetLifeCycleRule>> allRules = GetLifeCycleRules(groupId, rulesIds);                
                 foreach (KeyValuePair<int, List<AssetLifeCycleRule>> pair in allRules)
                 {
                     groupId = pair.Key;
@@ -266,6 +221,59 @@ namespace Core.Api.Managers
                 log.ErrorFormat("Error in DoActionRules", ex);                
             }
 
+            return result;
+        }
+
+        public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out string tagValue, out string dateMeta, out int dateValue)
+        {
+            bool result = false;
+            tagType = string.Empty;
+            tagValue = string.Empty;
+            dateMeta = string.Empty;
+            dateValue = 0;
+
+            var rules = GetLifeCycleRules(groupId, new List<long>() { ruleId });
+
+            if (rules != null && rules.Count > 0)
+            {
+                var rule = rules[groupId].First();
+
+                BooleanPhraseNode phrase = null;
+                var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
+
+                if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
+                {
+                    if (phrase is BooleanPhrase)
+                    {
+                        var nodes = (phrase as BooleanPhrase).nodes;
+
+                        if (nodes.Count > 0)
+                        {
+                            var firstNode = nodes[0] as BooleanLeaf;
+
+                            if (firstNode != null)
+                            {
+                                tagType = firstNode.field;
+                                tagValue = Convert.ToString(firstNode.value);
+                            }
+                        }
+
+                        if (nodes.Count > 2)
+                        {
+                            var secondNode = nodes[1] as BooleanLeaf;
+                            var thirdNode = nodes[2] as BooleanLeaf;
+
+                            if (secondNode != null && thirdNode != null)
+                            {
+                                dateMeta = thirdNode.field;
+
+                                long thirdNodeValue = Convert.ToInt64(thirdNode.value);
+                                dateValue = (int)(thirdNodeValue / 60 / 60 / 24);
+                            }
+                        }
+                    }
+                }
+            }
             return result;
         }
 
@@ -560,7 +568,62 @@ namespace Core.Api.Managers
             }
         }
 
-        #endregion
 
+        private Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(int groupId, DataSet ds)
+        {
+            Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int, List<AssetLifeCycleRule>>();
+
+            List<AssetLifeCycleRule> rules = new List<AssetLifeCycleRule>();
+            DataTable rulesDt = ds.Tables[0];
+            if (rulesDt != null && rulesDt.Rows != null && rulesDt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in rulesDt.Rows)
+                {
+                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                    if (id > 0 && groupId > 0)
+                    {
+                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                        string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
+                        string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
+                        string metaDateName = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATE_NAME");
+                        AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter, metaDateName);
+                        rules.Add(alcr);
+                    }
+                }
+
+                DataTable dtRulesTags = ds.Tables[1];
+                DataTable dtRulesFileTypesAndPpvs = ds.Tables[2];
+                DataTable dtRulesGeoBlock = ds.Tables[3];
+                Dictionary<long, List<int>> ruleIdToTagIdsToAddMap = new Dictionary<long, List<int>>();
+                Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap = new Dictionary<long, List<int>>();
+                Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToAdd = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
+                Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToRemove = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
+                Dictionary<long, int?> ruleIdToGeoBlockMap = new Dictionary<long, int?>();
+                if (FillRulesToTags(dtRulesTags, rules, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
+                    FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, rules, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
+                    FillRulesToGeoBlock(dtRulesGeoBlock, rules, ref ruleIdToGeoBlockMap))
+                {
+                    foreach (AssetLifeCycleRule alcr in rules)
+                    {
+                        alcr.Actions = new LifeCycleTransitions(ruleIdToTagIdsToAddMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToAddMap[alcr.Id] : new List<int>(),
+                                                                               ruleIdToTagIdsToRemoveMap.ContainsKey(alcr.Id) ? ruleIdToTagIdsToRemoveMap[alcr.Id] : new List<int>(),
+                                                                               fileTypesAndPpvsToAdd.ContainsKey(alcr.Id) ? fileTypesAndPpvsToAdd[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                                                               fileTypesAndPpvsToRemove.ContainsKey(alcr.Id) ? fileTypesAndPpvsToRemove[alcr.Id] : new LifeCycleFileTypesAndPpvsTransitions(),
+                                                                               ruleIdToGeoBlockMap.ContainsKey(alcr.Id) ? ruleIdToGeoBlockMap[alcr.Id] : null);
+                        if (!groupIdToRulesMap.ContainsKey(alcr.GroupId))
+                        {
+                            groupIdToRulesMap.Add(alcr.GroupId, new List<AssetLifeCycleRule>());
+                        }
+
+                        groupIdToRulesMap[alcr.GroupId].Add(alcr);
+                    }
+                }
+            }
+
+            return groupIdToRulesMap;
+        }
+
+        #endregion
     }
 }

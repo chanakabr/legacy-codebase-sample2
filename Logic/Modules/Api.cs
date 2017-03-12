@@ -1703,5 +1703,29 @@ namespace Core.Api
 
             return result;
         }
+
+        public static bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out string tagValue, out string dateMeta, out int dateValue)
+        {
+            bool result = false;
+            tagType = string.Empty;
+            tagValue = string.Empty;
+            dateMeta = string.Empty;
+            dateValue = 0;
+
+            try
+            {
+                result = AssetLifeCycleRuleManager.Instance.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
+                    out tagValue,
+                    out dateMeta,
+                    out dateValue);
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.Error(string.Format("Error in BuildActionRuleKsql. ruleId = {0}, groupId = {1}, ex = {2}", ruleId, groupId, ex));
+            }
+
+            return result;
+        }
     }
 }
