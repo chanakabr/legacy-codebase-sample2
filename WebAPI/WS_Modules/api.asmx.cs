@@ -4124,13 +4124,28 @@ namespace WS_API
 
             return null;
         }
-        
+
         [WebMethod]
-        public bool DoActionRules(List<long> ruleIds = null)
+        public bool DoActionRules()
         {
-            return Core.Api.Module.DoActionRules(0, ruleIds);
+            return Core.Api.Module.DoActionRules();
         }
-        
+
+        [WebMethod]
+        public bool DoActionByRuleIds(string sWSUserName, string sWSPassword, List<long> ruleIds)
+        {
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.DoActionRules(groupId, ruleIds);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                return false;
+            }
+        }
+
         [WebMethod]
         public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
             out string tagType,
