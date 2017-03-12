@@ -57,7 +57,7 @@ namespace Core.Api.Managers
                 DataSet ds = DAL.ApiDAL.GetLifeCycleRules(groupId, rulesIds);
                 if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
                 {
-                    groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(groupId, ds);
+                    groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(ds);
                 }
             }
             catch (Exception ex)
@@ -603,7 +603,7 @@ namespace Core.Api.Managers
         }
 
 
-        private Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(int groupId, DataSet ds)
+        private Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(DataSet ds)
         {
             Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int, List<AssetLifeCycleRule>>();
 
@@ -614,7 +614,7 @@ namespace Core.Api.Managers
                 foreach (DataRow dr in rulesDt.Rows)
                 {
                     long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                    groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
+                    int groupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_ID", 0);
                     if (id > 0 && groupId > 0)
                     {
                         string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
