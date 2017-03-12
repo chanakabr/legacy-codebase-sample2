@@ -294,7 +294,21 @@ namespace Core.Api.Managers
 
         public bool BuildActionRuleKsqlFromData(int groupId, string tagType, string tagValue, string dateMeta, int dateValue, out string ksql)
         {
-            throw new NotImplementedException();
+            bool result = false;
+            ksql = string.Empty;
+
+            if (!string.IsNullOrEmpty(tagType) && !string.IsNullOrEmpty(tagValue) && !string.IsNullOrEmpty(dateMeta) && dateValue > 0)
+            {
+                long firstDate = -1 * (dateValue + 1) * 24 * 60 * 60;
+                long secondDate = -1 * (dateValue) * 24 * 60 * 60;
+
+                ksql = string.Format("(and {0}='{1}' {2}>='{3}' {2}<'{4}')",
+                    tagType, tagValue, dateMeta, firstDate, secondDate);
+
+                result = true;
+            }
+
+            return result;
         }
 
         #endregion
