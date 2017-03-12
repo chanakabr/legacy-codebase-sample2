@@ -4104,9 +4104,8 @@ namespace WS_API
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
+                return null;
             }
-
-            return null;
         }
 
         [WebMethod]
@@ -4124,11 +4123,26 @@ namespace WS_API
 
             return null;
         }
+
+        [WebMethod]
+        public bool DoActionRules()
+        {
+            return Core.Api.Module.DoActionRules();
+        }
         
         [WebMethod]
-        public bool DoActionRules(List<long> ruleIds = null)
+        public bool DoActionByRuleIds(string sWSUserName, string sWSPassword, List<long> ruleIds)
         {
-            return Core.Api.Module.DoActionRules(ruleIds);
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.DoActionRules(groupId, ruleIds);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                return false;
+            }
         }
     }
 }
