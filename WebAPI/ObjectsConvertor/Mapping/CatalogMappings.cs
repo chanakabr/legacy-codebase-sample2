@@ -58,7 +58,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.CdnName, opt => opt.MapFrom(src => src.StreamingCompanyName))
                  .ForMember(dest => dest.CdnCode, opt => opt.MapFrom(src => src.m_nCdnID))
                  .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
-                 .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
+                 //.ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
                  ;
 
@@ -80,20 +80,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //Media to AssetInfo
             Mapper.CreateMap<MediaObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dStartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionaryOld(src.m_lTags)))
                 .ForMember(dest => dest.ExtraParams, opt => opt.MapFrom(src => BuildExtraParamsDictionary(src)));
 
             //EPG to AssetInfo
             Mapper.CreateMap<EPGChannelProgrammeObject, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EPG_ID))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NAME))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NAME))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
@@ -104,8 +106,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
@@ -128,8 +131,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //EPG (recording) to AssetInfo
             Mapper.CreateMap<RecordingObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.recordingId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.program.m_oProgram.NAME))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.program.m_oProgram.DESCRIPTION))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.program.m_oProgram.NAME))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.program.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.program.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.program.m_oProgram.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
@@ -140,15 +144,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //Media to SlimAssetInfo
             Mapper.CreateMap<MediaObj, KalturaBaseAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Name)))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Description)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID));
 
             //Media to SlimAssetInfo
             Mapper.CreateMap<ProgramObj, KalturaBaseAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.epg));
 
             //channelObj to Channel
@@ -292,7 +298,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.m_dEndDate)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.m_oMediaType.m_nTypeID))
                 .ForMember(dest => dest.Metas, opt => opt.MapFrom(src => BuildMetasDictionary(src.m_lMetas)))
-                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionary(src.m_lTags)))
+                .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => BuildTagsDictionaryNew(src.m_lTags)))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPicture))
                 .ForMember(dest => dest.MediaFiles, opt => opt.MapFrom(src => src.m_lFiles))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.m_ExternalIDs))
@@ -313,8 +319,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //EPG to AssetInfo
             Mapper.CreateMap<ProgramObj, KalturaAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
+                // TODO - restore these properties after fixing multilinguality for EPG
+                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.NAME))
+                //.ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.DESCRIPTION))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.START_DATE, "dd/MM/yyyy HH:mm:ss", null))))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(DateTime.ParseExact(src.m_oProgram.END_DATE, "dd/MM/yyyy HH:mm:ss", null))))
@@ -567,7 +574,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return extraParams;
         }
 
-        private static SerializableDictionary<string, KalturaMultilingualStringValueArray> BuildTagsDictionary(List<Tags> list)
+        // TODO rename to BuildTagsDictionary and delete BuildTagsDictionaryOld after fixing program-asset multilingual tags
+        private static SerializableDictionary<string, KalturaMultilingualStringValueArray> BuildTagsDictionaryNew(List<Tags> list)
         {
             if (list == null)
             {
@@ -581,6 +589,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 tags.Add(tag.m_oTagMeta.m_sName, new KalturaMultilingualStringValueArray()
                 {
                     Objects = tag.Values.Select(v => new KalturaMultilingualStringValue() { value = new KalturaMultilingualString(v) }).ToList()
+                });
+            }
+
+            return tags;
+        }
+
+        private static SerializableDictionary<string, KalturaStringValueArray> BuildTagsDictionaryOld(List<Tags> list)
+        {
+            if (list == null)
+            {
+                return null;
+            }
+
+            SerializableDictionary<string, KalturaStringValueArray> tags = new SerializableDictionary<string, KalturaStringValueArray>();
+
+            foreach (var tag in list)
+            {
+                tags.Add(tag.m_oTagMeta.m_sName, new KalturaStringValueArray()
+                {
+                    Objects = tag.m_lValues.Select(v => new KalturaStringValue() { value = v }).ToList()
                 });
             }
 

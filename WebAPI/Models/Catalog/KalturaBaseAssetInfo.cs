@@ -46,23 +46,25 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "type")]
         [JsonProperty(PropertyName = "type")]
         [XmlElement(ElementName = "type")]
-        public int? Type { get; set; }      
+        public int? Type { get; set; }
 
-        /// <summary>
-        /// Asset name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public KalturaMultilingualString Name { get; set; } 
+        // TODO - restore this property after fixing multilinguality for EPG
+        ///// <summary>
+        ///// Asset name
+        ///// </summary>
+        //[DataMember(Name = "name")]
+        //[JsonProperty(PropertyName = "name")]
+        //[XmlElement(ElementName = "name")]
+        //public KalturaMultilingualString Name { get; set; }
 
-        /// <summary>
-        /// Asset description
-        /// </summary>
-        [DataMember(Name = "description")]
-        [JsonProperty(PropertyName = "description")]
-        [XmlElement(ElementName = "description")]
-        public KalturaMultilingualString Description { get; set; }
+        // TODO - restore this property after fixing multilinguality for EPG
+        ///// <summary>
+        ///// Asset description
+        ///// </summary>
+        //[DataMember(Name = "description")]
+        //[JsonProperty(PropertyName = "description")]
+        //[XmlElement(ElementName = "description")]
+        //public KalturaMultilingualString Description { get; set; }
 
         /// <summary>
         /// Collection of images details that can be used to represent this asset
