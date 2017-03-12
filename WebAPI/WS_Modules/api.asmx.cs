@@ -4128,7 +4128,38 @@ namespace WS_API
         [WebMethod]
         public bool DoActionRules(List<long> ruleIds = null)
         {
-            return Core.Api.Module.DoActionRules(ruleIds);
+            return Core.Api.Module.DoActionRules(0, ruleIds);
+        }
+        
+
+        [WebMethod]
+        public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
+            out string tagType,
+            out string tagValue,
+            out string dateMeta,
+            out int dateValue)
+        {
+            bool result = false;
+            tagType = string.Empty;
+            tagValue = string.Empty;
+            dateMeta = string.Empty;
+            dateValue = 0;
+
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
+                    out tagValue,
+                    out dateMeta,
+                    out dateValue);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
         }
     }
 }
