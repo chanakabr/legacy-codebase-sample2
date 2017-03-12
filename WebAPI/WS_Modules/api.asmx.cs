@@ -4131,7 +4131,6 @@ namespace WS_API
             return Core.Api.Module.DoActionRules(0, ruleIds);
         }
         
-
         [WebMethod]
         public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
             out string tagType,
@@ -4153,6 +4152,35 @@ namespace WS_API
                     out tagValue,
                     out dateMeta,
                     out dateValue);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
+        [WebMethod]
+        public bool BuildActionRuleKsqlFromData(string sWSUserName, string sWSPassword,
+            string tagType,
+            string tagValue,
+            string dateMeta,
+            int dateValue,
+            out string ksql)
+        {
+            bool result = false;
+            ksql = string.Empty;
+
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.BuildActionRuleKsqlFromData(groupId, tagType,
+                    tagValue,
+                    dateMeta,
+                    dateValue,
+                    out ksql);
             }
             else
             {
