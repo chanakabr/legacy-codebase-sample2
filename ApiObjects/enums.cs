@@ -583,7 +583,7 @@ namespace ApiObjects
         DeletedBySystem = 4,
         SeriesCancel = 5,
         SeriesDelete = 6,
-        Downgrade = 7
+        DeletePending = 7
     }
 
     public enum RecordingInternalStatus
@@ -839,4 +839,9 @@ namespace ApiObjects
         Remove = 3
     }
 
+    public enum ProtectionPolicy
+    {
+        UnlimitedByRecordingLifetime = 0,
+        LimitedByRecordingLifetime = 1
+    }
 }

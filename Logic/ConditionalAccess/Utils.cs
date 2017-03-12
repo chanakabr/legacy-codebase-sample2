@@ -3926,7 +3926,7 @@ namespace Core.ConditionalAccess
                                     settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
                                                                                 trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
                                                                                 protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
-                                                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy);
+                                                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, quotaOveragePolicy);
                                     TvinciCache.WSCache.Instance.Add(key, settings);
                                 }
                             }
@@ -6480,7 +6480,7 @@ namespace Core.ConditionalAccess
                             if (usedQuota > npvrObject.Quota)
                             {
                                 // call the handel to delete all recordings
-                                QuotaManager.Instance.HandleDominQuotaOvarge(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.Downgrade);
+                                QuotaManager.Instance.HandleDominQuotaOvarge(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.DeletePending);
                             }
                         }
 

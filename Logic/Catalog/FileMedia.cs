@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace Core.Catalog
@@ -59,7 +60,7 @@ namespace Core.Catalog
         [DataMember]
         public string CdnCode;
         [DataMember]
-        public string PPVModule;
+        public List<string> PPVModules;
 
         public FileMedia()
         {
