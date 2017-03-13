@@ -2,8 +2,11 @@ using KLogMonitor;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
+using System.Text;
 using System.Web;
+using System.Xml;
 using TvinciImporter;
 using TVinciShared;
 
@@ -28,14 +31,20 @@ public partial class adm_media_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
+                System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+
                 Int32 nID = DBManipulator.DoTheWork();
                 ProtocolsFuncs.SeperateMediaMainTexts(nID);
                 ProtocolsFuncs.SeperateMediaMainTags(nID);
 
                 if (nID > 0) //if record was save , update record in Lucene , create Notification Requests
                 {
-                    // Update record in Catalog (see the flow inside Update Index
                     int nGroupId = LoginManager.GetLoginGroupID();
+
+                    // update date meta
+                    UpdateDateMeta(nID, nGroupId, coll);
+
+                    // Update record in Catalog (see the flow inside Update Index
                     if (!ImporterImpl.UpdateIndex(new List<int>() { nID }, nGroupId, ApiObjects.eAction.Update))
                     {
                         log.Error(string.Format("Failed updating index for mediaID: {0}, groupID: {1}", nID, nGroupId));
@@ -96,6 +105,51 @@ public partial class adm_media_new : System.Web.UI.Page
             else
                 Session["media_id"] = 0;
         }
+    }
+
+    private void UpdateDateMeta(int mediaId, int groupId, System.Collections.Specialized.NameValueCollection coll)
+    {
+        string error = null;
+
+        StringBuilder dateMetaXml = new StringBuilder("<root>");
+        string value, name;
+        bool bValid;
+        DateTime dateTimeVal = DateTime.MinValue;
+        for (int i = 0; i < coll.Count; i++)
+	    {
+            bool ignore = coll[i.ToString() + "_ignore"] != null ? coll[i.ToString() + "_ignore"].ToLower() == "true" : false;
+            if (ignore)
+            {
+                value = null;
+                if (coll[i.ToString() + "_val"] != null)
+                    value = coll[i.ToString() + "_val"].ToString();
+                name = coll[i.ToString() + "_fieldHeader"].ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    string sValMin = coll[i.ToString() + "_valMin"].ToString();
+                    string sValHour = coll[i.ToString() + "_valHour"].ToString();
+                    bValid = DBManipulator.validateParam("int", sValHour, 0, 23);
+                    if (bValid == true)
+                        bValid = DBManipulator.validateParam("int", sValMin, 0, 59);
+                    if (bValid == true)
+                        bValid = DBManipulator.validateParam("date", value, 0, 59);
+                    DateTime tTime = DateUtils.GetDateFromStr(value);
+                    if (sValHour == "")
+                        sValHour = "0";
+                    if (sValMin == "")
+                        sValMin = "0";
+                    dateTimeVal = tTime.AddHours(int.Parse(sValHour.ToString()));
+                    dateTimeVal = tTime.AddMinutes(int.Parse(sValMin.ToString()));
+                }
+                dateMetaXml.AppendFormat("<meta name=\"{0}\">{1}</meta>", name, dateTimeVal.ToString("dd/MM/yyyy hh:mm:ss"));
+            }
+        }
+        dateMetaXml.AppendFormat("</root>");
+        XmlDocument doc = new XmlDocument();
+        doc.LoadXml(dateMetaXml.ToString());
+        XmlNodeList datesXml = doc.SelectNodes("//meta");
+
+        TvinciImporter.ImporterImpl.UpdateDatesData(groupId, mediaId, ref datesXml, ref error); 
     }
 
     protected string GetLangMenu(Int32 nGroupID)
@@ -442,7 +496,9 @@ public partial class adm_media_new : System.Web.UI.Page
         AddStrFields(ref theRecord);
         AddIntFields(ref theRecord);
         AddBoolFields(ref theRecord);
+        AddDateFields(ref theRecord, mediaId);
         AddTagsFields(ref theRecord);
+
         //DataRecordMultiField dr_tags = new DataRecordMultiField("tags", "id", "id", "pics_tags", "media_id", "TAG_ID", true, "ltr", 60, "tags");
         //dr_tags.Initialize("Tags", "adm_table_header_nbg", "FormInput", "VALUE", true);
         //dr_tags.SetCollectionLength(8);
@@ -461,6 +517,41 @@ public partial class adm_media_new : System.Web.UI.Page
         string sTable = theRecord.GetTableHTML("adm_media_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    private void AddDateFields(ref DBRecordWebEditor theRecord, object mediaId)
+    {
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select gdm.id, gdm.NAME, mdmv.ID, mdmv.VALUE from groups_date_metas gdm left join media_date_metas_values mdmv on mdmv.DATE_META_ID=gdm.id and ";
+        if (mediaId != null)
+        {
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", mediaId.ToString());
+        }
+        else
+        {
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("media_id", "=", "0");
+        }
+        selectQuery += " where gdm.status=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", LoginManager.GetLoginGroupID());
+        
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").Rows.Count;
+            if (nCount > 0)
+            {
+                foreach(DataRow row in selectQuery.Table("query").Rows)
+                {
+                    string name = ODBCWrapper.Utils.GetSafeStr(row, "NAME");
+                    string value = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+                    DataRecordDateTimeField dr_date = new DataRecordDateTimeField(true);
+                    dr_date.SetIgnore(true);
+                    dr_date.Initialize(name, "adm_table_header_nbg", "FormInput", "", value, false);
+                    theRecord.AddRecord(dr_date);
+                }
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
     }
 
     private string GetPicImageUrlByRatio(object mediaId, int groupId, out int picId)
