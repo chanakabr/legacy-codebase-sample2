@@ -337,7 +337,7 @@ namespace Core.Catalog
 
                 if (ds == null)
                     return null;
-                if (ds.Tables.Count >= 6)
+                if (ds.Tables.Count >= 7)
                 {
                     int assetGroupId = 0;
                     int isLinear = 0;
@@ -376,6 +376,11 @@ namespace Core.Catalog
                             return null;
                         }
                         oMediaObj.m_lTags = GetTagsDetails(ds.Tables[6], ds.Tables[4], bIsMainLang, group, ref result);
+                        if (!result)
+                        {
+                            return null;
+                        }
+                        oMediaObj.m_lMetas.AddRange(GetDateMetaDetails(ds.Tables[7], group, ref result));
                         if (!result)
                         {
                             return null;
@@ -558,6 +563,33 @@ namespace Core.Catalog
                 }
 
                 return tagList;
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex.Message, ex);
+                result = false;
+                return null;
+            }
+        }
+
+        private static List<Metas> GetDateMetaDetails(DataTable dtDatesMeta, Group group, ref bool result)
+        {
+            try
+            {
+                result = true;
+                List<Metas> lMetas = new List<Metas>();
+                if (dtDatesMeta.Rows != null && dtDatesMeta.Rows.Count > 0)
+                {
+                    Metas oMeta = new Metas();
+                    foreach (DataRow metaRow in dtDatesMeta.Rows)
+                    {
+                        oMeta = new Metas();
+                        oMeta.m_oTagMeta = new TagMeta(ODBCWrapper.Utils.GetSafeStr(metaRow, "name"), typeof(DateTime).ToString());
+                        oMeta.m_sValue = ODBCWrapper.Utils.GetSafeStr(metaRow, "value");
+                        lMetas.Add(oMeta);
+                    }
+                }
+                return lMetas;
             }
             catch (Exception ex)
             {
