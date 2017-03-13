@@ -19,7 +19,7 @@ namespace ElasticSearchFeeder.IndexBuilders
 
         protected ElasticSearchApi m_oESApi;
         protected int m_nGroupID;
-        protected ESSerializer m_oESSerializer;
+        protected ESSerializerV1 m_oESSerializer;
 
         public MediaIndexBuilder(int nGroupID)
         {
@@ -27,7 +27,7 @@ namespace ElasticSearchFeeder.IndexBuilders
             bSwitchIndex = false;
             bSwitchIndex = false;
             m_oESApi = new ElasticSearchApi();
-            m_oESSerializer = new ESSerializer();
+            m_oESSerializer = new ESSerializerV1();
         }
 
         public override async Task<bool> BuildIndex()

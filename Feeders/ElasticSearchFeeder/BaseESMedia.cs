@@ -27,7 +27,7 @@ namespace ElasticSearchFeeder
         protected const string MEDIA = "media";
         protected const string EPG = "epg";
 
-        protected ESSerializer m_oESSerializer;
+        protected ESSerializerV1 m_oESSerializer;
         protected ElasticSearchApi m_oESApi;
         protected DateTime m_dStartDate, m_dEndDate;
         public bool bSwitchIndex { get; set; }
@@ -36,14 +36,14 @@ namespace ElasticSearchFeeder
         public BaseESMedia(int nGroupID, string sQueueName, bool bRebuildIndex)
             : base(nGroupID, sQueueName, bRebuildIndex)
         {
-            m_oESSerializer = new ESSerializer();
+            m_oESSerializer = new ESSerializerV1();
             m_oESApi = new ElasticSearchApi();
         }
 
         public BaseESMedia(int nGroupID, string sQueueName, bool bRebuildIndex, DateTime dStartDate, DateTime dEndDate)
             : base(nGroupID, sQueueName, bRebuildIndex)
         {
-            m_oESSerializer = new ESSerializer();
+            m_oESSerializer = new ESSerializerV1();
             m_oESApi = new ElasticSearchApi();
             m_dStartDate = dStartDate;
             m_dEndDate = dEndDate;
