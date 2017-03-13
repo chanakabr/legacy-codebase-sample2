@@ -16,6 +16,18 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetCountListResponse : KalturaListResponse
     {
         /// <summary>
+        /// Count of assets that match filter result, regardless of group by result
+        /// </summary>
+        [DataMember(Name = "assetsCount")]
+        [JsonProperty(PropertyName = "assetsCount")]
+        [XmlElement(ElementName = "assetsCount")]
+        public int AssetsCount
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// List of groupings (field name and sub-list of values and their counts)
         /// </summary>
         [DataMember(Name = "objects")]

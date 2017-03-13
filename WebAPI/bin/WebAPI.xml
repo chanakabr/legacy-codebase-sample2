@@ -879,6 +879,11 @@
             Asset counts wrapper - represents a group
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetCountListResponse.AssetsCount">
+            <summary>
+            Count of assets that match filter result, regardless of group by result
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCountListResponse.Objects">
             <summary>
             List of groupings (field name and sub-list of values and their counts)
