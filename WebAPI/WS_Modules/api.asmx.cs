@@ -4124,5 +4124,85 @@ namespace WS_API
 
             return null;
         }
+
+        [WebMethod]
+        public bool DoActionRules()
+        {
+            return Core.Api.Module.DoActionRules();
+        }
+
+        [WebMethod]
+        public bool DoActionByRuleIds(string sWSUserName, string sWSPassword, List<long> ruleIds)
+        {
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.DoActionRules(groupId, ruleIds);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                return false;
+            }
+        }
+
+        [WebMethod]
+        public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
+            out string tagType,
+            out string tagValue,
+            out string dateMeta,
+            out int dateValue)
+        {
+            bool result = false;
+            tagType = string.Empty;
+            tagValue = string.Empty;
+            dateMeta = string.Empty;
+            dateValue = 0;
+
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
+                    out tagValue,
+                    out dateMeta,
+                    out dateValue);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
+        [WebMethod]
+        public bool BuildActionRuleKsqlFromData(string sWSUserName, string sWSPassword,
+            string tagType,
+            string tagValue,
+            string dateMeta,
+            int dateValue,
+            out string ksql)
+        {
+            bool result = false;
+            ksql = string.Empty;
+
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.BuildActionRuleKsqlFromData(groupId, tagType,
+                    tagValue,
+                    dateMeta,
+                    dateValue,
+                    out ksql);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
     }
 }
