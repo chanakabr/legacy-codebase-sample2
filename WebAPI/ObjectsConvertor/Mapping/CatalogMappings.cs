@@ -639,7 +639,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     value = new KalturaDoubleValue() { value = double.Parse(meta.m_sValue) };
                 }
-
+                else if (meta.m_oTagMeta.m_sType == typeof(DateTime).ToString())
+                {
+                    if (!string.IsNullOrEmpty(meta.m_sValue))
+                    {
+                        value = new KalturaLongValue() { value = SerializationUtils.ConvertToUnixTimestamp(DateTime.Parse(meta.m_sValue)) };
+                    }
+                }
                 else
                 {
                     throw new ClientException((int)StatusCode.Error, "Unknown meta type");
