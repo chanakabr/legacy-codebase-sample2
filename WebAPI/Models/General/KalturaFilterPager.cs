@@ -14,7 +14,7 @@ namespace WebAPI.Models.General
     /// </summary>
     public class KalturaFilterPager : KalturaOTTObject
     {
-        private static int maxPageSize;
+        private const int MAX_PAGE_SIZE = 500;
         private const int DEFAULT_PAGE_SIZE = 30;
         private const int DEFAULT_PAGE_INDEX = 1;
         private int pageSize;
@@ -31,7 +31,7 @@ namespace WebAPI.Models.General
         {
             get 
             {
-                return pageSize > 0 ? pageSize : maxPageSize;
+                return pageSize > 0 ? pageSize : MAX_PAGE_SIZE;
             }
 
             set
@@ -42,9 +42,9 @@ namespace WebAPI.Models.General
                     return;
                 }
 
-                if (value > KalturaFilterPager.maxPageSize)
+                if (value > MAX_PAGE_SIZE)
                 {
-                    pageSize = KalturaFilterPager.maxPageSize;
+                    pageSize = MAX_PAGE_SIZE;
                 }
                 else if (value < 1)
                 {
@@ -88,14 +88,6 @@ namespace WebAPI.Models.General
 
         public KalturaFilterPager()
         {            
-            if (KalturaFilterPager.maxPageSize == 0)
-            {
-                KalturaFilterPager.maxPageSize = TCMClient.Settings.Instance.GetValue<int>("max_page_size");
-
-                if (KalturaFilterPager.maxPageSize == 0)
-                    KalturaFilterPager.maxPageSize = DEFAULT_PAGE_SIZE;
-            }
-
             pageSize = DEFAULT_PAGE_SIZE;
             pageIndex = DEFAULT_PAGE_INDEX;
         }

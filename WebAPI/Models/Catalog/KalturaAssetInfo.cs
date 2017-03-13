@@ -43,6 +43,24 @@ namespace WebAPI.Models.Catalog
     [Obsolete]
     public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
     {
+        // TODO - delete this property after fixing multilinguality for EPG
+        /// <summary>
+        /// Asset name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
+        public string Name { get; set; }
+
+        // TODO - delete this property after fixing multilinguality for EPG
+        /// <summary>
+        /// Asset description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty(PropertyName = "description")]
+        [XmlElement(ElementName = "description")]
+        public string Description { get; set; }
+
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
         /// </summary>
@@ -50,6 +68,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "metas")]
         [XmlElement("metas", IsNullable = true)]
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
+
+        /// <summary>
+        /// Dynamic collection of key-value pairs according to the String Meta defined in the system
+        /// </summary>
+        [DataMember(Name = "metasNew")]
+        [JsonProperty(PropertyName = "metasNew")]
+        [XmlElement("metasNew", IsNullable = true)]
+        public SerializableDictionary<string, KalturaMultilingualString> MetasNew { get; set; }
+
 
         /// <summary>
         /// Dynamic collection of key-value pairs according to the Tag Types defined in the system

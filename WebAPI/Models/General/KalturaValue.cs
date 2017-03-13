@@ -15,6 +15,7 @@ namespace WebAPI.Models.General
     [XmlInclude(typeof(KalturaIntegerValue))]
     [XmlInclude(typeof(KalturaBooleanValue))]
     [XmlInclude(typeof(KalturaDoubleValue))]
+    [XmlInclude(typeof(KalturaMultilingualStringValue))]    
     public abstract class KalturaValue : KalturaOTTObject
     {
         /// <summary>

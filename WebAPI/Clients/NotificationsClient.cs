@@ -79,7 +79,7 @@ namespace WebAPI.Clients
 
             try
             {
-                log.Debug(string.Format("Username={0}, Password={1}", groupId));
+                log.Debug(string.Format("GroupId={0}", groupId));
                 int user_id = int.Parse(userId);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -640,7 +640,7 @@ namespace WebAPI.Clients
 
             FollowDataTvSeries followData = new FollowDataTvSeries();
             followData.AssetId = asset_id;
-            followData.Title = mediaInfoResponse.Objects[0].Name;
+            followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
 
             try
             {
@@ -687,7 +687,7 @@ namespace WebAPI.Clients
             }
 
             followData.Status = 1;
-            followData.Title = mediaInfoResponse.Objects[0].Name;
+            followData.Title = mediaInfoResponse.Objects[0].Name.ToString();
             followDataNotification = Mapper.Map<FollowDataTvSeries>(followData);
             followDataNotification.Type = mediaInfoResponse.Objects[0].getType();
 

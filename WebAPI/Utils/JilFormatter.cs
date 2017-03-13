@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using WebAPI.App_Start;
 using WebAPI.Reflection;
 using Newtonsoft.Json.Linq;
+using WebAPI.Managers;
 
 namespace WebAPI.Utils
 {
@@ -115,6 +116,8 @@ namespace WebAPI.Utils
 
         private readonly Options _jilOptions;
 
+        private JsonManager jsonManager;
+
         public JilFormatter()
         {
             _jilOptions = new Options(dateFormat: DateTimeFormat.SecondsSinceUnixEpoch, excludeNulls: true, includeInherited: true);
@@ -123,6 +126,8 @@ namespace WebAPI.Utils
 
             SupportedEncodings.Add(new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true));
             SupportedEncodings.Add(new UnicodeEncoding(bigEndian: false, byteOrderMark: true, throwOnInvalidBytes: true));
+
+            jsonManager = JsonManager.GetInstance();
         }
 
         public override bool CanReadType(Type type)
@@ -162,128 +167,6 @@ namespace WebAPI.Utils
             catch
             {
                 throw new BadRequestException();
-            }
-        }
-
-        public class MultiStringJsonConverter : JsonConverter
-        {
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                JToken jToken = value.ToString();
-                jToken.WriteTo(writer);
-
-                string language = Utils.GetLanguageFromRequest();
-                if (language == null || !language.Equals("*"))
-                {
-                    return;
-                }
-
-                string name = writer.Path.Substring(writer.Path.LastIndexOf('.') + 1);
-                string multilingualName = string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1));
-
-                KalturaMultilingualString multilingualString = (KalturaMultilingualString)value;
-                if (multilingualString.Values != null)
-                {
-                    writer.WritePropertyName(multilingualName);
-                    jToken = JToken.FromObject(multilingualString.Values);
-                    jToken.WriteTo(writer);
-                }
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
-            }
-
-            public override bool CanRead
-            {
-                get { return false; }
-            }
-
-            public override bool CanConvert(Type objectType)
-            {
-                return objectType == typeof(KalturaMultilingualString);
-            }
-        }
-
-        public class EnumConverter : JsonConverter
-        {
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                Type type = value.GetType();
-                JToken jToken;
-
-                if (type.IsEnum)
-                {
-                    jToken = Enum.GetName(type, value);
-                }
-                else
-                {
-                    jToken = Enum.GetName(Nullable.GetUnderlyingType(type), value);
-                }
-                jToken.WriteTo(writer);
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
-            }
-
-            public override bool CanRead
-            {
-                get { return false; }
-            }
-
-            public override bool CanConvert(Type objectType)
-            {
-                return objectType.IsEnum || (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>) && Nullable.GetUnderlyingType(objectType).IsEnum);
-            }
-        }
-
-        public class DoubleConverter : JsonConverter
-        {
-            private JToken GetToken(double value)
-            {
-                if (value == 0)
-                {
-                    return (int)value;
-                }
-
-                return value;
-            }
-
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                JToken jToken = null;
-                if (value.GetType().IsGenericType)
-                {
-                    double? nullableValue = (double?)value;
-                    if (!nullableValue.HasValue)
-                    {
-                        jToken = GetToken(nullableValue.Value);
-                    }
-                }
-                else
-                {
-                    jToken = GetToken((double)value);
-                }
-
-                jToken.WriteTo(writer);
-            }
-
-            public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-            {
-                throw new NotImplementedException("Unnecessary because CanRead is false. The type will skip the converter.");
-            }
-
-            public override bool CanRead
-            {
-                get { return false; }
-            }
-
-            public override bool CanConvert(Type objectType)
-            {
-                return objectType == typeof(double) || (objectType.IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Nullable<>) && Nullable.GetUnderlyingType(objectType) == typeof(double));
             }
         }
 
@@ -339,7 +222,7 @@ namespace WebAPI.Utils
                     }
                 }
 
-                string json = JsonConvert.SerializeObject(value, new MultiStringJsonConverter(), new EnumConverter(), new DoubleConverter() );
+                string json = jsonManager.Serialize(value);
                 streamWriter.Write(json);
                 
                 //JSON.Serialize(value, streamWriter, _jilOptions);

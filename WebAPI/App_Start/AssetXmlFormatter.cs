@@ -18,11 +18,15 @@ using System.Collections;
 using WebAPI.Models.Catalog;
 using TVinciShared;
 using WebAPI.Models.Renderers;
+using KLogMonitor;
+using System.Reflection;
 
 namespace WebAPI.App_Start
 {
     public class AssetXmlFormatter : MediaTypeFormatter
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public AssetXmlFormatter()
         {
             MediaTypeMappings.Add(new QueryStringMapping("format", "30", "application/xml"));
@@ -115,13 +119,13 @@ namespace WebAPI.App_Start
         public class Name
         {
             [XmlElement("value")]
-            public Value Value { get; set; }
+            public List<Value> Value { get; set; }
         }
 
         public class Description
         {
             [XmlElement("value")]
-            public Value Value { get; set; }
+            public List<Value> Value { get; set; }
         }
 
         public class Thumb
@@ -248,7 +252,7 @@ namespace WebAPI.App_Start
             public string MlHandling { get; set; }
 
             [XmlElement("value")]
-            public Value Value { get; set; }
+            public List<Value> Value { get; set; }
 
             [XmlElement("container")]
             public List<Container> Container { get; set; }
@@ -443,35 +447,55 @@ namespace WebAPI.App_Start
                     media.Basic.MediaType = asset.TypeDescription;
 
                     // add name
-                    media.Basic.Name = new Name()
+                    media.Basic.Name = new Name() { Value = new List<Value>() };
+                    if (asset.Name != null && asset.Name.Values != null)
                     {
-                        Value = new Value()
+                        foreach (var nameItem in asset.Name.Values)
                         {
-                            Text = asset.Name,
-                            // TODO: add language
-                            Lang = string.Empty
+                            media.Basic.Name.Value.Add(new Value()
+                            {
+                                Lang = nameItem.Language,
+                                Text = nameItem.Value
+                            });
                         }
-                    };
+                    }
 
                     // add description
-                    media.Basic.Description = new Description()
+                    media.Basic.Description = new Description() { Value = new List<Value>() };
+                    if (asset.Description != null && asset.Description.Values != null)
                     {
-                        Value = new Value()
+                        foreach (var nameItem in asset.Description.Values)
                         {
-                            Text = asset.Description,
-                            // TODO: add language
-                            Lang = string.Empty
+                            media.Basic.Description.Value.Add(new Value()
+                            {
+                                Lang = nameItem.Language,
+                                Text = nameItem.Value
+                            });
                         }
-                    };
+                    }
 
-                    // add dates
-                    media.Basic.Dates = new Dates()
+                    // add dates (protecting formatting incase illegal date value received)
+                    media.Basic.Dates = new Dates();
+
+                    try
                     {
-                        CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        End = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty,
-                        Start = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty
-                    };
+                        media.Basic.Dates.CatalogEnd = asset.EndDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.EndDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.End = media.Basic.Dates.CatalogEnd;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.DebugFormat("Illegal end date received while formatting asset list to XML. asset ID: {0}, asset name: {1}, end date: {2}, ex: {3}", asset.Id, asset.Name, asset.EndDate, ex);
+                    }
+
+                    try
+                    {
+                        media.Basic.Dates.CatalogStart = asset.StartDate != null && asset.EndDate != 0 ? DateUtils.UnixTimeStampToDateTime((long)asset.StartDate).ToString("dd/MM/yyyy HH:mm:ss") : string.Empty;
+                        media.Basic.Dates.Start = media.Basic.Dates.CatalogStart;
+                    }
+                    catch (Exception ex)
+                    {
+                        log.DebugFormat("Illegal start date received while formatting asset list to XML. asset ID: {0}, asset name: {1}, start date: {2}. ex: {3}", asset.Id, asset.Name, asset.StartDate, ex);
+                    }
 
                     // add rules
                     media.Basic.Rules = new Rules()
@@ -517,21 +541,32 @@ namespace WebAPI.App_Start
 
                     if (asset.Metas != null)
                     {
-                        foreach (KeyValuePair<string, KalturaValue> entry in asset.Metas)
+                        foreach (var entry in asset.Metas)
                         {
                             // add strings
-                            if (entry.Value.GetType() == typeof(KalturaStringValue))
+                            if (entry.Value.GetType() == typeof(KalturaMultilingualStringValue) && entry.Value != null)
                             {
-                                media.Structure.Strings.Metas.Add(new Meta()
+                                // add string key
+                                Meta newMeta = new Meta()
                                 {
-                                    Name = entry.Key ?? string.Empty,
-                                    Value = new Value()
+                                    Name = entry.Key,
+                                    Value = new List<Value>()
+                                };
+
+                                // add strings languages
+                                if (((KalturaMultilingualStringValue)entry.Value).value != null && ((KalturaMultilingualStringValue)entry.Value).value.Values != null)
+                                {
+                                    foreach (KalturaTranslationToken item in ((KalturaMultilingualStringValue)entry.Value).value.Values)
                                     {
-                                        // TODO: fill language
-                                        Lang = string.Empty,
-                                        Text = ((KalturaStringValue)entry.Value).value ?? string.Empty
+                                        newMeta.Value.Add(new Value()
+                                        {
+                                            Text = item.Value,
+                                            Lang = item.Language
+                                        });
                                     }
-                                });
+                                }
+
+                                media.Structure.Strings.Metas.Add(newMeta);
                             }
 
                             // add doubles
@@ -571,30 +606,35 @@ namespace WebAPI.App_Start
                     if (asset.Tags != null)
                     {
                         Meta meta;
-                        foreach (KeyValuePair<string, KalturaStringValueArray> entry in asset.Tags)
+                        foreach (var entry in asset.Tags)
                         {
-                            // create new meta
+                            // create new meta - add it's name
                             meta = new Meta()
                             {
-                                Name = entry.Key ?? string.Empty,
+                                Name = entry.Key,
                                 Container = new List<Container>()
                             };
 
-                            if (entry.Value.Objects != null)
+                            if (entry.Value != null && entry.Value.Objects != null)
                             {
                                 // add meta values
-                                foreach (KalturaStringValue item in entry.Value.Objects)
+                                foreach (KalturaMultilingualStringValue containerObj in entry.Value.Objects)
                                 {
-                                    var container = new Container() { Values = new List<Value>() };
-
-                                    container.Values.Add(new Value()
+                                    if (containerObj.value != null && containerObj.value.Values != null)
                                     {
-                                        // TODO: update language
-                                        Lang = string.Empty,
-                                        Text = item.value
-                                    });
+                                        var container = new Container() { Values = new List<Value>() };
 
-                                    meta.Container.Add(container);
+                                        // add meta value languages
+                                        foreach (var value in containerObj.value.Values)
+                                        {
+                                            container.Values.Add(new Value()
+                                            {
+                                                Lang = value.Language,
+                                                Text = value.Value
+                                            });
+                                        }
+                                        meta.Container.Add(container);
+                                    }
                                 }
                             }
 
@@ -624,7 +664,7 @@ namespace WebAPI.App_Start
                                 BillingType = file.BillingType,
                                 CdnName = file.CdnName,
                                 HandlingType = file.HandlingType,
-                                PpvModule = file.PpvModule,
+                                PpvModule = file.PPVModules != null && file.PPVModules.Objects != null && file.PPVModules.Objects.Count > 0 ? string.Join(";", file.PPVModules.Objects.Select(x => x.value).ToArray()) : string.Empty,
                                 ProductCode = file.ProductCode
                             });
                         }
@@ -643,29 +683,41 @@ namespace WebAPI.App_Start
         {
             return Task.Factory.StartNew(() =>
             {
-                Feed resultFeed = new Feed();
-                if (value != null)
+                try
                 {
-                    // validate expected type was received
-                    StatusWrapper restResultWrapper = (StatusWrapper)value;
-                    if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
+                    Feed resultFeed = new Feed();
+                    if (value != null)
                     {
-                        resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
-                        XmlDocument doc = SerializeToXmlDocument(resultFeed);
-
-                        // remove root attributes
-                        doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
-
-                        var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
-                        writeStream.Write(buf, 0, buf.Length);
-                    }
-                    else
-                    {
-                        using (TextWriter streamWriter = new StreamWriter(writeStream))
+                        // validate expected type was received
+                        StatusWrapper restResultWrapper = (StatusWrapper)value;
+                        if (restResultWrapper != null && restResultWrapper.Result != null && restResultWrapper.Result is KalturaAssetListResponse)
                         {
-                            streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            resultFeed = ConvertResultToIngestObj((KalturaAssetListResponse)restResultWrapper.Result);
+                            XmlDocument doc = SerializeToXmlDocument(resultFeed);
+
+                            // remove root attributes
+                            doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
+
+                            // remove declaration 
+                            var declaration = doc.ChildNodes.OfType<XmlNode>().FirstOrDefault(x => x.NodeType == XmlNodeType.XmlDeclaration);
+                            if (declaration != null)
+                                doc.RemoveChild(declaration);
+
+                            var buf = Encoding.UTF8.GetBytes(doc.OuterXml);
+                            writeStream.Write(buf, 0, buf.Length);
+                        }
+                        else
+                        {
+                            using (TextWriter streamWriter = new StreamWriter(writeStream))
+                            {
+                                streamWriter.Write(JsonConvert.SerializeObject(restResultWrapper));
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while formatting asset list to XML ingest", ex);
                 }
             });
         }

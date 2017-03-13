@@ -51,6 +51,7 @@ namespace Reflector
             file.WriteLine("using System.Reflection;");
             file.WriteLine("using System.Web;");
             file.WriteLine("using WebAPI.Managers;");
+            file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("");
             file.WriteLine("namespace WebAPI.Reflection");
             file.WriteLine("{");
@@ -60,6 +61,8 @@ namespace Reflector
 
         static void wrtieBody()
         {
+            wrtieIsDeprecated();
+            wrtieIsObsolete();
             wrtieMethodOldMembers();
             wrtieTypeOldMembers();
             wrtiePropertyApiName();
@@ -312,6 +315,109 @@ namespace Reflector
             file.WriteLine("            }");
             file.WriteLine("            ");
             file.WriteLine("            return property.Name;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+        }
+
+        static void wrtieIsObsoleteCase(Type type)
+        {
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            if (properties.Length == 0)
+                return;
+
+            List<string> propertyNames = new List<string>();
+            foreach (PropertyInfo property in properties)
+            {
+                if (property.GetCustomAttribute<ObsoleteAttribute>() != null)
+                {
+                    propertyNames.Add(property.Name);
+                }
+            }
+            if (propertyNames.Count == 0)
+                return;
+
+            file.WriteLine("                case \"" + type.Name + "\":");
+            file.WriteLine("                    switch (propertyName)");
+            file.WriteLine("                    {");
+
+            foreach (string propertyName in propertyNames)
+            {
+                file.WriteLine("                        case \"" + propertyName + "\":");
+            }
+
+            file.WriteLine("                            return true;");
+            file.WriteLine("                    };");
+            file.WriteLine("                    break;");
+            file.WriteLine("                    ");
+        }
+
+        static void wrtieIsDeprecatedCase(Type type)
+        {
+            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            if (properties.Length == 0)
+                return;
+
+            Dictionary<string, string> propertyNames = new Dictionary<string, string>();
+            foreach (PropertyInfo property in properties)
+            {
+                DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>();
+                if (deprecated != null)
+                {
+                    propertyNames.Add(property.Name, deprecated.SinceVersion);
+                }
+            }
+            if (propertyNames.Count == 0)
+                return;
+
+            file.WriteLine("                case \"" + type.Name + "\":");
+            file.WriteLine("                    switch (propertyName)");
+            file.WriteLine("                    {");
+
+            foreach (KeyValuePair<string, string> property in propertyNames)
+            {
+                file.WriteLine("                        case \"" + property.Key + "\":");
+                file.WriteLine("                            return DeprecatedAttribute.IsDeprecated(\"" + property.Value + "\");");
+            }
+
+            file.WriteLine("                    };");
+            file.WriteLine("                    break;");
+            file.WriteLine("                    ");
+        }
+
+        static void wrtieIsDeprecated()
+        {
+            file.WriteLine("        public static bool IsDeprecated(Type type, string propertyName)");
+            file.WriteLine("        {");
+            file.WriteLine("            switch (type.Name)");
+            file.WriteLine("            {");
+
+            foreach (Type type in types)
+            {
+                wrtieIsDeprecatedCase(type);
+            }
+
+            file.WriteLine("            }");
+            file.WriteLine("            ");
+            file.WriteLine("            return false;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+        }
+
+        static void wrtieIsObsolete()
+        {
+            file.WriteLine("        public static bool IsObsolete(Type type, string propertyName)");
+            file.WriteLine("        {");
+            file.WriteLine("            switch (type.Name)");
+            file.WriteLine("            {");
+
+            foreach (Type type in types)
+            {
+                wrtieIsObsoleteCase(type);
+            }
+
+            file.WriteLine("            }");
+            file.WriteLine("            ");
+            file.WriteLine("            return IsDeprecated(type, propertyName);");
             file.WriteLine("        }");
             file.WriteLine("        ");
         }

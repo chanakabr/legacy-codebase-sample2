@@ -176,7 +176,7 @@ namespace WebAPI.Clients
             {
                 string strEpgChannelIds = string.Join(",", epgChannelIds.Select(at => at.ToString()).ToArray());
                 key.AppendFormat("_ec={0}", strEpgChannelIds);
-                filter += string.Format(" epg_channel_id:'{0}'", strEpgChannelIds);
+                filter = string.Format("(and {0} epg_channel_id:'{1}')", filter, strEpgChannelIds);
             }
 
             // build request

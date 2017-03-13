@@ -178,6 +178,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "quotaOveragePolicy", IsNullable = true)]
         public KalturaQuotaOveragePolicy? QuotaOveragePolicy { get; set; }
 
+        /// <summary>
+        ///  Protection Policy
+        /// </summary>
+        [DataMember(Name = "protectionPolicy")]
+        [JsonProperty(PropertyName = "protectionPolicy", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "protectionPolicy", IsNullable = true)]
+        public KalturaProtectionPolicy? ProtectionPolicy { get; set; }
+
     }
 
 
@@ -185,5 +193,11 @@ namespace WebAPI.Models.API
     {
         StopAtQuota = 0,
         QuotaOverage = 1
+    }
+
+    public enum KalturaProtectionPolicy
+    {
+        UnlimitedByRecordingLifetime = 0,
+        LimitedByRecordingLifetime = 1
     }
 }
