@@ -49,7 +49,7 @@ namespace TVinciShared
             return true;
         }
 
-        static protected bool validateParam(string sType, string sVal, double nMin, double nMax)
+        static public bool validateParam(string sType, string sVal, double nMin, double nMax)
         {
             try
             {
@@ -132,7 +132,8 @@ namespace TVinciShared
                     sVal = coll[nCounter.ToString() + "_val"].ToString();
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
-                if (sFieldName == "")
+                bool ignore = coll[nCounter.ToString() + "_ignore"] != null ? coll[nCounter.ToString() + "_ignore"].ToLower() == "true" : false;
+                if (sFieldName == "" || ignore)
                 {
                     nCounter++;
                     continue;
@@ -1369,7 +1370,6 @@ namespace TVinciShared
 
         static protected Int32 InsertTable(string sConnectionKey)
         {
-
             Int32 nGroupID = LoginManager.GetLoginGroupID();
 
             Int32 nID = 0;
@@ -1405,7 +1405,8 @@ namespace TVinciShared
                 string sVal2 = "";
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
-                if (sFieldName == "")
+                bool ignore = coll[nCounter.ToString() + "_ignore"] != null ? coll[nCounter.ToString() + "_ignore"] == "true" : false;
+                if (sFieldName == "" || ignore)
                 {
                     nCounter++;
                     continue;

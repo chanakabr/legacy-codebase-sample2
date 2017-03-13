@@ -51,6 +51,7 @@ namespace TVinciShared
         protected bool m_bMust;
         protected Int32 m_nDefault;
         protected string m_sConnectionKey;
+        protected bool ignore;
 
         protected BaseDataRecordField() { }
 
@@ -91,6 +92,10 @@ namespace TVinciShared
             m_sConnectionKey = "";
         }
 
+        public void SetIgnore(bool ignore)
+        {
+            this.ignore = ignore;
+        }
 
         public void SetConnectionKey(string sKey)
         {
@@ -3689,7 +3694,8 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
-            
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldHeader' value='" + m_sFieldHeader + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_ignore' value='" + ignore + "'/>";
             sTmp += "&nbsp;&nbsp;";
             sTmp += GetSelectsHtml(nID, sStartMin, sStartHour);
 

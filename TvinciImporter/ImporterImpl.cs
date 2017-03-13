@@ -4167,6 +4167,7 @@ namespace TvinciImporter
             selectQuery += "on mdmv.DATE_META_ID=gdm.id";
             selectQuery += "where gdm.status=1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdm.group_id", "=", nGroupID);
+            if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 for (int i = 0; i < nCount; i++)
@@ -4203,7 +4204,6 @@ namespace TvinciImporter
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("CREATE_DATE", "=", DateTime.UtcNow);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("VALUE", "=", date.Value);
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                         insertQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATER_ID", "=", 43);
                         bool bRes = insertQuery.Execute();
                         insertQuery.Finish();
