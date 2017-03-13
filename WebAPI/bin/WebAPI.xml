@@ -299,7 +299,14 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:WebAPI.Controllers.AssetCountController.List(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.Catalog.KalturaAssetGroupBy)" -->
+        <member name="M:WebAPI.Controllers.AssetController.Count(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.Catalog.KalturaAssetGroupBy)">
+            <summary>
+            Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
+            </summary>
+            <param name="filter">Filtering the assets request</param>
+            <param name="groupBy">Fields to group by</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
             <summary>
             get KalturaAssetFileContext
@@ -895,6 +902,11 @@
         <member name="P:WebAPI.Models.Catalog.KalturaAssetCount.SubCounts">
             <summary>
             Sub groups
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetsCount">
+            <summary>
+            Single aggregation objects
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetsCount.Field">

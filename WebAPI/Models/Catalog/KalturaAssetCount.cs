@@ -72,6 +72,9 @@ namespace WebAPI.Models.Catalog
         }
     }
 
+    /// <summary>
+    /// Single aggregation objects
+    /// </summary>
     public class KalturaAssetsCount : KalturaOTTObject
     {
         /// <summary>

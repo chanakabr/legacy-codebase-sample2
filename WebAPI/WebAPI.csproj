@@ -214,7 +214,6 @@
     <Compile Include="Controllers\AnnouncementController.cs" />
     <Compile Include="Controllers\AppTokenController.cs" />
     <Compile Include="Controllers\AssetController.cs" />
-    <Compile Include="Controllers\AssetCountController.cs" />
     <Compile Include="Controllers\AssetFileController.cs" />
     <Compile Include="Controllers\AssetStatisticsController.cs" />
     <Compile Include="Controllers\CDNAdapterProfileController.cs" />

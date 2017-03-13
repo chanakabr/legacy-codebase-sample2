@@ -918,5 +918,73 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
+        /// </summary>
+        /// <param name="filter">Filtering the assets request</param>
+        /// <param name="groupBy">Fields to group by</param>
+        /// <returns></returns>
+        [Route("count"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaAssetCountListResponse Count(KalturaSearchAssetFilter filter = null, KalturaAssetGroupBy groupBy = null)
+        {
+            KalturaAssetCountListResponse response = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string userID = KS.GetFromRequest().UserId;
+            int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
+            string udid = KSUtils.ExtractKSPayload().UDID;
+            string language = Utils.Utils.GetLanguageFromRequest();
+
+            if (filter == null)
+            {
+                filter = new KalturaSearchAssetFilter();
+            }
+            else
+            {
+                filter.Validate();
+            }
+
+            List<string> groupByValuesList = null;
+
+            if (groupBy == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
+            }
+            else
+            {
+                groupByValuesList = groupBy.getValues();
+
+                if (groupByValuesList == null || groupByValuesList.Count == 0)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupBy");
+                }
+            }
+
+            try
+            {
+                KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
+                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.KSql,
+                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
+
+    /*
+     
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="groupBy"></groupBy>
+     /*/
 }
