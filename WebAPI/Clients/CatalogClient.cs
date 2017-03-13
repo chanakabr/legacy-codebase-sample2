@@ -306,10 +306,9 @@ namespace WebAPI.Clients
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
-                // get assets from catalog/cache
-                result.Objects =
-                Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
-                    //CatalogUtils.GetAssets(assetsBaseDataList, request, CacheDuration);
+                // map counts
+                result.Objects = Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
+                result.AssetsCount = searchResponse.m_nTotalItems;
                 result.TotalCount = result.Objects.Count;
             }
 
