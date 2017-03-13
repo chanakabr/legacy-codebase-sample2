@@ -58,7 +58,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.CdnName, opt => opt.MapFrom(src => src.StreamingCompanyName))
                  .ForMember(dest => dest.CdnCode, opt => opt.MapFrom(src => src.m_nCdnID))
                  .ForMember(dest => dest.AltCdnCode, opt => opt.MapFrom(src => src.m_sAltUrl))
-                 //.ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
+                 .ForMember(dest => dest.PPVModules, opt => opt.MapFrom(src => BuildPPVModulesList(src.PPVModules)))
                  .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.ProductCode))
                  ;
 
