@@ -1734,5 +1734,17 @@ namespace Core.Users
             response.Status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             return response;
         }
+
+        internal bool VerifyDRMDevice(string deviceUdid, string drmId)
+        {
+            Random random = new Random();
+
+            if (random.Next(100) < 70)
+            {
+                return true;
+            }
+            return false;
+ 
+        }
     }
 }

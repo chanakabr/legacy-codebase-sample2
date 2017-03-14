@@ -931,5 +931,17 @@ namespace Core.Domains
 
             return response;
         }
+
+        public static bool VerifyDRMDevice(int groupId, string deviceUdid, string drmId)
+        {
+            Core.Users.BaseDomain t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.VerifyDRMDevice(deviceUdid, drmId);
+            }
+
+            return false;
+        }
     }
 }
