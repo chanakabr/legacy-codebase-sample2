@@ -9410,5 +9410,10 @@ namespace Core.Api
         {
             return AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds) > 0;
         }
+
+        internal static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        {
+            return AssetLifeCycleRuleManager.Instance.GetFriendlyAssetLifeCycleRule(groupId, id);
+        }
     }
 }
