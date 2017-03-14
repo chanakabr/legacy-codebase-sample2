@@ -4147,67 +4147,19 @@ namespace WS_API
         }
 
         [WebMethod]
-        public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
-            out string tagType,
-            out List<string> tagValues,
-            out eCutType operand,
-            out string dateMeta,
-            out int dateValue)
-        {
-            bool result = false;
-            tagType = string.Empty;
-            tagValues = new List<string>();
-            operand = eCutType.And;
-            dateMeta = string.Empty;
-            dateValue = 0;
-
+        public string GetFriendlyAssetLifeCycleRuleKsqlFilter(string sWSUserName, string sWSPassword, string tagType, List<string> tagValues,
+                                                    eCutType operand, string dateMeta, long dateValue)
+        {            
             int groupId = GetGroupID(sWSUserName, sWSPassword);
-
             if (groupId > 0)
             {
-                result = Core.Api.Module.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
-                    out tagValues,
-                    out operand,
-                    out dateMeta,
-                    out dateValue);
+                return Core.Api.Module.GetFriendlyAssetLifeCycleRuleKsqlFilter(groupId, tagType, tagValues, operand, dateMeta, dateValue);
             }
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
-            }
-
-            return result;
-        }
-
-        [WebMethod]
-        public bool BuildActionRuleKsqlFromData(string sWSUserName, string sWSPassword,
-            string tagType,
-            List<string> tagValues,
-            eCutType operand,
-            string dateMeta,
-            int dateValue,
-            out string ksql)
-        {
-            bool result = false;
-            ksql = string.Empty;
-
-            int groupId = GetGroupID(sWSUserName, sWSPassword);
-
-            if (groupId > 0)
-            {
-                result = Core.Api.Module.BuildActionRuleKsqlFromData(groupId, tagType,
-                    tagValues,
-                    operand,
-                    dateMeta,
-                    dateValue,
-                    out ksql);
-            }
-            else
-            {
-                HttpContext.Current.Response.StatusCode = 404;
-            }
-
-            return result;
+                return string.Empty;
+            }           
         }
 
         public ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, long id)
