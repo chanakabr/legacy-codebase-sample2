@@ -946,12 +946,10 @@ namespace ElasticsearchTasksCommon
                                     media.m_sEndDate = dt.ToString("yyyyMMddHHmmss");
 
                                 }
-
                                 if (!string.IsNullOrEmpty(ODBCWrapper.Utils.GetSafeStr(row, "final_end_date")))
                                 {
                                     DateTime dt = ODBCWrapper.Utils.GetDateSafeVal(row, "final_end_date");
                                     media.m_sFinalEndDate = dt.ToString("yyyyMMddHHmmss");
-
                                 }
 
                                 media.geoBlockRule = ODBCWrapper.Utils.ExtractInteger(row, "geo_block_rule_id");
@@ -1194,6 +1192,30 @@ namespace ElasticsearchTasksCommon
                             }
                         }
 
+                        #endregion
+
+                        #region - get all date meta
+                        if (dataSet.Tables.Count > 6 && dataSet.Tables[6].Columns != null && dataSet.Tables[6].Rows != null && dataSet.Tables[6].Rows.Count > 0)
+                        {
+                            foreach (DataRow row in dataSet.Tables[6].Rows)
+                            {
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
+                                string metaName = ODBCWrapper.Utils.GetSafeStr(row, "name");
+                                DateTime val = ODBCWrapper.Utils.GetDateSafeVal(row, "value");
+                                try
+                                {
+                                    if (!medias[mediaId].m_dMeatsValues.ContainsKey(metaName))
+                                    {
+                                        medias[mediaId].m_dMeatsValues.Add(metaName, val.ToString("yyyyMMddHHmmss"));
+                                    }
+                                }
+                                catch
+                                {
+                                    log.Error(string.Format("Caught exception when trying to add media to group date metas. mediaId = {0}, metaName = {1}, val = {2}",
+                                        mediaId, metaName, val));
+                                }
+                            }
+                        }
                         #endregion
                     }
 
