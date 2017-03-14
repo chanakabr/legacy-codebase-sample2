@@ -5,6 +5,7 @@ using ApiObjects.SearchObjects;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
+using GroupsCacheManager;
 using KLogMonitor;
 using QueueWrapper;
 using ScheduledTasks;
@@ -742,9 +743,29 @@ namespace Core.Api.Managers
                 rule.MetaDateValue = dateValue.ToString();
                 rule.FilterTagTypeName = tagType;
                 rule.TagOperand = operand;
-
-                // Sunny: LIOR - I have tag values, not Ids. what TODO??
                 rule.TagIdsToFilter = new List<int>();
+
+                // get the tag id by its name:
+
+                // get all group tags
+                var groupTags = new GroupManager().GetGroup(rule.GroupId).m_oGroupTags;
+
+                Dictionary<string, int> tagTypeToId = new Dictionary<string, int>();
+
+                // Create reverse mapping: tag name to id
+                foreach (var tag in groupTags)
+                {
+                    tagTypeToId[tag.Value] = tag.Key;
+                }
+
+                foreach (var tagValue in tagValues)
+                {
+                    if (tagTypeToId.ContainsKey(tagValue))
+                    {
+                        // build list with tag ID, with the dictionary we created earlier
+                        rule.TagIdsToFilter.Add(tagTypeToId[tagValue]);
+                    }    
+                }
             }
 
             return result;
@@ -755,9 +776,21 @@ namespace Core.Api.Managers
             bool result = false;
             ksql = string.Empty;
 
-                // Sunny: LIOR - I need tag values, not Ids. what TODO??
-            List<string> tagValues = rule.TagIdsToFilter.Select(t => t.ToString()).ToList();
+            // get the tag name by its id:
+            List<string> tagValues = new List<string>();
 
+            // get all group tags
+            var groupTags = new GroupManager().GetGroup(rule.GroupId).m_oGroupTags;
+
+            foreach (var tagId in rule.TagIdsToFilter)
+            {
+                if (groupTags.ContainsKey(tagId))
+                {
+                    // build list with tag ID, with the dictionary we created earlier
+                    tagValues.Add(groupTags[tagId]);
+                }
+            }
+                
             result = BuildActionRuleKsqlFromData(rule.GroupId, rule.FilterTagTypeName, tagValues, rule.TagOperand, rule.MetaDateName,
                 Convert.ToInt32(rule.MetaDateValue), out ksql);
 
