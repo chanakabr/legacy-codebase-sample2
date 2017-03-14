@@ -10,11 +10,23 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
+    /// <summary>
+    /// Abstarct class - represents an asset parameter that can be used for grouping
+    /// </summary>
     [Serializable]
-    public class KalturaAssetGroupBy : KalturaOTTObject
+    public abstract class KalturaAssetGroupBy : KalturaOTTObject
+    {
+        public abstract string GetValue();
+    }
+
+    /// <summary>
+    /// Group by a tag or meta - according to the name that appears in the system (similar to KSQL)
+    /// </summary>
+    [Serializable]
+    public class KalturaAssetMetaOrTagGroupBy : KalturaAssetGroupBy
     {
         /// <summary>
-        /// Value - can be a meta, tag or media_type_id
+        /// Meta or tag to group by
         /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]
@@ -25,20 +37,41 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
-        public List<string> getValues()
+        public override string GetValue()
         {
-            if (string.IsNullOrEmpty(Value))
-                return null;
+            return Value;
+        }
+    }
 
-            List<string> values = new List<string>();
-            string[] stringValues = Value.Split(new char[] { '~' }, StringSplitOptions.RemoveEmptyEntries);
+    /// <summary>
+    /// Different fields that can be used for groupind
+    /// </summary>
+    public enum KalturaGroupByField
+    {
+        media_type_id
+    }
 
-            foreach (string stringValue in stringValues)
-            {
-                values.Add(stringValue.Trim());
-            }
+    /// <summary>
+    /// Group by a field that is defined in enum
+    /// </summary>
+    [Serializable]
+    public class KalturaAssetFieldGroupBy : KalturaAssetGroupBy
+    {
+        /// <summary>
+        /// Specific field to group by
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty(PropertyName = "value")]
+        [XmlElement(ElementName = "value")]
+        public KalturaGroupByField Value
+        {
+            get;
+            set;
+        }
 
-            return values;
+        public override string GetValue()
+        {
+            return Value.ToString();
         }
     }
 }

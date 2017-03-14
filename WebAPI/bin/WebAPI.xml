@@ -299,12 +299,12 @@
             <param name="assetType">Asset type</param>
             <param name="contextDataParams">Parameters for the request</param>
         </member>
-        <member name="M:WebAPI.Controllers.AssetController.Count(WebAPI.Models.Catalog.KalturaSearchAssetFilter,WebAPI.Models.Catalog.KalturaAssetGroupBy)">
+        <member name="M:WebAPI.Controllers.AssetController.Count(System.Collections.Generic.List{WebAPI.Models.Catalog.KalturaAssetGroupBy},WebAPI.Models.Catalog.KalturaSearchAssetFilter)">
             <summary>
             Returns a group-by result for media or EPG according to given filter. Lists values of each field and their respective count.
             </summary>
             <param name="filter">Filtering the assets request</param>
-            <param name="groupBy">Fields to group by</param>
+            <param name="groupBy">List of asset parameters to group by</param>
             <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.AssetFileController.GetContext(System.String,WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType)">
@@ -924,9 +924,34 @@
             Values, their count and sub groups
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaAssetGroupBy.Value">
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetGroupBy">
             <summary>
-            Value - can be a meta, tag or media_type_id
+            Abstarct class - represents an asset parameter that can be used for grouping
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetMetaOrTagGroupBy">
+            <summary>
+            Group by a tag or meta - according to the name that appears in the system (similar to KSQL)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetMetaOrTagGroupBy.Value">
+            <summary>
+            Meta or tag to group by
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaGroupByField">
+            <summary>
+            Different fields that can be used for groupind
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaAssetFieldGroupBy">
+            <summary>
+            Group by a field that is defined in enum
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFieldGroupBy.Value">
+            <summary>
+            Specific field to group by
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLastPositionListResponse">

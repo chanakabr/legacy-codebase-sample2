@@ -230,10 +230,10 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetCountListResponse GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, 
+        public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language, 
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy)
         {
-            KalturaAssetCountListResponse result = new KalturaAssetCountListResponse();
+            KalturaAssetCount result = new KalturaAssetCount();
 
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
 
@@ -307,9 +307,8 @@ namespace WebAPI.Clients
                 List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
 
                 // map counts
-                result.Objects = Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
-                result.AssetsCount = searchResponse.m_nTotalItems;
-                result.TotalCount = result.Objects.Count;
+                result.SubCounts = Mapper.Map<List<KalturaAssetsCount>>(searchResponse.aggregationResults);
+                result.Count = searchResponse.m_nTotalItems;
             }
 
             return result;

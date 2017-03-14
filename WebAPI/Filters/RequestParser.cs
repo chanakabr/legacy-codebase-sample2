@@ -993,11 +993,13 @@ namespace WebAPI.Filters
                 if (itemType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
                     var itemObject = buildObject(itemType, item.ToObject<Dictionary<string, object>>());
-                    list.Add((dynamic)Convert.ChangeType(itemObject, itemType));
+
+                    list.Add((dynamic)itemObject);
                 }
                 else
                 {
-                    list.Add((dynamic)Convert.ChangeType(item, itemType));
+                    list.Add((dynamic)item);
+                    //list.Add((dynamic)Convert.ChangeType(item, itemType));
                 }
             }
 

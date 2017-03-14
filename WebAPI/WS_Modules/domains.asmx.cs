@@ -1268,5 +1268,22 @@ namespace WS_Domains
 
             return response;
         }
+
+        [WebMethod]
+        public bool VerifyDRMDevice(string sWSUsername, string sWSPassword, string deviceUdid, string drmId)
+        {
+            Int32 nGroupID = Utils.GetGroupID(sWSUsername, sWSPassword);
+            if (nGroupID != 0)
+            {
+                return Core.Domains.Module.VerifyDRMDevice(nGroupID, deviceUdid, drmId);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;               
+                return false;
+            } 
+        }
+       
     }
 }
