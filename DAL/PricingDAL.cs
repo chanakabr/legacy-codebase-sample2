@@ -6,6 +6,7 @@ using System.Data;
 using ODBCWrapper;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.AssetLifeCycleRules;
 
 namespace DAL
 {
@@ -55,7 +56,6 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
 
         public static DataSet Get_SubscriptionData(int nGroupID, int? nIsActive, int? nSubscriptionID = null, string sProductCode = null, List<int> userTypesIDsList = null, int? nTopRows = null)
         {
@@ -146,7 +146,6 @@ namespace DAL
 
             return ds;
         }
-
 
         public static bool Handle_CouponUse(string sCouponCode, string sSiteGuid, long lGroupID, long lMediaFileID,
         long lSubscriptionCode, long lPrePaidCode, int nIncrementBy)
@@ -246,7 +245,6 @@ namespace DAL
 
             return null;
         }
-
 
         public static DataTable Get_PPVFileTypes(int nGroupID, int nPPVModuleID)
         {
@@ -562,7 +560,6 @@ namespace DAL
             return res;
         }
 
-
         public static DataTable Get_SubscriptionsServices(int groupID, List<long> subscriptionsIDs)
         {
             DataTable subscriptionsServices = null;
@@ -582,7 +579,6 @@ namespace DAL
 
             return subscriptionsServices;
         }
-
 
         public static DataTable Get_PPVModuleForMediaFiles(int groupID, List<int> mediaFileList)
         {
@@ -675,7 +671,6 @@ namespace DAL
             return spPPVModuleData.Execute();
         }
 
-
         public static int Insert_PriceCode(int groupID, string code, double price, int currencyID)
         {
             try
@@ -740,8 +735,6 @@ namespace DAL
         {
             log.Error(message, ex);
         }
-
-
 
         public static int Insert_NewDiscountCode(int groupID, string code, double price, int currencyID, double percent, int relationType, DateTime startDate, DateTime endDate, int algoType, int ntimes, string alias)
         {
@@ -1319,6 +1312,26 @@ namespace DAL
             sp.AddParameter("@countryCode", countryCode);
             sp.AddParameter("@currencyCode", currencyCode);
             return sp.ExecuteDataSet();
+        }
+
+        public static bool RemoveFileTypesAndPpvsFromAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("RemoveFileTypesAndPpvsFromAssets");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddIDListParameter("@FileTypeIds", fileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
+            sp.AddIDListParameter("@PpvIds", fileTypesAndPpvsToRemove.PpvIds.ToList(), "id");
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static bool AddFileTypesAndPpvsToAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddFileTypesAndPpvsToAssets");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddIDListParameter("@AssetIds", assetIds, "id");
+            sp.AddIDListParameter("@FileTypeIds", fileTypesAndPpvsToAdd.FileTypeIds.ToList(), "id");
+            sp.AddIDListParameter("@PpvIds", fileTypesAndPpvsToAdd.PpvIds.ToList(), "id");
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
     }
