@@ -706,6 +706,7 @@ namespace ApiObjects
         Number,
         Bool,
         Tag,
+        DateTime
     }
 
     public enum MetaFieldName

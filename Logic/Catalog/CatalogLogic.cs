@@ -337,7 +337,7 @@ namespace Core.Catalog
 
                 if (ds == null)
                     return null;
-                if (ds.Tables.Count >= 7)
+                if (ds.Tables.Count >= 8)
                 {
                     int assetGroupId = 0;
                     int isLinear = 0;
@@ -380,7 +380,7 @@ namespace Core.Catalog
                         {
                             return null;
                         }
-                        oMediaObj.m_lMetas.AddRange(GetDateMetaDetails(ds.Tables[7], group, ref result));
+                        oMediaObj.m_lMetas.AddRange(GetDateMetaDetails(ds.Tables[7], ref result));
                         if (!result)
                         {
                             return null;
@@ -572,12 +572,13 @@ namespace Core.Catalog
             }
         }
 
-        private static List<Metas> GetDateMetaDetails(DataTable dtDatesMeta, Group group, ref bool result)
+        private static List<Metas> GetDateMetaDetails(DataTable dtDatesMeta, ref bool result)
         {
             try
             {
                 result = true;
                 List<Metas> lMetas = new List<Metas>();
+                
                 if (dtDatesMeta.Rows != null && dtDatesMeta.Rows.Count > 0)
                 {
                     Metas oMeta = new Metas();
