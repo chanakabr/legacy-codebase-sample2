@@ -2,8 +2,8 @@
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/Core.Catalog" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/Core.Catalog" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
   <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd3" namespace="http://schemas.datacontract.org/2004/07/ApiObjects" />
+  <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd13" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" />
   <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Core.Catalog.Request" />
-  <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" />
   <xs:complexType name="Filter">
     <xs:sequence>
       <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="fileTypes" nillable="true" type="q1:ArrayOfint" />
@@ -18,30 +18,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Filter" nillable="true" type="tns:Filter" />
-  <xs:complexType name="ArrayOfKeyValue">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValue" nillable="true" type="tns:KeyValue" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfKeyValue" nillable="true" type="tns:ArrayOfKeyValue" />
-  <xs:complexType name="KeyValue">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="m_sKey" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sValue" nillable="true" type="xs:string" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="KeyValue" nillable="true" type="tns:KeyValue" />
-  <xs:complexType name="BaseEpg">
-    <xs:complexContent mixed="false">
-      <xs:extension xmlns:q2="http://schemas.datacontract.org/2004/07/Core.Catalog.Request" base="q2:BaseRequest">
-        <xs:sequence>
-          <xs:element minOccurs="0" name="duration" type="xs:int" />
-          <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eLang" type="q3:Language" />
-        </xs:sequence>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-  <xs:element name="BaseEpg" nillable="true" type="tns:BaseEpg" />
   <xs:complexType name="ArrayOfBaseObject">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="BaseObject" nillable="true" type="tns:BaseObject" />
@@ -51,28 +27,11 @@
   <xs:complexType name="BaseObject">
     <xs:sequence>
       <xs:element minOccurs="0" name="AssetId" nillable="true" type="xs:string" />
-      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="AssetType" type="q4:eAssetTypes" />
+      <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="AssetType" type="q2:eAssetTypes" />
       <xs:element minOccurs="0" name="m_dUpdateDate" type="xs:dateTime" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="BaseObject" nillable="true" type="tns:BaseObject" />
-  <xs:complexType name="ArrayOfPicture">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="Picture" nillable="true" type="tns:Picture" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfPicture" nillable="true" type="tns:ArrayOfPicture" />
-  <xs:complexType name="Picture">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="isDefault" type="xs:boolean" />
-      <xs:element minOccurs="0" name="m_sSize" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="m_sURL" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="ratio" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="version" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="Picture" nillable="true" type="tns:Picture" />
   <xs:complexType name="ArrayOfBranding">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Branding" nillable="true" type="tns:Branding" />
@@ -94,7 +53,7 @@
     <xs:sequence>
       <xs:element minOccurs="0" name="CdnCode" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="HandlingType" nillable="true" type="xs:string" />
-      <xs:element minOccurs="0" name="PPVModule" nillable="true" type="xs:string" />
+      <xs:element xmlns:q3="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="PPVModules" nillable="true" type="q3:ArrayOfstring" />
       <xs:element minOccurs="0" name="ProductCode" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="Quality" nillable="true" type="xs:string" />
       <xs:element minOccurs="0" name="StreamingCompanyName" nillable="true" type="xs:string" />
@@ -143,6 +102,7 @@
   <xs:element name="ArrayOfMetas" nillable="true" type="tns:ArrayOfMetas" />
   <xs:complexType name="Metas">
     <xs:sequence>
+      <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="Value" nillable="true" type="q4:ArrayOfLanguageContainer" />
       <xs:element minOccurs="0" name="m_oTagMeta" nillable="true" type="tns:TagMeta" />
       <xs:element minOccurs="0" name="m_sValue" nillable="true" type="xs:string" />
     </xs:sequence>
@@ -155,6 +115,23 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="TagMeta" nillable="true" type="tns:TagMeta" />
+  <xs:complexType name="ArrayOfPicture">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="Picture" nillable="true" type="tns:Picture" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfPicture" nillable="true" type="tns:ArrayOfPicture" />
+  <xs:complexType name="Picture">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="id" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="isDefault" type="xs:boolean" />
+      <xs:element minOccurs="0" name="m_sSize" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sURL" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ratio" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="version" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Picture" nillable="true" type="tns:Picture" />
   <xs:complexType name="ArrayOfTags">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Tags" nillable="true" type="tns:Tags" />
@@ -163,7 +140,8 @@
   <xs:element name="ArrayOfTags" nillable="true" type="tns:ArrayOfTags" />
   <xs:complexType name="Tags">
     <xs:sequence>
-      <xs:element xmlns:q5="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lValues" nillable="true" type="q5:ArrayOfstring" />
+      <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="Values" nillable="true" type="q5:ArrayOfArrayOfLanguageContainer" />
+      <xs:element xmlns:q6="http://schemas.microsoft.com/2003/10/Serialization/Arrays" minOccurs="0" name="m_lValues" nillable="true" type="q6:ArrayOfstring" />
       <xs:element minOccurs="0" name="m_oTagMeta" nillable="true" type="tns:TagMeta" />
     </xs:sequence>
   </xs:complexType>
@@ -179,26 +157,12 @@
     <xs:complexContent mixed="false">
       <xs:extension base="tns:BaseObject">
         <xs:sequence>
-          <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q6:EPGChannelProgrammeObject" />
+          <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="m_oProgram" nillable="true" type="q7:EPGChannelProgrammeObject" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
   <xs:element name="ProgramObj" nillable="true" type="tns:ProgramObj" />
-  <xs:complexType name="ArrayOfBundleTriple">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="BundleTriple" nillable="true" type="tns:BundleTriple" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="ArrayOfBundleTriple" nillable="true" type="tns:ArrayOfBundleTriple" />
-  <xs:complexType name="BundleTriple">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="m_bIsContained" type="xs:boolean" />
-      <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" minOccurs="0" name="m_eBundleType" type="q7:eBundleType" />
-      <xs:element minOccurs="0" name="m_nBundleCode" type="xs:int" />
-    </xs:sequence>
-  </xs:complexType>
-  <xs:element name="BundleTriple" nillable="true" type="tns:BundleTriple" />
   <xs:complexType name="ArrayOfChannelViewsResult">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="ChannelViewsResult" nillable="true" type="tns:ChannelViewsResult" />
@@ -212,12 +176,50 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ChannelViewsResult" nillable="true" type="tns:ChannelViewsResult" />
+  <xs:complexType name="ArrayOfBundleTriple">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="BundleTriple" nillable="true" type="tns:BundleTriple" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfBundleTriple" nillable="true" type="tns:ArrayOfBundleTriple" />
+  <xs:complexType name="BundleTriple">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_bIsContained" type="xs:boolean" />
+      <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" minOccurs="0" name="m_eBundleType" type="q8:eBundleType" />
+      <xs:element minOccurs="0" name="m_nBundleCode" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="BundleTriple" nillable="true" type="tns:BundleTriple" />
   <xs:complexType name="ArrayOfProgramObj">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="ProgramObj" nillable="true" type="tns:ProgramObj" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="ArrayOfProgramObj" nillable="true" type="tns:ArrayOfProgramObj" />
+  <xs:complexType name="ArrayOfKeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="KeyValue" nillable="true" type="tns:KeyValue" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfKeyValue" nillable="true" type="tns:ArrayOfKeyValue" />
+  <xs:complexType name="KeyValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="m_sKey" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="m_sValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="KeyValue" nillable="true" type="tns:KeyValue" />
+  <xs:complexType name="BaseEpg">
+    <xs:complexContent mixed="false">
+      <xs:extension xmlns:q9="http://schemas.datacontract.org/2004/07/Core.Catalog.Request" base="q9:BaseRequest">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="duration" type="xs:int" />
+          <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/ApiObjects" minOccurs="0" name="eLang" type="q10:Language" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="BaseEpg" nillable="true" type="tns:BaseEpg" />
   <xs:complexType name="ArrayOfBundleKeyValue">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="BundleKeyValue" nillable="true" type="tns:BundleKeyValue" />
@@ -226,7 +228,7 @@
   <xs:element name="ArrayOfBundleKeyValue" nillable="true" type="tns:ArrayOfBundleKeyValue" />
   <xs:complexType name="BundleKeyValue">
     <xs:sequence>
-      <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" minOccurs="0" name="m_eBundleType" type="q8:eBundleType" />
+      <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/ApiObjects.Catalog" minOccurs="0" name="m_eBundleType" type="q11:eBundleType" />
       <xs:element minOccurs="0" name="m_nBundleCode" type="xs:int" />
     </xs:sequence>
   </xs:complexType>

@@ -2,7 +2,7 @@
 <xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/ApiObjects" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/ApiObjects" xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd2" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Response" />
   <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
-  <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd10" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
+  <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd8" namespace="http://schemas.datacontract.org/2004/07/ApiObjects.Epg" />
   <xs:import schemaLocation="http://34.249.122.223:8030/Catalog_V4_3/Service.svc?xsd=xsd6" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
   <xs:complexType name="ArrayOfIngestAssetStatus">
     <xs:sequence>
@@ -20,29 +20,6 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="IngestAssetStatus" nillable="true" type="tns:IngestAssetStatus" />
-  <xs:simpleType name="EpgSearchType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="ByDate" />
-      <xs:enumeration value="Current" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
-  <xs:simpleType name="StatsType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="MEDIA" />
-      <xs:enumeration value="EPG" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
-  <xs:simpleType name="Language">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="English" />
-      <xs:enumeration value="Hebrew" />
-      <xs:enumeration value="Russian" />
-      <xs:enumeration value="Arabic" />
-    </xs:restriction>
-  </xs:simpleType>
-  <xs:element name="Language" nillable="true" type="tns:Language" />
   <xs:simpleType name="eAssetTypes">
     <xs:restriction base="xs:string">
       <xs:enumeration value="UNKNOWN">
@@ -76,6 +53,25 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:element name="eAssetTypes" nillable="true" type="tns:eAssetTypes" />
+  <xs:complexType name="ArrayOfLanguageContainer">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="tns:LanguageContainer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfLanguageContainer" nillable="true" type="tns:ArrayOfLanguageContainer" />
+  <xs:complexType name="LanguageContainer">
+    <xs:sequence>
+      <xs:element name="m_sLanguageCode3" nillable="true" type="xs:string" />
+      <xs:element name="m_sValue" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="LanguageContainer" nillable="true" type="tns:LanguageContainer" />
+  <xs:complexType name="ArrayOfArrayOfLanguageContainer">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ArrayOfLanguageContainer" nillable="true" type="tns:ArrayOfLanguageContainer" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfArrayOfLanguageContainer" nillable="true" type="tns:ArrayOfArrayOfLanguageContainer" />
   <xs:complexType name="EPGChannelProgrammeObject">
     <xs:sequence>
       <xs:element minOccurs="0" name="CHANNEL_CATCH_UP_BUFFER" type="xs:long" />
@@ -179,6 +175,29 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="UserType" nillable="true" type="tns:UserType" />
+  <xs:simpleType name="EpgSearchType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ByDate" />
+      <xs:enumeration value="Current" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="EpgSearchType" nillable="true" type="tns:EpgSearchType" />
+  <xs:simpleType name="StatsType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MEDIA" />
+      <xs:enumeration value="EPG" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="StatsType" nillable="true" type="tns:StatsType" />
+  <xs:simpleType name="Language">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="English" />
+      <xs:enumeration value="Hebrew" />
+      <xs:enumeration value="Russian" />
+      <xs:enumeration value="Arabic" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="Language" nillable="true" type="tns:Language" />
   <xs:simpleType name="NPVRSearchBy">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Other" />
