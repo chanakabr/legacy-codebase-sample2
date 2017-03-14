@@ -12628,15 +12628,16 @@ namespace Core.ConditionalAccess
 
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed       
                         {
-                            // handel delete to overage quota                                
-                            if (QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration))
+                            // handel delete to overage quota    
+                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration);
+                            if (bRes!= null && bRes.Code == (int)eResponseStatus.OK)
                             {
                                 UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
                             }
                             else
                             {
-                                log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());                              
+                                recording.Status = bRes != null ? bRes :  new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                                
                             }
                         }
                         else
@@ -13642,7 +13643,12 @@ namespace Core.ConditionalAccess
                 }
 
                 // Get domains quota
-                int domainsQuotaInSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID);
+                int domainsQuotaInSeconds = 0;
+                ApiObjects.TimeShiftedTv.DomainQuotaResponse domainQuota = QuotaManager.Instance.GetDomainQuotaResponse(this.m_nGroupID, domainID);
+                if (domainQuota != null)
+                {
+                    domainsQuotaInSeconds = domainQuota.TotalQuota;
+                }
 
                 // Get protection quota percentages                
                 if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
@@ -13943,7 +13949,8 @@ namespace Core.ConditionalAccess
                 int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
 
                 // min quota threshold for skipping this process                
-                if (availibleQuota <= 60)
+                if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
+                    (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
                 {
                     log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
                     return response;
@@ -14023,7 +14030,7 @@ namespace Core.ConditionalAccess
                     // calculate program length wit padding
                     programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
 
-                    if (programLengthSeconds < availibleQuota)
+                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue &&  tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
                     {
                         crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
                         epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
@@ -14935,7 +14942,7 @@ namespace Core.ConditionalAccess
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
-                    if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId) >= recordingDuration)
+                    if (domainId > 0 && userId > 0)// && QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId) >= recordingDuration)
                     {
                         HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
                         if (!domainRecordedCrids.Contains(recording.Crid))
