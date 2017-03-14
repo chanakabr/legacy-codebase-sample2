@@ -14935,7 +14935,7 @@ namespace Core.ConditionalAccess
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
-                    if (domainId > 0 && userId > 0 && QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId) >= recordingDuration)
+                    if (domainId > 0 && userId > 0)// && QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId) >= recordingDuration)
                     {
                         HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
                         if (!domainRecordedCrids.Contains(recording.Crid))

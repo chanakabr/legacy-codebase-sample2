@@ -282,7 +282,7 @@ namespace Core.Recordings
                     if (tempQuotaOverage >= recordingQuota)
                     {
                         if (domainRecordingIds != null && domainRecordingIds.Count > 0) // delete all and DecreaseDomainUsedQuota
-                        {   
+                        {
                             if (QuotaManager.Instance.DecreaseDomainUsedQuota(groupId, domainId, tempQuotaOverage))
                             {
                                 log.DebugFormat("try to deleted domainRecordingIds: {0}, QuotaOverageDuration : {1}", string.Join(",", domainRecordingIds), tempQuotaOverage);
@@ -298,6 +298,10 @@ namespace Core.Recordings
                             }
                         }
                     }
+                }
+                else
+                {
+                    log.DebugFormat("try to GetDomainRecordingsByTstvRecordingStatuses by : {0} status return no results", TstvRecordingStatus.Recorded.ToString());
                 }
             }
             catch (Exception ex)
