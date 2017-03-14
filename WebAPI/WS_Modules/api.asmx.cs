@@ -4204,5 +4204,19 @@ namespace WS_API
 
             return result;
         }
+
+        public ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, long id)
+        {
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.GetFriendlyAssetLifeCycleRule(groupId, id);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                return null;
+            }
+        }
     }
 }
