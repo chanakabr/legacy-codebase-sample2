@@ -248,11 +248,11 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out List<string> tagValue, out eCutType operand, out string dateMeta, out int dateValue)
+        public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out List<string> tagValues, out eCutType operand, out string dateMeta, out int dateValue)
         {
             bool result = false;
             tagType = string.Empty;
-            tagValue = new List<string>();
+            tagValues = new List<string>();
             operand = eCutType.Or;
             dateMeta = string.Empty;
             dateValue = 0;
@@ -265,70 +265,9 @@ namespace Core.Api.Managers
                 // There should be only one rule
                 var rule = rules[groupId].First();
 
-                BooleanPhraseNode phrase = null;
+                string ksql = rule.KsqlFilter;
 
-                // Parse the rule's KSQL
-                var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
-                //(and genre = 'a' genre='b' date=-360)
-                //(and date>-360 (or genre='a' genre='b'))
-                // Validate parse result
-                if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
-                {
-                    // It should be a phrase, because it is (and ...)
-                    if (phrase is BooleanPhrase)
-                    {
-                        var nodes = (phrase as BooleanPhrase).nodes;
-
-                        // Validate there is at least one node
-                        // First node should be a PHRASE, looking like: (or cycletag='A' cycletag='B')
-                        if (nodes.Count > 0)
-                        {
-                            var firstNode = nodes[0] as BooleanPhrase;
-
-                            if (firstNode != null)
-                            {
-                                var firstTag = firstNode.nodes[0] as BooleanLeaf;
-
-                                // field name - we can take from the first
-                                if (firstTag != null)
-                                {
-                                    tagType = firstTag.field;
-                                }
-
-                                // add all values to list. all should be leafs
-                                foreach (var item in firstNode.nodes)
-                                {
-                                    var leaf = item as BooleanLeaf;
-
-                                    if (leaf != null)
-                                    {
-                                        tagValue.Add(Convert.ToString(leaf.value));
-                                    }
-                                }
-                            }
-                        }
-
-                        // Validate that date nodes actually exist - there should be two
-                        // Second and third nodes should be LEAFs as well, looking like: cycledate>='-3days'  cycledate<'-2days'
-                        if (nodes.Count > 2)
-                        {
-                            var secondNode = nodes[1] as BooleanLeaf;
-                            var thirdNode = nodes[2] as BooleanLeaf;
-
-                            if (secondNode != null && thirdNode != null)
-                            {
-                                dateMeta = thirdNode.field;
-
-                                long thirdNodeValue = Convert.ToInt64(thirdNode.value);
-
-                                // the value is the days-back represented in seconds
-                                dateValue = -1 * (int)(thirdNodeValue / 60 / 60 / 24);
-
-                                result = true;
-                            }
-                        }
-                    }
-                }
+                result = BuildActionRuleDataFromKsql(out tagType, out tagValues, out operand, out dateMeta, out dateValue, ksql);
             }
 
             return result;
@@ -705,16 +644,124 @@ namespace Core.Api.Managers
             return groupIdToRulesMap;
         }
 
+        private static bool BuildActionRuleDataFromKsql(out string tagType, out List<string> tagValues,
+            out eCutType operand, out string dateMeta, out int dateValue, string ksql)
+        {
+            bool result = false;
+            tagType = string.Empty;
+            tagValues = new List<string>();
+            operand = eCutType.Or;
+            dateMeta = string.Empty;
+            dateValue = 0;
+
+            BooleanPhraseNode phrase = null;
+
+            // Parse the rule's KSQL
+            var status = BooleanPhraseNode.ParseSearchExpression(ksql, ref phrase);
+            //(and genre = 'a' genre='b' date=-360)
+            //(and date>-360 (or genre='a' genre='b'))
+            // Validate parse result
+            if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
+            {
+                // It should be a phrase, because it is (and ...)
+                if (phrase is BooleanPhrase)
+                {
+                    var nodes = (phrase as BooleanPhrase).nodes;
+
+                    // Validate there is at least one node
+                    // First node should be a PHRASE, looking like: (or cycletag='A' cycletag='B')
+                    if (nodes.Count > 0)
+                    {
+                        var firstNode = nodes[0] as BooleanPhrase;
+
+                        if (firstNode != null)
+                        {
+                            operand = firstNode.operand;
+
+                            var firstTag = firstNode.nodes[0] as BooleanLeaf;
+
+                            // field name - we can take from the first
+                            if (firstTag != null)
+                            {
+                                tagType = firstTag.field;
+                            }
+
+                            // add all values to list. all should be leafs
+                            foreach (var item in firstNode.nodes)
+                            {
+                                var leaf = item as BooleanLeaf;
+
+                                if (leaf != null)
+                                {
+                                    tagValues.Add(Convert.ToString(leaf.value));
+                                }
+                            }
+                        }
+                    }
+
+                    // Validate that date nodes actually exist - there should be two
+                    // Second and third nodes should be LEAFs as well, looking like: cycledate>='-3days'  cycledate<'-2days'
+                    if (nodes.Count > 2)
+                    {
+                        var secondNode = nodes[1] as BooleanLeaf;
+                        var thirdNode = nodes[2] as BooleanLeaf;
+
+                        if (secondNode != null && thirdNode != null)
+                        {
+                            dateMeta = thirdNode.field;
+
+                            long thirdNodeValue = Convert.ToInt64(thirdNode.value);
+
+                            // the value is the days-back represented in seconds
+                            dateValue = -1 * (int)(thirdNodeValue / 60 / 60 / 24);
+
+                            result = true;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         private bool FillFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
         {
-            //sunny
-            throw new NotImplementedException();
+            bool result = false;
+
+            string tagType;
+            List<string> tagValues;
+            eCutType operand;
+            string dateMeta;
+            int dateValue;
+
+            result = BuildActionRuleDataFromKsql(out tagType, out tagValues, out operand, out dateMeta, out dateValue, rule.KsqlFilter);
+
+            if (result)
+            {
+                rule.MetaDateName = dateMeta;
+                rule.MetaDateValue = dateValue.ToString();
+                rule.FilterTagTypeName = tagType;
+                rule.TagOperand = operand;
+
+                // Sunny: LIOR - I have tag values, not Ids. what TODO??
+                rule.TagIdsToFilter = new List<int>();
+            }
+
+            return result;
         }
 
         private bool BuildKsqlFromFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule, out string ksql)
         {
-            //sunny
-            throw new NotImplementedException();
+            bool result = false;
+            ksql = string.Empty;
+
+                // Sunny: LIOR - I need tag values, not Ids. what TODO??
+            List<string> tagValues = rule.TagIdsToFilter.Select(t => t.ToString()).ToList();
+
+            result = BuildActionRuleKsqlFromData(rule.GroupId, rule.FilterTagTypeName, tagValues, rule.TagOperand, rule.MetaDateName,
+                Convert.ToInt32(rule.MetaDateValue), out ksql);
+
+            return result;
         }
 
         #endregion
