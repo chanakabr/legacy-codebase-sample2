@@ -298,6 +298,12 @@ namespace Core.Recordings
                             }
                         }
                     }
+                    else
+                    {
+                        // not enough quota to free
+                        response = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
+                        log.DebugFormat("try to GetDomainRecordingsByTstvRecordingStatuses by : {0} status return no results", TstvRecordingStatus.Recorded.ToString());
+                    }
                 }
                 else
                 {
