@@ -23,7 +23,7 @@ namespace WebAPI.Controllers
         /// <summary>
          /// Get the list of meta mappings for the partner
         /// </summary>
-        /// <param name="filter">Country filter</param>
+        /// <param name="filter">Meta filter</param>
         /// <remarks></remarks>
          [Route("list"), HttpPost]
          [ApiAuthorize]
