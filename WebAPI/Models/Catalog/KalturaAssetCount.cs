@@ -64,7 +64,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "count")]
         [JsonProperty(PropertyName = "count")]
         [XmlElement(ElementName = "count")]
-        public string Count
+        public int Count
         {
             get;
             set;
