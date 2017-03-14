@@ -12628,15 +12628,16 @@ namespace Core.ConditionalAccess
 
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed       
                         {
-                            // handel delete to overage quota                                
-                            if (QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration))
+                            // handel delete to overage quota    
+                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration);
+                            if (bRes!= null && bRes.Code == (int)eResponseStatus.OK)
                             {
                                 UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
                             }
                             else
                             {
-                                log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                                recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());                              
+                                recording.Status = bRes != null ? bRes :  new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());                                
                             }
                         }
                         else

@@ -210,9 +210,9 @@ namespace Core.Recordings
             return result;
         }
 
-        public bool HandleDominQuotaOvarge(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        public ApiObjects.Response.Status HandleDominQuotaOvarge(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
-            bool bRes = false;
+            ApiObjects.Response.Status bRes = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
 
@@ -220,33 +220,33 @@ namespace Core.Recordings
             {
                 while (limitRetries > 0)
                 {
-                    if (DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus))
-                    {
-                        bRes = true;
+                    bRes = DeleteDomainOldestRecordings(groupId, domainId, recordingDuration, domainRecordingStatus);
+                    if (bRes != null && bRes.Code == (int)eResponseStatus.OK)
+                    {                      
                         break;
                     }
-                    if (!bRes)
+                    else
                     {
                         Thread.Sleep(r.Next(50));
                         limitRetries--;
                     }
                 }
 
-                if (!bRes) // fail to delete and free some quota 
+                if (bRes.Code != (int)eResponseStatus.OK) // fail to delete and free some quota 
                 {
-                    log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}", groupId, domainId, recordingDuration);
+                    log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}", groupId, domainId, recordingDuration, bRes.Message);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, ex: {3}", groupId, domainId, recordingDuration, ex);
+                log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, recordingDuration, bRes.Message, ex);
             }
             return bRes;
         }
 
-        private bool DeleteDomainOldestRecordings(int groupId, long domainId, int recordingQuota, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        private ApiObjects.Response.Status DeleteDomainOldestRecordings(int groupId, long domainId, int recordingQuota, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
-            bool response = false;
+            ApiObjects.Response.Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
                 List<long> domainRecordingIds = new List<long>();
@@ -293,7 +293,7 @@ namespace Core.Recordings
                                 }
                                 else
                                 {
-                                    response = true;
+                                    response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                                 }
                             }
                         }
@@ -301,6 +301,7 @@ namespace Core.Recordings
                 }
                 else
                 {
+                    response = new Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
                     log.DebugFormat("try to GetDomainRecordingsByTstvRecordingStatuses by : {0} status return no results", TstvRecordingStatus.Recorded.ToString());
                 }
             }
