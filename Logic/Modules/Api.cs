@@ -1749,5 +1749,21 @@ namespace Core.Api
 
             return result;
         }
+
+        public static FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        {
+            FriendlyAssetLifeCycleRule result = null;
+
+            try
+            {
+                result = Core.Api.api.GetFriendlyAssetLifeCycleRule(groupId, id);
+            }
+            catch (Exception ex)
+            {                
+                log.ErrorFormat("Error in GetFriendlyAssetLifeCycleRule", ex);
+            }
+
+            return result;
+        }
     }
 }

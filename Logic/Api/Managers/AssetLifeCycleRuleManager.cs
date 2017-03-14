@@ -62,7 +62,7 @@ namespace Core.Api.Managers
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("GetAllLifeCycleRules failed", ex);
+                log.Error(string.Format("GetAllLifeCycleRules failed, groupId: {0}, id: {1}", groupId, rulesIds != null ? string.Join(",", rulesIds) : string.Empty), ex);
             }
 
             return groupIdToRulesMap;
@@ -224,6 +224,30 @@ namespace Core.Api.Managers
             return result;
         }
 
+        public FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        {
+            FriendlyAssetLifeCycleRule result = null;
+            try
+            {
+                Dictionary<int, List<AssetLifeCycleRule>> rules = GetLifeCycleRules(groupId, new List<long>() { id });
+                if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
+                {
+                    result = new FriendlyAssetLifeCycleRule(rules[groupId].First());
+                    if (!FillFriendlyAssetLifeCycleRule(result))
+                    {
+                        log.WarnFormat("Failed to FillFriendlyAssetLifeCycleRule for groupId: {0}, id: {1}", groupId, id);
+                        result = null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetFriendlyAssetLifeCycleRule failed, groupId: {0}, id: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
         public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out string tagValue, out string dateMeta, out int dateValue)
         {
             bool result = false;
@@ -244,7 +268,8 @@ namespace Core.Api.Managers
 
                 // Parse the rule's KSQL
                 var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
-
+                //(and genre = 'a' genre='b' date=-360)
+                //(and date>-360 (or genre='a' genre='b'))
                 // Validate parse result
                 if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
                 {
@@ -309,7 +334,7 @@ namespace Core.Api.Managers
             }
 
             return result;
-        }
+        }        
 
         #endregion
 
@@ -602,7 +627,6 @@ namespace Core.Api.Managers
             }
         }
 
-
         private Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(DataSet ds)
         {
             Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int, List<AssetLifeCycleRule>>();
@@ -619,9 +643,8 @@ namespace Core.Api.Managers
                     {
                         string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                         string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
-                        string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
-                        string metaDateName = ODBCWrapper.Utils.GetSafeStr(dr, "META_DATE_NAME");
-                        AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter, metaDateName);
+                        string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");                        
+                        AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter);
                         rules.Add(alcr);
                     }
                 }
@@ -656,6 +679,18 @@ namespace Core.Api.Managers
             }
 
             return groupIdToRulesMap;
+        }
+
+        private bool FillFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
+        {
+            //sunny
+            throw new NotImplementedException();
+        }
+
+        private bool BuildKsqlFromFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule, out string ksql)
+        {
+            //sunny
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -13,9 +13,9 @@ namespace ApiObjects.AssetLifeCycleRules
         public int GroupId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string KsqlFilter { get; set; }
-        public string MetaDateName { get; set; }
+        public string KsqlFilter { get; set; }        
         public LifeCycleTransitions Actions { get; set; }
+        public int TransitionIntervalUnitsId { get; set; } // from Tvinci.dbo.lu_alcr_transition_interval_units
 
         public AssetLifeCycleRule()
         {
@@ -23,31 +23,28 @@ namespace ApiObjects.AssetLifeCycleRules
             this.GroupId = 0;
             this.Name = string.Empty;
             this.Description = string.Empty;
-            this.KsqlFilter = string.Empty;
-            this.MetaDateName = string.Empty;
+            this.KsqlFilter = string.Empty;            
             this.Actions = new LifeCycleTransitions();
         }
 
-        public AssetLifeCycleRule(long id, int groupId, string name, string description, string filter, string metaDateName)
+        public AssetLifeCycleRule(long id, int groupId, string name, string description, string filter)
         {
             this.Id = id;
             this.GroupId = groupId;
             this.Name = name;
             this.Description = description;
-            this.KsqlFilter = filter;
-            this.MetaDateName = metaDateName;
+            this.KsqlFilter = filter;            
             this.Actions = new LifeCycleTransitions();
         }
 
-        public AssetLifeCycleRule(long id, int groupId, string name, string description, string filter, string metaDateName, List<int> tagIdsToAdd, List<int> tagIdsToRemove,
+        public AssetLifeCycleRule(long id, int groupId, string name, string description, string filter, List<int> tagIdsToAdd, List<int> tagIdsToRemove,
                                   LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove, int? geoBlockRuleToSet = null)
         {
             this.Id = id;
             this.GroupId = groupId;
             this.Name = name;
             this.Description = description;
-            this.KsqlFilter = filter;
-            this.MetaDateName = metaDateName;
+            this.KsqlFilter = filter;            
             this.Actions = new LifeCycleTransitions(tagIdsToAdd, tagIdsToRemove, fileTypesAndPpvsToAdd, fileTypesAndPpvsToRemove, geoBlockRuleToSet);
         }
 
@@ -58,8 +55,7 @@ namespace ApiObjects.AssetLifeCycleRules
             sb.Append(string.Format("GroupId: {0}, ", GroupId));
             sb.Append(string.Format("Name: {0}, ", string.IsNullOrEmpty(Name) ? string.Empty : Name));
             sb.Append(string.Format("Description: {0}, ", string.IsNullOrEmpty(Description) ? string.Empty : Description));
-            sb.Append(string.Format("KsqlFilter: {0}, ", string.IsNullOrEmpty(KsqlFilter) ? string.Empty : KsqlFilter));
-            sb.Append(string.Format("MetaDateName: {0}, ", string.IsNullOrEmpty(MetaDateName) ? string.Empty : MetaDateName));
+            sb.Append(string.Format("KsqlFilter: {0}, ", string.IsNullOrEmpty(KsqlFilter) ? string.Empty : KsqlFilter));            
             sb.Append(string.Format("Actions: {0}, ", Actions != null ? Actions.ToString() : string.Empty));
 
             return sb.ToString();
