@@ -4149,13 +4149,15 @@ namespace WS_API
         [WebMethod]
         public bool BuildActionRuleDataFromKsql(string sWSUserName, string sWSPassword, long ruleId,
             out string tagType,
-            out string tagValue,
+            out List<string> tagValues,
+            out eCutType operand,
             out string dateMeta,
             out int dateValue)
         {
             bool result = false;
             tagType = string.Empty;
-            tagValue = string.Empty;
+            tagValues = new List<string>();
+            operand = eCutType.And;
             dateMeta = string.Empty;
             dateValue = 0;
 
@@ -4164,7 +4166,8 @@ namespace WS_API
             if (groupId > 0)
             {
                 result = Core.Api.Module.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
-                    out tagValue,
+                    out tagValues,
+                    out operand,
                     out dateMeta,
                     out dateValue);
             }
@@ -4179,7 +4182,8 @@ namespace WS_API
         [WebMethod]
         public bool BuildActionRuleKsqlFromData(string sWSUserName, string sWSPassword,
             string tagType,
-            string tagValue,
+            List<string> tagValues,
+            eCutType operand,
             string dateMeta,
             int dateValue,
             out string ksql)
@@ -4192,7 +4196,8 @@ namespace WS_API
             if (groupId > 0)
             {
                 result = Core.Api.Module.BuildActionRuleKsqlFromData(groupId, tagType,
-                    tagValue,
+                    tagValues,
+                    operand,
                     dateMeta,
                     dateValue,
                     out ksql);
