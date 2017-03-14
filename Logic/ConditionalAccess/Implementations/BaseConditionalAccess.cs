@@ -13643,7 +13643,12 @@ namespace Core.ConditionalAccess
                 }
 
                 // Get domains quota
-                int domainsQuotaInSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID);
+                int domainsQuotaInSeconds = 0;
+                ApiObjects.TimeShiftedTv.DomainQuotaResponse domainQuota = QuotaManager.Instance.GetDomainQuotaResponse(this.m_nGroupID, domainID);
+                if (domainQuota != null)
+                {
+                    domainsQuotaInSeconds = domainQuota.TotalQuota;
+                }
 
                 // Get protection quota percentages                
                 if (accountSettings == null || !accountSettings.ProtectionQuotaPercentage.HasValue)
