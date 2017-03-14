@@ -223,58 +223,7 @@ namespace Core.Api.Managers
             }
 
             return result;
-        }
-
-        public FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
-        {
-            FriendlyAssetLifeCycleRule result = null;
-            try
-            {
-                Dictionary<int, List<AssetLifeCycleRule>> rules = GetLifeCycleRules(groupId, new List<long>() { id });
-                if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
-                {
-                    result = new FriendlyAssetLifeCycleRule(rules[groupId].First());
-                    if (!BuildActionRuleDataFromKsql(result))
-                    {
-                        log.WarnFormat("Failed to FillFriendlyAssetLifeCycleRule for groupId: {0}, id: {1}", groupId, id);
-                        result = null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetFriendlyAssetLifeCycleRule failed, groupId: {0}, id: {1}", groupId, id), ex);
-            }
-
-            return result;
-        }
-
-        public bool BuildActionRuleKsqlFromData(FriendlyAssetLifeCycleRule rule, out string ksql)
-        {
-            bool result = false;
-            ksql = string.Empty;
-
-            if (rule != null && !string.IsNullOrEmpty(rule.FilterTagTypeName) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValueInSeconds > 0)
-            {
-                //TODO: LIOR !!!!!!!!
-                long firstDate = -1 * (rule.MetaDateValueInSeconds + 1) * 24 * 60 * 60;
-                long secondDate = -1 * (rule.MetaDateValueInSeconds) * 24 * 60 * 60;
-
-                StringBuilder builder = new StringBuilder();
-
-                foreach (var tagValue in rule.FilterTagValues)
-                {
-                    builder.AppendFormat("{0}='{1}' ", rule.FilterTagTypeName, tagValue);
-                }
-
-                ksql = string.Format("(and ({0} {1}) {2}>='{3}' {2}<'{4}')",
-                    rule.FilterTagOperand.ToString(), builder.ToString(), rule.MetaDateName, firstDate, secondDate);
-
-                result = true;
-            }
-
-            return result;
-        }        
+        }                
 
         #endregion
 
@@ -583,9 +532,14 @@ namespace Core.Api.Managers
                     {
                         string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
                         string description = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION");
-                        string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");                        
-                        AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter);
-                        rules.Add(alcr);
+                        string filter = ODBCWrapper.Utils.GetSafeStr(dr, "KSQL_FILTER");
+                        int transitionIntervalUnitsId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TRANSITION_INTERVAL_UNITS_ID", 0);
+                        AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits;
+                        if (Enum.TryParse<AssetLifeCycleRuleTransitionIntervalUnits>(transitionIntervalUnitsId.ToString(), out transitionIntervalUnits))
+                        {
+                            AssetLifeCycleRule alcr = new AssetLifeCycleRule(id, groupId, name, description, filter, transitionIntervalUnits);
+                            rules.Add(alcr);
+                        }
                     }
                 }
 
@@ -619,89 +573,7 @@ namespace Core.Api.Managers
             }
 
             return groupIdToRulesMap;
-        }
-
-        private static bool BuildActionRuleDataFromKsql(FriendlyAssetLifeCycleRule rule)
-        {
-            bool result = false;
-
-            BooleanPhraseNode phrase = null;
-
-            // Parse the rule's KSQL
-            var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
-            //(and genre = 'a' genre='b' date=-360)
-            //(and date>-360 (or genre='a' genre='b'))
-            // Validate parse result
-            if (status != null && status.Code == (int)ResponseStatus.OK && phrase != null)
-            {
-                // It should be a phrase, because it is (and ...)
-                if (phrase is BooleanPhrase)
-                {
-                    var nodes = (phrase as BooleanPhrase).nodes;
-
-                    // Validate there is at least one node
-                    // First node should be a PHRASE, looking like: (or cycletag='A' cycletag='B')
-                    if (nodes.Count > 0)
-                    {
-                        var firstNode = nodes[0] as BooleanPhrase;
-
-                        if (firstNode != null)
-                        {
-                            rule.FilterTagOperand = firstNode.operand;
-
-                            var firstTag = firstNode.nodes[0] as BooleanLeaf;
-
-                            // field name - we can take from the first
-                            if (firstTag != null)
-                            {
-                                rule.FilterTagTypeName = firstTag.field;
-                            }
-
-                            // add all values to list. all should be leafs
-                            foreach (var item in firstNode.nodes)
-                            {
-                                var leaf = item as BooleanLeaf;
-
-                                if (leaf != null)
-                                {
-                                    rule.FilterTagValues.Add(Convert.ToString(leaf.value));
-                                }
-                            }
-                        }
-                    }
-
-                    // Validate that date nodes actually exist - there should be two
-                    // Second and third nodes should be LEAFs as well, looking like: cycledate>='-3days'  cycledate<'-2days'
-                    if (nodes.Count > 2)
-                    {
-                        var secondNode = nodes[1] as BooleanLeaf;
-                        var thirdNode = nodes[2] as BooleanLeaf;
-
-                        if (secondNode != null && thirdNode != null)
-                        {
-                            rule.MetaDateName = thirdNode.field;
-
-                            rule.MetaDateValueInSeconds = Math.Abs(Convert.ToInt64(thirdNode.value));
-
-                            result = true;
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private bool BuildKsqlFromFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule, out string ksql)
-        {
-            bool result = false;
-            ksql = string.Empty;
-                
-            result = BuildActionRuleKsqlFromData(rule.GroupId, rule.FilterTagTypeName, tagValues, rule.FilterTagOperand, rule.MetaDateName,
-                Convert.ToInt32(rule.MetaDateValueInSeconds), out ksql);
-
-            return result;
-        }
+        }        
 
         #endregion
 

@@ -2,6 +2,7 @@
 using ApiLogic;
 using APILogic;
 using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Catalog;
 using ApiObjects.CDNAdapter;
@@ -9411,9 +9412,43 @@ namespace Core.Api
             return AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds) > 0;
         }
 
-        internal static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        public static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
         {
-            return AssetLifeCycleRuleManager.Instance.GetFriendlyAssetLifeCycleRule(groupId, id);
+            FriendlyAssetLifeCycleRule result = null;
+            try
+            {
+                Dictionary<int, List<AssetLifeCycleRule>> rules = AssetLifeCycleRuleManager.Instance.GetLifeCycleRules(groupId, new List<long>() { id });
+                if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
+                {
+                    result = new FriendlyAssetLifeCycleRule(rules[groupId].First());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetFriendlyAssetLifeCycleRule failed, groupId: {0}, id: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static string GetFriendlyAssetLifeCycleRuleKsqlFilter(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
+        {
+            string result = string.Empty;
+            try
+            {
+                FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(groupId, tagType, tagValues, operand, dateMeta, dateValue);
+                if (rule != null && !string.IsNullOrEmpty(rule.KsqlFilter))
+                {
+                    result = rule.KsqlFilter;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRuleKsqlFilter, groupId: {0}, tagType: {1}, tagValues: {2}, operand: {3}, dateMeta: {4}, dateValue: {5}",
+                    groupId, tagType, tagValues != null ? string.Join(",", tagValues) : string.Empty, operand.ToString(), dateMeta, dateValue), ex);
+            }
+
+            return result;
         }
     }
 }

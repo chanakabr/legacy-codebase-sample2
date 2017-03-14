@@ -836,8 +836,17 @@ namespace ApiObjects
 
     public enum AssetLifeCycleRuleAction
     {
-        Add = 2,
-        Remove = 3
+        Unknown = 0,
+        Add = 1,
+        Remove = 2
+    }
+
+    public enum AssetLifeCycleRuleTransitionIntervalUnits
+    {
+        Unknown = 0,
+        Days = 1,
+        Hours = 2,
+        Minutes = 3
     }
 
     public enum ProtectionPolicy

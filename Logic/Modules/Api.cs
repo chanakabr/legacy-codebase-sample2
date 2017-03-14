@@ -1704,57 +1704,6 @@ namespace Core.Api
             return result;
         }
 
-        public static bool BuildActionRuleDataFromKsql(int groupId, long ruleId, 
-            out string tagType, out List<string> tagValues, out eCutType operand, out string dateMeta, out int dateValue)
-        {
-            bool result = false;
-            tagType = string.Empty;
-            tagValues = new List<string>();
-            operand = eCutType.And;
-            dateMeta = string.Empty;
-            dateValue = 0;
-
-            try
-            {
-                result = AssetLifeCycleRuleManager.Instance.BuildActionRuleDataFromKsql(groupId, ruleId, 
-                    out tagType,
-                    out tagValues,
-                    out operand,
-                    out dateMeta,
-                    out dateValue);
-            }
-            catch (Exception ex)
-            {
-                result = false;
-                log.Error(string.Format("Error in BuildActionRuleDataFromKsql. ruleId = {0}, groupId = {1}, ex = {2}", ruleId, groupId, ex));
-            }
-
-            return result;
-        }
-
-        public static bool BuildActionRuleKsqlFromData(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, int dateValue, out string ksql)
-        {
-            bool result = false;
-            ksql = string.Empty;
-
-            try
-            {
-                result = AssetLifeCycleRuleManager.Instance.BuildActionRuleKsqlFromData(groupId, tagType,
-                    tagValues,
-                    operand,
-                    dateMeta,
-                    dateValue,
-                    out ksql);
-            }
-            catch (Exception ex)
-            {
-                result = false;
-                log.Error(string.Format("Error in BuildActionRuleKsqlFromData. groupId = {0}, ex = {!}", groupId, ex));
-            }
-
-            return result;
-        }
-
         public static FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
         {
             FriendlyAssetLifeCycleRule result = null;
@@ -1765,7 +1714,24 @@ namespace Core.Api
             }
             catch (Exception ex)
             {                
-                log.ErrorFormat("Error in GetFriendlyAssetLifeCycleRule", ex);
+                log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}", groupId, id), ex);
+            }
+
+            return result;
+        }
+
+        public static string GetFriendlyAssetLifeCycleRuleKsqlFilter(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
+        {
+            string result = string.Empty;            
+
+            try
+            {
+                result = Core.Api.api.GetFriendlyAssetLifeCycleRuleKsqlFilter(groupId, tagType, tagValues, operand, dateMeta, dateValue);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRuleKsqlFilter, groupId: {0}, tagType: {1}, tagValues: {2}, operand: {3}, dateMeta: {4}, dateValue: {5}",
+                    groupId, tagType, tagValues != null ? string.Join(",", tagValues) : string.Empty, operand.ToString(), dateMeta, dateValue), ex);
             }
 
             return result;
