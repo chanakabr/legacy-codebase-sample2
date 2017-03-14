@@ -9,10 +9,10 @@ namespace ApiObjects.AssetLifeCycleRules
     public class FriendlyAssetLifeCycleRule : AssetLifeCycleRule
     {
         public string FilterTagTypeName { get; set; }
-        public List<int> TagIdsToFilter { get; set; } // from Tvinci.dbo.tags
-        public eCutType TagOperand { get; set; }
+        public List<string> FilterTagValues { get; set; } // from Tvinci.dbo.tags
+        public eCutType FilterTagOperand { get; set; }
         public string MetaDateName { get; set; }
-        public string MetaDateValue { get; set; }
+        public long MetaDateValueInSeconds { get; set; }
 
         public FriendlyAssetLifeCycleRule() : base()
         {

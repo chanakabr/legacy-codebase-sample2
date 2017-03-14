@@ -234,7 +234,7 @@ namespace Core.Api.Managers
                 if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
                 {
                     result = new FriendlyAssetLifeCycleRule(rules[groupId].First());
-                    if (!FillFriendlyAssetLifeCycleRule(result))
+                    if (!BuildActionRuleDataFromKsql(result))
                     {
                         log.WarnFormat("Failed to FillFriendlyAssetLifeCycleRule for groupId: {0}, id: {1}", groupId, id);
                         result = null;
@@ -249,50 +249,26 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out List<string> tagValues, out eCutType operand, out string dateMeta, out int dateValue)
-        {
-            bool result = false;
-            tagType = string.Empty;
-            tagValues = new List<string>();
-            operand = eCutType.Or;
-            dateMeta = string.Empty;
-            dateValue = 0;
-
-            // Get the rule's data from Database
-            var rules = GetLifeCycleRules(groupId, new List<long>() { ruleId });
-
-            if (rules != null && rules.Count > 0)
-            {
-                // There should be only one rule
-                var rule = rules[groupId].First();
-
-                string ksql = rule.KsqlFilter;
-
-                result = BuildActionRuleDataFromKsql(out tagType, out tagValues, out operand, out dateMeta, out dateValue, ksql);
-            }
-
-            return result;
-        }
-
-        public bool BuildActionRuleKsqlFromData(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, int dateValue, out string ksql)
+        public bool BuildActionRuleKsqlFromData(FriendlyAssetLifeCycleRule rule, out string ksql)
         {
             bool result = false;
             ksql = string.Empty;
 
-            if (!string.IsNullOrEmpty(tagType) && tagValues != null && tagValues.Count > 0 && !string.IsNullOrEmpty(dateMeta) && dateValue > 0)
+            if (rule != null && !string.IsNullOrEmpty(rule.FilterTagTypeName) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValueInSeconds > 0)
             {
-                long firstDate = -1 * (dateValue + 1) * 24 * 60 * 60;
-                long secondDate = -1 * (dateValue) * 24 * 60 * 60;
+                //TODO: LIOR !!!!!!!!
+                long firstDate = -1 * (rule.MetaDateValueInSeconds + 1) * 24 * 60 * 60;
+                long secondDate = -1 * (rule.MetaDateValueInSeconds) * 24 * 60 * 60;
 
                 StringBuilder builder = new StringBuilder();
 
-                foreach (var tagValue in tagValues)
+                foreach (var tagValue in rule.FilterTagValues)
                 {
-                    builder.AppendFormat("{0}='{1}' ", tagType, tagValue);
+                    builder.AppendFormat("{0}='{1}' ", rule.FilterTagTypeName, tagValue);
                 }
 
                 ksql = string.Format("(and ({0} {1}) {2}>='{3}' {2}<'{4}')",
-                    operand.ToString(), builder.ToString(), dateMeta, firstDate, secondDate);
+                    rule.FilterTagOperand.ToString(), builder.ToString(), rule.MetaDateName, firstDate, secondDate);
 
                 result = true;
             }
@@ -645,20 +621,14 @@ namespace Core.Api.Managers
             return groupIdToRulesMap;
         }
 
-        private static bool BuildActionRuleDataFromKsql(out string tagType, out List<string> tagValues,
-            out eCutType operand, out string dateMeta, out int dateValue, string ksql)
+        private static bool BuildActionRuleDataFromKsql(FriendlyAssetLifeCycleRule rule)
         {
             bool result = false;
-            tagType = string.Empty;
-            tagValues = new List<string>();
-            operand = eCutType.Or;
-            dateMeta = string.Empty;
-            dateValue = 0;
 
             BooleanPhraseNode phrase = null;
 
             // Parse the rule's KSQL
-            var status = BooleanPhraseNode.ParseSearchExpression(ksql, ref phrase);
+            var status = BooleanPhraseNode.ParseSearchExpression(rule.KsqlFilter, ref phrase);
             //(and genre = 'a' genre='b' date=-360)
             //(and date>-360 (or genre='a' genre='b'))
             // Validate parse result
@@ -677,14 +647,14 @@ namespace Core.Api.Managers
 
                         if (firstNode != null)
                         {
-                            operand = firstNode.operand;
+                            rule.FilterTagOperand = firstNode.operand;
 
                             var firstTag = firstNode.nodes[0] as BooleanLeaf;
 
                             // field name - we can take from the first
                             if (firstTag != null)
                             {
-                                tagType = firstTag.field;
+                                rule.FilterTagTypeName = firstTag.field;
                             }
 
                             // add all values to list. all should be leafs
@@ -694,7 +664,7 @@ namespace Core.Api.Managers
 
                                 if (leaf != null)
                                 {
-                                    tagValues.Add(Convert.ToString(leaf.value));
+                                    rule.FilterTagValues.Add(Convert.ToString(leaf.value));
                                 }
                             }
                         }
@@ -709,12 +679,9 @@ namespace Core.Api.Managers
 
                         if (secondNode != null && thirdNode != null)
                         {
-                            dateMeta = thirdNode.field;
+                            rule.MetaDateName = thirdNode.field;
 
-                            long thirdNodeValue = Convert.ToInt64(thirdNode.value);
-
-                            // the value is the days-back represented in seconds
-                            dateValue = -1 * (int)(thirdNodeValue / 60 / 60 / 24);
+                            rule.MetaDateValueInSeconds = Math.Abs(Convert.ToInt64(thirdNode.value));
 
                             result = true;
                         }
@@ -725,74 +692,13 @@ namespace Core.Api.Managers
             return result;
         }
 
-        private bool FillFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
-        {
-            bool result = false;
-
-            string tagType;
-            List<string> tagValues;
-            eCutType operand;
-            string dateMeta;
-            int dateValue;
-
-            result = BuildActionRuleDataFromKsql(out tagType, out tagValues, out operand, out dateMeta, out dateValue, rule.KsqlFilter);
-
-            if (result)
-            {
-                rule.MetaDateName = dateMeta;
-                rule.MetaDateValue = dateValue.ToString();
-                rule.FilterTagTypeName = tagType;
-                rule.TagOperand = operand;
-                rule.TagIdsToFilter = new List<int>();
-
-                // get the tag id by its name:
-
-                // get all group tags
-                var groupTags = new GroupManager().GetGroup(rule.GroupId).m_oGroupTags;
-
-                Dictionary<string, int> tagTypeToId = new Dictionary<string, int>();
-
-                // Create reverse mapping: tag name to id
-                foreach (var tag in groupTags)
-                {
-                    tagTypeToId[tag.Value] = tag.Key;
-                }
-
-                foreach (var tagValue in tagValues)
-                {
-                    if (tagTypeToId.ContainsKey(tagValue))
-                    {
-                        // build list with tag ID, with the dictionary we created earlier
-                        rule.TagIdsToFilter.Add(tagTypeToId[tagValue]);
-                    }    
-                }
-            }
-
-            return result;
-        }
-
         private bool BuildKsqlFromFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule, out string ksql)
         {
             bool result = false;
             ksql = string.Empty;
-
-            // get the tag name by its id:
-            List<string> tagValues = new List<string>();
-
-            // get all group tags
-            var groupTags = new GroupManager().GetGroup(rule.GroupId).m_oGroupTags;
-
-            foreach (var tagId in rule.TagIdsToFilter)
-            {
-                if (groupTags.ContainsKey(tagId))
-                {
-                    // build list with tag ID, with the dictionary we created earlier
-                    tagValues.Add(groupTags[tagId]);
-                }
-            }
                 
-            result = BuildActionRuleKsqlFromData(rule.GroupId, rule.FilterTagTypeName, tagValues, rule.TagOperand, rule.MetaDateName,
-                Convert.ToInt32(rule.MetaDateValue), out ksql);
+            result = BuildActionRuleKsqlFromData(rule.GroupId, rule.FilterTagTypeName, tagValues, rule.FilterTagOperand, rule.MetaDateName,
+                Convert.ToInt32(rule.MetaDateValueInSeconds), out ksql);
 
             return result;
         }
