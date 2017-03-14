@@ -530,7 +530,7 @@ namespace Core.Api.Managers
             {
                 if (fileTypesAndPpvsToAdd != null && (fileTypesAndPpvsToRemove.FileTypeIds.Count > 0 || fileTypesAndPpvsToRemove.PpvIds.Count > 0))
                 {
-                    removeResult = ApiDAL.RemoveFileTypesAndPpvsFromAssets(assetIds, fileTypesAndPpvsToRemove);
+                    removeResult = PricingDAL.RemoveFileTypesAndPpvsFromAssets(assetIds, fileTypesAndPpvsToRemove);
                 }
                 else
                 {
@@ -539,7 +539,7 @@ namespace Core.Api.Managers
 
                 if (fileTypesAndPpvsToAdd != null && (fileTypesAndPpvsToAdd.FileTypeIds.Count > 0 || fileTypesAndPpvsToAdd.PpvIds.Count > 0))
                 {
-                    addResult = ApiDAL.AddFileTypesAndPpvsToAssets(assetIds, fileTypesAndPpvsToAdd);
+                    addResult = PricingDAL.AddFileTypesAndPpvsToAssets(assetIds, fileTypesAndPpvsToAdd);
                 }
                 else
                 {
