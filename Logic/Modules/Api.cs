@@ -1704,18 +1704,22 @@ namespace Core.Api
             return result;
         }
 
-        public static bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out string tagValue, out string dateMeta, out int dateValue)
+        public static bool BuildActionRuleDataFromKsql(int groupId, long ruleId, 
+            out string tagType, out List<string> tagValues, out eCutType operand, out string dateMeta, out int dateValue)
         {
             bool result = false;
             tagType = string.Empty;
-            tagValue = string.Empty;
+            tagValues = new List<string>();
+            operand = eCutType.And;
             dateMeta = string.Empty;
             dateValue = 0;
 
             try
             {
-                result = AssetLifeCycleRuleManager.Instance.BuildActionRuleDataFromKsql(groupId, ruleId, out tagType,
-                    out tagValue,
+                result = AssetLifeCycleRuleManager.Instance.BuildActionRuleDataFromKsql(groupId, ruleId, 
+                    out tagType,
+                    out tagValues,
+                    out operand,
                     out dateMeta,
                     out dateValue);
             }
@@ -1728,7 +1732,7 @@ namespace Core.Api
             return result;
         }
 
-        public static bool BuildActionRuleKsqlFromData(int groupId, string tagType, string tagValue, string dateMeta, int dateValue, out string ksql)
+        public static bool BuildActionRuleKsqlFromData(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, int dateValue, out string ksql)
         {
             bool result = false;
             ksql = string.Empty;
@@ -1736,7 +1740,8 @@ namespace Core.Api
             try
             {
                 result = AssetLifeCycleRuleManager.Instance.BuildActionRuleKsqlFromData(groupId, tagType,
-                    tagValue,
+                    tagValues,
+                    operand,
                     dateMeta,
                     dateValue,
                     out ksql);

@@ -248,11 +248,12 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out string tagValue, out string dateMeta, out int dateValue)
+        public bool BuildActionRuleDataFromKsql(int groupId, long ruleId, out string tagType, out List<string> tagValue, out eCutType operand, out string dateMeta, out int dateValue)
         {
             bool result = false;
             tagType = string.Empty;
-            tagValue = string.Empty;
+            tagValue = new List<string>();
+            operand = eCutType.Or;
             dateMeta = string.Empty;
             dateValue = 0;
 
@@ -279,15 +280,31 @@ namespace Core.Api.Managers
                         var nodes = (phrase as BooleanPhrase).nodes;
 
                         // Validate there is at least one node
-                        // First node should be a LEAF, looking like: cycletag='A'
+                        // First node should be a PHRASE, looking like: (or cycletag='A' cycletag='B')
                         if (nodes.Count > 0)
                         {
-                            var firstNode = nodes[0] as BooleanLeaf;
+                            var firstNode = nodes[0] as BooleanPhrase;
 
                             if (firstNode != null)
                             {
-                                tagType = firstNode.field;
-                                tagValue = Convert.ToString(firstNode.value);
+                                var firstTag = firstNode.nodes[0] as BooleanLeaf;
+
+                                // field name - we can take from the first
+                                if (firstTag != null)
+                                {
+                                    tagType = firstTag.field;
+                                }
+
+                                // add all values to list. all should be leafs
+                                foreach (var item in firstNode.nodes)
+                                {
+                                    var leaf = item as BooleanLeaf;
+
+                                    if (leaf != null)
+                                    {
+                                        tagValue.Add(Convert.ToString(leaf.value));
+                                    }
+                                }
                             }
                         }
 
@@ -317,18 +334,25 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public bool BuildActionRuleKsqlFromData(int groupId, string tagType, string tagValue, string dateMeta, int dateValue, out string ksql)
+        public bool BuildActionRuleKsqlFromData(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, int dateValue, out string ksql)
         {
             bool result = false;
             ksql = string.Empty;
 
-            if (!string.IsNullOrEmpty(tagType) && !string.IsNullOrEmpty(tagValue) && !string.IsNullOrEmpty(dateMeta) && dateValue > 0)
+            if (!string.IsNullOrEmpty(tagType) && tagValues != null && tagValues.Count > 0 && !string.IsNullOrEmpty(dateMeta) && dateValue > 0)
             {
                 long firstDate = -1 * (dateValue + 1) * 24 * 60 * 60;
                 long secondDate = -1 * (dateValue) * 24 * 60 * 60;
 
-                ksql = string.Format("(and {0}='{1}' {2}>='{3}' {2}<'{4}')",
-                    tagType, tagValue, dateMeta, firstDate, secondDate);
+                StringBuilder builder = new StringBuilder();
+
+                foreach (var tagValue in tagValues)
+                {
+                    builder.AppendFormat("{0}='{1}' ", tagType, tagValue);
+                }
+
+                ksql = string.Format("(and ({0} {1}) {2}>='{3}' {2}<'{4}')",
+                    operand.ToString(), builder.ToString(), dateMeta, firstDate, secondDate);
 
                 result = true;
             }

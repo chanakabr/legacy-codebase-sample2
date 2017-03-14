@@ -1431,7 +1431,6 @@ namespace Core.Catalog
                     }
                 }
             }
-
             else if (originalKey.StartsWith("metas."))
             {
                 var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
