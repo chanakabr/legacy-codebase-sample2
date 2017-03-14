@@ -13949,7 +13949,8 @@ namespace Core.ConditionalAccess
                 int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
 
                 // min quota threshold for skipping this process                
-                if (availibleQuota <= 60)
+                if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
+                    (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.StopAtQuota)))
                 {
                     log.DebugFormat("Not enough quota to complete series recordings for domainId = {0}", domainId);
                     return response;
@@ -14029,7 +14030,7 @@ namespace Core.ConditionalAccess
                     // calculate program length wit padding
                     programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
 
-                    if (programLengthSeconds < availibleQuota)
+                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue &&  tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
                     {
                         crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
                         epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
