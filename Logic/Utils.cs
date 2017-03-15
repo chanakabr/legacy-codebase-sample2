@@ -376,6 +376,11 @@ namespace APILogic
                 return ApiObjects.MetaType.String;
             }
 
+            if (metaDbName.StartsWith("date"))
+            {
+                return ApiObjects.MetaType.DateTime;
+            }
+
             return ApiObjects.MetaType.All;
         }
 
