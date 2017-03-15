@@ -4093,7 +4093,7 @@ namespace WS_API
             return null;
         }
 
-        [WebMethod]
+        [WebMethod]        
         public ApiObjects.CountryResponse GetCountryList(string sWSUserName, string sWSPassword, List<int> countryIds)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
@@ -4147,8 +4147,7 @@ namespace WS_API
         }
 
         [WebMethod]
-        public string GetFriendlyAssetLifeCycleRuleKsqlFilter(string sWSUserName, string sWSPassword, string tagType, List<string> tagValues,
-                                                    eCutType operand, string dateMeta, long dateValue)
+        public string GetFriendlyAssetLifeCycleRuleKsqlFilter(string sWSUserName, string sWSPassword, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
         {            
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
@@ -4162,6 +4161,7 @@ namespace WS_API
             }           
         }
 
+        [WebMethod]
         public ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, long id)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
