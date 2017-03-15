@@ -12625,8 +12625,8 @@ namespace Core.ConditionalAccess
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-
-                        if (quotaOverage) // if QuotaOverage then call delete recorded as needed       
+                        log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
+                        if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
                             // handel delete to overage quota    
                             ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration);
@@ -12647,6 +12647,8 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
+                        log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}", 
+                            recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
                 }
@@ -14030,7 +14032,7 @@ namespace Core.ConditionalAccess
                     // calculate program length wit padding
                     programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
 
-                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue &&  tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
+                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
                     {
                         crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
                         epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
@@ -14074,6 +14076,10 @@ namespace Core.ConditionalAccess
                         {
                             log.ErrorFormat("received extended search result without 'epg_id' for recording = {0}, for domainId = {1}", potentialRecording.AssetId, domainId);
                         }
+                    }
+                    else
+                    {
+                        log.DebugFormat("programLengthSeconds = {0}, availibleQuota = {1}", programLengthSeconds , availibleQuota );
                     }
                 }
             }
