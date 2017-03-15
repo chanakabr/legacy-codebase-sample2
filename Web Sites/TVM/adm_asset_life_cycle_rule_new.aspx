@@ -119,8 +119,7 @@
 								<tr>
 								    <td id="page_content" width=100% nowrap=nowrap>
 								    </td>
-								</tr>
-								<tr><td style="color: #3399ff; font-size: small;">* &nbsp;&nbsp; The discount can be composed of either a fixed numeric amount ('Fixed amount of' field) or a percentage of the full price ('Percentage of' field). <br />&nbsp;&nbsp;&nbsp;&nbsp; Please fill out one of the options above.</td></tr>
+								</tr>								
 							</table>
 						</td>
 					</tr>
