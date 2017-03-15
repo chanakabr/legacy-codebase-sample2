@@ -50,6 +50,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("ip_{0}", ip);
         }
 
+        public static string GetKeyForCountryName(string countryName)
+        {
+            return string.Format("countryName_{0}", countryName);
+        }
+
         public static string GetUserRolesKey(string userId)
         {
             return string.Format("roles_userId_{0}", userId);

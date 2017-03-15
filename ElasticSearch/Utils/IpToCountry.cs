@@ -259,5 +259,108 @@ namespace ElasticSearch.Utilities
             return country;
         }
 
+        public static Country GetCountryByCountryName(string countryName)
+        {
+            Country country = null;
+            try
+            {
+                if (string.IsNullOrEmpty(countryName))
+                {
+                    return country;
+                }
+
+                // Build query for getting country
+                FilteredQuery query = new FilteredQuery(true);
+
+                // basic initialization
+                query.PageIndex = 0;
+                query.PageSize = 1;
+                query.ReturnFields.Clear();
+                query.ReturnFields.AddRange(new List<string>() { { string.Format("\"{0}\"", "country_id") }, { string.Format("\"{0}\"", "name") }, { string.Format("\"{0}\"", "code") } });
+
+                QueryFilter filter = new QueryFilter();
+                FilterCompositeType composite = new FilterCompositeType(CutWith.AND);
+                ESTerm term = new ESTerm(false)
+                {
+                    Key = "name",
+                    Value = countryName.ToLower()
+                };
+
+                composite.AddChild(term);
+                filter.FilterSettings = composite;
+                query.Filter = filter;                
+                string searchQuery = query.ToString();
+
+                // Perform search
+                ElasticSearchApi api = new ElasticSearchApi();
+                string searchResult = api.Search("utils", "iptocountry", ref searchQuery);
+
+                // parse search reult to json object
+                var jsonObj = JObject.Parse(searchResult);
+
+                if (jsonObj != null)
+                {
+                    JToken tempToken;
+
+                    // check total items
+                    int totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
+
+                    if (totalItems > 0)
+                    {
+                        // get country from first (and hopefully only) result 
+                        JObject jObj = jsonObj.SelectToken("hits.hits").First().SelectToken("fields") as JObject;
+                        if (jObj != null && jObj.HasValues)
+                        {
+                            string name = string.Empty;
+                            string code = string.Empty;
+                            string countryId = string.Empty;
+                            int id;
+                            foreach (JProperty jProp in jObj.Properties())
+                            {
+                                if (jProp != null && jProp.HasValues)
+                                {
+                                    string key = jProp.Name;
+                                    JArray jArray = jProp.Value as JArray;
+                                    if (jArray != null && jArray.Count > 0)
+                                    {
+                                        string value = jArray[0].ToString();
+                                        if (!string.IsNullOrEmpty(key))
+                                        {
+                                            switch (key)
+                                            {
+                                                case "name":
+                                                    name = value;
+                                                    break;
+                                                case "country_id":
+                                                    countryId = value;
+                                                    break;
+                                                case "code":
+                                                    code = value;
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code) && int.TryParse(countryId, out id))
+                            {
+                                country = new Country() { Code = code, Id = id, Name = name };
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
+            }
+
+            return country;
+        }
+
     }
 }
