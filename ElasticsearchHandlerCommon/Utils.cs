@@ -974,7 +974,7 @@ namespace ElasticsearchTasksCommon
                                         string sMetaName;
                                         dMetas.TryGetValue(sMeta, out sMetaName);
 
-                                        if (!string.IsNullOrEmpty(sMetaName))
+                                        if (!string.IsNullOrEmpty(sMetaName) && !sMeta.StartsWith("date"))
                                         {
                                             string sMetaValue = ODBCWrapper.Utils.GetSafeStr(row[sMeta]);
                                             media.m_dMeatsValues.Add(sMetaName, sMetaValue);
