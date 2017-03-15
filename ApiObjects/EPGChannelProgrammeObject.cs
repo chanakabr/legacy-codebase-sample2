@@ -11,7 +11,7 @@ namespace ApiObjects
     {
         public string Key;
         public string Value;
-
+        public LanguageContainer[] Values;        
     }
 
     public enum EPGUnit
@@ -29,7 +29,9 @@ namespace ApiObjects
         public string EPG_CHANNEL_ID;
         public string EPG_IDENTIFIER;
         public string NAME;
+        public LanguageContainer[] ProgrammeName;
         public string DESCRIPTION;
+        public LanguageContainer[] ProgrammeDescription;
         public string START_DATE;
         public string END_DATE;
         public string PIC_URL;
@@ -59,7 +61,7 @@ namespace ApiObjects
         public int ENABLE_TRICK_PLAY;
 
         public string CRID;
-
+        
         public void Initialize(long nEPG_ID, string nEPG_CHANNEL_ID, string nEPG_IDENTIFIER, string nNAME, string nDESCRIPTION, string nSTART_DATE, string nEND_DATE, string nPIC_URL,
             string nSTATUS, string nIS_ACTIVE, string nGROUP_ID, string nUPDATER_ID, string nUPDATE_DATE, string nPUBLISH_DATE, string nCREATE_DATE, List<EPGDictionary> nEPG_TAGS,
             List<EPGDictionary> nEPG_META, string nmedia_id, int nLikeCounter)

@@ -3286,31 +3286,32 @@ namespace Core.Catalog
                 return epgsInformation;
             }
 
-            List<EPGChannelProgrammeObject> basicEpgObjects = null;
+            List<EPGChannelProgrammeObject> basicEpgObjects = null;            
 
-            bool shouldGetDefault = true;
-
+            Group group = GroupsCache.Instance().GetGroup(groupId); 
             LanguageObj language = null;
+            List<LanguageObj> languages = new List<LanguageObj>();
+            BaseEpgBL epgBL = null;
+
             if (filter != null)
             {
-                Group group = GroupsCache.Instance().GetGroup(groupId);
+                // Getting the language  from the filter request 
                 language = group.GetLanguage(filter.m_nLanguage);
 
-                if (language != null && !language.IsDefault)
-                {
-                    shouldGetDefault = false;
-                }
-            }
-
-            if (shouldGetDefault)
-            {
-                basicEpgObjects = GetEpgsByGroupAndIDs(groupId, epgIds.Select(id => (int)id).ToList());
+                // in case no language was found - return all groups' languages                
+                if (language == null)
+                    languages = group.GetLangauges();
+                else
+                    languages.Add(language);
             }
             else
             {
-                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
-                basicEpgObjects = epgBL.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), language.Code);
+                // in case no language was found - return all groups' languages                
+                languages = group.GetLangauges();
             }
+
+            epgBL = EpgBL.Utils.GetInstance(groupId);
+            basicEpgObjects = epgBL.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), languages);
 
             if (basicEpgObjects != null && basicEpgObjects.Count > 0)
             {

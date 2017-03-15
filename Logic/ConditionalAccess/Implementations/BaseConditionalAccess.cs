@@ -90,6 +90,7 @@ namespace Core.ConditionalAccess
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
         public const string USER_IP = "up";
+        public const string COUNTRY_CODE = "lcc";
         public const string COUPON_CODE = "cc";
         public const string DEVICE_NAME = "ldn";
         public const string DUMMY = "dummy";
@@ -12579,7 +12580,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public Recording Record(string userID, long epgID, RecordingType recordingType, long domainSeriesRecordingId = 0)
+        public Recording Record(string userID, long epgID, RecordingType recordingType, long domainSeriesRecordingId = 0, bool shouldCheckQuota = false)
         {
             Recording recording = new Recording() { EpgId = epgID };
             RecordingResponse recordingResponse = new RecordingResponse();
@@ -12588,7 +12589,7 @@ namespace Core.ConditionalAccess
                 long domainID = 0;
                 bool quotaOverage = false;
 
-                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true);
+                recordingResponse = QueryRecords(userID, new List<long>() { epgID }, ref domainID, recordingType, true, shouldCheckQuota);
                 if (recordingResponse.Status.Code != (int)eResponseStatus.OK || recordingResponse.TotalItems == 0)
                 {
                     log.DebugFormat("RecordingResponse status not valid, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
@@ -12625,8 +12626,8 @@ namespace Core.ConditionalAccess
                         && recording.Id > 0 && Utils.IsValidRecordingStatus(recording.RecordingStatus))
                     {
                         int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
-
-                        if (quotaOverage) // if QuotaOverage then call delete recorded as needed       
+                        log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
+                        if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
                             // handel delete to overage quota    
                             ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration);
@@ -12647,6 +12648,8 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
+                        log.DebugFormat("recording.Id = {0}, recording.Status = {1}, IsValidRecordingStatus ={2}", 
+                            recording != null ? recording.Id : 0, recording.Status != null ? recording.Status.Message.ToString() : "null", Utils.IsValidRecordingStatus(recording.RecordingStatus));
                         recording = new Recording() { Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingFailed, eResponseStatus.RecordingFailed.ToString()) };
                     }
                 }
@@ -12799,7 +12802,7 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup)
+        public RecordingResponse QueryRecords(string userID, List<long> epgIDs, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup, bool shouldCheckQuota = false)
         {
             RecordingResponse response = new RecordingResponse();
             try
@@ -12890,7 +12893,7 @@ namespace Core.ConditionalAccess
                 ValidateEpgForRecording(userID, domainID, ref response, epgs, validEpgsForRecording);
 
                 // if the recording is of type Single then quota should be checked for each valid recording
-                if (isSingleRecording)
+                if (isSingleRecording || shouldCheckQuota)
                 {
                     int totalSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID);
                     foreach (Recording recording in response.Recordings.Where(x => x.Status != null && x.Status.Code == (int)eResponseStatus.OK && x.RecordingStatus == TstvRecordingStatus.OK))
@@ -14030,7 +14033,7 @@ namespace Core.ConditionalAccess
                     // calculate program length wit padding
                     programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
 
-                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue &&  tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
+                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
                     {
                         crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
                         epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");
@@ -14050,7 +14053,7 @@ namespace Core.ConditionalAccess
 
                         if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0)
                         {
-                            var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId);
+                            var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId, true);
 
                             if (recording != null && recording.Status != null && recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0)
                             {
@@ -14074,6 +14077,10 @@ namespace Core.ConditionalAccess
                         {
                             log.ErrorFormat("received extended search result without 'epg_id' for recording = {0}, for domainId = {1}", potentialRecording.AssetId, domainId);
                         }
+                    }
+                    else
+                    {
+                        log.DebugFormat("programLengthSeconds = {0}, availibleQuota = {1}", programLengthSeconds , availibleQuota );
                     }
                 }
             }
@@ -14386,7 +14393,7 @@ namespace Core.ConditionalAccess
                     }
                     else if (!userRecordingCrids.Contains(globalRecording.Crid))
                     {
-                        Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season, domainSeriesRecordingId);
+                        Recording userRecording = Record(userId, globalRecording.EpgId, seasonNumber == 0 ? RecordingType.Series : RecordingType.Season, domainSeriesRecordingId, true);
                         userRecordingCrids.Add(globalRecording.Crid);
                         if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                         {
@@ -14942,12 +14949,12 @@ namespace Core.ConditionalAccess
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
                     RecordingType recordingType = seasonNumber > 0 ? RecordingType.Season : RecordingType.Series;
-                    if (domainId > 0 && userId > 0)// && QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId) >= recordingDuration)
+                    if (domainId > 0 && userId > 0)
                     {
                         HashSet<string> domainRecordedCrids = RecordingsDAL.GetDomainRecordingsCridsByDomainsSeriesIds(m_nGroupID, domainId, new List<long>() { domainSeriesRecordingId }, recording.Crid);
                         if (!domainRecordedCrids.Contains(recording.Crid))
                         {
-                            Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId);
+                            Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
                             if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                             {
                                 log.DebugFormat("successfully distributed recording for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, userRecording.Id);

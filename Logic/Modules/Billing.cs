@@ -251,7 +251,8 @@ namespace Core.Billing
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
             BaseCreditCard t = null;
-            Utils.GetBaseCreditCardImpl(ref t, nGroupID);
+            Utils.GetDummyCreditCardImpl(ref t, nGroupID);
+            
             if (t != null)
             {
                 return t.ChargeUser(sSiteGUID, dChargePrice, sCurrencyCode, sUserIP, sCustomData, nPaymentNumber, nNumberOfPayments, sExtraParameters);
