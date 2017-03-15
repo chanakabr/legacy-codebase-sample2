@@ -40,14 +40,13 @@ namespace WebAPI.Models.Catalog
         [XmlElement("metas", IsNullable = true)]
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
 
-        // TODO - restore this property after fixing multilinguality for EPG
-        ///// <summary>
-        ///// Dynamic collection of key-value pairs according to the Tag Types defined in the system
-        ///// </summary>
-        //[DataMember(Name = "tags")]
-        //[JsonProperty(PropertyName = "tags")]
-        //[XmlElement("tags", IsNullable = true)]
-        //public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
+        /// <summary>
+        /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
+        /// </summary>
+        [DataMember(Name = "tags")]
+        [JsonProperty(PropertyName = "tags")]
+        [XmlElement("tags", IsNullable = true)]
+        public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
@@ -113,33 +112,6 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public class KalturaProgramAsset : KalturaAsset
     {
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
-        /// </summary>
-        [DataMember(Name = "tags")]
-        [JsonProperty(PropertyName = "tags")]
-        [XmlElement("tags", IsNullable = true)]
-        public SerializableDictionary<string, KalturaStringValueArray> Tags { get; set; }
-
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Asset name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Asset description
-        /// </summary>
-        [DataMember(Name = "description")]
-        [JsonProperty(PropertyName = "description")]
-        [XmlElement(ElementName = "description")]
-        public string Description { get; set; }
-
         /// <summary>
         /// EPG channel identifier
         /// </summary>
@@ -187,33 +159,6 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     public class KalturaMediaAsset : KalturaAsset
     {
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
-        /// </summary>
-        [DataMember(Name = "tags")]
-        [JsonProperty(PropertyName = "tags")]
-        [XmlElement("tags", IsNullable = true)]
-        public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
-
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Asset name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public KalturaMultilingualString Name { get; set; }
-
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Asset description
-        /// </summary>
-        [DataMember(Name = "description")]
-        [JsonProperty(PropertyName = "description")]
-        [XmlElement(ElementName = "description")]
-        public KalturaMultilingualString Description { get; set; }
-
         /// <summary>
         /// External identifiers
         /// </summary>
