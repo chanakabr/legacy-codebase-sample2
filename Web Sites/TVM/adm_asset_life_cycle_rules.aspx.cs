@@ -64,7 +64,7 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_asset_life_cycle_rule_new.aspx", "Edit", "");
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_asset_life_cycle_rules_new.aspx", "Edit", "");
             linkColumn1.AddQueryStringValue("rule_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
