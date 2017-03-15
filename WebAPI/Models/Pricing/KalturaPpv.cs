@@ -50,7 +50,7 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// The internal discount module for the ppv
         /// </summary>
-        [DataMember(Name = "discountModules")]
+        [DataMember(Name = "discountModule")]
         [JsonProperty("discountModule")]
         [XmlElement(ElementName = "discountModule", IsNullable = true)]
         public KalturaDiscountModule DiscountModule { get; set; }
