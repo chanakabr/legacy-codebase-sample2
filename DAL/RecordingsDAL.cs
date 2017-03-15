@@ -1367,6 +1367,7 @@ namespace DAL
                     ulong version;
                     Couchbase.IO.ResponseStatus status;
                     DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
+                    log.DebugFormat("after GetWithVersion domainQuota: {0}, status:{1}", domainQuota != null ? domainQuota.ToString() : "null", status.ToString());
                     if (status == Couchbase.IO.ResponseStatus.Success)
                     {
                         int total = domainQuota.Total == 0 ? defaultQuota : domainQuota.Total;
