@@ -12,6 +12,7 @@ namespace ElasticSearch.Common
     {
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
+        protected static readonly string META_DATE_PREFIX = "date";
 
         public BaseESSeralizer()
         {
@@ -557,6 +558,11 @@ namespace ElasticSearch.Common
             {
                 sMetaType = eESFieldType.DOUBLE;
                 sNullValue = "0.0";
+            }
+            else if (sMeta.StartsWith(META_DATE_PREFIX))
+            {
+                sMetaType = eESFieldType.DATE;
+                //TODO: ask Sunny
             }
         }
 
