@@ -26,7 +26,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetMetaOrTagGroupBy : KalturaAssetGroupBy
     {
         /// <summary>
-        /// Meta or tag to group by
+        /// Group by a tag or meta - according to the name that appears in the system (similar to KSQL)
         /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Catalog
     public class KalturaAssetFieldGroupBy : KalturaAssetGroupBy
     {
         /// <summary>
-        /// Specific field to group by
+        /// Group by a specific field that is defined in enum
         /// </summary>
         [DataMember(Name = "value")]
         [JsonProperty(PropertyName = "value")]
