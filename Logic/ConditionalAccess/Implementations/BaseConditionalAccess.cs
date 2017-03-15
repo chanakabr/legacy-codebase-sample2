@@ -2532,7 +2532,7 @@ namespace Core.ConditionalAccess
         protected internal void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
-                string previousPurchaseCountryName = null = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
+                string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
         {
             if (subscription == null)
             {
