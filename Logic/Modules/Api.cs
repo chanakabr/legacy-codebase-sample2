@@ -1649,6 +1649,11 @@ namespace Core.Api
             return Core.Api.api.GetCountryByIp(groupId, ip);
         }
 
+        public static Country GetCountryByCountryName(int groupId, string countryName)
+        {
+            return Core.Api.api.GetCountryByCountryName(groupId, countryName);
+        }
+
         public static string GetLayeredCacheGroupConfig(int groupId)
         {
             return Core.Api.api.GetLayeredCacheGroupConfig(groupId);

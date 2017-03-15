@@ -95,6 +95,7 @@ namespace Core.ConditionalAccess
 
             string previousPurchaseCurrencyCode = string.Empty;
             string previousPurchaseCountryCode = string.Empty;
+            string previousPurchaseCountryName = string.Empty;
 
             #region Dummy
 
@@ -106,10 +107,11 @@ namespace Core.ConditionalAccess
                 {
                     XmlDocument doc = new XmlDocument();
                     doc.LoadXml(customData);
-                    XmlNode theRequest = doc.FirstChild;                    
-                    // previousPurchaseCurrencyCode and previousPurchaseCountryCode will be used later for getting the correct priceCodeData 
+                    XmlNode theRequest = doc.FirstChild;
+                    // previousPurchaseCurrencyCode, previousPurchaseCountryCode and previousPurchaseCountryName will be used later for getting the correct priceCodeData 
                     previousPurchaseCurrencyCode = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
-                    previousPurchaseCountryCode = XmlUtils.GetSafeValue(BaseConditionalAccess.COUNTRY_CODE, ref theRequest);
+                    previousPurchaseCountryName = XmlUtils.GetSafeValue(BaseConditionalAccess.COUNTRY_CODE, ref theRequest);
+                    previousPurchaseCountryCode = Utils.GetCountryCodeByCountryName(groupId, previousPurchaseCountryName);
                     bool isDummy = XmlUtils.IsNodeExists(ref theRequest, BaseConditionalAccess.DUMMY);
                     if (isDummy)
                     {
@@ -269,7 +271,7 @@ namespace Core.ConditionalAccess
             {
                 cas.GetMultiSubscriptionUsageModule(siteguid, userIp, (int)purchaseId, paymentNumber, totalNumOfPayments, numOfPayments, isPurchasedWithPreviewModule,
                         ref price, ref customData, ref currency, ref recPeriods, ref isMPPRecurringInfinitely, ref maxVLCOfSelectedUsageModule,
-                        ref couponCode, subscription, compensation, previousPurchaseCountryCode, previousPurchaseCountryCode);
+                        ref couponCode, subscription, compensation,previousPurchaseCountryName, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
             }
             catch (Exception ex)
             {

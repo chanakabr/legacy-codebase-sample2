@@ -2273,6 +2273,26 @@ namespace Core.Api
             return country;
         }
 
+        public static Country GetCountryByCountryName(int groupId, string countryName)
+        {
+            Country country = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetKeyForCountryName(countryName);
+                if (!LayeredCache.Instance.Get<Country>(key, ref country, APILogic.Utils.GetCountryByCountryNameFromES, new Dictionary<string, object>() { { "countryName", countryName } },
+                                                        groupId, LayeredCacheConfigNames.COUNTRY_BY_COUNTRY_NAME_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting country by countryName from LayeredCache, countryName: {0}, key: {1}", countryName, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed CountryName for countryName: {0}", countryName), ex);
+            }
+
+            return country;
+        }
+
         static public bool CheckGeoBlockMedia(Int32 groupId, Int32 mediaId, string ip, out string ruleName)
         {
             bool isBlocked = false;

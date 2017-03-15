@@ -2532,7 +2532,7 @@ namespace Core.ConditionalAccess
         protected internal void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
-                string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
+                string previousPurchaseCountryName = null = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
         {
             if (subscription == null)
             {
@@ -2551,9 +2551,16 @@ namespace Core.ConditionalAccess
                     {
                         PriceCode price = null;
                         DiscountModule externalDisount = null;
+                        log.DebugFormat("previousPurchaseCountryName: {0}, previousPurchaseCountryCode: {1}, previousPurchaseCurrencyCode: {2}",
+                                        !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryCode : string.Empty,
+                                        !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
+                                        !string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty);
                         if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
-                        {
+                        {                            
                             price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
+                            log.DebugFormat("after GetPriceCodeDataByCountyAndCurrency price is: {0}, currency is: {1}",
+                                                price != null && price.m_oPrise != null ? price.m_oPrise.m_dPrice.ToString() : string.Empty,
+                                                price != null && price.m_oPrise != null && price.m_oPrise.m_oCurrency != null ?  price.m_oPrise.m_oCurrency.m_sCurrencyCD3 : string.Empty);
                             if (AppUsageModule.m_ext_discount_id > 0)
                             {                                
                                 DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
@@ -2608,7 +2615,7 @@ namespace Core.ConditionalAccess
                         maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
                         customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
-                            siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
+                            siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
                             string.Empty, string.Empty, compensation);
                     }
                     catch (Exception ex)

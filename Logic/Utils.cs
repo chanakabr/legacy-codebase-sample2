@@ -512,6 +512,32 @@ namespace APILogic
             return new Tuple<ApiObjects.Country, bool>(country, res);
         }
 
+        internal static Tuple<ApiObjects.Country, bool> GetCountryByCountryNameFromES(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            ApiObjects.Country country = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("countryName"))
+                {
+                    string countryName = funcParams["countryName"].ToString();
+                    if (!string.IsNullOrEmpty(countryName))
+                    {
+                        country = ElasticSearch.Utilities.IpToCountry.GetCountryByCountryName(countryName);
+
+                        res = country != null;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetCountryByCountryNameFromES failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<ApiObjects.Country, bool>(country, res);
+        }
+
         internal static Tuple<List<ParentalRule>, bool> GetGroupParentalRules(Dictionary<string, object> funcParams)
         {
             bool res = false;
