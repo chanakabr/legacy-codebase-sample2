@@ -1,18 +1,17 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Epg;
+using DalCB;
+using KLogMonitor;
+using KlogMonitorHelper;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ApiObjects;
-using DalCB;
-using ApiObjects.Epg;
-using KLogMonitor;
-using System.Reflection;
-using KlogMonitorHelper;
-using TVinciShared;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using TVinciShared;
 
 namespace EpgBL
 {
@@ -345,10 +344,83 @@ namespace EpgBL
             }
         }
 
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> languages)
+        {
+            List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
+            List<EPGChannelProgrammeObject> resultForMultilingual = new List<EPGChannelProgrammeObject>();
+
+            try
+            {
+                string docID = string.Empty;
+                List<string> docIDs = new List<string>();
+                LanguageObj defaultLanguage = null;
+                List<EpgCB> cbEpgs = null;
+
+                if (languages != null && languages.Count > 0)
+                {
+                    // in case default Language is needed calling the default CB document with program Id
+                    defaultLanguage = languages.Where(x => x.IsDefault).FirstOrDefault();
+                    if (defaultLanguage != null)
+                    {
+                        foreach (ulong programId in programIDs)
+                        {
+                            docID = programId.ToString();
+                            docIDs.Add(docID);
+                        }
+
+                        cbEpgs = m_oEpgCouchbase.GetProgram(docIDs);
+                        result = ConvertEpgCBtoEpgProgramm(cbEpgs);
+
+                        // update all EPGChannelProgrammeObjects (name, description, tags, meta) with language details. 
+                        UpdateProgrammeWithMultilingual(ref result, defaultLanguage);
+                    }
+
+                    List<LanguageObj> noneDefaultLanguages = languages.Where(x => !x.IsDefault).ToList();
+                    if (noneDefaultLanguages != null)
+                    {
+                        foreach (var languageObj in noneDefaultLanguages)
+                        {
+                            docIDs = new List<string>();
+                            foreach (ulong programId in programIDs)
+                            {
+                                docID = string.Format("epg_{0}_lang_{1}", programId, languageObj.Code.ToLower());
+                                docIDs.Add(docID);
+                            }
+                            cbEpgs = m_oEpgCouchbase.GetProgram(docIDs);
+                            resultForMultilingual = ConvertEpgCBtoEpgProgramm(cbEpgs);
+
+                            // update all EPGChannelProgrammeObjects (name, description, tags, meta) with language details. 
+                            if (result == null || result.Count == 0)
+                            {
+                                UpdateProgrammeWithMultilingual(ref resultForMultilingual, languageObj);
+                                result = resultForMultilingual;
+                            }
+                            else
+                            {
+                                UpdateProgrammeWithMultilingual(ref result, languageObj, resultForMultilingual);
+                            }
+                        }
+                    }
+                }
+
+                // get picture sizes from DB
+                List<Ratio> epgRatios = new List<Ratio>();
+                Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
+
+                MutateFullEpgPicURL(result, pictures, m_nGroupID);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed to get EPGs from CB with lang = {0}, Exception: {1}", languages != null && languages.Count > 0 ? string.Join(",", languages) : string.Empty, ex);
+            }
+
+            return result;
+        }
+
         public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language)
         {
             List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
-            
+
             try
             {
                 string docID = string.Empty;
@@ -960,7 +1032,7 @@ namespace EpgBL
             int nUPDATER_ID = 0;                      //not in use
             DateTime nPUBLISH_DATE = DateTime.UtcNow; //not in use  
             oProg.Initialize((long)epg.EpgID, epg.ChannelID.ToString(), epg.EpgIdentifier, epg.Name, epg.Description, epg.StartDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.EndDate.ToString("dd/MM/yyyy HH:mm:ss"), epg.PicUrl, epg.Status.ToString(),
-                epg.isActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString(), epg.CreateDate.ToString(), lTags, lMetas, 
+                epg.isActive.ToString(), epg.GroupID.ToString(), nUPDATER_ID.ToString(), epg.UpdateDate.ToString(), nPUBLISH_DATE.ToString(), epg.CreateDate.ToString(), lTags, lMetas,
                 epg.ExtraData.MediaID.ToString(), (int)epg.Statistics.Likes, epg.pictures, epg.EnableCDVR, epg.EnableCatchUp, epg.EnableStartOver, epg.EnableTrickPlay, epg.Crid);
             oProg.PIC_ID = epg.PicID;
             return oProg;
@@ -981,6 +1053,90 @@ namespace EpgBL
 
 
         #endregion
+
+        private void UpdateProgrammeWithMultilingual(ref List<EPGChannelProgrammeObject> result, LanguageObj languageObj, List<EPGChannelProgrammeObject> resultForMultilingual)
+        {
+            EPGChannelProgrammeObject multilingualProgrammeObject = null;
+            EPGDictionary multilingualEpgDictionary;
+            EPGDictionary epgDictionary;
+            int epgIndex = 0;
+
+            if (resultForMultilingual != null && resultForMultilingual.Count > 0)
+            {
+                foreach (var programmeObject in result)
+                {
+                    // find epg_id at resultForMultilingual2
+                    multilingualProgrammeObject = resultForMultilingual.Where(x => x.EPG_ID == programmeObject.EPG_ID).First();
+                    if (multilingualProgrammeObject != null)
+                    {
+                        programmeObject.ProgrammeName = SetLanguageContainer(programmeObject.ProgrammeName, languageObj, multilingualProgrammeObject.NAME);
+                        programmeObject.ProgrammeDescription = SetLanguageContainer(programmeObject.ProgrammeDescription, languageObj, multilingualProgrammeObject.DESCRIPTION);
+
+                        if (programmeObject.EPG_TAGS.Count == multilingualProgrammeObject.EPG_TAGS.Count)
+                        {
+                            for (epgIndex = 0; epgIndex < programmeObject.EPG_TAGS.Count; epgIndex++)
+                            {
+                                epgDictionary = programmeObject.EPG_TAGS[epgIndex];
+                                multilingualEpgDictionary = multilingualProgrammeObject.EPG_TAGS[epgIndex];
+                                epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, multilingualEpgDictionary.Value);
+                                programmeObject.EPG_TAGS[epgIndex] = epgDictionary;
+                            }
+                        }
+
+                        if (programmeObject.EPG_Meta.Count == multilingualProgrammeObject.EPG_Meta.Count)
+                        {
+                            for (epgIndex = 0; epgIndex < programmeObject.EPG_Meta.Count; epgIndex++)
+                            {
+                                epgDictionary = programmeObject.EPG_Meta[epgIndex];
+                                multilingualEpgDictionary = multilingualProgrammeObject.EPG_Meta[epgIndex];
+                                epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, multilingualEpgDictionary.Value);
+                                programmeObject.EPG_Meta[epgIndex] = epgDictionary;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void UpdateProgrammeWithMultilingual(ref List<EPGChannelProgrammeObject> result, LanguageObj languageObj)
+        {
+            EPGDictionary epgDictionary;
+            int epgIndex = 0;
+
+            foreach (var programmeObject in result)
+            {
+                programmeObject.ProgrammeName = SetLanguageContainer(programmeObject.ProgrammeName, languageObj, programmeObject.NAME);
+                programmeObject.ProgrammeDescription = SetLanguageContainer(programmeObject.ProgrammeDescription, languageObj, programmeObject.DESCRIPTION);
+
+                for (epgIndex = 0; epgIndex < programmeObject.EPG_TAGS.Count; epgIndex++)
+                {
+                    epgDictionary = programmeObject.EPG_TAGS[epgIndex];
+                    epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, epgDictionary.Value);
+                    programmeObject.EPG_TAGS[epgIndex] = epgDictionary;
+                }
+
+                for (epgIndex = 0; epgIndex < programmeObject.EPG_Meta.Count; epgIndex++)
+                {
+                    epgDictionary = programmeObject.EPG_Meta[epgIndex];
+                    epgDictionary.Values = SetLanguageContainer(epgDictionary.Values, languageObj, epgDictionary.Value);
+                    programmeObject.EPG_Meta[epgIndex] = epgDictionary;
+                }
+            }
+        }
+
+        private LanguageContainer[] SetLanguageContainer(LanguageContainer[] sourceLanguageContainer, LanguageObj languageObj, string value)
+        {
+            List<LanguageContainer> langContainers = new List<LanguageContainer>();
+
+            if (sourceLanguageContainer == null)
+                langContainers = new List<LanguageContainer>();
+            else
+                langContainers = sourceLanguageContainer.Cast<LanguageContainer>().ToList();
+
+            langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = languageObj.Code, m_sValue = value });
+
+            return langContainers.ToArray();
+        }
 
         #region Not Implement
 

@@ -1,16 +1,14 @@
-﻿using System;
+﻿using ApiObjects;
+using KLogMonitor;
+using KlogMonitorHelper;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
-using ApiObjects;
-using KLogMonitor;
-using KlogMonitorHelper;
 
 namespace EpgBL
 {
@@ -746,6 +744,11 @@ namespace EpgBL
         #endregion
 
         public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language)
+        {
+            return new List<EPGChannelProgrammeObject>();
+        }
+
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> language)       
         {
             return new List<EPGChannelProgrammeObject>();
         }
