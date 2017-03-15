@@ -439,21 +439,24 @@ namespace Core.Catalog
                     DateTime? endDate = null;
                     string ppbMoudleName = string.Empty;
 
-                    for (int index = 0; index < mediaFilePPVModulesTable.Rows.Count; index++)
+                    if (mediaFilePPVModulesTable != null)
                     {
-                        mediaFileId = Utils.GetIntSafeVal(mediaFilePPVModulesTable.Rows[index], "MEDIA_FILE_ID");
-                        name = Utils.GetStrSafeVal(mediaFilePPVModulesTable.Rows[index], "NAME");
-                        startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "START_DATE");
-                        endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "END_DATE");
-
-                        ppbMoudleName = BuildPPVMoudleName(name, startDate, endDate);
-
-                        if (!dicMediaFilePPVModules.ContainsKey(mediaFileId))
+                        for (int index = 0; index < mediaFilePPVModulesTable.Rows.Count; index++)
                         {
-                            dicMediaFilePPVModules.Add(mediaFileId, new List<string>());
-                        }
+                            mediaFileId = Utils.GetIntSafeVal(mediaFilePPVModulesTable.Rows[index], "MEDIA_FILE_ID");
+                            name = Utils.GetStrSafeVal(mediaFilePPVModulesTable.Rows[index], "NAME");
+                            startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "START_DATE");
+                            endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "END_DATE");
 
-                        dicMediaFilePPVModules[mediaFileId].Add(ppbMoudleName);
+                            ppbMoudleName = BuildPPVMoudleName(name, startDate, endDate);
+
+                            if (!dicMediaFilePPVModules.ContainsKey(mediaFileId))
+                            {
+                                dicMediaFilePPVModules.Add(mediaFileId, new List<string>());
+                            }
+
+                            dicMediaFilePPVModules[mediaFileId].Add(ppbMoudleName);
+                        }
                     }
                 }
             }
