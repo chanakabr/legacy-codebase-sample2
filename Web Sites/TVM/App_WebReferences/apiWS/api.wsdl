@@ -1,9 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" xmlns:s3="http://api.tvinci.com/AbstractTypes" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://api.tvinci.com/" xmlns:s1="http://api.tvinci.com/schemas/eAssetTypes1" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:s2="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://api.tvinci.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/">
       <s:import namespace="http://api.tvinci.com/schemas/eAssetTypes1" />
       <s:import namespace="http://api.tvinci.com/schemas/EPGChannelProgrammeObject1" />
+      <s:element name="AddBulkExportTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
+            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eBulkExportDataType">
+        <s:restriction base="s:string">
+          <s:enumeration value="VOD" />
+          <s:enumeration value="EPG" />
+          <s:enumeration value="Users" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="eBulkExportExportType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Full" />
+          <s:enumeration value="Incremental" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AddBulkExportTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="BulkExportTaskResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Task" type="tns:BulkExportTask" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BulkExportTask">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="ExternalKey" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="DataType" type="tns:eBulkExportDataType" />
+          <s:element minOccurs="0" maxOccurs="1" name="Filter" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ExportType" type="tns:eBulkExportExportType" />
+          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Status">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateBulkExportTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
+            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
+            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="1" maxOccurs="1" name="isActive" nillable="true" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateBulkExportTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="DeleteBulkExportTask">
         <s:complexType>
           <s:sequence>
@@ -21,12 +117,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="Status">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Code" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Message" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetBulkExportTasks">
         <s:complexType>
           <s:sequence>
@@ -70,41 +160,6 @@
       <s:complexType name="ArrayOfBulkExportTask">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="BulkExportTask" nillable="true" type="tns:BulkExportTask" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="BulkExportTask">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="ExternalKey" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="DataType" type="tns:eBulkExportDataType" />
-          <s:element minOccurs="0" maxOccurs="1" name="Filter" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="ExportType" type="tns:eBulkExportExportType" />
-          <s:element minOccurs="1" maxOccurs="1" name="Frequency" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="Version" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="InProcess" type="s:boolean" />
-          <s:element minOccurs="1" maxOccurs="1" name="LastProcess" nillable="true" type="s:dateTime" />
-          <s:element minOccurs="0" maxOccurs="1" name="VodTypes" type="tns:ArrayOfInt" />
-          <s:element minOccurs="0" maxOccurs="1" name="NotificationUrl" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
-        </s:sequence>
-      </s:complexType>
-      <s:simpleType name="eBulkExportDataType">
-        <s:restriction base="s:string">
-          <s:enumeration value="VOD" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="Users" />
-        </s:restriction>
-      </s:simpleType>
-      <s:simpleType name="eBulkExportExportType">
-        <s:restriction base="s:string">
-          <s:enumeration value="Full" />
-          <s:enumeration value="Incremental" />
-        </s:restriction>
-      </s:simpleType>
-      <s:complexType name="ArrayOfInt">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:element name="Export">
@@ -706,12 +761,26 @@
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionPeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ProtectionQuotaPercentage" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="RecordingLifetimePeriod" nillable="true" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeroid" nillable="true" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="CleanupNoticePeriod" nillable="true" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsSeriesRecordingEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonEntitledChannelEnabled" nillable="true" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="IsRecordingPlaybackNonExistingChannelEnabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="QuotaOveragePolicy" nillable="true" type="tns:QuotaOveragePolicy" />
+          <s:element minOccurs="1" maxOccurs="1" name="ProtectionPolicy" nillable="true" type="tns:ProtectionPolicy" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="QuotaOveragePolicy">
+        <s:restriction base="s:string">
+          <s:enumeration value="StopAtQuota" />
+          <s:enumeration value="QuotaOverage" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="ProtectionPolicy">
+        <s:restriction base="s:string">
+          <s:enumeration value="UnlimitedByRecordingLifetime" />
+          <s:enumeration value="LimitedByRecordingLifetime" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="UpdateTimeShiftedTvPartnerSettings">
         <s:complexType>
           <s:sequence>
@@ -984,6 +1053,8 @@
           <s:enumeration value="recordingsScheduledTasks" />
           <s:enumeration value="recordingsCleanup" />
           <s:enumeration value="notificationCleanup" />
+          <s:enumeration value="reminderCleanup" />
+          <s:enumeration value="assetLifeCycleRuleScheduledTasks" />
         </s:restriction>
       </s:simpleType>
       <s:element name="GetScheduledTaskLastRunResponse">
@@ -1023,6 +1094,279 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetDeviceFamilyList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeviceFamilyListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDeviceFamilyListResult" type="tns:DeviceFamilyResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeviceFamilyResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceFamilies" type="tns:ArrayOfDeviceFamily" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalItems" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDeviceFamily">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DeviceFamily" nillable="true" type="tns:DeviceFamily" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DeviceFamily">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetDeviceBrandList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetDeviceBrandListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetDeviceBrandListResult" type="tns:DeviceBrandResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="DeviceBrandResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="DeviceBrands" type="tns:ArrayOfDeviceBrand" />
+          <s:element minOccurs="1" maxOccurs="1" name="TotalItems" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDeviceBrand">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DeviceBrand" nillable="true" type="tns:DeviceBrand" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DeviceBrand">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="DeviceFamilyId" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetCountryList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="countryIds" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountryListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCountryListResult" type="tns:CountryResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="CountryResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Countries" type="tns:ArrayOfCountry" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfCountry">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Country" nillable="true" type="tns:Country" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Country">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetGroupMetaList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="assetType" type="s1:eAssetTypes" />
+            <s:element minOccurs="1" maxOccurs="1" name="metaType" type="tns:MetaType" />
+            <s:element minOccurs="1" maxOccurs="1" name="fieldNameEqual" type="tns:MetaFieldName" />
+            <s:element minOccurs="1" maxOccurs="1" name="fieldNameNotEqual" type="tns:MetaFieldName" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="MetaType">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="String" />
+          <s:enumeration value="Number" />
+          <s:enumeration value="Bool" />
+          <s:enumeration value="Tag" />
+          <s:enumeration value="DateTime" />
+        </s:restriction>
+      </s:simpleType>
+      <s:simpleType name="MetaFieldName">
+        <s:restriction base="s:string">
+          <s:enumeration value="All" />
+          <s:enumeration value="None" />
+          <s:enumeration value="SeriesId" />
+          <s:enumeration value="SeasonNumber" />
+          <s:enumeration value="EpisodeNumber" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetGroupMetaListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetGroupMetaListResult" type="tns:MetaResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MetaResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="MetaList" type="tns:ArrayOfMeta" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMeta">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Meta" nillable="true" type="tns:Meta" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Meta">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="FieldName" type="tns:MetaFieldName" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:MetaType" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="DoActionRules">
+        <s:complexType />
+      </s:element>
+      <s:element name="DoActionRulesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoActionRulesResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoActionByRuleIds">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="ruleIds" type="tns:ArrayOfLong" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DoActionByRuleIdsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="DoActionByRuleIdsResult" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="tagType" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="tagValues" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="operand" type="tns:eCutType" />
+            <s:element minOccurs="0" maxOccurs="1" name="dateMeta" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="dateValue" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="eCutType">
+        <s:restriction base="s:string">
+          <s:enumeration value="And" />
+          <s:enumeration value="Or" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetFriendlyAssetLifeCycleRuleKsqlFilterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFriendlyAssetLifeCycleRuleKsqlFilterResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFriendlyAssetLifeCycleRule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFriendlyAssetLifeCycleRuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFriendlyAssetLifeCycleRuleResult" type="tns:FriendlyAssetLifeCycleRule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="FriendlyAssetLifeCycleRule">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AssetLifeCycleRule">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="FilterTagTypeName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="FilterTagValues" type="tns:ArrayOfString" />
+              <s:element minOccurs="1" maxOccurs="1" name="FilterTagOperand" type="tns:eCutType" />
+              <s:element minOccurs="0" maxOccurs="1" name="MetaDateName" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="MetaDateValueInSeconds" type="s:long" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AssetLifeCycleRule">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:long" />
+          <s:element minOccurs="1" maxOccurs="1" name="GroupId" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Description" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="KsqlFilter" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="TransitionIntervalUnits" type="tns:AssetLifeCycleRuleTransitionIntervalUnits" />
+          <s:element minOccurs="0" maxOccurs="1" name="Actions" type="tns:LifeCycleTransitions" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="AssetLifeCycleRuleTransitionIntervalUnits">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="Days" />
+          <s:enumeration value="Hours" />
+          <s:enumeration value="Minutes" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="LifeCycleTransitions">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="TagIdsToAdd" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="TagIdsToRemove" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="FileTypesAndPpvsToAdd" type="tns:LifeCycleFileTypesAndPpvsTransitions" />
+          <s:element minOccurs="0" maxOccurs="1" name="FileTypesAndPpvsToRemove" type="tns:LifeCycleFileTypesAndPpvsTransitions" />
+          <s:element minOccurs="1" maxOccurs="1" name="GeoBlockRuleToSet" nillable="true" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="LifeCycleFileTypesAndPpvsTransitions">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="FileTypeIds" type="tns:ArrayOfInt" />
+          <s:element minOccurs="0" maxOccurs="1" name="PpvIds" type="tns:ArrayOfInt" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -1222,6 +1566,54 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="MetaBoolObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseCacheObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_bMetaValue" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="MetaDoubleObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseCacheObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_dMetaValue" type="s:double" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_oDoubleRange" type="tns:DoubleRange" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DoubleRange">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="m_dMin" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dMax" type="s:double" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MetaStrObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseCacheObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaValue" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="MetaM2MObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseCacheObject">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaValues" type="tns:ArrayOfString" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nMetaID" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="MediaInfoObject">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseCacheObject">
@@ -1243,68 +1635,20 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="MetaM2MObject" nillable="true" type="tns:MetaM2MObject" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="MetaM2MObject">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseCacheObject">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaValues" type="tns:ArrayOfString" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nMetaID" type="s:int" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ArrayOfMetaStrObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="MetaStrObject" nillable="true" type="tns:MetaStrObject" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="MetaStrObject">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseCacheObject">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaValue" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:complexType name="ArrayOfMetaDoubleObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="MetaDoubleObject" nillable="true" type="tns:MetaDoubleObject" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="MetaDoubleObject">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseCacheObject">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_dMetaValue" type="s:double" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_oDoubleRange" type="tns:DoubleRange" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="DoubleRange">
-        <s:sequence>
-          <s:element minOccurs="1" maxOccurs="1" name="m_dMin" type="s:double" />
-          <s:element minOccurs="1" maxOccurs="1" name="m_dMax" type="s:double" />
-        </s:sequence>
-      </s:complexType>
       <s:complexType name="ArrayOfMetaBoolObject">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="MetaBoolObject" nillable="true" type="tns:MetaBoolObject" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="MetaBoolObject">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseCacheObject">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMetaName" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_bMetaValue" type="s:boolean" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:complexType name="MediaFileObject">
         <s:complexContent mixed="false">
@@ -2028,21 +2372,11 @@
       </s:complexType>
       <s:complexType name="BaseObject">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
           <s:element minOccurs="0" maxOccurs="1" name="AssetId" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="tns:eAssetTypes" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dUpdateDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ExtensionDataObject" />
-      <s:simpleType name="eAssetTypes">
-        <s:restriction base="s:string">
-          <s:enumeration value="UNKNOWN" />
-          <s:enumeration value="EPG" />
-          <s:enumeration value="NPVR" />
-          <s:enumeration value="MEDIA" />
-        </s:restriction>
-      </s:simpleType>
       <s:element name="SearchAssets">
         <s:complexType>
           <s:sequence>
@@ -2399,8 +2733,65 @@
           <s:enumeration value="PreviewModuleCancelOrRefund" />
           <s:enumeration value="PurchaseWithPreviewModule" />
           <s:enumeration value="AddDeviceToDomain" />
+          <s:enumeration value="RemoveDomain" />
+          <s:enumeration value="PurchaseWithGiftCard" />
+          <s:enumeration value="GiftCardRenewReminder" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="AddUserMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangedPinMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ForgotPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2419,6 +2810,69 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
             </s:sequence>
           </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PurchaseWithPreviewModuleRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
       <s:complexType name="EmailNotificationRequest">
@@ -2450,123 +2904,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddUserMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ForgotPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTransactionNumber" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPaymentMethod" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxVal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxSubtotal" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTaxAmount" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sInvoiceNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sExternalTransationNum" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sAddress" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUserEmail" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseWithPreviewModuleRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPreviewModuleEndDate" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
@@ -2665,12 +3002,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_MediaTypes" type="tns:ArrayOfInt" />
         </s:sequence>
       </s:complexType>
-      <s:simpleType name="eCutType">
-        <s:restriction base="s:string">
-          <s:enumeration value="And" />
-          <s:enumeration value="Or" />
-        </s:restriction>
-      </s:simpleType>
       <s:element name="GetAutoCompleteListResponse">
         <s:complexType>
           <s:sequence>
@@ -3229,69 +3560,10 @@
       <s:element name="GetProgramDetailsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetProgramDetailsResult" type="tns:EPGChannelProgrammeObject" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetProgramDetailsResult" type="s2:EPGChannelProgrammeObject" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="EPGChannelProgrammeObject">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
-          <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="CREATE_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="CRID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_START_OVER" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="ENABLE_TRICK_PLAY" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="EPG_ID" type="s:long" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="tns:ArrayOfEpgPicture" />
-          <s:element minOccurs="0" maxOccurs="1" name="EPG_TAGS" type="tns:ArrayOfEPGDictionary" />
-          <s:element minOccurs="0" maxOccurs="1" name="GROUP_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="IS_ACTIVE" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="LIKE_COUNTER" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
-          <s:element minOccurs="1" maxOccurs="1" name="PIC_ID" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="PUBLISH_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="STATUS" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATER_ID" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="UPDATE_DATE" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="tns:EPGDictionary" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EPGDictionary">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
-          <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfEpgPicture">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="EpgPicture" nillable="true" type="tns:EpgPicture" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="EpgPicture">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="ExtensionData" type="tns:ExtensionDataObject" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicHeight" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
-          <s:element minOccurs="1" maxOccurs="1" name="PicWidth" type="s:int" />
-          <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
-        </s:sequence>
-      </s:complexType>
       <s:element name="GetMediaConcurrencyRules">
         <s:complexType>
           <s:sequence>
@@ -3329,8 +3601,10 @@
           <s:element minOccurs="1" maxOccurs="1" name="TagTypeID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="TagType" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="AllTagValues" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="TagValues" type="tns:ArrayOfInt" />
           <s:element minOccurs="1" maxOccurs="1" name="bmId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="IsActive" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:eBusinessModule" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetRegions">
@@ -3446,6 +3720,8 @@
           <s:element minOccurs="0" maxOccurs="1" name="epgTagValues" type="tns:ArrayOfString" />
           <s:element minOccurs="1" maxOccurs="1" name="isDefault" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="level" type="tns:eRuleLevel" />
+          <s:element minOccurs="0" maxOccurs="1" name="mediaTagType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="epgTagType" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eParentalRuleType">
@@ -4071,14 +4347,30 @@
       <s:complexType name="OSSAdapterResponseList">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-          <s:element minOccurs="0" maxOccurs="1" name="OSSAdapters" type="tns:ArrayOfOSSAdapterBase" />
+          <s:element minOccurs="0" maxOccurs="1" name="OSSAdapters" type="tns:ArrayOfOSSAdapter" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ArrayOfOSSAdapterBase">
+      <s:complexType name="ArrayOfOSSAdapter">
         <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapterBase" nillable="true" type="tns:OSSAdapterBase" />
+          <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapter" nillable="true" type="tns:OSSAdapter" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetOSSAdapterProfile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="ossAdapterId" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetOSSAdapterProfileResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetOSSAdapterProfileResult" type="tns:OSSAdapterResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="InsertOSSAdapterSettings">
         <s:complexType>
           <s:sequence>
@@ -4149,11 +4441,6 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
           <s:element minOccurs="0" maxOccurs="1" name="OSSAdapters" type="tns:ArrayOfOSSAdapter" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="ArrayOfOSSAdapter">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="OSSAdapter" nillable="true" type="tns:OSSAdapter" />
         </s:sequence>
       </s:complexType>
       <s:element name="GetUserBillingDetails">
@@ -4347,6 +4634,21 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="RecommendationEngine" nillable="true" type="tns:RecommendationEngine" />
         </s:sequence>
       </s:complexType>
+      <s:element name="ListRecommendationEngines">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ListRecommendationEnginesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ListRecommendationEnginesResult" type="tns:RecommendationEnginesResponseList" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="InsertRecommendationEngineSettings">
         <s:complexType>
           <s:sequence>
@@ -4563,104 +4865,21 @@
           <s:element minOccurs="0" maxOccurs="unbounded" name="ExternalChannel" nillable="true" type="tns:ExternalChannel" />
         </s:sequence>
       </s:complexType>
-      <s:element name="AddBulkExportTask">
+      <s:element name="ListExternalChannels">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
-            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
-            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
-            <s:element minOccurs="1" maxOccurs="1" name="isActive" type="s:boolean" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="AddBulkExportTaskResponse">
+      <s:element name="ListExternalChannelsResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="AddBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
+            <s:element minOccurs="0" maxOccurs="1" name="ListExternalChannelsResult" type="tns:ExternalChannelResponseList" />
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:complexType name="BulkExportTaskResponse">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="Task" type="tns:BulkExportTask" />
-          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
-        </s:sequence>
-      </s:complexType>
-      <s:element name="UpdateBulkExportTask">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="id" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="externalKey" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="dataType" type="tns:eBulkExportDataType" />
-            <s:element minOccurs="0" maxOccurs="1" name="filter" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="exportType" type="tns:eBulkExportExportType" />
-            <s:element minOccurs="1" maxOccurs="1" name="frequency" type="s:long" />
-            <s:element minOccurs="0" maxOccurs="1" name="notificationUrl" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="vodTypes" type="tns:ArrayOfInt" />
-            <s:element minOccurs="1" maxOccurs="1" name="isActive" nillable="true" type="s:boolean" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="UpdateBulkExportTaskResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="UpdateBulkExportTaskResult" type="tns:BulkExportTaskResponse" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="Status" nillable="true" type="tns:Status" />
-      <s:element name="boolean" type="s:boolean" />
-      <s:element name="KSQLChannelResponse" nillable="true" type="tns:KSQLChannelResponse" />
-      <s:element name="KSQLChannelResponseList" nillable="true" type="tns:KSQLChannelResponseList" />
-      <s:element name="OSSAdapterEntitlementsResponse" nillable="true" type="tns:OSSAdapterEntitlementsResponse" />
-      <s:element name="RegistryResponse" nillable="true" type="tns:RegistryResponse" />
-      <s:element name="int" type="s:int" />
-      <s:element name="TimeShiftedTvPartnerSettingsResponse" nillable="true" type="tns:TimeShiftedTvPartnerSettingsResponse" />
-      <s:element name="CDNAdapterListResponse" nillable="true" type="tns:CDNAdapterListResponse" />
-      <s:element name="CDNAdapterResponse" nillable="true" type="tns:CDNAdapterResponse" />
-      <s:element name="CDNPartnerSettingsResponse" nillable="true" type="tns:CDNPartnerSettingsResponse" />
-      <s:element name="ScheduledTaskLastRunDetails" nillable="true" type="tns:ScheduledTaskLastRunDetails" />
-      <s:element name="ArrayOfEPGChannelObject" nillable="true" type="tns:ArrayOfEPGChannelObject" />
-      <s:element name="AdminAccountUserResponse" nillable="true" type="tns:AdminAccountUserResponse" />
-      <s:element name="string" nillable="true" type="s:string" />
-      <s:element name="ArrayOfInt" nillable="true" type="tns:ArrayOfInt" />
-      <s:element name="ArrayOfUnifiedSearchResult" nillable="true" type="tns:ArrayOfUnifiedSearchResult" />
-      <s:element name="ArrayOfFileTypeContainer" nillable="true" type="tns:ArrayOfFileTypeContainer" />
-      <s:element name="ArrayOfMeidaMaper" nillable="true" type="tns:ArrayOfMeidaMaper" />
-      <s:element name="ArrayOfGroupInfo" nillable="true" type="tns:ArrayOfGroupInfo" />
-      <s:element name="ArrayOfString" nillable="true" type="tns:ArrayOfString" />
-      <s:element name="MediaMarkObject" nillable="true" type="tns:MediaMarkObject" />
-      <s:element name="RateMediaObject" nillable="true" type="tns:RateMediaObject" />
-      <s:element name="ArrayOfGroupRule" nillable="true" type="tns:ArrayOfGroupRule" />
-      <s:element name="ArrayOfGroupOperator" nillable="true" type="tns:ArrayOfGroupOperator" />
-      <s:element name="DeviceAvailabiltyRule" nillable="true" type="tns:DeviceAvailabiltyRule" />
-      <s:element name="Scheduling" nillable="true" type="tns:Scheduling" />
-      <s:element name="EPGChannelProgrammeObject" nillable="true" type="tns:EPGChannelProgrammeObject" />
-      <s:element name="ArrayOfMediaConcurrencyRule" nillable="true" type="tns:ArrayOfMediaConcurrencyRule" />
-      <s:element name="ArrayOfLanguageObj" nillable="true" type="tns:ArrayOfLanguageObj" />
-      <s:element name="ParentalRulesResponse" nillable="true" type="tns:ParentalRulesResponse" />
-      <s:element name="PurchaseSettingsResponse" nillable="true" type="tns:PurchaseSettingsResponse" />
-      <s:element name="GenericRuleResponse" nillable="true" type="tns:GenericRuleResponse" />
-      <s:element name="ParentalRulesTagsResponse" nillable="true" type="tns:ParentalRulesTagsResponse" />
-      <s:element name="StatusErrorCodesResponse" nillable="true" type="tns:StatusErrorCodesResponse" />
-      <s:element name="OSSAdapterResponseList" nillable="true" type="tns:OSSAdapterResponseList" />
-      <s:element name="OSSAdapterSettingsResponse" nillable="true" type="tns:OSSAdapterSettingsResponse" />
-      <s:element name="OSSAdapterBillingDetailsResponse" nillable="true" type="tns:OSSAdapterBillingDetailsResponse" />
-      <s:element name="OSSAdapterResponse" nillable="true" type="tns:OSSAdapterResponse" />
-      <s:element name="RecommendationEnginesResponseList" nillable="true" type="tns:RecommendationEnginesResponseList" />
-      <s:element name="RecommendationEngineSettinsResponse" nillable="true" type="tns:RecommendationEngineSettinsResponse" />
-      <s:element name="RecommendationEngineResponse" nillable="true" type="tns:RecommendationEngineResponse" />
-      <s:element name="ExternalChannelResponseList" nillable="true" type="tns:ExternalChannelResponseList" />
     </s:schema>
     <s:schema elementFormDefault="qualified" targetNamespace="http://api.tvinci.com/schemas/eAssetTypes1">
       <s:simpleType name="eAssetTypes">
@@ -4696,6 +4915,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="EPG_Meta" type="s2:ArrayOfEPGDictionary" />
           <s:element minOccurs="0" maxOccurs="1" name="EPG_PICTURES" type="s2:ArrayOfEpgPicture" />
           <s:element minOccurs="0" maxOccurs="1" name="media_id" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="LINEAR_MEDIA_ID" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CDVR" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="ENABLE_CATCH_UP" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="CHANNEL_CATCH_UP_BUFFER" type="s:long" />
@@ -4727,22 +4947,24 @@
           <s:element minOccurs="0" maxOccurs="1" name="Ratio" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="PicID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="Url" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Id" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Version" type="s:int" />
         </s:sequence>
       </s:complexType>
     </s:schema>
-    <s:schema targetNamespace="http://api.tvinci.com/AbstractTypes">
-      <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
-      <s:complexType name="StringArray">
-        <s:complexContent mixed="false">
-          <s:restriction base="soapenc:Array">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="unbounded" name="String" type="s:string" />
-            </s:sequence>
-          </s:restriction>
-        </s:complexContent>
-      </s:complexType>
-    </s:schema>
   </wsdl:types>
+  <wsdl:message name="AddBulkExportTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:AddBulkExportTask" />
+  </wsdl:message>
+  <wsdl:message name="AddBulkExportTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:AddBulkExportTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateBulkExportTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateBulkExportTask" />
+  </wsdl:message>
+  <wsdl:message name="UpdateBulkExportTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateBulkExportTaskResponse" />
+  </wsdl:message>
   <wsdl:message name="DeleteBulkExportTaskSoapIn">
     <wsdl:part name="parameters" element="tns:DeleteBulkExportTask" />
   </wsdl:message>
@@ -4970,6 +5192,54 @@
   </wsdl:message>
   <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsSoapOut">
     <wsdl:part name="parameters" element="tns:UpdateScheduledTaskNextRunIntervalInSecondsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceFamilyListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDeviceFamilyList" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceFamilyListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDeviceFamilyListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceBrandListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetDeviceBrandList" />
+  </wsdl:message>
+  <wsdl:message name="GetDeviceBrandListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetDeviceBrandListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCountryList" />
+  </wsdl:message>
+  <wsdl:message name="GetCountryListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCountryListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetGroupMetaList" />
+  </wsdl:message>
+  <wsdl:message name="GetGroupMetaListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetGroupMetaListResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoActionRulesSoapIn">
+    <wsdl:part name="parameters" element="tns:DoActionRules" />
+  </wsdl:message>
+  <wsdl:message name="DoActionRulesSoapOut">
+    <wsdl:part name="parameters" element="tns:DoActionRulesResponse" />
+  </wsdl:message>
+  <wsdl:message name="DoActionByRuleIdsSoapIn">
+    <wsdl:part name="parameters" element="tns:DoActionByRuleIds" />
+  </wsdl:message>
+  <wsdl:message name="DoActionByRuleIdsSoapOut">
+    <wsdl:part name="parameters" element="tns:DoActionByRuleIdsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendlyAssetLifeCycleRuleKsqlFilterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRuleKsqlFilter" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendlyAssetLifeCycleRuleKsqlFilterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRuleKsqlFilterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendlyAssetLifeCycleRuleSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRule" />
+  </wsdl:message>
+  <wsdl:message name="GetFriendlyAssetLifeCycleRuleSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRuleResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -5589,6 +5859,12 @@
   <wsdl:message name="GetOSSAdapterSoapOut">
     <wsdl:part name="parameters" element="tns:GetOSSAdapterResponse" />
   </wsdl:message>
+  <wsdl:message name="GetOSSAdapterProfileSoapIn">
+    <wsdl:part name="parameters" element="tns:GetOSSAdapterProfile" />
+  </wsdl:message>
+  <wsdl:message name="GetOSSAdapterProfileSoapOut">
+    <wsdl:part name="parameters" element="tns:GetOSSAdapterProfileResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertOSSAdapterSettingsSoapIn">
     <wsdl:part name="parameters" element="tns:InsertOSSAdapterSettings" />
   </wsdl:message>
@@ -5667,6 +5943,12 @@
   <wsdl:message name="GetRecommendationEnginesSoapOut">
     <wsdl:part name="parameters" element="tns:GetRecommendationEnginesResponse" />
   </wsdl:message>
+  <wsdl:message name="ListRecommendationEnginesSoapIn">
+    <wsdl:part name="parameters" element="tns:ListRecommendationEngines" />
+  </wsdl:message>
+  <wsdl:message name="ListRecommendationEnginesSoapOut">
+    <wsdl:part name="parameters" element="tns:ListRecommendationEnginesResponse" />
+  </wsdl:message>
   <wsdl:message name="InsertRecommendationEngineSettingsSoapIn">
     <wsdl:part name="parameters" element="tns:InsertRecommendationEngineSettings" />
   </wsdl:message>
@@ -5727,1001 +6009,21 @@
   <wsdl:message name="GetExternalChannelsSoapOut">
     <wsdl:part name="parameters" element="tns:GetExternalChannelsResponse" />
   </wsdl:message>
-  <wsdl:message name="AddBulkExportTaskSoapIn">
-    <wsdl:part name="parameters" element="tns:AddBulkExportTask" />
-  </wsdl:message>
-  <wsdl:message name="AddBulkExportTaskSoapOut">
-    <wsdl:part name="parameters" element="tns:AddBulkExportTaskResponse" />
-  </wsdl:message>
-  <wsdl:message name="UpdateBulkExportTaskSoapIn">
-    <wsdl:part name="parameters" element="tns:UpdateBulkExportTask" />
-  </wsdl:message>
-  <wsdl:message name="UpdateBulkExportTaskSoapOut">
-    <wsdl:part name="parameters" element="tns:UpdateBulkExportTaskResponse" />
-  </wsdl:message>
-  <wsdl:message name="DeleteBulkExportTaskHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="id" type="s:string" />
-    <wsdl:part name="externalKey" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteBulkExportTaskHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="ExportHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="taskId" type="s:string" />
-    <wsdl:part name="version" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ExportHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="EnqueueExportTaskHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="taskId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="EnqueueExportTaskHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="AddPermissionToRoleHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="roleId" type="s:string" />
-    <wsdl:part name="permissionId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="AddPermissionToRoleHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="AddPermissionItemToPermissionHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="permissionId" type="s:string" />
-    <wsdl:part name="permissionItemId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="AddPermissionItemToPermissionHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="DeleteKSQLChannelHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="channelId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteKSQLChannelHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetKSQLChannelHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="channelId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetKSQLChannelHttpPostOut">
-    <wsdl:part name="Body" element="tns:KSQLChannelResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetKSQLChannelsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetKSQLChannelsHttpPostOut">
-    <wsdl:part name="Body" element="tns:KSQLChannelResponseList" />
-  </wsdl:message>
-  <wsdl:message name="UpdateImageStateHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="rowId" type="s:string" />
-    <wsdl:part name="version" type="s:string" />
-    <wsdl:part name="mediaType" type="s:string" />
-    <wsdl:part name="status" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdateImageStateHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetExternalEntitlementsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="userId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetExternalEntitlementsHttpPostOut">
-    <wsdl:part name="Body" element="tns:OSSAdapterEntitlementsResponse" />
-  </wsdl:message>
-  <wsdl:message name="ModifyCBHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="bucket" type="s:string" />
-    <wsdl:part name="key" type="s:string" />
-    <wsdl:part name="action" type="s:string" />
-    <wsdl:part name="data" type="s:string" />
-    <wsdl:part name="ttlMinutes" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ModifyCBHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetAllRegistryHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetAllRegistryHttpPostOut">
-    <wsdl:part name="Body" element="tns:RegistryResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupIdByUsernamePasswordHttpPostIn">
-    <wsdl:part name="username" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupIdByUsernamePasswordHttpPostOut">
-    <wsdl:part name="Body" element="tns:int" />
-  </wsdl:message>
-  <wsdl:message name="InitializeFreeItemsUpdateHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="InitializeFreeItemsUpdateHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="UpdateFreeFileTypeOfModuleHttpPostIn">
-    <wsdl:part name="groupID" type="s:string" />
-    <wsdl:part name="moduleID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdateFreeFileTypeOfModuleHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetTimeShiftedTvPartnerSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:TimeShiftedTvPartnerSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdaptersHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdaptersHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterListResponse" />
-  </wsdl:message>
-  <wsdl:message name="DeleteCDNAdapterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteCDNAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GenerateCDNSharedSecretHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GenerateCDNSharedSecretHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="SendCDNAdapterConfigurationHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SendCDNAdapterConfigurationHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNPartnerSettingsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNPartnerSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNPartnerSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdapterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="adapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetCDNAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="assetType" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupDefaultCDNAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:CDNAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetScheduledTaskLastRunHttpPostIn">
-    <wsdl:part name="scheduledTaskType" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetScheduledTaskLastRunHttpPostOut">
-    <wsdl:part name="Body" element="tns:ScheduledTaskLastRunDetails" />
-  </wsdl:message>
-  <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsHttpPostIn">
-    <wsdl:part name="scheduledTaskType" type="s:string" />
-    <wsdl:part name="nextRunIntervalInSeconds" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdateScheduledTaskNextRunIntervalInSecondsHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="InsertEPGScheduleHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="channelID" type="s:string" />
-    <wsdl:part name="fileName" type="s:string" />
-    <wsdl:part name="isDelete" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="InsertEPGScheduleHttpPostOut">
-    <wsdl:part name="Body" element="tns:int" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sPicSize" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGChannelHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfEPGChannelObject" />
-  </wsdl:message>
-  <wsdl:message name="AdminSignInHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="username" type="s:string" />
-    <wsdl:part name="pass" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="AdminSignInHttpPostOut">
-    <wsdl:part name="Body" element="tns:AdminAccountUserResponse" />
-  </wsdl:message>
-  <wsdl:message name="CheckGeoBlockMediaHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sIP" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="CheckGeoBlockMediaHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
-  </wsdl:message>
-  <wsdl:message name="CheckGeoCommerceBlockHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="SubscriptionGeoCommerceID" type="s:string" />
-    <wsdl:part name="sIP" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="CheckGeoCommerceBlockHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaFileTypeIDHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaFileTypeIDHttpPostOut">
-    <wsdl:part name="Body" element="tns:int" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaFileTypeDescriptionHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaFileTypeDescriptionHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelsMediaIDsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s3:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="bWithCache" type="s:string" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelsMediaIDsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfInt" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelsAssetsIDsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s3:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="bWithCache" type="s:string" />
-    <wsdl:part name="sDevice" type="s:string" />
-    <wsdl:part name="activeAssets" type="s:string" />
-    <wsdl:part name="useStartDate" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelsAssetsIDsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfInt" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelAssetsHttpPostIn">
-    <wsdl:part name="username" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="channelId" type="s:string" />
-    <wsdl:part name="pageIndex" type="s:string" />
-    <wsdl:part name="pageSize" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelAssetsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfUnifiedSearchResult" />
-  </wsdl:message>
-  <wsdl:message name="SearchAssetsHttpPostIn">
-    <wsdl:part name="username" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="filter" type="s:string" />
-    <wsdl:part name="pageIndex" type="s:string" />
-    <wsdl:part name="pageSize" type="s:string" />
-    <wsdl:part name="OnlyIsActive" type="s:string" />
-    <wsdl:part name="languageID" type="s:string" />
-    <wsdl:part name="UseStartDate" type="s:string" />
-    <wsdl:part name="Udid" type="s:string" />
-    <wsdl:part name="UserIP" type="s:string" />
-    <wsdl:part name="SiteGuid" type="s:string" />
-    <wsdl:part name="DomainId" type="s:string" />
-    <wsdl:part name="ExectGroupId" type="s:string" />
-    <wsdl:part name="IgnoreDeviceRule" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SearchAssetsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfUnifiedSearchResult" />
-  </wsdl:message>
-  <wsdl:message name="GetAvailableFileTypesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetAvailableFileTypesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfFileTypeContainer" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelMediaIDsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannelID" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="bWithCache" type="s:string" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetChannelMediaIDsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfInt" />
-  </wsdl:message>
-  <wsdl:message name="DoesMediaBelongToChannelsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nChannels" type="s3:StringArray" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="bWithCache" type="s:string" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DoesMediaBelongToChannelsHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="ValidateBaseLinkHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileID" type="s:string" />
-    <wsdl:part name="sBaseLink" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ValidateBaseLinkHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="MapMediaFilesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileIDs" type="s3:StringArray" />
-  </wsdl:message>
-  <wsdl:message name="MapMediaFilesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfMeidaMaper" />
-  </wsdl:message>
-  <wsdl:message name="MapMediaFilesSTHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSeperatedMediaFileIDs" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="MapMediaFilesSTHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfMeidaMaper" />
-  </wsdl:message>
-  <wsdl:message name="GetSubGroupsTreeHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sGroupName" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetSubGroupsTreeHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupInfo" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupPlayersHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sGroupName" type="s:string" />
-    <wsdl:part name="sIncludeChildGroups" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupPlayersHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfString" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupMediaNamesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sGroupName" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupMediaNamesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfString" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaMarkHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaMarkHttpPostOut">
-    <wsdl:part name="Body" element="tns:MediaMarkObject" />
-  </wsdl:message>
-  <wsdl:message name="RateMediaHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-    <wsdl:part name="nRateVal" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="RateMediaHttpPostOut">
-    <wsdl:part name="Body" element="tns:RateMediaObject" />
-  </wsdl:message>
-  <wsdl:message name="AddUserSocialActionHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-    <wsdl:part name="socialAction" type="s:string" />
-    <wsdl:part name="socialPlatform" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="AddUserSocialActionHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="RunImporterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="extraParams" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="RunImporterHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupRule" />
-  </wsdl:message>
-  <wsdl:message name="GetUserGroupRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetUserGroupRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupRule" />
-  </wsdl:message>
-  <wsdl:message name="GetDomainGroupRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nDomainID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetDomainGroupRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupRule" />
-  </wsdl:message>
-  <wsdl:message name="SendToFriendHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSenderName" type="s:string" />
-    <wsdl:part name="sSenderMail" type="s:string" />
-    <wsdl:part name="sMailTo" type="s:string" />
-    <wsdl:part name="sNameTo" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SendToFriendHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupOperatorsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sScope" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupOperatorsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupOperator" />
-  </wsdl:message>
-  <wsdl:message name="SetUserGroupRuleHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-    <wsdl:part name="nRuleID" type="s:string" />
-    <wsdl:part name="sPIN" type="s:string" />
-    <wsdl:part name="nIsActive" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetUserGroupRuleHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="SetDomainGroupRuleHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nDomainID" type="s:string" />
-    <wsdl:part name="nRuleID" type="s:string" />
-    <wsdl:part name="sPIN" type="s:string" />
-    <wsdl:part name="nIsActive" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetDomainGroupRuleHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="SetRuleStateHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nDomainID" type="s:string" />
-    <wsdl:part name="sSiteGUID" type="s:string" />
-    <wsdl:part name="nRuleID" type="s:string" />
-    <wsdl:part name="nStatus" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetRuleStateHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="CheckParentalPINHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSiteGUID" type="s:string" />
-    <wsdl:part name="nRuleID" type="s:string" />
-    <wsdl:part name="sParentalPIN" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="CheckParentalPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="CheckDomainParentalPINHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nDomainID" type="s:string" />
-    <wsdl:part name="nRuleID" type="s:string" />
-    <wsdl:part name="sParentalPIN" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="CheckDomainParentalPINHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="SetDefaultRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetDefaultRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetAvailableDevicesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetAvailableDevicesHttpPostOut">
-    <wsdl:part name="Body" element="tns:DeviceAvailabiltyRule" />
-  </wsdl:message>
-  <wsdl:message name="GetProgramScheduleHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPass" type="s:string" />
-    <wsdl:part name="nProgramId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetProgramScheduleHttpPostOut">
-    <wsdl:part name="Body" element="tns:Scheduling" />
-  </wsdl:message>
-  <wsdl:message name="GetCoGuidByMediaFileIdHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaFileID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetCoGuidByMediaFileIdHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
-  </wsdl:message>
-  <wsdl:message name="GetUserStartedWatchingMediasHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="sSiteGuid" type="s:string" />
-    <wsdl:part name="nNumOfItems" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetUserStartedWatchingMediasHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfString" />
-  </wsdl:message>
-  <wsdl:message name="DoesMediaBelongToSubscriptionHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nSubscriptionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DoesMediaBelongToSubscriptionHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="DoesMediaBelongToCollectionHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nCollectionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DoesMediaBelongToCollectionHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupMediaRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="sIP" type="s:string" />
-    <wsdl:part name="deviceUdid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupMediaRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupRule" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGProgramRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaId" type="s:string" />
-    <wsdl:part name="nProgramId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="sIP" type="s:string" />
-    <wsdl:part name="deviceUdid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEPGProgramRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfGroupRule" />
-  </wsdl:message>
-  <wsdl:message name="GetSubscriptionMediaIdsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nSubscriptionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetSubscriptionMediaIdsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfInt" />
-  </wsdl:message>
-  <wsdl:message name="GetCollectionMediaIdsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nCollectionCode" type="s:string" />
-    <wsdl:part name="nFileTypeIDs" type="s3:StringArray" />
-    <wsdl:part name="sDevice" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetCollectionMediaIdsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfInt" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaChannelsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaChannelsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfInt" />
-  </wsdl:message>
-  <wsdl:message name="GetProgramDetailsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPass" type="s:string" />
-    <wsdl:part name="nProgramId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetProgramDetailsHttpPostOut">
-    <wsdl:part name="Body" element="tns:EPGChannelProgrammeObject" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaConcurrencyRulesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="nMediaID" type="s:string" />
-    <wsdl:part name="sIP" type="s:string" />
-    <wsdl:part name="bmID" type="s:string" />
-    <wsdl:part name="eType" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaConcurrencyRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfMediaConcurrencyRule" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupLanguagesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetGroupLanguagesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ArrayOfLanguageObj" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetDomainParentalRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetDomainParentalRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetUserParentalRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetUserParentalRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetUserParentalRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="ruleId" type="s:string" />
-    <wsdl:part name="isActive" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetUserParentalRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="SetDomainParentalRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="ruleId" type="s:string" />
-    <wsdl:part name="isActive" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetDomainParentalRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetPurchaseSettingsHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetPurchaseSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:PurchaseSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetPurchaseSettingsHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="setting" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetPurchaseSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="UpdatePurchaseSettingsHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="setting" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdatePurchaseSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:PurchaseSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetPurchasePINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetPurchasePINHttpPostOut">
-    <wsdl:part name="Body" element="tns:PurchaseSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="UpdatePurchasePINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="pin" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdatePurchasePINHttpPostOut">
-    <wsdl:part name="Body" element="tns:PurchaseSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetPurchasePINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="pin" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetPurchasePINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="ValidatePurchasePINHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="pin" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="ValidatePurchasePINHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalMediaRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="mediaId" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalMediaRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalEPGRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="epgId" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetParentalEPGRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:ParentalRulesResponse" />
-  </wsdl:message>
-  <wsdl:message name="DisableUserDefaultParentalRuleHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DisableUserDefaultParentalRuleHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DisableDomainDefaultParentalRuleHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="mediaId" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="ip" type="s:string" />
-    <wsdl:part name="udid" type="s:string" />
-    <wsdl:part name="orderBy" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetMediaRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:GenericRuleResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetEpgRulesHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="epgId" type="s:string" />
-    <wsdl:part name="channelMediaId" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-    <wsdl:part name="ip" type="s:string" />
-    <wsdl:part name="orderBy" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetEpgRulesHttpPostOut">
-    <wsdl:part name="Body" element="tns:GenericRuleResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetUserParentalRuleTagsHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="siteGuid" type="s:string" />
-    <wsdl:part name="domainId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetUserParentalRuleTagsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ParentalRulesTagsResponse" />
-  </wsdl:message>
-  <wsdl:message name="BuildIPToCountryIndexHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="BuildIPToCountryIndexHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="GetErrorCodesDictionaryHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="webServicePassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetErrorCodesDictionaryHttpPostOut">
-    <wsdl:part name="Body" element="tns:StatusErrorCodesResponse" />
-  </wsdl:message>
-  <wsdl:message name="DeleteOSSAdapterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="ossAdapterID" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteOSSAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetOSSAdapterHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetOSSAdapterHttpPostOut">
-    <wsdl:part name="Body" element="tns:OSSAdapterResponseList" />
-  </wsdl:message>
-  <wsdl:message name="GetOSSAdapterSettingsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetOSSAdapterSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:OSSAdapterSettingsResponse" />
-  </wsdl:message>
-  <wsdl:message name="GetUserBillingDetailsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="householdId" type="s:string" />
-    <wsdl:part name="ossAdapterId" type="s:string" />
-    <wsdl:part name="userIP" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetUserBillingDetailsHttpPostOut">
-    <wsdl:part name="Body" element="tns:OSSAdapterBillingDetailsResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetOSSAdapterConfigurationHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="ossAdapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="SetOSSAdapterConfigurationHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GenerateOSSSharedSecretHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="ossAdapterId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GenerateOSSSharedSecretHttpPostOut">
-    <wsdl:part name="Body" element="tns:OSSAdapterResponse" />
-  </wsdl:message>
-  <wsdl:message name="UpdateCacheHttpPostIn">
-    <wsdl:part name="groupId" type="s:string" />
-    <wsdl:part name="bucket" type="s:string" />
-    <wsdl:part name="keys" type="s3:StringArray" />
-  </wsdl:message>
-  <wsdl:message name="UpdateCacheHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="UpdateGeoBlockRulesCacheHttpPostIn">
-    <wsdl:part name="groupId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdateGeoBlockRulesCacheHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
-  </wsdl:message>
-  <wsdl:message name="DeleteRecommendationEngineHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="recommendationEngineId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteRecommendationEngineHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetRecommendationEnginesHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetRecommendationEnginesHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecommendationEnginesResponseList" />
-  </wsdl:message>
-  <wsdl:message name="GetRecommendationEngineSettingsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetRecommendationEngineSettingsHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecommendationEngineSettinsResponse" />
-  </wsdl:message>
-  <wsdl:message name="UpdateRecommendationEngineConfigurationHttpPostIn">
-    <wsdl:part name="userName" type="s:string" />
-    <wsdl:part name="password" type="s:string" />
-    <wsdl:part name="recommendationEngineId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="UpdateRecommendationEngineConfigurationHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecommendationEngineResponse" />
-  </wsdl:message>
-  <wsdl:message name="GenerateRecommendationEngineSharedSecretHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="recommendationEngineId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GenerateRecommendationEngineSharedSecretHttpPostOut">
-    <wsdl:part name="Body" element="tns:RecommendationEngineResponse" />
-  </wsdl:message>
-  <wsdl:message name="DeleteExternalChannelHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-    <wsdl:part name="externalChannelId" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="DeleteExternalChannelHttpPostOut">
-    <wsdl:part name="Body" element="tns:Status" />
-  </wsdl:message>
-  <wsdl:message name="GetExternalChannelsHttpPostIn">
-    <wsdl:part name="sWSUserName" type="s:string" />
-    <wsdl:part name="sWSPassword" type="s:string" />
-  </wsdl:message>
-  <wsdl:message name="GetExternalChannelsHttpPostOut">
-    <wsdl:part name="Body" element="tns:ExternalChannelResponseList" />
+  <wsdl:message name="ListExternalChannelsSoapIn">
+    <wsdl:part name="parameters" element="tns:ListExternalChannels" />
+  </wsdl:message>
+  <wsdl:message name="ListExternalChannelsSoapOut">
+    <wsdl:part name="parameters" element="tns:ListExternalChannelsResponse" />
   </wsdl:message>
   <wsdl:portType name="APISoap">
+    <wsdl:operation name="AddBulkExportTask">
+      <wsdl:input message="tns:AddBulkExportTaskSoapIn" />
+      <wsdl:output message="tns:AddBulkExportTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBulkExportTask">
+      <wsdl:input message="tns:UpdateBulkExportTaskSoapIn" />
+      <wsdl:output message="tns:UpdateBulkExportTaskSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <wsdl:input message="tns:DeleteBulkExportTaskSoapIn" />
       <wsdl:output message="tns:DeleteBulkExportTaskSoapOut" />
@@ -6873,6 +6175,38 @@
     <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
       <wsdl:input message="tns:UpdateScheduledTaskNextRunIntervalInSecondsSoapIn" />
       <wsdl:output message="tns:UpdateScheduledTaskNextRunIntervalInSecondsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceFamilyList">
+      <wsdl:input message="tns:GetDeviceFamilyListSoapIn" />
+      <wsdl:output message="tns:GetDeviceFamilyListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <wsdl:input message="tns:GetDeviceBrandListSoapIn" />
+      <wsdl:output message="tns:GetDeviceBrandListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <wsdl:input message="tns:GetCountryListSoapIn" />
+      <wsdl:output message="tns:GetCountryListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <wsdl:input message="tns:GetGroupMetaListSoapIn" />
+      <wsdl:output message="tns:GetGroupMetaListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoActionRules">
+      <wsdl:input message="tns:DoActionRulesSoapIn" />
+      <wsdl:output message="tns:DoActionRulesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DoActionByRuleIds">
+      <wsdl:input message="tns:DoActionByRuleIdsSoapIn" />
+      <wsdl:output message="tns:DoActionByRuleIdsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
+      <wsdl:input message="tns:GetFriendlyAssetLifeCycleRuleKsqlFilterSoapIn" />
+      <wsdl:output message="tns:GetFriendlyAssetLifeCycleRuleKsqlFilterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
+      <wsdl:input message="tns:GetFriendlyAssetLifeCycleRuleSoapIn" />
+      <wsdl:output message="tns:GetFriendlyAssetLifeCycleRuleSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -7286,6 +6620,10 @@
       <wsdl:input message="tns:GetOSSAdapterSoapIn" />
       <wsdl:output message="tns:GetOSSAdapterSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterProfile">
+      <wsdl:input message="tns:GetOSSAdapterProfileSoapIn" />
+      <wsdl:output message="tns:GetOSSAdapterProfileSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertOSSAdapterSettings">
       <wsdl:input message="tns:InsertOSSAdapterSettingsSoapIn" />
       <wsdl:output message="tns:InsertOSSAdapterSettingsSoapOut" />
@@ -7338,6 +6676,10 @@
       <wsdl:input message="tns:GetRecommendationEnginesSoapIn" />
       <wsdl:output message="tns:GetRecommendationEnginesSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <wsdl:input message="tns:ListRecommendationEnginesSoapIn" />
+      <wsdl:output message="tns:ListRecommendationEnginesSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="InsertRecommendationEngineSettings">
       <wsdl:input message="tns:InsertRecommendationEngineSettingsSoapIn" />
       <wsdl:output message="tns:InsertRecommendationEngineSettingsSoapOut" />
@@ -7378,459 +6720,31 @@
       <wsdl:input message="tns:GetExternalChannelsSoapIn" />
       <wsdl:output message="tns:GetExternalChannelsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <wsdl:input message="tns:AddBulkExportTaskSoapIn" />
-      <wsdl:output message="tns:AddBulkExportTaskSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <wsdl:input message="tns:UpdateBulkExportTaskSoapIn" />
-      <wsdl:output message="tns:UpdateBulkExportTaskSoapOut" />
-    </wsdl:operation>
-  </wsdl:portType>
-  <wsdl:portType name="APIHttpPost">
-    <wsdl:operation name="DeleteBulkExportTask">
-      <wsdl:input message="tns:DeleteBulkExportTaskHttpPostIn" />
-      <wsdl:output message="tns:DeleteBulkExportTaskHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="Export">
-      <wsdl:input message="tns:ExportHttpPostIn" />
-      <wsdl:output message="tns:ExportHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="EnqueueExportTask">
-      <wsdl:input message="tns:EnqueueExportTaskHttpPostIn" />
-      <wsdl:output message="tns:EnqueueExportTaskHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="AddPermissionToRole">
-      <wsdl:input message="tns:AddPermissionToRoleHttpPostIn" />
-      <wsdl:output message="tns:AddPermissionToRoleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="AddPermissionItemToPermission">
-      <wsdl:input message="tns:AddPermissionItemToPermissionHttpPostIn" />
-      <wsdl:output message="tns:AddPermissionItemToPermissionHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteKSQLChannel">
-      <wsdl:input message="tns:DeleteKSQLChannelHttpPostIn" />
-      <wsdl:output message="tns:DeleteKSQLChannelHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetKSQLChannel">
-      <wsdl:input message="tns:GetKSQLChannelHttpPostIn" />
-      <wsdl:output message="tns:GetKSQLChannelHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetKSQLChannels">
-      <wsdl:input message="tns:GetKSQLChannelsHttpPostIn" />
-      <wsdl:output message="tns:GetKSQLChannelsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateImageState">
-      <wsdl:input message="tns:UpdateImageStateHttpPostIn" />
-      <wsdl:output message="tns:UpdateImageStateHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetExternalEntitlements">
-      <wsdl:input message="tns:GetExternalEntitlementsHttpPostIn" />
-      <wsdl:output message="tns:GetExternalEntitlementsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="ModifyCB">
-      <wsdl:input message="tns:ModifyCBHttpPostIn" />
-      <wsdl:output message="tns:ModifyCBHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetAllRegistry">
-      <wsdl:input message="tns:GetAllRegistryHttpPostIn" />
-      <wsdl:output message="tns:GetAllRegistryHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupIdByUsernamePassword">
-      <wsdl:input message="tns:GetGroupIdByUsernamePasswordHttpPostIn" />
-      <wsdl:output message="tns:GetGroupIdByUsernamePasswordHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InitializeFreeItemsUpdate">
-      <wsdl:input message="tns:InitializeFreeItemsUpdateHttpPostIn" />
-      <wsdl:output message="tns:InitializeFreeItemsUpdateHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateFreeFileTypeOfModule">
-      <wsdl:input message="tns:UpdateFreeFileTypeOfModuleHttpPostIn" />
-      <wsdl:output message="tns:UpdateFreeFileTypeOfModuleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
-      <wsdl:input message="tns:GetTimeShiftedTvPartnerSettingsHttpPostIn" />
-      <wsdl:output message="tns:GetTimeShiftedTvPartnerSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <wsdl:input message="tns:GetCDNAdaptersHttpPostIn" />
-      <wsdl:output message="tns:GetCDNAdaptersHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <wsdl:input message="tns:DeleteCDNAdapterHttpPostIn" />
-      <wsdl:output message="tns:DeleteCDNAdapterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <wsdl:input message="tns:GenerateCDNSharedSecretHttpPostIn" />
-      <wsdl:output message="tns:GenerateCDNSharedSecretHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <wsdl:input message="tns:SendCDNAdapterConfigurationHttpPostIn" />
-      <wsdl:output message="tns:SendCDNAdapterConfigurationHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNPartnerSettings">
-      <wsdl:input message="tns:GetCDNPartnerSettingsHttpPostIn" />
-      <wsdl:output message="tns:GetCDNPartnerSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapter">
-      <wsdl:input message="tns:GetCDNAdapterHttpPostIn" />
-      <wsdl:output message="tns:GetCDNAdapterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupDefaultCDNAdapter">
-      <wsdl:input message="tns:GetGroupDefaultCDNAdapterHttpPostIn" />
-      <wsdl:output message="tns:GetGroupDefaultCDNAdapterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetScheduledTaskLastRun">
-      <wsdl:input message="tns:GetScheduledTaskLastRunHttpPostIn" />
-      <wsdl:output message="tns:GetScheduledTaskLastRunHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
-      <wsdl:input message="tns:UpdateScheduledTaskNextRunIntervalInSecondsHttpPostIn" />
-      <wsdl:output message="tns:UpdateScheduledTaskNextRunIntervalInSecondsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="InsertEPGSchedule">
-      <wsdl:input message="tns:InsertEPGScheduleHttpPostIn" />
-      <wsdl:output message="tns:InsertEPGScheduleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannel">
-      <wsdl:input message="tns:GetEPGChannelHttpPostIn" />
-      <wsdl:output message="tns:GetEPGChannelHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="AdminSignIn">
-      <wsdl:input message="tns:AdminSignInHttpPostIn" />
-      <wsdl:output message="tns:AdminSignInHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="CheckGeoBlockMedia">
-      <wsdl:input message="tns:CheckGeoBlockMediaHttpPostIn" />
-      <wsdl:output message="tns:CheckGeoBlockMediaHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="CheckGeoCommerceBlock">
-      <wsdl:input message="tns:CheckGeoCommerceBlockHttpPostIn" />
-      <wsdl:output message="tns:CheckGeoCommerceBlockHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaFileTypeID">
-      <wsdl:input message="tns:GetMediaFileTypeIDHttpPostIn" />
-      <wsdl:output message="tns:GetMediaFileTypeIDHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaFileTypeDescription">
-      <wsdl:input message="tns:GetMediaFileTypeDescriptionHttpPostIn" />
-      <wsdl:output message="tns:GetMediaFileTypeDescriptionHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelsMediaIDs">
-      <wsdl:input message="tns:GetChannelsMediaIDsHttpPostIn" />
-      <wsdl:output message="tns:GetChannelsMediaIDsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelsAssetsIDs">
-      <wsdl:input message="tns:GetChannelsAssetsIDsHttpPostIn" />
-      <wsdl:output message="tns:GetChannelsAssetsIDsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelAssets">
-      <wsdl:input message="tns:GetChannelAssetsHttpPostIn" />
-      <wsdl:output message="tns:GetChannelAssetsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SearchAssets">
-      <wsdl:input message="tns:SearchAssetsHttpPostIn" />
-      <wsdl:output message="tns:SearchAssetsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetAvailableFileTypes">
-      <wsdl:input message="tns:GetAvailableFileTypesHttpPostIn" />
-      <wsdl:output message="tns:GetAvailableFileTypesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelMediaIDs">
-      <wsdl:input message="tns:GetChannelMediaIDsHttpPostIn" />
-      <wsdl:output message="tns:GetChannelMediaIDsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DoesMediaBelongToChannels">
-      <wsdl:input message="tns:DoesMediaBelongToChannelsHttpPostIn" />
-      <wsdl:output message="tns:DoesMediaBelongToChannelsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="ValidateBaseLink">
-      <wsdl:input message="tns:ValidateBaseLinkHttpPostIn" />
-      <wsdl:output message="tns:ValidateBaseLinkHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="MapMediaFiles">
-      <wsdl:input message="tns:MapMediaFilesHttpPostIn" />
-      <wsdl:output message="tns:MapMediaFilesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="MapMediaFilesST">
-      <wsdl:input message="tns:MapMediaFilesSTHttpPostIn" />
-      <wsdl:output message="tns:MapMediaFilesSTHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetSubGroupsTree">
-      <wsdl:input message="tns:GetSubGroupsTreeHttpPostIn" />
-      <wsdl:output message="tns:GetSubGroupsTreeHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupPlayers">
-      <wsdl:input message="tns:GetGroupPlayersHttpPostIn" />
-      <wsdl:output message="tns:GetGroupPlayersHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupMediaNames">
-      <wsdl:input message="tns:GetGroupMediaNamesHttpPostIn" />
-      <wsdl:output message="tns:GetGroupMediaNamesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaMark">
-      <wsdl:input message="tns:GetMediaMarkHttpPostIn" />
-      <wsdl:output message="tns:GetMediaMarkHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="RateMedia">
-      <wsdl:input message="tns:RateMediaHttpPostIn" />
-      <wsdl:output message="tns:RateMediaHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="AddUserSocialAction">
-      <wsdl:input message="tns:AddUserSocialActionHttpPostIn" />
-      <wsdl:output message="tns:AddUserSocialActionHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="RunImporter">
-      <wsdl:input message="tns:RunImporterHttpPostIn" />
-      <wsdl:output message="tns:RunImporterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupRules">
-      <wsdl:input message="tns:GetGroupRulesHttpPostIn" />
-      <wsdl:output message="tns:GetGroupRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetUserGroupRules">
-      <wsdl:input message="tns:GetUserGroupRulesHttpPostIn" />
-      <wsdl:output message="tns:GetUserGroupRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetDomainGroupRules">
-      <wsdl:input message="tns:GetDomainGroupRulesHttpPostIn" />
-      <wsdl:output message="tns:GetDomainGroupRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SendToFriend">
-      <wsdl:input message="tns:SendToFriendHttpPostIn" />
-      <wsdl:output message="tns:SendToFriendHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupOperators">
-      <wsdl:input message="tns:GetGroupOperatorsHttpPostIn" />
-      <wsdl:output message="tns:GetGroupOperatorsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetUserGroupRule">
-      <wsdl:input message="tns:SetUserGroupRuleHttpPostIn" />
-      <wsdl:output message="tns:SetUserGroupRuleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetDomainGroupRule">
-      <wsdl:input message="tns:SetDomainGroupRuleHttpPostIn" />
-      <wsdl:output message="tns:SetDomainGroupRuleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetRuleState">
-      <wsdl:input message="tns:SetRuleStateHttpPostIn" />
-      <wsdl:output message="tns:SetRuleStateHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="CheckParentalPIN">
-      <wsdl:input message="tns:CheckParentalPINHttpPostIn" />
-      <wsdl:output message="tns:CheckParentalPINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="CheckDomainParentalPIN">
-      <wsdl:input message="tns:CheckDomainParentalPINHttpPostIn" />
-      <wsdl:output message="tns:CheckDomainParentalPINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetDefaultRules">
-      <wsdl:input message="tns:SetDefaultRulesHttpPostIn" />
-      <wsdl:output message="tns:SetDefaultRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetAvailableDevices">
-      <wsdl:input message="tns:GetAvailableDevicesHttpPostIn" />
-      <wsdl:output message="tns:GetAvailableDevicesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetProgramSchedule">
-      <wsdl:input message="tns:GetProgramScheduleHttpPostIn" />
-      <wsdl:output message="tns:GetProgramScheduleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetCoGuidByMediaFileId">
-      <wsdl:input message="tns:GetCoGuidByMediaFileIdHttpPostIn" />
-      <wsdl:output message="tns:GetCoGuidByMediaFileIdHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetUserStartedWatchingMedias">
-      <wsdl:input message="tns:GetUserStartedWatchingMediasHttpPostIn" />
-      <wsdl:output message="tns:GetUserStartedWatchingMediasHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DoesMediaBelongToSubscription">
-      <wsdl:input message="tns:DoesMediaBelongToSubscriptionHttpPostIn" />
-      <wsdl:output message="tns:DoesMediaBelongToSubscriptionHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DoesMediaBelongToCollection">
-      <wsdl:input message="tns:DoesMediaBelongToCollectionHttpPostIn" />
-      <wsdl:output message="tns:DoesMediaBelongToCollectionHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupMediaRules">
-      <wsdl:input message="tns:GetGroupMediaRulesHttpPostIn" />
-      <wsdl:output message="tns:GetGroupMediaRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramRules">
-      <wsdl:input message="tns:GetEPGProgramRulesHttpPostIn" />
-      <wsdl:output message="tns:GetEPGProgramRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetSubscriptionMediaIds">
-      <wsdl:input message="tns:GetSubscriptionMediaIdsHttpPostIn" />
-      <wsdl:output message="tns:GetSubscriptionMediaIdsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetCollectionMediaIds">
-      <wsdl:input message="tns:GetCollectionMediaIdsHttpPostIn" />
-      <wsdl:output message="tns:GetCollectionMediaIdsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaChannels">
-      <wsdl:input message="tns:GetMediaChannelsHttpPostIn" />
-      <wsdl:output message="tns:GetMediaChannelsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetProgramDetails">
-      <wsdl:input message="tns:GetProgramDetailsHttpPostIn" />
-      <wsdl:output message="tns:GetProgramDetailsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaConcurrencyRules">
-      <wsdl:input message="tns:GetMediaConcurrencyRulesHttpPostIn" />
-      <wsdl:output message="tns:GetMediaConcurrencyRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupLanguages">
-      <wsdl:input message="tns:GetGroupLanguagesHttpPostIn" />
-      <wsdl:output message="tns:GetGroupLanguagesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetParentalRules">
-      <wsdl:input message="tns:GetParentalRulesHttpPostIn" />
-      <wsdl:output message="tns:GetParentalRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetDomainParentalRules">
-      <wsdl:input message="tns:GetDomainParentalRulesHttpPostIn" />
-      <wsdl:output message="tns:GetDomainParentalRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetUserParentalRules">
-      <wsdl:input message="tns:GetUserParentalRulesHttpPostIn" />
-      <wsdl:output message="tns:GetUserParentalRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetUserParentalRules">
-      <wsdl:input message="tns:SetUserParentalRulesHttpPostIn" />
-      <wsdl:output message="tns:SetUserParentalRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetDomainParentalRules">
-      <wsdl:input message="tns:SetDomainParentalRulesHttpPostIn" />
-      <wsdl:output message="tns:SetDomainParentalRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetPurchaseSettings">
-      <wsdl:input message="tns:GetPurchaseSettingsHttpPostIn" />
-      <wsdl:output message="tns:GetPurchaseSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetPurchaseSettings">
-      <wsdl:input message="tns:SetPurchaseSettingsHttpPostIn" />
-      <wsdl:output message="tns:SetPurchaseSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdatePurchaseSettings">
-      <wsdl:input message="tns:UpdatePurchaseSettingsHttpPostIn" />
-      <wsdl:output message="tns:UpdatePurchaseSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetPurchasePIN">
-      <wsdl:input message="tns:GetPurchasePINHttpPostIn" />
-      <wsdl:output message="tns:GetPurchasePINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdatePurchasePIN">
-      <wsdl:input message="tns:UpdatePurchasePINHttpPostIn" />
-      <wsdl:output message="tns:UpdatePurchasePINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetPurchasePIN">
-      <wsdl:input message="tns:SetPurchasePINHttpPostIn" />
-      <wsdl:output message="tns:SetPurchasePINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <wsdl:input message="tns:ValidatePurchasePINHttpPostIn" />
-      <wsdl:output message="tns:ValidatePurchasePINHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetParentalMediaRules">
-      <wsdl:input message="tns:GetParentalMediaRulesHttpPostIn" />
-      <wsdl:output message="tns:GetParentalMediaRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetParentalEPGRules">
-      <wsdl:input message="tns:GetParentalEPGRulesHttpPostIn" />
-      <wsdl:output message="tns:GetParentalEPGRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DisableUserDefaultParentalRule">
-      <wsdl:input message="tns:DisableUserDefaultParentalRuleHttpPostIn" />
-      <wsdl:output message="tns:DisableUserDefaultParentalRuleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DisableDomainDefaultParentalRule">
-      <wsdl:input message="tns:DisableDomainDefaultParentalRuleHttpPostIn" />
-      <wsdl:output message="tns:DisableDomainDefaultParentalRuleHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaRules">
-      <wsdl:input message="tns:GetMediaRulesHttpPostIn" />
-      <wsdl:output message="tns:GetMediaRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetEpgRules">
-      <wsdl:input message="tns:GetEpgRulesHttpPostIn" />
-      <wsdl:output message="tns:GetEpgRulesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetUserParentalRuleTags">
-      <wsdl:input message="tns:GetUserParentalRuleTagsHttpPostIn" />
-      <wsdl:output message="tns:GetUserParentalRuleTagsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="BuildIPToCountryIndex">
-      <wsdl:input message="tns:BuildIPToCountryIndexHttpPostIn" />
-      <wsdl:output message="tns:BuildIPToCountryIndexHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetErrorCodesDictionary">
-      <wsdl:input message="tns:GetErrorCodesDictionaryHttpPostIn" />
-      <wsdl:output message="tns:GetErrorCodesDictionaryHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteOSSAdapter">
-      <wsdl:input message="tns:DeleteOSSAdapterHttpPostIn" />
-      <wsdl:output message="tns:DeleteOSSAdapterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetOSSAdapter">
-      <wsdl:input message="tns:GetOSSAdapterHttpPostIn" />
-      <wsdl:output message="tns:GetOSSAdapterHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetOSSAdapterSettings">
-      <wsdl:input message="tns:GetOSSAdapterSettingsHttpPostIn" />
-      <wsdl:output message="tns:GetOSSAdapterSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetUserBillingDetails">
-      <wsdl:input message="tns:GetUserBillingDetailsHttpPostIn" />
-      <wsdl:output message="tns:GetUserBillingDetailsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetOSSAdapterConfiguration">
-      <wsdl:input message="tns:SetOSSAdapterConfigurationHttpPostIn" />
-      <wsdl:output message="tns:SetOSSAdapterConfigurationHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GenerateOSSSharedSecret">
-      <wsdl:input message="tns:GenerateOSSSharedSecretHttpPostIn" />
-      <wsdl:output message="tns:GenerateOSSSharedSecretHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateCache">
-      <wsdl:input message="tns:UpdateCacheHttpPostIn" />
-      <wsdl:output message="tns:UpdateCacheHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateGeoBlockRulesCache">
-      <wsdl:input message="tns:UpdateGeoBlockRulesCacheHttpPostIn" />
-      <wsdl:output message="tns:UpdateGeoBlockRulesCacheHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteRecommendationEngine">
-      <wsdl:input message="tns:DeleteRecommendationEngineHttpPostIn" />
-      <wsdl:output message="tns:DeleteRecommendationEngineHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetRecommendationEngines">
-      <wsdl:input message="tns:GetRecommendationEnginesHttpPostIn" />
-      <wsdl:output message="tns:GetRecommendationEnginesHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetRecommendationEngineSettings">
-      <wsdl:input message="tns:GetRecommendationEngineSettingsHttpPostIn" />
-      <wsdl:output message="tns:GetRecommendationEngineSettingsHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
-      <wsdl:input message="tns:UpdateRecommendationEngineConfigurationHttpPostIn" />
-      <wsdl:output message="tns:UpdateRecommendationEngineConfigurationHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GenerateRecommendationEngineSharedSecret">
-      <wsdl:input message="tns:GenerateRecommendationEngineSharedSecretHttpPostIn" />
-      <wsdl:output message="tns:GenerateRecommendationEngineSharedSecretHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="DeleteExternalChannel">
-      <wsdl:input message="tns:DeleteExternalChannelHttpPostIn" />
-      <wsdl:output message="tns:DeleteExternalChannelHttpPostOut" />
-    </wsdl:operation>
-    <wsdl:operation name="GetExternalChannels">
-      <wsdl:input message="tns:GetExternalChannelsHttpPostIn" />
-      <wsdl:output message="tns:GetExternalChannelsHttpPostOut" />
+    <wsdl:operation name="ListExternalChannels">
+      <wsdl:input message="tns:ListExternalChannelsSoapIn" />
+      <wsdl:output message="tns:ListExternalChannelsSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="APISoap" type="tns:APISoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AddBulkExportTask">
+      <soap:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBulkExportTask">
+      <soap:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <soap:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
       <wsdl:input>
@@ -8166,6 +7080,78 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
       <soap:operation soapAction="http://api.tvinci.com/UpdateScheduledTaskNextRunIntervalInSeconds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceFamilyList">
+      <soap:operation soapAction="http://api.tvinci.com/GetDeviceFamilyList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <soap:operation soapAction="http://api.tvinci.com/GetDeviceBrandList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <soap:operation soapAction="http://api.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <soap:operation soapAction="http://api.tvinci.com/GetGroupMetaList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionRules">
+      <soap:operation soapAction="http://api.tvinci.com/DoActionRules" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionByRuleIds">
+      <soap:operation soapAction="http://api.tvinci.com/DoActionByRuleIds" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
+      <soap:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRuleKsqlFilter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
+      <soap:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRule" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9100,6 +8086,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterProfile">
+      <soap:operation soapAction="http://api.tvinci.com/GetOSSAdapterProfile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertOSSAdapterSettings">
       <soap:operation soapAction="http://api.tvinci.com/InsertOSSAdapterSettings" style="document" />
       <wsdl:input>
@@ -9217,6 +8212,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <soap:operation soapAction="http://api.tvinci.com/ListRecommendationEngines" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertRecommendationEngineSettings">
       <soap:operation soapAction="http://api.tvinci.com/InsertRecommendationEngineSettings" style="document" />
       <wsdl:input>
@@ -9307,17 +8311,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <soap:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <soap:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+    <wsdl:operation name="ListExternalChannels">
+      <soap:operation soapAction="http://api.tvinci.com/ListExternalChannels" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -9328,6 +8323,24 @@
   </wsdl:binding>
   <wsdl:binding name="APISoap12" type="tns:APISoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AddBulkExportTask">
+      <soap12:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateBulkExportTask">
+      <soap12:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="DeleteBulkExportTask">
       <soap12:operation soapAction="http://api.tvinci.com/DeleteBulkExportTask" style="document" />
       <wsdl:input>
@@ -9663,6 +8676,78 @@
     </wsdl:operation>
     <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
       <soap12:operation soapAction="http://api.tvinci.com/UpdateScheduledTaskNextRunIntervalInSeconds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceFamilyList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetDeviceFamilyList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetDeviceBrandList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetDeviceBrandList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCountryList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetCountryList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGroupMetaList">
+      <soap12:operation soapAction="http://api.tvinci.com/GetGroupMetaList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionRules">
+      <soap12:operation soapAction="http://api.tvinci.com/DoActionRules" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DoActionByRuleIds">
+      <soap12:operation soapAction="http://api.tvinci.com/DoActionByRuleIds" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
+      <soap12:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRuleKsqlFilter" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
+      <soap12:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRule" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -10597,6 +9682,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetOSSAdapterProfile">
+      <soap12:operation soapAction="http://api.tvinci.com/GetOSSAdapterProfile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertOSSAdapterSettings">
       <soap12:operation soapAction="http://api.tvinci.com/InsertOSSAdapterSettings" style="document" />
       <wsdl:input>
@@ -10714,6 +9808,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ListRecommendationEngines">
+      <soap12:operation soapAction="http://api.tvinci.com/ListRecommendationEngines" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="InsertRecommendationEngineSettings">
       <soap12:operation soapAction="http://api.tvinci.com/InsertRecommendationEngineSettings" style="document" />
       <wsdl:input>
@@ -10804,1027 +9907,22 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="AddBulkExportTask">
-      <soap12:operation soapAction="http://api.tvinci.com/AddBulkExportTask" style="document" />
+    <wsdl:operation name="ListExternalChannels">
+      <soap12:operation soapAction="http://api.tvinci.com/ListExternalChannels" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
       <wsdl:output>
         <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateBulkExportTask">
-      <soap12:operation soapAction="http://api.tvinci.com/UpdateBulkExportTask" style="document" />
-      <wsdl:input>
-        <soap12:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap12:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-  </wsdl:binding>
-  <wsdl:binding name="APIHttpPost" type="tns:APIHttpPost">
-    <http:binding verb="POST" />
-    <wsdl:operation name="DeleteBulkExportTask">
-      <http:operation location="/DeleteBulkExportTask" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="Export">
-      <http:operation location="/Export" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="EnqueueExportTask">
-      <http:operation location="/EnqueueExportTask" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="AddPermissionToRole">
-      <http:operation location="/AddPermissionToRole" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="AddPermissionItemToPermission">
-      <http:operation location="/AddPermissionItemToPermission" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteKSQLChannel">
-      <http:operation location="/DeleteKSQLChannel" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetKSQLChannel">
-      <http:operation location="/GetKSQLChannel" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetKSQLChannels">
-      <http:operation location="/GetKSQLChannels" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateImageState">
-      <http:operation location="/UpdateImageState" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetExternalEntitlements">
-      <http:operation location="/GetExternalEntitlements" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ModifyCB">
-      <http:operation location="/ModifyCB" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetAllRegistry">
-      <http:operation location="/GetAllRegistry" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupIdByUsernamePassword">
-      <http:operation location="/GetGroupIdByUsernamePassword" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InitializeFreeItemsUpdate">
-      <http:operation location="/InitializeFreeItemsUpdate" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateFreeFileTypeOfModule">
-      <http:operation location="/UpdateFreeFileTypeOfModule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetTimeShiftedTvPartnerSettings">
-      <http:operation location="/GetTimeShiftedTvPartnerSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapters">
-      <http:operation location="/GetCDNAdapters" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteCDNAdapter">
-      <http:operation location="/DeleteCDNAdapter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GenerateCDNSharedSecret">
-      <http:operation location="/GenerateCDNSharedSecret" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendCDNAdapterConfiguration">
-      <http:operation location="/SendCDNAdapterConfiguration" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNPartnerSettings">
-      <http:operation location="/GetCDNPartnerSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCDNAdapter">
-      <http:operation location="/GetCDNAdapter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupDefaultCDNAdapter">
-      <http:operation location="/GetGroupDefaultCDNAdapter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetScheduledTaskLastRun">
-      <http:operation location="/GetScheduledTaskLastRun" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateScheduledTaskNextRunIntervalInSeconds">
-      <http:operation location="/UpdateScheduledTaskNextRunIntervalInSeconds" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="InsertEPGSchedule">
-      <http:operation location="/InsertEPGSchedule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGChannel">
-      <http:operation location="/GetEPGChannel" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="AdminSignIn">
-      <http:operation location="/AdminSignIn" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="CheckGeoBlockMedia">
-      <http:operation location="/CheckGeoBlockMedia" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="CheckGeoCommerceBlock">
-      <http:operation location="/CheckGeoCommerceBlock" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaFileTypeID">
-      <http:operation location="/GetMediaFileTypeID" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaFileTypeDescription">
-      <http:operation location="/GetMediaFileTypeDescription" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelsMediaIDs">
-      <http:operation location="/GetChannelsMediaIDs" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelsAssetsIDs">
-      <http:operation location="/GetChannelsAssetsIDs" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelAssets">
-      <http:operation location="/GetChannelAssets" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SearchAssets">
-      <http:operation location="/SearchAssets" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetAvailableFileTypes">
-      <http:operation location="/GetAvailableFileTypes" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetChannelMediaIDs">
-      <http:operation location="/GetChannelMediaIDs" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DoesMediaBelongToChannels">
-      <http:operation location="/DoesMediaBelongToChannels" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ValidateBaseLink">
-      <http:operation location="/ValidateBaseLink" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="MapMediaFiles">
-      <http:operation location="/MapMediaFiles" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="MapMediaFilesST">
-      <http:operation location="/MapMediaFilesST" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetSubGroupsTree">
-      <http:operation location="/GetSubGroupsTree" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupPlayers">
-      <http:operation location="/GetGroupPlayers" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupMediaNames">
-      <http:operation location="/GetGroupMediaNames" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaMark">
-      <http:operation location="/GetMediaMark" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="RateMedia">
-      <http:operation location="/RateMedia" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="AddUserSocialAction">
-      <http:operation location="/AddUserSocialAction" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="RunImporter">
-      <http:operation location="/RunImporter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupRules">
-      <http:operation location="/GetGroupRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetUserGroupRules">
-      <http:operation location="/GetUserGroupRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetDomainGroupRules">
-      <http:operation location="/GetDomainGroupRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SendToFriend">
-      <http:operation location="/SendToFriend" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupOperators">
-      <http:operation location="/GetGroupOperators" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetUserGroupRule">
-      <http:operation location="/SetUserGroupRule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetDomainGroupRule">
-      <http:operation location="/SetDomainGroupRule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetRuleState">
-      <http:operation location="/SetRuleState" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="CheckParentalPIN">
-      <http:operation location="/CheckParentalPIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="CheckDomainParentalPIN">
-      <http:operation location="/CheckDomainParentalPIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetDefaultRules">
-      <http:operation location="/SetDefaultRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetAvailableDevices">
-      <http:operation location="/GetAvailableDevices" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetProgramSchedule">
-      <http:operation location="/GetProgramSchedule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCoGuidByMediaFileId">
-      <http:operation location="/GetCoGuidByMediaFileId" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetUserStartedWatchingMedias">
-      <http:operation location="/GetUserStartedWatchingMedias" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DoesMediaBelongToSubscription">
-      <http:operation location="/DoesMediaBelongToSubscription" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DoesMediaBelongToCollection">
-      <http:operation location="/DoesMediaBelongToCollection" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupMediaRules">
-      <http:operation location="/GetGroupMediaRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEPGProgramRules">
-      <http:operation location="/GetEPGProgramRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetSubscriptionMediaIds">
-      <http:operation location="/GetSubscriptionMediaIds" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetCollectionMediaIds">
-      <http:operation location="/GetCollectionMediaIds" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaChannels">
-      <http:operation location="/GetMediaChannels" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetProgramDetails">
-      <http:operation location="/GetProgramDetails" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaConcurrencyRules">
-      <http:operation location="/GetMediaConcurrencyRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetGroupLanguages">
-      <http:operation location="/GetGroupLanguages" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetParentalRules">
-      <http:operation location="/GetParentalRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetDomainParentalRules">
-      <http:operation location="/GetDomainParentalRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetUserParentalRules">
-      <http:operation location="/GetUserParentalRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetUserParentalRules">
-      <http:operation location="/SetUserParentalRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetDomainParentalRules">
-      <http:operation location="/SetDomainParentalRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetPurchaseSettings">
-      <http:operation location="/GetPurchaseSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetPurchaseSettings">
-      <http:operation location="/SetPurchaseSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdatePurchaseSettings">
-      <http:operation location="/UpdatePurchaseSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetPurchasePIN">
-      <http:operation location="/GetPurchasePIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdatePurchasePIN">
-      <http:operation location="/UpdatePurchasePIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetPurchasePIN">
-      <http:operation location="/SetPurchasePIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="ValidatePurchasePIN">
-      <http:operation location="/ValidatePurchasePIN" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetParentalMediaRules">
-      <http:operation location="/GetParentalMediaRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetParentalEPGRules">
-      <http:operation location="/GetParentalEPGRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DisableUserDefaultParentalRule">
-      <http:operation location="/DisableUserDefaultParentalRule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DisableDomainDefaultParentalRule">
-      <http:operation location="/DisableDomainDefaultParentalRule" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetMediaRules">
-      <http:operation location="/GetMediaRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetEpgRules">
-      <http:operation location="/GetEpgRules" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetUserParentalRuleTags">
-      <http:operation location="/GetUserParentalRuleTags" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="BuildIPToCountryIndex">
-      <http:operation location="/BuildIPToCountryIndex" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetErrorCodesDictionary">
-      <http:operation location="/GetErrorCodesDictionary" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteOSSAdapter">
-      <http:operation location="/DeleteOSSAdapter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetOSSAdapter">
-      <http:operation location="/GetOSSAdapter" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetOSSAdapterSettings">
-      <http:operation location="/GetOSSAdapterSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetUserBillingDetails">
-      <http:operation location="/GetUserBillingDetails" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetOSSAdapterConfiguration">
-      <http:operation location="/SetOSSAdapterConfiguration" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GenerateOSSSharedSecret">
-      <http:operation location="/GenerateOSSSharedSecret" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateCache">
-      <http:operation location="/UpdateCache" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateGeoBlockRulesCache">
-      <http:operation location="/UpdateGeoBlockRulesCache" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteRecommendationEngine">
-      <http:operation location="/DeleteRecommendationEngine" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetRecommendationEngines">
-      <http:operation location="/GetRecommendationEngines" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetRecommendationEngineSettings">
-      <http:operation location="/GetRecommendationEngineSettings" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="UpdateRecommendationEngineConfiguration">
-      <http:operation location="/UpdateRecommendationEngineConfiguration" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GenerateRecommendationEngineSharedSecret">
-      <http:operation location="/GenerateRecommendationEngineSharedSecret" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="DeleteExternalChannel">
-      <http:operation location="/DeleteExternalChannel" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="GetExternalChannels">
-      <http:operation location="/GetExternalChannels" />
-      <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
-      </wsdl:input>
-      <wsdl:output>
-        <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="API">
     <wsdl:port name="APISoap" binding="tns:APISoap">
-      <soap:address location="http://localhost/ws_api/api.asmx" />
+      <soap:address location="http://localhost/API/api.asmx" />
     </wsdl:port>
     <wsdl:port name="APISoap12" binding="tns:APISoap12">
-      <soap12:address location="http://localhost/ws_api/api.asmx" />
-    </wsdl:port>
-    <wsdl:port name="APIHttpPost" binding="tns:APIHttpPost">
-      <http:address location="http://localhost/ws_api/api.asmx" />
+      <soap12:address location="http://localhost/API/api.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

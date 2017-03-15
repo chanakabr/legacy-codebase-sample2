@@ -539,19 +539,19 @@ public partial class adm_channels_media : System.Web.UI.Page
             {
                 switch (item.AssetType)
                 {
-                    case apiWS.eAssetTypes1.EPG:
+                    case apiWS.eAssetTypes.EPG:
                         {
                             epgIds.Add(item.AssetId);
                             break;
                         }
-                    case apiWS.eAssetTypes1.MEDIA:
+                    case apiWS.eAssetTypes.MEDIA:
                         {
                             mediaIds.Add(item.AssetId);
                             break;
                         }
-                    case apiWS.eAssetTypes1.NPVR:
+                    case apiWS.eAssetTypes.NPVR:
                         break;
-                    case apiWS.eAssetTypes1.UNKNOWN:
+                    case apiWS.eAssetTypes.UNKNOWN:
                         break;
                     default:
                         break;
