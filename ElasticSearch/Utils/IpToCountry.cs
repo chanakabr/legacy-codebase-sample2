@@ -356,7 +356,7 @@ namespace ElasticSearch.Utilities
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetCountryByIp for ip: {0}", ip), ex);
+                log.Error(string.Format("Failed GetCountryByCountryName for countryName: {0}", countryName), ex);
             }
 
             return country;
