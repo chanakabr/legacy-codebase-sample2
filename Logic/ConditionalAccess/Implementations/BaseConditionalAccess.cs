@@ -90,6 +90,7 @@ namespace Core.ConditionalAccess
         public const string PRICE = "pri";
         public const string CURRENCY = "cu";
         public const string USER_IP = "up";
+        public const string COUNTRY_CODE = "lcc";
         public const string COUPON_CODE = "cc";
         public const string DEVICE_NAME = "ldn";
         public const string DUMMY = "dummy";
