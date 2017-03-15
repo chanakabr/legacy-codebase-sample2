@@ -558,7 +558,6 @@ namespace GroupsCacheManager
         {
             if (nOrderBy >= 1 && nOrderBy <= 30)// all META_STR/META_DOUBLE values
             {
-                // get the specific value of the meta
                 int nMetaEnum = (nOrderBy);
                 string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
                 if (group.m_oMetasValuesByGroupId[oChannel.m_nGroupID].ContainsKey(enumName))
@@ -713,6 +712,7 @@ namespace GroupsCacheManager
         private static void SetGroupMetas(ref Group group)
         {
             DataTable dtMappedMetaValues = Tvinci.Core.DAL.CatalogDAL.GetMappedMetasByGroupId(group.m_nParentGroupID, group.m_nSubGroup);
+
             if (dtMappedMetaValues != null && dtMappedMetaValues.Rows.Count > 0)
             {
                 foreach (DataRow metaDataRow in dtMappedMetaValues.Rows)
@@ -733,6 +733,29 @@ namespace GroupsCacheManager
                         if (!oMappedMettaValuesForCurrentGroupId.ContainsKey(sMetaColumn))
                         {
                             group.m_oMetasValuesByGroupId[nSubGroupNumberId].Add(sMetaColumn, sMappedMetaColumnName);
+                        }
+                    }
+                }
+
+                // date metas
+                DataTable dtDateMetaValues = Tvinci.Core.DAL.CatalogDAL.GetDateMetasByGroupId(group.m_nParentGroupID, group.m_nSubGroup);
+                if (dtDateMetaValues != null && dtDateMetaValues.Rows.Count > 0)
+                {
+                    foreach (DataRow metaDataRow in dtDateMetaValues.Rows)
+                    {
+                        int groupId = ODBCWrapper.Utils.GetIntSafeVal(metaDataRow, "group_id");
+                        if (!group.m_oMetasValuesByGroupId.ContainsKey(groupId))
+                        {
+                            group.m_oMetasValuesByGroupId.Add(groupId, new Dictionary<string, string>());
+                        }
+
+                        string id = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "id");
+                        string name = ODBCWrapper.Utils.GetSafeStr(metaDataRow, "name");
+                        Dictionary<string, string> mappedMetaValuesForCurrentGroupId = group.m_oMetasValuesByGroupId[groupId];
+                        string metaDateKey = string.Format("date_{0}", id);
+                        if (!mappedMetaValuesForCurrentGroupId.ContainsKey(metaDateKey))
+                        {
+                            group.m_oMetasValuesByGroupId[groupId].Add(metaDateKey, name);
                         }
                     }
                 }
