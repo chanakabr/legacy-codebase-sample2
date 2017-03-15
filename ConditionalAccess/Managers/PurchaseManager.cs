@@ -368,13 +368,11 @@ namespace ConditionalAccess
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
                 bool couponFullDiscount = (priceReason == PriceReason.Free && coupon != null);
 
-                if (priceReason == PriceReason.SubscriptionPurchased)
-                {
-                }
-                else if (priceReason == PriceReason.ForPurchase ||
+                if (priceReason != PriceReason.SubscriptionPurchased &&
+                    (priceReason == PriceReason.ForPurchase ||
                     entitleToPreview ||
                     couponFullDiscount ||
-                    isGiftCard)
+                    isGiftCard))
                 {
                     // item is for purchase
                     if (priceResponse != null &&
