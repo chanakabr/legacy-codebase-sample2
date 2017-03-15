@@ -17,6 +17,7 @@ using KLogMonitor;
 using ApiObjects.TimeShiftedTv;
 using ScheduledTasks;
 using Core.Catalog.Response;
+using ApiObjects.AssetLifeCycleRules;
 
 
 namespace WS_API
@@ -4162,12 +4163,31 @@ namespace WS_API
         }
 
         [WebMethod]
-        public ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, long id)
+        public FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, long id)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
                 return Core.Api.Module.GetFriendlyAssetLifeCycleRule(groupId, id);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                return null;
+            }
+        }
+
+        [WebMethod]
+        public FriendlyAssetLifeCycleRuleResponse InsertFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, string name, string description, string filterTagTypeName, eCutType filterTagOperand,
+                                                                                    List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits, string metaDateName,
+                                                                                    long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+            
+        {
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.InsertFriendlyAssetLifeCycleRule(groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
+                                                                        metaDateValueInSeconds, tagNamesToAdd, tagNamesToRemove);
             }
             else
             {
