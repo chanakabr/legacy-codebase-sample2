@@ -43,24 +43,6 @@ namespace WebAPI.Models.Catalog
     [Obsolete]
     public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
     {
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Asset name
-        /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-
-        // TODO - delete this property after fixing multilinguality for EPG
-        /// <summary>
-        /// Asset description
-        /// </summary>
-        [DataMember(Name = "description")]
-        [JsonProperty(PropertyName = "description")]
-        [XmlElement(ElementName = "description")]
-        public string Description { get; set; }
-
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
         /// </summary>
@@ -70,21 +52,12 @@ namespace WebAPI.Models.Catalog
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
 
         /// <summary>
-        /// Dynamic collection of key-value pairs according to the String Meta defined in the system
-        /// </summary>
-        [DataMember(Name = "metasNew")]
-        [JsonProperty(PropertyName = "metasNew")]
-        [XmlElement("metasNew", IsNullable = true)]
-        public SerializableDictionary<string, KalturaMultilingualString> MetasNew { get; set; }
-
-
-        /// <summary>
         /// Dynamic collection of key-value pairs according to the Tag Types defined in the system
         /// </summary>
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
         [XmlElement("tags", IsNullable = true)]
-        public SerializableDictionary<string, KalturaStringValueArray> Tags { get; set; }
+        public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
 
         /// <summary>
         /// Date and time represented as epoch. For VOD – since when the asset is available in the catalog. For EPG/Linear – when the program is aired (can be in the future).
