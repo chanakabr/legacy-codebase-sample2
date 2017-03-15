@@ -55,7 +55,6 @@ namespace ApiObjects.AssetLifeCycleRules
         {
             bool result = false;
             BooleanPhraseNode phrase = null;
-
             if (string.IsNullOrEmpty(this.KsqlFilter))
             {
                 return result;
@@ -105,17 +104,16 @@ namespace ApiObjects.AssetLifeCycleRules
                     }
 
                     // Validate that date nodes actually exist - there should be two
-                    // Second and third nodes should be LEAFs as well, looking like: cycledate>='-3days'  cycledate<'-2days'
-                    if (nodes.Count > 2)
+                    // Second and third nodes should be LEAFs as well, looking like: cycledate<'-2days'
+                    if (nodes.Count > 1)
                     {
                         var secondNode = nodes[1] as BooleanLeaf;
-                        var thirdNode = nodes[2] as BooleanLeaf;
 
-                        if (secondNode != null && thirdNode != null)
+                        if (secondNode != null)
                         {
-                            this.MetaDateName = thirdNode.field;
+                            this.MetaDateName = secondNode.field;
 
-                            this.MetaDateValueInSeconds = Math.Abs(Convert.ToInt64(thirdNode.value));                            
+                            this.MetaDateValueInSeconds = Math.Abs(Convert.ToInt64(secondNode.value));                            
                             result = true;
                         }
                     }
@@ -131,18 +129,22 @@ namespace ApiObjects.AssetLifeCycleRules
 
             if (!string.IsNullOrEmpty(this.FilterTagTypeName) && this.FilterTagValues != null && this.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(this.MetaDateName) && this.MetaDateValueInSeconds > 0)
             {                
-                long firstDate = -1 * (this.MetaDateValueInSeconds + (24 * 60 * 60));
-                long secondDate = -1 * (this.MetaDateValueInSeconds);
-
+                long date = -1 * this.MetaDateValueInSeconds;
                 StringBuilder builder = new StringBuilder();
-
                 foreach (var tagValue in this.FilterTagValues)
                 {
                     builder.AppendFormat("{0}='{1}' ", this.FilterTagTypeName, tagValue);
                 }
 
-                this.KsqlFilter = string.Format("(and ({0} {1}) {2}>='{3}' {2}<'{4}')",
-                    this.FilterTagOperand.ToString(), builder.ToString(), this.MetaDateName, firstDate, secondDate);
+                this.KsqlFilter = string.Format("(and ({0} {1}) {2}<'{3}')", 
+                    // 0
+                    this.FilterTagOperand.ToString(), 
+                    // 1
+                    builder.ToString(), 
+                    // 3
+                    this.MetaDateName, 
+                    // 4
+                    date);
 
                 result = true;
             }
