@@ -115,8 +115,7 @@ namespace ApiObjects.AssetLifeCycleRules
                         {
                             this.MetaDateName = thirdNode.field;
 
-                            this.MetaDateValueInSeconds = Math.Abs(Convert.ToInt64(thirdNode.value));
-
+                            this.MetaDateValueInSeconds = Math.Abs(Convert.ToInt64(thirdNode.value));                            
                             result = true;
                         }
                     }
@@ -131,10 +130,9 @@ namespace ApiObjects.AssetLifeCycleRules
             bool result = false;
 
             if (!string.IsNullOrEmpty(this.FilterTagTypeName) && this.FilterTagValues != null && this.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(this.MetaDateName) && this.MetaDateValueInSeconds > 0)
-            {
-                //TODO: LIOR !!!!!!!!
-                long firstDate = -1 * (this.MetaDateValueInSeconds + 1) * 24 * 60 * 60;
-                long secondDate = -1 * (this.MetaDateValueInSeconds) * 24 * 60 * 60;
+            {                
+                long firstDate = -1 * (this.MetaDateValueInSeconds + (24 * 60 * 60));
+                long secondDate = -1 * (this.MetaDateValueInSeconds);
 
                 StringBuilder builder = new StringBuilder();
 
