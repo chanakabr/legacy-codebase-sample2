@@ -173,7 +173,14 @@ namespace Core.Api.Managers
                                         assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                         // Apply rule on assets that returned from search
-                                        this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
+                                        if (this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule))
+                                        {
+                                            log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                                        }
+                                        else
+                                        {
+                                            log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                                        }
 
                                         var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
 
