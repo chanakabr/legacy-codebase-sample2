@@ -301,6 +301,8 @@ namespace Core.Api.Managers
                 if (phrase is BooleanPhrase)
                 {
                     var nodes = (phrase as BooleanPhrase).nodes;
+                    // order is reversed
+                    nodes.Reverse();
 
                     // Validate there is at least one node
                     // First node should be a PHRASE, looking like: (or cycletag='A' cycletag='B')
