@@ -4163,16 +4163,13 @@ namespace WS_API
         }
 
         [WebMethod]
-        public FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, long id, string name, string description, string filterTagTypeName,
-                                                                                   eCutType filterTagOperand, List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
-                                                                                   string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+        public FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(string sWSUserName, string sWSPassword, FriendlyAssetLifeCycleRule rule)
             
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                return Core.Api.Module.InsertOrUpdateFriendlyAssetLifeCycleRule(id, groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
-                                                                                metaDateValueInSeconds, tagNamesToAdd, tagNamesToRemove);
+                return Core.Api.Module.InsertOrUpdateFriendlyAssetLifeCycleRule(groupId, rule);
             }
             else
             {
