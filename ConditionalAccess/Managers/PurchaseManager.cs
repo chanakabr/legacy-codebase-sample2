@@ -368,11 +368,10 @@ namespace ConditionalAccess
                 bool entitleToPreview = priceReason == PriceReason.EntitledToPreviewModule;
                 bool couponFullDiscount = (priceReason == PriceReason.Free && coupon != null);
 
-                if (priceReason != PriceReason.SubscriptionPurchased &&
-                    (priceReason == PriceReason.ForPurchase ||
+                if ((priceReason == PriceReason.ForPurchase ||
                     entitleToPreview ||
-                    couponFullDiscount ||
-                    isGiftCard))
+                    couponFullDiscount) ||
+                    (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
                 {
                     // item is for purchase
                     if (priceResponse != null &&
@@ -685,7 +684,7 @@ namespace ConditionalAccess
                 }
 
                 // validate price
-                PriceReason ePriceReason = PriceReason.UnKnown;
+                PriceReason priceReason = PriceReason.UnKnown;
                 Subscription relevantSub = null;
                 Collection relevantCol = null;
                 PrePaidModule relevantPP = null;
@@ -702,7 +701,7 @@ namespace ConditionalAccess
                     ppvModule.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
                 {
                     isGiftCard = true;
-                    ePriceReason = PriceReason.Free;
+                    priceReason = PriceReason.Free;
                     priceObject = new Price()
                     {
                         m_dPrice = 0.0,
@@ -715,15 +714,15 @@ namespace ConditionalAccess
                 else
                 {
                     priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
-                        groupId, ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
+                        groupId, ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
                 }
 
-                bool couponFullDiscount = (ePriceReason == PriceReason.Free) && coupon != null;
+                bool couponFullDiscount = (priceReason == PriceReason.Free) && coupon != null;
 
-                if (ePriceReason == PriceReason.ForPurchase ||
-                    (ePriceReason == PriceReason.SubscriptionPurchased && priceObject.m_dPrice > 0) ||
-                    couponFullDiscount ||
-                    isGiftCard)
+                if ((priceReason == PriceReason.ForPurchase ||
+                    (priceReason == PriceReason.SubscriptionPurchased && priceObject.m_dPrice > 0) ||
+                    couponFullDiscount) ||
+                    (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
                 {
                     // item is for purchase
                     if (priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
@@ -830,7 +829,7 @@ namespace ConditionalAccess
                 else
                 {
                     // not for purchase
-                    response.Status = Utils.SetResponseStatus(ePriceReason);
+                    response.Status = Utils.SetResponseStatus(priceReason);
                     log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
                 }
             }
