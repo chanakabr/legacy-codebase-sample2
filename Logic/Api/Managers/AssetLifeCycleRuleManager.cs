@@ -243,7 +243,7 @@ namespace Core.Api.Managers
                     GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
                     if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0)
                     {
-                        Dictionary<string, int> groupTags = group.m_oGroupTags.ToDictionary(x => x.Value, x => x.Key);
+                        Dictionary<string, int> groupTags = group.m_oGroupTags.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(a => a.Key).ToList().First());
                         if (groupTags != null && groupTags.Count > 0)
                         {
                             tagIds = tagNames.Where(x => groupTags.ContainsKey(x)).Select(x => groupTags[x]).ToList();
@@ -259,13 +259,16 @@ namespace Core.Api.Managers
             return tagIds;
         }
 
-        public List<string> GetTagNamesByTagIds(int groupId, List<int> tagIds)
+        public List<string> GetTagNamesByTagIds(int groupId, int filterTagTypeId, List<int> tagIds)
         {
             List<string> tagNames = new List<string>();
             try
             {
                 if (tagIds != null && tagIds.Count > 0)
                 {
+                    Dictionary<int, List<int>> tags = new Dictionary<int, List<int>>();
+                    tags.Add(filterTagTypeId, tagIds);
+                    DataTable dt = NotificationDal.GetTagsNameByIDs(groupId, tags);
                     GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
                     if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0)
                     {                                                                        
@@ -280,6 +283,32 @@ namespace Core.Api.Managers
 
             return tagNames;
         }
+
+        public KeyValuePair GetFilterTagTypeById(int groupId, int filterTagTypeId)
+        {
+            KeyValuePair result = null;
+            try
+            {
+                if (filterTagTypeId > 0)
+                {
+                    GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0 && group.m_oGroupTags.ContainsKey(filterTagTypeId))
+                    {
+                        string filterTagTypeName = group.m_oGroupTags[filterTagTypeId];
+                        if (!string.IsNullOrEmpty(filterTagTypeName))
+                        {
+                            result = new KeyValuePair(filterTagTypeId.ToString(), filterTagTypeName);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetFilterTagTypeById, groupId: {0}, filterTagTypeId: {1}", groupId, filterTagTypeId), ex);
+            }
+
+            return result;
+        }        
 
         public bool BuildActionRuleDataFromKsql(FriendlyAssetLifeCycleRule rule)
         {
@@ -319,7 +348,7 @@ namespace Core.Api.Managers
                             // field name - we can take from the first
                             if (firstTag != null)
                             {
-                                rule.FilterTagTypeName = firstTag.field;
+                                rule.FilterTagType = GetFilterTagTypeByName(rule.GroupId, firstTag.field);
                             }
 
                             // add all values to list. all should be leafs
@@ -358,7 +387,7 @@ namespace Core.Api.Managers
         {
             bool result = false;
 
-            if (!string.IsNullOrEmpty(rule.FilterTagTypeName) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValue > 0)
+            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValue > 0)
             {
                 long date = -1 * (GetKsqlMetaDateValue(rule.MetaDateValue, rule.TransitionIntervalUnits));
                 StringBuilder builder = new StringBuilder();
@@ -369,7 +398,7 @@ namespace Core.Api.Managers
 
                 foreach (var tagValue in rule.FilterTagValues)
                 {
-                    builder.AppendFormat("{0}='{1}' ", rule.FilterTagTypeName, tagValue);
+                    builder.AppendFormat("{0}='{1}' ", rule.FilterTagType.value, tagValue);
                 }
 
                 rule.KsqlFilter = string.Format("(and ({0} {1}) {2}<'{3}')",
@@ -392,7 +421,7 @@ namespace Core.Api.Managers
 
         #region Private Methods
 
-        private bool FillRulesToTags(DataTable dt, List<AssetLifeCycleRule> rules, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
+        private bool FillRulesToTags(DataTable dt, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
                                             ref Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap)
         {
             bool res = false;
@@ -452,7 +481,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool FillRulesToFileTypesAndPpvs(DataTable dt, List<AssetLifeCycleRule> rules, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
+        private bool FillRulesToFileTypesAndPpvs(DataTable dt, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
                                                         ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToRemove)
         {
             bool res = false;
@@ -525,7 +554,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool FillRulesToGeoBlock(DataTable dt, List<AssetLifeCycleRule> rules, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
+        private bool FillRulesToGeoBlock(DataTable dt, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
         {
             bool res = false;
             try
@@ -714,9 +743,9 @@ namespace Core.Api.Managers
                 Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToAdd = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
                 Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> fileTypesAndPpvsToRemove = new Dictionary<long, LifeCycleFileTypesAndPpvsTransitions>();
                 Dictionary<long, int?> ruleIdToGeoBlockMap = new Dictionary<long, int?>();
-                if (FillRulesToTags(dtRulesTags, rules, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
-                    FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, rules, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
-                    FillRulesToGeoBlock(dtRulesGeoBlock, rules, ref ruleIdToGeoBlockMap))
+                if (FillRulesToTags(dtRulesTags, ref ruleIdToTagIdsToAddMap, ref ruleIdToTagIdsToRemoveMap) &&
+                    FillRulesToFileTypesAndPpvs(dtRulesFileTypesAndPpvs, ref fileTypesAndPpvsToAdd, ref fileTypesAndPpvsToRemove) &&
+                    FillRulesToGeoBlock(dtRulesGeoBlock, ref ruleIdToGeoBlockMap))
                 {
                     foreach (AssetLifeCycleRule alcr in rules)
                     {
@@ -779,6 +808,36 @@ namespace Core.Api.Managers
                 case AssetLifeCycleRuleTransitionIntervalUnits.Unknown:
                 default:
                     break;
+            }
+
+            return result;
+        }
+
+        private KeyValuePair GetFilterTagTypeByName(int groupId, string filterTagTypeName)
+        {
+            KeyValuePair result = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(filterTagTypeName))
+                {
+                    GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                    if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0)
+                    {
+                        Dictionary<string, int> groupTags = group.m_oGroupTags.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(a => a.Key).ToList().First());
+                        if (groupTags != null && groupTags.Count > 0 && groupTags.ContainsKey(filterTagTypeName))
+                        {
+                            int filterTagTypeId = groupTags[filterTagTypeName];
+                            if (filterTagTypeId > 0)
+                            {
+                                result = new KeyValuePair(filterTagTypeId.ToString(), filterTagTypeName);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetFilterTagTypeByName, groupId: {0}, filterTagTypeName: {1}", groupId, filterTagTypeName), ex);
             }
 
             return result;

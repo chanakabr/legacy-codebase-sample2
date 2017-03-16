@@ -1725,20 +1725,17 @@ namespace Core.Api
             return result;
         }
 
-        public static FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(long id, int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand, 
-                                                                                                  List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
-                                                                                                  string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+        public static FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(int groupId, FriendlyAssetLifeCycleRule rule)
         {
             FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
 
             try
             {
-                result = Core.Api.api.InsertOrUpdateFriendlyAssetLifeCycleRule(id, groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
-                                                                               metaDateValueInSeconds, tagNamesToAdd, tagNamesToRemove);
+                result = Core.Api.api.InsertOrUpdateFriendlyAssetLifeCycleRule(groupId, rule);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in InsertOrUpdateFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}, name: {2}", groupId, id, name), ex);
+                log.Error(string.Format("Error in InsertOrUpdateFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}, name: {2}", groupId, rule.Id, rule.Name), ex);
             }
 
             return result;
