@@ -1137,6 +1137,13 @@ namespace Core.Users
                     return resp;
                 }
 
+                int userID = GetUserIDByUserName(oBasicData.m_sUserName);
+                if (userID > 0)
+                {
+                    resp.Initialize(ResponseStatus.UserExists, u);
+                    return resp;
+                }
+
                 if (m_newsLetterImpl != null)
                 {
                     if (sDynamicData != null && u.m_oDynamicData != null)
