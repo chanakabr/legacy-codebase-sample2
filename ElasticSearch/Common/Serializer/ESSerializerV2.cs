@@ -380,7 +380,7 @@ namespace ElasticSearch.Common
                                 }
                                 else
                                 {
-                                    mappingObj.AddProperty(new BasicMappingPropertyV2()
+                                    metas.AddProperty(new BasicMappingPropertyV2()
                                     {
                                         name = sMetaName,
                                         type = eESFieldType.DATE,
