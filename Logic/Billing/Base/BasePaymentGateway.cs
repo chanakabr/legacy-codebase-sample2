@@ -1908,7 +1908,6 @@ namespace Core.Billing
                 response.StartDateSeconds = startDateSeconds;
                 response.EndDateSeconds = endDateSeconds;
                 response.AutoRenewing = autoRenewing;
-
                 // create billing transaction
                 long billingTranactionId = InsertBillingTransaction(BILLING_PROVIDER, paymentGatewayId, customData, paymentGWTransaction, billingTransactionStatus, paymentNumber);
 

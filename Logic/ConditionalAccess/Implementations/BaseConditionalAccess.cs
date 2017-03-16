@@ -9611,7 +9611,6 @@ namespace Core.ConditionalAccess
                 // Start with getting domain info for validation
                 Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
 
-
                 // Check if the domain is OK
                 if (oDomain == null)
                 {
@@ -9641,15 +9640,42 @@ namespace Core.ConditionalAccess
                         DataTable dtUserPurchases = null;
                         DataRow drUserPurchase = null;
                         string sPurchasingSiteGuid = string.Empty;
+                        string billingGuid = string.Empty;
 
                         // Check if within cancellation window
-                        bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, p_nDomainID);
+                        bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, p_nDomainID, ref billingGuid);
 
                         // Check if the user purchased the asset at all
                         if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
                         {
                             oResult.Code = (int)eResponseStatus.InvalidPurchase;
                             oResult.Message = "There is not a valid purchase for this user and asset ID";
+                        }
+                        
+                        // check if payment gateway supports this
+                        if (p_enmTransactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid))
+                        {
+                            try
+                            {
+                                ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(m_nGroupID, billingGuid);
+
+                                if (verificationStatus == null)
+                                {
+                                    oResult = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                }
+
+                                if (verificationStatus.Code != (int)eResponseStatus.OK)
+                                {
+                                    oResult = verificationStatus;
+                                    log.ErrorFormat("Verification payment gateway does not support cancelation. billingGuid = {0}", billingGuid);
+                                    return oResult;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
+                                return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()); 
+                            }
                         }
                         // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                         else if (bCancellationWindow || p_bIsForce)
@@ -9903,7 +9929,7 @@ namespace Core.ConditionalAccess
         /// <param name="p_dtUserPurchases"></param>
         /// <param name="p_domainID"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID)
+        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid)
         {
             UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -9943,7 +9969,10 @@ namespace Core.ConditionalAccess
 
                 dtCreateDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "CREATE_DATE");
                 sAssetCode = ODBCWrapper.Utils.ExtractString(drUserPurchase, "assetCode"); // ppvCode/SubscriptionCode/CollectionCode
-
+                if (p_enmServiceType == eTransactionType.Subscription)
+                {
+                    billingGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "billing_guid"); 
+                }
                 IsCancellationWindow(ref oUsageModule, sAssetCode, dtCreateDate, ref bCancellationWindow, p_enmServiceType);
             }
 
