@@ -17,6 +17,7 @@ using System.ServiceModel;
 using Core.Users;
 using ApiObjects.SearchObjects;
 using ApiObjects.AssetLifeCycleRules;
+using Core.Api.Managers;
 
 namespace APILogic
 {
@@ -599,47 +600,63 @@ namespace APILogic
             return new Tuple<Dictionary<long, eRuleLevel>, bool>(result, res);
         }
 
-        internal static FriendlyAssetLifeCycleRuleResponse InsertFriendlyAssetLifeCycleRule(int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand,
-                                                                                            List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
-                                                                                            string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+        internal static FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(long id, int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand,
+                                                                                                    List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
+                                                                                                    string metaDateName, long metaDateValue, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
         {
             FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
 
             try
             {
-                GroupsCacheManager.Group group= new GroupsCacheManager.GroupManager().GetGroup(groupId);
                 List<int> tagIdsToAdd = new List<int>();
                 List<int> tagIdsToRemove = new List<int>();
-                if (group != null)
+                if (tagNamesToAdd != null && tagNamesToAdd.Count > 0)
                 {
-                    Dictionary<string, int> groupTags = group.m_oGroupTags.ToDictionary(x => x.Value, x => x.Key);
-                    if (groupTags != null && groupTags.Count > 0)
+                    tagNamesToAdd = tagNamesToAdd.Distinct().ToList();
+                    tagIdsToAdd = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, tagNamesToAdd);
+                    if (tagIdsToAdd.Count != tagNamesToAdd.Count)
                     {
-                        if (tagNamesToAdd != null && tagNamesToAdd.Count > 0)
-                        {                            
-                            tagIdsToAdd = tagNamesToAdd.Where(x => groupTags.ContainsKey(x)).Select(x => groupTags[x]).ToList();
-                        }
-
-                        if (tagNamesToRemove != null && tagNamesToRemove.Count > 0)
-                        {                            
-                            tagIdsToRemove = tagNamesToRemove.Where(x => groupTags.ContainsKey(x)).Select(x => groupTags[x]).ToList();
-                        }
-                    }                        
+                        log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToAdd: {3}", groupId, id, name, string.Join(",", tagNamesToAdd));
+                        return result;
+                    }
                 }
 
-                long id = DAL.ApiDAL.InsertFriendlyAssetLifeCycleRule(groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
-                                                                         metaDateValueInSeconds, tagIdsToAdd, tagIdsToRemove);
+                if (tagNamesToRemove != null && tagNamesToRemove.Count > 0)
+                {      
+                    tagNamesToRemove = tagNamesToRemove.Distinct().ToList();
+                    tagIdsToRemove = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, tagNamesToRemove);
+                    if (tagIdsToRemove.Count != tagNamesToRemove.Count)
+                    {
+                        log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToRemove: {3}", groupId, id, name, string.Join(",", tagNamesToRemove));
+                        return result;
+                    }
+                }                
+
+                FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(id, groupId, name, description, transitionIntervalUnits, filterTagTypeName, filterTagValues, filterTagOperand,
+                                                                                 metaDateName, metaDateValue, tagIdsToAdd, tagIdsToRemove);
+                if (!AssetLifeCycleRuleManager.Instance.BuildActionRuleKsqlFromData(rule))
+                {
+                    log.ErrorFormat("failed BuildActionRuleKsqlFromData, groupId: {0}, id: {1}, name: {2}", groupId, id, name);
+                    return result;
+                }
+
+                id = DAL.ApiDAL.InsertOrUpdateFriendlyAssetLifeCycleRule(rule);
                 if (id > 0)
                 {
+                    // in case of insert
+                    if (rule.Id == 0)
+                    {
+                        rule.Id = id;
+                    }
 
-                    FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(id, groupId, name, description, transitionIntervalUnits, filterTagTypeName, filterTagValues, filterTagOperand,
-                                                                                    metaDateName, metaDateValueInSeconds, tagIdsToAdd, tagIdsToRemove);
+                    rule.TagNamesToAdd = new List<string>(tagNamesToAdd);
+                    rule.TagNamesToRemove = new List<string>(tagNamesToRemove);
                     result = new FriendlyAssetLifeCycleRuleResponse(rule);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in InsertFriendlyAssetLifeCycleRule, groupId: {0}, name: {1}", groupId, name), ex);
+                log.Error(string.Format("Error in InsertOrUpdateFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}, name: {2}", groupId, id, name), ex);
             }
 
             return result;
