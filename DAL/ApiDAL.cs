@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.MediaMarks;
@@ -4109,12 +4110,10 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static long InsertFriendlyAssetLifeCycleRule(int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand, List<string> filterTagValues,
-                                                            AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits, string metaDateName, long metaDateValueInSeconds,
-                                                            List<int> tagIdsToAdd, List<int> tagIdsToRemove)
+        public static long InsertOrUpdateFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
         {
-            // TODO
             throw new NotImplementedException();
         }
+
     }
 }
