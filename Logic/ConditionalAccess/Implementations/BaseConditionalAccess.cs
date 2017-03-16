@@ -2552,7 +2552,7 @@ namespace Core.ConditionalAccess
                         PriceCode price = null;
                         DiscountModule externalDisount = null;
                         log.DebugFormat("previousPurchaseCountryName: {0}, previousPurchaseCountryCode: {1}, previousPurchaseCurrencyCode: {2}",
-                                        !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryCode : string.Empty,
+                                        !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
                                         !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
                                         !string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty);
                         if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
@@ -7197,7 +7197,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     //if (nBILLING_METHOD >= 1)
-                    if (Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                    if (Enum.IsDefined(typeof(ePaymentMethod), nBILLING_METHOD))
                     {
                         pm = (ePaymentMethod)(nBILLING_METHOD);
                     }

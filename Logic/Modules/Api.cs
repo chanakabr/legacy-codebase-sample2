@@ -1741,5 +1741,24 @@ namespace Core.Api
 
             return result;
         }
+
+        public static FriendlyAssetLifeCycleRuleResponse InsertFriendlyAssetLifeCycleRule(int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand,
+                                                                                            List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
+                                                                                            string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+        {
+            FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
+
+            try
+            {
+                result = Core.Api.api.InsertFriendlyAssetLifeCycleRule(groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
+                                                                        metaDateValueInSeconds, tagNamesToAdd, tagNamesToRemove);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertFriendlyAssetLifeCycleRule, groupId: {0}, name: {1}", groupId, name), ex);
+            }
+
+            return result;
+        }
     }
 }

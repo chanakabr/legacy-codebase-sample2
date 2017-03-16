@@ -276,7 +276,7 @@ namespace Core.ConditionalAccess
                 PriceReason priceReason = PriceReason.UnKnown;
                 Subscription subscription = null;
                 Price priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), userId, string.Empty,
-                    ref priceReason, ref subscription, country, string.Empty, udid);
+                    ref priceReason, ref subscription, country, string.Empty, udid, ip);
 
                 if (priceReason == PriceReason.UnKnown)
                 {

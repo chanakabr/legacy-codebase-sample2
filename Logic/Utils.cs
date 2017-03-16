@@ -599,5 +599,50 @@ namespace APILogic
             return new Tuple<Dictionary<long, eRuleLevel>, bool>(result, res);
         }
 
+        internal static FriendlyAssetLifeCycleRuleResponse InsertFriendlyAssetLifeCycleRule(int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand,
+                                                                                            List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
+                                                                                            string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+        {
+            FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
+
+            try
+            {
+                GroupsCacheManager.Group group= new GroupsCacheManager.GroupManager().GetGroup(groupId);
+                List<int> tagIdsToAdd = new List<int>();
+                List<int> tagIdsToRemove = new List<int>();
+                if (group != null)
+                {
+                    Dictionary<string, int> groupTags = group.m_oGroupTags.ToDictionary(x => x.Value, x => x.Key);
+                    if (groupTags != null && groupTags.Count > 0)
+                    {
+                        if (tagNamesToAdd != null && tagNamesToAdd.Count > 0)
+                        {                            
+                            tagIdsToAdd = tagNamesToAdd.Where(x => groupTags.ContainsKey(x)).Select(x => groupTags[x]).ToList();
+                        }
+
+                        if (tagNamesToRemove != null && tagNamesToRemove.Count > 0)
+                        {                            
+                            tagIdsToRemove = tagNamesToRemove.Where(x => groupTags.ContainsKey(x)).Select(x => groupTags[x]).ToList();
+                        }
+                    }                        
+                }
+
+                long id = DAL.ApiDAL.InsertFriendlyAssetLifeCycleRule(groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
+                                                                         metaDateValueInSeconds, tagIdsToAdd, tagIdsToRemove);
+                if (id > 0)
+                {
+
+                    FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(id, groupId, name, description, transitionIntervalUnits, filterTagTypeName, filterTagValues, filterTagOperand,
+                                                                                    metaDateName, metaDateValueInSeconds, tagIdsToAdd, tagIdsToRemove);
+                    result = new FriendlyAssetLifeCycleRuleResponse(rule);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertFriendlyAssetLifeCycleRule, groupId: {0}, name: {1}", groupId, name), ex);
+            }
+
+            return result;
+        }
     }
 }

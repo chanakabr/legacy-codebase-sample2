@@ -40,14 +40,32 @@ namespace ApiObjects.AssetLifeCycleRules
         public FriendlyAssetLifeCycleRule(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
             : base()
         {
+            this.GroupId = groupId;
             this.FilterTagTypeName = tagType;
             this.FilterTagValues = new List<string>(tagValues);
             this.FilterTagOperand = operand;
             this.MetaDateName = dateMeta;
             this.MetaDateValueInSeconds = dateValue;
-            if (!BuildActionRuleDataFromKsql())
+            if (!BuildActionRuleKsqlFromData())
             {
-                throw new Exception(string.Format(@"Failed FriendlyAssetLifeCycleRule constructor((int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)), ruleId: {0}", this.Id));
+                throw new Exception(string.Format(@"Failed FriendlyAssetLifeCycleRule constructor(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue), ruleId: {0}", this.Id));
+            }
+        }
+
+        public FriendlyAssetLifeCycleRule(long id, int groupId, string name, string description, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits, string tagType,
+                                            List<string> tagValues, eCutType operand, string dateMeta, long dateValue, List<int> tagIdsToAdd, List<int> tagIdsToRemove)
+            : base(id, groupId, name, description, string.Empty, transitionIntervalUnits)
+        {
+            this.Actions.TagIdsToAdd = new List<int>(tagIdsToAdd);
+            this.Actions.TagIdsToRemove = new List<int>(tagIdsToRemove);
+            this.FilterTagTypeName = tagType;
+            this.FilterTagValues = new List<string>(tagValues);
+            this.FilterTagOperand = operand;
+            this.MetaDateName = dateMeta;
+            this.MetaDateValueInSeconds = dateValue;
+            if (BuildActionRuleKsqlFromData())
+            {                
+                throw new Exception(string.Format(@"Failed FriendlyAssetLifeCycleRule constructor(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue), ruleId: {0}", this.Id));
             }
         }
 
