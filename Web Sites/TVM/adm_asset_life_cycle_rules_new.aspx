@@ -32,7 +32,7 @@
     function AfterDateSelect(orderBy, pageNum, theDate) {
     }
     function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_asset_life_cycle_rule_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+        RS.Execute("adm_asset_life_cycle_rules_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
     }
 </script>
 </head>

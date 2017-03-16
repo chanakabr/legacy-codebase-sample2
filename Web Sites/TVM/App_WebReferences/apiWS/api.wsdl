@@ -271,17 +271,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ApiArgumentPermissionItem">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PermissionItem">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ApiParameterPermissionItem">
         <s:complexContent mixed="false">
           <s:extension base="tns:PermissionItem">
@@ -289,6 +278,17 @@
               <s:element minOccurs="0" maxOccurs="1" name="Object" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ApiArgumentPermissionItem">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PermissionItem">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Action" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Parameter" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1278,32 +1278,6 @@
           </s:sequence>
         </s:complexType>
       </s:element>
-      <s:element name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="tagType" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="tagValues" type="tns:ArrayOfString" />
-            <s:element minOccurs="1" maxOccurs="1" name="operand" type="tns:eCutType" />
-            <s:element minOccurs="0" maxOccurs="1" name="dateMeta" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="dateValue" type="s:long" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:simpleType name="eCutType">
-        <s:restriction base="s:string">
-          <s:enumeration value="And" />
-          <s:enumeration value="Or" />
-        </s:restriction>
-      </s:simpleType>
-      <s:element name="GetFriendlyAssetLifeCycleRuleKsqlFilterResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetFriendlyAssetLifeCycleRuleKsqlFilterResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="GetFriendlyAssetLifeCycleRule">
         <s:complexType>
           <s:sequence>
@@ -1316,19 +1290,27 @@
       <s:element name="GetFriendlyAssetLifeCycleRuleResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="GetFriendlyAssetLifeCycleRuleResult" type="tns:FriendlyAssetLifeCycleRule" />
+            <s:element minOccurs="0" maxOccurs="1" name="GetFriendlyAssetLifeCycleRuleResult" type="tns:FriendlyAssetLifeCycleRuleResponse" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:complexType name="FriendlyAssetLifeCycleRuleResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+          <s:element minOccurs="0" maxOccurs="1" name="Rule" type="tns:FriendlyAssetLifeCycleRule" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="FriendlyAssetLifeCycleRule">
         <s:complexContent mixed="false">
           <s:extension base="tns:AssetLifeCycleRule">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="FilterTagTypeName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="FilterTagType" type="tns:KeyValuePair" />
               <s:element minOccurs="0" maxOccurs="1" name="FilterTagValues" type="tns:ArrayOfString" />
               <s:element minOccurs="1" maxOccurs="1" name="FilterTagOperand" type="tns:eCutType" />
               <s:element minOccurs="0" maxOccurs="1" name="MetaDateName" type="s:string" />
-              <s:element minOccurs="1" maxOccurs="1" name="MetaDateValueInSeconds" type="s:long" />
+              <s:element minOccurs="1" maxOccurs="1" name="MetaDateValue" type="s:long" />
+              <s:element minOccurs="0" maxOccurs="1" name="TagNamesToAdd" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="TagNamesToRemove" type="tns:ArrayOfString" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -1367,6 +1349,34 @@
           <s:element minOccurs="0" maxOccurs="1" name="PpvIds" type="tns:ArrayOfInt" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eCutType">
+        <s:restriction base="s:string">
+          <s:enumeration value="And" />
+          <s:enumeration value="Or" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="InsertOrUpdateFriendlyAssetLifeCycleRule">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="rule" type="tns:FriendlyAssetLifeCycleRule" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertOrUpdateFriendlyAssetLifeCycleRuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertOrUpdateFriendlyAssetLifeCycleRuleResult" type="tns:FriendlyAssetLifeCycleRuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="TVAPI_GetTvinciGUID">
         <s:complexType>
           <s:sequence>
@@ -2738,6 +2748,81 @@
           <s:enumeration value="GiftCardRenewReminder" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="CinepolisRenewalFailMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendAdminTokenRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="EmailNotificationRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfTagPair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TagPair" nillable="true" type="tns:TagPair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TagPair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AddDeviceMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="AddUserMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
@@ -2772,66 +2857,11 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="ForgotPasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangePasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="AddDeviceMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceUdid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sNewDeviceName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2856,11 +2886,6 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
-        </s:complexContent>
-      </s:complexType>
       <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest">
@@ -2870,47 +2895,32 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="PurchaseFailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PreviewModuleCancelOrRefundRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="EmailNotificationRequest">
+      <s:complexType name="ChangePasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sTagToFollow" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sMediaName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaPicURL" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaType" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_content" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_mediaId" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_tagList" type="tns:ArrayOfTagPair" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_runTime" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_userFollowTags" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_catalogStartDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_startDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="ArrayOfTagPair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="unbounded" name="TagPair" nillable="true" type="tns:TagPair" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="TagPair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="CinepolisRenewalFailMailRequest">
+      <s:complexType name="WelcomeMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3109,12 +3119,6 @@
       <s:complexType name="ArrayOfKeyValuePair">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
-        </s:sequence>
-      </s:complexType>
-      <s:complexType name="KeyValuePair">
-        <s:sequence>
-          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
-          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="eOperatorType">
@@ -4898,7 +4902,9 @@
           <s:element minOccurs="0" maxOccurs="1" name="EPG_CHANNEL_ID" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="EPG_IDENTIFIER" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="NAME" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ProgrammeName" type="s2:ArrayOfLanguageContainer" />
           <s:element minOccurs="0" maxOccurs="1" name="DESCRIPTION" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ProgrammeDescription" type="s2:ArrayOfLanguageContainer" />
           <s:element minOccurs="0" maxOccurs="1" name="START_DATE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="END_DATE" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="PIC_URL" type="s:string" />
@@ -4924,6 +4930,17 @@
           <s:element minOccurs="0" maxOccurs="1" name="CRID" type="s:string" />
         </s:sequence>
       </s:complexType>
+      <s:complexType name="ArrayOfLanguageContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="LanguageContainer" nillable="true" type="s2:LanguageContainer" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="LanguageContainer">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="m_sLanguageCode3" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="m_sValue" type="s:string" />
+        </s:sequence>
+      </s:complexType>
       <s:complexType name="ArrayOfEPGDictionary">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="EPGDictionary" type="s2:EPGDictionary" />
@@ -4933,6 +4950,7 @@
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="1" name="Key" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="Value" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Values" type="s2:ArrayOfLanguageContainer" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfEpgPicture">
@@ -5229,17 +5247,17 @@
   <wsdl:message name="DoActionByRuleIdsSoapOut">
     <wsdl:part name="parameters" element="tns:DoActionByRuleIdsResponse" />
   </wsdl:message>
-  <wsdl:message name="GetFriendlyAssetLifeCycleRuleKsqlFilterSoapIn">
-    <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRuleKsqlFilter" />
-  </wsdl:message>
-  <wsdl:message name="GetFriendlyAssetLifeCycleRuleKsqlFilterSoapOut">
-    <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRuleKsqlFilterResponse" />
-  </wsdl:message>
   <wsdl:message name="GetFriendlyAssetLifeCycleRuleSoapIn">
     <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRule" />
   </wsdl:message>
   <wsdl:message name="GetFriendlyAssetLifeCycleRuleSoapOut">
     <wsdl:part name="parameters" element="tns:GetFriendlyAssetLifeCycleRuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertOrUpdateFriendlyAssetLifeCycleRuleSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertOrUpdateFriendlyAssetLifeCycleRule" />
+  </wsdl:message>
+  <wsdl:message name="InsertOrUpdateFriendlyAssetLifeCycleRuleSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertOrUpdateFriendlyAssetLifeCycleRuleResponse" />
   </wsdl:message>
   <wsdl:message name="TVAPI_GetTvinciGUIDSoapIn">
     <wsdl:part name="parameters" element="tns:TVAPI_GetTvinciGUID" />
@@ -6200,13 +6218,13 @@
       <wsdl:input message="tns:DoActionByRuleIdsSoapIn" />
       <wsdl:output message="tns:DoActionByRuleIdsSoapOut" />
     </wsdl:operation>
-    <wsdl:operation name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
-      <wsdl:input message="tns:GetFriendlyAssetLifeCycleRuleKsqlFilterSoapIn" />
-      <wsdl:output message="tns:GetFriendlyAssetLifeCycleRuleKsqlFilterSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
       <wsdl:input message="tns:GetFriendlyAssetLifeCycleRuleSoapIn" />
       <wsdl:output message="tns:GetFriendlyAssetLifeCycleRuleSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertOrUpdateFriendlyAssetLifeCycleRule">
+      <wsdl:input message="tns:InsertOrUpdateFriendlyAssetLifeCycleRuleSoapIn" />
+      <wsdl:output message="tns:InsertOrUpdateFriendlyAssetLifeCycleRuleSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="TVAPI_GetTvinciGUID">
       <wsdl:input message="tns:TVAPI_GetTvinciGUIDSoapIn" />
@@ -7141,8 +7159,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
-      <soap:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRuleKsqlFilter" style="document" />
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
+      <soap:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRule" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -7150,8 +7168,8 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
-      <soap:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRule" style="document" />
+    <wsdl:operation name="InsertOrUpdateFriendlyAssetLifeCycleRule">
+      <soap:operation soapAction="http://api.tvinci.com/InsertOrUpdateFriendlyAssetLifeCycleRule" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -8737,8 +8755,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetFriendlyAssetLifeCycleRuleKsqlFilter">
-      <soap12:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRuleKsqlFilter" style="document" />
+    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
+      <soap12:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRule" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -8746,8 +8764,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="GetFriendlyAssetLifeCycleRule">
-      <soap12:operation soapAction="http://api.tvinci.com/GetFriendlyAssetLifeCycleRule" style="document" />
+    <wsdl:operation name="InsertOrUpdateFriendlyAssetLifeCycleRule">
+      <soap12:operation soapAction="http://api.tvinci.com/InsertOrUpdateFriendlyAssetLifeCycleRule" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
