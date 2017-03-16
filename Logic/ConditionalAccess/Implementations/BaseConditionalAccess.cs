@@ -9859,8 +9859,10 @@ namespace Core.ConditionalAccess
                 {
                     return false;
                 }
+
+                string billingGuid = string.Empty;
                 // Check if within cancellation window
-                bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, (int)domainid);
+                bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, (int)domainid, ref billingGuid);
 
                 // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                 if (bCancellationWindow || p_bIsForce)
@@ -9998,8 +10000,8 @@ namespace Core.ConditionalAccess
                     log.ErrorFormat("User validation failed: {0}, sSiteGuid: {1}", status.Message, sSiteGuid);
                     return status;
                 }
-
-                bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid);
+                string billingGuid = string.Empty;
+                bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid, ref billingGuid);
 
                 if (bCancellationWindow)
                 {
