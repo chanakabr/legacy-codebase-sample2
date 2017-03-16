@@ -36,7 +36,7 @@ namespace ApiObjects.TimeShiftedTv
 
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
-            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeroid, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
+            bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeriod, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
             bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
@@ -52,7 +52,7 @@ namespace ApiObjects.TimeShiftedTv
             this.IsProtectionEnabled = isProtectionEnabled;
             this.ProtectionPeriod = protectionPeriod;
             this.ProtectionQuotaPercentage = protectionQuotaPercentage;
-            this.RecordingLifetimePeriod = recordingLifetimePeroid;
+            this.RecordingLifetimePeriod = recordingLifetimePeriod;
             this.CleanupNoticePeriod = cleanupNoticePeroid;
             this.IsSeriesRecordingEnabled = isSeriesRecordingEnabled;
             this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
@@ -85,7 +85,7 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsProtectionEnabled: {0}, ", IsProtectionEnabled.HasValue ? IsProtectionEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("ProtectionPeriod: {0}, ", ProtectionPeriod.HasValue ? ProtectionPeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("ProtectionQuotaPercentage: {0}, ", ProtectionQuotaPercentage.HasValue ? ProtectionQuotaPercentage.Value.ToString() : "Null"));
-            sb.Append(string.Format("RecordingLifetimePeroid: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
+            sb.Append(string.Format("RecordingLifetimePeriod: {0}, ", RecordingLifetimePeriod.HasValue ? RecordingLifetimePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("CleanupNoticePeroid: {0}, ", CleanupNoticePeriod.HasValue ? CleanupNoticePeriod.Value.ToString() : "Null"));
             sb.Append(string.Format("IsSeriesRecordingEnabled: {0}, ", IsSeriesRecordingEnabled.HasValue ? IsSeriesRecordingEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonEntitledChannelEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));

@@ -15,7 +15,7 @@ namespace ApiObjects.AssetLifeCycleRules
         public string Description { get; set; }
         public string KsqlFilter { get; set; }
         public AssetLifeCycleRuleTransitionIntervalUnits TransitionIntervalUnits { get; set; } // from Tvinci.dbo.lu_alcr_transition_interval_units
-        public LifeCycleTransitions Actions { get; set; }        
+        public LifeCycleTransitions Actions { get; set; }
 
         public AssetLifeCycleRule()
         {

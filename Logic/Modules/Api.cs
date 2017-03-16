@@ -1709,9 +1709,9 @@ namespace Core.Api
             return result;
         }
 
-        public static FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        public static FriendlyAssetLifeCycleRuleResponse GetFriendlyAssetLifeCycleRule(int groupId, long id)
         {
-            FriendlyAssetLifeCycleRule result = null;
+            FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
 
             try
             {
@@ -1725,37 +1725,20 @@ namespace Core.Api
             return result;
         }
 
-        public static string GetFriendlyAssetLifeCycleRuleKsqlFilter(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
-        {
-            string result = string.Empty;            
-
-            try
-            {
-                result = Core.Api.api.GetFriendlyAssetLifeCycleRuleKsqlFilter(groupId, tagType, tagValues, operand, dateMeta, dateValue);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRuleKsqlFilter, groupId: {0}, tagType: {1}, tagValues: {2}, operand: {3}, dateMeta: {4}, dateValue: {5}",
-                    groupId, tagType, tagValues != null ? string.Join(",", tagValues) : string.Empty, operand.ToString(), dateMeta, dateValue), ex);
-            }
-
-            return result;
-        }
-
-        public static FriendlyAssetLifeCycleRuleResponse InsertFriendlyAssetLifeCycleRule(int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand,
-                                                                                            List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
-                                                                                            string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
+        public static FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(long id, int groupId, string name, string description, string filterTagTypeName, eCutType filterTagOperand, 
+                                                                                                  List<string> filterTagValues, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits,
+                                                                                                  string metaDateName, long metaDateValueInSeconds, List<string> tagNamesToAdd, List<string> tagNamesToRemove)
         {
             FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
 
             try
             {
-                result = Core.Api.api.InsertFriendlyAssetLifeCycleRule(groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
-                                                                        metaDateValueInSeconds, tagNamesToAdd, tagNamesToRemove);
+                result = Core.Api.api.InsertOrUpdateFriendlyAssetLifeCycleRule(id, groupId, name, description, filterTagTypeName, filterTagOperand, filterTagValues, transitionIntervalUnits, metaDateName,
+                                                                               metaDateValueInSeconds, tagNamesToAdd, tagNamesToRemove);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in InsertFriendlyAssetLifeCycleRule, groupId: {0}, name: {1}", groupId, name), ex);
+                log.Error(string.Format("Error in InsertOrUpdateFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}, name: {2}", groupId, id, name), ex);
             }
 
             return result;
