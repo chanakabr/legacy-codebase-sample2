@@ -7197,7 +7197,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     //if (nBILLING_METHOD >= 1)
-                    if (Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                    if (Enum.IsDefined(typeof(ePaymentMethod), nBILLING_METHOD))
                     {
                         pm = (ePaymentMethod)(nBILLING_METHOD);
                     }
