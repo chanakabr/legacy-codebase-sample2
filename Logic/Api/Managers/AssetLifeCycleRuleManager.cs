@@ -233,27 +233,36 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public List<int> GetTagIdsByTagNames(int groupId, List<string> tagNames)
+        public List<int> GetTagIdsByTagNames(int groupId, string filterTagTypeName, List<string> tagNames)
         {
             List<int> tagIds = new List<int>();
             try
             {
                 if (tagNames != null && tagNames.Count > 0)
                 {
-                    GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-                    if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0)
+                    Dictionary<string, List<string>> tags = new Dictionary<string, List<string>>();
+                    tags.Add(filterTagTypeName, tagNames);
+                    DataTable dt = NotificationDal.GetTagsIDsByName(groupId, tags);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                     {
-                        Dictionary<string, int> groupTags = group.m_oGroupTags.GroupBy(x => x.Value).ToDictionary(x => x.Key, x => x.Select(a => a.Key).ToList().First());
-                        if (groupTags != null && groupTags.Count > 0)
+                        HashSet<int> uniqueTagsIds = new HashSet<int>();
+                        foreach (DataRow dr in dt.Rows)
                         {
-                            tagIds = tagNames.Where(x => groupTags.ContainsKey(x)).Select(x => groupTags[x]).ToList();
+                            int tagValueId = ODBCWrapper.Utils.GetIntSafeVal(dr, "TagValueID", 0);
+                            if (tagValueId > 0 && !uniqueTagsIds.Contains(tagValueId))
+                            {
+                                uniqueTagsIds.Add(tagValueId);
+                            }
                         }
+
+                        tagIds = uniqueTagsIds.ToList();
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in GetTagIdsByTagNames, groupId: {0}, tagNames: {1}", groupId, tagIds != null && tagIds.Count > 0 ? string.Join(",", tagIds) : string.Empty), ex);
+                log.Error(string.Format("Error in GetTagIdsByTagNames, groupId: {0}, filterTagTypeName: {1}, tagNames: {2}",
+                                         groupId, filterTagTypeName, tagIds != null && tagIds.Count > 0 ? string.Join(",", tagIds) : string.Empty), ex);
             }
 
             return tagIds;
@@ -269,16 +278,26 @@ namespace Core.Api.Managers
                     Dictionary<int, List<int>> tags = new Dictionary<int, List<int>>();
                     tags.Add(filterTagTypeId, tagIds);
                     DataTable dt = NotificationDal.GetTagsNameByIDs(groupId, tags);
-                    GroupsCacheManager.Group group = new GroupsCacheManager.GroupManager().GetGroup(groupId);
-                    if (group != null && group.m_oGroupTags != null && group.m_oGroupTags.Count > 0)
-                    {                                                                        
-                        tagNames = tagIds.Where(x => group.m_oGroupTags.ContainsKey(x)).Select(x => group.m_oGroupTags[x]).ToList();
+                    if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    {
+                        HashSet<string> uniqueTags = new HashSet<string>();
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            string tagName = ODBCWrapper.Utils.GetSafeStr(dr, "tagValueName");
+                            if (!string.IsNullOrEmpty(tagName) && !uniqueTags.Contains(tagName))
+                            {
+                                uniqueTags.Add(tagName);
+                            }
+                        }
+
+                        tagNames = uniqueTags.ToList();
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in GetTagNamesByTagIds, groupId: {0}, tagIds: {1}", groupId, tagIds != null && tagIds.Count > 0 ? string.Join(",", tagIds) : string.Empty), ex);                
+                log.Error(string.Format("Error in GetTagNamesByTagIds, groupId: {0}, filterTagTypeId: {1}, tagIds: {2}",
+                                         groupId, filterTagTypeId, tagIds != null && tagIds.Count > 0 ? string.Join(",", tagIds) : string.Empty), ex);
             }
 
             return tagNames;

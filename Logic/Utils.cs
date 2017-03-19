@@ -608,28 +608,6 @@ namespace APILogic
             {
                 List<int> tagIdsToAdd = new List<int>();
                 List<int> tagIdsToRemove = new List<int>();
-                if (rule.TagNamesToAdd != null && rule.TagNamesToAdd.Count > 0)
-                {
-                    rule.TagNamesToAdd = rule.TagNamesToAdd.Distinct().ToList();
-                    tagIdsToAdd = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, rule.TagNamesToAdd);
-                    if (tagIdsToAdd.Count != rule.TagNamesToAdd.Count)
-                    {
-                        log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToAdd: {3}", groupId, rule.Id, rule.Name, string.Join(",", rule.TagNamesToAdd));
-                        return result;
-                    }
-                }
-
-                if (rule.TagNamesToRemove != null && rule.TagNamesToRemove.Count > 0)
-                {
-                    rule.TagNamesToRemove = rule.TagNamesToRemove.Distinct().ToList();
-                    tagIdsToRemove = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, rule.TagNamesToRemove);
-                    if (tagIdsToRemove.Count != rule.TagNamesToRemove.Count)
-                    {
-                        log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToRemove: {3}", groupId, rule.Id, rule.Name, string.Join(",", rule.TagNamesToRemove));
-                        return result;
-                    }
-                }
-
                 int filterTagTypeId = 0;
                 if (!int.TryParse(rule.FilterTagType.key, out filterTagTypeId) || filterTagTypeId == 0)
                 {
@@ -644,7 +622,30 @@ namespace APILogic
                     return result;
                 }
 
-                rule = new FriendlyAssetLifeCycleRule(rule.Id, groupId, rule.Name, rule.Description, rule.TransitionIntervalUnits, filterTagType, rule.FilterTagValues, rule.FilterTagOperand,
+                rule.FilterTagType = new KeyValuePair(filterTagType.key, filterTagType.value);
+                if (rule.TagNamesToAdd != null && rule.TagNamesToAdd.Count > 0)
+                {
+                    rule.TagNamesToAdd = rule.TagNamesToAdd.Distinct().ToList();
+                    tagIdsToAdd = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, rule.FilterTagType.value, rule.TagNamesToAdd);
+                    if (tagIdsToAdd.Count != rule.TagNamesToAdd.Count)
+                    {
+                        log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToAdd: {3}", groupId, rule.Id, rule.Name, string.Join(",", rule.TagNamesToAdd));
+                        return result;
+                    }
+                }
+
+                if (rule.TagNamesToRemove != null && rule.TagNamesToRemove.Count > 0)
+                {
+                    rule.TagNamesToRemove = rule.TagNamesToRemove.Distinct().ToList();
+                    tagIdsToRemove = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, rule.FilterTagType.value, rule.TagNamesToRemove);
+                    if (tagIdsToRemove.Count != rule.TagNamesToRemove.Count)
+                    {
+                        log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToRemove: {3}", groupId, rule.Id, rule.Name, string.Join(",", rule.TagNamesToRemove));
+                        return result;
+                    }
+                }
+
+                rule = new FriendlyAssetLifeCycleRule(rule.Id, groupId, rule.Name, rule.Description, rule.TransitionIntervalUnits, rule.FilterTagType, rule.FilterTagValues, rule.FilterTagOperand,
                                                                                  rule.MetaDateName, rule.MetaDateValue, tagIdsToAdd, tagIdsToRemove);
                 if (!AssetLifeCycleRuleManager.Instance.BuildActionRuleKsqlFromData(rule))
                 {

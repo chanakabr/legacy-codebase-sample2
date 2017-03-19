@@ -2551,16 +2551,9 @@ namespace Core.ConditionalAccess
                     {
                         PriceCode price = null;
                         DiscountModule externalDisount = null;
-                        log.DebugFormat("previousPurchaseCountryName: {0}, previousPurchaseCountryCode: {1}, previousPurchaseCurrencyCode: {2}",
-                                        !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
-                                        !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
-                                        !string.IsNullOrEmpty(previousPurchaseCurrencyCode) ? previousPurchaseCurrencyCode : string.Empty);
                         if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
                         {                            
                             price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
-                            log.DebugFormat("after GetPriceCodeDataByCountyAndCurrency price is: {0}, currency is: {1}",
-                                                price != null && price.m_oPrise != null ? price.m_oPrise.m_dPrice.ToString() : string.Empty,
-                                                price != null && price.m_oPrise != null && price.m_oPrise.m_oCurrency != null ?  price.m_oPrise.m_oCurrency.m_sCurrencyCD3 : string.Empty);
                             if (AppUsageModule.m_ext_discount_id > 0)
                             {                                
                                 DiscountModule externalDisountByCountryAndCurrency = Core.Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, AppUsageModule.m_ext_discount_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
