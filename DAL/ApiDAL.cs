@@ -4133,7 +4133,7 @@ namespace DAL
             sp.AddIDListParameter("@FileTypesToRemove", rule.Actions.FileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
 
             // for alcr_ppv_file_types_actions table
-            sp.AddParameter("@EpgId", rule.Actions.GeoBlockRuleToSet);
+            sp.AddParameter("@GeoBlockRuleId", rule.Actions.GeoBlockRuleToSet);
 
             return sp.ExecuteReturnValue<long>();            
         }
