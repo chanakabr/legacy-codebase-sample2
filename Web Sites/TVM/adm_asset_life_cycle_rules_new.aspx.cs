@@ -31,6 +31,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                 if (!GetFriendlyAssetLifeCycleRule(ref rule) ||  !InsertOrUpdateFriendlyAssetLifeCycleRule(rule))
                 {
                     log.ErrorFormat("Failed GetFriendlyAssetLifeCycleRule or InsertOrUpdateFriendlyAssetLifeCycleRule, rule_id: {0}, name: {1}", rule.Id, rule.Name);
+                    HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new rule";
                 }
 
                 return;
@@ -91,7 +92,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             string sWSPass = "";
             
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");            
+            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
             {
                 apiWS.API client = new apiWS.API();
@@ -172,17 +173,25 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         }
         theRecord.AddRecord(dr_transitionIntervalUnits);
 
-        DataRecordDropDownField dr_metaDateName = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+        DataRecordDropDownField dr_metaDateName = new DataRecordDropDownField("", "name", "id", "", null, 60, true);
         sQuery = "select distinct name as txt, id as id from Tvinci.dbo.groups_date_metas where status=1 and group_id in (" + string.Join(",", subGroups) + ")";
         dr_metaDateName.SetSelectsQuery(sQuery);
         dr_metaDateName.Initialize("Meta Date Name", "adm_table_header_nbg", "FormInput", "", true);
-        dr_metaDateName.setFiledName("MetaDateNameId");
+        dr_metaDateName.SetNoSelectStr("Start Date");
+        dr_metaDateName.setFiledName("MetaDateNameId");        
         if (friendlyAssetLifeCycleRule != null)
         {
-            object metaDateNameId = ODBCWrapper.Utils.GetTableSingleVal("groups_date_metas", "id", "name", "=", friendlyAssetLifeCycleRule.MetaDateName, 0, "MAIN_CONNECTION_STRING");
-            if (metaDateNameId != null && metaDateNameId != DBNull.Value && !string.IsNullOrEmpty(metaDateNameId.ToString()))
+            if (friendlyAssetLifeCycleRule.MetaDateName.ToLower() == "start_date")
             {
-                dr_metaDateName.SetValue(metaDateNameId.ToString());
+                dr_metaDateName.SetValue("0");
+            }
+            else
+            {
+                object metaDateNameId = ODBCWrapper.Utils.GetTableSingleVal("groups_date_metas", "id", "name", "=", friendlyAssetLifeCycleRule.MetaDateName, 0, "MAIN_CONNECTION_STRING");
+                if (metaDateNameId != null && metaDateNameId != DBNull.Value && !string.IsNullOrEmpty(metaDateNameId.ToString()))
+                {
+                    dr_metaDateName.SetValue(metaDateNameId.ToString());
+                }
             }
         }
         theRecord.AddRecord(dr_metaDateName);
@@ -236,143 +245,150 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
     private bool GetFriendlyAssetLifeCycleRule(ref apiWS.FriendlyAssetLifeCycleRule rule)
     {
         bool result = false;
-        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
-        if (coll["table_name"] == null)
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;       
+        int nCount = coll.Count;
+        int nCounter = 0;
+        string[] values = null;
+        AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits = AssetLifeCycleRuleTransitionIntervalUnits.Unknown;
+        eCutType operand = eCutType.And;
+        try
         {
-            HttpContext.Current.Session["error_msg"] = "missing table name - cannot update";
-        }
-        else
-        {
-            int nCount = coll.Count;
-            int nCounter = 0;
-            string[] values = null;
-            AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits = AssetLifeCycleRuleTransitionIntervalUnits.Unknown;
-            try
+            rule = new FriendlyAssetLifeCycleRule();
+            int ruleId = 0;
+            if (!string.IsNullOrEmpty(Session["rule_id"].ToString()) && int.TryParse(Session["rule_id"].ToString(), out ruleId) && ruleId > 0)
             {
-                rule = new FriendlyAssetLifeCycleRule();
-                int ruleId = 0;
-                if (!string.IsNullOrEmpty(Session["rule_id"].ToString()) && int.TryParse(Session["rule_id"].ToString(), out ruleId) && ruleId > 0)
-                {
-                    rule.Id = ruleId;
-                }
+                rule.Id = ruleId;
+            }
 
-                result = true;
-                while (nCounter < nCount && result)
+            result = true;
+            while (nCounter < nCount && result)
+            {
+                try
                 {
-                    try
+                    if (coll[nCounter.ToString() + "_fieldName"] != null)
                     {
-                        if (coll[nCounter.ToString() + "_fieldName"] != null)
+                        string sFieldName = coll[nCounter.ToString() + "_fieldName"].ToString();
+                        string sVal = "";
+                        if (coll[nCounter.ToString() + "_val"] != null)
                         {
-                            string sFieldName = coll[nCounter.ToString() + "_fieldName"].ToString();
-                            string sVal = "";
-                            if (coll[nCounter.ToString() + "_val"] != null)
-                            {
-                                sVal = coll[nCounter.ToString() + "_val"].ToString();
-                            }
-
-                            if (!string.IsNullOrEmpty(sVal))
-                            {
-                                #region case
-                                switch (sFieldName)
-                                {
-                                    case "Name":
-                                        rule.Name = sVal;
-                                        break;
-                                    case "Description":
-                                        rule.Description = sVal;
-                                        break;
-                                    case "FilterTagTypeId":
-                                        rule.FilterTagType = new KeyValuePair() { key = sVal, value = string.Empty };
-                                        break;
-                                    case "FilterTagValues":
-                                        values = sVal.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                                        if (values != null && values.Length > 0)
-                                        {
-                                            rule.FilterTagValues = values;
-                                        }
-                                        break;
-                                    case "TransitionIntervalUnitsId":
-                                        if (Enum.TryParse<AssetLifeCycleRuleTransitionIntervalUnits>(sVal, out transitionIntervalUnits))
-                                        {
-                                            rule.TransitionIntervalUnits = transitionIntervalUnits;
-                                        }
-                                        else
-                                        {
-                                            result = false;
-                                        }
-                                        break;
-                                    case "MetaDateNameId":
-                                        int metaDateNameId = 0;
-                                        if (int.TryParse(sVal, out metaDateNameId) && metaDateNameId > 0)
-                                        {
-                                            object obj = ODBCWrapper.Utils.GetTableSingleVal("groups_date_metas", "name", metaDateNameId);
-                                            if (obj != null && obj != DBNull.Value && !string.IsNullOrEmpty(obj.ToString()))
-                                            {
-                                                rule.MetaDateName = obj.ToString();
-                                            }
-                                            else
-                                            {
-                                                result = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            result = false;
-                                        }
-                                        break;
-                                    case "MetaDateValue":
-                                        long metaDate = 0;
-                                        if (long.TryParse(sVal, out metaDate))
-                                        {
-                                            rule.MetaDateValue = metaDate;
-                                        }
-                                        else
-                                        {
-                                            result = false;
-                                        }
-                                        break;
-                                    case "TagNamesToAdd":                                        
-                                        values = sVal.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                                        if (values != null && values.Length > 0)
-                                        {
-                                            rule.TagNamesToAdd = values;
-                                        }
-                                        break;
-                                    case "TagNamesToRemove":
-                                        values = sVal.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-                                        if (values != null && values.Length > 0)
-                                        {
-                                            rule.TagNamesToRemove = values;
-                                        }
-                                        break;
-                                    default:
-                                        break;
-
-                                }
-                                #endregion
-                            }
+                            sVal = coll[nCounter.ToString() + "_val"].ToString();
                         }
 
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error("Failed in switch GetFriendlyAssetLifeCycleRule", ex);
-                        result = false;
-                        break;
-                    }
+                        if (!string.IsNullOrEmpty(sVal))
+                        {
+                            #region case
+                            switch (sFieldName)
+                            {
+                                case "Name":
+                                    rule.Name = sVal;
+                                    break;
+                                case "Description":
+                                    rule.Description = sVal;
+                                    break;
+                                case "FilterTagTypeId":
+                                    rule.FilterTagType = new KeyValuePair() { key = sVal, value = string.Empty };
+                                    break;
+                                case "FilterTagOperand":
+                                    if (Enum.TryParse<eCutType>(sVal, out operand))
+                                    {
+                                        rule.FilterTagOperand = operand;
+                                    }
+                                    else
+                                    {
+                                        result = false;
+                                    }                                    
+                                    break;
+                                case "FilterTagValues":
+                                    values = sVal.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                                    if (values != null && values.Length > 0)
+                                    {
+                                        rule.FilterTagValues = values;
+                                    }
+                                    break;
+                                case "TransitionIntervalUnitsId":
+                                    if (Enum.TryParse<AssetLifeCycleRuleTransitionIntervalUnits>(sVal, out transitionIntervalUnits))
+                                    {
+                                        rule.TransitionIntervalUnits = transitionIntervalUnits;
+                                    }
+                                    else
+                                    {
+                                        result = false;
+                                    }
+                                    break;
+                                case "MetaDateNameId":
+                                    int metaDateNameId = 0;
+                                    if (sVal == "0")
+                                    {
+                                        rule.MetaDateName = "start_date";
+                                    }
+                                    else if (int.TryParse(sVal, out metaDateNameId) && metaDateNameId > 0)
+                                    {
+                                        object obj = ODBCWrapper.Utils.GetTableSingleVal("groups_date_metas", "name", metaDateNameId);
+                                        if (obj != null && obj != DBNull.Value && !string.IsNullOrEmpty(obj.ToString()))
+                                        {
+                                            rule.MetaDateName = obj.ToString();
+                                        }
+                                        else
+                                        {
+                                            result = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        result = false;
+                                    }
+                                    break;
+                                case "MetaDateValue":
+                                    long metaDate = 0;
+                                    if (long.TryParse(sVal, out metaDate))
+                                    {
+                                        rule.MetaDateValue = metaDate;
+                                    }
+                                    else
+                                    {
+                                        result = false;
+                                    }
+                                    break;
+                                case "TagNamesToAdd":
+                                    values = sVal.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                                    if (values != null && values.Length > 0)
+                                    {
+                                        rule.TagNamesToAdd = values;
+                                    }
+                                    break;
+                                case "TagNamesToRemove":
+                                    values = sVal.Split(new char[1] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                                    if (values != null && values.Length > 0)
+                                    {
+                                        rule.TagNamesToRemove = values;
+                                    }
+                                    break;
+                                default:
+                                    break;
 
-                    nCounter++;
+                            }
+                            #endregion
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Failed in switch GetFriendlyAssetLifeCycleRule", ex);
+                    result = false;
+                    break;
                 }
 
+                nCounter++;
             }
-            catch (Exception ex)
-            {
-                log.Error("Failed GetFriendlyAssetLifeCycleRule", ex);
-            }
-        }
 
+        }
+        catch (Exception ex)
+        {
+            log.Error("Failed GetFriendlyAssetLifeCycleRule", ex);
+        }
+        
         return result;
-    }
+    }            
 
     private bool InsertOrUpdateFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
     {
@@ -384,7 +400,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             string sWSPass = "";
 
             TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "Asset", "api", sIP, ref sWSUserName, ref sWSPass);
-            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");            
+            string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
             if (!string.IsNullOrEmpty(sWSURL) && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
             {
                 apiWS.API client = new apiWS.API();
