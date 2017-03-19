@@ -1127,6 +1127,12 @@ namespace Core.Users
             {
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User(m_nGroupID, nUserID);
+                
+                if (u.Id == 0)
+                {
+                    resp.Initialize(ResponseStatus.InternalError, null);
+                    return resp;
+                }
 
                 bool isSubscribeNewsLetter = false;
                 bool isUnSubscribeNewsLeter = false;

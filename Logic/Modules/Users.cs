@@ -1630,13 +1630,8 @@ namespace Core.Users
             response.user = SetUserData(nGroupID, siteGUID, basicData, dynamicData);
             if (response.user != null)
             {
-                response.resp.Code = (int)ApiObjects.Response.eResponseStatus.OK;
-                response.resp.Message = ApiObjects.Response.eResponseStatus.OK.ToString();
-            }
-            else
-            {
-                response.resp.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.resp.Message = "Error";
+                // convert response status
+                response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
             }
             return response;
         }
