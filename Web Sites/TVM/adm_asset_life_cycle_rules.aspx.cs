@@ -45,15 +45,16 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("MAIN_CONNECTION_STRING");
-        theTable += "select ID, name as Name, description as Description, is_active, status, last_run_date as 'Last Run Date' from asset_life_cycle_rules where status!=2 and ";
+        theTable += "select ID, name as Name, description as Description, is_active, status, last_run_date as 'Last Run Date' from asset_life_cycle_rules where status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
         if (sOrderBy != "")
         {
             theTable += " order by ";
             theTable += sOrderBy;
         }
-        
-        theTable.AddHiddenField("status");     
+
+        theTable.AddHiddenField("ID");
+        theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
         theTable.AddOrderByColumn("Name", "Name");
 
