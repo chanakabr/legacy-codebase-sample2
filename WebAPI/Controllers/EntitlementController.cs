@@ -33,6 +33,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.CancelationWindowPeriodExpired)]
         [Throws(eResponseStatus.ContentAlreadyConsumed)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
         public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;

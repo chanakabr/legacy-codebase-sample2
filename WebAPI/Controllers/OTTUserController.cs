@@ -583,6 +583,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserExists)]
         public KalturaOTTUser Update(KalturaOTTUser user)
         {
             KalturaOTTUser response = null;
