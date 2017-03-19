@@ -34,11 +34,12 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                     HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new rule";
                 }
 
+                EndOfAction();
                 return;
             }
 
-            m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+            //m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
+            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             int ruleId = 0;
             if (Request.QueryString["rule_id"] != null && !string.IsNullOrEmpty(Request.QueryString["rule_id"].ToString()) && int.TryParse(Request.QueryString["rule_id"].ToString(), out ruleId) && ruleId > 0)
             {
@@ -418,6 +419,36 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         }
 
         return result;
+    }
+
+    private void EndOfAction()
+    {
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+        {
+            // string sFailure = coll["failure_back_page"].ToString();
+            if (coll["failure_back_page"] != null)
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
+            else
+                HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        }
+        else
+        {
+            if (HttpContext.Current.Request.QueryString["back_n_next"] != null)
+            {
+                HttpContext.Current.Session["last_page_html"] = null;
+                string s = HttpContext.Current.Session["back_n_next"].ToString();
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + s.ToString() + "';</script>");
+                HttpContext.Current.Session["back_n_next"] = null;
+            }
+            else
+            {
+                if (coll["success_back_page"] != null)
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+                else
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+            }
+        }
     }
 
 }
