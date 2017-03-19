@@ -98,7 +98,7 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_ossAdapter.SetDefault(0);
             theRecord.AddRecord(dr_ossAdapter);
 
-            
+
             DataRecordCheckBoxField dr_SendFirstPurchaseMail = new DataRecordCheckBoxField(true);
             dr_SendFirstPurchaseMail.Initialize("Send First Purchase Email", "adm_table_header_nbg", "FormInput", "SEND_FIRST_PURCHASE_MAIL", false);
             dr_SendFirstPurchaseMail.SetDefault(1);
@@ -118,6 +118,87 @@ public partial class adm_billing_settings : System.Web.UI.Page
             dr_SendFailRenewMail.Initialize("Send Fail Renew Email", "adm_table_header_nbg", "FormInput", "SEND_FAIL_RENEW_MAIL", false);
             dr_SendFailRenewMail.SetDefault(1);
             theRecord.AddRecord(dr_SendFailRenewMail);
+
+            DataRecordShortTextField shortTextField = null;
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("InApp URL", "adm_table_header_nbg", "FormInput", "InAppURL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("InApp token", "adm_table_header_nbg", "FormInput", "InAppToken", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("InApp shared secret", "adm_table_header_nbg", "FormInput", "InAppSharedSecret", false);
+            theRecord.AddRecord(shortTextField);
+
+            DataRecordShortIntField shortIntField = null;
+            shortIntField = new DataRecordShortIntField(true, 9, 9);
+            shortIntField.Initialize("Multi cc users", "adm_table_header_nbg", "FormInput", "MULTI_USER_CC", false);
+            theRecord.AddRecord(shortIntField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Mail from - name", "adm_table_header_nbg", "FormInput", "MAIL_FROM_NAME", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Mail from - address", "adm_table_header_nbg", "FormInput", "MAIL_FROM_ADD", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase mail template", "adm_table_header_nbg", "FormInput", "PURCHASE_MAIL", false);
+            theRecord.AddRecord(shortTextField); 
+            
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase mail subject", "adm_table_header_nbg", "FormInput", "PURCHASE_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase fail mail template", "adm_table_header_nbg", "FormInput", "PURCHASE_FAIL_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase fail mail subject", "adm_table_header_nbg", "FormInput", "PURCHASE_FAIL_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Preview module cor mail template", "adm_table_header_nbg", "FormInput", "PREVIEW_MODULE_COR_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Preview module cor mail subject", "adm_table_header_nbg", "FormInput", "PREVIEW_MODULE_COR_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Preview module template", "adm_table_header_nbg", "FormInput", "preview_module_template", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase with preview module mail template", "adm_table_header_nbg", "FormInput", "PURCHASE_WITH_PREVIEW_MODULE_MAIL", false);
+            theRecord.AddRecord(shortTextField);            
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase with preview module mail subject", "adm_table_header_nbg", "FormInput", "PURCHASE_WITH_PREVIEW_MODULE_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);           
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase with gift card mail template", "adm_table_header_nbg", "FormInput", "PURCHASE_WITH_GIFT_CARD_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Purchase with gift card mail subject", "adm_table_header_nbg", "FormInput", "PURCHASE_WITH_GIFT_CARD_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Gift card reminder mail template", "adm_table_header_nbg", "FormInput", "GIFT_CARD_REMINDER_MAIL_TEMPLATE_NAME", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Gift card reminder mail subject", "adm_table_header_nbg", "FormInput", "GIFT_CARD_REMINDER_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+
 
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }

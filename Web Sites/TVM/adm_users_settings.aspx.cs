@@ -34,7 +34,6 @@ public partial class adm_users_settings : System.Web.UI.Page
         }
     }
 
-
     protected void GetMainMenu()
     {
         Response.Write(m_sMenu);
@@ -103,6 +102,107 @@ public partial class adm_users_settings : System.Web.UI.Page
             dr_CloseAccountMail.SetDefault(1);
             theRecord.AddRecord(dr_CloseAccountMail);
 
+            DataRecordShortTextField shortTextField = null;
+            DataRecordCheckBoxField checkBoxField = null;
+            DataRecordShortIntField shortIntField = null;
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Forgot password mail template", "adm_table_header_nbg", "FormInput", "FORGOT_PASSWORD_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Forgot password mail subject", "adm_table_header_nbg", "FormInput", "FORGOT_PASS_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Welcome mail template", "adm_table_header_nbg", "FormInput", "WELCOME_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Welcome mail subject", "adm_table_header_nbg", "FormInput", "WELCOME_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Activation mail template", "adm_table_header_nbg", "FormInput", "ACTIVATION_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Activation mail subject", "adm_table_header_nbg", "FormInput", "ACTIVATION_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Is activation needed", "adm_table_header_nbg", "FormInput", "IS_ACTIVATION_NEEDED", false);
+            checkBoxField.SetDefault(1);
+            theRecord.AddRecord(checkBoxField);
+
+            shortIntField = new DataRecordShortIntField(true, 9, 9);
+            shortIntField.Initialize("Activation must hours", "adm_table_header_nbg", "FormInput", "ACTIVATION_MUST_HOURS", false);
+            theRecord.AddRecord(shortIntField);
+
+            shortIntField = new DataRecordShortIntField(true, 9, 9);            
+            shortIntField.Initialize("Token validity hours", "adm_table_header_nbg", "FormInput", "TOKEN_VALIDITY_HOURS", false);
+            theRecord.AddRecord(shortIntField);
+
+            shortIntField = new DataRecordShortIntField(true, 9, 9);
+            shortIntField.Initialize("Allowed logins", "adm_table_header_nbg", "FormInput", "allowed_logins", false);
+            theRecord.AddRecord(shortIntField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Changed pin mail template", "adm_table_header_nbg", "FormInput", "CHANGED_PIN_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Changed pin mail subject", "adm_table_header_nbg", "FormInput", "CHANGED_PIN_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortIntField = new DataRecordShortIntField(true, 9, 9);
+            shortIntField.Initialize("Changed pin token validity hours", "adm_table_header_nbg", "FormInput", "CHANGED_PIN_TOKEN_VALIDITY_HOURS", false);
+            theRecord.AddRecord(shortIntField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Welcome facebook mail template", "adm_table_header_nbg", "FormInput", "WELCOME_FACEBOOK_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Welcome facebook mail subject", "adm_table_header_nbg", "FormInput", "WELCOME_FACEBOOK_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Send password mail template", "adm_table_header_nbg", "FormInput", "SEND_PASSWORD_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Send password mail subject", "adm_table_header_nbg", "FormInput", "SEND_PASSWORD_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Change password mail template", "adm_table_header_nbg", "FormInput", "CHANGE_PASSWORD_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Change password mail subject", "adm_table_header_nbg", "FormInput", "CHANGE_PASSWORD_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Device request mail template", "adm_table_header_nbg", "FormInput", "DEVICE_REQUEST_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Device request mail subject", "adm_table_header_nbg", "FormInput", "DEVICE_REQUEST_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
+
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Send close account mail", "adm_table_header_nbg", "FormInput", "SEND_CLOSE_ACCOUNT_MAIL", false);
+            checkBoxField.SetDefault(1);
+            theRecord.AddRecord(checkBoxField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Close account mail template", "adm_table_header_nbg", "FormInput", "CLOSE_ACCOUNT_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Close account mail subject", "adm_table_header_nbg", "FormInput", "CLOSE_ACCOUNT_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
 
             sTable = theRecord.GetTableHTML("adm_users_settings.aspx?submited=1");
         }
