@@ -4110,9 +4110,9 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static long InsertOrUpdateFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
+        public static long InsertOrUpdateAssetLifeCycleRule(AssetLifeCycleRule rule)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateFriendlyAssetLifeCycleRule");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateAssetLifeCycleRule");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             // for asset_life_cycle_rules table
             sp.AddParameter("Id", rule.Id);
