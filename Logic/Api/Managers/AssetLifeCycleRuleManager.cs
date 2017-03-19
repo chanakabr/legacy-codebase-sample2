@@ -422,7 +422,7 @@ namespace Core.Api.Managers
 
                 rule.KsqlFilter = string.Format("(and ({0} {1}) {2}<'{3}')",
                     // 0
-                    rule.FilterTagOperand.ToString(),
+                    rule.FilterTagOperand.ToString().ToLower(),
                     // 1
                     builder.ToString(),
                     // 3
