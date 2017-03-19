@@ -606,6 +606,8 @@ namespace APILogic
 
             try
             {
+                List<string> tagNamesToAdd = new List<string>(rule.TagNamesToAdd);
+                List<string> tagNamesToRemove = new List<string>(rule.TagNamesToRemove);
                 List<int> tagIdsToAdd = new List<int>();
                 List<int> tagIdsToRemove = new List<int>();
                 int filterTagTypeId = 0;
@@ -662,8 +664,8 @@ namespace APILogic
                         rule.Id = id;
                     }
 
-                    rule.TagNamesToAdd = new List<string>(rule.TagNamesToAdd);
-                    rule.TagNamesToRemove = new List<string>(rule.TagNamesToRemove);
+                    rule.TagNamesToAdd = new List<string>(tagNamesToAdd);
+                    rule.TagNamesToRemove = new List<string>(tagNamesToRemove);
                     result = new FriendlyAssetLifeCycleRuleResponse(rule);
                 }
             }
