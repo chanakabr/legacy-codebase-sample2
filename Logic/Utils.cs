@@ -653,7 +653,7 @@ namespace APILogic
                     return result;
                 }
 
-                long id = DAL.ApiDAL.InsertOrUpdateFriendlyAssetLifeCycleRule(rule);
+                long id = DAL.ApiDAL.InsertOrUpdateAssetLifeCycleRule(rule);
                 if (id > 0)
                 {
                     // in case of insert
