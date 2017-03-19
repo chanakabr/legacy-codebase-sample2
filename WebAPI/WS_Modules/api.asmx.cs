@@ -4178,5 +4178,20 @@ namespace WS_API
             }
         }
 
+        [WebMethod]
+        public bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(string sWSUserName, string sWSPassword, FriendlyAssetLifeCycleRule rule)
+        {
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                return Core.Api.Module.InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(groupId, rule);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+                return false;
+            }
+        }
+
     }
 }
