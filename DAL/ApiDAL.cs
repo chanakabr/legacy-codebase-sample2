@@ -4112,7 +4112,30 @@ namespace DAL
 
         public static long InsertOrUpdateFriendlyAssetLifeCycleRule(FriendlyAssetLifeCycleRule rule)
         {
-            throw new NotImplementedException();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateFriendlyAssetLifeCycleRule");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            // for asset_life_cycle_rules table
+            sp.AddParameter("Id", rule.Id);
+            sp.AddParameter("@Name", rule.Name);
+            sp.AddParameter("@Description", !string.IsNullOrEmpty(rule.Description) ? string.Empty : rule.Description);
+            sp.AddParameter("@KsqlFilter", rule.KsqlFilter);
+            sp.AddParameter("@TransitionIntervalUnits", rule.TransitionIntervalUnits);
+            sp.AddParameter("@GroupId", rule.GroupId);
+
+            // for alcr_tags_actions table            
+            sp.AddIDListParameter("@TagIdsToAdd", rule.Actions.TagIdsToAdd, "id");
+            sp.AddIDListParameter("@TagIdsToRemove", rule.Actions.TagIdsToRemove, "id");
+
+            // for alcr_ppv_file_types_actions table
+            sp.AddIDListParameter("@PpvsToAdd", rule.Actions.FileTypesAndPpvsToAdd.PpvIds.ToList(), "id");
+            sp.AddIDListParameter("@FileTypesToAdd", rule.Actions.FileTypesAndPpvsToAdd.FileTypeIds.ToList(), "id");
+            sp.AddIDListParameter("@PpvsToRemove", rule.Actions.FileTypesAndPpvsToRemove.PpvIds.ToList(), "id");
+            sp.AddIDListParameter("@FileTypesToRemove", rule.Actions.FileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
+
+            // for alcr_ppv_file_types_actions table
+            sp.AddParameter("@EpgId", rule.Actions.GeoBlockRuleToSet);
+
+            return sp.ExecuteReturnValue<long>();            
         }
 
     }
