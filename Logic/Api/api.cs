@@ -9506,5 +9506,21 @@ namespace Core.Api
             return result;
         }
 
+        internal static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(int groupId, FriendlyAssetLifeCycleRule rule)
+        {
+            bool result = false;
+
+            try
+            {
+                result = APILogic.Utils.InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(groupId, rule);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes, groupId: {0}, id: {1}", groupId, rule.Id), ex);
+            }
+
+            return result;
+        }
+
     }
 }

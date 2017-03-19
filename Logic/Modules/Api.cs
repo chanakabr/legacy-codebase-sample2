@@ -1740,5 +1740,22 @@ namespace Core.Api
 
             return result;
         }
+
+        public static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(int groupId, FriendlyAssetLifeCycleRule rule)
+        {
+            bool result = false;
+
+            try
+            {
+                result = Core.Api.api.InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(groupId, rule);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes, groupId: {0}, id: {1}", groupId, rule.Id), ex);
+            }
+
+            return result;
+        }
+
     }
 }
