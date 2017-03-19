@@ -4126,16 +4126,24 @@ namespace DAL
             sp.AddIDListParameter("@TagIdsToAdd", rule.Actions.TagIdsToAdd, "id");
             sp.AddIDListParameter("@TagIdsToRemove", rule.Actions.TagIdsToRemove, "id");
 
+            // for alcr_geo_block table
+            sp.AddParameter("@GeoBlockRuleId", rule.Actions.GeoBlockRuleToSet);
+
+            return sp.ExecuteReturnValue<long>();            
+        }
+
+        public static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(AssetLifeCycleRule rule)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             // for alcr_ppv_file_types_actions table
+            sp.AddParameter("@Id", rule.Id);
             sp.AddIDListParameter("@PpvsToAdd", rule.Actions.FileTypesAndPpvsToAdd.PpvIds.ToList(), "id");
             sp.AddIDListParameter("@FileTypesToAdd", rule.Actions.FileTypesAndPpvsToAdd.FileTypeIds.ToList(), "id");
             sp.AddIDListParameter("@PpvsToRemove", rule.Actions.FileTypesAndPpvsToRemove.PpvIds.ToList(), "id");
             sp.AddIDListParameter("@FileTypesToRemove", rule.Actions.FileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
 
-            // for alcr_ppv_file_types_actions table
-            sp.AddParameter("@GeoBlockRuleId", rule.Actions.GeoBlockRuleToSet);
-
-            return sp.ExecuteReturnValue<long>();            
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
     }
