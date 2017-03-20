@@ -29,6 +29,8 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
             else
                 Session["search_save"] = null;
         }
+
+        Session["FriendlyRule"] = null; 
     }
 
     protected void GetMainMenu()

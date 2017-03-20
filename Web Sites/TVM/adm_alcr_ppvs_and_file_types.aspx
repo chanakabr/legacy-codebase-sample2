@@ -128,8 +128,8 @@
                                     <tr><td><div id="DualListppvsToRemove"></div></td></tr>
                                     <tr><td><div id="DualListfileTypesToRemove"></div></td></tr>
                                     <tr style="padding-top:30px"><td id="confirm_btn" onclick='ApplyChanges();'><a tabindex="2000" href="#confirm_btn" class="btn"></a></td></tr>
-                                    <tr>
-                                        <td onclick='window.document.location.href="adm_asset_life_cycle_rules.aspx'><a href="#" class="btn_back"></a></td>
+                                    <tr>                                        
+                                        <td onclick='window.document.location.href="adm_asset_life_cycle_rules.aspx?search_save=1";'><a href="#" class="btn_back"></a></td>
                                     </tr>
                                 </table>
                             </td>

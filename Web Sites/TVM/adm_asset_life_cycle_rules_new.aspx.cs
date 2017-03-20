@@ -28,13 +28,17 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 FriendlyAssetLifeCycleRule rule = null;
-                if (!GetFriendlyAssetLifeCycleRule(ref rule) ||  !InsertOrUpdateFriendlyAssetLifeCycleRule(rule))
+                if (!GetFriendlyAssetLifeCycleRule(ref rule) || !InsertOrUpdateFriendlyAssetLifeCycleRule(rule))
                 {
                     log.ErrorFormat("Failed GetFriendlyAssetLifeCycleRule or InsertOrUpdateFriendlyAssetLifeCycleRule, rule_id: {0}, name: {1}", rule.Id, rule.Name);
                     HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new rule";
                 }
-
-                EndOfAction();
+                else
+                {
+                    Session["rule_id"] = 0;
+                    Session["FriendlyRule"] = null;  
+                    EndOfAction();
+                }
                 return;
             }
 
@@ -49,8 +53,6 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             {
                 Session["rule_id"] = 0;                
             }
-
-            
         }
 
     }
@@ -136,7 +138,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_description.setFiledName("Description");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_description.SetValue(friendlyAssetLifeCycleRule.Description);
+            dr_description.SetValue(!string.IsNullOrEmpty(friendlyAssetLifeCycleRule.Description) ? friendlyAssetLifeCycleRule.Description : string.Empty);
         }
         theRecord.AddRecord(dr_description);
 
@@ -221,7 +223,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_transitionTagToAdd.setFiledName("TagNamesToAdd");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_transitionTagToAdd.SetValue(string.Join(";", friendlyAssetLifeCycleRule.TagNamesToAdd));
+            dr_transitionTagToAdd.SetValue(friendlyAssetLifeCycleRule.TagNamesToAdd != null ? string.Join(";", friendlyAssetLifeCycleRule.TagNamesToAdd) : string.Empty);
         }
         theRecord.AddRecord(dr_transitionTagToAdd);
 
@@ -230,7 +232,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_transitionTagToRemove.setFiledName("TagNamesToRemove");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_transitionTagToRemove.SetValue(string.Join(";", friendlyAssetLifeCycleRule.TagNamesToRemove));
+            dr_transitionTagToRemove.SetValue(friendlyAssetLifeCycleRule.TagNamesToRemove != null ? string.Join(";", friendlyAssetLifeCycleRule.TagNamesToRemove) : string.Empty);
         }
         theRecord.AddRecord(dr_transitionTagToRemove);
 
