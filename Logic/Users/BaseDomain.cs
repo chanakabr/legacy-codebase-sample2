@@ -1825,7 +1825,7 @@ namespace Core.Users
                         deviceIds = new List<int>(int.Parse(device.m_id));
                         return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
                        
-                    case DrmSecurityPolicy.HousholdLevel:
+                    case DrmSecurityPolicy.HouseholdLevel:
                         
                         deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => int.Parse(y.m_id)).ToList<int>();
                         return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
