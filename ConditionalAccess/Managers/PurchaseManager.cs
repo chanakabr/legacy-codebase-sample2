@@ -690,7 +690,8 @@ namespace ConditionalAccess
                 PrePaidModule relevantPP = null;
 
                 bool isGiftCard = false;
-                Price priceObject = null;
+                Price priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
+                        groupId, ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
 
                 if (coupon != null &&
                     coupon.m_CouponStatus == CouponsStatus.Valid &&
@@ -701,20 +702,6 @@ namespace ConditionalAccess
                     ppvModule.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
                 {
                     isGiftCard = true;
-                    priceReason = PriceReason.Free;
-                    priceObject = new Price()
-                    {
-                        m_dPrice = 0.0,
-                        m_oCurrency = new Currency()
-                        {
-                            m_sCurrencyCD3 = currency
-                        }
-                    };
-                }
-                else
-                {
-                    priceObject = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, ppvModule, siteguid, couponCode,
-                        groupId, ref priceReason, ref relevantSub, ref relevantCol, ref relevantPP, string.Empty, string.Empty, deviceName);
                 }
 
                 bool couponFullDiscount = (priceReason == PriceReason.Free) && coupon != null;
@@ -724,6 +711,19 @@ namespace ConditionalAccess
                     couponFullDiscount) ||
                     (isGiftCard && (priceReason == PriceReason.ForPurchase || priceReason == PriceReason.Free)))
                 {
+                    if (isGiftCard)
+                    {
+                        priceReason = PriceReason.Free;
+                        priceObject = new Price()
+                        {
+                            m_dPrice = 0.0,
+                            m_oCurrency = new Currency()
+                            {
+                                m_sCurrencyCD3 = currency
+                            }
+                        };
+                    }
+
                     // item is for purchase
                     if (priceObject.m_dPrice == price && priceObject.m_oCurrency.m_sCurrencyCD3 == currency)
                     {
