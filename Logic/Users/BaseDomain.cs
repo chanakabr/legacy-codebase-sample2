@@ -1822,7 +1822,7 @@ namespace Core.Users
                 {
                     case DrmSecurityPolicy.DeviceLevel:
 
-                        deviceIds = new List<int>(int.Parse(device.m_id));
+                        deviceIds = new List<int>(){int.Parse(device.m_id)};
                         return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
                        
                     case DrmSecurityPolicy.HouseholdLevel:
