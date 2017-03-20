@@ -57,6 +57,7 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
         theTable.AddOrderByColumn("Name", "Name");
+        theTable.AddActivationField("asset_life_cycle_rules");
 
         //DataTableLinkColumn localesLinkColumn = new DataTableLinkColumn("adm_asset_life_cycle_rule_locales.aspx", "Locale", "");
         //localesLinkColumn.AddQueryStringValue("discount_code_id", "field=id");
