@@ -1334,6 +1334,15 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+
+        public static DataTable GetGroupAdsControlParams(int groupID)
+        {
+            StoredProcedure sp = new StoredProcedure("GetGroupAdsControlParams");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupID);
+
+            return sp.Execute();
+        }
     }
 }
 
