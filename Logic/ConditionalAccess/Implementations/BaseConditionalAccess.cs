@@ -9643,6 +9643,7 @@ namespace Core.ConditionalAccess
                         {
                             oResult.Code = (int)eResponseStatus.InvalidPurchase;
                             oResult.Message = "There is not a valid purchase for this user and asset ID";
+                            return oResult;
                         }
                         
                         // check if payment gateway supports this
@@ -9655,6 +9656,7 @@ namespace Core.ConditionalAccess
                                 if (verificationStatus == null)
                                 {
                                     oResult = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                    return oResult;
                                 }
 
                                 if (verificationStatus.Code != (int)eResponseStatus.OK)
@@ -9671,7 +9673,7 @@ namespace Core.ConditionalAccess
                             }
                         }
                         // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
-                        else if (bCancellationWindow || p_bIsForce)
+                        if (bCancellationWindow || p_bIsForce)
                         {
                             drUserPurchase = dtUserPurchases.Rows[0];
                             sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "SITE_USER_GUID");
@@ -10535,6 +10537,7 @@ namespace Core.ConditionalAccess
         {
             return string.Empty;
         }
+
         public ConditionalAccess.Response.DomainServicesResponse GetDomainServices(int domainID)
         {
             DomainServicesResponse domainServicesResponse = new DomainServicesResponse((int)eResponseStatus.OK);            
@@ -15529,6 +15532,5 @@ namespace Core.ConditionalAccess
         {
             return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
         }
-
     }
 }
