@@ -1827,7 +1827,8 @@ namespace Core.Users
                        
                     case DrmSecurityPolicy.HouseholdLevel:
                         
-                        deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => int.Parse(y.m_id)).ToList<int>();
+                        deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f=> drmPolicy.FamilyLimitation.Count == 0||
+                            !drmPolicy.FamilyLimitation.Contains(f.m_deviceFamilyID)).Select(y => int.Parse(y.m_id)).ToList<int>();
                         return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
                     
                     default:
