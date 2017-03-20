@@ -12,6 +12,7 @@ namespace ElasticSearch.Common
     {
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
+        protected static readonly string META_DATE_PREFIX = "date";
 
         public BaseESSeralizer()
         {
@@ -494,41 +495,53 @@ namespace ElasticSearch.Common
                                 string sNullValue;
                                 eESFieldType eMetaType;
                                 GetMetaType(sMeta, out eMetaType, out sNullValue);
-                                MultiFieldMappingPropertyV1 multiField = new ElasticSearch.Common.MultiFieldMappingPropertyV1()
+                                if (eMetaType != eESFieldType.DATE)
                                 {
-                                    name = sMetaName
-                                };
-                                multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
-                                {
-                                    name = sMetaName,
-                                    type = eMetaType,
-                                    null_value = sNullValue,
-                                    analyzed = false
-                                });
-                                multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
-                                {
-                                    name = "analyzed",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
-                                    null_value = "",
-                                    analyzed = true,
-                                    search_analyzer = sSearchAnalyzer,
-                                    index_analyzer = sIndexAnalyzer
-                                });
-
-                                if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
-                                {
-                                    multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
+                                    MultiFieldMappingPropertyV1 multiField = new ElasticSearch.Common.MultiFieldMappingPropertyV1()
                                     {
-                                        name = "autocomplete",
+                                        name = sMetaName
+                                    };
+                                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
+                                    {
+                                        name = sMetaName,
+                                        type = eMetaType,
+                                        null_value = sNullValue,
+                                        analyzed = false
+                                    });
+                                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
+                                    {
+                                        name = "analyzed",
                                         type = ElasticSearch.Common.eESFieldType.STRING,
                                         null_value = "",
                                         analyzed = true,
-                                        search_analyzer = autocompleteSearchAnalyzer,
-                                        index_analyzer = autocompleteIndexAnalyzer
+                                        search_analyzer = sSearchAnalyzer,
+                                        index_analyzer = sIndexAnalyzer
+                                    });
+
+                                    if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
+                                    {
+                                        multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
+                                        {
+                                            name = "autocomplete",
+                                            type = ElasticSearch.Common.eESFieldType.STRING,
+                                            null_value = "",
+                                            analyzed = true,
+                                            search_analyzer = autocompleteSearchAnalyzer,
+                                            index_analyzer = autocompleteIndexAnalyzer
+                                        });
+                                    }
+
+                                    metas.AddProperty(multiField);
+                                }
+                                else
+                                {
+                                    metas.AddProperty(new BasicMappingPropertyV1()
+                                    {
+                                        name = sMetaName,
+                                        type = eESFieldType.DATE,
+                                        analyzed = false
                                     });
                                 }
-
-                                metas.AddProperty(multiField);
                             }
                         }
                     }
@@ -557,6 +570,10 @@ namespace ElasticSearch.Common
             {
                 sMetaType = eESFieldType.DOUBLE;
                 sNullValue = "0.0";
+            }
+            else if (sMeta.StartsWith(META_DATE_PREFIX))
+            {
+                sMetaType = eESFieldType.DATE;
             }
         }
 

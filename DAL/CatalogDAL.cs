@@ -4554,11 +4554,10 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable GetDateMetasByGroupId(int groupId, List<int> subGroupTree)
+        public static DataTable GetDateMetasByGroupId(List<int> subGroupTree)
         {
             ODBCWrapper.StoredProcedure spMetas = new ODBCWrapper.StoredProcedure("GetDateMetasByGroup");
             spMetas.SetConnectionKey("MAIN_CONNECTION_STRING");
-            spMetas.AddParameter("@GroupId", groupId);
             spMetas.AddIDListParameter<int>("@SubGroupTree", subGroupTree, "Id");
 
             return spMetas.Execute();

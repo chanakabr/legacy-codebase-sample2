@@ -738,7 +738,7 @@ namespace GroupsCacheManager
                 }
 
                 // date metas
-                DataTable dtDateMetaValues = Tvinci.Core.DAL.CatalogDAL.GetDateMetasByGroupId(group.m_nParentGroupID, group.m_nSubGroup);
+                DataTable dtDateMetaValues = Tvinci.Core.DAL.CatalogDAL.GetDateMetasByGroupId(group.m_nSubGroup);
                 if (dtDateMetaValues != null && dtDateMetaValues.Rows.Count > 0)
                 {
                     foreach (DataRow metaDataRow in dtDateMetaValues.Rows)
