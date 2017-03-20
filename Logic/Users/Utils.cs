@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.ServiceModel;
 using Core.Users.Cache;
+using ApiObjects.DRM;
 
 namespace Core.Users
 {
@@ -42,6 +43,16 @@ namespace Core.Users
         {
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.USERS, oCredentials);
+            if (nGroupID == 0)
+                log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
+
+            return nGroupID;
+        }
+
+        static public Int32 GetDomainGroupID(string sWSUserName, string sPass)
+        {
+            Credentials oCredentials = new Credentials(sWSUserName, sPass);
+            Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
             if (nGroupID == 0)
                 log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
 
@@ -1135,6 +1146,75 @@ namespace Core.Users
             }
             return new Tuple<List<long>, bool>(roleIds, res);
         }
-    }
 
+        public static DrmPolicy GetDrmPolicy(int groupId)
+        {
+            DrmPolicy drmPolicy = new DrmPolicy();
+            drmPolicy = DomainDal.GetDrmPolicy(groupId);
+            if (drmPolicy == null)
+            {
+                // set object with default value 
+                drmPolicy = new DrmPolicy()
+                {
+                    Policy = DrmSecurityPolicy.DeviceLevel,
+                    FamilyLimitation = new List<int>()
+                };
+            }
+            return drmPolicy;
+        }
+
+        public static Dictionary<int, string> GetDomainDrmId(int groupId, int domainId, List<int> deviceIds)
+        {
+            Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
+            try
+            {
+                domainDrmId = DomainDal.GetDomainDrmId(domainId);
+
+                if (domainDrmId == null || domainDrmId.Count == 0 || (deviceIds != null && deviceIds.Count > 0
+                    && (deviceIds.Where(d => !domainDrmId.Keys.Contains(d)).Count() > 0)))
+                {
+                    domainDrmId = BuildDomainDrmId(groupId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDomainDrmId failed, groupId : {0}, domainId : {1}", groupId, domainId), ex);
+                domainDrmId = new Dictionary<int, string>();
+            }
+
+            if (deviceIds != null && deviceIds.Count > 0)
+            {
+                return domainDrmId.Where(x => deviceIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            return domainDrmId;
+        }
+
+        private static Dictionary<int, string> BuildDomainDrmId(int groupId, int domainId)
+        {
+            Dictionary<int, string> domainDrmId = new Dictionary<int,string>();
+            // get data from db and insert it to CB
+            // get all devices per domain
+            DataTable dt = DomainDal.Get_DomainDevices(groupId, domainId);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int deviceId = 0;
+                    string drm_Id = string.Empty;
+
+                    drm_Id = ODBCWrapper.Utils.GetSafeStr(dr, "drm_id");
+                    deviceId = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_id");
+
+                    domainDrmId.Add(deviceId, drm_Id);
+                }
+                if (domainDrmId != null && domainDrmId.Count > 0)
+                {
+                    // insert to CB
+                    bool result = DomainDal.SetDomainDrmId(domainDrmId, domainId);
+                }
+            }
+            return domainDrmId;
+        }
+    }
 }

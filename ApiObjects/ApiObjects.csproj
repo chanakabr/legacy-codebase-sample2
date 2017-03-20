@@ -130,6 +130,8 @@
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="CoreObject.cs" />
+    <Compile Include="DRM\DrmPolicy.cs" />
+    <Compile Include="DRM\DrmSecurityPolicy.cs" />
     <Compile Include="Events\KalturaObjectActionEvent.cs" />
     <Compile Include="Events\KalturaObjectChangedEvent.cs" />
     <Compile Include="Events\KalturaObjectDeletedEvent.cs" />
