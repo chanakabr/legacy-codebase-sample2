@@ -59,10 +59,9 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
         theTable.AddOrderByColumn("Name", "Name");
         theTable.AddActivationField("asset_life_cycle_rules");
 
-        //DataTableLinkColumn localesLinkColumn = new DataTableLinkColumn("adm_asset_life_cycle_rule_locales.aspx", "Locale", "");
-        //localesLinkColumn.AddQueryStringValue("discount_code_id", "field=id");
-        //localesLinkColumn.AddQueryCounterValue("select count(*) as val from discount_codes_locales where status=1 and is_active=1 and discount_code_id=", "field=id");
-        //theTable.AddLinkColumn(localesLinkColumn);
+        DataTableLinkColumn ppvLinkColumn = new DataTableLinkColumn("adm_alcr_ppvs_and_file_types.aspx", "Ppvs And File Types", "");
+        ppvLinkColumn.AddQueryStringValue("rule_id", "field=id");
+        theTable.AddLinkColumn(ppvLinkColumn);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
