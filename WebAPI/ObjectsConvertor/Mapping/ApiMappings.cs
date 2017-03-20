@@ -462,8 +462,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 switch (protectionPolicy)
                 {
-                    case KalturaProtectionPolicy.UnlimitedByRecordingLifetime:
-                        result = ProtectionPolicy.UnlimitedByRecordingLifetime;
+                    case KalturaProtectionPolicy.ExtendingRecordingLifetime:
+                        result = ProtectionPolicy.ExtendingRecordingLifetime;
                         break;
                     case KalturaProtectionPolicy.LimitedByRecordingLifetime:
                         result = ProtectionPolicy.LimitedByRecordingLifetime;
@@ -483,8 +483,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 switch (protectionPolicy)
                 {
-                    case ProtectionPolicy.UnlimitedByRecordingLifetime:
-                        result = KalturaProtectionPolicy.UnlimitedByRecordingLifetime;
+                    case ProtectionPolicy.ExtendingRecordingLifetime:
+                        result = KalturaProtectionPolicy.ExtendingRecordingLifetime;
                         break;
                     case ProtectionPolicy.LimitedByRecordingLifetime:
                         result = KalturaProtectionPolicy.LimitedByRecordingLifetime;
@@ -504,8 +504,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 switch (quotaOveragePolicy)
                 {
-                    case QuotaOveragePolicy.QuotaOverage:
-                        result = KalturaQuotaOveragePolicy.QuotaOverage;
+                    case QuotaOveragePolicy.FIFOAutoDelete:
+                        result = KalturaQuotaOveragePolicy.FIFOAutoDelete;
                         break;
                     case QuotaOveragePolicy.StopAtQuota:
                         result = KalturaQuotaOveragePolicy.StopAtQuota;
@@ -525,8 +525,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 switch (kalturaQuotaOveragePolicy)
                 {
-                    case KalturaQuotaOveragePolicy.QuotaOverage:
-                        result = QuotaOveragePolicy.QuotaOverage;
+                    case KalturaQuotaOveragePolicy.FIFOAutoDelete:
+                        result = QuotaOveragePolicy.FIFOAutoDelete;
                         break;
                     case KalturaQuotaOveragePolicy.StopAtQuota:
                         result = QuotaOveragePolicy.StopAtQuota;
