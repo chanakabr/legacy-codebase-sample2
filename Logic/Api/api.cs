@@ -2273,6 +2273,26 @@ namespace Core.Api
             return country;
         }
 
+        public static Country GetCountryByCountryName(int groupId, string countryName)
+        {
+            Country country = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetKeyForCountryName(countryName);
+                if (!LayeredCache.Instance.Get<Country>(key, ref country, APILogic.Utils.GetCountryByCountryNameFromES, new Dictionary<string, object>() { { "countryName", countryName } },
+                                                        groupId, LayeredCacheConfigNames.COUNTRY_BY_COUNTRY_NAME_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting country by countryName from LayeredCache, countryName: {0}, key: {1}", countryName, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed CountryName for countryName: {0}", countryName), ex);
+            }
+
+            return country;
+        }
+
         static public bool CheckGeoBlockMedia(Int32 groupId, Int32 mediaId, string ip, out string ruleName)
         {
             bool isBlocked = false;
@@ -9412,15 +9432,54 @@ namespace Core.Api
             return AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds) > 0;
         }
 
-        public static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        public static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRuleResponse GetFriendlyAssetLifeCycleRule(int groupId, long id)
         {
-            FriendlyAssetLifeCycleRule result = null;
+            FriendlyAssetLifeCycleRuleResponse result = null;
             try
             {
                 Dictionary<int, List<AssetLifeCycleRule>> rules = AssetLifeCycleRuleManager.Instance.GetLifeCycleRules(groupId, new List<long>() { id });
                 if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
                 {
-                    result = new FriendlyAssetLifeCycleRule(rules[groupId].First());
+                    FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(rules[groupId].First());
+                    if (!AssetLifeCycleRuleManager.Instance.BuildActionRuleDataFromKsql(rule))
+                    {
+                        log.ErrorFormat("failed BuildActionRuleDataFromKsql, groupId: {0}, id: {1}", groupId, id);
+                        return result;
+                    }
+
+                    List<string> tagNamesToAdd = new List<string>();
+                    List<string> tagNamesToRemove = new List<string>();
+                    int filterTagTypeId = 0;
+                    if (!string.IsNullOrEmpty(rule.FilterTagType.key) && int.TryParse(rule.FilterTagType.key, out filterTagTypeId) && filterTagTypeId > 0)
+                    {
+                        if (rule.Actions.TagIdsToAdd != null && rule.Actions.TagIdsToAdd.Count > 0)
+                        {
+                            tagNamesToAdd = AssetLifeCycleRuleManager.Instance.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToAdd);
+                            if (rule.Actions.TagIdsToAdd.Count != tagNamesToAdd.Count)
+                            {
+                                log.ErrorFormat("GetTagNamesByTagIds returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagIdsToAdd: {3}",
+                                                 groupId, id, rule.Name, string.Join(",", rule.Actions.TagIdsToAdd));
+                                return result;
+                            }
+
+                            rule.TagNamesToAdd = new List<string>(tagNamesToAdd);
+                        }
+                        
+                        if (rule.Actions.TagIdsToRemove != null && rule.Actions.TagIdsToRemove.Count > 0)
+                        {
+                            tagNamesToRemove = AssetLifeCycleRuleManager.Instance.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToRemove);
+                            if (rule.Actions.TagIdsToRemove.Count != tagNamesToRemove.Count)
+                            {
+                                log.ErrorFormat("GetTagNamesByTagIds returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagIdsToRemove: {3}",
+                                                 groupId, id, rule.Name, string.Join(",", rule.Actions.TagIdsToRemove));
+                                return result;
+                            }
+
+                            rule.TagNamesToRemove = new List<string>(tagNamesToRemove);
+                        }
+                    }
+
+                    result = new FriendlyAssetLifeCycleRuleResponse(rule);
                 }
             }
             catch (Exception ex)
@@ -9431,21 +9490,33 @@ namespace Core.Api
             return result;
         }
 
-        public static string GetFriendlyAssetLifeCycleRuleKsqlFilter(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
+        internal static FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(int groupId, FriendlyAssetLifeCycleRule rule)
         {
-            string result = string.Empty;
+            FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
+
             try
             {
-                FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(groupId, tagType, tagValues, operand, dateMeta, dateValue);
-                if (rule != null && !string.IsNullOrEmpty(rule.KsqlFilter))
-                {
-                    result = rule.KsqlFilter;
-                }
+                result = APILogic.Utils.InsertOrUpdateFriendlyAssetLifeCycleRule(groupId, rule);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRuleKsqlFilter, groupId: {0}, tagType: {1}, tagValues: {2}, operand: {3}, dateMeta: {4}, dateValue: {5}",
-                    groupId, tagType, tagValues != null ? string.Join(",", tagValues) : string.Empty, operand.ToString(), dateMeta, dateValue), ex);
+                log.Error(string.Format("Error in InsertOrUpdateFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}, name: {2}", groupId, rule.Id, rule.Name), ex);
+            }
+
+            return result;
+        }
+
+        internal static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(int groupId, FriendlyAssetLifeCycleRule rule)
+        {
+            bool result = false;
+
+            try
+            {
+                result = APILogic.Utils.InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(groupId, rule);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes, groupId: {0}, id: {1}", groupId, rule.Id), ex);
             }
 
             return result;

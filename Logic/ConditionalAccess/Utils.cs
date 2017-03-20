@@ -6518,6 +6518,21 @@ namespace Core.ConditionalAccess
             return res;
         }
 
+        internal static ApiObjects.Country GetCountryByCountryName(int groupId, string countryName)
+        {
+            ApiObjects.Country res = null;
+            try
+            {
+                res = Core.Api.Module.GetCountryByCountryName(groupId, countryName);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetCountryByCountryName with groupId: {0}, countryName: {1}", groupId, countryName), ex);
+            }
+
+            return res;
+        }
+
         internal static string GetIP2CountryName(int groupId, string ip)
         {
             string res = string.Empty;
@@ -6561,6 +6576,22 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed Utils.GetIP2CountryId with groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return res;
+        }
+
+        internal static string GetCountryCodeByCountryName(int groupId, string countryName)
+        {
+            string res = string.Empty;
+            try
+            {
+                ApiObjects.Country country = GetCountryByCountryName(groupId, countryName);
+                res = country != null ? country.Code : res;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetCountryCodeByCountryName with groupId: {0}, countryName: {1}", groupId, countryName), ex);
             }
 
             return res;

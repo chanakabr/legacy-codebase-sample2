@@ -1649,6 +1649,11 @@ namespace Core.Api
             return Core.Api.api.GetCountryByIp(groupId, ip);
         }
 
+        public static Country GetCountryByCountryName(int groupId, string countryName)
+        {
+            return Core.Api.api.GetCountryByCountryName(groupId, countryName);
+        }
+
         public static string GetLayeredCacheGroupConfig(int groupId)
         {
             return Core.Api.api.GetLayeredCacheGroupConfig(groupId);
@@ -1704,9 +1709,9 @@ namespace Core.Api
             return result;
         }
 
-        public static FriendlyAssetLifeCycleRule GetFriendlyAssetLifeCycleRule(int groupId, long id)
+        public static FriendlyAssetLifeCycleRuleResponse GetFriendlyAssetLifeCycleRule(int groupId, long id)
         {
-            FriendlyAssetLifeCycleRule result = null;
+            FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
 
             try
             {
@@ -1720,21 +1725,37 @@ namespace Core.Api
             return result;
         }
 
-        public static string GetFriendlyAssetLifeCycleRuleKsqlFilter(int groupId, string tagType, List<string> tagValues, eCutType operand, string dateMeta, long dateValue)
+        public static FriendlyAssetLifeCycleRuleResponse InsertOrUpdateFriendlyAssetLifeCycleRule(int groupId, FriendlyAssetLifeCycleRule rule)
         {
-            string result = string.Empty;            
+            FriendlyAssetLifeCycleRuleResponse result = new FriendlyAssetLifeCycleRuleResponse();
 
             try
             {
-                result = Core.Api.api.GetFriendlyAssetLifeCycleRuleKsqlFilter(groupId, tagType, tagValues, operand, dateMeta, dateValue);
+                result = Core.Api.api.InsertOrUpdateFriendlyAssetLifeCycleRule(groupId, rule);
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRuleKsqlFilter, groupId: {0}, tagType: {1}, tagValues: {2}, operand: {3}, dateMeta: {4}, dateValue: {5}",
-                    groupId, tagType, tagValues != null ? string.Join(",", tagValues) : string.Empty, operand.ToString(), dateMeta, dateValue), ex);
+                log.Error(string.Format("Error in InsertOrUpdateFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}, name: {2}", groupId, rule.Id, rule.Name), ex);
             }
 
             return result;
         }
+
+        public static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(int groupId, FriendlyAssetLifeCycleRule rule)
+        {
+            bool result = false;
+
+            try
+            {
+                result = Core.Api.api.InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(groupId, rule);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes, groupId: {0}, id: {1}", groupId, rule.Id), ex);
+            }
+
+            return result;
+        }
+
     }
 }

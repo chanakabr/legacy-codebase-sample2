@@ -2532,7 +2532,7 @@ namespace Core.ConditionalAccess
         protected internal void GetMultiSubscriptionUsageModule(string siteguid, string userIp, Int32 purchaseId, Int32 paymentNumber, int totalPaymentsNumber,
                 int numOfPayments, bool isPurchasedWithPreviewModule, ref double priceValue, ref string customData, ref string sCurrency, ref int nRecPeriods,
                 ref bool isMPPRecurringInfinitely, ref int maxVLCOfSelectedUsageModule, ref string couponCode, Subscription subscription, Compensation compensation = null,
-                string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
+                string previousPurchaseCountryName = null, string previousPurchaseCountryCode = null, string previousPurchaseCurrencyCode = null)
         {
             if (subscription == null)
             {
@@ -2552,7 +2552,7 @@ namespace Core.ConditionalAccess
                         PriceCode price = null;
                         DiscountModule externalDisount = null;
                         if (!string.IsNullOrEmpty(previousPurchaseCountryCode) && !string.IsNullOrEmpty(previousPurchaseCurrencyCode) && Utils.IsValidCurrencyCode(m_nGroupID, previousPurchaseCurrencyCode))
-                        {
+                        {                            
                             price = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, previousPurchaseCountryCode, previousPurchaseCurrencyCode);
                             if (AppUsageModule.m_ext_discount_id > 0)
                             {                                
@@ -2608,7 +2608,7 @@ namespace Core.ConditionalAccess
                         maxVLCOfSelectedUsageModule = AppUsageModule.m_tsMaxUsageModuleLifeCycle;
 
                         customData = GetCustomDataForMPPRenewal(subscription, AppUsageModule, clonedPrice, subscription.m_SubscriptionCode,
-                            siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryCode) ? previousPurchaseCountryCode : string.Empty,
+                            siteguid, priceValue, sCurrency, couponCode, userIp, !string.IsNullOrEmpty(previousPurchaseCountryName) ? previousPurchaseCountryName : string.Empty,
                             string.Empty, string.Empty, compensation);
                     }
                     catch (Exception ex)
@@ -7190,7 +7190,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     //if (nBILLING_METHOD >= 1)
-                    if (Enum.IsDefined(typeof(PaymentMethod), nBILLING_METHOD))
+                    if (Enum.IsDefined(typeof(ePaymentMethod), nBILLING_METHOD))
                     {
                         pm = (ePaymentMethod)(nBILLING_METHOD);
                     }
@@ -9604,7 +9604,6 @@ namespace Core.ConditionalAccess
                 // Start with getting domain info for validation
                 Domain oDomain = Utils.GetDomainInfo(p_nDomainID, this.m_nGroupID);
 
-
                 // Check if the domain is OK
                 if (oDomain == null)
                 {
@@ -9634,15 +9633,42 @@ namespace Core.ConditionalAccess
                         DataTable dtUserPurchases = null;
                         DataRow drUserPurchase = null;
                         string sPurchasingSiteGuid = string.Empty;
+                        string billingGuid = string.Empty;
 
                         // Check if within cancellation window
-                        bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, p_nDomainID);
+                        bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, p_nDomainID, ref billingGuid);
 
                         // Check if the user purchased the asset at all
                         if (dtUserPurchases == null || dtUserPurchases.Rows == null || dtUserPurchases.Rows.Count == 0)
                         {
                             oResult.Code = (int)eResponseStatus.InvalidPurchase;
                             oResult.Message = "There is not a valid purchase for this user and asset ID";
+                        }
+                        
+                        // check if payment gateway supports this
+                        if (p_enmTransactionType == eTransactionType.Subscription && !string.IsNullOrEmpty(billingGuid))
+                        {
+                            try
+                            {
+                                ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(m_nGroupID, billingGuid);
+
+                                if (verificationStatus == null)
+                                {
+                                    oResult = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                                }
+
+                                if (verificationStatus.Code != (int)eResponseStatus.OK)
+                                {
+                                    oResult = verificationStatus;
+                                    log.ErrorFormat("Verification payment gateway does not support cancelation. billingGuid = {0}", billingGuid);
+                                    return oResult;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Error while calling the billing GetPaymentGatewayVerificationStatus", ex);
+                                return new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()); 
+                            }
                         }
                         // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                         else if (bCancellationWindow || p_bIsForce)
@@ -9826,8 +9852,10 @@ namespace Core.ConditionalAccess
                 {
                     return false;
                 }
+
+                string billingGuid = string.Empty;
                 // Check if within cancellation window
-                bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, (int)domainid);
+                bool bCancellationWindow = GetCancellationWindow(p_nAssetID, p_enmTransactionType, ref dtUserPurchases, (int)domainid, ref billingGuid);
 
                 // Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
                 if (bCancellationWindow || p_bIsForce)
@@ -9896,7 +9924,7 @@ namespace Core.ConditionalAccess
         /// <param name="p_dtUserPurchases"></param>
         /// <param name="p_domainID"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID)
+        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid)
         {
             UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -9936,7 +9964,10 @@ namespace Core.ConditionalAccess
 
                 dtCreateDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "CREATE_DATE");
                 sAssetCode = ODBCWrapper.Utils.ExtractString(drUserPurchase, "assetCode"); // ppvCode/SubscriptionCode/CollectionCode
-
+                if (p_enmServiceType == eTransactionType.Subscription)
+                {
+                    billingGuid = ODBCWrapper.Utils.ExtractString(drUserPurchase, "billing_guid"); 
+                }
                 IsCancellationWindow(ref oUsageModule, sAssetCode, dtCreateDate, ref bCancellationWindow, p_enmServiceType);
             }
 
@@ -9962,8 +9993,8 @@ namespace Core.ConditionalAccess
                     log.ErrorFormat("User validation failed: {0}, sSiteGuid: {1}", status.Message, sSiteGuid);
                     return status;
                 }
-
-                bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid);
+                string billingGuid = string.Empty;
+                bool bCancellationWindow = GetCancellationWindow(nAssetID, transactionType, ref dt, (int)domainid, ref billingGuid);
 
                 if (bCancellationWindow)
                 {

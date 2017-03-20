@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="AssetLifeCycleRules\AssetLifeCycleRule.cs" />
     <Compile Include="AssetLifeCycleRules\FriendlyAssetLifeCycleRule.cs" />
+    <Compile Include="AssetLifeCycleRules\FriendlyAssetLifeCycleRuleResponse.cs" />
     <Compile Include="AssetLifeCycleRules\LifeCycleFileTypesAndPpvsTransitions.cs" />
     <Compile Include="AssetLifeCycleRules\LifeCycleTransitions.cs" />
     <Compile Include="Compensation.cs" />

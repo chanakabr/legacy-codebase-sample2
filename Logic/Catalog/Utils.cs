@@ -889,9 +889,35 @@ namespace Core.Catalog
                                     }
                                 }
                             }
-                        }
-                        medias.Add(media.m_nMediaID, media);
+
                             #endregion
+                        }
+
+                        medias.Add(media.m_nMediaID, media);
+
+                        #region - get all date meta
+                        if (dataSet.Tables.Count > 6 && dataSet.Tables[6].Columns != null && dataSet.Tables[6].Rows != null && dataSet.Tables[6].Rows.Count > 0)
+                        {
+                            foreach (DataRow dateMetaRow in dataSet.Tables[6].Rows)
+                            {
+                                int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dateMetaRow, "media_id");
+                                string metaName = ODBCWrapper.Utils.GetSafeStr(dateMetaRow, "name");
+                                DateTime val = ODBCWrapper.Utils.GetDateSafeVal(dateMetaRow, "value");
+                                try
+                                {
+                                    if (!medias[mediaId].m_dMeatsValues.ContainsKey(metaName))
+                                    {
+                                        medias[mediaId].m_dMeatsValues.Add(metaName, val.ToString("yyyyMMddHHmmss"));
+                                    }
+                                }
+                                catch
+                                {
+                                    log.Error(string.Format("Caught exception when trying to add media to group date metas. mediaId = {0}, metaName = {1}, val = {2}",
+                                        mediaId, metaName, val));
+                                }
+                            }
+                        }
+                        #endregion
                     }
 
                     #region - get all the media files types for each mediaId that have been selected.
@@ -1099,29 +1125,6 @@ namespace Core.Catalog
 
                     #endregion
 
-                    #region - get all date meta
-                    if (dataSet.Tables.Count > 6 && dataSet.Tables[6].Columns != null && dataSet.Tables[6].Rows != null && dataSet.Tables[6].Rows.Count > 0)
-                    {
-                        foreach (DataRow row in dataSet.Tables[6].Rows)
-                        {
-                            int mediaId = ODBCWrapper.Utils.GetIntSafeVal(row, "media_id");
-                            string metaName = ODBCWrapper.Utils.GetSafeStr(row, "name");
-                            DateTime val = ODBCWrapper.Utils.GetDateSafeVal(row, "value");
-                            try
-                            {
-                                if (!medias[mediaId].m_dMeatsValues.ContainsKey(metaName))
-                                {
-                                    medias[mediaId].m_dMeatsValues.Add(metaName, val.ToString("yyyyMMddHHmmss"));
-                                }
-                            }
-                            catch
-                            {
-                                log.Error(string.Format("Caught exception when trying to add media to group date metas. mediaId = {0}, metaName = {1}, val = {2}",
-                                    mediaId, metaName, val));
-                            }
-                        }
-                    }
-                    #endregion
                 }
 
             }

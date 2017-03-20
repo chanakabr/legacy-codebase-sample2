@@ -68,6 +68,10 @@ namespace Core.Catalog
         private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUnixTimestamp(new DateTime(1980, 1, 1, 0, 0, 0));
 
+        protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
+        protected static readonly string META_BOOL_SUFFIX = "_BOOL";
+        protected static readonly string META_DATE_PREFIX = "date";
+
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
@@ -439,21 +443,24 @@ namespace Core.Catalog
                     DateTime? endDate = null;
                     string ppbMoudleName = string.Empty;
 
-                    for (int index = 0; index < mediaFilePPVModulesTable.Rows.Count; index++)
+                    if (mediaFilePPVModulesTable != null)
                     {
-                        mediaFileId = Utils.GetIntSafeVal(mediaFilePPVModulesTable.Rows[index], "MEDIA_FILE_ID");
-                        name = Utils.GetStrSafeVal(mediaFilePPVModulesTable.Rows[index], "NAME");
-                        startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "START_DATE");
-                        endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "END_DATE");
-
-                        ppbMoudleName = BuildPPVMoudleName(name, startDate, endDate);
-
-                        if (!dicMediaFilePPVModules.ContainsKey(mediaFileId))
+                        for (int index = 0; index < mediaFilePPVModulesTable.Rows.Count; index++)
                         {
-                            dicMediaFilePPVModules.Add(mediaFileId, new List<string>());
-                        }
+                            mediaFileId = Utils.GetIntSafeVal(mediaFilePPVModulesTable.Rows[index], "MEDIA_FILE_ID");
+                            name = Utils.GetStrSafeVal(mediaFilePPVModulesTable.Rows[index], "NAME");
+                            startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "START_DATE");
+                            endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(mediaFilePPVModulesTable.Rows[index], "END_DATE");
 
-                        dicMediaFilePPVModules[mediaFileId].Add(ppbMoudleName);
+                            ppbMoudleName = BuildPPVMoudleName(name, startDate, endDate);
+
+                            if (!dicMediaFilePPVModules.ContainsKey(mediaFileId))
+                            {
+                                dicMediaFilePPVModules.Add(mediaFileId, new List<string>());
+                            }
+
+                            dicMediaFilePPVModules[mediaFileId].Add(ppbMoudleName);
+                        }
                     }
                 }
             }
@@ -1382,7 +1389,7 @@ namespace Core.Catalog
 
             return result;
         }
-
+        
         /// <summary>
         /// Verifies that the search key is a tag or a meta of either EPG or media
         /// </summary>
@@ -1392,7 +1399,21 @@ namespace Core.Catalog
         /// <returns></returns>
         public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta)
         {
+            Type type;
+            return GetUnifiedSearchKey(originalKey, group, out isTagOrMeta, out type);
+        }
+
+        /// <summary>
+        /// Verifies that the search key is a tag or a meta of either EPG or media
+        /// </summary>
+        /// <param name="originalKey"></param>
+        /// <param name="group"></param>
+        /// <param name="isTagOrMeta"></param>
+        /// <returns></returns>
+        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta, out Type type)
+        {
             isTagOrMeta = false;
+            type = typeof(string);
 
             HashSet<string> searchKeys = new HashSet<string>();
 
@@ -1481,11 +1502,23 @@ namespace Core.Catalog
 
                 var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
 
+                Dictionary<string, string> reverseDictionary = new Dictionary<string, string>();
+                var dictionaries = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>();
+
+                foreach (var dictionary in dictionaries)
+                {
+                    foreach (var pair in dictionary)
+                    {
+                        reverseDictionary[pair.Value] = pair.Key;
+                    }
+                }
+
                 foreach (var meta in metas)
                 {
                     if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
                         isTagOrMeta = true;
+                        GetMetaType(reverseDictionary[meta], out type);
                         searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
                         break;
                     }
@@ -1539,6 +1572,25 @@ namespace Core.Catalog
             }
 
             return searchKeys;
+        }
+
+
+        protected static void GetMetaType(string meta, out Type type)
+        {
+            type = typeof(string);
+
+            if (meta.Contains(META_BOOL_SUFFIX))
+            {
+                type = typeof(int);
+            }
+            else if (meta.Contains(META_DOUBLE_SUFFIX))
+            {
+                type = typeof(double);
+            }
+            else if (meta.StartsWith(META_DATE_PREFIX))
+            {
+                type = typeof(DateTime);
+            }
         }
 
         /// <summary>
@@ -6464,8 +6516,8 @@ namespace Core.Catalog
             bool isTagOrMeta;
 
             // Add prefix (meta/tag) e.g. metas.{key}
-
-            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta);
+            Type metaType;
+            HashSet<string> searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta, out metaType);
 
             string suffix = string.Empty;
 
@@ -6523,6 +6575,12 @@ namespace Core.Catalog
                     searchKeys.Add(languageSpecificSearchKey);
 
                     leaf.field = languageSpecificSearchKey;
+
+                    if (metaType == typeof(DateTime))
+                    {
+                        leaf.valueType = typeof(long);
+                        GetLeafDate(ref leaf, request.m_dServerTime);
+                    }
                 }
                 else
                 {
