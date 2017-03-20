@@ -9,6 +9,8 @@ using ApiObjects;
 using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.DRM;
+using Newtonsoft.Json;
 
 namespace Core.Users
 {
@@ -118,7 +120,7 @@ namespace Core.Users
 
         private DomainResponseStatus ConvertDomainStatusToDomainResponseStatus(DomainStatus domainStatus)
         {
-            switch(domainStatus)
+            switch (domainStatus)
             {
                 case DomainStatus.OK:
                     return DomainResponseStatus.OK;
@@ -158,7 +160,7 @@ namespace Core.Users
             }
             return DomainResponseStatus.Error;
         }
-		
+
         public virtual DomainResponseObject ResetDomain(int nDomainID, int nFrequencyType)
         {
             Domain domain = DomainInitializer(m_nGroupID, nDomainID, false); // build the domain - without insert it to cache 
@@ -169,7 +171,7 @@ namespace Core.Users
                 eDomainResponseStatus = ConvertDomainStatusToDomainResponseStatus(domain.m_DomainStatus);
                 return new DomainResponseObject(null, eDomainResponseStatus);
             }
-			
+
             eDomainResponseStatus = domain.ResetDomain(nFrequencyType);
 
             domain = DomainInitializer(m_nGroupID, nDomainID, true); // Build the domain after the Reset and insert it to cache
@@ -189,7 +191,7 @@ namespace Core.Users
 
                 if (domain == null || domain.m_DomainStatus == DomainStatus.DomainNotExists)
                     return DomainResponseStatus.DomainNotExists;
- 
+
                 //cjeck if  send mail = true
                 bool sendMail = DomainDal.GetCloseAccountMailTrigger(m_nGroupID);
                 log.DebugFormat("RemoveDomain - Close Account mail settings groupId = {0}, sendMail = {1}", m_nGroupID, sendMail);
@@ -223,7 +225,7 @@ namespace Core.Users
                         log.DebugFormat("RemoveDomain - sending mail to domain : {0}, result : {1}", domainId, sendingMailResult);
                     }
                 }
-                
+
             }
 
             catch (Exception ex)
@@ -1482,7 +1484,7 @@ namespace Core.Users
                 else
                 {
                     domainId = DomainDal.GetDomainIDBySiteGuid(groupId, siteGuid);
-                }                
+                }
 
                 if (domainId == 0)
                     return null;
@@ -1502,7 +1504,7 @@ namespace Core.Users
         {
             DeviceRegistrationStatusResponse response = new DeviceRegistrationStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             try
             {
                 // get device
@@ -1703,12 +1705,12 @@ namespace Core.Users
 
             if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended") ;
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");
                 return response;
             }
 
             Device device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
-            
+
             DomainResponseStatus domainResponseStatus;
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1735,16 +1737,140 @@ namespace Core.Users
             return response;
         }
 
-        internal bool VerifyDRMDevice(string deviceUdid, string drmId)
+        /*
+         VerifyDRMDevice => verify that the DRM ID is bound to the specific UDID by specific policy
+         *  get 4 params : 
+         *  groupId , 
+         *  userId , 
+         *  udid (is not necessarily sent), 
+         *  drmId (is a unique ID per device - no need to check the uniqueness)
+         *  1. In this scenario, a UDID is not necessarily sent in the verification request for a specific device brand. Therefore, the DRM ID shall be set on a random free device on the household.
+         *  2. In this scenario, a UDID is assumed to always be sent => need to act by policy : free in specific family device/specific deviceUdid / free in household devices
+         */
+        public virtual bool VerifyDRMDevice(int groupId, string userId, string udid, string drmId)
         {
-            Random random = new Random();
-
-            if (random.Next(100) < 70)
+            try
             {
-                return true;
+                #region params
+                DeviceContainer deviceContainer = new DeviceContainer();
+                Device device = new Device();
+                List<int> deviceIds = new List<int>();
+                Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
+                #endregion
+
+                // get configuration of drm policy
+                DrmPolicy drmPolicy = Utils.GetDrmPolicy(m_nGroupID);
+                if (drmPolicy == null)
+                {
+                    log.Error("fail to get drm policy at VerifyDRMDevice ");
+                    return false; // error 
+                }
+
+                // when deviceUdid is empty drmPolicy.Policy can't be DeviceLevel              
+                if (string.IsNullOrEmpty(udid) && drmPolicy.Policy == DrmSecurityPolicy.DeviceLevel)
+                {
+                    return false;
+                }
+
+                // get domain by userId
+                Domain domain = GetDomainByUser(m_nGroupID, userId);
+                if (domain == null || domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
+                {
+                    log.ErrorFormat("fail to get GetDomainByUser or m_deviceFamilies empty VerifyDRMDevice groupId={0}, userId={1}", m_nGroupID, userId);
+                    return false; // error 
+                }
+
+                if (!string.IsNullOrEmpty(udid))
+                {
+                    // check that udid exsits in doimain device list
+                    deviceContainer = domain.m_deviceFamilies.Where(x => x.DeviceInstances != null && x.DeviceInstances.Find(u => u.m_deviceUDID == udid) != null ? true : false).FirstOrDefault();
+                    if (deviceContainer == null || deviceContainer.DeviceInstances == null || deviceContainer.DeviceInstances.Count == 0)
+                    {
+                        log.ErrorFormat("udid not exsits in Domain devices list groupId={0}, userId={1}, udid ={2}", m_nGroupID, userId, udid);
+                        return false; // error 
+                    }
+
+                    device = deviceContainer.DeviceInstances.Where(x => x.m_deviceUDID == udid).First(); // get specific device by udid
+
+                    // check that device family in the Family policy roles
+                    if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
+                    {
+                        // get domainDrmId by deviceIds list 
+                        deviceIds = deviceContainer.DeviceInstances.Select(d => int.Parse(d.m_id)).ToList<int>();
+                        domainDrmId = Utils.GetDomainDrmId(m_nGroupID, domain.m_nDomainID, deviceIds);
+                        if (domainDrmId.Count == 0)
+                        {
+                            log.ErrorFormat("fail GetDomainDrmId groupId={0}, domainId={1}", m_nGroupID, domain.m_nDomainID);
+                            return false; // error 
+                        }
+                        if (domainDrmId.Where(x => x.Value == drmId).Count() > 0)
+                        {
+                            return true;
+                        }
+                        // get all devices with empty drmId 
+                        domainDrmId = domainDrmId.Where(x => string.IsNullOrEmpty(x.Value)).ToDictionary(x => x.Key, x => x.Value);
+                        if (domainDrmId != null && domainDrmId.Count > 0)
+                        {
+                            // update device table + return true/false by success of update table and remove it from CB
+                            return DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID);
+                        }
+                        return false;
+                    }
+                }
+
+                switch (drmPolicy.Policy)
+                {
+                    case DrmSecurityPolicy.DeviceLevel:
+
+                        deviceIds = new List<int>(){int.Parse(device.m_id)};
+                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
+                       
+                    case DrmSecurityPolicy.HouseholdLevel:
+                        
+                        deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f=> drmPolicy.FamilyLimitation.Count == 0||
+                            !drmPolicy.FamilyLimitation.Contains(f.m_deviceFamilyID)).Select(y => int.Parse(y.m_id)).ToList<int>();
+                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
+                    
+                    default:
+                        return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("VerifyDRMDevice fail groupId={0}, userId={1}, deviceUdid={2}, drmId={3}, ex={4}", groupId, userId, udid, drmId, ex.Message);
             }
             return false;
- 
         }
+
+        private bool CheckDrmSecurity(string drmId, List<int> deviceIds, Dictionary<int, string> domainDrmId, Domain domain, DrmSecurityPolicy drmPolicy)
+        {
+            domainDrmId = Utils.GetDomainDrmId(m_nGroupID, domain.m_nDomainID, deviceIds);
+            // drmid exsits (in the houshold)
+            if (domainDrmId != null && domainDrmId.Count > 0)
+            {               
+                if (domainDrmId.Where(x => x.Value == drmId).Count() > 0)
+                {
+                    if (drmPolicy == DrmSecurityPolicy.DeviceLevel)
+                    {
+                        if (domainDrmId.Where(x => deviceIds.Contains(x.Key)).Count() > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    } 
+                    return true;
+                }
+                // get an empty slot and set it with drmId
+                domainDrmId = domainDrmId.Where(x => string.IsNullOrEmpty(x.Value)).ToDictionary(x => x.Key, x => x.Value);
+                if (domainDrmId != null && domainDrmId.Count > 0)
+                {
+                    return DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID);
+                }
+            }
+            return false;
+        }      
     }
 }

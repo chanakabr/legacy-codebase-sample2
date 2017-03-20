@@ -199,4 +199,5 @@ namespace Core.Users
         CreateDateAsc = 0,
         CreateDateDesc = 1
     }
+
 }

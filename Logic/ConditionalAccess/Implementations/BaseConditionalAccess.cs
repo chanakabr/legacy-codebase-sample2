@@ -12639,7 +12639,7 @@ namespace Core.ConditionalAccess
                     if (recording.Status.Code == (int)eResponseStatus.ExceededQuota)
                     {
                         TimeShiftedTvPartnerSettings accountSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
-                        if (accountSettings != null && accountSettings.QuotaOveragePolicy == QuotaOveragePolicy.QuotaOverage)
+                        if (accountSettings != null && accountSettings.QuotaOveragePolicy == QuotaOveragePolicy.FIFOAutoDelete)
                         {
                             quotaOverage = true;
                         }
@@ -14067,7 +14067,7 @@ namespace Core.ConditionalAccess
                     // calculate program length wit padding
                     programLengthSeconds = (long)(potentialRecording.EndDate - potentialRecording.StartDate).TotalSeconds + padding;
 
-                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.QuotaOverage))
+                    if (programLengthSeconds < availibleQuota || (tstvSettings.QuotaOveragePolicy.HasValue && tstvSettings.QuotaOveragePolicy.Value == QuotaOveragePolicy.FIFOAutoDelete))
                     {
                         crid = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "crid");
                         epgChannelId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_channel_id");

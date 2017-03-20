@@ -932,13 +932,13 @@ namespace Core.Domains
             return response;
         }
 
-        public static bool VerifyDRMDevice(int groupId, string deviceUdid, string drmId)
+        public static bool VerifyDRMDevice(int groupId, string userId, string udid, string drmId)
         {
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                return t.VerifyDRMDevice(deviceUdid, drmId);
+                return t.VerifyDRMDevice(groupId, userId, udid, drmId);
             }
 
             return false;
