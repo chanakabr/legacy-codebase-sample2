@@ -1823,12 +1823,12 @@ namespace Core.Users
                     case DrmSecurityPolicy.DeviceLevel:
 
                         deviceIds = new List<int>(int.Parse(device.m_id));
-                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain);
-
+                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
+                       
                     case DrmSecurityPolicy.HousholdLevel:
                         
                         deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => int.Parse(y.m_id)).ToList<int>();
-                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain);
+                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
                     
                     default:
                         return false;
@@ -1841,14 +1841,25 @@ namespace Core.Users
             return false;
         }
 
-        private bool CheckDrmSecurity(string drmId, List<int> deviceIds, Dictionary<int, string> domainDrmId, Domain domain)
+        private bool CheckDrmSecurity(string drmId, List<int> deviceIds, Dictionary<int, string> domainDrmId, Domain domain, DrmSecurityPolicy drmPolicy)
         {
             domainDrmId = Utils.GetDomainDrmId(m_nGroupID, domain.m_nDomainID, deviceIds);
             // drmid exsits (in the houshold)
             if (domainDrmId != null && domainDrmId.Count > 0)
-            {
+            {               
                 if (domainDrmId.Where(x => x.Value == drmId).Count() > 0)
                 {
+                    if (drmPolicy == DrmSecurityPolicy.DeviceLevel)
+                    {
+                        if (domainDrmId.Where(x => deviceIds.Contains(x.Key)).Count() > 0)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    } 
                     return true;
                 }
                 // get an empty slot and set it with drmId
