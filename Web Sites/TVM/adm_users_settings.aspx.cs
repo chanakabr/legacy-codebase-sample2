@@ -81,30 +81,41 @@ public partial class adm_users_settings : System.Web.UI.Page
             DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_parameters", "adm_table_pager", sBack, "", "ID", t, sBack, "");
             theRecord.SetConnectionKey("users_connection_string");
 
-            DataRecordCheckBoxField dr_LoginViaPin = new DataRecordCheckBoxField(true);
-            dr_LoginViaPin.Initialize("Enable log-in via PIN", "adm_table_header_nbg", "FormInput", "login_via_pin", false);
-            theRecord.AddRecord(dr_LoginViaPin);
-
-            DataRecordCheckBoxField dr_SecurityQuestion = new DataRecordCheckBoxField(true);
-            dr_SecurityQuestion.Initialize("Force security question", "adm_table_header_nbg", "FormInput", "security_question", false);
-            theRecord.AddRecord(dr_SecurityQuestion);
-
-            DataRecordShortIntField dr_pin_must_hours = new DataRecordShortIntField(true, 9, 9);
-            dr_pin_must_hours.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
-            theRecord.AddRecord(dr_pin_must_hours);
-
-            DataRecordCheckBoxField dr_allowUserDeletion = new DataRecordCheckBoxField(true);
-            dr_allowUserDeletion.Initialize("Allow user deletion", "adm_table_header_nbg", "FormInput", "allow_delete_user", false);
-            theRecord.AddRecord(dr_allowUserDeletion);
-
-            DataRecordCheckBoxField dr_CloseAccountMail = new DataRecordCheckBoxField(true);
-            dr_CloseAccountMail.Initialize("Send Close account Email", "adm_table_header_nbg", "FormInput", "SEND_CLOSE_ACCOUNT_MAIL", false);
-            dr_CloseAccountMail.SetDefault(1);
-            theRecord.AddRecord(dr_CloseAccountMail);
-
             DataRecordShortTextField shortTextField = null;
             DataRecordCheckBoxField checkBoxField = null;
             DataRecordShortIntField shortIntField = null;
+
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Enable log-in via PIN", "adm_table_header_nbg", "FormInput", "login_via_pin", false);
+            theRecord.AddRecord(checkBoxField);
+
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Force security question", "adm_table_header_nbg", "FormInput", "security_question", false);
+            theRecord.AddRecord(checkBoxField);
+
+            shortIntField = new DataRecordShortIntField(true, 9, 9);
+            shortIntField.Initialize("PIN Expirey Timeout (minutes)", "adm_table_header_nbg", "FormInput", "PIN_MUST_HOURS", false);
+            theRecord.AddRecord(shortIntField);
+
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Allow user deletion", "adm_table_header_nbg", "FormInput", "allow_delete_user", false);
+            theRecord.AddRecord(checkBoxField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Mail from - name", "adm_table_header_nbg", "FormInput", "MAIL_FROM_NAME", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Mail from - address", "adm_table_header_nbg", "FormInput", "MAIL_FROM_ADD", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Forgot password mail template", "adm_table_header_nbg", "FormInput", "FORGOT_PASSWORD_MAIL", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Forgot password mail subject", "adm_table_header_nbg", "FormInput", "FORGOT_PASS_MAIL_SUBJECT", false);
+            theRecord.AddRecord(shortTextField);
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Forgot password mail template", "adm_table_header_nbg", "FormInput", "FORGOT_PASSWORD_MAIL", false);
@@ -141,10 +152,6 @@ public partial class adm_users_settings : System.Web.UI.Page
 
             shortIntField = new DataRecordShortIntField(true, 9, 9);            
             shortIntField.Initialize("Token validity hours", "adm_table_header_nbg", "FormInput", "TOKEN_VALIDITY_HOURS", false);
-            theRecord.AddRecord(shortIntField);
-
-            shortIntField = new DataRecordShortIntField(true, 9, 9);
-            shortIntField.Initialize("Allowed logins", "adm_table_header_nbg", "FormInput", "allowed_logins", false);
             theRecord.AddRecord(shortIntField);
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
@@ -193,7 +200,7 @@ public partial class adm_users_settings : System.Web.UI.Page
 
             checkBoxField = new DataRecordCheckBoxField(true);
             checkBoxField.Initialize("Send close account mail", "adm_table_header_nbg", "FormInput", "SEND_CLOSE_ACCOUNT_MAIL", false);
-            checkBoxField.SetDefault(1);
+            checkBoxField.SetDefault(0);
             theRecord.AddRecord(checkBoxField);
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);

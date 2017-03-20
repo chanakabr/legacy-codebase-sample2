@@ -133,10 +133,10 @@ public partial class adm_billing_settings : System.Web.UI.Page
             shortTextField.Initialize("InApp shared secret", "adm_table_header_nbg", "FormInput", "InAppSharedSecret", false);
             theRecord.AddRecord(shortTextField);
 
-            DataRecordShortIntField shortIntField = null;
-            shortIntField = new DataRecordShortIntField(true, 9, 9);
-            shortIntField.Initialize("Multi cc users", "adm_table_header_nbg", "FormInput", "MULTI_USER_CC", false);
-            theRecord.AddRecord(shortIntField);
+            //DataRecordShortIntField shortIntField = null;
+            //shortIntField = new DataRecordShortIntField(true, 9, 9);
+            //shortIntField.Initialize("Multi cc users", "adm_table_header_nbg", "FormInput", "MULTI_USER_CC", false);
+            //theRecord.AddRecord(shortIntField);
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Mail from - name", "adm_table_header_nbg", "FormInput", "MAIL_FROM_NAME", false);
