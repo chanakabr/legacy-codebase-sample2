@@ -4117,7 +4117,7 @@ namespace DAL
             // for asset_life_cycle_rules table
             sp.AddParameter("Id", rule.Id);
             sp.AddParameter("@Name", rule.Name);
-            sp.AddParameter("@Description", !string.IsNullOrEmpty(rule.Description) ? string.Empty : rule.Description);
+            sp.AddParameter("@Description", string.IsNullOrEmpty(rule.Description) ? string.Empty : rule.Description);
             sp.AddParameter("@KsqlFilter", rule.KsqlFilter);
             sp.AddParameter("@TransitionIntervalUnits", rule.TransitionIntervalUnits);
             sp.AddParameter("@GroupId", rule.GroupId);

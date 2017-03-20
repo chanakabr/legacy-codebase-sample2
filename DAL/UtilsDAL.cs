@@ -756,5 +756,15 @@ namespace DAL
             return string.Format("media_group_file_type_{0}", mediaID.ToString());
         }
 
+
+        public static string GetDrmPolicyKey(int groupId)
+        {
+            return string.Format("drm_policy_{0}", groupId);
+        }
+
+        internal static string GetDomainDrmIdKey(int domainId)
+        {
+            return string.Format("domain_drmId_{0}", domainId);
+        }
     }
 }
