@@ -794,7 +794,8 @@ namespace ApiObjects
         CatchUp = 1,
         StartOver = 2,
         NPVR = 3,
-        Download = 4
+        Download = 4,
+        AdsControl = 5
     }
 
     public enum DrmType

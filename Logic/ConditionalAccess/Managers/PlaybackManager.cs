@@ -12,6 +12,7 @@ using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -124,9 +125,13 @@ namespace Core.ConditionalAccess
                         {
                             foreach (MediaFileItemPricesContainer price in prices)
                             {
-                                if (Utils.IsFreeItem(price) || Utils.IsItemPurchased(price))
+                                if (Utils.IsItemPurchased(price))
                                 {
                                     assetFileIdsAds.Add(price.m_nMediaFileID, GetFileAdsData(groupId, price, udid));
+                                }
+                                if (Utils.IsFreeItem(price))
+                                {
+                                    assetFileIdsAds.Add(price.m_nMediaFileID, GetDomainAdsControl(groupId, domainId));
                                 }
 
                                 filePrice = price;
@@ -187,7 +192,6 @@ namespace Core.ConditionalAccess
         {
             AdsData adsData = null;
 
-            // TODO: ask Ira why is it list
             if (price.m_oItemPrices != null && price.m_oItemPrices.Length > 0)
             {
                 adsData = new AdsData();
@@ -442,6 +446,54 @@ namespace Core.ConditionalAccess
             }
 
             return response;
+        }
+
+        internal static AdsData GetDomainAdsControl(int groupId, long domainId)
+        {
+            AdsData adsData = null;
+
+            DomainEntitlements domainEntitlements = null;
+            if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, null, ref domainEntitlements))
+            {
+                // get domain subscriptions ordered by priority
+                List<string> subscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => x.Value.sBundleCode).ToList();
+                Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(subscriptionIds, groupId);
+                if (subs != null && subs.Length > 0)
+                {
+                    subs = subs.OrderBy(s => s.m_Priority).ToArray();
+                    foreach (var sub in subs)
+                    {
+                        // find one with policy
+                        if (sub.m_lServices != null && sub.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null)
+                        {
+                            adsData = new AdsData()
+                            {
+                                AdsParam = sub.AdsParam,
+                                AdsPolicy = sub.AdsPolicy
+                            };
+
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // if no subscription found get group default
+            if (adsData == null)
+            {
+                DataTable dt = PricingDAL.GetGroupAdsControlParams(groupId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    adsData = new AdsData()
+                    {
+                        AdsPolicy = (ApiObjects.AdsPolicy)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ADS_POLICY"]),
+                        AdsParam = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ADS_PARAM"])
+                    };
+                }
+            }
+
+            //if no such values return empty
+            return adsData;
         }
     }
 }
