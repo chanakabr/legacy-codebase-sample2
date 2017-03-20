@@ -29,6 +29,8 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
             else
                 Session["search_save"] = null;
         }
+
+        Session["FriendlyRule"] = null; 
     }
 
     protected void GetMainMenu()
@@ -45,22 +47,23 @@ public partial class adm_asset_life_cycle_rules : System.Web.UI.Page
     {
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("MAIN_CONNECTION_STRING");
-        theTable += "select ID, name as Name, description as Description, is_active, status, last_run_date as 'Last Run Date' from asset_life_cycle_rules where status!=2 and ";
+        theTable += "select ID, name as Name, description as Description, is_active, status, last_run_date as 'Last Run Date' from asset_life_cycle_rules where status<>2 and ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
         if (sOrderBy != "")
         {
             theTable += " order by ";
             theTable += sOrderBy;
         }
-        
-        theTable.AddHiddenField("status");     
+
+        theTable.AddHiddenField("ID");
+        theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
         theTable.AddOrderByColumn("Name", "Name");
+        theTable.AddActivationField("asset_life_cycle_rules");
 
-        //DataTableLinkColumn localesLinkColumn = new DataTableLinkColumn("adm_asset_life_cycle_rule_locales.aspx", "Locale", "");
-        //localesLinkColumn.AddQueryStringValue("discount_code_id", "field=id");
-        //localesLinkColumn.AddQueryCounterValue("select count(*) as val from discount_codes_locales where status=1 and is_active=1 and discount_code_id=", "field=id");
-        //theTable.AddLinkColumn(localesLinkColumn);
+        DataTableLinkColumn ppvLinkColumn = new DataTableLinkColumn("adm_alcr_ppvs_and_file_types.aspx", "Ppvs And File Types", "");
+        ppvLinkColumn.AddQueryStringValue("rule_id", "field=id");
+        theTable.AddLinkColumn(ppvLinkColumn);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {

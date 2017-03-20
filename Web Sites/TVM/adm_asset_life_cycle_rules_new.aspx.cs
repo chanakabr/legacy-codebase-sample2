@@ -28,25 +28,30 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 FriendlyAssetLifeCycleRule rule = null;
-                if (!GetFriendlyAssetLifeCycleRule(ref rule) ||  !InsertOrUpdateFriendlyAssetLifeCycleRule(rule))
+                if (!GetFriendlyAssetLifeCycleRule(ref rule) || !InsertOrUpdateFriendlyAssetLifeCycleRule(rule))
                 {
                     log.ErrorFormat("Failed GetFriendlyAssetLifeCycleRule or InsertOrUpdateFriendlyAssetLifeCycleRule, rule_id: {0}, name: {1}", rule.Id, rule.Name);
                     HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new rule";
                 }
-
+                else
+                {
+                    Session["rule_id"] = 0;
+                    Session["FriendlyRule"] = null;  
+                    EndOfAction();
+                }
                 return;
             }
 
-            m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+            //m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
+            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             int ruleId = 0;
             if (Request.QueryString["rule_id"] != null && !string.IsNullOrEmpty(Request.QueryString["rule_id"].ToString()) && int.TryParse(Request.QueryString["rule_id"].ToString(), out ruleId) && ruleId > 0)
             {
-                Session["rule_id"] = ruleId;                
+                Session["rule_id"] = ruleId;
             }
             else
             {
-                Session["rule_id"] = 0;
+                Session["rule_id"] = 0;                
             }
         }
 
@@ -85,7 +90,12 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         int currentGroup = LoginManager.GetLoginGroupID();
         GroupManager groupManager = new GroupManager();
         List<int> subGroups = groupManager.GetSubGroup(currentGroup);
-        if (Session["rule_id"] != null && !string.IsNullOrEmpty(Session["rule_id"].ToString()) && int.TryParse(Session["rule_id"].ToString(), out ruleId) && ruleId > 0)
+        if (Session["FriendlyRule"] != null)
+        {
+            friendlyAssetLifeCycleRule = Session["FriendlyRule"] as FriendlyAssetLifeCycleRule;
+            Session["FriendlyRule"] = null;
+        }
+        else if (Session["rule_id"] != null && !string.IsNullOrEmpty(Session["rule_id"].ToString()) && int.TryParse(Session["rule_id"].ToString(), out ruleId) && ruleId > 0)
         {            
             string sIP = "1.1.1.1";
             string sWSUserName = "";
@@ -124,11 +134,11 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_name);
 
         DataRecordShortTextField dr_description = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_description.Initialize("Description", "adm_table_header_nbg", "FormInput", "", true);
+        dr_description.Initialize("Description", "adm_table_header_nbg", "FormInput", "", false);
         dr_description.setFiledName("Description");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_description.SetValue(friendlyAssetLifeCycleRule.Description);
+            dr_description.SetValue(!string.IsNullOrEmpty(friendlyAssetLifeCycleRule.Description) ? friendlyAssetLifeCycleRule.Description : string.Empty);
         }
         theRecord.AddRecord(dr_description);
 
@@ -164,8 +174,10 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         theRecord.AddRecord(dr_filterTagValues);
 
         DataRecordDropDownField dr_transitionIntervalUnits = new DataRecordDropDownField("lu_alcr_transition_interval_units", "name", "id", "", "", 60, false);
+        sQuery = "select 'Days' as txt, 1 as id";
+        dr_transitionIntervalUnits.SetSelectsQuery(sQuery);
         dr_transitionIntervalUnits.Initialize("Transition Interval Unit", "adm_table_header_nbg", "FormInput", "", true);
-        dr_transitionIntervalUnits.SetDefault(1);
+        dr_transitionIntervalUnits.SetValue("1");
         dr_transitionIntervalUnits.setFiledName("TransitionIntervalUnitsId");
         if (friendlyAssetLifeCycleRule != null)
         {
@@ -211,7 +223,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_transitionTagToAdd.setFiledName("TagNamesToAdd");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_transitionTagToAdd.SetValue(string.Join(";", friendlyAssetLifeCycleRule.TagNamesToAdd));
+            dr_transitionTagToAdd.SetValue(friendlyAssetLifeCycleRule.TagNamesToAdd != null ? string.Join(";", friendlyAssetLifeCycleRule.TagNamesToAdd) : string.Empty);
         }
         theRecord.AddRecord(dr_transitionTagToAdd);
 
@@ -220,7 +232,7 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         dr_transitionTagToRemove.setFiledName("TagNamesToRemove");
         if (friendlyAssetLifeCycleRule != null)
         {
-            dr_transitionTagToRemove.SetValue(string.Join(";", friendlyAssetLifeCycleRule.TagNamesToRemove));
+            dr_transitionTagToRemove.SetValue(friendlyAssetLifeCycleRule.TagNamesToRemove != null ? string.Join(";", friendlyAssetLifeCycleRule.TagNamesToRemove) : string.Empty);
         }
         theRecord.AddRecord(dr_transitionTagToRemove);
 
@@ -386,7 +398,12 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         {
             log.Error("Failed GetFriendlyAssetLifeCycleRule", ex);
         }
-        
+
+        if (result)
+        {
+            Session["FriendlyRule"] = rule;
+        }
+
         return result;
     }            
 
@@ -418,6 +435,41 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
         }
 
         return result;
+    }
+
+    private void EndOfAction()
+    {
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (coll["success_back_page"] != null)
+            HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+        else
+            HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+
+        //if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+        //{
+        //    // string sFailure = coll["failure_back_page"].ToString();
+        //    if (coll["failure_back_page"] != null)
+        //        HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
+        //    else
+        //        HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        //}
+        //else
+        //{
+        //    if (HttpContext.Current.Request.QueryString["back_n_next"] != null)
+        //    {
+        //        HttpContext.Current.Session["last_page_html"] = null;
+        //        string s = HttpContext.Current.Session["back_n_next"].ToString();
+        //        HttpContext.Current.Response.Write("<script>window.document.location.href='" + s.ToString() + "';</script>");
+        //        HttpContext.Current.Session["back_n_next"] = null;
+        //    }
+        //    else
+        //    {
+        //        if (coll["success_back_page"] != null)
+        //            HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+        //        else
+        //            HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        //    }
+        //}
     }
 
 }
