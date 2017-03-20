@@ -831,7 +831,7 @@ namespace ApiObjects
     public enum QuotaOveragePolicy
     {
         StopAtQuota = 0,
-        QuotaOverage = 1
+        FIFOAutoDelete = 1
     }
 
     public enum AssetLifeCycleRuleAction
@@ -851,7 +851,7 @@ namespace ApiObjects
 
     public enum ProtectionPolicy
     {
-        UnlimitedByRecordingLifetime = 0,
+        ExtendingRecordingLifetime = 0,
         LimitedByRecordingLifetime = 1
     }
 }
