@@ -1269,12 +1269,12 @@ namespace WS_Domains
         }
 
         [WebMethod]
-        public bool VerifyDRMDevice(string sWSUsername, string sWSPassword, string userId, string deviceUdid, string drmId)
+        public bool VerifyDRMDevice(string sWSUsername, string sWSPassword, string userId, string udid, string drmId)
         {
             Int32 groupId = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (groupId != 0)
             {
-                return Core.Domains.Module.VerifyDRMDevice(groupId, userId, deviceUdid, drmId);
+                return Core.Domains.Module.VerifyDRMDevice(groupId, userId, udid, drmId);
             }
             else
             {
