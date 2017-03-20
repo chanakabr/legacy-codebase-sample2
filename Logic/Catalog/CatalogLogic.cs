@@ -2935,20 +2935,30 @@ namespace Core.Catalog
                 lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
             }
 
-            LanguageObj lang = null;
-            string langCode = null;
+            Group group = GroupsCache.Instance().GetGroup(pRequest.m_nGroupID);
+            LanguageObj language = null;
+            List<LanguageObj> languages = new List<LanguageObj>();
+            BaseEpgBL epgBL = null;
+
             if (pRequest.m_oFilter != null)
             {
-                lang = GetLanguage(pRequest.m_nGroupID, pRequest.m_oFilter.m_nLanguage);
-            }
+                // Getting the language  from the filter request 
+                language = group.GetLanguage(pRequest.m_oFilter.m_nLanguage);
 
-            if (lang != null && !lang.IsDefault)
+                // in case no language was found - return all groups' languages                
+                if (language == null)
+                    languages = group.GetLangauges();
+                else
+                    languages.Add(language);
+            }
+            else
             {
-                langCode = lang.Code;
+                // in case no language was found - return all groups' languages                
+                languages = group.GetLangauges();
             }
 
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
-            List<EPGChannelProgrammeObject> programs = epgBL.GetEpgCBsWithLanguage(lEpgIDs.Select(e => (ulong)e).ToList(), langCode);
+            epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
+            List<EPGChannelProgrammeObject> programs = epgBL.GetEpgCBsWithLanguage(lEpgIDs.Select(id => (ulong)id).ToList(), languages);
 
             // get all linear settings about channel + group
             GetLinearChannelSettings(pRequest.m_nGroupID, programs);
