@@ -9444,7 +9444,7 @@ namespace Core.Api
             FriendlyAssetLifeCycleRuleResponse result = null;
             try
             {
-                Dictionary<int, List<AssetLifeCycleRule>> rules = AssetLifeCycleRuleManager.Instance.GetLifeCycleRules(groupId, new List<long>() { id });
+                Dictionary<int, List<AssetLifeCycleRule>> rules = AssetLifeCycleRuleManager.Instance.GetLifeCycleRules(groupId, new List<long>() { id }, false);
                 if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
                 {
                     FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(rules[groupId].First());
