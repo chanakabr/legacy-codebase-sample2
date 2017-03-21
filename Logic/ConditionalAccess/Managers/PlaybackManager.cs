@@ -5,6 +5,7 @@ using ApiObjects;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
+using CachingProvider.LayeredCache;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
@@ -108,7 +109,7 @@ namespace Core.ConditionalAccess
                 }
 
                 List<MediaFile> files = Utils.FilterMediaFilesForAsset(groupId, assetId, assetType, mediaId, streamerType, mediaProtocol, context, fileIds);
-                Dictionary<long, AdsData> assetFileIdsAds = new Dictionary<long, AdsData>();
+                Dictionary<long, AdsControlData> assetFileIdsAds = new Dictionary<long, AdsControlData>();
 
                 if (files != null && files.Count > 0)
                 {
@@ -116,20 +117,27 @@ namespace Core.ConditionalAccess
 
                     if (assetType == eAssetTypes.NPVR && (epgChannelLinearMedia == null || epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                     {
-                        assetFileIdsAds = files.ToDictionary(f => f.Id, f => new AdsData());
+                        assetFileIdsAds = files.ToDictionary(f => f.Id, f => new AdsControlData());
                     }
                     else
                     {
                         prices = cas.GetItemsPrices(files.Select(f => (int)f.Id).ToArray(), userId, true, string.Empty, string.Empty, string.Empty);
                         if (prices != null && prices.Length > 0)
                         {
+                            AdsControlData adsData;
                             foreach (MediaFileItemPricesContainer price in prices)
                             {
+                                adsData = null;
+
                                 if (Utils.IsItemPurchased(price))
                                 {
-                                    assetFileIdsAds.Add(price.m_nMediaFileID, GetFileAdsData(groupId, price, udid));
+                                    adsData = GetFileAdsDataFromBusinessModule(groupId, price, udid);
+                                    if (adsData != null)
+                                    {
+                                        assetFileIdsAds.Add(price.m_nMediaFileID, adsData);
+                                    }
                                 }
-                                if (Utils.IsFreeItem(price))
+                                if (Utils.IsFreeItem(price) || adsData == null)
                                 {
                                     assetFileIdsAds.Add(price.m_nMediaFileID, GetDomainAdsControl(groupId, domainId));
                                 }
@@ -188,16 +196,16 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static AdsData GetFileAdsData(int groupId, MediaFileItemPricesContainer price, string udid)
+        private static AdsControlData GetFileAdsDataFromBusinessModule(int groupId, MediaFileItemPricesContainer price, string udid)
         {
-            AdsData adsData = null;
+            AdsControlData adsData = null;
 
             if (price.m_oItemPrices != null && price.m_oItemPrices.Length > 0)
             {
-                adsData = new AdsData();
+                adsData = new AdsControlData();
                 Subscription subscription = null;
                 ItemPriceContainer itemPrice = price.m_oItemPrices[0];
-                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null)
+                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null && subscription.AdsPolicy != null)
                 {
                     adsData.AdsPolicy = subscription.AdsPolicy;
                     adsData.AdsParam = subscription.AdsParam;
@@ -205,7 +213,7 @@ namespace Core.ConditionalAccess
                 else
                 {
                     PPVModule ppv = Core.Pricing.Module.GetPPVModuleData(groupId, price.m_oItemPrices[0].m_sPPVModuleCode, string.Empty, string.Empty, udid);
-                    if (ppv != null)
+                    if (ppv != null && ppv.AdsPolicy != null)
                     {
                         adsData.AdsPolicy = ppv.AdsPolicy;
                         adsData.AdsParam = ppv.AdsParam;
@@ -448,9 +456,9 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal static AdsData GetDomainAdsControl(int groupId, long domainId)
+        internal static AdsControlData GetDomainAdsControl(int groupId, long domainId)
         {
-            AdsData adsData = null;
+            AdsControlData adsData = null;
 
             DomainEntitlements domainEntitlements = null;
             if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)domainId, null, ref domainEntitlements))
@@ -464,9 +472,10 @@ namespace Core.ConditionalAccess
                     foreach (var sub in subs)
                     {
                         // find one with policy
-                        if (sub.m_lServices != null && sub.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null)
+                        if (sub.m_lServices != null && sub.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null &&
+                            sub.AdsPolicy != null)
                         {
-                            adsData = new AdsData()
+                            adsData = new AdsControlData()
                             {
                                 AdsParam = sub.AdsParam,
                                 AdsPolicy = sub.AdsPolicy
@@ -481,15 +490,14 @@ namespace Core.ConditionalAccess
             // if no subscription found get group default
             if (adsData == null)
             {
-                DataTable dt = PricingDAL.GetGroupAdsControlParams(groupId);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                string key = LayeredCacheKeys.GetGroupAdsControlKey(groupId);
+
+                if (!LayeredCache.Instance.Get<AdsControlData>(key, ref adsData, Pricing.Utils.GetGetGroupAdsControl, new Dictionary<string, object>() { 
+                                                       { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME, null))
                 {
-                    adsData = new AdsData()
-                    {
-                        AdsPolicy = (ApiObjects.AdsPolicy)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ADS_POLICY"]),
-                        AdsParam = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ADS_PARAM"])
-                    };
+                    log.Error("Failed to get group ads control data");
                 }
+
             }
 
             //if no such values return empty

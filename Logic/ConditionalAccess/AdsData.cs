@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace APILogic.ConditionalAccess
 {
-    public class AdsData
+    public class AdsControlData
     {
         public string AdsParam { get; set; }
 

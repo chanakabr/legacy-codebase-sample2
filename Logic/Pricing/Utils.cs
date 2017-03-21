@@ -405,5 +405,37 @@ namespace Core.Pricing
             return discountModule;
         }
 
+        internal static Tuple<APILogic.ConditionalAccess.AdsControlData, bool> GetGetGroupAdsControl(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            APILogic.ConditionalAccess.AdsControlData adsData = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    if (groupId.HasValue)
+                    {
+                        DataTable dt = DAL.PricingDAL.GetGroupAdsControlParams(groupId.Value);
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                        {
+                            adsData = new APILogic.ConditionalAccess.AdsControlData();
+                            int adsPolicy = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["ADS_POLICY"]);
+                            if (adsPolicy > 0)
+                            {
+                                adsData.AdsPolicy = (ApiObjects.AdsPolicy)adsPolicy;
+                                adsData.AdsParam = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["ADS_PARAM"]);
+                            }
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetGetGroupAdsControl failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<APILogic.ConditionalAccess.AdsControlData, bool>(adsData, res);
+        }
     }
 }
