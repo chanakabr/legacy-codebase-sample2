@@ -2254,5 +2254,73 @@ namespace DAL
 
             return result;
         }
+
+        public static KeyValuePair<string, KeyValuePair<int, string>> GetDrmId(string drmId)
+        {
+            KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
+            if (string.IsNullOrEmpty(drmIdKey))
+            {
+                log.ErrorFormat("Failed getting drmIdKey for drmId: {0}", drmId);
+            }
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        object document = cbClient.Get<object>(drmIdKey, out getResult);
+
+                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            // Deserialize to known class - for comfortable access
+                            response = JsonConvert.DeserializeObject<KeyValuePair<string, KeyValuePair<int, string>>>(document.ToString());
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving drmId by key: {0} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", drmIdKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get drm : {0}, ex: {1}", drmId, ex);                    
+                }
+            }
+
+            return response;
+        }
+
+        public static bool SetDrmId(KeyValuePair<string, KeyValuePair<int, string>> document, string drmId)
+        {
+            bool result = false;
+
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
+            if (string.IsNullOrEmpty(drmIdKey))
+            {
+                log.ErrorFormat("Failed getting drmIdKey for drmIdKey: {0}", drmIdKey);
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+                var json = JsonConvert.SerializeObject(document);
+                result = client.Set<object>(drmIdKey, json);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed updating drmId in Couchbase. drmId = {0}", drmId);
+                }
+            }
+            return result;
+        }
     }
 }

@@ -766,5 +766,10 @@ namespace DAL
         {
             return string.Format("domain_drmId_{0}", domainId);
         }
+
+        internal static string GetDrmIdKey(string drmId)
+        {
+            return string.Format("drmId_{0}", drmId);
+        }
     }
 }
