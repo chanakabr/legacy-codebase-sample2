@@ -183,6 +183,16 @@ namespace Core.Api.Managers
                                             log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
                                         }
 
+                                        //
+                                        //
+                                        // TODO: Only save the results in CB, and on next run perform verification search
+                                        //
+                                        //
+                                        //
+                                        //
+                                        //
+                                        //
+
                                         var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
 
                                         if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
@@ -194,7 +204,7 @@ namespace Core.Api.Managers
                                             // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
                                             if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
                                             {
-                                                this.DisableRule(groupId, rule);
+                                                //this.DisableRule(groupId, rule);
                                             }
                                         }
                                     }

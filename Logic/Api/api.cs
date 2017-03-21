@@ -9363,11 +9363,17 @@ namespace Core.Api
             {
                 // try to get interval for next run take default
                 BaseScheduledTaskLastRunDetails assetLifeCycleRuleScheduledTask = new BaseScheduledTaskLastRunDetails(ScheduledTaskType.assetLifeCycleRuleScheduledTasks);
+
+                // get run details
                 ScheduledTaskLastRunDetails lastRunDetails = assetLifeCycleRuleScheduledTask.GetLastRunDetails();
                 assetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
-                if (assetLifeCycleRuleScheduledTask != null && assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
+
+                if (assetLifeCycleRuleScheduledTask != null && 
+                    assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && 
+                    assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     alcrScheduledTaskIntervalSec = assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
+
                     if (assetLifeCycleRuleScheduledTask.LastRunDate.AddSeconds(alcrScheduledTaskIntervalSec - MAX_SERVER_TIME_DIF) > DateTime.UtcNow)
                     {
                         return true;
@@ -9384,6 +9390,7 @@ namespace Core.Api
                 }
 
                 int impactedItems = AssetLifeCycleRuleManager.Instance.DoActionRules();
+
                 if (impactedItems > 0)
                 {
                     log.DebugFormat("Successfully applied asset life cycle rules on: {0} assets", impactedItems);
