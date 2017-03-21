@@ -42,8 +42,8 @@ public partial class adm_asset_life_cycle_rules_new : System.Web.UI.Page
                 return;
             }
 
-            //m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
-            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
+            m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             int ruleId = 0;
             if (Request.QueryString["rule_id"] != null && !string.IsNullOrEmpty(Request.QueryString["rule_id"].ToString()) && int.TryParse(Request.QueryString["rule_id"].ToString(), out ruleId) && ruleId > 0)
             {
