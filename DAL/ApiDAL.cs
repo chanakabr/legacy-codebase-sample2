@@ -4052,7 +4052,7 @@ namespace DAL
             return res;
         }
 
-        public static DataSet GetLifeCycleRules(int groupId = 0, List<long> ruleIds = null)
+        public static DataSet GetLifeCycleRules(int groupId = 0, List<long> ruleIds = null, bool shouldGetOnlyActive = true)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllLifeCycleRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4060,6 +4060,7 @@ namespace DAL
             {
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddIDListParameter("@RuleIds", ruleIds, "id");
+                sp.AddParameter("@IsActive", shouldGetOnlyActive ? 1 : 0);
             }
 
             return sp.ExecuteDataSet();
