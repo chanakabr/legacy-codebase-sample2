@@ -51,12 +51,12 @@ namespace Core.Api.Managers
 
         #region Public Methods
 
-        public Dictionary<int, List<AssetLifeCycleRule>> GetLifeCycleRules(int groupId = 0, List<long> rulesIds = null)
+        public Dictionary<int, List<AssetLifeCycleRule>> GetLifeCycleRules(int groupId = 0, List<long> rulesIds = null, bool shouldGetOnlyActive = true)
         {
             Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int,List<AssetLifeCycleRule>>();
             try
             {
-                DataSet ds = DAL.ApiDAL.GetLifeCycleRules(groupId, rulesIds);
+                DataSet ds = DAL.ApiDAL.GetLifeCycleRules(groupId, rulesIds, shouldGetOnlyActive);
                 if (ds != null && ds.Tables != null && ds.Tables.Count == 4)
                 {
                     groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(ds);
