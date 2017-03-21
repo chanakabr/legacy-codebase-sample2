@@ -189,5 +189,10 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("groupDefaultCurrency_groupId_{0}", groupId);
         }
+
+        public static string GetGroupAdsControlKey(int groupId)
+        {
+            return string.Format("groupAdsControl_groupId_{0}", groupId);
+        }
     }
 }
