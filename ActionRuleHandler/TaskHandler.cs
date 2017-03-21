@@ -27,6 +27,7 @@ namespace ActionRuleHandler
                 using (ws_api.API api = new ws_api.API())
                 {
                     api.Url = url;
+                    api.Timeout = 600000;
                     bool apiResult = api.DoActionRules();
 
                     if (!apiResult)
