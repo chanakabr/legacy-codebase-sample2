@@ -153,7 +153,7 @@ namespace Core.ConditionalAccess
                 PrePaidModule relevantPP = null;
                 Price oPrice = Utils.GetMediaFileFinalPriceForNonGetItemsPrices(contentId, thePPVModule, userId, string.Empty, groupId,
                                                                                               ref ePriceReason, ref relevantSub, ref relevantCol, ref relevantPP,
-                                                                                              string.Empty, string.Empty, udid, true);
+                                                                                              string.Empty, string.Empty, udid, true, ip);
 
                 if (ePriceReason != PriceReason.ForPurchase && !(ePriceReason == PriceReason.SubscriptionPurchased && oPrice.m_dPrice > 0))
                 {

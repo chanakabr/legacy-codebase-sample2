@@ -6301,8 +6301,7 @@ namespace Core.ConditionalAccess
         {
             string sFirstDeviceNameFound = string.Empty;
             MediaFileItemPricesContainer[] ret = null;
-            bool bCancellationWindow = false;
-            string countryCode = string.Empty;
+            bool bCancellationWindow = false;            
             try
             {
                 MediaFilePPVContainer[] oModules = null;
@@ -6360,7 +6359,7 @@ namespace Core.ConditionalAccess
                     return ret;
                 }
 
-                countryCode = Utils.GetIP2CountryCode(m_nGroupID, ip);
+                string countryCode = !string.IsNullOrEmpty(ip) ? Utils.GetIP2CountryCode(m_nGroupID, ip) : string.Empty;
                 oModules = Core.Pricing.Module.GetPPVModuleListForMediaFilesWithExpiry(m_nGroupID, mediaFiles, countryCode, languageCode, udid);
 
                 if (oModules != null && oModules.Length > 0)

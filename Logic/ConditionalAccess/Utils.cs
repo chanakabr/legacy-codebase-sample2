@@ -1143,7 +1143,7 @@ namespace Core.ConditionalAccess
                         }
                         
                         // Get subscription price code according to country and currency (if exists on the request)
-                        if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode))
+                        if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode)))
                         {
                             countryCode = Utils.GetIP2CountryCode(groupId, ip);
                             PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, theSub.m_oSubscriptionPriceCode.m_nObjectID, countryCode, currencyCode);
@@ -1480,7 +1480,7 @@ namespace Core.ConditionalAccess
             DateTime? dtEndDate = null;
             DateTime? dtDiscountEndDate = null;
 
-            if (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(nGroupID, ref currencyCode))
+            if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(nGroupID, ref currencyCode)))
             {
                 countryCode = GetIP2CountryCode(nGroupID, ip);
                 PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(nGroupID, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
