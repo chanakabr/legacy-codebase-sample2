@@ -1790,6 +1790,7 @@ namespace Core.Users
                 {
                     return true;
                 }// else - drmId unique in domain or not exsits at all continue 
+               
 
                 if (!string.IsNullOrEmpty(udid))
                 {
@@ -1840,7 +1841,10 @@ namespace Core.Users
                 switch (drmPolicy.Policy)
                 {
                     case DrmSecurityPolicy.DeviceLevel:
-
+                        if (drmValue.Key == domain.m_nDomainID && drmValue.Value != udid)
+                        {
+                            return false;
+                        }
                         deviceIds = new List<int>(){int.Parse(device.m_id)};
                         if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy))
                         {

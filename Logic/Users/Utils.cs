@@ -1220,21 +1220,21 @@ namespace Core.Users
         public static bool IsDrmIdUnique(string drmId, int domainId, string udid, ref KeyValuePair<int, string> drmValue)
         {
             KeyValuePair<int, string> response = GetDrmId(drmId);
-            if (response.Key == domainId && response.Value == udid)
-                {
-                    drmValue = new KeyValuePair<int, string>(domainId, udid);
-                    return true;
-                }
-                else if (response.Key == domainId || response.Key == 0)
-                {
-                    drmValue = new KeyValuePair<int, string>(domainId, string.Empty);
-                    return true;
-                }
-                else
-                {
-                    return false; // exsits for another domain
-                }
+            if (response.Key == domainId)
+            {
+                drmValue = response;
+                return true;
             }
+            else if (response.Key != domainId && response.Key > 0)
+            {
+                return false;
+            }
+            else
+            {
+                drmValue = response;
+                return true; // exsits for another domain
+            }
+        }
 
         private static KeyValuePair<int, string> GetDrmId(string drmId)
         {
