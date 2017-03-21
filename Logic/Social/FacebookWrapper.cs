@@ -848,8 +848,8 @@ namespace Core.Social
                     if (sFBToken != sEncryptToken)
                     {
                         uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
-
-                        uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
+                        UserBasicData userBasicDataToUpdate = new UserBasicData() { m_sFacebookToken = sEncryptToken };
+                        uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, userBasicDataToUpdate, uObj.m_user.m_oDynamicData);
                         facebookResponse.ResponseData.status = uObj.m_RespStatus.ToString().ToUpper();
                         facebookResponse.Status.Code = (int)eResponseStatus.OK;
                     }
@@ -1117,10 +1117,14 @@ namespace Core.Social
 
                 if (sFBToken != sEncryptToken || sFacebookID != fbid || sFacebookImage != facebookResponse.ResponseData.pic)
                 {
-                    uObj.m_user.m_oBasicData.m_sFacebookID = fbid;
-                    uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
-                    uObj.m_user.m_oBasicData.m_sFacebookImage = facebookResponse.ResponseData.pic;
-                    uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
+                    UserBasicData userBasicDataToUpdate = new UserBasicData() 
+                    {
+                        m_sFacebookID = fbid,
+                        m_sFacebookToken = sEncryptToken,
+                        m_sFacebookImage = facebookResponse.ResponseData.pic
+                    };
+                
+                    uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, userBasicDataToUpdate, uObj.m_user.m_oDynamicData);
                 }
 
                 Utils.TryWriteToUserLog("Facebook merged.", m_nGroupID, uObj.m_user.m_sSiteGUID);
@@ -1210,10 +1214,13 @@ namespace Core.Social
 
                 if (sFBToken != sEncryptToken || sFacebookID != fbid || sFacebookImage != facebookResponse.ResponseData.pic)
                 {
-                    uObj.m_user.m_oBasicData.m_sFacebookID = fbid;
-                    uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
-                    uObj.m_user.m_oBasicData.m_sFacebookImage = facebookResponse.ResponseData.pic;
-                    uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
+                    UserBasicData userBasicDataToUpdate = new UserBasicData()
+                    {
+                        m_sFacebookID = fbid,
+                        m_sFacebookToken = sEncryptToken,
+                        m_sFacebookImage = facebookResponse.ResponseData.pic
+                    };
+                    uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, userBasicDataToUpdate, uObj.m_user.m_oDynamicData);
                 }
 
                 Utils.TryWriteToUserLog("Facebook merged.", m_nGroupID, uObj.m_user.m_sSiteGUID);
@@ -1480,10 +1487,13 @@ namespace Core.Social
                     /* Unmerging means deleting the following from users table:
                              * 1. Facebook Token. 2. Facebook ID. 3. Facebook Pic.
                              */
-                    user.m_user.m_oBasicData.m_sFacebookID = string.Empty;
-                    user.m_user.m_oBasicData.m_sFacebookImage = string.Empty;
-                    user.m_user.m_oBasicData.m_sFacebookToken = string.Empty;
-                    UserResponseObject resp = Utils.SetUserData(m_nGroupID, user.m_user.m_sSiteGUID, user.m_user.m_oBasicData, user.m_user.m_oDynamicData);
+                    UserBasicData userBasicDataToUpdate = new UserBasicData()
+                    {
+                        m_sFacebookID = string.Empty,
+                        m_sFacebookToken = string.Empty,
+                        m_sFacebookImage = string.Empty
+                    };
+                    UserResponseObject resp = Utils.SetUserData(m_nGroupID, user.m_user.m_sSiteGUID, userBasicDataToUpdate, user.m_user.m_oDynamicData);
                     if (resp != null && resp.m_RespStatus == ResponseStatus.OK)
                     {
                         facebookResponse.ResponseData.status = FacebookResponseStatus.UNMERGEOK.ToString();
@@ -1534,10 +1544,14 @@ namespace Core.Social
                     /* Unmerging means deleting the following from users table:
                              * 1. Facebook Token. 2. Facebook ID. 3. Facebook Pic.
                              */
-                    uro.m_user.m_oBasicData.m_sFacebookID = string.Empty;
-                    uro.m_user.m_oBasicData.m_sFacebookImage = string.Empty;
-                    uro.m_user.m_oBasicData.m_sFacebookToken = string.Empty;
-                    UserResponseObject resp = Utils.SetUserData(m_nGroupID, uro.m_user.m_sSiteGUID, uro.m_user.m_oBasicData, uro.m_user.m_oDynamicData);
+                    UserBasicData userBasicDataToUpdate = new UserBasicData()
+                    {
+                        m_sFacebookID = string.Empty,
+                        m_sFacebookToken = string.Empty,
+                        m_sFacebookImage = string.Empty
+                    };
+
+                    UserResponseObject resp = Utils.SetUserData(m_nGroupID, uro.m_user.m_sSiteGUID, userBasicDataToUpdate, uro.m_user.m_oDynamicData);
                     if (resp != null && resp.m_RespStatus == ResponseStatus.OK)
                     {
                         res.ResponseData.status = FacebookResponseStatus.UNMERGEOK.ToString();
@@ -1642,8 +1656,8 @@ namespace Core.Social
                     //Update user FBToken
                     if (sFBToken != sEncryptToken)
                     {
-                        uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
-                        uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
+                        UserBasicData userBasicDataToUpdate = new UserBasicData() { m_sFacebookToken = sEncryptToken };
+                        uObj = Utils.SetUserData(m_nGroupID, uObj.m_user.m_sSiteGUID, userBasicDataToUpdate, uObj.m_user.m_oDynamicData);
                     }
                     fbs.user = Utils.Signin(m_nGroupID, uObj.m_user.m_sSiteGUID, sIP, deviceID, bPreventDoubleLogins);
                     fbs.status.Code = (int)eResponseStatus.OK;
