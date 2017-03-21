@@ -863,6 +863,8 @@ namespace WebAPI.Controllers
             KS ks = KS.GetFromRequest();
             string userId = ks.UserId;
 
+            contextDataParams.Validate(assetType);
+
             try
             {
                 response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, userId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams);

@@ -69,5 +69,21 @@ namespace WebAPI.Models.ConditionalAccess
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPlaybackContextOptions.context");
             }
         }
+
+        internal void Validate(Catalog.KalturaAssetType assetType)
+        {
+            Validate();
+
+            if (Context.HasValue)
+            {
+                if (((Context.Value == KalturaPlaybackContextType.CATCHUP || Context.Value == KalturaPlaybackContextType.START_OVER) && assetType != Catalog.KalturaAssetType.epg) ||
+                    (Context.Value == KalturaPlaybackContextType.TRAILER && assetType != Catalog.KalturaAssetType.media) ||
+                    (Context.Value == KalturaPlaybackContextType.PLAYBACK && assetType == Catalog.KalturaAssetType.epg))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
+                }
+                 
+            }
+        }
     }
 }
