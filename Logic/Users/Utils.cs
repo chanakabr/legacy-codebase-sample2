@@ -1216,5 +1216,78 @@ namespace Core.Users
             }
             return domainDrmId;
         }
+
+        public static bool IsDrmIdUnique(string drmId, int domainId, string udid, ref KeyValuePair<int, string> drmValue)
+        {
+            KeyValuePair<int, string> response = GetDrmId(drmId);
+            if (response.Key == domainId && response.Value == udid)
+                {
+                    drmValue = new KeyValuePair<int, string>(domainId, udid);
+                    return true;
+                }
+                else if (response.Key == domainId || response.Key == 0)
+                {
+                    drmValue = new KeyValuePair<int, string>(domainId, string.Empty);
+                    return true;
+                }
+                else
+                {
+                    return false; // exsits for another domain
+                }
+            }
+
+        private static KeyValuePair<int, string> GetDrmId(string drmId)
+        {
+            KeyValuePair<int, string> response = new KeyValuePair<int, string>(0, string.Empty);
+
+            KeyValuePair<string, KeyValuePair<int, string>> drm = DomainDal.GetDrmId(drmId);
+
+            if (drm.Key == drmId)
+            {
+                response = drm.Value;
+            }
+           
+            return response;
+        }
+ 
+ 
+
+      
+
+        internal static bool HandleDeviceDrmIdUpdate(int m_nGroupID, string deviceId, string drmId, int domainId, string udid)
+        {
+            bool result = false;
+            try
+            {
+                result = DomainDal.UpdateDeviceDrmID(m_nGroupID, deviceId, drmId, domainId);
+                if (result)
+                {
+                    KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
+                    result = DomainDal.SetDrmId(document, drmId);
+                    if (!result)
+                    {
+                        log.ErrorFormat("fail SetDrmId document={0}, drmId={1}", document.ToJSON(), drmId);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("fail UpdateDeviceDrmID groupID={0}, deviceId={1}, drmId={2}, domainId={3}", m_nGroupID, deviceId, drmId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail HandleDeviceDrmIdUpdate groupID={0}, deviceId={1}, drmId={2}, domainId={3}, udid={4}, ex={5}",
+                    m_nGroupID, deviceId, drmId, domainId, udid, ex);
+                result = false;
+            }
+            return result;
+        }
+
+        internal static bool SetDrmId(string drmId, int domainId, string udid)
+        {
+            KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
+            bool result = DomainDal.SetDrmId(document, drmId);
+            return result;
+        }
     }
 }

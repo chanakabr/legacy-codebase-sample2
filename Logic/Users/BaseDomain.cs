@@ -1743,7 +1743,7 @@ namespace Core.Users
          *  groupId , 
          *  userId , 
          *  udid (is not necessarily sent), 
-         *  drmId (is a unique ID per device - no need to check the uniqueness)
+         *  drmId (is a unique ID per device - will check the uniqueness)
          *  1. In this scenario, a UDID is not necessarily sent in the verification request for a specific device brand. Therefore, the DRM ID shall be set on a random free device on the household.
          *  2. In this scenario, a UDID is assumed to always be sent => need to act by policy : free in specific family device/specific deviceUdid / free in household devices
          */
@@ -1771,7 +1771,7 @@ namespace Core.Users
                 {
                     return false;
                 }
-
+                
                 // get domain by userId
                 Domain domain = GetDomainByUser(m_nGroupID, userId);
                 if (domain == null || domain.m_deviceFamilies == null || domain.m_deviceFamilies.Count == 0)
@@ -1779,6 +1779,17 @@ namespace Core.Users
                     log.ErrorFormat("fail to get GetDomainByUser or m_deviceFamilies empty VerifyDRMDevice groupId={0}, userId={1}", m_nGroupID, userId);
                     return false; // error 
                 }
+                //check the uniqueness of drmID
+                 KeyValuePair<int, string> drmValue = new KeyValuePair<int,string>();
+                bool isDrmIdUnique = Utils.IsDrmIdUnique(drmId, domain.m_nDomainID, udid, ref drmValue);
+                if (!isDrmIdUnique)
+                {
+                    return false; // drmid exsits in ANOTHER domain
+                }
+                else if (drmValue.Key == domain.m_nDomainID && drmValue.Value == udid)
+                {
+                    return true;
+                }// else - drmId unique in domain or not exsits at all continue 
 
                 if (!string.IsNullOrEmpty(udid))
                 {
@@ -1791,7 +1802,7 @@ namespace Core.Users
                     }
 
                     device = deviceContainer.DeviceInstances.Where(x => x.m_deviceUDID == udid).First(); // get specific device by udid
-
+                    
                     // check that device family in the Family policy roles
                     if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
                     {
@@ -1805,6 +1816,10 @@ namespace Core.Users
                         }
                         if (domainDrmId.Where(x => x.Value == drmId).Count() > 0)
                         {
+                            if (drmValue.Key == 0 || string.IsNullOrEmpty(drmValue.Value))
+                            {
+                                return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                            }
                             return true;
                         }
                         // get all devices with empty drmId 
@@ -1812,7 +1827,11 @@ namespace Core.Users
                         if (domainDrmId != null && domainDrmId.Count > 0)
                         {
                             // update device table + return true/false by success of update table and remove it from CB
-                            return DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID);
+
+                            if(DomainDal.UpdateDeviceDrmID(m_nGroupID, domainDrmId.First().Key.ToString(), drmId, domain.m_nDomainID))                            
+                            {
+                                return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                            }
                         }
                         return false;
                     }
@@ -1823,13 +1842,21 @@ namespace Core.Users
                     case DrmSecurityPolicy.DeviceLevel:
 
                         deviceIds = new List<int>(){int.Parse(device.m_id)};
-                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
+                        if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy))
+                        {
+                            return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                        }
+                        return false;
                        
                     case DrmSecurityPolicy.HouseholdLevel:
                         
                         deviceIds = (domain.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f=> drmPolicy.FamilyLimitation.Count == 0||
                             !drmPolicy.FamilyLimitation.Contains(f.m_deviceFamilyID)).Select(y => int.Parse(y.m_id)).ToList<int>();
-                        return CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy);
+                        if (CheckDrmSecurity(drmId, deviceIds, domainDrmId, domain, drmPolicy.Policy))
+                        {
+                            return Utils.SetDrmId(drmId, domain.m_nDomainID, udid);
+                        }
+                        return false;
                     
                     default:
                         return false;
