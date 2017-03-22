@@ -4060,7 +4060,7 @@ namespace DAL
             {
                 sp.AddParameter("@GroupId", groupId);
                 sp.AddIDListParameter("@RuleIds", ruleIds, "id");
-                sp.AddParameter("@IsActive", shouldGetOnlyActive ? 1 : 0);
+                sp.AddParameter("@ShouldGetOnlyActive", shouldGetOnlyActive ? 1 : 0);
             }
 
             return sp.ExecuteDataSet();
