@@ -82,7 +82,6 @@ namespace WebAPI.Models.ConditionalAccess
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
                 }
-                 
             }
         }
     }
