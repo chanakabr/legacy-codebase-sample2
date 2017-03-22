@@ -194,5 +194,10 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("groupAdsControl_groupId_{0}", groupId);
         }
+
+        public static string GetPricingSettingsInvalidationKey(int groupId)
+        {
+            return string.Format("PricingSettings_groupId_{0}", groupId);
+        }
     }
 }
