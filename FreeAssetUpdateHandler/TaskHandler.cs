@@ -19,7 +19,6 @@ namespace FreeAssetUpdateHandler
         public string HandleTask(string data)
         {
             string res = "failure";
-            WS_Catalog.IserviceClient client = null;            
             try
             {
                 log.DebugFormat("starting free asset index update handler request. data={0}", data);
@@ -50,13 +49,6 @@ namespace FreeAssetUpdateHandler
             {
                 log.Error(string.Format("Couldn't update index on catalog due to the following error {0}", ex.Message), ex);
                 throw ex;
-            }
-            finally
-            {
-                if (client != null)
-                {
-                    client.Close();
-                }
             }
 
             return res;

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
-using MessageAnnouncementHandler.ws_notifications;
 using ApiObjects.Response;
 using System.Data;
 using System.Reflection;
@@ -29,31 +28,12 @@ namespace MessageAnnouncementHandler
 
                 MessageAnnouncementRequest request = JsonConvert.DeserializeObject<MessageAnnouncementRequest>(data);
 
-                string url = WS_Utils.GetTcmConfigValue("ws_notifications");
+                bool success = Core.Notification.Module.SendMessageAnnouncement(request.GroupId, request.StartTime, request.MessageAnnouncementId);
 
-                if (string.IsNullOrEmpty(url))
+                if (!success)
                 {
-                    log.Error("did not find ws_notifications URL");
-                    throw new Exception("did not find ws_notifications URL");
-                }
-
-                string username = string.Empty;
-                string password = string.Empty;
-
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATIONS);
-
-                using (NotificationServiceClient notificationsClient = new NotificationServiceClient())
-                {
-                    notificationsClient.Endpoint.Address = new EndpointAddress(url);
-                    bool success = false;
-
-                    success = notificationsClient.SendMessageAnnouncement(username, password, request.StartTime, request.MessageAnnouncementId);
-
-                    if (!success)
-                    {
-                        throw new Exception(string.Format(
-                            "Announcement did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageAnnouncementId));
-                    }
+                    throw new Exception(string.Format(
+                        "Announcement did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageAnnouncementId));
                 }
             }
             catch (Exception)

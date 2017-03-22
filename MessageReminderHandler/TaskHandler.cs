@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
-using MessageReminderHandler.ws_notifications;
 using ApiObjects.Response;
 using System.Data;
 using System.Reflection;
@@ -37,23 +36,12 @@ namespace MessageReminderHandler
                     throw new Exception("did not find ws_notifications URL");
                 }
 
-                string username = string.Empty;
-                string password = string.Empty;
+                bool success = Core.Notification.Module.SendMessageReminder(request.GroupId, request.StartTime, request.MessageReminderId);
 
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.NOTIFICATIONS);
-
-                using (NotificationServiceClient notificationsClient = new NotificationServiceClient())
+                if (!success)
                 {
-                    notificationsClient.Endpoint.Address = new EndpointAddress(url);
-                    bool success = false;
-
-                    success = notificationsClient.SendMessageReminder(username, password, request.StartTime, request.MessageReminderId);
-
-                    if (!success)
-                    {
-                        throw new Exception(string.Format(
-                            "Message reminder did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageReminderId));
-                    }
+                    throw new Exception(string.Format(
+                        "Message reminder did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageReminderId));
                 }
             }
             catch (Exception)

@@ -32,24 +32,13 @@ namespace SocialFeedHandler
                 throw new ArgumentNullException("UpdateFriendsFeed - Must provide a value for group ID, site guid, and db action id");
             }
 
-            using (SocialReference.module socialRef = new SocialReference.module())
+            try
             {
-                try
-                {
-                    string sIP = "1.1.1.1";
-                    string sWSUserName = string.Empty;
-                    string sWSPass = string.Empty;
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "UpdateFriendsFeed", "social", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("social_ws");
-                    if (sWSURL.Length > 0)
-                        socialRef.Url = sWSURL;
-
-                    bResult = socialRef.UpdateFriendsActivityFeed(sWSUserName, sWSPass, m_sSiteGuid, sDbActionID);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error - " + string.Format("Error occurred while updating friends feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
-                }
+                bResult = Core.Social.Module.UpdateFriendsActivityFeed(m_nGroupID, m_sSiteGuid, sDbActionID);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Error occurred while updating friends feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
             }
 
             return bResult;
@@ -62,39 +51,14 @@ namespace SocialFeedHandler
                 throw new ArgumentNullException("DeleteUserFeed - Must provide a value for group ID and site guid");
             }
 
-            using (SocialReference.module socialRef = new SocialReference.module())
+            try
             {
-                try
-                {
-                    string sIP = "1.1.1.1";
-                    string sWSUserName = string.Empty;
-                    string sWSPass = string.Empty;
-                    TVinciShared.WS_Utils.GetWSUNPass(m_nGroupID, "DeleteUserFeed", "social", sIP, ref sWSUserName, ref sWSPass);
-                    string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("social_ws");
-                    if (sWSURL.Length > 0)
-                        socialRef.Url = sWSURL;
-
-                    socialRef.DeleteFriendsFeed(sWSUserName, sWSPass, m_sSiteGuid);
-                }
-                catch (Exception ex)
-                {
-                    log.Error("Error - " + string.Format("Error occurred while deleting user feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
-                }
+                Core.Social.Module.DeleteFriendsFeed(m_nGroupID, m_sSiteGuid);
             }
-        }
-    }
-}
-
-namespace SocialFeedHandler.SocialReference
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
+            catch (Exception ex)
+            {
+                log.Error("Error - " + string.Format("Error occurred while deleting user feed. groupId: {0}, Siteguid: {1} exception: {2}", m_nGroupID, m_sSiteGuid, ex.Message), ex);
+            }
         }
     }
 }

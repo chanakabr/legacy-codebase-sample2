@@ -7,7 +7,6 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using ExportHandler.WS_API;
 using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
@@ -33,16 +32,7 @@ namespace ExportHandler
                 if (request == null)
                     throw new Exception(string.Format("Failed to desterilized export request. data = {0}", data != null ? data : string.Empty));
 
-                string url = WS_Utils.GetTcmConfigValue("WS_API");
-                string username = string.Empty;
-                string password = string.Empty;
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.API);
-
-                API apiClient = new API();
-                if (!string.IsNullOrEmpty(url))
-                    apiClient.Url = url;
-
-                apiClient.ExportAsync(username, password, request.TaskId, request.Version);
+                Core.Api.Module.Export(request.GroupId, request.TaskId, request.Version);
 
                 result = "success";
                 //if (!success)
@@ -58,21 +48,6 @@ namespace ExportHandler
             }
 
             return result;
-        }
-    }
-}
-
-
-namespace ExportHandler.WS_API
-{
-    // adding request ID to header
-    public partial class API
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }

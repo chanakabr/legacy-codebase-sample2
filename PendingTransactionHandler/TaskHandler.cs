@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using PendingTransactionHandler.WS_CAS;
 using RemoteTasksCommon;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using System.Reflection;
 using System.Net;
 using System.Web;
 using System.ServiceModel;
+using ApiObjects.Response;
 
 namespace PendingTransactionHandler
 {
@@ -33,22 +33,9 @@ namespace PendingTransactionHandler
                 
                 PendingTransactionRequest request = JsonConvert.DeserializeObject<PendingTransactionRequest>(data);
 
-                string url = WS_Utils.GetTcmConfigValue("WS_CAS");
-                string username = string.Empty;
-                string password = string.Empty;
-
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
-
-                module cas = new module();
-
-                if (!string.IsNullOrEmpty(url))
-                {
-                    cas.Url = url;
-                }
-
                 bool success = false;
-                
-                Status status = cas.CheckPendingTransaction(username, password, 
+
+                Status status = Core.ConditionalAccess.Module.CheckPendingTransaction(request.GroupID, 
                     request.PaymentGatewayPendingId, request.NumberOfRetries, request.BillingGuide, request.PaymentGatewayTransactionId,
                     request.SiteGuid,request.ProductId, request.ProductType);
 
@@ -72,19 +59,5 @@ namespace PendingTransactionHandler
         }
 
         #endregion
-    }
-}
-
-namespace PendingTransactionHandler.WS_CAS
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
     }
 }
