@@ -136,8 +136,12 @@ namespace Core.ConditionalAccess
                                     {
                                         assetFileIdsAds.Add(price.m_nMediaFileID, adsData);
                                     }
+                                    else
+                                    {
+                                        assetFileIdsAds.Add(price.m_nMediaFileID, GetDomainAdsControl(groupId, domainId));
+                                    }
                                 }
-                                if (Utils.IsFreeItem(price) || adsData == null)
+                                if (Utils.IsFreeItem(price))
                                 {
                                     assetFileIdsAds.Add(price.m_nMediaFileID, GetDomainAdsControl(groupId, domainId));
                                 }
