@@ -77,23 +77,15 @@ namespace SetupTaskHandler
                         #region Notification Clean Iteration
 
                         //Call Notifications WCF service
-                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
-                        using (ws_notifications.NotificationServiceClient service = new ws_notifications.NotificationServiceClient())
+                        var status = Core.Notification.Module.DeleteAnnouncementsOlderThan();
+                        if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                         {
-                            if (!string.IsNullOrEmpty(sWSURL))
-                                service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-                            else
-                                log.ErrorFormat("NotificationCleanupIteration: Couldn't find WS_Notifications URL");
-
-                            var status = service.DeleteAnnouncementsOlderThan(string.Empty, string.Empty);
-                            if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
-                            {
-                                log.Debug("NotificationCleanupIteration: Successfully run cleanup notifications");
-                                success = true;
-                            }
-                            else
-                                log.Error("NotificationCleanupIteration: Error received when trying to run cleanup notifications");
+                            log.Debug("NotificationCleanupIteration: Successfully run cleanup notifications");
+                            success = true;
                         }
+                        else
+                            log.Error("NotificationCleanupIteration: Error received when trying to run cleanup notifications");
+
                         break; 
 
                         #endregion
@@ -102,25 +94,15 @@ namespace SetupTaskHandler
                     {
                         #region Recordings Cleanup
 
-                        string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
-                        using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
+                        success = Core.ConditionalAccess.Module.CleanupRecordings();
+
+                        if (!success)
                         {
-                            if (!string.IsNullOrEmpty(url))
-                            {
-                                cas.Url = url;
-                            }
-
-                            cas.Timeout = 600000;
-                            success = cas.CleanupRecordings();
-
-                            if (!success)
-                            {
-                                log.Error("CleanupRecordings failed");
-                            }
-                            else
-                            {
-                                log.Debug("CleanupRecordings finished successfully");
-                            }
+                            log.Error("CleanupRecordings failed");
+                        }
+                        else
+                        {
+                            log.Debug("CleanupRecordings finished successfully");
                         }
 
                         break;
@@ -185,25 +167,16 @@ namespace SetupTaskHandler
                     case ApiObjects.eSetupTask.InsertExpiredRecordingsTasks:
                     {
                         #region Recording Lifetime
-                        string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
-                        using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
+
+                        success = Core.ConditionalAccess.Module.HandleRecordingsLifetime();
+
+                        if (!success)
                         {
-                            if (!string.IsNullOrEmpty(casUrl))
-                            {
-                                cas.Url = casUrl;
-                            }
-
-                            cas.Timeout = 600000;
-                            success = cas.HandleRecordingsLifetime();
-
-                            if (!success)
-                            {
-                                log.Error("HandleRecordingsLifetime failed");
-                            }
-                            else
-                            {
-                                log.Debug("HandleRecordingsLifetime finished successfully");
-                            }
+                            log.Error("HandleRecordingsLifetime failed");
+                        }
+                        else
+                        {
+                            log.Debug("HandleRecordingsLifetime finished successfully");
                         }
                         break;
                         #endregion
@@ -211,25 +184,16 @@ namespace SetupTaskHandler
                     case ApiObjects.eSetupTask.RecordingScheduledTasks:
                     {
                         #region Recordings Scheduled Tasks
-                        string casUrl = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
-                        using (SetupTaskHandler.WS_ConditionalAccess.module cas = new SetupTaskHandler.WS_ConditionalAccess.module())
+
+                        success = Core.ConditionalAccess.Module.HandleRecordingsScheduledTasks();
+
+                        if (!success)
                         {
-                            if (!string.IsNullOrEmpty(casUrl))
-                            {
-                                cas.Url = casUrl;
-                            }
-
-                            cas.Timeout = 600000;
-                            success = cas.HandleRecordingsScheduledTasks();
-
-                            if (!success)
-                            {
-                                log.Error("HandleRecordingsScheduledTasks failed");
-                            }
-                            else
-                            {
-                                log.Debug("HandleRecordingsScheduledTasks finished successfully");
-                            }
+                            log.Error("HandleRecordingsScheduledTasks failed");
+                        }
+                        else
+                        {
+                            log.Debug("HandleRecordingsScheduledTasks finished successfully");
                         }
                         break;
                         #endregion
@@ -239,23 +203,15 @@ namespace SetupTaskHandler
                         #region Reminder Clean Iteration
 
                         //Call Notifications WCF service
-                        string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("ws_notifications");
-                        using (ws_notifications.NotificationServiceClient service = new ws_notifications.NotificationServiceClient())
+                        var status = Core.Notification.Module.DeleteOldReminders();
+                        if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                         {
-                            if (!string.IsNullOrEmpty(sWSURL))
-                                service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-                            else
-                                log.ErrorFormat("ReminderCleanupIteration: Couldn't find WS_Notifications URL");
-
-                            var status = service.DeleteOldReminders(string.Empty, string.Empty);
-                            if (status != null && status.Code == (int)ApiObjects.Response.eResponseStatus.OK)
-                            {
-                                log.Debug("ReminderCleanupIteration: Successfully run cleanup reminders");
-                                success = true;
-                            }
-                            else
-                                log.Error("ReminderCleanupIteration: Error received when trying to run cleanup reminders");
+                            log.Debug("ReminderCleanupIteration: Successfully run cleanup reminders");
+                            success = true;
                         }
+                        else
+                            log.Error("ReminderCleanupIteration: Error received when trying to run cleanup reminders");
+
                         break;
 
                         #endregion
@@ -280,20 +236,6 @@ namespace SetupTaskHandler
             }
 
             return result;
-        }
-    }
-}
-
-namespace SetupTaskHandler.WS_ConditionalAccess
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }

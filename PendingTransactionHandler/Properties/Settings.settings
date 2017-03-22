@@ -5,8 +5,5 @@
     <Setting Name="PendingTransactionHandler_WS_CAS_module" Type="(Web Service URL)" Scope="Application">
       <Value Profile="(Default)">http://localhost:82/ws_cas/module.asmx</Value>
     </Setting>
-    <Setting Name="PendingChargeHandler_WS_CAS_module" Type="(Web Service URL)" Scope="Application">
-      <Value Profile="(Default)">http://192.168.162.178:82/ws_cas/module.asmx</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

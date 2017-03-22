@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using TVinciShared;
-using UserTaskHandler.WS_CAS;
 using ApiObjects;
 
 namespace UserTaskHandler
@@ -33,27 +32,14 @@ namespace UserTaskHandler
                 bool success = false;
                 string message = string.Empty;
                 
-                string url = WS_Utils.GetTcmConfigValue("WS_CAS");
-                string username = string.Empty;
-                string password = string.Empty;
-
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
-
-                module cas = new module();
-
-                if (!string.IsNullOrEmpty(url))
-                {
-                    cas.Url = url;
-                }
-
-                log.DebugFormat("Trying to handle user task. Task = {0}, userId = {1}, domainId= {2}, URL = {3}",
-                    request.Task, request.UserId, request.DomainId, url);
+                log.DebugFormat("Trying to handle user task. Task = {0}, userId = {1}, domainId= {2}",
+                    request.Task, request.UserId, request.DomainId);
 
                 switch (request.Task)
                 {
                     case ApiObjects.UserTaskType.Delete:
                     {
-                        var status = cas.HandleUserTask(username, password, request.DomainId, request.UserId, WS_CAS.UserTaskType.Delete);
+                        var status = Core.ConditionalAccess.Module.HandleUserTask(request.GroupID, request.DomainId, request.UserId, UserTaskType.Delete);
 
                         if (status == null)
                         {
@@ -92,20 +78,6 @@ namespace UserTaskHandler
         }
 
         #endregion
-    }
-}
-
-namespace UserTaskHandler.WS_CAS
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
     }
 }
 

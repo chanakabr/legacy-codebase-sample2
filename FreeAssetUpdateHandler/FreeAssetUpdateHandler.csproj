@@ -60,11 +60,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Service References\WS_Catalog\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="TaskHandler.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,86 +100,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.BaseResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.EpgProgramResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.MediaResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\FreeAssetUpdateHandler.WS_Catalog.Response.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\WS_Catalog\Service16.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service161.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service1610.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service1611.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service1612.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service1613.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service1614.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service1615.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service162.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service163.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service164.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service165.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service166.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service167.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service168.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service169.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\WS_Catalog\Service2.wsdl" />
-    <None Include="Service References\WS_Catalog\Service21.wsdl" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\WS_Catalog\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\WS_Catalog\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

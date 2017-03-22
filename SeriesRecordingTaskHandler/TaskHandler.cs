@@ -24,46 +24,31 @@ namespace SeriesRecordingTaskHandler
             {
                 log.DebugFormat("starting SeriesRecordingTask request. data={0}", data);
                 SeriesRecordingTaskRequest request = JsonConvert.DeserializeObject<SeriesRecordingTaskRequest>(data);
-                string url = TVinciShared.WS_Utils.GetTcmConfigValue("WS_CAS");
-                using (WS_CAS.module cas = new WS_CAS.module())
+
+                switch (request.SeriesRecordingTaskType)
                 {
-                    cas.Timeout = 600000;
-                    if (!string.IsNullOrEmpty(url))
-                    {
-                        cas.Url = url;
-                    }
-                    string username = string.Empty;
-                    string password = string.Empty;
-
-                    TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupId, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
-
-                    switch (request.SeriesRecordingTaskType)
-                    {
-                        case ApiObjects.eSeriesRecordingTask.FirstFollower:
-                            if (cas.HandleFirstFollowerRecording(username, password, request.UserId, request.DomainId, request.ChannelId, request.SeriesId, request.SeasonNumber))
-                            {
-                                result = "success";
-                            }
-                            else
-                            {
-                                throw new Exception(string.Format("FirstFollowerRecording request did not finish successfully, request: {0}", request.ToString()));
-                            }
-                            break;
-                        case ApiObjects.eSeriesRecordingTask.CompleteRecordings:
-                            if (cas.CompleteDomainSeriesRecordings(username, password, request.DomainId))
-                            {
-                                result = "success";
-                            }
-                            else
-                            {
-                                throw new Exception(string.Format("CompleteDomainSeriesRecordings request did not finish successfully, request: {0}", request.ToString()));
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-
-
+                    case ApiObjects.eSeriesRecordingTask.FirstFollower:
+                        if (Core.ConditionalAccess.Module.HandleFirstFollowerRecording(request.GroupId, request.UserId, request.DomainId, request.ChannelId, request.SeriesId, request.SeasonNumber))
+                        {
+                            result = "success";
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("FirstFollowerRecording request did not finish successfully, request: {0}", request.ToString()));
+                        }
+                        break;
+                    case ApiObjects.eSeriesRecordingTask.CompleteRecordings:
+                        if (Core.ConditionalAccess.Module.CompleteDomainSeriesRecordings(request.GroupId, request.DomainId))
+                        {
+                            result = "success";
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("CompleteDomainSeriesRecordings request did not finish successfully, request: {0}", request.ToString()));
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
             catch (Exception ex)
@@ -72,20 +57,6 @@ namespace SeriesRecordingTaskHandler
             }
 
             return result;
-        }
-    }
-}
-
-namespace SeriesRecordingTaskHandler.WS_CAS
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }

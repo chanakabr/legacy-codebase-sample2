@@ -2,7 +2,6 @@
 using KLogMonitor;
 using Newtonsoft.Json;
 using RemoteTasksCommon;
-using SubscriptionRenewHandler.WS_CAS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,50 +29,38 @@ namespace SubscriptionRenewHandler
 
                 SubscriptionRenewRequest request = JsonConvert.DeserializeObject<SubscriptionRenewRequest>(data);
 
-                string url = WS_Utils.GetTcmConfigValue("WS_CAS");
-                string username = string.Empty;
-                string password = string.Empty;
+                bool success = false;
 
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
+                eSubscriptionRenewRequestType requestType = eSubscriptionRenewRequestType.Renew;
 
-                using (module cas = new module())
+                if (request.Type != null && request.Type.HasValue)
                 {
-                    if (!string.IsNullOrEmpty(url))
-                        cas.Url = url;
+                    requestType = request.Type.Value;
+                }
 
-                    bool success = false;
-
-                    eSubscriptionRenewRequestType requestType = eSubscriptionRenewRequestType.Renew;
-
-                    if (request.Type != null && request.Type.HasValue)
+                switch (requestType)
+                {
+                    case eSubscriptionRenewRequestType.Renew:
                     {
-                        requestType = request.Type.Value;
-                    }
-
-                    switch (requestType)
-                    {
-                        case eSubscriptionRenewRequestType.Renew:
-                        {
-                            success = cas.Renew(username, password, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
-                            break;
-                        }
-                        case eSubscriptionRenewRequestType.Reminder:
-                        {
-                            success = cas.GiftCardReminder(username, password, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
-                            break;
-                        }
-                        default:
+                        success = Core.ConditionalAccess.Module.Renew(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
                         break;
                     }
-
-                    if (!success)
+                    case eSubscriptionRenewRequestType.Reminder:
                     {
-                        throw new Exception(string.Format("Renew subscription request did not finish successfully. Purchase id = {0}, siteguid = {1}, BillingGuid = {2}, EndDate = {3}.",
-                            request != null ? request.PurchaseId : 0,                                            // {0}
-                            request != null && request.SiteGuid != null ? request.SiteGuid : string.Empty,       // {1}
-                            request != null && request.BillingGuid != null ? request.BillingGuid : string.Empty, // {2}
-                            request != null ? request.EndDate : 0));                                             // {3}
+                        success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
+                        break;
                     }
+                    default:
+                    break;
+                }
+
+                if (!success)
+                {
+                    throw new Exception(string.Format("Renew subscription request did not finish successfully. Purchase id = {0}, siteguid = {1}, BillingGuid = {2}, EndDate = {3}.",
+                        request != null ? request.PurchaseId : 0,                                            // {0}
+                        request != null && request.SiteGuid != null ? request.SiteGuid : string.Empty,       // {1}
+                        request != null && request.BillingGuid != null ? request.BillingGuid : string.Empty, // {2}
+                        request != null ? request.EndDate : 0));                                             // {3}
                 }
 
                 result = "success";
@@ -84,20 +71,6 @@ namespace SubscriptionRenewHandler
             }
 
             return result;
-        }
-    }
-}
-
-namespace SubscriptionRenewHandler.WS_CAS
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
         }
     }
 }

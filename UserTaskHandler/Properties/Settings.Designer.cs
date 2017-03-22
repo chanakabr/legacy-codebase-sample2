@@ -22,15 +22,5 @@ namespace UserTaskHandler.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://localhost/ws_conditionalaccess/module.asmx")]
-        public string UserTaskHandler_WS_CAS_module {
-            get {
-                return ((string)(this["UserTaskHandler_WS_CAS_module"]));
-            }
-        }
     }
 }

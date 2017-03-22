@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using KLogMonitor;
 using Newtonsoft.Json;
-using RecordingTaskHandler.WS_CAS;
 using RemoteTasksCommon;
 using System;
 using System.Collections.Generic;
@@ -41,27 +40,14 @@ namespace RecordingTaskHandler
                 //    throw new Exception("Received invalid recording task");
                 //}
 
-                string url = WS_Utils.GetTcmConfigValue("WS_CAS");
-                string username = string.Empty;
-                string password = string.Empty;
-
-                TasksCommon.RemoteTasksUtils.GetCredentials(request.GroupID, ref username, ref password, ApiObjects.eWSModules.CONDITIONALACCESS);
-
-                module cas = new module();
-
-                if (!string.IsNullOrEmpty(url))
-                {
-                    cas.Url = url;
-                }
-
-                log.DebugFormat("Trying to handle recording task. Task = {0}, recordingId = {1}, programId = {2}, URL = {3}",
-                    request.Task, request.RecordingId, request.ProgramId, url);
+                log.DebugFormat("Trying to handle recording task. Task = {0}, recordingId = {1}, programId = {2}",
+                    request.Task, request.RecordingId, request.ProgramId);
 
                 switch (request.Task)
                 {
                     case eRecordingTask.GetStatusAfterProgramEnded:
                     {
-                        var recording = cas.GetRecordingStatus(username, password, request.RecordingId);
+                        var recording = Core.ConditionalAccess.Module.GetRecordingStatus(request.GroupID, request.RecordingId);
 
                         if (recording == null)
                         {
@@ -84,7 +70,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.Record:
                     {
-                        var recording = cas.RecordRetry(username, password, request.RecordingId);
+                        var recording = Core.ConditionalAccess.Module.RecordRetry(request.GroupID, request.RecordingId);
 
                         if (recording == null)
                         {
@@ -108,7 +94,7 @@ namespace RecordingTaskHandler
                     case eRecordingTask.UpdateRecording:
                     {
                         long[] epgs = new long[]{request.ProgramId};
-                        var status = cas.IngestRecording(username, password, epgs, WS_CAS.eAction.Update);
+                        var status = Core.ConditionalAccess.Module.IngestRecording(request.GroupID, epgs, eAction.Update);
 
                         if (status == null)
                         {
@@ -132,13 +118,12 @@ namespace RecordingTaskHandler
                         {
                             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                             {
-                                cas.Timeout = 500000;
-                                success = cas.DistributeRecording(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate);
+                                success = Core.ConditionalAccess.Module.DistributeRecording(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate);
                             }
                         }
                         else
                         {
-                            RecordingTaskHandler.WS_CAS.KeyValuePair seriesAndSeasonNumber = cas.GetSeriesIdAndSeasonNumberByEpgId(username, password, request.ProgramId);
+                            KeyValuePair seriesAndSeasonNumber = Core.ConditionalAccess.Module.GetSeriesIdAndSeasonNumberByEpgId(request.GroupID, request.ProgramId);
                             int seasonNumber = 0;
                             if (seriesAndSeasonNumber != null && !string.IsNullOrEmpty(seriesAndSeasonNumber.key) && int.TryParse(seriesAndSeasonNumber.value, out seasonNumber))
                             {
@@ -148,9 +133,7 @@ namespace RecordingTaskHandler
                                 {                                    
                                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                                     {
-                                        module casAsync = new module();
-                                        casAsync.Url = cas.Url;
-                                        casAsync.DistributeRecordingWithDomainIdsAsync(username, password, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
+                                        Core.ConditionalAccess.Module.DistributeRecordingWithDomainIds(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
                                     }
 
                                     domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
@@ -167,7 +150,7 @@ namespace RecordingTaskHandler
                     }
                     case eRecordingTask.CheckRecordingDuplicateCrids:
                     {
-                        success = cas.CheckRecordingDuplicateCrids(username, password, request.RecordingId);
+                        success = Core.ConditionalAccess.Module.CheckRecordingDuplicateCrids(request.GroupID, request.RecordingId);
                         break;
                     }
                 }
@@ -192,19 +175,5 @@ namespace RecordingTaskHandler
         }
 
         #endregion
-    }
-}
-
-namespace RecordingTaskHandler.WS_CAS
-{
-    // adding request ID to header
-    public partial class module
-    {
-        protected override WebRequest GetWebRequest(Uri uri)
-        {
-            HttpWebRequest request = (HttpWebRequest)base.GetWebRequest(uri);
-            KlogMonitorHelper.MonitorLogsHelper.AddHeaderToWebService(request);
-            return request;
-        }
     }
 }
