@@ -4164,7 +4164,8 @@ namespace TvinciImporter
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select gdm.id gdmId, gdm.NAME, mdmv.ID mdmvId from groups_date_metas gdm";
             selectQuery += "left join media_date_metas_values mdmv";
-            selectQuery += "on mdmv.DATE_META_ID=gdm.id";
+            selectQuery += "on mdmv.DATE_META_ID=gdm.id and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mdmv.media_id", "=", nMediaID);
             selectQuery += "where gdm.status=1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdm.group_id", "=", nGroupID);
             if (selectQuery.Execute("query", true) != null)
