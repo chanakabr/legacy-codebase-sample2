@@ -777,7 +777,7 @@ namespace Core.Notification
         /// Deletes announcements (topics) older than partner configured date. 
         /// </summary>
         /// <returns></returns>
-        public static ApiObjects.Response.Status DeleteAnnouncementsOlderThan(int nGroupID)
+        public static ApiObjects.Response.Status DeleteAnnouncementsOlderThan()
         {
             ApiObjects.Response.Status response = null;
             DateTime currentDate = DateTime.UtcNow;
@@ -789,7 +789,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("DeleteAnnouncementsOlderThan caught an exception: GroupID: {0}, ex: {1}", nGroupID, ex);
+                log.ErrorFormat("DeleteAnnouncementsOlderThan caught an exception: ex: {0}", ex);
                 response = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
             finally
@@ -818,7 +818,7 @@ namespace Core.Notification
         /// Deletes reminder (topics) older than yesterday
         /// </summary>
         /// <returns></returns>
-        public static ApiObjects.Response.Status DeleteOldReminders(int nGroupID)
+        public static ApiObjects.Response.Status DeleteOldReminders()
         {
             ApiObjects.Response.Status response = null;
             DateTime currentDate = DateTime.UtcNow;
@@ -831,7 +831,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("DeleteOldReminders caught an exception: GroupID: {0}, ex: {1}", nGroupID, ex);
+                log.ErrorFormat("DeleteOldReminders caught an exception: ex: {0}", ex);
                 response = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
             finally
