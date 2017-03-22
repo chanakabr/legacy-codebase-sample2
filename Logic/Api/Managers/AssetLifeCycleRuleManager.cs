@@ -24,34 +24,11 @@ namespace Core.Api.Managers
     public class AssetLifeCycleRuleManager
     {
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static object locker = new object();
-        private static AssetLifeCycleRuleManager instance = null;
-
-        private AssetLifeCycleRuleManager() { }
-
-        public static AssetLifeCycleRuleManager Instance
-        {
-            get
-            {
-                if (instance == null)
-                {
-                    lock (locker)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new AssetLifeCycleRuleManager();
-                        }
-                    }
-                }
-
-                return instance;
-            }
-        }
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
 
         #region Public Methods
 
-        public Dictionary<int, List<AssetLifeCycleRule>> GetLifeCycleRules(int groupId = 0, List<long> rulesIds = null, bool shouldGetOnlyActive = true)
+        public static Dictionary<int, List<AssetLifeCycleRule>> GetLifeCycleRules(int groupId = 0, List<long> rulesIds = null, bool shouldGetOnlyActive = true)
         {
             Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int,List<AssetLifeCycleRule>>();
             try
@@ -70,7 +47,7 @@ namespace Core.Api.Managers
             return groupIdToRulesMap;
         }
 
-        public bool ApplyLifeCycleRuleActionsOnAssets(int groupId, List<int> assetIds, AssetLifeCycleRule ruleToApply) // currency assetIds=mediaIds
+        public static bool ApplyLifeCycleRuleActionsOnAssets(int groupId, List<int> assetIds, AssetLifeCycleRule ruleToApply) // currency assetIds=mediaIds
         {
             bool res = false;
             try
@@ -101,7 +78,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        public int DoActionRules(int groupId = 0, List<long> rulesIds = null)
+        public static int DoActionRules(int groupId = 0, List<long> rulesIds = null)
         {
             int result = 0;
 
@@ -174,7 +151,7 @@ namespace Core.Api.Managers
                                         assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
                                         // Apply rule on assets that returned from search
-                                        if (this.ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule))
+                                        if (ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule))
                                         {
                                             log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
                                         }
@@ -243,7 +220,7 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public List<int> GetTagIdsByTagNames(int groupId, string filterTagTypeName, List<string> tagNames)
+        public static List<int> GetTagIdsByTagNames(int groupId, string filterTagTypeName, List<string> tagNames)
         {
             List<int> tagIds = new List<int>();
             try
@@ -278,7 +255,7 @@ namespace Core.Api.Managers
             return tagIds;
         }
 
-        public List<string> GetTagNamesByTagIds(int groupId, int filterTagTypeId, List<int> tagIds)
+        public static List<string> GetTagNamesByTagIds(int groupId, int filterTagTypeId, List<int> tagIds)
         {
             List<string> tagNames = new List<string>();
             try
@@ -313,7 +290,7 @@ namespace Core.Api.Managers
             return tagNames;
         }
 
-        public KeyValuePair GetFilterTagTypeById(int groupId, int filterTagTypeId)
+        public static KeyValuePair GetFilterTagTypeById(int groupId, int filterTagTypeId)
         {
             KeyValuePair result = null;
             try
@@ -337,9 +314,9 @@ namespace Core.Api.Managers
             }
 
             return result;
-        }        
+        }
 
-        public bool BuildActionRuleDataFromKsql(FriendlyAssetLifeCycleRule rule)
+        public static bool BuildActionRuleDataFromKsql(FriendlyAssetLifeCycleRule rule)
         {
             bool result = false;
             BooleanPhraseNode phrase = null;
@@ -412,7 +389,7 @@ namespace Core.Api.Managers
             return result;
         }
 
-        public bool BuildActionRuleKsqlFromData(FriendlyAssetLifeCycleRule rule)
+        public static bool BuildActionRuleKsqlFromData(FriendlyAssetLifeCycleRule rule)
         {
             bool result = false;
 
@@ -450,7 +427,7 @@ namespace Core.Api.Managers
 
         #region Private Methods
 
-        private bool FillRulesToTags(DataTable dt, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
+        private static bool FillRulesToTags(DataTable dt, ref Dictionary<long, List<int>> ruleIdToTagIdsToAddMap,
                                             ref Dictionary<long, List<int>> ruleIdToTagIdsToRemoveMap)
         {
             bool res = false;
@@ -510,7 +487,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool FillRulesToFileTypesAndPpvs(DataTable dt, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
+        private static bool FillRulesToFileTypesAndPpvs(DataTable dt, ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToAdd,
                                                         ref Dictionary<long, LifeCycleFileTypesAndPpvsTransitions> ruleIdToFileTypesAndPpvsToRemove)
         {
             bool res = false;
@@ -583,7 +560,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool FillRulesToGeoBlock(DataTable dt, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
+        private static bool FillRulesToGeoBlock(DataTable dt, ref Dictionary<long, int?> ruleIdToGeoBlockMap)
         {
             bool res = false;
             try
@@ -621,7 +598,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private bool ApplyLifeCycleRuleTagTransitionsOnAssets(List<int> assetIds, List<int> tagIdsToAdd, List<int> tagIdsToRemove)
+        private static bool ApplyLifeCycleRuleTagTransitionsOnAssets(List<int> assetIds, List<int> tagIdsToAdd, List<int> tagIdsToRemove)
         {
             bool removeResult = false;
             bool addResult = false;
@@ -656,7 +633,7 @@ namespace Core.Api.Managers
             return removeResult && addResult;
         }
 
-        private bool ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd,
+        private static bool ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(List<int> assetIds, LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToAdd,
                                                                                 LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvsToRemove)
         {
             bool removeResult = false;
@@ -689,9 +666,9 @@ namespace Core.Api.Managers
             }
 
             return removeResult && addResult;
-        }        
+        }
 
-        private bool ApplyLifeCycleRuleGeoBlockTransitionOnAssets(List<int> assetIds, int geoBlockRuleId)
+        private static bool ApplyLifeCycleRuleGeoBlockTransitionOnAssets(List<int> assetIds, int geoBlockRuleId)
         {
             bool res = false;            
             try
@@ -707,7 +684,7 @@ namespace Core.Api.Managers
             return res;
         }
 
-        private string GetFileTypesToPpvsStringForLog(LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvs)
+        private static string GetFileTypesToPpvsStringForLog(LifeCycleFileTypesAndPpvsTransitions fileTypesAndPpvs)
         {
             if (fileTypesAndPpvs != null && (fileTypesAndPpvs.FileTypeIds.Count > 0 || fileTypesAndPpvs.PpvIds.Count > 0))
             {
@@ -719,7 +696,7 @@ namespace Core.Api.Managers
             }
         }
 
-        private void DisableRule(int groupId, AssetLifeCycleRule rule)
+        private static void DisableRule(int groupId, AssetLifeCycleRule rule)
         {
             if (rule != null)
             {
@@ -737,7 +714,7 @@ namespace Core.Api.Managers
             }
         }
 
-        private Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(DataSet ds)
+        private static Dictionary<int, List<AssetLifeCycleRule>> BuildAssetLifeCycleRuleFromDataSet(DataSet ds)
         {
             Dictionary<int, List<AssetLifeCycleRule>> groupIdToRulesMap = new Dictionary<int, List<AssetLifeCycleRule>>();
 
@@ -796,7 +773,7 @@ namespace Core.Api.Managers
             return groupIdToRulesMap;
         }
 
-        private long GetKsqlMetaDateValue(long value, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits)
+        private static long GetKsqlMetaDateValue(long value, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits)
         {
             long result = 0;
             switch (transitionIntervalUnits)
@@ -819,7 +796,7 @@ namespace Core.Api.Managers
             return result;
         }
 
-        private long GetMetaDateValueFromKsqlValueInSeconds(long value, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits)
+        private static long GetMetaDateValueFromKsqlValueInSeconds(long value, AssetLifeCycleRuleTransitionIntervalUnits transitionIntervalUnits)
         {
             long result = 0;
             switch (transitionIntervalUnits)
@@ -842,7 +819,7 @@ namespace Core.Api.Managers
             return result;
         }
 
-        private KeyValuePair GetFilterTagTypeByName(int groupId, string filterTagTypeName)
+        private static KeyValuePair GetFilterTagTypeByName(int groupId, string filterTagTypeName)
         {
             KeyValuePair result = null;
             try
