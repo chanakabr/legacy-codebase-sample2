@@ -1250,7 +1250,7 @@ namespace WebAPI.Clients
             return ret;
         }
 
-        internal bool DeleteAnnouncementsOlderThan(int groupId)
+        internal bool DeleteAnnouncementsOlderThan()
         {
             Status response = null;
             
@@ -1259,12 +1259,12 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.DeleteAnnouncementsOlderThan(groupId);
+                    response = Core.Notification.Module.DeleteAnnouncementsOlderThan();
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteAnnouncementsOlderThan.  groupID: {0}, exception: {1}", groupId, ex);
+                log.ErrorFormat("Error while DeleteAnnouncementsOlderThan.  exception: {0}", ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
