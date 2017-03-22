@@ -57,10 +57,6 @@ namespace Core.Api.Managers
                     res = ApplyLifeCycleRuleTagTransitionsOnAssets(assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
                           (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
-                    if (!ApiDAL.UpdateAssetLifeCycleLastRunDate(ruleToApply.Id))
-                    {
-                        log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, ruleToApply);
-                    }
                     if (!Catalog.Module.UpdateIndex(assetIds, groupId, eAction.Update))
                     {
                         log.WarnFormat("failed to update index of assetIds: {0} after applying rule: {1} for groupId: {2}",string.Join(",", assetIds), ruleToApply, groupId);
@@ -80,7 +76,7 @@ namespace Core.Api.Managers
 
         public static int DoActionRules(int groupId = 0, List<long> rulesIds = null)
         {
-            int result = 0;
+            int result = -1;
 
             try
             {
@@ -141,48 +137,61 @@ namespace Core.Api.Managers
                                     // Call catalog
                                     var response = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
                                     List<int> assetIds = new List<int>();
-                                    if (response != null && response.searchResults != null && response.searchResults.Count > 0)
+                                    if (response != null)
                                     {
-                                        // Remember count, first and last result - to verify that action was successful
-                                        int count = response.m_nTotalItems;
-                                        string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                        string lastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                        assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
-
-                                        // Apply rule on assets that returned from search
-                                        if (ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule))
+                                        bool isSearchSuccessfull = response.status.Code == (int)eResponseStatus.OK;
+                                        bool? isAppliedSuccessfully = null;
+                                        if (isSearchSuccessfull && response.searchResults != null && response.searchResults.Count > 0)
                                         {
-                                            log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
-                                        }
-                                        else
-                                        {
-                                            log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
-                                        }
+                                            // Remember count, first and last result - to verify that action was successful
+                                            int count = response.m_nTotalItems;
+                                            string firstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                            string lastAssetId = response.searchResults.LastOrDefault().AssetId;
 
-                                        //
-                                        //
-                                        // TODO: Only save the results in CB, and on next run perform verification search
-                                        //
-                                        //
-                                        //
-                                        //
-                                        //
-                                        //
+                                            assetIds = response.searchResults.Select(asset => Convert.ToInt32(asset.AssetId)).ToList();
 
-                                        var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
-
-                                        if (verificationResponse != null && verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
-                                        {
-                                            int verificationCount = verificationResponse.m_nTotalItems;
-                                            string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
-                                            string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
-
-                                            // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
-                                            if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                            // Apply rule on assets that returned from search
+                                            isAppliedSuccessfully = ApplyLifeCycleRuleActionsOnAssets(groupId, assetIds, rule);
+                                            if (isAppliedSuccessfully.Value)
                                             {
-                                                //this.DisableRule(groupId, rule);
+                                                log.InfoFormat("Successfully applied rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
                                             }
+                                            else
+                                            {
+
+                                                log.InfoFormat("Failed to apply rule: {0} on assets: {1}", rule.ToString(), string.Join(",", assetIds));
+                                            }
+
+                                            //
+                                            //
+                                            // TODO: Only save the results in CB, and on next run perform verification search
+                                            //
+                                            //
+                                            //
+                                            //
+                                            //
+                                            //
+
+                                            var verificationResponse = unifiedSearchRequest.GetResponse(unifiedSearchRequest) as UnifiedSearchResponse;
+
+                                            if (verificationResponse != null && verificationResponse.status.Code == (int)eResponseStatus.OK &&
+                                                verificationResponse.searchResults != null && verificationResponse.searchResults.Count > 0)
+                                            {
+                                                int verificationCount = verificationResponse.m_nTotalItems;
+                                                string verificationFirstAssetId = response.searchResults.FirstOrDefault().AssetId;
+                                                string verificationLastAssetId = response.searchResults.LastOrDefault().AssetId;
+
+                                                // If search result is identical, it means that action is invalid - either the KSQL is not good or the action itself
+                                                if (count == verificationCount && firstAssetId == verificationFirstAssetId && lastAssetId == verificationLastAssetId)
+                                                {
+                                                    //this.DisableRule(groupId, rule);
+                                                }
+                                            }
+                                        }
+
+                                        if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value) && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id))
+                                        {
+                                            log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
                                         }
                                     }
 
@@ -198,8 +207,8 @@ namespace Core.Api.Managers
 
                     #region Finish tasks
 
-                    Task.WaitAll(tasks);                    
-                    
+                    Task.WaitAll(tasks);
+
                     foreach (var task in tasks)
                     {
                         if (task != null)
