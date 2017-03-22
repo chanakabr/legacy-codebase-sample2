@@ -617,7 +617,7 @@ namespace APILogic
                     return result;
                 }
 
-                KeyValuePair filterTagType = AssetLifeCycleRuleManager.Instance.GetFilterTagTypeById(groupId, filterTagTypeId);
+                KeyValuePair filterTagType = AssetLifeCycleRuleManager.GetFilterTagTypeById(groupId, filterTagTypeId);
                 if (filterTagType == null)
                 {
                     log.ErrorFormat("GetFilterTagTypeById returned null result, groupId: {0}, id: {1}, name: {2}, filterTagTypeId: {3}", groupId, rule.Id, rule.Name, filterTagTypeId);
@@ -628,7 +628,7 @@ namespace APILogic
                 if (rule.TagNamesToAdd != null && rule.TagNamesToAdd.Count > 0)
                 {
                     rule.TagNamesToAdd = rule.TagNamesToAdd.Distinct().ToList();
-                    tagIdsToAdd = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, rule.FilterTagType.value, rule.TagNamesToAdd);
+                    tagIdsToAdd = AssetLifeCycleRuleManager.GetTagIdsByTagNames(groupId, rule.FilterTagType.value, rule.TagNamesToAdd);
                     if (tagIdsToAdd.Count != rule.TagNamesToAdd.Count)
                     {
                         log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToAdd: {3}", groupId, rule.Id, rule.Name, string.Join(",", rule.TagNamesToAdd));
@@ -639,7 +639,7 @@ namespace APILogic
                 if (rule.TagNamesToRemove != null && rule.TagNamesToRemove.Count > 0)
                 {
                     rule.TagNamesToRemove = rule.TagNamesToRemove.Distinct().ToList();
-                    tagIdsToRemove = AssetLifeCycleRuleManager.Instance.GetTagIdsByTagNames(groupId, rule.FilterTagType.value, rule.TagNamesToRemove);
+                    tagIdsToRemove = AssetLifeCycleRuleManager.GetTagIdsByTagNames(groupId, rule.FilterTagType.value, rule.TagNamesToRemove);
                     if (tagIdsToRemove.Count != rule.TagNamesToRemove.Count)
                     {
                         log.ErrorFormat("GetTagIdsByTagNames returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagNamesToRemove: {3}", groupId, rule.Id, rule.Name, string.Join(",", rule.TagNamesToRemove));
@@ -649,7 +649,7 @@ namespace APILogic
 
                 rule = new FriendlyAssetLifeCycleRule(rule.Id, groupId, rule.Name, rule.Description, rule.TransitionIntervalUnits, rule.FilterTagType, rule.FilterTagValues, rule.FilterTagOperand,
                                                                                  rule.MetaDateName, rule.MetaDateValue, tagIdsToAdd, tagIdsToRemove);
-                if (!AssetLifeCycleRuleManager.Instance.BuildActionRuleKsqlFromData(rule))
+                if (!AssetLifeCycleRuleManager.BuildActionRuleKsqlFromData(rule))
                 {
                     log.ErrorFormat("failed BuildActionRuleKsqlFromData, groupId: {0}, id: {1}, name: {2}", groupId, rule.Id, rule.Name);
                     return result;

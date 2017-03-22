@@ -9389,7 +9389,7 @@ namespace Core.Api
                     alcrScheduledTaskIntervalSec = HANDLE_ASSET_LIFE_CYCLE_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                int impactedItems = AssetLifeCycleRuleManager.Instance.DoActionRules();
+                int impactedItems = AssetLifeCycleRuleManager.DoActionRules();
 
                 if (impactedItems > 0)
                 {
@@ -9436,7 +9436,7 @@ namespace Core.Api
 
         public static bool DoActionRules(int groupId, List<long> ruleIds)
         {
-            return AssetLifeCycleRuleManager.Instance.DoActionRules(groupId, ruleIds) > 0;
+            return AssetLifeCycleRuleManager.DoActionRules(groupId, ruleIds) > 0;
         }
 
         public static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRuleResponse GetFriendlyAssetLifeCycleRule(int groupId, long id)
@@ -9444,11 +9444,11 @@ namespace Core.Api
             FriendlyAssetLifeCycleRuleResponse result = null;
             try
             {
-                Dictionary<int, List<AssetLifeCycleRule>> rules = AssetLifeCycleRuleManager.Instance.GetLifeCycleRules(groupId, new List<long>() { id }, false);
+                Dictionary<int, List<AssetLifeCycleRule>> rules = AssetLifeCycleRuleManager.GetLifeCycleRules(groupId, new List<long>() { id }, false);
                 if (rules != null && rules.ContainsKey(groupId) && rules[groupId] != null && rules[groupId].Count == 1)
                 {
                     FriendlyAssetLifeCycleRule rule = new FriendlyAssetLifeCycleRule(rules[groupId].First());
-                    if (!AssetLifeCycleRuleManager.Instance.BuildActionRuleDataFromKsql(rule))
+                    if (!AssetLifeCycleRuleManager.BuildActionRuleDataFromKsql(rule))
                     {
                         log.ErrorFormat("failed BuildActionRuleDataFromKsql, groupId: {0}, id: {1}", groupId, id);
                         return result;
@@ -9461,7 +9461,7 @@ namespace Core.Api
                     {
                         if (rule.Actions.TagIdsToAdd != null && rule.Actions.TagIdsToAdd.Count > 0)
                         {
-                            tagNamesToAdd = AssetLifeCycleRuleManager.Instance.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToAdd);
+                            tagNamesToAdd = AssetLifeCycleRuleManager.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToAdd);
                             if (rule.Actions.TagIdsToAdd.Count != tagNamesToAdd.Count)
                             {
                                 log.ErrorFormat("GetTagNamesByTagIds returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagIdsToAdd: {3}",
@@ -9474,7 +9474,7 @@ namespace Core.Api
                         
                         if (rule.Actions.TagIdsToRemove != null && rule.Actions.TagIdsToRemove.Count > 0)
                         {
-                            tagNamesToRemove = AssetLifeCycleRuleManager.Instance.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToRemove);
+                            tagNamesToRemove = AssetLifeCycleRuleManager.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToRemove);
                             if (rule.Actions.TagIdsToRemove.Count != tagNamesToRemove.Count)
                             {
                                 log.ErrorFormat("GetTagNamesByTagIds returned incorrect number of results, groupId: {0}, id: {1}, name: {2}, tagIdsToRemove: {3}",
