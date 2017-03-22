@@ -910,9 +910,7 @@ namespace WS_Notification
         /// <returns></returns>
         public ApiObjects.Response.Status DeleteAnnouncementsOlderThan(string sWSUserName, string sWSPassword)
         {
-            ApiObjects.Response.Status response = null;
-            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
-            return Core.Notification.Module.DeleteAnnouncementsOlderThan(groupID);
+            return Core.Notification.Module.DeleteAnnouncementsOlderThan();
         }
 
         /// <summary>
@@ -921,9 +919,7 @@ namespace WS_Notification
         /// <returns></returns>
         public ApiObjects.Response.Status DeleteOldReminders(string sWSUserName, string sWSPassword)
         {
-            ApiObjects.Response.Status response = null;
-            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
-            return Core.Notification.Module.DeleteOldReminders(groupID);
+            return Core.Notification.Module.DeleteOldReminders();
         }
 
         public RegistryResponse RegisterPushAnnouncementParameters(string sWSUserName, string sWSPassword, long announcementId, string hash, string ip)
