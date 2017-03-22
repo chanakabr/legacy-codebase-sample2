@@ -39,11 +39,10 @@ namespace Core.ConditionalAccess
             {
                 Domain domain = null;
                 long domainId = 0;
+                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId, out domain);
 
                 if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
                 {
-                    ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId, out domain);
-
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
                         log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
