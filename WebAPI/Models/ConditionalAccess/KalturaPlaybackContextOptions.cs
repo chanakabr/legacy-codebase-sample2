@@ -80,7 +80,7 @@ namespace WebAPI.Models.ConditionalAccess
                     (Context.Value == KalturaPlaybackContextType.TRAILER && assetType != Catalog.KalturaAssetType.media) ||
                     (Context.Value == KalturaPlaybackContextType.PLAYBACK && assetType == Catalog.KalturaAssetType.epg))
                 {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "KalturaPlaybackContextOptions.context", "assetType");
                 }
             }
         }
