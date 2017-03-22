@@ -189,9 +189,14 @@ namespace Core.Api.Managers
                                             }
                                         }
 
-                                        if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value) && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id))
+                                        if (isSearchSuccessfull && (!isAppliedSuccessfully.HasValue || isAppliedSuccessfully.Value))                                        
                                         {
-                                            log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
+                                            // init result for DoActionByRuleIds
+                                            result = 0;
+                                            if (!ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id))
+                                            {
+                                                log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);
+                                            }
                                         }
                                     }
 
@@ -200,7 +205,7 @@ namespace Core.Api.Managers
                                 catch (Exception ex)
                                 {
                                     log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
-                                    return 0;
+                                    return result;
                                 }
                             }, i);
                     }

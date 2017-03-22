@@ -9436,7 +9436,7 @@ namespace Core.Api
 
         public static bool DoActionRules(int groupId, List<long> ruleIds)
         {
-            return AssetLifeCycleRuleManager.DoActionRules(groupId, ruleIds) > 0;
+            return AssetLifeCycleRuleManager.DoActionRules(groupId, ruleIds) > -1;
         }
 
         public static ApiObjects.AssetLifeCycleRules.FriendlyAssetLifeCycleRuleResponse GetFriendlyAssetLifeCycleRule(int groupId, long id)
