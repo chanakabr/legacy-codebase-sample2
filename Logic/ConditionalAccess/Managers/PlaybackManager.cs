@@ -205,15 +205,17 @@ namespace Core.ConditionalAccess
 
             if (price.m_oItemPrices != null && price.m_oItemPrices.Length > 0)
             {
-                adsData = new AdsControlData();
                 Subscription subscription = null;
                 ItemPriceContainer itemPrice = price.m_oItemPrices[0];
                 if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null) 
                 {
                     if (subscription.m_lServices != null && subscription.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null && subscription.AdsPolicy != null)
                     {
-                        adsData.AdsPolicy = subscription.AdsPolicy;
-                        adsData.AdsParam = subscription.AdsParam;
+                        adsData = new AdsControlData()
+                        {
+                            AdsPolicy = subscription.AdsPolicy,
+                            AdsParam = subscription.AdsParam,
+                        };
                     }
                 }
                 else
@@ -221,8 +223,11 @@ namespace Core.ConditionalAccess
                     PPVModule ppv = Core.Pricing.Module.GetPPVModuleData(groupId, price.m_oItemPrices[0].m_sPPVModuleCode, string.Empty, string.Empty, udid);
                     if (ppv != null && ppv.AdsPolicy != null)
                     {
-                        adsData.AdsPolicy = ppv.AdsPolicy;
-                        adsData.AdsParam = ppv.AdsParam;
+                        adsData = new AdsControlData()
+                        {
+                            AdsPolicy = ppv.AdsPolicy,
+                            AdsParam = ppv.AdsParam,
+                        };
                     }
                 }
             }
