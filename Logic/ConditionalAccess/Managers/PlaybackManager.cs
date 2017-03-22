@@ -504,7 +504,8 @@ namespace Core.ConditionalAccess
                 string key = LayeredCacheKeys.GetGroupAdsControlKey(groupId);
 
                 if (!LayeredCache.Instance.Get<AdsControlData>(key, ref adsData, Pricing.Utils.GetGetGroupAdsControl, new Dictionary<string, object>() { 
-                                                       { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME, null))
+                                                       { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME, new List<string>() {
+                                                       LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId) }))
                 {
                     log.Error("Failed to get group ads control data");
                 }
