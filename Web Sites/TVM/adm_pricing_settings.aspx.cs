@@ -7,6 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using KLogMonitor;
 using TVinciShared;
+using CachingProvider.LayeredCache;
 
 public partial class adm_pricing_settings : System.Web.UI.Page
 {
@@ -29,6 +30,14 @@ public partial class adm_pricing_settings : System.Web.UI.Page
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
+                // add invalidation key for user roles cache
+                int groupId = ODBCWrapper.Utils.GetIntSafeVal(LoginManager.GetLoginGroupID());
+                string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId);
+                if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                }
+
                 DBManipulator.DoTheWork("pricing_connection");
             }
         }
