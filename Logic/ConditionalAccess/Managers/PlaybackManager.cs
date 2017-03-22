@@ -209,7 +209,8 @@ namespace Core.ConditionalAccess
                 adsData = new AdsControlData();
                 Subscription subscription = null;
                 ItemPriceContainer itemPrice = price.m_oItemPrices[0];
-                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null && subscription.AdsPolicy != null)
+                if ((subscription = price.m_oItemPrices[0].m_relevantSub) != null && subscription.m_lServices != null && 
+                    subscription.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null && subscription.AdsPolicy != null)
                 {
                     adsData.AdsPolicy = subscription.AdsPolicy;
                     adsData.AdsParam = subscription.AdsParam;
