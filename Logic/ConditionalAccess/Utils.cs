@@ -3024,11 +3024,13 @@ namespace Core.ConditionalAccess
 
                     // get the media_file_id from key
                     // find keys not exsits in result
-                    List<int> missingsKeys = mediaFilesStatus.Where(x => !fileDatatables.ContainsKey(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x.Key))).Select(x => x.Key).ToList();
-                    if (missingsKeys != null && missingsKeys.Count > 0)
-                    {
-                        foreach (int mf in missingsKeys)
-                        {
+                    List<string> missingKeys = fileDatatables.Where(kvp => kvp.Value == null || kvp.Value.Rows == null || kvp.Value.Rows.Count == 0).Select(kvp => kvp.Key).ToList();
+                    if (missingKeys != null && missingKeys.Count > 0)
+                    {                       
+                        foreach (string missKey in missingKeys)
+                        {                            
+                            int mf = int.Parse(missKey.Replace("validate_fileId_",""));
+
                             if (mediaFilesStatus.ContainsKey(mf))
                             {
                                 mediaFilesStatus[mf] = MediaFileStatus.NotForPurchase;
