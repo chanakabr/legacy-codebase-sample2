@@ -344,8 +344,9 @@ namespace WS_Social
                 //Update user FBToken
                 if (sFBToken != sEncryptToken)
                 {
-                    UserBasicData userBasicDataToUpdate = new UserBasicData() { m_sFacebookToken = sEncryptToken };
-                    uObj = Core.Social.Utils.SetUserData(nGroupID, uObj.m_user.m_sSiteGUID, userBasicDataToUpdate, uObj.m_user.m_oDynamicData);
+                    uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
+                    uObj.m_user.m_oBasicData.m_sUserName = string.Empty;
+                    uObj = Core.Social.Utils.SetUserData(nGroupID, uObj.m_user.m_sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
                     fro.status = uObj.m_RespStatus.ToString().ToUpper();
                 }
 
@@ -438,14 +439,12 @@ namespace WS_Social
 
                     if (sFBToken != sEncryptToken || sFacebookID != fbUser.id || sFacebookImage != fro.pic)
                     {
-                        UserBasicData userBasicDataToUpdate = new UserBasicData()
-                        {
-                            m_sFacebookID = fbUser.id,
-                            m_sFacebookToken = sEncryptToken,
-                            m_sFacebookImage = fro.pic
-                        };
                         //dynData.Where<
-                        uObj = Core.Social.Utils.SetUserData(nGroupID, sSiteGUID, userBasicDataToUpdate, uObj.m_user.m_oDynamicData);
+                        uObj.m_user.m_oBasicData.m_sFacebookID = fbUser.id;
+                        uObj.m_user.m_oBasicData.m_sFacebookToken = sEncryptToken;
+                        uObj.m_user.m_oBasicData.m_sFacebookImage = fro.pic;
+                        uObj.m_user.m_oBasicData.m_sUserName = string.Empty;
+                        uObj = Core.Social.Utils.SetUserData(nGroupID, sSiteGUID, uObj.m_user.m_oBasicData, uObj.m_user.m_oDynamicData);
                     }
                 }
                 fro.status = (uObj.m_RespStatus == ResponseStatus.OK) ? FacebookResponseStatus.MERGEOK.ToString() : FacebookResponseStatus.ERROR.ToString();
