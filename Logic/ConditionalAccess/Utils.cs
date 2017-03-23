@@ -3021,8 +3021,10 @@ namespace Core.ConditionalAccess
 
                 if (cacheResult && fileDatatables != null)
                 {
+
+                    // get the media_file_id from key
                     // find keys not exsits in result
-                    List<int> missingsKeys = mediaFilesStatus.Where(x => !fileDatatables.ContainsKey(x.Key.ToString())).Select(x => x.Key).ToList();
+                    List<int> missingsKeys = mediaFilesStatus.Where(x => !fileDatatables.ContainsKey(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x.Key))).Select(x => x.Key).ToList();
                     if (missingsKeys != null && missingsKeys.Count > 0)
                     {
                         foreach (int mf in missingsKeys)
@@ -3037,6 +3039,7 @@ namespace Core.ConditionalAccess
                             }
                         }
                     }
+
 
                     foreach (DataTable dt in fileDatatables.Values)
                     {
