@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_groups_locale.aspx.cs" Inherits="adm_groups_locale" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_groups_language_display.aspx.cs" Inherits="adm_groups_language_display" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -16,13 +16,13 @@
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
 <script type="text/javascript">
     function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_groups_locale.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
+        RS.Execute("adm_groups_language_display.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
     }
     function create_csv() {
-        RS.Execute("adm_groups_locale.aspx", "GetTableCSV", callback_create_csv, errorCallback);
+        RS.Execute("adm_groups_language_display.aspx", "GetTableCSV", callback_create_csv, errorCallback);
     }
 </script>
-</head>
+</head>we
 <body class="admin_body" onload="GetPageTable('' , 0);">
 <form id="form1" name="form1" action="" method="post" runat=server>
     <div class="floating_div" id="tag_collections_div"></div>

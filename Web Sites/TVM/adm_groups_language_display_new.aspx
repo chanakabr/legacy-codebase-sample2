@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_groups_locale.aspx.cs" Inherits="adm_groups_locale" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_groups_language_display_new.aspx.cs" Inherits="adm_groups_language_display_new" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -11,21 +11,31 @@
 <link href="css/styles-en.css" type="text/css" rel="stylesheet" />
 <script language="JavaScript" src="js/rs.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/adm_utils.js" type="text/javascript"></script>
-<script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/calendar.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/AnchorPosition.js" type="text/javascript"></script>
 <script language="JavaScript" src="js/dom-drag.js" type="text/javascript"></script>
+<script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
 <script type="text/javascript">
-    function GetPageTable(orderBy, pageNum) {
-        RS.Execute("adm_groups_locale.aspx", "GetPageContent", orderBy, pageNum, callback_page_content, errorCallback);
+    var peek_date_string = '<%=Session["peek_date"]%>';
+    var Su = '<%=Session["Su"]%>';
+    var Mo = '<%=Session["Mo"]%>';
+    var Tu = '<%=Session["Tu"]%>';
+    var We = '<%=Session["We"]%>';
+    var Th = '<%=Session["Th"]%>';
+    var Fr = '<%=Session["Fr"]%>';
+    var Sa = '<%=Session["Sa"]%>';
+    MonthNumber = '<%=Session["MonthList"]%>';
+    function AfterDateSelect(orderBy, pageNum, theDate) {
     }
-    function create_csv() {
-        RS.Execute("adm_groups_locale.aspx", "GetTableCSV", callback_create_csv, errorCallback);
+    function GetPageTable(orderBy, pageNum) {
+        RS.Execute("adm_groups_language_display_new.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
     }
 </script>
 </head>
 <body class="admin_body" onload="GetPageTable('' , 0);">
 <form id="form1" name="form1" action="" method="post" runat=server>
-    <div class="floating_div" id="tag_collections_div"></div>
+    <div id="tag_collections_div" class="floating_div"></div>
+    <div id="calendarDiv" class="floating_div"></div>
 	<table align=center cellpadding=0 cellspacing=0 class="admContainer">
 		<!-- top banner -->
 		<tr>
@@ -65,6 +75,7 @@
 				</table>
 			</td>
 		</tr>
+		<!-- all working area -->
 		<tr>
 			<td>
 				<table cellpadding=0 cellspacing=0>
@@ -78,9 +89,13 @@
 								<% GetMainMenu(); %>
 							</table>
 						</td>
+						<!-- empty area -->
 						<td style="width:10px; white-space:nowrap;" nowrap>&nbsp;</td>
+						<!-- main working area -->
 						<td style="width:800px;" valign=top nowrap>
+							<!-- working area -->
 							<table style="border-collapse:collapse;">
+								<!-- header -->
 								<tr>
 									<td class="adm_main_header"><h3><% GetHeader(); %></h3></td>
 								</tr>
@@ -96,33 +111,10 @@
 									</td>
 								</tr>
 								<!-- content -->
-								<!--tr>
-									<td class="formInputs">
-										<div>
-											<table>
-												<tr>
-													<td>
-														<table width="100%">
-															<tr>
-																<td><% TVinciShared.DBTableWebEditor.GetSearchFree("Tag", "search_tag" , "ltr"); %></td>
-																<td class="space01">&nbsp;&nbsp;</td>
-																<td><% TVinciShared.DBTableWebEditor.GetSearchFree("Free Text", "search_free" , "ltr"); %></td>
-																<td nowrap="nowrap" width="100%">&nbsp;</td>
-																<td>
-																	<a class="btn2" onclick="GetPageTable('',1);" href="javascript:void(0);"></a>
-															    </td>
-															</tr>
-														</table>
-													</td>
-												</tr>
-											</table>
-										</div>
-									</td>
-								</tr-->
+								<% TVinciShared.PageUtils.GetErrorMsg(1); %>
 								<tr>
-									<td id="page_content">
-									    <!-- the actual content -->
-									</td>
+								    <td id="page_content" width=100% nowrap=nowrap>
+								    </td>
 								</tr>
 							</table>
 						</td>
@@ -141,14 +133,5 @@
 		</tr>
 	</table>
 </div>
-    <div id="PlayerWindow" class="playerPop" style="width:525px; height:361px; left:120px; top:10%;display:none;">
-        <a href="javascript:void(0);" id="player_closr_h" class="close">Close</a>                              
-        <div class="inner">
-                <div id="PlayerOuterContainer" style="position:absolute;z-index:0;top:0;left:0;width:100%;height:100%;"></div>
-                <div class="inner" id="WMPDiv" style="position:absolute;z-index:0;top:0;left:0">
-                </div>
-        </div>
-    </div>
-    <div id="ndsdiv" style="position:absolute;z-index:1;top:0;left:0;width:0;height:0;"></div>
 </body>
 </html>
