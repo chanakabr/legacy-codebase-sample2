@@ -3030,7 +3030,12 @@ namespace Core.ConditionalAccess
                         foreach (string missKey in missingKeys)
                         {     
                             //todo
-                            int mf = int.Parse(missKey.Replace("validate_fileId_groupId_", ""));
+                            int mf = 0;
+                            string[] missKeyArray = missKey.Replace("validate_fileId_groupId_", "").Split('_');
+                            if (missKeyArray != null && missKeyArray.Count() > 0)
+                            {
+                                mf = int.Parse(missKeyArray[0]);
+                            }
 
                             if (mediaFilesStatus.ContainsKey(mf))
                             {
