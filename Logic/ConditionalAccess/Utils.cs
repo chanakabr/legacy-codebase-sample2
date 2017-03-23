@@ -2940,14 +2940,17 @@ namespace Core.ConditionalAccess
             Dictionary<string, DataTable> result = new Dictionary<string, DataTable>();            
             try
             {
-                if (funcParams.ContainsKey("fileIDs"))
+                 if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("fileIDs") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
-                    int[] fileIDs;
+                     int[] fileIDs;
+
+                    int? groupId = funcParams["groupId"] as int?;                    
                     fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
-                    if (fileIDs != null)
+
+                    if (fileIDs != null && groupId.HasValue)
                     {
-                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs);
+                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs, groupId.Value);
                         if (dt != null && dt.Rows != null)
                         {
                             DataTable tempDt;
@@ -3006,7 +3009,7 @@ namespace Core.ConditionalAccess
                 List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x)).ToList();
 
                 // try to get from cache            
-                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails,new Dictionary<string, object>() { { "fileIDs", nMediaFiles } },
+                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles }, { "groupId", groupId } },
                                                                                 groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
                 int mediaFileID;
@@ -3018,6 +3021,23 @@ namespace Core.ConditionalAccess
 
                 if (cacheResult && fileDatatables != null)
                 {
+                    // find keys not exsits in result
+                    List<int> missingsKeys = mediaFilesStatus.Where(x => !fileDatatables.ContainsKey(x.Key.ToString())).Select(x => x.Key).ToList();
+                    if (missingsKeys != null && missingsKeys.Count > 0)
+                    {
+                        foreach (int mf in missingsKeys)
+                        {
+                            if (mediaFilesStatus.ContainsKey(mf))
+                            {
+                                mediaFilesStatus[mf] = MediaFileStatus.NotForPurchase;
+                            }
+                            else
+                            {
+                                mediaFilesStatus.Add(mf, MediaFileStatus.NotForPurchase);
+                            }
+                        }
+                    }
+
                     foreach (DataTable dt in fileDatatables.Values)
                     {
                         if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
@@ -3060,7 +3080,7 @@ namespace Core.ConditionalAccess
                             {
                                 eMediaFileStatus = MediaFileStatus.NotForPurchase;
                             }
-                            else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) && 
+                            else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) &&
                                 (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // cun see only if purchased
                             {
                                 eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
