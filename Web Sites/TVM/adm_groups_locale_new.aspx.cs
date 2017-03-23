@@ -82,14 +82,24 @@ public partial class adm_groups_locale_new : System.Web.UI.Page
         dr_country.SetOrderBy("ID");
         theRecord.AddRecord(dr_country);
 
-        DataRecordDropDownField dr_currency = new DataRecordDropDownField("pricing.dbo.lu_currency", "NAME", "ID", "", null, 60, false);        
-        dr_currency.SetFieldType("string");
+        DataRecordDropDownField dr_currency = new DataRecordDropDownField("", "NAME", "ID", "", null, 60, false);
+        string sQuery = @"select distinct c.id, c.name as txt from pricing.dbo.lu_currency c
+                            where id in (select currency_id
+				                         from groups g
+				                         where g.id=" + LoginManager.GetLoginGroupID() +
+                                         @"union all
+				                         select currency_id
+				                         from group_extra_currencies gec
+				                         where gec.group_id=" + LoginManager.GetLoginGroupID() +
+                                         @"and gec.[status]=1)";
+        dr_currency.SetConnectionKey("MAIN_CONNECTION_STRING");
+        dr_currency.SetSelectsQuery(sQuery);        
         dr_currency.Initialize("Currency", "adm_table_header_nbg", "FormInput", "CURRENCY_ID", true);
         dr_currency.SetOrderBy("ID");
         theRecord.AddRecord(dr_currency);
 
         DataRecordDropDownField dr_language = new DataRecordDropDownField("", "NAME", "ID", "", null, 60, false);
-        string sQuery = @"select distinct l.id, l.name as txt from lu_languages l
+        sQuery = @"select distinct l.id, l.name as txt from lu_languages l
                             where id in (select language_id
 				                         from groups g
 				                         where g.id=" + LoginManager.GetLoginGroupID() +
@@ -100,9 +110,14 @@ public partial class adm_groups_locale_new : System.Web.UI.Page
                                          @"and gel.[status]=1)";
         dr_language.SetConnectionKey("MAIN_CONNECTION_STRING");
         dr_language.SetSelectsQuery(sQuery);
-        dr_language.Initialize("Language", "adm_table_header_nbg", "FormInput", "LANGUAGE_ID", true);
+        dr_language.Initialize("Main Language", "adm_table_header_nbg", "FormInput", "LANGUAGE_ID", true);
         dr_language.SetOrderBy("ID");        
         theRecord.AddRecord(dr_language);
+
+        DataRecordMultiField dr_more_languages = new DataRecordMultiField("lu_languages", "id", "id", "groups_locale_extra_languages", "GROUP_LOCALE_CONFIGURATION_ID", "LANGUAGE_ID", false, "ltr", 60, "tags");
+        dr_more_languages.Initialize("More Languages", "adm_table_header_nbg", "FormInput", "NAME", false);
+        dr_more_languages.SetOrderCollectionBy("name");        
+        theRecord.AddRecord(dr_more_languages);
 
         DataRecordShortDoubleField dr_vatPercentage = new DataRecordShortDoubleField(true, 9, 5);
         dr_vatPercentage.Initialize("VAT Percentage", "adm_table_header_nbg", "FormInput", "vat_percent", true);

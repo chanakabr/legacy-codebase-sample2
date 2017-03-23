@@ -60,7 +60,7 @@ public partial class adm_groups_locale : System.Web.UI.Page
             sOldOrderBy = Session["order_by"].ToString();
         DBTableWebEditor theTable = new DBTableWebEditor(false, false, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("MAIN_CONNECTION_STRING");
-        theTable += @"select glc.ID, c.country_name as 'Country Name', lc.code3 'Currency Code', ll.name as 'Language', glc.status
+        theTable += @"select glc.ID, c.country_name as 'Country Name', lc.code3 'Currency Code', ll.name as 'Language', glc.vat_percent as 'VAT Percent', glc.status
                       from dbo.groups_locale_configuration glc
                       join dbo.countries c on (glc.country_id=c.id)
                       join pricing.dbo.lu_currency lc on (glc.currency_id=lc.id)

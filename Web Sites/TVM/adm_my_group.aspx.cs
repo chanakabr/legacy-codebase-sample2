@@ -264,8 +264,7 @@ public partial class adm_my_group : System.Web.UI.Page
         DataRecordMultiField dr_more_languages = new DataRecordMultiField("lu_languages", "id", "id", "group_extra_languages", "GROUP_ID", "LANGUAGE_ID", false, "ltr", 60, "tags");
         dr_more_languages.Initialize("More Languages", "adm_table_header_nbg", "FormInput", "NAME", false);
         dr_more_languages.SetOrderCollectionBy("name");        
-        theRecord.AddRecord(dr_more_languages);
-              
+        theRecord.AddRecord(dr_more_languages);              
 
         DataRecordDropDownField dr_device_limits = new DataRecordDropDownField("groups_device_limitation_modules", "Name", "id", "group_id", LoginManager.GetLoginGroupID(), 60, false);
         dr_device_limits.Initialize("Default Device Limit", "adm_table_header_nbg", "FormInput", "max_device_limit", false);
@@ -378,6 +377,11 @@ public partial class adm_my_group : System.Web.UI.Page
         string currencyQuery = "select name as txt,id as id from pricing.dbo.lu_currency where status=1 and is_active=1";
         dr_currency.Initialize("Default Currency", "adm_table_header_nbg", "FormInput", "CURRENCY_ID", false);
         theRecord.AddRecord(dr_currency);
+
+        DataRecordMultiField dr_more_currencies = new DataRecordMultiField("pricing.dbo.lu_currency", "id", "id", "group_extra_languages", "GROUP_ID", "CURRENCY_ID", false, "ltr", 60, "tags");
+        dr_more_currencies.Initialize("More Currencies", "adm_table_header_nbg", "FormInput", "NAME", false);
+        dr_more_currencies.SetOrderCollectionBy("name");
+        theRecord.AddRecord(dr_more_currencies);
 
         string sTable = theRecord.GetTableHTML("adm_my_group.aspx?submited=1");
 
