@@ -46,7 +46,11 @@ namespace WebAPI.Utils
 
                 string name = getApiName(property);
 
-                if (property.PropertyType.IsSubclassOf(typeof(KalturaOTTObject)))
+                if (property.PropertyType == typeof(KalturaMultilingualString))
+                {
+                    value = ((KalturaMultilingualString)value).ToString();
+                }
+                else if (property.PropertyType.IsSubclassOf(typeof(KalturaOTTObject)))
                 {
                     value = new OldStandardObject((KalturaOTTObject)value);
                 }
