@@ -2940,12 +2940,12 @@ namespace Core.ConditionalAccess
             Dictionary<string, DataTable> result = new Dictionary<string, DataTable>();            
             try
             {
-                 if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("fileIDs") && funcParams.ContainsKey("groupId"))
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("fileIDs") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
-                     int[] fileIDs;
+                    int[] fileIDs;
 
-                    int? groupId = funcParams["groupId"] as int?;                    
+                    int? groupId = funcParams["groupId"] as int?;
                     fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
 
                     if (fileIDs != null && groupId.HasValue)
@@ -2968,13 +2968,13 @@ namespace Core.ConditionalAccess
                             DataTable tempDt = dt != null ? dt.Clone() : new DataTable();
                             foreach (int missingKey in missingKeys)
                             {
-                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey), tempDt);
+                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey, groupId.Value), tempDt);
                             }
                         }
-                    } 
+                    }
                     res = result.Keys.Count() == fileIDs.Count();
 
-                    result = result.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key)), x => x.Value);
+                    result = result.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key), groupId.Value), x => x.Value);
                 }
             }
             catch (Exception ex)
@@ -3006,7 +3006,7 @@ namespace Core.ConditionalAccess
 
                 // get basic file details from cach / DB                 
                 Dictionary<string, DataTable> fileDatatables = null;
-                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x)).ToList();
+                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x, groupId)).ToList();
 
                 // try to get from cache            
                 bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles }, { "groupId", groupId } },
@@ -3028,8 +3028,9 @@ namespace Core.ConditionalAccess
                     if (missingKeys != null && missingKeys.Count > 0)
                     {                       
                         foreach (string missKey in missingKeys)
-                        {                            
-                            int mf = int.Parse(missKey.Replace("validate_fileId_",""));
+                        {     
+                            //todo
+                            int mf = int.Parse(missKey.Replace("validate_fileId_groupId_", ""));
 
                             if (mediaFilesStatus.ContainsKey(mf))
                             {
