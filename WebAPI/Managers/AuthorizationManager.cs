@@ -522,8 +522,6 @@ namespace WebAPI.Managers
             return group.RevokedKsMaxTtlSeconds == 0 ? TCMClient.Settings.Instance.GetValue<int>(REVOKED_KS_MAX_TTL_SECONDS_TCM_KEY) : group.RevokedKsMaxTtlSeconds;
         }
 
-
-
         internal static bool RevokeSessions(int groupId, string userId)
         {
             Group group = GroupsManager.GetGroup(groupId);
