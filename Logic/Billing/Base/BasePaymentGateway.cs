@@ -4046,7 +4046,7 @@ namespace Core.Billing
 
         public Status GetPaymentGatewayVerificationStatus(string billingGuid)
         {
-            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });               
 
@@ -4066,12 +4066,7 @@ namespace Core.Billing
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid for action");
                 }
-                else
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
             }
-
             return response;
         }
     }
