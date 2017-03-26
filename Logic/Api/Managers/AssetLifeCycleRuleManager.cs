@@ -407,7 +407,7 @@ namespace Core.Api.Managers
         {
             bool result = false;
 
-            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValue > 0)
+            if (rule.FilterTagType != null && !string.IsNullOrEmpty(rule.FilterTagType.value) && rule.FilterTagValues != null && rule.FilterTagValues.Count > 0 && !string.IsNullOrEmpty(rule.MetaDateName) && rule.MetaDateValue >= 0)
             {
                 long date = -1 * (GetKsqlMetaDateValue(rule.MetaDateValue, rule.TransitionIntervalUnits));
                 StringBuilder builder = new StringBuilder();
