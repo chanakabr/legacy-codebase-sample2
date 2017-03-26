@@ -1209,5 +1209,17 @@ namespace DAL
             return updatedRows == 1;
         }
 
+        public static bool InsertOrUpdateGroupLocaleExtraLanguage(int group_locale_id, int groupLocaleExtraLanguageId, int status, int updaterId)
+        {
+            StoredProcedure sp = new StoredProcedure("InsertOrUpdateGroupLocaleExtraLanguage");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupLocaleConfigurationId", group_locale_id);
+            sp.AddParameter("@LanguageId", groupLocaleExtraLanguageId);
+            sp.AddParameter("@Status", status);
+            sp.AddParameter("@UpdaterId", updaterId);
+
+            return  sp.ExecuteReturnValue<int>() > 0;
+        }
+
     }    
 }
