@@ -874,7 +874,10 @@ namespace WebAPI.Controllers
                             "KalturaOTTUserFilter", "idIn");
                     }
                     response = new KalturaOTTUserListResponse();
-                    response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet);
+                    if (usersToGet != null && usersToGet.Count > 0)
+                    {
+                        response.Users = ClientsManager.UsersClient().GetUsersData(groupId, usersToGet);
+                    }
                     if (response.Users != null)
                     {
                         response.TotalCount = response.Users.Count();
