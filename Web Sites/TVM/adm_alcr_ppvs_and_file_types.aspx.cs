@@ -31,8 +31,8 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
         if (!IsPostBack)
         {
             Int32 nMenuID = 0;
-            //m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID, "adm_asset_life_cycle_rules.aspx");
-            //m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
+            m_sMenu = TVinciShared.Menu.GetMainMenu(7, true, ref nMenuID, "adm_asset_life_cycle_rules.aspx");
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
             int ruleId = 0;
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1" && Session["rule_id"] != null
                 && !string.IsNullOrEmpty(Session["rule_id"].ToString()) && int.TryParse(Session["rule_id"].ToString(), out ruleId) && ruleId >= 0

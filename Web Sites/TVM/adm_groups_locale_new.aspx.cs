@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -8,7 +9,7 @@ using TVinciShared;
 
 public partial class adm_groups_locale_new : System.Web.UI.Page
 {
-
+    
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -31,12 +32,12 @@ public partial class adm_groups_locale_new : System.Web.UI.Page
             if (Request.QueryString["group_locale_id"] != null && !string.IsNullOrEmpty(Request.QueryString["group_locale_id"].ToString())
                 && int.TryParse(Request.QueryString["group_locale_id"].ToString(), out groupLocaleId) && groupLocaleId > 0)
             {
-                Session["group_locale_id"] = groupLocaleId;
+                Session["group_locale_id"] = groupLocaleId;                
             }
             else
             {
-                Session["group_locale_id"] = 0;                
-            }
+                Session["group_locale_id"] = 0;    
+            }            
         }
     }    
 
@@ -76,14 +77,19 @@ public partial class adm_groups_locale_new : System.Web.UI.Page
         theRecord.SetConnectionKey("MAIN_CONNECTION_STRING");
 
         DataRecordDropDownField dr_country = new DataRecordDropDownField("countries", "COUNTRY_NAME", "ID", "", null, 60, false);
+        string sQuery = @"select distinct id, country_name as txt
+                          from dbo.countries
+                          where status=1
+                          and id>0
+                          order by txt";
         dr_country.SetConnectionKey("MAIN_CONNECTION_STRING");
-        dr_country.SetFieldType("string");
+        dr_country.SetSelectsQuery(sQuery);   
         dr_country.Initialize("Country", "adm_table_header_nbg", "FormInput", "COUNTRY_ID", true);
         dr_country.SetOrderBy("ID");
         theRecord.AddRecord(dr_country);
 
         DataRecordDropDownField dr_currency = new DataRecordDropDownField("", "NAME", "ID", "", null, 60, false);
-        string sQuery = @"select distinct c.id, c.name as txt from pricing.dbo.lu_currency c
+        sQuery = @"select distinct c.id, c.name as txt from pricing.dbo.lu_currency c
                             where id in (select currency_id
 				                         from groups g
 				                         where g.id=" + LoginManager.GetLoginGroupID() +
@@ -113,11 +119,6 @@ public partial class adm_groups_locale_new : System.Web.UI.Page
         dr_language.Initialize("Main Language", "adm_table_header_nbg", "FormInput", "LANGUAGE_ID", true);
         dr_language.SetOrderBy("ID");        
         theRecord.AddRecord(dr_language);
-
-        DataRecordMultiField dr_more_languages = new DataRecordMultiField("lu_languages", "id", "id", "groups_locale_extra_languages", "GROUP_LOCALE_CONFIGURATION_ID", "LANGUAGE_ID", false, "ltr", 60, "tags");
-        dr_more_languages.Initialize("More Languages", "adm_table_header_nbg", "FormInput", "NAME", false);
-        dr_more_languages.SetOrderCollectionBy("name");        
-        theRecord.AddRecord(dr_more_languages);
 
         DataRecordShortDoubleField dr_vatPercentage = new DataRecordShortDoubleField(true, 9, 5);
         dr_vatPercentage.Initialize("VAT Percentage", "adm_table_header_nbg", "FormInput", "vat_percent", true);
