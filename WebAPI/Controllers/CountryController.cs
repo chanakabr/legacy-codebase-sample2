@@ -34,8 +34,39 @@ namespace WebAPI.Controllers
              int groupId = KS.GetFromRequest().GroupId;
 
              try
-             {
-                 response = ClientsManager.ApiClient().GetCountryList(groupId, filter.GetIdIn());
+             {                 
+                 List<int> countryIds = filter.GetIdIn();
+                 bool isIpEqualExists = !string.IsNullOrEmpty(filter.IpEqual);
+                 if (countryIds.Count > 0)
+                 {
+                     if ((isIpEqualExists || filter.IpEqualCurrent.HasValue))
+                     {
+                         throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "IdIn", isIpEqualExists ? "IpEqual" : "IpEqualCurrent");
+                     }
+                     else
+                     {
+                         response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds);
+                     }
+                 }
+                 else if (isIpEqualExists)
+                 {
+                     if (filter.IpEqualCurrent.HasValue)
+                     {
+                         throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "IpEqual", "IpEqualCurrent");
+                     }
+                     else
+                     {
+                         response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent);
+                     }
+                 }
+                 else if (filter.IpEqualCurrent.HasValue)
+                 {
+                     response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent);
+                 }
+                 else
+                 {
+                     response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds);
+                 }
              }
              catch (ClientException ex)
              {
