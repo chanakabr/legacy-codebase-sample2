@@ -722,8 +722,6 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))

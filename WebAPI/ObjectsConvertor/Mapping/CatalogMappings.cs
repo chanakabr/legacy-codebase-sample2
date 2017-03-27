@@ -156,6 +156,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 ;
 
 
