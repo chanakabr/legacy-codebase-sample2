@@ -4150,5 +4150,15 @@ namespace DAL
                                         rule.Actions.FileTypesAndPpvsToRemove.PpvIds.Count == 0 && rule.Actions.FileTypesAndPpvsToRemove.FileTypeIds.Count == 0);
         }
 
+        public static DataSet GetCountriesLocale(int groupId, List<int> countryIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountriesLocale");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@CountryIds", countryIds, "id");            
+
+            return sp.ExecuteDataSet();
+        }
+
     }
 }
