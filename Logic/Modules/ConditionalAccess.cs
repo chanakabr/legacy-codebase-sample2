@@ -514,7 +514,7 @@ namespace Core.ConditionalAccess
                 Int32[] nMediaFileIDs = new Int32[nSize];
                 for (int j = 0; j < nSize; j++)
                     nMediaFileIDs[j] = nMediaFiles[j].m_nInt32;
-                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sCountryCd2, sLanguageCode3, sDeviceName);
+                return t.GetItemsPrices(nMediaFileIDs, sUserGUID, bOnlyLowest, sLanguageCode3,sDeviceName);
             }
             else
             {
