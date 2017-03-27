@@ -259,7 +259,7 @@ namespace Core.Catalog
                     foreach (var id in nonExistingMediaIDs)
                     {
                         // Look for the origin row of the media in the database
-                        DataRow currentMediaRow = ODBCWrapper.Utils.GetTableSingleRow("media", id);
+                        DataRow currentMediaRow = ODBCWrapper.Utils.GetTableSingleRow("media", id, "MAIN_CONNECTION_STRING");
 
                         // If no row returned - delete the record in index
                         if (currentMediaRow == null)
