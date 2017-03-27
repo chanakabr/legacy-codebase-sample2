@@ -39,5 +39,46 @@ namespace WebAPI.Models.Users
         [JsonProperty("code")]
         [XmlElement(ElementName = "code")]
         public string Code { get; set; }
+
+        /// <summary>
+        /// The main language code in the country
+        /// </summary>
+        [DataMember(Name = "mainLanguageCode")]
+        [JsonProperty("mainLanguageCode")]
+        [XmlElement(ElementName = "mainLanguageCode")]
+        public string MainLanguageCode { get; set; }
+
+        /// <summary>
+        /// All the languages code that are supported in the country
+        /// </summary>
+        [DataMember(Name = "languagesCode")]
+        [JsonProperty("languagesCode")]
+        [XmlElement(ElementName = "languagesCode")]
+        public string LanguagesCode { get; set; }
+
+        /// <summary>
+        /// Currency code
+        /// </summary>
+        [DataMember(Name = "currency")]
+        [JsonProperty("currency")]
+        [XmlElement(ElementName = "currency")]
+        public string CurrencyCode { get; set; }
+
+        /// <summary>
+        ///Currency Sign
+        /// </summary>
+        [DataMember(Name = "currencySign")]
+        [JsonProperty("currencySign")]
+        [XmlElement(ElementName = "currencySign")]
+        public string CurrencySign { get; set; }
+
+        /// <summary>
+        ///Vat Percent in the country
+        /// </summary>
+        [DataMember(Name = "vatPercent")]
+        [JsonProperty("vatPercent")]
+        [XmlElement(ElementName = "vatPercent", IsNullable = true)]
+        public double? VatPercent { get; set; }
+
     }
 }
