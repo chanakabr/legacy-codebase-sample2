@@ -571,7 +571,8 @@ namespace ApiObjects
         Deleted = 6,
         LifeTimePeriodExpired = 7,
         SeriesCancel = 8,
-        SeriesDelete = 9
+        SeriesDelete = 9,
+        DeletePending = 10
     }
 
     public enum DomainRecordingStatus

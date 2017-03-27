@@ -210,7 +210,7 @@ namespace Core.Recordings
             return result;
         }
 
-        public ApiObjects.Response.Status HandleDominQuotaOvarge(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
+        public ApiObjects.Response.Status HandleDomainAutoDelete(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
         {
             ApiObjects.Response.Status bRes = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             int limitRetries = RETRY_LIMIT;
@@ -240,6 +240,59 @@ namespace Core.Recordings
             catch (Exception ex)
             {
                 log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, recordingDuration, bRes.Message, ex);
+            }
+            return bRes;
+        }
+
+        public ApiObjects.Response.Status HandleDomainRecoveringRecording(int groupId, long domainId, int totalRecordingDuration)
+        {
+            ApiObjects.Response.Status bRes = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            List<long> domainRecordingIds = new List<long>();
+            int recordingDuration = 0;
+            int tempRecordingDuration = 0;
+            try
+            {                
+                // get all deletePending recordings related to domain sort by epgStartDate
+                Dictionary<long, Recording> recordings = Utils.GetDomainRecordingsToRecover(groupId, domainId);
+                if (recordings != null && recordings.Count > 0)
+                {
+                    foreach (KeyValuePair<long, Recording> recording in recordings)
+                    {
+                        recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
+                        tempRecordingDuration += recordingDuration;
+
+                        if (tempRecordingDuration >= totalRecordingDuration)
+                        {
+                            tempRecordingDuration -= recordingDuration;
+                            break;
+                        }
+                        domainRecordingIds.Add(recording.Key);
+                    }
+                    if (domainRecordingIds.Count > 0)
+                    {
+                        // update all these domain recording ids to status OK  and update used quota
+                        if (RecordingsDAL.RecoverDomainRecordings(domainRecordingIds, DomainRecordingStatus.OK))
+                        {
+                            if (QuotaManager.Instance.IncreaseDomainUsedQuota(groupId, domainId, tempRecordingDuration))
+                            {
+                                bRes = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("fount 0 domainRecordingIds to recover groupID: {0}, domainID: {1}", groupId, domainId);
+                }
+
+                if (bRes.Code != (int)eResponseStatus.OK) // fail to recover recordings
+                {
+                    log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}", groupId, domainId, totalRecordingDuration, bRes.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed HandleDomainRecoveringRecording groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, totalRecordingDuration, bRes.Message, ex);
             }
             return bRes;
         }
@@ -366,5 +419,7 @@ namespace Core.Recordings
             return domainQuota;
         }
         #endregion
+
+        
     }
 }

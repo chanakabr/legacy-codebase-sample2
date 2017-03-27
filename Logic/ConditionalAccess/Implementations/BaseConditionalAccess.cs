@@ -12663,7 +12663,7 @@ namespace Core.ConditionalAccess
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
                             // handel delete to overage quota    
-                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration);
+                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
                             if (bRes!= null && bRes.Code == (int)eResponseStatus.OK)
                             {
                                 UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
