@@ -304,14 +304,18 @@ namespace DAL
             return dataSet;
         }
 
-        public static DataTable GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<int> domainRecordingStatuses)
+        public static DataTable GetDomainRecordingsByRecordingStatuses(int groupID, long domainID, List<int> domainRecordingStatuses, List<int> recordingStatuses = null)
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure spGetDomainRecordings = new ODBCWrapper.StoredProcedure("GetDomainRecordingsByRecordingStatuses");
             spGetDomainRecordings.SetConnectionKey(RECORDING_CONNECTION);
             spGetDomainRecordings.AddParameter("@GroupID", groupID);
             spGetDomainRecordings.AddParameter("@DomainID", domainID);
-            spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", domainRecordingStatuses, "ID");
+            spGetDomainRecordings.AddIDListParameter<int>("@DomainRecordingStatuses", domainRecordingStatuses, "ID");
+            if (recordingStatuses != null && recordingStatuses.Count > 0)
+            {
+                spGetDomainRecordings.AddIDListParameter<int>("@RecordingStatuses", recordingStatuses, "ID");
+            }
             dt = spGetDomainRecordings.Execute();
 
             return dt;
@@ -1400,6 +1404,15 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static bool RecoverDomainRecordings(List<long> domainRecordingIds, DomainRecordingStatus domainRecordingStatus)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateDomainRecordingsState");
+            sp.SetConnectionKey(RECORDING_CONNECTION);           
+            sp.AddIDListParameter("@DomainRecordingIds", domainRecordingIds, "ID");
+            sp.AddParameter("@RecordingState", (int)domainRecordingStatus);
+            return sp.ExecuteReturnValue<bool>();
         }
     }
 }
