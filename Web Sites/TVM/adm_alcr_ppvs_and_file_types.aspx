@@ -123,6 +123,7 @@
                                         </td>
                                     </tr>
                                     <!-- content -->
+                                    <% TVinciShared.PageUtils.GetErrorMsg(1); %>
                                     <tr><td><div id="DualListppvsToAdd"></div></td></tr>
                                     <tr><td><div id="DualListfileTypesToAdd"></div></td></tr>
                                     <tr><td><div id="DualListppvsToRemove"></div></td></tr>

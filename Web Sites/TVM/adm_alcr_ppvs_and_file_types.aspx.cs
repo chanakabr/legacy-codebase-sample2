@@ -43,8 +43,7 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
                 if (ppvsAndFileTypesToAdd == null || ppvsAndFileTypesToRemove == null)
                 {
                     log.ErrorFormat("Failed to get ppvsAndFileTypesToAdd or ppvsAndFileTypesToRemove for rule_id: {0}", ruleId);
-                    HttpContext.Current.Session["error_msg"] = "incorrect values while updating rule ppvs and file types";
-                    EndOfAction();
+                    HttpContext.Current.Session["error_msg"] = "incorrect values while updating rule ppvs and file types";                    
                     return;
                 }
 
@@ -68,12 +67,14 @@ public partial class adm_alcr_ppvs_and_file_types : System.Web.UI.Page
                     {
                         log.ErrorFormat("Failed to update asset life cycle rule ppvs and file types for rule_id: {0}", ruleId);
                         HttpContext.Current.Session["error_msg"] = "Failed to update asset life cycle rule ppvs and file types";
-                        EndOfAction();
                         return;
                     }
+                    else
+                    {
+                        Response.Redirect("adm_asset_life_cycle_rules.aspx");
+                    }
                 }
-
-                EndOfAction();
+                
                 return;
             }
             if (Request.QueryString["rule_id"] != null && Request.QueryString["rule_id"].ToString() != "")
