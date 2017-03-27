@@ -957,7 +957,7 @@ namespace TVinciShared
                 else
                 {
                     imageUrl = basePicsURL;
-                    string sPicURL = PageUtils.GetTableSingleVal("pics", "base_url", picId).ToString();
+                    string sPicURL = PageUtils.GetTableSingleVal("pics", "base_url", picId, "MAIN_CONNECTION_STRING").ToString();
                     string sP = ImageUtils.GetTNName(sPicURL, "tn");
 
                     if (imageUrl.EndsWith("=") == false)
