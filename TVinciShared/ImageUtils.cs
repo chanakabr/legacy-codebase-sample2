@@ -654,7 +654,7 @@ namespace TVinciShared
                 {
                     case eHttpRequestType.Post:
 
-                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId);
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "INTERNAL_IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
                         if (imageServerUrlObj == null || string.IsNullOrWhiteSpace(imageServerUrlObj.ToString()))
                             log.ErrorFormat(string.Format("INTERNAL_IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                         else
@@ -666,7 +666,7 @@ namespace TVinciShared
 
                     case eHttpRequestType.Get:
 
-                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId);
+                        imageServerUrlObj = PageUtils.GetTableSingleVal("groups", "IMAGE_SERVER_URL", groupId, "MAIN_CONNECTION_STRING");
                         if (imageServerUrlObj == null || string.IsNullOrWhiteSpace(imageServerUrlObj.ToString()))
                             log.ErrorFormat(string.Format("IMAGE_SERVER_URL wasn't found. GID: {0}", groupId));
                         else
