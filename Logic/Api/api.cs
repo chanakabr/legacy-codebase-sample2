@@ -19,6 +19,7 @@ using Core.Api.Managers;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Pricing;
 using EpgBL;
 using KLogMonitor;
 using QueueWrapper;
@@ -9593,6 +9594,73 @@ namespace Core.Api
             catch (Exception ex)
             {
                 log.Error(string.Format("Error in GetCountryLocaleByIp, groupId: {0}, ip: {1}", groupId, ip), ex);
+            }
+
+            return result;
+        }
+
+        internal static LanguageResponse GetLanguageList(int groupId, List<string> languageCodes)
+        {
+            LanguageResponse result = new ApiObjects.LanguageResponse();
+            try
+            {
+                DataTable dt = DAL.ApiDAL.GetLanguages(groupId, languageCodes);
+                if (dt != null && dt.Rows != null)
+                {
+                    HashSet<int> languageIds = new HashSet<int>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                        if (id > 0 && !languageIds.Contains(id))
+                        {
+                            string code = ODBCWrapper.Utils.GetSafeStr(dr, "CODE3");
+                            string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                            string displayName = ODBCWrapper.Utils.GetSafeStr(dr, "DISPLAY_NAME");
+                            string direction = ODBCWrapper.Utils.GetSafeStr(dr, "DIRECTION");
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_DEFAULT");
+                            result.Languages.Add(new LanguageObj(id, name, code, direction, isDefault == 1, displayName));
+                        }
+                    }
+                }
+
+                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetLanguageList, groupId: {0}, languageCodes: {1}", groupId, languageCodes != null ? string.Join(",", languageCodes) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        internal static CurrencyResponse GetCurrencyList(int groupId, List<string> currencyCodes)
+        {
+            CurrencyResponse result = new CurrencyResponse();
+            try
+            {
+                DataTable dt = DAL.ApiDAL.GetCurrencies(groupId, currencyCodes);
+                if (dt != null && dt.Rows != null)
+                {
+                    HashSet<int> languageIds = new HashSet<int>();
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                        if (id > 0 && !languageIds.Contains(id))
+                        {
+                            string code = ODBCWrapper.Utils.GetSafeStr(dr, "CODE3");
+                            string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                            string sign = ODBCWrapper.Utils.GetSafeStr(dr, "CURRENCY_SIGN");                            
+                            int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_DEFAULT");
+                            result.Currencies.Add(new Currency(id, name, code, sign, isDefault == 1));
+                        }
+                    }
+                }
+
+                result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetCurrencyList, groupId: {0}, currencyCodes: {1}", groupId, currencyCodes != null ? string.Join(",", currencyCodes) : string.Empty), ex);
             }
 
             return result;

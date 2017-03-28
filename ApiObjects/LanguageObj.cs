@@ -43,13 +43,27 @@ namespace ApiObjects
             set;
         }
 
+        [JsonProperty()]
+        public string DisplayName { get; set; }
+
         public LanguageObj()
         {
-            ID = 0;
-            Name = string.Empty;
-            Code = string.Empty;
-            Direction = string.Empty;
-            IsDefault = false;
+            this.ID = 0;
+            this.Name = string.Empty;
+            this.Code = string.Empty;
+            this.Direction = string.Empty;
+            this.IsDefault = false;
+            this.DisplayName = string.Empty;
+        }
+
+        public LanguageObj(int id, string name, string code, string direction, bool isDefault, string displayName)
+        {
+            this.ID = id;
+            this.Name = name;
+            this.Code = code;
+            this.Direction = direction;
+            this.IsDefault = isDefault;
+            this.DisplayName = displayName;
         }
     }
 }

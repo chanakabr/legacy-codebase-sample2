@@ -130,6 +130,7 @@
     <Compile Include="ConditionalAccess\enums.cs" />
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
+    <Compile Include="LanguageResponse.cs" />
     <Compile Include="CoreObject.cs" />
     <Compile Include="CountryLocale.cs" />
     <Compile Include="CountryLocaleResponse.cs" />

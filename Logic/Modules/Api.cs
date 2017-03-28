@@ -20,6 +20,7 @@ using ApiObjects.AssetLifeCycleRules;
 using System.Linq;
 using System.Linq.Expressions;
 using Core.Api.Managers;
+using Core.Pricing;
 
 namespace Core.Api
 {
@@ -1759,6 +1760,16 @@ namespace Core.Api
         public static ApiObjects.CountryLocaleResponse GetCountryLocaleByIp(int groupId, string ip)
         {
             return Core.Api.api.GetCountryLocaleByIp(groupId, ip);
+        }
+
+        public static LanguageResponse GetLanguageList(int groupId, List<string> languageCodes)
+        {
+            return Core.Api.api.GetLanguageList(groupId, languageCodes);
+        }
+
+        public static CurrencyResponse GetCurrencyList(int groupId, List<string> currencyCodes)
+        {
+            return Core.Api.api.GetCurrencyList(groupId, currencyCodes);
         }
 
     }

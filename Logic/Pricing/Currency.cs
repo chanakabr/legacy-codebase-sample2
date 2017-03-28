@@ -10,11 +10,24 @@ namespace Core.Pricing
     {
         public Currency()
         {
-            m_sCurrencyCD2 = string.Empty;
-            m_sCurrencyCD3 = string.Empty;
-            m_nCurrencyID = 0;
-            m_sCurrencySign = string.Empty;
+            this.m_sCurrencyCD2 = string.Empty;
+            this.m_sCurrencyCD3 = string.Empty;
+            this.m_nCurrencyID = 0;
+            this.m_sCurrencySign = string.Empty;
+            this.m_sCurrencyName = string.Empty;
+            this.m_bIsDefault = false;
         }
+
+        public Currency(int id, string name, string code, string sign, bool isDefault)
+        {
+            this.m_nCurrencyID = id;
+            this.m_sCurrencyName = name;
+            this.m_sCurrencyCD2 = code;
+            this.m_sCurrencySign = sign;
+            this.m_sCurrencyCD3 = string.Empty;
+            this.m_bIsDefault = isDefault;
+        }
+
         public void InitializeById(Int32 nID)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = null;
@@ -103,9 +116,12 @@ namespace Core.Pricing
                 }
             }
         }
+
         public string m_sCurrencyCD3;
         public string m_sCurrencyCD2;
         public string m_sCurrencySign;
+        public string m_sCurrencyName;
         public Int32 m_nCurrencyID;
+        public bool m_bIsDefault;
     }
 }
