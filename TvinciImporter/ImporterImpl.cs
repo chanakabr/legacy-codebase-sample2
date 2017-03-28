@@ -4168,6 +4168,7 @@ namespace TvinciImporter
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("mdmv.media_id", "=", nMediaID);
             selectQuery += "where gdm.status=1 and";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdm.group_id", "=", nGroupID);
+            selectQuery.SetCachedSec(0);
             if (selectQuery.Execute("query", true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
