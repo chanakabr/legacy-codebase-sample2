@@ -642,6 +642,20 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.CurrencyController.List(WebAPI.Models.API.KalturaCurrencyFilter)">
+            <summary>
+            Get the list of currencies for the partner with option to filter by currency codes
+            </summary>
+            <param name="filter">currency filter</param>
+            <remarks></remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.LanguageController.List(WebAPI.Models.API.KalturaLanguageFilter)">
+            <summary>
+            Get the list of languages for the partner with option to filter by language codes
+            </summary>
+            <param name="filter">language filter</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.LastPositionController.List(WebAPI.Models.Catalog.KalturaLastPositionFilter)">
             <summary>
             Returns the last position (in seconds) in a media or nPVR asset until which a user in the household watched
@@ -764,9 +778,49 @@
             Base class
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KalturaMetaFilter">
+        <member name="T:WebAPI.Models.General.KalturaListResponse">
             <summary>
-            Meta filter
+            Base list wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
+            <summary>
+            Total items
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrencyListResponse.Objects">
+            <summary>
+            Currencies
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaCurrency">
+            <summary>
+            Currency details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrency.Name">
+            <summary>
+            Currency name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrency.Code">
+            <summary>
+            Currency code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrency.Sign">
+            <summary>
+            Currency Sign
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrency.IsDefault">
+            <summary>
+            Is the default Currency of the account
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaCurrencyFilter">
+            <summary>
+            Currency filter
             </summary>
         </member>
         <member name="T:WebAPI.Models.General.KalturaFilter`1">
@@ -777,6 +831,61 @@
         <member name="P:WebAPI.Models.General.KalturaFilter`1.OrderBy">
             <summary>
             order by
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCurrencyFilter.CodeIn">
+            <summary>
+            Currency codes
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaLanguageFilter">
+            <summary>
+            Language filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguageFilter.CodeIn">
+            <summary>
+            Language codes
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaLanguage">
+            <summary>
+            Language details
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguage.Name">
+            <summary>
+            Language name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguage.SystemName">
+            <summary>
+            Language system name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguage.Code">
+            <summary>
+            Language code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguage.Direction">
+            <summary>
+            Language direction (LTR/RTL)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguage.IsDefault">
+            <summary>
+            Is the default language of the account
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaLanguageListResponse.Objects">
+            <summary>
+            Languages
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaMetaFilter">
+            <summary>
+            Meta filter
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaFilter.FieldNameEqual">
@@ -802,16 +911,6 @@
         <member name="T:WebAPI.Models.API.KalturaMetaListResponse">
             <summary>
             Meta list response
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.General.KalturaListResponse">
-            <summary>
-            Base list wrapper
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.General.KalturaListResponse.TotalCount">
-            <summary>
-            Total items
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaMetaListResponse.Objects">

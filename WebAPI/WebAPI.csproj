@@ -230,6 +230,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\CurrencyController.cs" />
+    <Compile Include="Controllers\LanguageController.cs" />
     <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
@@ -262,6 +264,14 @@
     <Compile Include="Managers\Scheme\Deprecated.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
+    <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
+    <Compile Include="Models\API\KalturaCurrency.cs" />
+    <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
+    <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
+    <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
+    <Compile Include="Models\API\KalturaLanguageFilter.cs" />
+    <Compile Include="Models\API\KalturaLanguage.cs" />
+    <Compile Include="Models\API\KalturaLanguageListResponse.cs" />
     <Compile Include="Models\API\KalturaMetaOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaFilter.cs" />
     <Compile Include="Models\API\KalturaMetaListResponse.cs" />

@@ -26,6 +26,7 @@ using ApiObjects.TimeShiftedTv;
 using ApiObjects.Roles;
 using ApiObjects.CDNAdapter;
 using ApiObjects.BulkExport;
+using Core.Pricing;
 
 namespace WebAPI.Clients
 {
@@ -2546,7 +2547,6 @@ namespace WebAPI.Clients
             return success;
         }
 
-
         #region KSQL Channel
         internal KalturaChannel InsertKSQLChannel(int groupId, KalturaChannel channel)
         {
@@ -3167,9 +3167,6 @@ namespace WebAPI.Clients
         internal KalturaRegionListResponse GetRegions(int groupId, List<string> externalIds, KalturaRegionOrderBy orderBy)
         {
             List<KalturaRegion> regions = new List<KalturaRegion>();
-
-            
-
             RegionsResponse response = null;
 
             RegionOrderBy wsOrderBy = ApiMappings.ConvertRegionOrderBy(orderBy);
@@ -3269,9 +3266,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds, KalturaCountryOrderBy? orderBy = null)
-        {
-            
+        internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds, KalturaCountryOrderBy? orderBy)
+        {            
             KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
             CountryLocaleResponse response = null;
             try
@@ -3312,7 +3308,7 @@ namespace WebAPI.Clients
                 switch (orderBy.Value)
                 {
                     case KalturaCountryOrderBy.NAME_ASC:
-                        result.Objects.OrderBy(x => x.Name);
+                        result.Objects = result.Objects.OrderBy(x => x.Name).ToList();
                         break;
                     default:
                         break;
@@ -3363,7 +3359,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaCountryListResponse GetCountryListByIp(int groupId, string ip, bool? shouldUseCurrentRequestIp, KalturaCountryOrderBy? orderBy = null)
+        internal KalturaCountryListResponse GetCountryListByIp(int groupId, string ip, bool? shouldUseCurrentRequestIp, KalturaCountryOrderBy? orderBy)
         {
             KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
             CountryLocaleResponse response = null;
@@ -3409,7 +3405,7 @@ namespace WebAPI.Clients
                 switch (orderBy.Value)
                 {
                     case KalturaCountryOrderBy.NAME_ASC:
-                        result.Objects.OrderBy(x => x.Name);
+                        result.Objects = result.Objects.OrderBy(x => x.Name).ToList();
                         break;
                     default:
                         break;
@@ -3420,5 +3416,122 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaLanguageListResponse GetLanguageList(int groupId, List<string> languageCodes, KalturaLanguageOrderBy? orderBy = null)
+        {
+            KalturaLanguageListResponse result = new KalturaLanguageListResponse() { TotalCount = 0 };
+            LanguageResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetLanguageList(groupId, languageCodes);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Languages != null && response.Languages.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaLanguage>>(response.Languages);
+            }
+
+            if (orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaLanguageOrderBy.SYSTEM_NAME_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.SystemName).ToList();
+                        break;
+                    case KalturaLanguageOrderBy.SYSTEM_NAME_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.SystemName).ToList();
+                        break;
+                    case KalturaLanguageOrderBy.CODE_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.Code).ToList();
+                        break;
+                    case KalturaLanguageOrderBy.CODE_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.Code).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            result.TotalCount = result.Objects.Count;
+
+            return result;
+        }
+
+        internal KalturaCurrencyListResponse GetCurrencyList(int groupId, List<string> currencyCodes, KalturaCurrencyOrderBy? orderBy = null)
+        {
+            KalturaCurrencyListResponse result = new KalturaCurrencyListResponse() { TotalCount = 0 };
+            CurrencyResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetCurrencyList(groupId, currencyCodes);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Currencies != null && response.Currencies.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaCurrency>>(response.Currencies);
+            }
+
+            if (orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaCurrencyOrderBy.NAME_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaCurrencyOrderBy.NAME_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    case KalturaCurrencyOrderBy.CODE_ASC:
+                        result.Objects = result.Objects.OrderBy(x => x.Code).ToList();
+                        break;
+                    case KalturaCurrencyOrderBy.CODE_DESC:
+                        result.Objects = result.Objects.OrderByDescending(x => x.Code).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            result.TotalCount = result.Objects.Count;
+
+            return result;
+        }
+
     }
 }

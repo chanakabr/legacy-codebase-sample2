@@ -29,6 +29,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
+            //KalturaLanguage
+            Mapper.CreateMap<LanguageObj, KalturaLanguage>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DisplayName) ? src.DisplayName : src.Name))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name));
+
+            //KalturaCurrency
+            Mapper.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
+                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));                
+
             //AssetType to Catalog.StatsType
             Mapper.CreateMap<AssetType, StatsType>().ConstructUsing((AssetType type) =>
             {
