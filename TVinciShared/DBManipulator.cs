@@ -131,6 +131,11 @@ namespace TVinciShared
                 if (coll[nCounter.ToString() + "_val"] != null)
                     sVal = coll[nCounter.ToString() + "_val"].ToString();
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
+                int duplicate = 1;
+                if (coll[nCounter.ToString() + "_mulFactor"] != null && !string.IsNullOrEmpty(coll[nCounter.ToString() + "_mulFactor"].ToString()))
+                {
+                    duplicate = int.Parse(coll[nCounter.ToString() + "_mulFactor"].ToString());                    
+                }
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
                 bool ignore = coll[nCounter.ToString() + "_ignore"] != null ? coll[nCounter.ToString() + "_ignore"].ToLower() == "true" : false;
                 if (sFieldName == "" || ignore)
@@ -186,7 +191,7 @@ namespace TVinciShared
                     if (sType == "int" && sVal != "")
                     {
                         bValid = validateParam("int", sVal, -1, -1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sVal.ToString()));
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", int.Parse(sVal.ToString())*duplicate);
                     }
                     if (sType == "int" && sVal == "")
                     {
@@ -195,7 +200,7 @@ namespace TVinciShared
                     if (sType == "double" && sVal != "")
                     {
                         bValid = validateParam("double", sVal, -1, -1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", double.Parse(sVal.ToString()));
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", double.Parse(sVal.ToString()) * duplicate);
                     }
                     if (sType == "checkbox")
                     {

@@ -52,6 +52,7 @@ namespace TVinciShared
         protected Int32 m_nDefault;
         protected string m_sConnectionKey;
         protected bool ignore;
+        protected int? m_mulFactor;
 
         protected BaseDataRecordField() { }
 
@@ -100,6 +101,11 @@ namespace TVinciShared
         public void SetConnectionKey(string sKey)
         {
             m_sConnectionKey = sKey;
+        }
+
+        public void setMulFactor(int mulFactor)
+        {
+            m_mulFactor = mulFactor;
         }
 
         public string GetConnectionKey()
@@ -1239,20 +1245,22 @@ namespace TVinciShared
         DataRecordCheckBoxField m_checkBoxField;
         DataRecordShortDoubleField m_doubleField;
         string m_sCheckTitle;
-        public DataRecordCutWithDoubleField(ref DataRecordCheckBoxField checkBoxField, ref DataRecordShortDoubleField doubleField, string sCheckTitle)
+        public DataRecordCutWithDoubleField(ref DataRecordCheckBoxField checkBoxField, ref DataRecordShortDoubleField doubleField, string sCheckTitle, int? mulFactor = null)
             : base()
         {
             m_checkBoxField = checkBoxField;
             m_doubleField = doubleField;
             m_sCheckTitle = sCheckTitle;
+            m_mulFactor = mulFactor;
         }
 
-        public DataRecordCutWithDoubleField(ref DataRecordCheckBoxField checkBoxField, ref DataRecordShortDoubleField doubleField)
+        public DataRecordCutWithDoubleField(ref DataRecordCheckBoxField checkBoxField, ref DataRecordShortDoubleField doubleField, int? mulFactor = null)
             : base()
         {
             m_checkBoxField = checkBoxField;
             m_doubleField = doubleField;
             m_sCheckTitle = "";
+            m_mulFactor = mulFactor;
         }
 
         public override string GetFieldHtml(long nID, ref int nToAdd)
@@ -1534,7 +1542,8 @@ namespace TVinciShared
 
         protected string m_filedPrivateName;
 
-        public DataRecordShortIntField(bool bEnabled, long nWidth, long nMaxLength, int? minVal = null, int? maxVal = null)
+
+        public DataRecordShortIntField(bool bEnabled, long nWidth, long nMaxLength, int? minVal = null, int? maxVal = null, int? mulFactor = null)
             : base()
         {
             m_bEnabled = bEnabled;
@@ -1543,6 +1552,7 @@ namespace TVinciShared
             m_nMinValue = minVal;
             m_nMaxValue = maxVal;
             m_filedPrivateName = string.Empty;
+            m_mulFactor = mulFactor;
         }
 
         public void setFiledName(string name)
@@ -1571,16 +1581,27 @@ namespace TVinciShared
             sTmp += "size=" + m_nWidth.ToString() + " ";
             sTmp += "maxlength=" + m_nMaxLength.ToString() + " ";
             if (m_sStartValue != "")
-                sTmp += "value='" + m_sStartValue.ToString() + "' ";
-            else
-                if (m_nDefault != -1)
-                    sTmp += "value='" + m_nDefault.ToString() + "' ";
+            {
+                if (m_mulFactor.HasValue)
+                {
+                    int startValue = int.Parse(m_sStartValue.ToString()) / m_mulFactor.Value;
+                    sTmp += "value='" + startValue.ToString() + "' ";
+                }
+                else
+                {
+                    sTmp += "value='" + m_sStartValue.ToString() + "' ";
+                }
+            }
+            else if (m_nDefault != -1)
+            {
+                sTmp += "value='" + m_nDefault.ToString() + "' ";
+            }
             sTmp += "/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
-
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_mulFactor' value='" + m_mulFactor + "'/>";
             if (m_nMinValue.HasValue)
                 sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_min' value='" + m_nMinValue + "'/>";
             if (m_nMaxValue.HasValue)
@@ -1595,9 +1616,10 @@ namespace TVinciShared
 
     public class DataRecordShortDoubleField : DataRecordShortIntField
     {
-        public DataRecordShortDoubleField(bool bEnabled, long nWidth, long nMaxLength)
+        public DataRecordShortDoubleField(bool bEnabled, long nWidth, long nMaxLength, int? mulFactor = null)
             : base(bEnabled, nWidth, nMaxLength)
         {
+            this.m_mulFactor = mulFactor;
         }
 
         public string GetInnerFieldHtml(long nID)
@@ -1621,6 +1643,7 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='double'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_mulFactor' value='" + m_mulFactor + "'/>";
             return sTmp;
         }
 
@@ -1650,7 +1673,7 @@ namespace TVinciShared
         protected string m_sCollectionTable;
         protected string m_sCollectionPointerField;
         protected string m_sCollectionTextField;
-        public DataRecordShortIntWithSearchField(long nWidth, string sDir, string sCollectionTable, string sCollectionTextField, string sCollectionPointer)
+        public DataRecordShortIntWithSearchField(long nWidth, string sDir, string sCollectionTable, string sCollectionTextField, string sCollectionPointer, int? mulFactor = null)
             : base()
         {
             m_nWidth = nWidth;
@@ -1658,6 +1681,7 @@ namespace TVinciShared
             m_sCollectionPointerField = sCollectionPointer;
             m_sCollectionTable = sCollectionTable;
             m_sCollectionTextField = sCollectionTextField;
+            m_mulFactor = mulFactor;
         }
 
         public override string GetFieldHtml(long nID)
@@ -1685,6 +1709,7 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_type' value='int'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_mulFactor' value='" + m_mulFactor + "'/>";
             sTmp += "</td>";
             sTmp += "</tr>";
             return sTmp;
@@ -2310,8 +2335,6 @@ namespace TVinciShared
             return GetSelectsHtml(nID);
         }
     }
-
-
 
     public class DataRecordBrowserField : DataRecordOnePicBrowserField
     {
@@ -3265,8 +3288,7 @@ namespace TVinciShared
             return sTmp;
         }
     }
-
-
+    
     public class DataRecordTimeField : BaseDataRecordField
     {
         public DataRecordTimeField()
@@ -3801,12 +3823,7 @@ namespace TVinciShared
             return sTmp;
         }
     }
-
-
-
-   
-
-
+    
     /// <summary>
     /// Summary description for DBRecordWebEditor
     /// </summary>
