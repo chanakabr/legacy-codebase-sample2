@@ -3555,6 +3555,10 @@ namespace DAL
                     spUpdateTimeShiftedTvPartnerSettings.AddParameter("@ProtectionPolicy", (int)settings.ProtectionPolicy.Value);
                 }
 
+                if (settings.RecoveryGracePeriod.HasValue) // Default = enabled
+                {
+                    spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecoveryGracePeriod", settings.RecoveryGracePeriod * 24 * 60 * 60); // convert it to seconds
+                }
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
             }
