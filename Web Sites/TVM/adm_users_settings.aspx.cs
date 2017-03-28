@@ -101,6 +101,11 @@ public partial class adm_users_settings : System.Web.UI.Page
             checkBoxField.Initialize("Allow user deletion", "adm_table_header_nbg", "FormInput", "allow_delete_user", false);
             theRecord.AddRecord(checkBoxField);
 
+            checkBoxField = new DataRecordCheckBoxField(true);
+            checkBoxField.Initialize("Send Close account Email", "adm_table_header_nbg", "FormInput", "SEND_CLOSE_ACCOUNT_MAIL", false);
+            checkBoxField.SetDefault(0);
+            theRecord.AddRecord(checkBoxField);
+
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Mail from - name", "adm_table_header_nbg", "FormInput", "MAIL_FROM_NAME", false);
             theRecord.AddRecord(shortTextField);
@@ -116,15 +121,7 @@ public partial class adm_users_settings : System.Web.UI.Page
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Forgot password mail subject", "adm_table_header_nbg", "FormInput", "FORGOT_PASS_MAIL_SUBJECT", false);
             theRecord.AddRecord(shortTextField);
-
-            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
-            shortTextField.Initialize("Forgot password mail template", "adm_table_header_nbg", "FormInput", "FORGOT_PASSWORD_MAIL", false);
-            theRecord.AddRecord(shortTextField);
-
-            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
-            shortTextField.Initialize("Forgot password mail subject", "adm_table_header_nbg", "FormInput", "FORGOT_PASS_MAIL_SUBJECT", false);
-            theRecord.AddRecord(shortTextField);
-
+            
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Welcome mail template", "adm_table_header_nbg", "FormInput", "WELCOME_MAIL", false);
             theRecord.AddRecord(shortTextField);
@@ -196,12 +193,7 @@ public partial class adm_users_settings : System.Web.UI.Page
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Device request mail subject", "adm_table_header_nbg", "FormInput", "DEVICE_REQUEST_MAIL_SUBJECT", false);
-            theRecord.AddRecord(shortTextField);
-
-            checkBoxField = new DataRecordCheckBoxField(true);
-            checkBoxField.Initialize("Send close account mail", "adm_table_header_nbg", "FormInput", "SEND_CLOSE_ACCOUNT_MAIL", false);
-            checkBoxField.SetDefault(0);
-            theRecord.AddRecord(checkBoxField);
+            theRecord.AddRecord(shortTextField);            
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
             shortTextField.Initialize("Close account mail template", "adm_table_header_nbg", "FormInput", "CLOSE_ACCOUNT_MAIL", false);
