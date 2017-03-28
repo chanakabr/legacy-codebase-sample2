@@ -6505,7 +6505,7 @@ namespace Core.ConditionalAccess
                 {
                     if (isCreate)
                     {
-                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota * 60 });
+                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota /*in minutes*/});
                     }
                     else
                     {
@@ -6528,7 +6528,7 @@ namespace Core.ConditionalAccess
                             }
                         }
 
-                        userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota * 60});
+                        userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota /*in minutes*/});
                     }
                 }
                 catch
