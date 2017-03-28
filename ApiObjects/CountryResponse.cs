@@ -41,5 +41,12 @@ namespace ApiObjects
             get;
             set;
         }
+
+        public Country()
+        {
+            this.Id = 0;
+            this.Name = string.Empty;
+            this.Code = string.Empty;
+        }
     }
 }

@@ -803,7 +803,7 @@ namespace Core.Social
             return facebookResponse;
         }
 
-        public FacebookResponse FBUserData(string token, ref UserResponseObject uObj)
+        public FacebookResponse FBUserData(string token, ref UserResponseObject uObj, string username = "")
         {
             FacebookResponse facebookResponse = new FacebookResponse();
             try
@@ -862,10 +862,15 @@ namespace Core.Social
                 // User Does Not Exists
                 if (uObj.m_RespStatus == ResponseStatus.UserDoesNotExist)
                 {
+                    fbUser.email = string.IsNullOrEmpty(fbUser.email) ? username : fbUser.email;
 
                     if (string.IsNullOrEmpty(fbUser.email))
                     {
-                        throw new FacebookException(FacebookResponseStatus.ERROR, "Missing user email");
+                        facebookResponse.ResponseData.status = FacebookResponseStatus.USEREMAILISMISSING.ToString();
+                        facebookResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.UserEmailIsMissing, "Missing user email");
+                        facebookResponse.ResponseData.data = "Missing user email";
+
+                        return facebookResponse;
                     }
 
                     //serach user by facebook email as username 
@@ -978,11 +983,20 @@ namespace Core.Social
                 }
                 else
                 {
+                    if (string.IsNullOrEmpty(fbUser.email))
+                    {
+                        fbUser.email = Utils.GetValFromKVP(extra, "email");
+                    }
+
                     Core.Users.UserBasicData ubd = Utils.GetFBBasicData(fbUser, sEncryptToken, facebookResponse.ResponseData.pic);
 
                     if (string.IsNullOrEmpty(ubd.m_sUserName))
                     {
-                        throw new FacebookException(FacebookResponseStatus.ERROR, "Missing user email.");
+                        facebookResponse.ResponseData.status = FacebookResponseStatus.USEREMAILISMISSING.ToString();
+                        facebookResponse.Status = new ApiObjects.Response.Status((int)eResponseStatus.UserEmailIsMissing, "Missing user email");
+                        facebookResponse.ResponseData.data = "Missing user email";
+
+                        return facebookResponse;
                     }
 
                     Core.Users.UserDynamicData udd = new Core.Users.UserDynamicData();
@@ -1082,7 +1096,7 @@ namespace Core.Social
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
             {
                 UserResponseObject tempUser = null;
-                facebookResponse = FBUserData(token, ref tempUser);
+                facebookResponse = FBUserData(token, ref tempUser, sUserName);
 
                 FacebookResponseStatus eRes = FacebookResponseStatus.ERROR;
                 if (Enum.TryParse<FacebookResponseStatus>(facebookResponse.ResponseData.status, out eRes))
@@ -1096,6 +1110,7 @@ namespace Core.Social
                                 facebookResponse.Status.Message = eResponseStatus.Conflict.ToString();
                                 goto case FacebookResponseStatus.ERROR;
                             }
+                        case FacebookResponseStatus.USEREMAILISMISSING:
                         case FacebookResponseStatus.CONFLICT:
                         case FacebookResponseStatus.ERROR:
                             {
@@ -1176,7 +1191,7 @@ namespace Core.Social
             if (uObj != null && uObj.m_RespStatus == ResponseStatus.OK)
             {
                 UserResponseObject tempUser = null;
-                facebookResponse = FBUserData(token, ref tempUser);
+                facebookResponse = FBUserData(token, ref tempUser, uObj.m_user.m_oBasicData.m_sUserName);
 
                 FacebookResponseStatus eRes = FacebookResponseStatus.ERROR;
                 if (Enum.TryParse<FacebookResponseStatus>(facebookResponse.ResponseData.status, out eRes))
@@ -1190,6 +1205,7 @@ namespace Core.Social
                                 facebookResponse.Status.Message = eResponseStatus.Conflict.ToString();
                                 goto case FacebookResponseStatus.ERROR;
                             }
+                        case FacebookResponseStatus.USEREMAILISMISSING:
                         case FacebookResponseStatus.CONFLICT:
                         case FacebookResponseStatus.ERROR:
                             {

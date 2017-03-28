@@ -1553,7 +1553,6 @@ namespace Core.Api
             return Core.Api.api.UpdateTimeShiftedTvPartnerSettings(groupId, settings);
         }
 
-
         public static Status UpdateTimeShiftedTvEpgChannelsSettings(int groupId, TimeShiftedTvPartnerSettings settings)
         {
             return Core.Api.api.UpdateTimeShiftedTvEpgChannelsSettings(groupId, settings);
@@ -1634,9 +1633,9 @@ namespace Core.Api
             return Core.Api.api.GetDeviceBrandList();
         }
 
-        public static ApiObjects.CountryResponse GetCountryList(int groupId, List<int> countryIds)
+        public static ApiObjects.CountryLocaleResponse GetCountryList(int groupId, List<int> countryIds)
         {
-            return Core.Api.api.GetCountryList(countryIds);
+            return Core.Api.api.GetCountryList(countryIds, groupId);
         }
 
         public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual)
@@ -1755,6 +1754,11 @@ namespace Core.Api
             }
 
             return result;
+        }
+
+        public static ApiObjects.CountryLocaleResponse GetCountryLocaleByIp(int groupId, string ip)
+        {
+            return Core.Api.api.GetCountryLocaleByIp(groupId, ip);
         }
 
     }

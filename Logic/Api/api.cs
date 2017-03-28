@@ -9103,9 +9103,10 @@ namespace Core.Api
             return result;
         }
 
-        public static ApiObjects.CountryResponse GetCountryList(List<int> countryIds)
+        public static ApiObjects.CountryLocaleResponse GetCountryList(List<int> countryIds, int groupId = 0)
         {
-            ApiObjects.CountryResponse result = new ApiObjects.CountryResponse();
+            ApiObjects.CountryLocaleResponse result = new ApiObjects.CountryLocaleResponse();
+            List<Country> countries = new List<Country>();            
             DataTable dt = DAL.ApiDAL.GetCountries(countryIds);
             if (dt != null && dt.Rows != null)
             {
@@ -9123,13 +9124,41 @@ namespace Core.Api
                         };
                         if (country.Id > 0)
                         {
-                            result.Countries.Add(country);
+                            countries.Add(country);                            
                         }
                     }
-                }
-
-                result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }                
             }
+
+            Dictionary<int, CountryLocale> countriesLocaleMap = null;
+            if (groupId > 0)
+            {
+                countriesLocaleMap = APILogic.Utils.GetCountriesLocaleMap(groupId, countries.Select(x => x.Id).ToList());
+            }
+
+            if (countriesLocaleMap != null)
+            {
+                foreach (Country country in countries)
+                {
+                    if (countriesLocaleMap.ContainsKey(country.Id))
+                    {
+                        countriesLocaleMap[country.Id].Id = country.Id;
+                        countriesLocaleMap[country.Id].Code = country.Code;
+                        countriesLocaleMap[country.Id].Name = country.Name;
+                        result.CountryLocales.Add(countriesLocaleMap[country.Id]);
+                    }
+                    else
+                    {
+                        result.Countries.Add(country);
+                    }
+                }
+            }
+            else
+            {
+                result.Countries.AddRange(countries);
+            }
+
+            result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return result;
         }
@@ -9526,6 +9555,44 @@ namespace Core.Api
             catch (Exception ex)
             {
                 log.Error(string.Format("Error in InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes, groupId: {0}, id: {1}", groupId, rule.Id), ex);
+            }
+
+            return result;
+        }
+
+        internal static ApiObjects.CountryLocaleResponse GetCountryLocaleByIp(int groupId, string ip)
+        {
+            CountryLocaleResponse result = new ApiObjects.CountryLocaleResponse();
+            try
+            {
+                if (!string.IsNullOrEmpty(ip))
+                {
+                    Country country = GetCountryByIp(groupId, ip);
+                    if (country == null)
+                    {
+                        result.Status = new Status((int)eResponseStatus.CountryNotFound, eResponseStatus.CountryNotFound.ToString());
+                        return result;
+                    }
+                                        
+                    Dictionary<int, CountryLocale> countriesLocaleMap = APILogic.Utils.GetCountriesLocaleMap(groupId, new List<int>() { country.Id });
+                    if (countriesLocaleMap != null && countriesLocaleMap.ContainsKey(country.Id))
+                    {
+                        countriesLocaleMap[country.Id].Id = country.Id;
+                        countriesLocaleMap[country.Id].Code = country.Code;
+                        countriesLocaleMap[country.Id].Name = country.Name;
+                        result.CountryLocales.Add(countriesLocaleMap[country.Id]);
+                    }
+                    else
+                    {
+                        result.Countries.Add(country);
+                    }
+
+                    result.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetCountryLocaleByIp, groupId: {0}, ip: {1}", groupId, ip), ex);
             }
 
             return result;
