@@ -3269,7 +3269,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds)
+        internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds, KalturaCountryOrderBy? orderBy = null)
         {
             
             KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
@@ -3305,6 +3305,18 @@ namespace WebAPI.Clients
             if (response.Countries != null && response.Countries.Count > 0)
             {
                 result.Objects.AddRange(AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries));                
+            }
+
+            if (orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaCountryOrderBy.NAME_ASC:
+                        result.Objects.OrderBy(x => x.Name);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             result.TotalCount = result.Objects.Count;
@@ -3351,7 +3363,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaCountryListResponse GetCountryListByIp(int groupId, string ip, bool? shouldUseCurrentRequestIp)
+        internal KalturaCountryListResponse GetCountryListByIp(int groupId, string ip, bool? shouldUseCurrentRequestIp, KalturaCountryOrderBy? orderBy = null)
         {
             KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
             CountryLocaleResponse response = null;
@@ -3390,6 +3402,18 @@ namespace WebAPI.Clients
             if (response.Countries != null && response.Countries.Count > 0)
             {
                 result.Objects.AddRange(AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries));
+            }
+
+            if (orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaCountryOrderBy.NAME_ASC:
+                        result.Objects.OrderBy(x => x.Name);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             result.TotalCount = result.Objects.Count;
