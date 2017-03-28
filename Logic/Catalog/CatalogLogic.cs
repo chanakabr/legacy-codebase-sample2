@@ -482,7 +482,7 @@ namespace Core.Catalog
                 ppvMoudleName.AppendFormat(";{0}", endDate.Value.ToString("dd/MM/yyyy HH:mm:ss"));
             }
 
-            return ppvMoudleName.Length> 0 ? ppvMoudleName.ToString(): string.Empty;
+            return ppvMoudleName.Length > 0 ? ppvMoudleName.ToString() : string.Empty;
         }
 
         /*Insert all tags that return from the "CompleteDetailsForMediaResponse" into List<Tags>*/
@@ -585,7 +585,7 @@ namespace Core.Catalog
             {
                 result = true;
                 List<Metas> lMetas = new List<Metas>();
-                
+
                 if (dtDatesMeta.Rows != null && dtDatesMeta.Rows.Count > 0)
                 {
                     Metas oMeta = new Metas();
@@ -1389,7 +1389,7 @@ namespace Core.Catalog
 
             return result;
         }
-        
+
         /// <summary>
         /// Verifies that the search key is a tag or a meta of either EPG or media
         /// </summary>
@@ -3348,9 +3348,9 @@ namespace Core.Catalog
                 return epgsInformation;
             }
 
-            List<EPGChannelProgrammeObject> basicEpgObjects = null;            
+            List<EPGChannelProgrammeObject> basicEpgObjects = null;
 
-            Group group = GroupsCache.Instance().GetGroup(groupId); 
+            Group group = GroupsCache.Instance().GetGroup(groupId);
             LanguageObj language = null;
             List<LanguageObj> languages = new List<LanguageObj>();
             BaseEpgBL epgBL = null;
@@ -7614,7 +7614,7 @@ namespace Core.Catalog
                 if (!string.IsNullOrEmpty(staleStateConfiguration))
                 {
                     // try to parse the TCM value - if successful, use it, if not, make sure we are with default value of OK
-                    if (!Enum.TryParse<CouchbaseManager.ViewStaleState>(staleStateConfiguration, out staleState))
+                    if (!Enum.TryParse<CouchbaseManager.ViewStaleState>(staleStateConfiguration, true, out staleState))
                     {
                         staleState = CouchbaseManager.ViewStaleState.Ok;
                     }
