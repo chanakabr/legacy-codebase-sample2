@@ -60,8 +60,7 @@ namespace TVinciShared
             string sHeaderCss,
             string sInputCss,
             string sFieldName,
-            bool bMust,
-            bool raw = false)
+            bool bMust)
         {
             m_bMust = bMust;
             m_sFieldHeader = sFieldHeader;
@@ -80,8 +79,7 @@ namespace TVinciShared
            string sHeaderCss,
            string sInputCss,
            string sFieldName, string sValue,
-           bool bMust,
-            bool raw = false)
+           bool bMust)
         {
             m_bMust = bMust;
             m_sFieldHeader = sFieldHeader;
