@@ -12663,7 +12663,7 @@ namespace Core.ConditionalAccess
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
                             // handel delete to overage quota    
-                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDominQuotaOvarge(m_nGroupID, domainID, recordingDuration);
+                            ApiObjects.Response.Status bRes = QuotaManager.Instance.HandleDomainAutoDelete(m_nGroupID, domainID, recordingDuration);
                             if (bRes!= null && bRes.Code == (int)eResponseStatus.OK)
                             {
                                 UpdateOrInsertDomainRecording(userID, epgID, domainSeriesRecordingId, ref recording, domainID, recordingDuration, recordingType);
@@ -15213,7 +15213,7 @@ namespace Core.ConditionalAccess
                 // validate entitlements if needed 
                 if ((epgChannelLinearMedia != null && !epgChannelLinearMedia.EnableRecordingPlaybackNonEntitledChannel))
                 {
-                    MediaFileItemPricesContainer[] prices = GetItemsPrices(new int[] { mediaFileId }, userId, true, string.Empty, string.Empty, udid);
+                    MediaFileItemPricesContainer[] prices = GetItemsPrices(new int[] { mediaFileId }, userId, true, string.Empty, udid, userIp);
                     if (prices == null || prices.Length == 0 || prices[0] == null)
                     {
                         log.ErrorFormat("No prices were found for the requested file IDs. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, epgId = {4}, recordingId = {5}",

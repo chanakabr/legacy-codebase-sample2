@@ -693,5 +693,59 @@ namespace APILogic
             return result;
         }
 
+
+        internal static Dictionary<int, CountryLocale> GetCountriesLocaleMap(int groupId, List<int> countryIds)
+        {
+            Dictionary<int, CountryLocale> result = null;            
+            try
+            {
+                if (countryIds != null && countryIds.Count > 0)
+                {
+                    Dictionary<long, CountryLocale> countryLocaleMapping = new Dictionary<long,CountryLocale>();
+                    DataSet ds = DAL.ApiDAL.GetCountriesLocale(groupId, countryIds);
+                    if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                    {
+                        result = new Dictionary<int, CountryLocale>();                        
+                        if (ds.Tables[0] != null && ds.Tables[0].Rows != null)
+                        {
+                            foreach (DataRow dr in ds.Tables[0].Rows)
+                            {
+                                long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                                int countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUNTRY_ID");
+                                if (id > 0 && countryId > 0)
+                                {
+                                    string currencyCode = ODBCWrapper.Utils.GetSafeStr(dr, "CURRENCY_CODE");
+                                    string currencySign = ODBCWrapper.Utils.GetSafeStr(dr, "CURRENCY_SIGN");
+                                    string mainLanguageCode = ODBCWrapper.Utils.GetSafeStr(dr, "LANGUAGE_CODE");
+                                    double vatPercent = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "vat_percent");
+                                    countryLocaleMapping.Add(id, new CountryLocale(countryId, currencyCode, currencySign, mainLanguageCode, vatPercent));
+                                }
+                            }
+                        }
+
+                        if (ds.Tables.Count == 2 && ds.Tables[1] != null && ds.Tables[1].Rows != null)
+                        {
+                            foreach (DataRow dr in ds.Tables[1].Rows)
+                            {
+                                long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                                string languageCode = ODBCWrapper.Utils.GetSafeStr(dr, "LANGUAGE_CODE");
+                                if (id > 0 && countryLocaleMapping.ContainsKey(id) && !countryLocaleMapping[id].LanguageCodes.Contains(languageCode))
+                                {
+                                    countryLocaleMapping[id].LanguageCodes.Add(languageCode);
+                                }
+                            }
+                        }
+
+                        result = countryLocaleMapping.ToDictionary(x => x.Value.Id, x => x.Value);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Error in GetCountriesLocaleMap, groupId: {0}, countryIds: {1}", groupId, countryIds != null ? string.Join(",", countryIds) : string.Empty), ex);
+            }
+
+            return result;
+        }
     }
 }

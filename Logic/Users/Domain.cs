@@ -2786,6 +2786,18 @@ namespace Core.Users
                 DomainsCache oDomainCache = DomainsCache.Instance();
                 oDomainCache.RemoveDomain(m_nDomainID);
 
+                // delete users from cache
+                UsersCache usersCache = UsersCache.Instance();
+                foreach (var userId in domainUserIds)
+                {
+                    usersCache.RemoveUser(userId, m_nGroupID);
+
+                    // add invalidation key for user roles cache
+                    string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(userId.ToString());
+                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                        log.ErrorFormat("Failed to set invalidation key on RemoveDomain key = {0}", invalidationKey);
+                }
+
                 INPVRProvider npvr;
                 if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
                 {
