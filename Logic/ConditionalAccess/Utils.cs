@@ -6506,6 +6506,7 @@ namespace Core.ConditionalAccess
                     if (isCreate)
                     {
                         userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota /*in minutes*/});
+                        QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/);
                     }
                     else
                     {
