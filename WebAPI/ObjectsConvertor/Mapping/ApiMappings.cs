@@ -334,7 +334,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
-                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)));
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod));
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -357,7 +358,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.NonEntitledChannelPlaybackEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
-                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)));
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod));
 
             #endregion
 

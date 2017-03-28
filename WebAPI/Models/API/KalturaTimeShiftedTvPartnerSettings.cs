@@ -186,6 +186,14 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "protectionPolicy", IsNullable = true)]
         public KalturaProtectionPolicy? ProtectionPolicy { get; set; }
 
+        /// <summary>
+        /// The time in days for recovery recording that was delete by Auto Delete .
+        /// </summary>
+        [DataMember(Name = "recoveryGracePeriod")]
+        [JsonProperty("recoveryGracePeriod")]
+        [XmlElement(ElementName = "recoveryGracePeriod", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
+        public int? RecoveryGracePeriod { get; set; }
     }
 
 
