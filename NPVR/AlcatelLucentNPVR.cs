@@ -141,7 +141,7 @@ namespace NPVR
                 {
                     log.Debug("CreateAccount - " + string.Format("CreateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, (args.Quota * 60).ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     string sAccountID = TVinciShared.WS_Utils.GetTcmGenericValue<string>(string.Format("ALU_ACCOUNT_ID_{0}", groupID));
@@ -1692,7 +1692,7 @@ namespace NPVR
                 {
                     log.Debug("UpdateAccount - " + string.Format("UpdateAccount request has been issued. G ID: {0} , Params Obj: {1}", groupID, args.ToString()));
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(3);
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, args.Quota.ToString()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_QUOTA_URL_PARAM, (args.Quota * 60).ToString()));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     string sAccountID = TVinciShared.WS_Utils.GetTcmGenericValue<string>(string.Format("ALU_ACCOUNT_ID_{0}", groupID));
