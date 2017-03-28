@@ -523,7 +523,7 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         theRecord.AddRecord(dr_edit_data);
 
 
-        DataRecordLongTextField dr_filter = new DataRecordLongTextField("ltr", true, 60, 20);
+        DataRecordLongTextField dr_filter = new DataRecordLongTextField("ltr", true, 60, 20, true);
         dr_filter.Initialize("KSQL Expression", "adm_table_header_nbg", "FormInput", "KSQL_FILTER", false);
         theRecord.AddRecord(dr_filter);
 
