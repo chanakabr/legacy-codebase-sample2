@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
                  bool isIpEqualExists = !string.IsNullOrEmpty(filter.IpEqual);
                  if (countryIds.Count > 0)
                  {
-                     if ((isIpEqualExists || filter.IpEqualCurrent.HasValue))
+                     if ((isIpEqualExists || (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)))
                      {
                          throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "IdIn", isIpEqualExists ? "IpEqual" : "IpEqualCurrent");
                      }
@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
                  }
                  else if (isIpEqualExists)
                  {
-                     if (filter.IpEqualCurrent.HasValue)
+                     if (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)
                      {
                          throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "IpEqual", "IpEqualCurrent");
                      }
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
                          response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent);
                      }
                  }
-                 else if (filter.IpEqualCurrent.HasValue)
+                 else if (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)
                  {
                      response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent);
                  }
