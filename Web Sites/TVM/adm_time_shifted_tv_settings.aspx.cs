@@ -241,6 +241,12 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
         // dr_quota_overage_policy.SetDefaultVal("---");
         theRecord.AddRecord(dr_protection_policy);
 
+        DataRecordShortIntField dr_gracePeriod = new DataRecordShortIntField(true, 9, 9, 1);
+        dr_gracePeriod.setMulFactor(24 * 60 * 60);
+        dr_gracePeriod.Initialize("Grace Period", "adm_table_header_nbg", "FormInput", "recovery_grace_period_seconds", false);
+        dr_gracePeriod.SetDefault(10);
+        theRecord.AddRecord(dr_gracePeriod);
+
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
         dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
         dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
