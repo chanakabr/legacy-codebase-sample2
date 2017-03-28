@@ -1071,8 +1071,12 @@ namespace Users
                         }
                         else
                         {
-                            ret = ResponseStatus.WrongPasswordOrUserName;
                             UpdateFailCount(1, nID);
+
+                            if (nFailCount >= nMaxFailCount && ((TimeSpan)(dNow - dLastFailDate)).TotalMinutes < nLockMinutes)
+                                ret = ResponseStatus.InsideLockTime;
+                            else
+                                ret = ResponseStatus.WrongPasswordOrUserName;
                         }
                     }
                     else
