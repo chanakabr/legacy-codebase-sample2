@@ -4139,6 +4139,7 @@ namespace DAL
 
         public static bool InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes(AssetLifeCycleRule rule)
         {
+            int affectedRows = 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertOrUpdateAssetLifeCycleRulePpvsAndFileTypes");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             // for alcr_ppv_file_types_actions table
@@ -4148,7 +4149,19 @@ namespace DAL
             sp.AddIDListParameter("@PpvsToRemove", rule.Actions.FileTypesAndPpvsToRemove.PpvIds.ToList(), "id");
             sp.AddIDListParameter("@FileTypesToRemove", rule.Actions.FileTypesAndPpvsToRemove.FileTypeIds.ToList(), "id");
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            affectedRows = sp.ExecuteReturnValue<int>();
+            return affectedRows > 0 || (rule.Actions.FileTypesAndPpvsToAdd.PpvIds.Count == 0 && rule.Actions.FileTypesAndPpvsToAdd.FileTypeIds.Count == 0 &&
+                                        rule.Actions.FileTypesAndPpvsToRemove.PpvIds.Count == 0 && rule.Actions.FileTypesAndPpvsToRemove.FileTypeIds.Count == 0);
+        }
+
+        public static DataSet GetCountriesLocale(int groupId, List<int> countryIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCountriesLocale");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@CountryIds", countryIds, "id");            
+
+            return sp.ExecuteDataSet();
         }
 
     }
