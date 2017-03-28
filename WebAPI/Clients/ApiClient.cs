@@ -3272,8 +3272,8 @@ namespace WebAPI.Clients
         internal KalturaCountryListResponse GetCountryList(int groupId, List<int> countryIds)
         {
             
-            KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0 };
-            CountryResponse response = null;
+            KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
+            CountryLocaleResponse response = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -3297,8 +3297,17 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status.Code, response.Status.Message);
             }
 
-            result.Objects = AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries);
-            result.TotalCount = response.Countries.Count();
+            if (response.CountryLocales != null && response.CountryLocales.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaCountry>>(response.CountryLocales);                
+            }
+
+            if (response.Countries != null && response.Countries.Count > 0)
+            {
+                result.Objects.AddRange(AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries));                
+            }
+
+            result.TotalCount = result.Objects.Count;
 
             return result;
         }
@@ -3338,6 +3347,52 @@ namespace WebAPI.Clients
 
             result.Objects = AutoMapper.Mapper.Map<List<KalturaMeta>>(response.MetaList);
             result.TotalCount = response.MetaList.Count();
+
+            return result;
+        }
+
+        internal KalturaCountryListResponse GetCountryListByIp(int groupId, string ip, bool? shouldUseCurrentRequestIp)
+        {
+            KalturaCountryListResponse result = new KalturaCountryListResponse() { TotalCount = 0, Objects = new List<KalturaCountry>() };
+            CountryLocaleResponse response = null;
+            if (shouldUseCurrentRequestIp.HasValue && shouldUseCurrentRequestIp.Value)
+            {
+                ip = Utils.Utils.GetClientIP();
+            }
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetCountryLocaleByIp(groupId, ip);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.CountryLocales != null && response.CountryLocales.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaCountry>>(response.CountryLocales);
+            }
+
+            if (response.Countries != null && response.Countries.Count > 0)
+            {
+                result.Objects.AddRange(AutoMapper.Mapper.Map<List<KalturaCountry>>(response.Countries));
+            }
+
+            result.TotalCount = result.Objects.Count;
 
             return result;
         }

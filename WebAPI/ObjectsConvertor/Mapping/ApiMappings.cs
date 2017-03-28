@@ -430,11 +430,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region DeviceFamily
+            #region KalturaCountry
+
+            Mapper.CreateMap<CountryLocale, WebAPI.Models.Users.KalturaCountry>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
+                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.CurrencySign))
+                .ForMember(dest => dest.LanguagesCode, opt => opt.MapFrom(src => src.LanguageCodes != null ? string.Join(",", src.LanguageCodes) : string.Empty))
+                .ForMember(dest => dest.MainLanguageCode, opt => opt.MapFrom(src => src.MainLanguageCode))
+                .ForMember(dest => dest.VatPercent, opt => opt.MapFrom(src => src.VatPercent));
+
             Mapper.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code));
+
             #endregion
 
             #region Meta

@@ -859,6 +859,16 @@
             Country identifiers
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryFilter.IpEqual">
+            <summary>
+            Ip to identify the country
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaCountryFilter.IpEqualCurrent">
+            <summary>
+            Indicates if to get the IP from the request
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaCountryListResponse.Objects">
             <summary>
             Countries
@@ -9550,6 +9560,31 @@
             <summary>
             Country code
             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaCountry.MainLanguageCode">
+            <summary>
+            The main language code in the country
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaCountry.LanguagesCode">
+            <summary>
+            All the languages code that are supported in the country
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaCountry.CurrencyCode">
+            <summary>
+            Currency code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaCountry.CurrencySign">
+             <summary>
+            Currency Sign
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.Users.KalturaCountry.VatPercent">
+             <summary>
+            Vat Percent in the country
+             </summary>
         </member>
         <member name="T:WebAPI.Models.Users.KalturaUserLoginPin">
             <summary>
