@@ -4164,5 +4164,25 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataTable GetLanguages(int groupId, List<string> languageCodes)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLanguages");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@LanguageCodes", languageCodes != null && languageCodes.Count > 0 ? languageCodes : null, "STR");
+
+            return sp.Execute();
+        }
+
+        public static DataTable GetCurrencies(int groupId, List<string> currencyCodes)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCurrencies");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@CurrencyCodes", currencyCodes != null && currencyCodes.Count > 0 ? currencyCodes : null, "STR");
+
+            return sp.Execute();
+        }
+
     }
 }
