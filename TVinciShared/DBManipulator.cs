@@ -131,6 +131,15 @@ namespace TVinciShared
                 if (coll[nCounter.ToString() + "_val"] != null)
                     sVal = coll[nCounter.ToString() + "_val"].ToString();
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
+
+                bool isRaw = false;
+                var collIsRaw = coll[nCounter.ToString() + "_raw"];
+
+                if (collIsRaw != null)
+                {
+                    bool.TryParse(collIsRaw.ToString(), out isRaw);
+                }
+
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
                 if (sFieldName == "")
                 {
@@ -175,12 +184,27 @@ namespace TVinciShared
                     if (sType == "string")
                     {
                         bValid = validateParam("string", sVal, -1, -1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
+                        string valueToQuery = sVal.ToString();
+
+                        if (!isRaw)
+                        {
+                            valueToQuery = DBStrEncode(sVal.ToString());
+                        }
+
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", valueToQuery);
                     }
                     if (sType == "long_string")
                     {
                         bValid = validateParam("string", sVal, -1, -1);
-                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
+
+                        string valueToQuery = sVal.ToString();
+
+                        if (!isRaw)
+                        {
+                            valueToQuery = DBStrEncode(sVal.ToString());
+                        }
+
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", valueToQuery);
                     }
                     if (sType == "int" && sVal != "")
                     {
@@ -1404,6 +1428,15 @@ namespace TVinciShared
                     sVal = coll[nCounter.ToString() + "_val"].ToString().Trim();
                 string sVal2 = "";
                 string sType = coll[nCounter.ToString() + "_type"].ToString();
+
+                bool isRaw = false;
+                var collIsRaw = coll[nCounter.ToString() + "_raw"];
+
+                if (collIsRaw != null)
+                {
+                    bool.TryParse(collIsRaw.ToString(), out isRaw);
+                }
+
                 string sFieldName = coll[nCounter.ToString() + "_field"].ToString();
                 if (sFieldName == "")
                 {
@@ -1456,8 +1489,17 @@ namespace TVinciShared
                             selectQuery += "and";
                         else
                             selectQuery += "where";
-                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
-                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", DBStrEncode(sVal.ToString()));
+
+                        string valueToQuery = sVal.ToString();
+
+                        if (!isRaw)
+                        {
+                            valueToQuery = DBStrEncode(sVal.ToString());
+                        }
+
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", valueToQuery);
+                        insertQuery += ODBCWrapper.Parameter.NEW_PARAM(sFieldName, "=", valueToQuery);
+
                         bFirst = false;
                     }
                     if (sType == "long_string")

@@ -2796,7 +2796,8 @@ namespace TVinciShared
         protected long m_nWidth;
         protected long m_nHeight;
         protected string m_filedPrivateName;
-        public DataRecordLongTextField(string sDir, bool bEnabled, long nWidth, long nHeight)
+        protected bool isRaw;
+        public DataRecordLongTextField(string sDir, bool bEnabled, long nWidth, long nHeight, bool raw = false)
             : base()
         {
             m_bEnabled = bEnabled;
@@ -2804,6 +2805,7 @@ namespace TVinciShared
             m_nWidth = nWidth;
             m_nHeight = nHeight;
             m_filedPrivateName = string.Empty;
+            isRaw = raw;
         }
         public void setFiledName(string name)
         {
@@ -2831,6 +2833,7 @@ namespace TVinciShared
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_must' value='" + m_bMust.ToString() + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_field' value='" + m_sFieldName + "'/>";
             sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_fieldName' value='" + m_filedPrivateName + "'/>";
+            sTmp += "<input tabindex=\"2000\" type='hidden' name='" + nID.ToString() + "_raw' value='" + isRaw.ToString() + "'/>";
             sTmp += "</td>";
             sTmp += "</tr>";
             return sTmp;
