@@ -6505,30 +6505,30 @@ namespace Core.ConditionalAccess
                 {
                     if (isCreate)
                     {
-                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota * 60 });
                     }
                     else
                     {
                         // get current user quota
                         DomainQuotaResponse hhQuota = QuotaManager.Instance.GetDomainQuotaResponse(groupId, householdId);
-                        if (QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota))
+                        if (QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/))
                         {   
                             if (hhQuota != null && hhQuota.Status.Code == (int)eResponseStatus.OK)
                             {
                                 int usedQuota = hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
-                                if (usedQuota > npvrObject.Quota)
+                                if (usedQuota > npvrObject.Quota * 60 )
                                 {
                                     // call the handel to delete all recordings
-                                    QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.DeletePending);
+                                    QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
                                 }
-                                else if (usedQuota < npvrObject.Quota) // recover recording from auto-delete by grace period recovery
+                                else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
                                 {
-                                    QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota - usedQuota));
+                                    QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota * 60 - usedQuota));
                                 }
                             }
                         }
 
-                        userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota });
+                        userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota * 60});
                     }
                 }
                 catch
