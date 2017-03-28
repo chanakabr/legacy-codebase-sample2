@@ -8258,14 +8258,16 @@ namespace Core.Api
                     int enable_recording_playback_non_entitled = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
                     int enable_recording_playback_non_existing = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
                     int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
-                    int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0); 
+                    int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
+                    int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0) / (24*60*60); // convert it to days
 
                     if (recordingScheduleWindow > -1)
                     {
                         response.Settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
-                                                                    trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                                    protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod,
-                                                                    series_recording == 1, enable_recording_playback_non_entitled == 1, enable_recording_playback_non_existing == 1, quotaOveragePolicy, protectionPolicy);
+                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
+                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod,
+                                                series_recording == 1, enable_recording_playback_non_entitled == 1, enable_recording_playback_non_existing == 1, quotaOveragePolicy,
+                                                protectionPolicy, recoveryGracePeriod);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }

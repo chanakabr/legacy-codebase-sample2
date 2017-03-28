@@ -29,6 +29,7 @@ namespace ApiObjects.TimeShiftedTv
         public bool? IsRecordingPlaybackNonExistingChannelEnabled { get; set; }
         public QuotaOveragePolicy? QuotaOveragePolicy { get; set; }
         public ProtectionPolicy? ProtectionPolicy { get; set; }
+        public int? RecoveryGracePeriod { get; set; }
 
         public TimeShiftedTvPartnerSettings()
         {
@@ -37,7 +38,7 @@ namespace ApiObjects.TimeShiftedTv
         public TimeShiftedTvPartnerSettings(bool? isCatchUpEnabled, bool? isCdvrEnabled, bool? isStartOverEnabled, bool? isTrickPlayEnabled, bool? isRecordingScheduleWindowEnabled,
             long? catchUpBufferLength, long? trickPlayBufferLength, long? recordingScheduleWindowBuffer, long? paddingAfterProgramEnds, long? paddingBeforeProgramStarts,
             bool? isProtectionEnabled, int? protectionPeriod, int? protectionQuotaPercentage, int? recordingLifetimePeriod, int? cleanupNoticePeroid, bool? isSeriesRecordingEnabled,
-            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy)
+            bool? isRecordingPlaybackNonEntitledEnabled, bool? isRecordingPlaybackNonExistingEnabled, int? quotaOveragePolicy, int? protectionPolicy, int? recoveryGracePeriod)
         {
             this.IsCatchUpEnabled = isCatchUpEnabled;
             this.IsCdvrEnabled = isCdvrEnabled;
@@ -57,7 +58,8 @@ namespace ApiObjects.TimeShiftedTv
             this.IsSeriesRecordingEnabled = isSeriesRecordingEnabled;
             this.IsRecordingPlaybackNonEntitledChannelEnabled = isRecordingPlaybackNonEntitledEnabled;
             this.IsRecordingPlaybackNonExistingChannelEnabled = isRecordingPlaybackNonExistingEnabled;
-            
+            this.RecoveryGracePeriod = recoveryGracePeriod;
+
             if (quotaOveragePolicy.HasValue)
             {
                 this.QuotaOveragePolicy = (QuotaOveragePolicy)quotaOveragePolicy.Value;
@@ -91,7 +93,8 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("IsRecordingPlaybackNonEntitledChannelEnabled: {0}, ", IsRecordingPlaybackNonEntitledChannelEnabled.HasValue ? IsRecordingPlaybackNonEntitledChannelEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("IsRecordingPlaybackNonExistingChannelEnabled: {0}, ", IsRecordingPlaybackNonExistingChannelEnabled.HasValue ? IsRecordingPlaybackNonExistingChannelEnabled.Value.ToString() : "Null"));
             sb.Append(string.Format("QuotaOveragePolicy: {0}, ", QuotaOveragePolicy.HasValue ? QuotaOveragePolicy.Value.ToString() : "Null"));
-            sb.Append(string.Format("QuotaOveragePolicy: {0}, ", ProtectionPolicy.HasValue ? ProtectionPolicy.Value.ToString() : "Null"));
+            sb.Append(string.Format("ProtectionPolicy: {0}, ", ProtectionPolicy.HasValue ? ProtectionPolicy.Value.ToString() : "Null"));
+            sb.Append(string.Format("RecoveryGracePeriod: {0}, ", RecoveryGracePeriod.HasValue ? RecoveryGracePeriod.Value.ToString() : "Null"));
    
             return sb.ToString();
         }

@@ -59,6 +59,8 @@ namespace Core.ConditionalAccess
         private static readonly string BASIC_LINK_HASH = "!--hash--";
         private static readonly string BASIC_LINK_GROUP = "!--group--";
         private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
+        private static readonly int RECOVERY_GRACE_PERIOD = 10;
+
 
         static public void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
         {
@@ -3951,14 +3953,15 @@ namespace Core.ConditionalAccess
                                 int recordingPlaybackNonEntitledChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled", 0); // Default = disabled
                                 int recordingPlaybackNonExistingChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
                                 int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
-                                int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0); 
- 
+                                int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
+                                int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0) / (24 * 60 * 60); // convert it to days
+
                                 if (recordingScheduleWindow > -1)
                                 {
                                     settings = new TimeShiftedTvPartnerSettings(catchup == 1, cdvr == 1, startOver == 1, trickPlay == 1, recordingScheduleWindow == 1, catchUpBuffer,
-                                                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
-                                                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
-                                                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy);
+                                                trickPlayBuffer, recordingScheduleWindowBuffer, paddingAfterProgramEnds, paddingBeforeProgramStarts,
+                                                protection == 1, protectionPeriod, protectionQuotaPercentage, recordingLifetimePeriod, cleanupNoticePeriod, enableSeriesRecording == 1,
+                                                recordingPlaybackNonEntitledChannel == 1, recordingPlaybackNonExistingChannel == 1, quotaOveragePolicy, protectionPolicy, recoveryGracePeriod);
                                     TvinciCache.WSCache.Instance.Add(key, settings);
                                 }
                             }
@@ -6518,7 +6521,7 @@ namespace Core.ConditionalAccess
                                     // call the handel to delete all recordings
                                     QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota), DomainRecordingStatus.DeletePending);
                                 }
-                                else if (usedQuota < npvrObject.Quota) // grace period for recover recording from auto-delete
+                                else if (usedQuota < npvrObject.Quota) // recover recording from auto-delete by grace period recovery
                                 {
                                     QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota - usedQuota));
                                 }
@@ -7346,6 +7349,14 @@ namespace Core.ConditionalAccess
 
                 if (dt != null && dt.Rows != null)
                 {
+                    // get tstv Settings to get the grace period recovery 
+                    var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupId);
+                    int recoveryGracePeriod = RECOVERY_GRACE_PERIOD; // default value 10 days 
+                    if (tstvSettings != null && tstvSettings.RecoveryGracePeriod.HasValue)
+                    {
+                        recoveryGracePeriod = tstvSettings.RecoveryGracePeriod.Value;
+                    }
+
                     DomainRecordingIdToRecordingMap = new Dictionary<long, Recording>();
                     foreach (DataRow dr in dt.Rows)
                     {
@@ -7357,11 +7368,10 @@ namespace Core.ConditionalAccess
                             if (DomainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
                                 && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID))
                             {
-                                //TO DO : get grace period!!!!!!!! check the grace period time 
-                              //  if (domainRecording.UpdateDate + gracePeriod < DateTime.UtcNow)
-                               // {
+                                if (domainRecording.UpdateDate.AddDays(-recoveryGracePeriod) < DateTime.UtcNow)
+                                {
                                     DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
-                                //}
+                                }
                             }
                         }
                     }

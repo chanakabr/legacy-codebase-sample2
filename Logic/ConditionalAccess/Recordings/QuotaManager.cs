@@ -234,12 +234,12 @@ namespace Core.Recordings
 
                 if (bRes.Code != (int)eResponseStatus.OK) // fail to delete and free some quota 
                 {
-                    log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}", groupId, domainId, recordingDuration, bRes.Message);
+                    log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}", groupId, domainId, recordingDuration, bRes.Message);
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed HandleDominQuotaOvarge groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, recordingDuration, bRes.Message, ex);
+                log.ErrorFormat("Failed HandleDomainAutoDelete groupID: {0}, domainID: {1}, recordingDuration: {2}, status = {3}, ex: {4}", groupId, domainId, recordingDuration, bRes.Message, ex);
             }
             return bRes;
         }
@@ -268,6 +268,7 @@ namespace Core.Recordings
                         }
                         domainRecordingIds.Add(recording.Key);
                     }
+
                     if (domainRecordingIds.Count > 0)
                     {
                         // update all these domain recording ids to status OK  and update used quota
