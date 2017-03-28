@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
                      }
                      else
                      {
-                         response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds);
+                         response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds, filter.OrderBy);
                      }
                  }
                  else if (isIpEqualExists)
@@ -56,16 +56,16 @@ namespace WebAPI.Controllers
                      }
                      else
                      {
-                         response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent);
+                         response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent, filter.OrderBy);
                      }
                  }
                  else if (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)
                  {
-                     response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent);
+                     response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent, filter.OrderBy);
                  }
                  else
                  {
-                     response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds);
+                     response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds, filter.OrderBy);
                  }
              }
              catch (ClientException ex)
