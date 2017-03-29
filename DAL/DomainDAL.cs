@@ -6,12 +6,18 @@ using Tvinci.Core.DAL;
 using System.Data;
 using ApiObjects;
 using ODBCWrapper;
+using KLogMonitor;
+using System.Reflection;
+using Newtonsoft.Json;
+using ApiObjects.DRM;
 
 namespace DAL
 {
     public class DomainDal : BaseDal
     {
         #region Private Constants
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private const int RETRY_LIMIT = 5;
 
         private const string SP_GET_USER_EXISTS_IN_DOMAIN = "Get_UserExistsInDomain";
         private const string SP_GET_USER_IN_DOMAIN = "Get_UserInDomain";
@@ -2020,5 +2026,226 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
+
+        public static DrmPolicy GetDrmPolicy(int groupId)
+        {
+            DrmPolicy response = null;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string drmPolicyKey = UtilsDal.GetDrmPolicyKey(groupId);
+            if (string.IsNullOrEmpty(drmPolicyKey))
+            {
+                log.ErrorFormat("Failed getting drmPolicyKey for groupId: {0}", groupId);
+            }
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        response = cbClient.Get<DrmPolicy>(drmPolicyKey, out getResult);
+
+                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving drm policy groupId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", groupId, drmPolicyKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get drm policy, groupId: {0}, ex: {1}", groupId, ex);
+                }
+            }
+
+            return response;
+        }
+
+        public static Dictionary<int, string> GetDomainDrmId(int domainId)
+        {
+            Dictionary<int, string> response = null;
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string domainDrmIdKey = UtilsDal.GetDomainDrmIdKey(domainId);
+            if (string.IsNullOrEmpty(domainDrmIdKey))
+            {
+                log.ErrorFormat("Failed getting domainDrmIdKey for domainId: {0}", domainId);
+            }
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        object document = cbClient.Get<object>(domainDrmIdKey, out getResult);
+
+                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            // Deserialize to known class - for comfortable access
+                            response = JsonConvert.DeserializeObject<Dictionary<int, string>>(document.ToString());
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving drm policy domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainDrmIdKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get drm policy, domainId: {0}, ex: {1}", domainId, ex);
+                }
+            }
+
+            return response;
+        }
+
+        public static bool SetDomainDrmId(Dictionary<int, string> domainDrmId, int domainId)
+        {
+            bool result = false;
+            if (domainDrmId != null && domainDrmId.Count > 0)
+            {
+                string domainDrmIdKey = UtilsDal.GetDomainDrmIdKey(domainId);
+                if (string.IsNullOrEmpty(domainDrmIdKey))
+                {
+                    log.ErrorFormat("Failed getting domainDrmIdKey for domainId: {0}", domainId);
+                }
+                else
+                {
+                    CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+                    var json = JsonConvert.SerializeObject(domainDrmId);
+                    result = client.Set<object>(domainDrmIdKey, json);
+
+                    if (!result)
+                    {
+                        log.ErrorFormat("Failed updating domainDrmId in Couchbase. domainId = {0}", domainId);
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static bool RemoveDomainDrmId(int domainId)
+        {
+            bool result = false;
+
+            string domainDrmIdKey = UtilsDal.GetDomainDrmIdKey(domainId);
+            if (string.IsNullOrEmpty(domainDrmIdKey))
+            {
+                log.ErrorFormat("Failed getting domainDrmIdKey for domainId: {0}", domainId);
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+                result = client.Remove(domainDrmIdKey);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed Remove DomainDrmId domainDrmId in Couchbase. domainId = {0}", domainId);
+                }
+            }
+
+            return result;
+        }
+
+        public static KeyValuePair<string, KeyValuePair<int, string>> GetDrmId(string drmId)
+        {
+            KeyValuePair<string, KeyValuePair<int, string>> response = new KeyValuePair<string, KeyValuePair<int, string>>();
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            int limitRetries = RETRY_LIMIT;
+            Random r = new Random();
+            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
+            if (string.IsNullOrEmpty(drmIdKey))
+            {
+                log.ErrorFormat("Failed getting drmIdKey for drmId: {0}", drmId);
+            }
+            else
+            {
+                try
+                {
+                    int numOfRetries = 0;
+                    while (numOfRetries < limitRetries)
+                    {
+                        object document = cbClient.Get<object>(drmIdKey, out getResult);
+
+                        if (getResult == Couchbase.IO.ResponseStatus.Success)
+                        {
+                            // Deserialize to known class - for comfortable access
+                            response = JsonConvert.DeserializeObject<KeyValuePair<string, KeyValuePair<int, string>>>(document.ToString());
+                            break;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Retrieving drmId by key: {0} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", drmIdKey, getResult, numOfRetries, limitRetries);
+                            numOfRetries++;
+                            System.Threading.Thread.Sleep(r.Next(50));
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Error while trying to get drm : {0}, ex: {1}", drmId, ex);
+                }
+            }
+
+            return response;
+        }
+
+        public static bool SetDrmId(KeyValuePair<string, KeyValuePair<int, string>> document, string drmId)
+        {
+            bool result = false;
+
+            string drmIdKey = UtilsDal.GetDrmIdKey(drmId);
+            if (string.IsNullOrEmpty(drmIdKey))
+            {
+                log.ErrorFormat("Failed getting drmIdKey for drmIdKey: {0}", drmIdKey);
+            }
+            else
+            {
+                CouchbaseManager.CouchbaseManager client = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+
+                var json = JsonConvert.SerializeObject(document);
+                result = client.Set<object>(drmIdKey, json);
+
+                if (!result)
+                {
+                    log.ErrorFormat("Failed updating drmId in Couchbase. drmId = {0}", drmId);
+                }
+            }
+            return result;
+        }
+
+        public static bool UpdateDeviceDrmID(int groupId, string deviceId, string drmId, int domainId)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_DeviceDrmID");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@deviceId", deviceId);
+            sp.AddParameter("@drmId", drmId);
+
+            bool result = sp.ExecuteReturnValue<bool>();
+            if (result)
+            {
+                // remove all object from CB
+                result = RemoveDomainDrmId(domainId);
+            }
+            return result;
+        }
     }
 }

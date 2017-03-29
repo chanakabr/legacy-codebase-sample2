@@ -109,6 +109,8 @@
     <Compile Include="CDVRAdapter\CDVRAdapterResponseList.cs" />
     <Compile Include="CDVRAdapter\CDVRAdapterSettings.cs" />
     <Compile Include="DevicePinResponse.cs" />
+    <Compile Include="DRM\DrmPolicy.cs" />
+    <Compile Include="DRM\DrmSecurityPolicy.cs" />
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
