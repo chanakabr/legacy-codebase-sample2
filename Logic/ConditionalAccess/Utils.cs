@@ -6492,54 +6492,69 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static NPVRUserActionResponse HandleNPVRQuota(int groupId, Subscription subscription, long householdId, bool isCreate)
+        public static ApiObjects.Response.Status HandleNPVRQuota(int groupId, Subscription subscription, long householdId, bool isCreate)
         {
-            NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+           
             NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
             log.DebugFormat("Subscription with NPVR service, Quota: {0}", npvrObject.Quota);
 
             INPVRProvider npvr;
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr))
             {
+                NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();
                 try
                 {
                     if (isCreate)
                     {
-                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota /*in minutes*/});
-                        QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/);
+                        userActionResponse = npvr.CreateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota /*in minutes*/});                        
                     }
                     else
                     {
-                        // get current user quota
-                        DomainQuotaResponse hhQuota = QuotaManager.Instance.GetDomainQuotaResponse(groupId, householdId);
-                        if (QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/))
-                        {   
-                            if (hhQuota != null && hhQuota.Status.Code == (int)eResponseStatus.OK)
-                            {
-                                int usedQuota = hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
-                                if (usedQuota > npvrObject.Quota * 60 )
-                                {
-                                    // call the handel to delete all recordings
-                                    QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
-                                }
-                                else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
-                                {
-                                    QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota * 60 - usedQuota));
-                                }
-                            }
-                        }
-
                         userActionResponse = npvr.UpdateAccount(new NPVRParamsObj() { EntityID = householdId.ToString(), Quota = npvrObject.Quota /*in minutes*/});
                     }
+
+                    if (userActionResponse != null)
+                    {
+                        status = new ApiObjects.Response.Status(userActionResponse.isOK? (int)eResponseStatus.OK: (int)eResponseStatus.Error, userActionResponse.msg);
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    log.ErrorFormat("fail to get response from Npvr provider groupId={0}, householdId={1}, npvrObject.Quota={2}", groupId, householdId, npvrObject.Quota);
                 }
-
+            }
+            else // Kaltura Recordings
+            {
+                if (isCreate)
+                {
+                    status = QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/);
+                }
+                else
+                {
+                    // get current user quota
+                    DomainQuotaResponse hhQuota = QuotaManager.Instance.GetDomainQuotaResponse(groupId, householdId);
+                    status = QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/);
+                    if (status.Code == (int)eResponseStatus.OK)
+                    {
+                        if (hhQuota != null && hhQuota.Status.Code == (int)eResponseStatus.OK)
+                        {
+                            int usedQuota = hhQuota.TotalQuota - hhQuota.AvailableQuota; // get used quota
+                            if (usedQuota > npvrObject.Quota * 60)
+                            {
+                                // call the handel to delete all recordings
+                                status = QuotaManager.Instance.HandleDomainAutoDelete(groupId, householdId, (int)(usedQuota - npvrObject.Quota * 60), DomainRecordingStatus.DeletePending);
+                            }
+                            else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
+                            {
+                                status = QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota * 60 - usedQuota));
+                            }
+                        }
+                    }
+                }
             }
 
-            return userActionResponse;
+            return status;
         }
 
         internal static ApiObjects.Country GetCountryByIp(int groupId, string ip)

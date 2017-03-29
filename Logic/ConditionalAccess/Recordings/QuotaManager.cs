@@ -197,8 +197,9 @@ namespace Core.Recordings
         }
 
 
-        public bool SetDomainTotalQuota(int groupId, long domainId, long totalQuota)
+        public ApiObjects.Response.Status SetDomainTotalQuota(int groupId, long domainId, long totalQuota)
         {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             int defaultQuota = 0;
             bool result = false;
             DomainQuota domainQuota = GetDomainQuota(groupId, domainId, ref defaultQuota);
@@ -207,7 +208,11 @@ namespace Core.Recordings
                 domainQuota.Total = (int)totalQuota;
                 result = RecordingsDAL.SetDomainQuota(domainId, domainQuota);
             }
-            return result;
+            if (result)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            return status;
         }
 
         public ApiObjects.Response.Status HandleDomainAutoDelete(int groupId, long domainId, int recordingDuration, DomainRecordingStatus domainRecordingStatus = DomainRecordingStatus.Deleted)
