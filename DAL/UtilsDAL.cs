@@ -720,6 +720,7 @@ namespace DAL
             return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
 
+
         public static Dictionary<GroupFeature, bool> GetGroupFeatures(int groupId)
         {
             Dictionary<GroupFeature, bool> groupFeatures = null;
@@ -746,6 +747,17 @@ namespace DAL
             return groupFeatures;
         }
 
+        public static string GetDrmPolicyKey(int groupId)
+        {
+            return string.Format("drm_policy_{0}", groupId);
+        }
+
+        internal static string GetDomainDrmIdKey(int domainId)
+        {
+            return string.Format("domain_drmId_{0}", domainId);
+        }
+
+
         public static string GetCachedEntitlementResultsKey(string version, long domainId, int mediaFileId)
         {
             return string.Format("version_{0}_domainId_{1}_mediaFileId_{2}", version, domainId, mediaFileId);
@@ -756,5 +768,10 @@ namespace DAL
             return string.Format("media_group_file_type_{0}", mediaID.ToString());
         }
 
+
+        internal static string GetDrmIdKey(string drmId)
+        {
+            return string.Format("drmId_{0}", drmId);
+        }
     }
 }
