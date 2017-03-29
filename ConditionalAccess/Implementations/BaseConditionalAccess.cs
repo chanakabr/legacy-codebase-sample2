@@ -6984,19 +6984,8 @@ namespace ConditionalAccess
                     string sWSPass = string.Empty;
                     Utils.GetWSCredentials(m_nGroupID, eWSModules.USERS, ref sWSUserName, ref sWSPass);
 
-<<<<<<< HEAD
                     UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
                     if (uObj.m_RespStatus != ResponseStatus.OK)
-=======
-                    string sWSURL = Utils.GetWSURL("users_ws");
-                    if (!string.IsNullOrEmpty(sWSURL))
-                    {
-                        u.Url = sWSURL;
-                        u.Url = "http://52.210.223.65:8030/users_v4_0/module.asmx";
-                    }
-                    ConditionalAccess.TvinciUsers.UserResponseObject uObj = u.GetUserData(sWSUserName, sWSPass, sSiteGUID, string.Empty);
-                    if (uObj.m_RespStatus != ConditionalAccess.TvinciUsers.ResponseStatus.OK)
->>>>>>> origin/Storm
                     {
                         ret.m_oStatus = BillingResponseStatus.UnKnownUser;
                         ret.m_sRecieptCode = string.Empty;
