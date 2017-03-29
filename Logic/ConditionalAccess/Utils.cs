@@ -6497,11 +6497,11 @@ namespace Core.ConditionalAccess
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
            
             NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
-            log.DebugFormat("Subscription with NPVR service, Quota: {0}", npvrObject.Quota);
-
+            
             INPVRProvider npvr;
             if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr))
             {
+                log.DebugFormat("Subscription with NPVR service, Quota: {0}, Create={1}", npvrObject.Quota, isCreate);
                 NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();
                 try
                 {
@@ -6526,9 +6526,11 @@ namespace Core.ConditionalAccess
             }
             else // Kaltura Recordings
             {
+                log.DebugFormat("Kaltura Recordings Quota: {0}, Create={1}", npvrObject.Quota, isCreate);
                 if (isCreate)
                 {
                     status = QuotaManager.Instance.SetDomainTotalQuota(groupId, householdId, npvrObject.Quota * 60 /*in seconds*/);
+                    log.DebugFormat("after SetDomainTotalQuota groupId={0}, householdId={1}, Quota={2}", groupId, householdId, npvrObject.Quota * 60);
                 }
                 else
                 {
@@ -6551,6 +6553,7 @@ namespace Core.ConditionalAccess
                             }
                         }
                     }
+                    log.DebugFormat("after SetDomainTotalQuota groupId={0}, householdId={1}, Quota={2}", groupId, householdId, npvrObject.Quota * 60);
                 }
             }
 
