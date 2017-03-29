@@ -711,6 +711,7 @@ namespace DAL
             return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
         }
 
+
         public static bool GetGroupFeatureStatus(int groupId, GroupFeature groupFeature)
         {
             bool res = false;
@@ -729,5 +730,19 @@ namespace DAL
             return res;
         }
 
+        public static string GetDrmPolicyKey(int groupId)
+        {
+            return string.Format("drm_policy_{0}", groupId);
+        }
+
+        internal static string GetDomainDrmIdKey(int domainId)
+        {
+            return string.Format("domain_drmId_{0}", domainId);
+        }
+
+        internal static string GetDrmIdKey(string drmId)
+        {
+            return string.Format("drmId_{0}", drmId);
+        }
     }
 }

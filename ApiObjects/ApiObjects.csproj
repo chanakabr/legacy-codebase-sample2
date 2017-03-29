@@ -125,6 +125,8 @@
     <Compile Include="DummyDllLoader.cs" />
     <Compile Include="EpgIngestResponse.cs" />
     <Compile Include="IngestAssetStatus.cs" />
+    <Compile Include="DRM\DrmPolicy.cs" />
+    <Compile Include="DRM\DrmSecurityPolicy.cs" />
     <Compile Include="IngestBusinessModules\BusinessModuleResponse.cs" />
     <Compile Include="IngestBusinessModules\IngestModule.cs" />
     <Compile Include="IngestBusinessModules\IngestMultiPricePlan.cs" />
