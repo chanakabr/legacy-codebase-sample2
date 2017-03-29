@@ -212,7 +212,7 @@ namespace Core.ConditionalAccess
         {
             if (!bIsDummy && !bIsEntitledToPreviewModule)
             {
-                return Billing.Module.CC_ChargeUser(m_nGroupID, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, 1,
+                return Billing.Module.CC_ChargeUser(m_nGroupID, sSiteGuid, dPrice, sCurrency, sUserIP, sCustomData, nPaymentNumber,
                     nNumOfPayments, sExtraParams, sPaymentMethodID, sEncryptedCVV);
             }
             else
@@ -222,7 +222,7 @@ namespace Core.ConditionalAccess
                 // (this comment is correct for Adyen only. In Cinepolis there is no dummy charge. During development only MediaCorp and Cinepolis asked for preview module.)
                 return Billing.Module.CC_DummyChargeUser(m_nGroupID, sSiteGuid,
                     bIsEntitledToPreviewModule ? 0.0 : dPrice,
-                    sCurrency, sUserIP, sCustomData, 1, nNumOfPayments, sExtraParams);
+                    sCurrency, sUserIP, sCustomData, nPaymentNumber, nNumOfPayments, sExtraParams);
             }
         }
 
