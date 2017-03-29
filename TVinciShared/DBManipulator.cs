@@ -935,8 +935,9 @@ namespace TVinciShared
                             }
                         }
 
-                        if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" &&
-                            sCollectionTable != "lu_languages" && sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands")
+                        if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" && sCollectionTable != "lu_languages" && 
+                            sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands"
+                            && sCollectionTable != "pricing.dbo.lu_currency" )
                         {
                             selectQuery1 += " and ";
 
