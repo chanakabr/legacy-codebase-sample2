@@ -23,6 +23,7 @@ using ApiObjects.Notification;
 using System.Threading.Tasks;
 using System.Web;
 using System.ServiceModel;
+using ApiObjects.DRM;
 
 namespace Users
 {
@@ -1108,6 +1109,150 @@ namespace Users
             sUN = uc.m_sUsername;
             sPass = uc.m_sPassword;
         }
+
+        public static DrmPolicy GetDrmPolicy(int groupId)
+        {
+            DrmPolicy drmPolicy = new DrmPolicy();
+            drmPolicy = DomainDal.GetDrmPolicy(groupId);
+            if (drmPolicy == null)
+            {
+                // set object with default value 
+                drmPolicy = new DrmPolicy()
+                {
+                    Policy = DrmSecurityPolicy.DeviceLevel,
+                    FamilyLimitation = new List<int>()
+                };
+            }
+            return drmPolicy;
+        }
+
+        public static Dictionary<int, string> GetDomainDrmId(int groupId, int domainId, List<int> deviceIds)
+        {
+            Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
+            try
+            {
+                domainDrmId = DomainDal.GetDomainDrmId(domainId);
+
+                if (domainDrmId == null || domainDrmId.Count == 0 || (deviceIds != null && deviceIds.Count > 0
+                    && (deviceIds.Where(d => !domainDrmId.Keys.Contains(d)).Count() > 0)))
+                {
+                    domainDrmId = BuildDomainDrmId(groupId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetDomainDrmId failed, groupId : {0}, domainId : {1}", groupId, domainId), ex);
+                domainDrmId = new Dictionary<int, string>();
+            }
+
+            if (deviceIds != null && deviceIds.Count > 0)
+            {
+                return domainDrmId.Where(x => deviceIds.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            return domainDrmId;
+        }
+
+        private static Dictionary<int, string> BuildDomainDrmId(int groupId, int domainId)
+        {
+            Dictionary<int, string> domainDrmId = new Dictionary<int, string>();
+            // get data from db and insert it to CB
+            // get all devices per domain
+            DataTable dt = DomainDal.Get_DomainDevices(groupId, domainId);
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    int deviceId = 0;
+                    string drm_Id = string.Empty;
+
+                    drm_Id = ODBCWrapper.Utils.GetSafeStr(dr, "drm_id");
+                    deviceId = ODBCWrapper.Utils.GetIntSafeVal(dr, "device_id");
+
+                    domainDrmId.Add(deviceId, drm_Id);
+                }
+                if (domainDrmId != null && domainDrmId.Count > 0)
+                {
+                    // insert to CB
+                    bool result = DomainDal.SetDomainDrmId(domainDrmId, domainId);
+                }
+            }
+            return domainDrmId;
+        }
+
+        public static bool IsDrmIdUnique(string drmId, int domainId, string udid, ref KeyValuePair<int, string> drmValue)
+        {
+            KeyValuePair<int, string> response = GetDrmId(drmId);
+            if (response.Key == domainId)
+            {
+                drmValue = response;
+                return true;
+            }
+            else if (response.Key != domainId && response.Key > 0)
+            {
+                return false;
+            }
+            else
+            {
+                drmValue = response;
+                return true; // exsits for another domain
+            }
+        }
+
+        private static KeyValuePair<int, string> GetDrmId(string drmId)
+        {
+            KeyValuePair<int, string> response = new KeyValuePair<int, string>(0, string.Empty);
+
+            KeyValuePair<string, KeyValuePair<int, string>> drm = DomainDal.GetDrmId(drmId);
+
+            if (drm.Key == drmId)
+            {
+                response = drm.Value;
+            }
+
+            return response;
+        }
+
+
+
+
+
+        internal static bool HandleDeviceDrmIdUpdate(int m_nGroupID, string deviceId, string drmId, int domainId, string udid)
+        {
+            bool result = false;
+            try
+            {
+                result = DomainDal.UpdateDeviceDrmID(m_nGroupID, deviceId, drmId, domainId);
+                if (result)
+                {
+                    KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
+                    result = DomainDal.SetDrmId(document, drmId);
+                    if (!result)
+                    {
+                        log.ErrorFormat("fail SetDrmId document={0}, drmId={1}", document.ToJSON(), drmId);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("fail UpdateDeviceDrmID groupID={0}, deviceId={1}, drmId={2}, domainId={3}", m_nGroupID, deviceId, drmId, domainId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail HandleDeviceDrmIdUpdate groupID={0}, deviceId={1}, drmId={2}, domainId={3}, udid={4}, ex={5}",
+                    m_nGroupID, deviceId, drmId, domainId, udid, ex);
+                result = false;
+            }
+            return result;
+        }
+
+        internal static bool SetDrmId(string drmId, int domainId, string udid)
+        {
+            KeyValuePair<string, KeyValuePair<int, string>> document = new KeyValuePair<string, KeyValuePair<int, string>>(drmId, new KeyValuePair<int, string>(domainId, udid));
+            bool result = DomainDal.SetDrmId(document, drmId);
+            return result;
+        }
+
     }
 
 }
