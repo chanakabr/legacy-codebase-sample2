@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace WebAPI.Models.General
 {
+    [Serializable]
     public class KalturaNotification : KalturaOTTObject
     {
         [DataMember(Name = "object")]
@@ -38,6 +39,7 @@ namespace WebAPI.Models.General
         }
     }
 
+    [Serializable]
     public enum KalturaEventAction
     {
         None,
