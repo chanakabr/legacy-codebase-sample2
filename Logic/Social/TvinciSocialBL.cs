@@ -1138,7 +1138,14 @@ namespace Core.Social
                         row["social_platform"] = 999;// this is internal platform
                         if (settings.InternalPrivacy == eSocialActionPrivacy.UNKNOWN)
                         {
-                            row["internal_share"] = (int)eSocialActionPrivacy.ALLOW;
+                            if (action == (int)eUserAction.WATCHES)
+                            {
+                                row["internal_share"] = (int)eSocialActionPrivacy.DONT_ALLOW;
+                            }
+                            else
+                            {
+                                row["internal_share"] = (int)eSocialActionPrivacy.ALLOW;
+                            }
                         }
                         else
                         {
