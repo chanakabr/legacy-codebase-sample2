@@ -515,7 +515,7 @@ namespace Core.Api
 
         public static UnifiedSearchResult[] GetChannelAssets(int groupId, int channelId, int pageIndex, int pageSize)
         {
-            return Api.Module.GetChannelAssets(channelId, groupId, pageIndex, pageSize);
+            return Core.Api.api.GetChannelAssets(channelId, groupId, pageIndex, pageSize);
         }
 
         public static UnifiedSearchResult[] SearchAssets(int groupId, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,

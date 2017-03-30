@@ -187,7 +187,6 @@ namespace Core.Catalog.Request
 
                                  var typeIntersection = currentChannel.m_nMediaType.Select(t => t.ToString()).Intersect(mediaTypes);
 
-
                                  if (
                                      // if we want all media types in request 
                                      mediaTypes.Contains<string>("0") ||

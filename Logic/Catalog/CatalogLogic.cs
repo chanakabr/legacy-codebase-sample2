@@ -7107,7 +7107,7 @@ namespace Core.Catalog
             {
                 // if there are no tags:
                 // filter everything out
-                initialTree = new BooleanLeaf("media_Id", 0);
+                initialTree = new BooleanLeaf("media_id", 0);
             }
 
             #region Final Filter Tree
