@@ -1,7 +1,9 @@
 ﻿using ApiObjects;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +11,8 @@ namespace Core.ConditionalAccess.Modules
 {
     public abstract class Purchase : CoreObject
     {
+        protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+
         #region members
 
         public string siteGuid { get; set; }

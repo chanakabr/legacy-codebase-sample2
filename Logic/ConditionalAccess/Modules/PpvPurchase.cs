@@ -73,7 +73,22 @@ namespace Core.ConditionalAccess.Modules
 
         protected override bool DoDelete()
         {
-            throw new NotImplementedException();
+            bool success = false;
+
+            try
+            {
+                success = DAL.ConditionalAccessDAL.CancelPPVPurchaseTransaction(this.siteGuid, this.contentId, (int)this.houseHoldId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Failed CancelPPVPurchaseTransaction for site guid = {0}, assetId = {1}, domainId = {2}, ex = {3}",
+                    this.siteGuid,
+                    this.contentId,
+                    this.houseHoldId,
+                    ex);
+            }
+
+            return success;
         }
     }
 }
