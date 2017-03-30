@@ -3447,9 +3447,8 @@ namespace WebAPI.Clients
             if (response.Languages != null && response.Languages.Count > 0)
             {
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaLanguage>>(response.Languages);
-            }
-
-            result.TotalCount = result.Objects.Count;
+                result.TotalCount = result.Objects.Count;
+            }            
 
             if (result.TotalCount > 0 && orderBy.HasValue)
             {
@@ -3505,9 +3504,8 @@ namespace WebAPI.Clients
             if (response.Currencies != null && response.Currencies.Count > 0)
             {
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaCurrency>>(response.Currencies);
-            }
-
-            result.TotalCount = result.Objects.Count;
+                result.TotalCount = result.Objects.Count;
+            }            
 
             if (result.TotalCount > 0 && orderBy.HasValue)
             {
