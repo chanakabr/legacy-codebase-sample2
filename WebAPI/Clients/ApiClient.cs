@@ -3449,7 +3449,9 @@ namespace WebAPI.Clients
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaLanguage>>(response.Languages);
             }
 
-            if (orderBy.HasValue)
+            result.TotalCount = result.Objects.Count;
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
             {
                 switch (orderBy.Value)
                 {
@@ -3468,9 +3470,7 @@ namespace WebAPI.Clients
                     default:
                         break;
                 }
-            }
-
-            result.TotalCount = result.Objects.Count;
+            }            
 
             return result;
         }
@@ -3507,7 +3507,9 @@ namespace WebAPI.Clients
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaCurrency>>(response.Currencies);
             }
 
-            if (orderBy.HasValue)
+            result.TotalCount = result.Objects.Count;
+
+            if (result.TotalCount > 0 && orderBy.HasValue)
             {
                 switch (orderBy.Value)
                 {
@@ -3527,8 +3529,6 @@ namespace WebAPI.Clients
                         break;
                 }
             }
-
-            result.TotalCount = result.Objects.Count;
 
             return result;
         }
