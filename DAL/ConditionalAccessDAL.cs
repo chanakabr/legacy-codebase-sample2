@@ -1039,13 +1039,13 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, int nAssetID, int domainID = 0, int subscriptionPurchaseStatus = 2)
+        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, object assetID, int domainID = 0, int subscriptionPurchaseStatus = 2)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@CancellationDate", DateTime.UtcNow);
             sp.AddParameter("@SiteGuid", sSiteGuid);
-            sp.AddParameter("@AssetID", nAssetID);
+            sp.AddParameter("@AssetID", assetID);
             sp.AddParameter("@DomainID", domainID);
             sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
 
