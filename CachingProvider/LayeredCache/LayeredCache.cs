@@ -323,37 +323,36 @@ namespace CachingProvider.LayeredCache
             {
                 if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
-                    List<long> inValidationKeysResult = null;
-                    if (TryGetInValidationKeys(inValidationKeys, ref inValidationKeysResult))
+                    long maxInValidationDate = 0;
+                    bool hasMaxInvalidationDate = false;
+                    foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
-                        // if inValidationKeysResult.Max() we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
-                        long maxInValidationKey = inValidationKeysResult != null && inValidationKeysResult.Count > 0 ? inValidationKeysResult.Max() + 1 : 0;
-                        foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
+                        if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig, groupId))
                         {
-                            if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig, groupId))
+                            if (!hasMaxInvalidationDate)
                             {
-                                if (tupleResult != null && tupleResult.Item2 > maxInValidationKey)
+                                hasMaxInvalidationDate = TryGetMaxInValidationKeysDate(inValidationKeys, out maxInValidationDate);
+                                if (!hasMaxInvalidationDate)
                                 {
-                                    result = true;
-                                    break;
+                                    log.ErrorFormat("Error getting inValidationKeysMaxDate for key: {0}, layeredCacheConfigName: {1}, groupId: {2}, invalidationKeys: {3}",
+                                                    key, layeredCacheConfigName, groupId, inValidationKeys != null ? string.Join(",", inValidationKeys) : "null");
+                                    insertToCacheConfig.Add(cacheConfig);
+                                    continue;
                                 }
+
                             }
-
-                            // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
-                            insertToCacheConfig.Add(cacheConfig);
+                            // we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
+                            if (tupleResult != null && tupleResult.Item2 > maxInValidationDate + 1)
+                            {
+                                result = true;
+                                break;
+                            }
                         }
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Didn't go to cache because of InvalidationKeys for key: {0}, layeredCacheConfigName: {1}, groupId: {2}, invalidationKeys: {3}",
-                            key, layeredCacheConfigName, groupId, inValidationKeys != null ? string.Join(",", inValidationKeys) : "null");
-                    }
-                }
-                else
-                {
-                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", key, layeredCacheConfigName, groupId);
-                }
 
+                        // if result=true we won't get here (break) and if it isn't we need to insert into this cache later
+                        insertToCacheConfig.Add(cacheConfig);
+                    }
+                }
                 if (!result && fillObjectMethod != null)
                 {
                     Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
@@ -393,46 +392,50 @@ namespace CachingProvider.LayeredCache
             {
                 if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
-                    Dictionary<string, List<long>> inValidationKeysResultMap = null;
-                    if (TryGetInValidationKeysMapping(inValidationKeysMap, ref inValidationKeysResultMap))
+                    Dictionary<string, KeyValuePair<bool, long>> inValidationKeysMaxDateMapping = null;
+                    bool hasMaxInvalidationDates = false;
+                    foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
-                        foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
+                        if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig, groupId) && tupleResults != null && tupleResults.Count > 0)
                         {
-                            if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig, groupId) && tupleResults != null && tupleResults.Count > 0)
+                            if (!hasMaxInvalidationDates)
                             {
-                                foreach (KeyValuePair<string, Tuple<T, long>> pair in tupleResults)
+                                hasMaxInvalidationDates = TryGetInValidationKeysMaxDateMapping(inValidationKeysMap, ref inValidationKeysMaxDateMapping);
+                                if (!hasMaxInvalidationDates)
                                 {
-                                    // if inValidationKeysResult.Max() we add 1 sec to the current time in case inValidationKey was created exactly at the same time as the cache itself was created
-                                    long maxInValidationKey = inValidationKeysResultMap != null && inValidationKeysResultMap.Count > 0 && inValidationKeysResultMap.ContainsKey(pair.Key) ? inValidationKeysResultMap[pair.Key].Max() + 1 : 0;
-                                    if (pair.Value == null || pair.Value.Item1 == null || pair.Value.Item2 <= maxInValidationKey)
+                                    log.ErrorFormat("Error getting inValidationKeysMaxDateMapping for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}",
+                                                     string.Join(",", keys), layeredCacheConfigName, groupId);
+                                    insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                                    continue;
+                                }
+                            }
+                            foreach (KeyValuePair<string, Tuple<T, long>> pair in tupleResults)
+                            {
+                                long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(pair.Key) ? inValidationKeysMaxDateMapping[pair.Key].Value + 1 : 0;
+                                if (pair.Value == null || pair.Value.Item1 == null || pair.Value.Item2 <= maxInValidationDate)
+                                {
+                                    if (insertToCacheConfig.ContainsKey(cacheConfig))
                                     {
-                                        if (insertToCacheConfig.ContainsKey(cacheConfig))
-                                        {
-                                            insertToCacheConfig[cacheConfig].Add(pair.Key);
-                                        }
-                                        else
-                                        {
-                                            insertToCacheConfig.Add(cacheConfig, new List<string>() { pair.Key });
-                                        }
+                                        insertToCacheConfig[cacheConfig].Add(pair.Key);
+                                    }
+                                    else
+                                    {
+                                        insertToCacheConfig.Add(cacheConfig, new List<string>() { pair.Key });
                                     }
                                 }
-
-                                if (!insertToCacheConfig.ContainsKey(cacheConfig) || insertToCacheConfig[cacheConfig].Count == 0)
-                                {
-                                    result = true;
-                                    break;
-                                }
                             }
-                            else
+
+                            if (!insertToCacheConfig.ContainsKey(cacheConfig) || insertToCacheConfig[cacheConfig].Count == 0)
                             {
-                                // if result=true we won't get here (break) and if it isn't we need to insert all the keys into this cache later
-                                insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                                result = true;
+                                break;
                             }
                         }
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Didn't go to cache because of InvalidationKeys for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keys), layeredCacheConfigName, groupId);
+                        else
+                        {
+                            // if result=true we won't get here (break) and if it isn't we need to insert all the keys into this cache later
+                            insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                        }
                     }
                 }
                 else
@@ -523,9 +526,10 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TryGetInValidationKeys(List<string> keys, ref List<long> inValidationKeys)
+        private bool TryGetMaxInValidationKeysDate(List<string> keys, out long MaxInValidationDate)
         {
             bool res = false;
+            MaxInValidationDate = 0;
             try
             {
                 if (keys == null || keys.Count == 0)
@@ -545,13 +549,12 @@ namespace CachingProvider.LayeredCache
                     IDictionary<string, long> resultMap = null;
                     if (cache.GetValues<long>(keys, ref resultMap, true) && resultMap != null)
                     {
-                        inValidationKeys = new List<long>();
                         foreach (object obj in resultMap.Values)
                         {
                             long inValidationDate;
-                            if (long.TryParse(obj.ToString(), out inValidationDate))
+                            if (long.TryParse(obj.ToString(), out inValidationDate) && inValidationDate > MaxInValidationDate)
                             {
-                                inValidationKeys.Add(inValidationDate);
+                                MaxInValidationDate = inValidationDate;
                             }
                         }
 
@@ -562,13 +565,13 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetInValidationKeys with keys {0}", string.Join(",", keys)), ex);
+                log.Error(string.Format("Failed TryGetMaxInValidationKeysDate with keys {0}", string.Join(",", keys)), ex);
             }
 
             return res;
         }
 
-        private bool TryGetInValidationKeysMapping(Dictionary<string, List<string>> keyMappings, ref Dictionary<string, List<long>> inValidationKeysMapping)
+        private bool TryGetInValidationKeysMaxDateMapping(Dictionary<string, List<string>> keyMappings, ref Dictionary<string, KeyValuePair<bool,long>> inValidationKeysMaxDateMapping)
         {
             bool res = true;
             try
@@ -578,13 +581,13 @@ namespace CachingProvider.LayeredCache
                     return res;
                 }
 
-                inValidationKeysMapping = new Dictionary<string, List<long>>();
+                inValidationKeysMaxDateMapping = new Dictionary<string, KeyValuePair<bool, long>>();
                 foreach (KeyValuePair<string, List<string>> pair in keyMappings)
-                {
-                    List<long> invalidationKeys = null;
-                    if (TryGetInValidationKeys(pair.Value, ref invalidationKeys))
+                {                    
+                    long maxInvalidationKeyDate = 0;
+                    if (TryGetMaxInValidationKeysDate(pair.Value, out maxInvalidationKeyDate))
                     {
-                        inValidationKeysMapping.Add(pair.Key, invalidationKeys);
+                        inValidationKeysMaxDateMapping.Add(pair.Key, new KeyValuePair<bool, long>(true, maxInvalidationKeyDate));
                     }
                     else
                     {
@@ -595,7 +598,7 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetInValidationKeysMapping with keys {0}", keyMappings != null ? string.Join(",", keyMappings.Values) : ""), ex);
+                log.Error(string.Format("Failed TryGetInValidationKeysMaxDateMapping with keys {0}", keyMappings != null ? string.Join(",", keyMappings.Values) : ""), ex);
             }
 
             return res;
