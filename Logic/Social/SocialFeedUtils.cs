@@ -20,6 +20,7 @@ using Core.Catalog.Request;
 using Core.Catalog;
 using ApiObjects.Social;
 using Core.Catalog.Response;
+using Newtonsoft.Json;
 
 namespace Core.Social
 {
@@ -92,8 +93,8 @@ namespace Core.Social
                         sb.AppendFormat("{0}/oauth/access_token?client_id={1}&client_secret={2}&grant_type=client_credentials", FB_GRAPH_URI_PREFIX, clientId, clientSecret);
 
                         string retVal = Utils.SendGetHttpReq(sb.ToString(), ref nStatus, string.Empty, string.Empty);
-
-                        _accessTokenDict.Add(groupId, retVal.Replace("access_token=", ""));
+                        dynamic result = JsonConvert.DeserializeObject(retVal);
+                        _accessTokenDict.Add(groupId, (string)result["access_token"]);
 
                     }
                 }
