@@ -3557,7 +3557,7 @@ namespace DAL
 
                 if (settings.RecoveryGracePeriod.HasValue) // Default = enabled
                 {
-                    spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecoveryGracePeriod", settings.RecoveryGracePeriod * 24 * 60 * 60); // convert it to seconds
+                    spUpdateTimeShiftedTvPartnerSettings.AddParameter("@RecoveryGracePeriod", settings.RecoveryGracePeriod); //seconds
                 }
 
                 isUpdated = spUpdateTimeShiftedTvPartnerSettings.ExecuteReturnValue<bool>();
