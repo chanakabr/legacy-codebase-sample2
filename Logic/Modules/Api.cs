@@ -521,7 +521,7 @@ namespace Core.Api
         public static UnifiedSearchResult[] SearchAssets(int groupId, string filter, int pageIndex, int pageSize, bool OnlyIsActive, int languageID, bool UseStartDate,
                string Udid, string UserIP, string SiteGuid, int DomainId, int ExectgroupId, bool IgnoreDeviceRule)
         {
-            return Api.Module.SearchAssets(groupId, filter, pageIndex, pageSize, OnlyIsActive, languageID, UseStartDate,
+            return Core.Api.api.SearchAssets(groupId, filter, pageIndex, pageSize, OnlyIsActive, languageID, UseStartDate,
                Udid, UserIP, SiteGuid, DomainId, ExectgroupId, IgnoreDeviceRule);
         }
 
