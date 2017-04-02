@@ -9696,7 +9696,7 @@ namespace Core.ConditionalAccess
                                             PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
                                             {
                                                 siteGuid = purchasingSiteGuid,
-                                                houseHoldId = domain.Id,
+                                                houseHoldId = domain.m_nDomainID,
                                                 contentId = assetID
                                             };
 
@@ -9709,7 +9709,7 @@ namespace Core.ConditionalAccess
                                             {
                                                 siteGuid = purchasingSiteGuid,
                                                 productId = assetID.ToString(),
-                                                houseHoldId = domain.Id
+                                                houseHoldId = domain.m_nDomainID
                                             };
 
                                             dalResult = subscriptionPurchase.Delete();
