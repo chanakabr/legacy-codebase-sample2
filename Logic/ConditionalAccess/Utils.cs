@@ -3954,7 +3954,7 @@ namespace Core.ConditionalAccess
                                 int recordingPlaybackNonExistingChannel = ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_existing", 0); // Default = disabled
                                 int quotaOveragePolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "quota_overage_policy", 0);
                                 int protectionPolicy = ODBCWrapper.Utils.GetIntSafeVal(dr, "protection_policy", 0);
-                                int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0) / (24 * 60 * 60); // convert it to days
+                                int recoveryGracePeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "recovery_grace_period_seconds", 0); // seconds
 
                                 if (recordingScheduleWindow > -1)
                                 {
@@ -7387,7 +7387,7 @@ namespace Core.ConditionalAccess
                             if (DomainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
                                 && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID))
                             {
-                                if (domainRecording.UpdateDate.AddSeconds(-recoveryGracePeriod * 24 * 60 * 60) < DateTime.UtcNow)
+                                if (domainRecording.UpdateDate.AddSeconds(-recoveryGracePeriod) < DateTime.UtcNow)
                                 {
                                     DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
                                 }
