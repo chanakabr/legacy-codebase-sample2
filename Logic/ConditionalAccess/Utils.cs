@@ -7387,7 +7387,7 @@ namespace Core.ConditionalAccess
                             if (DomainRecording != null && domainRecording.Status != null && domainRecording.Status.Code == (int)eResponseStatus.OK
                                 && !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID))
                             {
-                                if (domainRecording.UpdateDate.AddSeconds(-recoveryGracePeriod) < DateTime.UtcNow)
+                                if (domainRecording.UpdateDate.AddSeconds(recoveryGracePeriod) >= DateTime.UtcNow)
                                 {
                                     DomainRecordingIdToRecordingMap.Add(domainRecordingID, domainRecording);
                                 }
