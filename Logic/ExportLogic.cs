@@ -711,6 +711,7 @@ namespace APILogic
                 {
                     m_bOnlyActiveMedia = true
                 },
+                shouldIgnoreDeviceRuleID = true,
                 order = new ApiObjects.SearchObjects.OrderObj()
             };
 
