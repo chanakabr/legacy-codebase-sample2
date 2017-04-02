@@ -4603,6 +4603,11 @@
             Enable Recording playback for non entitled channel
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaMediaAsset.EntryId">
+            <summary>
+            Entry Identifier
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaRecordingAsset">
             <summary>
             Recording-asset info

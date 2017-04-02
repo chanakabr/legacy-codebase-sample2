@@ -185,7 +185,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "enableRecordingPlaybackNonEntitledChannel")]
         [SchemeProperty(ReadOnly = true)]
         public bool? EnableRecordingPlaybackNonEntitledChannel { get; set; }
-        
+
+        /// <summary>
+        /// Entry Identifier
+        /// </summary>
+        [DataMember(Name = "entryId")]
+        [JsonProperty(PropertyName = "entryId")]
+        [XmlElement(ElementName = "entryId")]
+        public string EntryId { get; set; }
     }
 
     /// <summary>
