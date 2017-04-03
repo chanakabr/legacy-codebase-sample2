@@ -715,6 +715,8 @@ namespace APILogic
                 order = new ApiObjects.SearchObjects.OrderObj()
             };
 
+            Core.ConditionalAccess.Utils.FillCatalogSignature(request);
+            
             // set the request assetTypes parameter
             switch (assetType)
             {
