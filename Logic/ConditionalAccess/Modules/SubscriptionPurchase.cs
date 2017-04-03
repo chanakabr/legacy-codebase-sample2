@@ -27,6 +27,14 @@ namespace Core.ConditionalAccess.Modules
 
         public SubscriptionPurchaseStatus status { get; set; }
 
+        public override eTransactionType type
+        {
+            get
+            {
+                return eTransactionType.Subscription;
+            }
+        }
+
         #endregion
 
         public SubscriptionPurchase(int groupId)

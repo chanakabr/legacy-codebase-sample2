@@ -31,6 +31,8 @@ namespace Core.ConditionalAccess.Modules
         public DateTime? startDate { get; set; }
         public DateTime? endDate { get; set; }
 
+        public abstract eTransactionType type { get; }
+
         #endregion
 
         public Purchase(int groupId)
