@@ -31,6 +31,11 @@ namespace WebAPI.Models.General
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 
+        public static string GetMultilingualName(string name)
+        {
+            return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
+        }
+
         public XmlSchema GetSchema()
         {
             return null;
@@ -50,7 +55,7 @@ namespace WebAPI.Models.General
                 CustomXmlFormatter.CustomXmlWriter customXmlWriter = writer as CustomXmlFormatter.CustomXmlWriter;
 
                 string name = customXmlWriter.GetCurrentElementName();
-                string multilingualName = string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1));
+                string multilingualName = GetMultilingualName(name);
 
                 if (Values != null)
                 {

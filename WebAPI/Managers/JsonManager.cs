@@ -79,7 +79,7 @@ namespace WebAPI.Managers
                 }
 
                 string name = writer.Path.Substring(writer.Path.LastIndexOf('.') + 1);
-                string multilingualName = string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1));
+                string multilingualName = KalturaMultilingualString.GetMultilingualName(name);
 
                 KalturaMultilingualString multilingualString = (KalturaMultilingualString)value;
                 if (multilingualString.Values != null)

@@ -12,6 +12,7 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim assets wrapper
     /// </summary>
+    [Obsolete]
     public class KalturaSlimAssetInfoWrapper : KalturaListResponse
     {
         /// <summary>
@@ -28,6 +29,7 @@ namespace WebAPI.Models.Catalog
     /// Slim asset info
     /// </summary>
     [OldStandard("mediaFiles", "media_files")]
+    [Obsolete]
     public class KalturaBaseAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
         /// <summary>
@@ -54,7 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        public KalturaMultilingualString Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Asset description
@@ -62,7 +64,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "description")]
         [JsonProperty(PropertyName = "description")]
         [XmlElement(ElementName = "description")]
-        public KalturaMultilingualString Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// Collection of images details that can be used to represent this asset

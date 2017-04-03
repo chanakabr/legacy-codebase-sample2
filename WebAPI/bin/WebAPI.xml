@@ -4787,48 +4787,43 @@
             Asset info
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Catalog.KalturaBaseAssetInfo">
-            <summary>
-            Slim asset info
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaIAssetable">
             <summary>
             Assetable interface
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Id">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Id">
             <summary>
             Unique identifier for the asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Type">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Type">
             <summary>
             Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
             Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Name">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Name">
             <summary>
             Asset name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Description">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Description">
             <summary>
             Asset description
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Images">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Images">
             <summary>
             Collection of images details that can be used to represent this asset
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.MediaFiles">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.MediaFiles">
             <summary>
             Files
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Statistics">
+        <member name="P:WebAPI.Models.Catalog.KalturaAsset.Statistics">
             <summary>
             Collection of add-on statistical information for the media. See AssetStats model for more information
             </summary>
@@ -10085,6 +10080,47 @@
         <member name="T:WebAPI.Models.Catalog.KalturaAssetInfo">
             <summary>
             Asset info
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaBaseAssetInfo">
+            <summary>
+            Slim asset info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Id">
+            <summary>
+            Unique identifier for the asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Type">
+            <summary>
+            Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
+            Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Name">
+            <summary>
+            Asset name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Description">
+            <summary>
+            Asset description
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Images">
+            <summary>
+            Collection of images details that can be used to represent this asset
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.MediaFiles">
+            <summary>
+            Files
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaBaseAssetInfo.Statistics">
+            <summary>
+            Collection of add-on statistical information for the media. See AssetStats model for more information
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaAssetInfo.Metas">
