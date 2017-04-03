@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Jil;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -30,8 +31,70 @@ namespace WebAPI.Models.Catalog
     [Serializable]
     [XmlInclude(typeof(KalturaProgramAsset))]
     [XmlInclude(typeof(KalturaMediaAsset))]
-    abstract public class KalturaAsset : KalturaBaseAssetInfo, KalturaIAssetable
+    abstract public class KalturaAsset : KalturaOTTObject, KalturaIAssetable
     {
+        /// <summary>
+        /// Unique identifier for the asset
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public long? Id { get; set; }
+
+        /// <summary>
+        /// Identifies the asset type (EPG, Recording, Movie, TV Series, etc). 
+        /// Possible values: 0 – EPG linear programs, 1 - Recording; or any asset type ID according to the asset types IDs defined in the system.
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        public int? Type { get; set; }
+
+        /// <summary>
+        /// Asset name
+        /// </summary>
+        [DataMember(Name = "name")]
+        [JsonProperty(PropertyName = "name")]
+        [XmlElement(ElementName = "name")]
+        public KalturaMultilingualString Name { get; set; }
+
+        /// <summary>
+        /// Asset description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty(PropertyName = "description")]
+        [XmlElement(ElementName = "description")]
+        public KalturaMultilingualString Description { get; set; }
+
+        /// <summary>
+        /// Collection of images details that can be used to represent this asset
+        /// </summary>
+        [DataMember(Name = "images", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "images", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "images", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaMediaImage> Images { get; set; }
+
+        /// <summary>
+        /// Files
+        /// </summary>
+        [DataMember(Name = "mediaFiles", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "mediaFiles", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlArray(ElementName = "mediaFiles", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaMediaFile> MediaFiles { get; set; }
+
+        /// <summary>
+        /// Collection of add-on statistical information for the media. See AssetStats model for more information
+        /// </summary>
+        [DataMember(Name = "stats", EmitDefaultValue = true)]
+        [JsonProperty(PropertyName = "stats", NullValueHandling = NullValueHandling.Ignore)]
+        [XmlElement(ElementName = "stats", IsNullable = true)]
+        [JilDirectiveAttribute(Ignore = true)]
+        [Obsolete]
+        public KalturaAssetStatistics Statistics { get; set; }
+
         /// <summary>
         /// Dynamic collection of key-value pairs according to the String Meta defined in the system
         /// </summary>
@@ -102,8 +165,13 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
         [XmlElement(ElementName = "externalId")]
-        [JsonIgnore]        
+        [JsonIgnore]
         public string ExternalId { get; set; }
+
+        internal int getType()
+        {
+            return Type.HasValue ? (int)Type : 0;
+        }
     }
 
     /// <summary>
