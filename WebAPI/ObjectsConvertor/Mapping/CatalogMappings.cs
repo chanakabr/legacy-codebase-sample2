@@ -147,8 +147,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //Media to SlimAssetInfo
             Mapper.CreateMap<ProgramObj, KalturaBaseAssetInfo>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AssetId))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_oProgram.ProgrammeName))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_oProgram.ProgrammeDescription))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeName)))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_oProgram.ProgrammeDescription)))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (int)AssetType.epg));
 
             //channelObj to Channel
@@ -156,6 +156,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_nChannelID))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sTitle))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.m_lPic))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.m_sDescription))
                 ;
 
 

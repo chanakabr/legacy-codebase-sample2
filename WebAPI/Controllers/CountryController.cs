@@ -34,8 +34,39 @@ namespace WebAPI.Controllers
              int groupId = KS.GetFromRequest().GroupId;
 
              try
-             {
-                 response = ClientsManager.ApiClient().GetCountryList(groupId, filter.GetIdIn());
+             {                 
+                 List<int> countryIds = filter.GetIdIn();
+                 bool isIpEqualExists = !string.IsNullOrEmpty(filter.IpEqual);
+                 if (countryIds.Count > 0)
+                 {
+                     if ((isIpEqualExists || (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)))
+                     {
+                         throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "IdIn", isIpEqualExists ? "IpEqual" : "IpEqualCurrent");
+                     }
+                     else
+                     {
+                         response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds, filter.OrderBy);
+                     }
+                 }
+                 else if (isIpEqualExists)
+                 {
+                     if (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)
+                     {
+                         throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "IpEqual", "IpEqualCurrent");
+                     }
+                     else
+                     {
+                         response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent, filter.OrderBy);
+                     }
+                 }
+                 else if (filter.IpEqualCurrent.HasValue && filter.IpEqualCurrent.Value)
+                 {
+                     response = ClientsManager.ApiClient().GetCountryListByIp(groupId, filter.IpEqual, filter.IpEqualCurrent, filter.OrderBy);
+                 }
+                 else
+                 {
+                     response = ClientsManager.ApiClient().GetCountryList(groupId, countryIds, filter.OrderBy);
+                 }
              }
              catch (ClientException ex)
              {

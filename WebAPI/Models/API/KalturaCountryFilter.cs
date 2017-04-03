@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -23,6 +24,23 @@ namespace WebAPI.Models.API
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         public string IdIn { get; set; }
+
+        /// <summary>
+        /// Ip to identify the country
+        /// </summary>
+        [DataMember(Name = "ipEqual")]
+        [JsonProperty("ipEqual")]
+        [XmlElement(ElementName = "ipEqual", IsNullable = true)]
+        public string IpEqual { get; set; }
+
+        /// <summary>
+        /// Indicates if to get the IP from the request
+        /// </summary>
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [DataMember(Name = "ipEqualCurrent")]
+        [JsonProperty("ipEqualCurrent")]
+        [XmlElement(ElementName = "ipEqualCurrent", IsNullable = true)]
+        public bool? IpEqualCurrent { get; set; }
 
         public override KalturaCountryOrderBy GetDefaultOrderByValue()
         {
@@ -51,5 +69,6 @@ namespace WebAPI.Models.API
 
             return list;
         }
+
     }
 }

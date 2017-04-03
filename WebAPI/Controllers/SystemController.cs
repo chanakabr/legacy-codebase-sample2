@@ -30,6 +30,7 @@ namespace WebAPI.Controllers
         /// Possible status codes:  Country was not found = 4025
         /// </remarks>
         [Route("getCountry"), HttpPost]
+        [Obsolete]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.CountryNotFound)]

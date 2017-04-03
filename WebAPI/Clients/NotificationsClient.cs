@@ -32,14 +32,12 @@ namespace WebAPI.Clients
 
         internal KalturaPartnerNotificationSettings Get(int groupId)
         {
-
-            
             NotificationPartnerSettingsResponse response = null;
             KalturaPartnerNotificationSettings settings = null;
 
             try
             {
-                log.Debug(string.Format("Username={0}, Password={1}", groupId));
+                log.Debug(string.Format("GroupId={0}", groupId));
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {

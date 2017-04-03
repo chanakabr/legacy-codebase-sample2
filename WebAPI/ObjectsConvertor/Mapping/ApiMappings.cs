@@ -29,6 +29,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault));
 
+            //KalturaLanguage
+            Mapper.CreateMap<LanguageObj, KalturaLanguage>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.Direction, opt => opt.MapFrom(src => src.Direction))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DisplayName) ? src.DisplayName : src.Name))
+                .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.Name));
+
+            //KalturaCurrency
+            Mapper.CreateMap<Core.Pricing.Currency, KalturaCurrency>()
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
+                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));                
+
             //AssetType to Catalog.StatsType
             Mapper.CreateMap<AssetType, StatsType>().ConstructUsing((AssetType type) =>
             {
@@ -334,7 +349,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.NonEntitledChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonEntitledChannelEnabled))
                 .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
-                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)));
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod/( 24*60*60)));// convert to days 
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -357,7 +373,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsRecordingPlaybackNonEntitledChannelEnabled, opt => opt.MapFrom(src => src.NonEntitledChannelPlaybackEnabled))
                 .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
-                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)));
+                .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod *24*60*60));// convert days to seconds
 
             #endregion
 
@@ -428,11 +445,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             #endregion
 
-            #region DeviceFamily
+            #region KalturaCountry
+
+            Mapper.CreateMap<CountryLocale, WebAPI.Models.Users.KalturaCountry>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
+                .ForMember(dest => dest.CurrencySign, opt => opt.MapFrom(src => src.CurrencySign))
+                .ForMember(dest => dest.LanguagesCode, opt => opt.MapFrom(src => src.LanguageCodes != null ? string.Join(",", src.LanguageCodes) : string.Empty))
+                .ForMember(dest => dest.MainLanguageCode, opt => opt.MapFrom(src => src.MainLanguageCode))
+                .ForMember(dest => dest.VatPercent, opt => opt.MapFrom(src => src.VatPercent));
+
             Mapper.CreateMap<Country, WebAPI.Models.Users.KalturaCountry>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code));
+
             #endregion
 
             #region Meta

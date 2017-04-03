@@ -206,8 +206,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "entryId")]
         [JsonProperty(PropertyName = "entryId")]
-        [XmlElement(ElementName = "entryId")]
-        [JsonIgnore]        
+        [XmlElement(ElementName = "entryId")]    
         public string EntryId { get; set; }
 
         /// <summary>
