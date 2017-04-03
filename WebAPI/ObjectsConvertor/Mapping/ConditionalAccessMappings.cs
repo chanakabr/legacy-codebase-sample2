@@ -53,6 +53,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
             Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
               //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
               //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.date)))
               //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
@@ -94,7 +95,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                ;
             Mapper.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.contentId))
-               //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
+                //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
                //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
                //.ForMember(dest => dest.LastViewDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.lastViewDate)))
                .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.entitlementDate)))
