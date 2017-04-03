@@ -710,7 +710,96 @@ namespace Validator.Managers.Scheme
 
             return classNode[0].InnerText.Trim();
         }
-        
+
+        private void writeProperty(string typeName, PropertyInfo property, Type type = null, string name = null)
+        {
+            ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
+            if (obsolete != null)
+                return;
+
+            DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>(true);
+            if (deprecated != null)
+                return;
+
+            var dataMemberAttr = property.GetCustomAttribute<DataMemberAttribute>();
+            if (dataMemberAttr == null)
+                return;
+
+            if (name == null)
+            {
+                name = dataMemberAttr.Name;
+            }
+
+            if (type == null)
+            {
+                if (typeName == "KalturaFilter" && dataMemberAttr.Name == "orderBy")
+                {
+                    writeProperty(typeName, property, typeof(string));
+                    return;
+                }
+                else if (property.PropertyType == typeof(KalturaMultilingualString))
+                {
+                    writeProperty(typeName, property, typeof(string));
+                    writeProperty(typeName, property, typeof(KalturaMultilingualString), KalturaMultilingualString.GetMultilingualName(name));
+                    return;
+                }
+                else
+                {
+                    type = property.PropertyType;
+                }
+            }
+
+            writer.WriteStartElement("property");
+            writer.WriteAttributeString("name", name);
+            appendType(type);
+
+            writer.WriteAttributeString("description", getDescription(property));
+
+            SchemePropertyAttribute schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
+            if (schemeProperty == null)
+            {
+                writer.WriteAttributeString("readOnly", "0");
+                writer.WriteAttributeString("insertOnly", "0");
+            }
+            else
+            {
+                writer.WriteAttributeString("readOnly", schemeProperty.ReadOnly ? "1" : "0");
+                writer.WriteAttributeString("insertOnly", schemeProperty.InsertOnly ? "1" : "0");
+                writer.WriteAttributeString("writeOnly", schemeProperty.WriteOnly ? "1" : "0");
+
+                if (schemeProperty.DynamicType != null)
+                    writer.WriteAttributeString("valuesEnumType", schemeProperty.DynamicType.Name);
+
+                if (schemeProperty.DynamicMinInt > int.MinValue)
+                    writer.WriteAttributeString("valuesMinValue", schemeProperty.DynamicMinInt.ToString());
+                if (schemeProperty.DynamicMaxInt < int.MaxValue)
+                    writer.WriteAttributeString("valuesMaxValue", schemeProperty.DynamicMaxInt.ToString());
+
+                if (schemeProperty.RequiresPermission > 0)
+                {
+                    RequestType[] validPermissions = new RequestType[] { RequestType.READ, RequestType.UPDATE, RequestType.INSERT };
+                    string[] permissions = (string[])validPermissions.Where((t, i) => ((int)t & schemeProperty.RequiresPermission) > 0).Select(t => t.ToString().ToLower()).ToArray();
+                    writer.WriteAttributeString("requiresPermissions", string.Join(",", permissions));
+                }
+
+                if (schemeProperty.MaxInteger < int.MaxValue)
+                    writer.WriteAttributeString("maxValue", schemeProperty.MaxInteger.ToString());
+                else if (schemeProperty.MaxLong < long.MaxValue)
+                    writer.WriteAttributeString("maxValue", schemeProperty.MaxLong.ToString());
+                else if (schemeProperty.MaxFloat < float.MaxValue)
+                    writer.WriteAttributeString("maxValue", schemeProperty.MaxFloat.ToString());
+
+                if (schemeProperty.MinInteger < int.MinValue)
+                    writer.WriteAttributeString("minValue", schemeProperty.MinInteger.ToString());
+                else if (schemeProperty.MinLong < long.MinValue)
+                    writer.WriteAttributeString("minValue", schemeProperty.MinLong.ToString());
+                else if (schemeProperty.MinFloat < float.MinValue)
+                    writer.WriteAttributeString("minValue", schemeProperty.MinFloat.ToString());
+
+            }
+            writer.WriteEndElement(); // property
+        }
+
         private void writeType(Type type)
         {
             string typeName = type.Name;
@@ -744,76 +833,7 @@ namespace Validator.Managers.Scheme
 
             foreach (var property in properties)
             {
-                ObsoleteAttribute obsolete = property.GetCustomAttribute<ObsoleteAttribute>(true);
-                if (obsolete != null)
-                    continue;
-
-                DeprecatedAttribute deprecated = property.GetCustomAttribute<DeprecatedAttribute>(true);
-                if (deprecated != null)
-                    continue;
-
-                var dataMemberAttr = property.GetCustomAttribute<DataMemberAttribute>();
-                if (dataMemberAttr == null)
-                    continue;
-
-
-                writer.WriteStartElement("property");
-                writer.WriteAttributeString("name", dataMemberAttr.Name);
-
-                if (typeName == "KalturaFilter" && dataMemberAttr.Name == "orderBy")
-                {
-                    appendType(typeof(string));
-                }
-                else
-                {
-                    appendType(property.PropertyType);
-                }
-
-                writer.WriteAttributeString("description", getDescription(property));
-
-                SchemePropertyAttribute schemeProperty = property.GetCustomAttribute<SchemePropertyAttribute>();
-                if (schemeProperty == null)
-                {
-                    writer.WriteAttributeString("readOnly", "0");
-                    writer.WriteAttributeString("insertOnly", "0");
-                }
-                else
-                {
-                    writer.WriteAttributeString("readOnly", schemeProperty.ReadOnly ? "1" : "0");
-                    writer.WriteAttributeString("insertOnly", schemeProperty.InsertOnly ? "1" : "0");
-                    writer.WriteAttributeString("writeOnly", schemeProperty.WriteOnly ? "1" : "0");
-
-                    if (schemeProperty.DynamicType != null)
-                        writer.WriteAttributeString("valuesEnumType", schemeProperty.DynamicType.Name);
-
-                    if (schemeProperty.DynamicMinInt > int.MinValue)
-                        writer.WriteAttributeString("valuesMinValue", schemeProperty.DynamicMinInt.ToString());
-                    if (schemeProperty.DynamicMaxInt < int.MaxValue)
-                        writer.WriteAttributeString("valuesMaxValue", schemeProperty.DynamicMaxInt.ToString());
-
-                    if (schemeProperty.RequiresPermission > 0)
-                    {
-                        RequestType[] validPermissions = new RequestType[] { RequestType.READ, RequestType.UPDATE, RequestType.INSERT };
-                        string[] permissions = (string[]) validPermissions.Where((t, i) => ((int)t & schemeProperty.RequiresPermission) > 0).Select(t => t.ToString().ToLower()).ToArray();
-                        writer.WriteAttributeString("requiresPermissions", string.Join(",", permissions));
-                    }
-
-                    if (schemeProperty.MaxInteger < int.MaxValue)
-                        writer.WriteAttributeString("maxValue", schemeProperty.MaxInteger.ToString());
-                    else if (schemeProperty.MaxLong < long.MaxValue)
-                        writer.WriteAttributeString("maxValue", schemeProperty.MaxLong.ToString());
-                    else if (schemeProperty.MaxFloat < float.MaxValue)
-                        writer.WriteAttributeString("maxValue", schemeProperty.MaxFloat.ToString());
-
-                    if (schemeProperty.MinInteger < int.MinValue)
-                        writer.WriteAttributeString("minValue", schemeProperty.MinInteger.ToString());
-                    else if (schemeProperty.MinLong < long.MinValue)
-                        writer.WriteAttributeString("minValue", schemeProperty.MinLong.ToString());
-                    else if (schemeProperty.MinFloat < float.MinValue)
-                        writer.WriteAttributeString("minValue", schemeProperty.MinFloat.ToString());
-
-                }
-                writer.WriteEndElement(); // property
+                writeProperty(typeName, property);
             }
 
             writer.WriteEndElement(); // class
