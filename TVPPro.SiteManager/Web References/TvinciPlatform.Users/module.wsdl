@@ -67,6 +67,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_domianID" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_isDomainMaster" type="s:boolean" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nSSOOperatorID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="IsActivationGracePeriod" type="s:boolean" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="UserBasicData">
@@ -466,9 +467,16 @@
             <s:element minOccurs="1" maxOccurs="1" name="domainID" type="s:int" />
             <s:element minOccurs="0" maxOccurs="1" name="sDeviceUDID" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="sItemType" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:FavoriteOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:simpleType name="FavoriteOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="CreateDateAsc" />
+          <s:enumeration value="CreateDateDesc" />
+        </s:restriction>
+      </s:simpleType>
       <s:element name="GetUserFavoritesResponse">
         <s:complexType>
           <s:sequence>
@@ -494,6 +502,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sItemCode" type="s:string" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sSiteUserGUID" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_dUpdateDate" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="m_dCreateDate" type="s:dateTime" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sExtraData" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nID" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="m_sDeviceName" type="s:string" />
@@ -731,6 +740,23 @@
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="ChangeUserPasswordResult" type="tns:UserResponseObject" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateUserPassword">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="userId" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateUserPasswordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateUserPasswordResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1034,7 +1060,7 @@
       <s:element name="IsUserActivatedResponse">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="1" maxOccurs="1" name="IsUserActivatedResult" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="IsUserActivatedResult" type="tns:Status" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1341,6 +1367,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="ItemId" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="OrderIndex" nillable="true" type="s:int" />
           <s:element minOccurs="0" maxOccurs="1" name="UserId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="ListType" type="tns:ListType" />
         </s:sequence>
       </s:complexType>
       <s:element name="IsItemExistsInList">
@@ -1652,6 +1679,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="mediaIds" type="tns:ArrayOfInt" />
             <s:element minOccurs="0" maxOccurs="1" name="udid" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="mediaType" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:FavoriteOrderBy" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -1760,10 +1788,118 @@
           <s:enumeration value="IdentifyPushRegistration" />
           <s:enumeration value="DeleteUser" />
           <s:enumeration value="ChangeUsers" />
+          <s:enumeration value="EnableUserNotifications" />
+          <s:enumeration value="DisableUserNotifications" />
         </s:restriction>
       </s:simpleType>
       <s:element name="AddInitiateNotificationActionResponse">
         <s:complexType />
+      </s:element>
+      <s:element name="ResendActivationToken">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ResendActivationTokenResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ResendActivationTokenResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteItemFromUsersList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="item" type="tns:Item" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteItemFromUsersListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteItemFromUsersListResult" type="tns:Status" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddItemToUsersList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="item" type="tns:Item" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="AddItemToUsersListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="AddItemToUsersListResult" type="tns:UsersListItemResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UsersListItemResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Item" type="tns:Item" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetItemFromUsersList">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userId" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="item" type="tns:Item" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetItemFromUsersListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetItemFromUsersListResult" type="tns:UsersListItemResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByExternalID">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="externalId" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="operatorID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByExternalIDResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserByExternalIDResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByName">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetUserByNameResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetUserByNameResult" type="tns:UserResponse" />
+          </s:sequence>
+        </s:complexType>
       </s:element>
       <s:element name="UserResponseObject" nillable="true" type="tns:UserResponseObject" />
       <s:element name="Status" nillable="true" type="tns:Status" />
@@ -1979,6 +2115,12 @@
   </wsdl:message>
   <wsdl:message name="ChangeUserPasswordSoapOut">
     <wsdl:part name="parameters" element="tns:ChangeUserPasswordResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUserPasswordSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateUserPassword" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUserPasswordSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateUserPasswordResponse" />
   </wsdl:message>
   <wsdl:message name="ForgotPasswordSoapIn">
     <wsdl:part name="parameters" element="tns:ForgotPassword" />
@@ -2286,6 +2428,42 @@
   <wsdl:message name="AddInitiateNotificationActionSoapOut">
     <wsdl:part name="parameters" element="tns:AddInitiateNotificationActionResponse" />
   </wsdl:message>
+  <wsdl:message name="ResendActivationTokenSoapIn">
+    <wsdl:part name="parameters" element="tns:ResendActivationToken" />
+  </wsdl:message>
+  <wsdl:message name="ResendActivationTokenSoapOut">
+    <wsdl:part name="parameters" element="tns:ResendActivationTokenResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteItemFromUsersListSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteItemFromUsersList" />
+  </wsdl:message>
+  <wsdl:message name="DeleteItemFromUsersListSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteItemFromUsersListResponse" />
+  </wsdl:message>
+  <wsdl:message name="AddItemToUsersListSoapIn">
+    <wsdl:part name="parameters" element="tns:AddItemToUsersList" />
+  </wsdl:message>
+  <wsdl:message name="AddItemToUsersListSoapOut">
+    <wsdl:part name="parameters" element="tns:AddItemToUsersListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetItemFromUsersListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetItemFromUsersList" />
+  </wsdl:message>
+  <wsdl:message name="GetItemFromUsersListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetItemFromUsersListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByExternalIDSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserByExternalID" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByExternalIDSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserByExternalIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByNameSoapIn">
+    <wsdl:part name="parameters" element="tns:GetUserByName" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByNameSoapOut">
+    <wsdl:part name="parameters" element="tns:GetUserByNameResponse" />
+  </wsdl:message>
   <wsdl:message name="CheckUserPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2433,6 +2611,7 @@
     <wsdl:part name="domainID" type="s:string" />
     <wsdl:part name="sDeviceUDID" type="s:string" />
     <wsdl:part name="sItemType" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetUserFavoritesHttpPostOut">
     <wsdl:part name="Body" element="tns:FavoriteResponse" />
@@ -2521,6 +2700,15 @@
   </wsdl:message>
   <wsdl:message name="ChangeUserPasswordHttpPostOut">
     <wsdl:part name="Body" element="tns:UserResponseObject" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUserPasswordHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="userId" type="s:string" />
+    <wsdl:part name="password" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUserPasswordHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="ForgotPasswordHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2667,7 +2855,7 @@
     <wsdl:part name="nUserID" type="s:string" />
   </wsdl:message>
   <wsdl:message name="IsUserActivatedHttpPostOut">
-    <wsdl:part name="Body" element="tns:boolean" />
+    <wsdl:part name="Body" element="tns:Status" />
   </wsdl:message>
   <wsdl:message name="GetAllUserOfflineAssetsHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2872,6 +3060,31 @@
     <wsdl:part name="pushToken" type="s:string" />
   </wsdl:message>
   <wsdl:message name="AddInitiateNotificationActionHttpPostOut" />
+  <wsdl:message name="ResendActivationTokenHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="username" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ResendActivationTokenHttpPostOut">
+    <wsdl:part name="Body" element="tns:Status" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByExternalIDHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="externalId" type="s:string" />
+    <wsdl:part name="operatorID" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByExternalIDHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByNameHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="username" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetUserByNameHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserResponse" />
+  </wsdl:message>
   <wsdl:portType name="UsersServiceSoap">
     <wsdl:operation name="CheckUserPassword">
       <wsdl:input message="tns:CheckUserPasswordSoapIn" />
@@ -2992,6 +3205,10 @@
     <wsdl:operation name="ChangeUserPassword">
       <wsdl:input message="tns:ChangeUserPasswordSoapIn" />
       <wsdl:output message="tns:ChangeUserPasswordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUserPassword">
+      <wsdl:input message="tns:UpdateUserPasswordSoapIn" />
+      <wsdl:output message="tns:UpdateUserPasswordSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="ForgotPassword">
       <wsdl:input message="tns:ForgotPasswordSoapIn" />
@@ -3197,6 +3414,30 @@
       <wsdl:input message="tns:AddInitiateNotificationActionSoapIn" />
       <wsdl:output message="tns:AddInitiateNotificationActionSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="ResendActivationToken">
+      <wsdl:input message="tns:ResendActivationTokenSoapIn" />
+      <wsdl:output message="tns:ResendActivationTokenSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteItemFromUsersList">
+      <wsdl:input message="tns:DeleteItemFromUsersListSoapIn" />
+      <wsdl:output message="tns:DeleteItemFromUsersListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="AddItemToUsersList">
+      <wsdl:input message="tns:AddItemToUsersListSoapIn" />
+      <wsdl:output message="tns:AddItemToUsersListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetItemFromUsersList">
+      <wsdl:input message="tns:GetItemFromUsersListSoapIn" />
+      <wsdl:output message="tns:GetItemFromUsersListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByExternalID">
+      <wsdl:input message="tns:GetUserByExternalIDSoapIn" />
+      <wsdl:output message="tns:GetUserByExternalIDSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByName">
+      <wsdl:input message="tns:GetUserByNameSoapIn" />
+      <wsdl:output message="tns:GetUserByNameSoapOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="UsersServiceHttpPost">
     <wsdl:operation name="CheckUserPassword">
@@ -3294,6 +3535,10 @@
     <wsdl:operation name="ChangeUserPassword">
       <wsdl:input message="tns:ChangeUserPasswordHttpPostIn" />
       <wsdl:output message="tns:ChangeUserPasswordHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUserPassword">
+      <wsdl:input message="tns:UpdateUserPasswordHttpPostIn" />
+      <wsdl:output message="tns:UpdateUserPasswordHttpPostOut" />
     </wsdl:operation>
     <wsdl:operation name="ForgotPassword">
       <wsdl:input message="tns:ForgotPasswordHttpPostIn" />
@@ -3454,6 +3699,18 @@
     <wsdl:operation name="AddInitiateNotificationAction">
       <wsdl:input message="tns:AddInitiateNotificationActionHttpPostIn" />
       <wsdl:output message="tns:AddInitiateNotificationActionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ResendActivationToken">
+      <wsdl:input message="tns:ResendActivationTokenHttpPostIn" />
+      <wsdl:output message="tns:ResendActivationTokenHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByExternalID">
+      <wsdl:input message="tns:GetUserByExternalIDHttpPostIn" />
+      <wsdl:output message="tns:GetUserByExternalIDHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByName">
+      <wsdl:input message="tns:GetUserByNameHttpPostIn" />
+      <wsdl:output message="tns:GetUserByNameHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="UsersServiceSoap" type="tns:UsersServiceSoap">
@@ -3721,6 +3978,15 @@
     </wsdl:operation>
     <wsdl:operation name="ChangeUserPassword">
       <soap:operation soapAction="http://users.tvinci.com/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUserPassword">
+      <soap:operation soapAction="http://users.tvinci.com/UpdateUserPassword" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -4187,6 +4453,60 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ResendActivationToken">
+      <soap:operation soapAction="http://users.tvinci.com/ResendActivationToken" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteItemFromUsersList">
+      <soap:operation soapAction="http://users.tvinci.com/DeleteItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddItemToUsersList">
+      <soap:operation soapAction="http://users.tvinci.com/AddItemToUsersList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemFromUsersList">
+      <soap:operation soapAction="http://users.tvinci.com/GetItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByExternalID">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserByExternalID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByName">
+      <soap:operation soapAction="http://users.tvinci.com/GetUserByName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceSoap12" type="tns:UsersServiceSoap">
     <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
@@ -4453,6 +4773,15 @@
     </wsdl:operation>
     <wsdl:operation name="ChangeUserPassword">
       <soap12:operation soapAction="http://users.tvinci.com/ChangeUserPassword" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUserPassword">
+      <soap12:operation soapAction="http://users.tvinci.com/UpdateUserPassword" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -4919,6 +5248,60 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ResendActivationToken">
+      <soap12:operation soapAction="http://users.tvinci.com/ResendActivationToken" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteItemFromUsersList">
+      <soap12:operation soapAction="http://users.tvinci.com/DeleteItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="AddItemToUsersList">
+      <soap12:operation soapAction="http://users.tvinci.com/AddItemToUsersList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetItemFromUsersList">
+      <soap12:operation soapAction="http://users.tvinci.com/GetItemFromUsersList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByExternalID">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserByExternalID" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByName">
+      <soap12:operation soapAction="http://users.tvinci.com/GetUserByName" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:binding name="UsersServiceHttpPost" type="tns:UsersServiceHttpPost">
     <http:binding verb="POST" />
@@ -5125,6 +5508,15 @@
     </wsdl:operation>
     <wsdl:operation name="ChangeUserPassword">
       <http:operation location="/ChangeUserPassword" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUserPassword">
+      <http:operation location="/UpdateUserPassword" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>
@@ -5490,16 +5882,43 @@
       </wsdl:input>
       <wsdl:output />
     </wsdl:operation>
+    <wsdl:operation name="ResendActivationToken">
+      <http:operation location="/ResendActivationToken" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByExternalID">
+      <http:operation location="/GetUserByExternalID" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetUserByName">
+      <http:operation location="/GetUserByName" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="UsersService">
     <wsdl:port name="UsersServiceSoap" binding="tns:UsersServiceSoap">
-      <soap:address location="http://54.72.1.39:8030/users_v3_7/module.asmx" />
+      <soap:address location="http://webservices/users_v4_2/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceSoap12" binding="tns:UsersServiceSoap12">
-      <soap12:address location="http://54.72.1.39:8030/users_v3_7/module.asmx" />
+      <soap12:address location="http://webservices/users_v4_2/module.asmx" />
     </wsdl:port>
     <wsdl:port name="UsersServiceHttpPost" binding="tns:UsersServiceHttpPost">
-      <http:address location="http://54.72.1.39:8030/users_v3_7/module.asmx" />
+      <http:address location="http://webservices/users_v4_2/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>

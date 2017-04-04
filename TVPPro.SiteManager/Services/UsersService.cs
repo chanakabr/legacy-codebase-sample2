@@ -542,7 +542,15 @@ namespace TVPPro.SiteManager.Services
         {
             try
             {
-                return PlatUserService.IsUserActivated(wsUserName, wsPassword, int.Parse(GetUserID()));
+                var status = PlatUserService.IsUserActivated(wsUserName, wsPassword, int.Parse(GetUserID()));
+                if (status.Code == (int)ResponseStatus.OK)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -1093,12 +1101,12 @@ namespace TVPPro.SiteManager.Services
             }
         }
 
-        public FavoritObject[] GetUserFavorite(string sMediaType, int DomainId, string DeviceId)
+        public FavoritObject[] GetUserFavorite(string sMediaType, int DomainId, string DeviceId, FavoriteOrderBy orderBy = FavoriteOrderBy.CreateDateAsc)
         {
             FavoritObject[] UserFavorites = null;
             try
             {
-                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
+                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType, orderBy);
                 UserFavorites = res.Favorites;
             }
             catch (Exception ex)
