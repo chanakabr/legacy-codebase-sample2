@@ -80,7 +80,6 @@ namespace WS_Domains
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseStatus))]
         public DomainResponseStatus RemoveDomain(string sWSUserName, string sWSPassword, int nDomainID)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -110,7 +109,6 @@ namespace WS_Domains
         {
             DomainStatusResponse response = new DomainStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -152,7 +150,6 @@ namespace WS_Domains
             {
                 return response;
             }
-
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -190,8 +187,6 @@ namespace WS_Domains
 
             if (nUserID > 0)
             {
-
-                
                 Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
@@ -297,7 +292,6 @@ namespace WS_Domains
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -329,7 +323,6 @@ namespace WS_Domains
         {
             DomainStatusResponse response = new DomainStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
 
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -444,7 +437,6 @@ namespace WS_Domains
             DomainStatusResponse response = new DomainStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -537,7 +529,6 @@ namespace WS_Domains
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -588,7 +579,6 @@ namespace WS_Domains
         [WebMethod]
         public DomainResponseObject ResetDomain(string sWSUserName, string sWSPassword, int nDomainID)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -611,7 +601,6 @@ namespace WS_Domains
         {
             DomainStatusResponse response = new DomainStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -634,7 +623,6 @@ namespace WS_Domains
         [WebMethod]
         public DomainResponseObject ChangeDomainMaster(string sWSUserName, string sWSPassword, int nDomainID, int nCurrentMasterID, int nNewMasterID)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -655,7 +643,6 @@ namespace WS_Domains
         [WebMethod]
         public int[] GetDomainIDsByOperatorCoGuid(string sWSUserName, string sWSPassword, string sOperatorCoGuid)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -711,7 +698,6 @@ namespace WS_Domains
 
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nUserID;
-
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
@@ -744,7 +730,6 @@ namespace WS_Domains
         [System.Xml.Serialization.XmlInclude(typeof(DomainResponseObject))]
         public DomainResponseObject ConfirmDeviceByDomainMaster(string sWSUserName, string sWSPassword, string sMasterUN, string sDeviceUDID, string sToken)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -765,7 +750,6 @@ namespace WS_Domains
         [WebMethod]
         public bool SetDomainRestriction(string sWSUserName, string sWSPassword, int nDomainID, int nRestriction)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -786,7 +770,6 @@ namespace WS_Domains
         public NetworkResponseObject AddHomeNetworkToDomain(string sWSUsername, string sWSPassword, long lDomainID,
             string sNetworkID, string sNetworkName, string sNetworkDesc)
         {
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
@@ -839,7 +822,6 @@ namespace WS_Domains
             {
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
-
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
@@ -862,7 +844,6 @@ namespace WS_Domains
             string sNetworkID)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-           
             
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
@@ -887,7 +868,6 @@ namespace WS_Domains
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1024,10 +1004,9 @@ namespace WS_Domains
         [WebMethod]
         public ApiObjects.Response.Status SuspendDomain(string sWSUserName, string sWSPassword, int nDomainID)
         {
-            Core.Users.BaseDomain d = null;
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
-            if (nGroupID != 0 && d != null)
-                return d.SuspendDomain(nDomainID);
+            if (nGroupID != 0)
+                return Core.Domains.Module.SuspendDomain(nGroupID, nDomainID);
             else
             {
                 if (nGroupID == 0)
@@ -1039,10 +1018,9 @@ namespace WS_Domains
         [WebMethod]
         public ApiObjects.Response.Status ResumeDomain(string sWSUserName, string sWSPassword, int nDomainID)
         {
-            Core.Users.BaseDomain d = null;
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
-            if (nGroupID != 0 && d != null)
-                return d.ResumeDomain(nDomainID);
+            if (nGroupID != 0)
+                return Core.Domains.Module.ResumeDomain(nGroupID, nDomainID);
             else
             {
                 if (nGroupID == 0)
@@ -1054,11 +1032,10 @@ namespace WS_Domains
         [WebMethod]
         public ApiObjects.Response.Status SetDomainRegion(string sWSUserName, string sWSPassword, int domainId, string extRegionId, string lookupKey)
         {
-            Core.Users.BaseDomain d = null;
             Int32 groupId = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
-            if (groupId != 0 && d != null)
+            if (groupId != 0)
             {
-                return d.SetDomainRegion(groupId, domainId, extRegionId, lookupKey);
+                return Core.Domains.Module.SetDomainRegion(groupId, domainId, extRegionId, lookupKey);
             }
             else
             {
@@ -1079,23 +1056,17 @@ namespace WS_Domains
             DomainResponse response = new DomainResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            Core.Users.BaseDomain d = null;
             Int32 groupId = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
-            if (groupId != 0 && d != null)
+            if (groupId != 0)
             {
-                response.Domain = d.GetDomainByUser(groupId, siteGuid);
-                if (response.Domain != null)
-                {
-                    response.Status = Utils.ConvertDomainStatusToResponseObject(response.Domain.m_DomainStatus);
-                }
+                return Core.Domains.Module.GetDomainByUser(groupId, siteGuid);
             }
             else
             {
                 if (groupId == 0)
-                {
                     HttpContext.Current.Response.StatusCode = 404;
-                }
             }
+            
             return response;
         }
 
@@ -1105,7 +1076,6 @@ namespace WS_Domains
             DeviceRegistrationStatusResponse response = new DeviceRegistrationStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
             Int32 nGroupID = Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
