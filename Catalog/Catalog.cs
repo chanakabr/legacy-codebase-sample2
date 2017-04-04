@@ -4345,36 +4345,43 @@ namespace Catalog
                         domainId, groupId));
                 }
 
-                using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId))
                 {
-                    var recording = cas.GetRecordingByDomainRecordingId(userName, password, domainId, domainRecordingId);
-                    
-                    // Validate recording
-                    if (recording != null && recording.Status != null && recording.Status.Code == 0)
+                    result = true;
+                }
+                else
+                {
+                    using (WS_ConditionalAccess.module cas = new WS_ConditionalAccess.module())
                     {
-                        fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-                        recordingId = recording.Id;
+                        var recording = cas.GetRecordingByDomainRecordingId(userName, password, domainId, domainRecordingId);
 
-                        if (shouldCache)
+                        // Validate recording
+                        if (recording != null && recording.Status != null && recording.Status.Code == 0)
                         {
-                            double timeInCache = (double)(fileDuration / 60);
+                            fileDuration = (int)((recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
+                            recordingId = recording.Id;
 
-                            bool setResult = catalogCache.Set(key, fileDuration, timeInCache);
-
-                            if (!setResult)
+                            if (shouldCache)
                             {
-                                log.ErrorFormat("Failed setting file duration of recording {0} in cache", domainRecordingId);
+                                double timeInCache = (double)(fileDuration / 60);
+
+                                bool setResult = catalogCache.Set(key, fileDuration, timeInCache);
+
+                                if (!setResult)
+                                {
+                                    log.ErrorFormat("Failed setting file duration of recording {0} in cache", domainRecordingId);
+                                }
                             }
+
+                            result = true;
                         }
+                        else
+                        {
+                            // if recording is invalid, still cache that this recording is invalid
 
-                        result = true;
-                    }
-                    else
-                    {
-                        // if recording is invalid, still cache that this recording is invalid
-
-                        result = false;
-                        catalogCache.Set(key, 0, 10);
+                            result = false;
+                            catalogCache.Set(key, 0, 10);
+                        }
                     }
                 }
             }
