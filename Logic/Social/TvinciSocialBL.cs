@@ -1094,11 +1094,9 @@ namespace Core.Social
                 response.settings = settings;
 
                 if (settings != null)
-                {
-                    // action 9999 is for all actions 
-                    List<int> actionList = new List<int>() { (int)eUserAction.LIKE, (int)eUserAction.WATCHES, (int)eUserAction.SHARE, (int)eUserAction.RATES, 9999 };
+                {                    
                     DataTable dt = Utils.InitSocialPrivacySettings();
-                    FillSocialPrivacySettings(ref dt, siteGUID, groupID, settings, actionList);
+                    FillSocialPrivacySettings(ref dt, siteGUID, groupID, settings);
 
                     if (dt != null)
                     {
@@ -1121,69 +1119,113 @@ namespace Core.Social
             }
             return response;
         }
-        
-        internal static void FillSocialPrivacySettings(ref DataTable dt, string siteGUID,int groupId, ApiObjects.Social.SocialPrivacySettings settings, List<int> actionList)
+
+        internal static void FillSocialPrivacySettings(ref DataTable dt, string siteGUID, int groupId, ApiObjects.Social.SocialPrivacySettings settings)
         {
             try
             {
                 DataRow row;
                 if (settings != null)
                 {
-                    foreach (int action in actionList)
+                    if (settings.InternalPrivacy != null && settings.InternalPrivacy.Count > 0)
                     {
-                        row = dt.NewRow();
-                        row["site_guid"] = siteGUID;
-                        row["group_id"] = groupId;
-                        row["action_id"] = action;
-                        row["social_platform"] = 999;// this is internal platform
-                        if (settings.InternalPrivacy == eSocialActionPrivacy.UNKNOWN)
+                        foreach (SocialActionPrivacy internalPrivacy in settings.InternalPrivacy)
                         {
-                            if (action == (int)eUserAction.WATCHES)
+                            row = dt.NewRow();
+                            row["site_guid"] = siteGUID;
+                            row["group_id"] = groupId;
+                            row["action_id"] = (int)internalPrivacy.Action;
+                            row["social_platform"] = 999;// this is internal platform
+                            row["internal_share"] = 0;
+
+                            if (internalPrivacy.Privacy == eSocialActionPrivacy.UNKNOWN && internalPrivacy.Action == eUserAction.WATCHES)
                             {
                                 row["internal_share"] = (int)eSocialActionPrivacy.DONT_ALLOW;
                             }
-                            else
+                            else if (internalPrivacy.Privacy == eSocialActionPrivacy.UNKNOWN)
                             {
                                 row["internal_share"] = (int)eSocialActionPrivacy.ALLOW;
                             }
+                            else
+                            {
+                                row["internal_share"] = (int)internalPrivacy.Privacy;
+                            }
+                            row["external_share"] = 0;
+                            row["external_privacy"] = 0;
+                            dt.Rows.Add(row);
                         }
-                        else
+                    }
+                  
+                    if (settings.SocialNetworks != null && settings.SocialNetworks.Count > 0)
+                    {
+                        foreach (SocialNetwork network in settings.SocialNetworks)
                         {
-                            row["internal_share"] = (int)settings.InternalPrivacy;
-                        }
-                        row["external_share"] = 0;
-                        row["external_privacy"] = 0;
-                        dt.Rows.Add(row);
-
-                        if (settings.SocialNetworks != null && settings.SocialNetworks.Count > 0)
-                        {
-                            foreach (SocialNetwork network in settings.SocialNetworks)
+                            foreach (SocialActionPrivacy externalPrivacy in network.SocialAction)
                             {
                                 row = dt.NewRow();
                                 row["site_guid"] = siteGUID;
                                 row["group_id"] = groupId;
-                                row["action_id"] = action;
                                 row["social_platform"] = (int)network.Network;
                                 row["internal_share"] = 0;
-                                if (network.Privacy == eSocialActionPrivacy.UNKNOWN)
+                                row["external_privacy"] = (int)network.SocialPrivacy;
+                                row["action_id"] = (int)externalPrivacy.Action;
+                                if (externalPrivacy.Privacy == eSocialActionPrivacy.UNKNOWN)
                                 {
                                     row["external_share"] = (int)eSocialActionPrivacy.DONT_ALLOW;
                                 }
                                 else
                                 {
-                                    row["external_share"] = (int)network.Privacy;
+                                    row["external_share"] = (int)externalPrivacy.Privacy;
                                 }
-                                row["external_privacy"] = (int)network.SocialPrivacy; 
                                 dt.Rows.Add(row);
-                            }       
+                            }
                         }
-                    }
+                    }                   
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("FillSocialPrivacySettings faild ex={0}", ex);
                 dt = null;
+            }
+        }
+
+
+        private static void FillDeafultSocialActionPrivacy(ref DataTable dt, string siteGUID, int groupId, ApiObjects.Social.SocialPrivacySettings settings, List<eUserAction> missingActions, int network = 999)
+        {
+            DataRow row;
+
+            if (missingActions != null && missingActions.Count > 0)
+            {
+                foreach (eUserAction action in missingActions)
+                {
+                    row = dt.NewRow();
+                    row["site_guid"] = siteGUID;
+                    row["group_id"] = groupId;
+                    row["action_id"] = (int)action;
+                    row["social_platform"] = network;
+                    row["external_privacy"] = 0;
+                    if (network == 999) // internal
+                    {
+                        row["internal_share"] = 0;
+                        if (action == eUserAction.WATCHES)
+                        {
+                            row["internal_share"] = (int)eSocialActionPrivacy.DONT_ALLOW;
+                        }
+                        else
+                        {
+                            row["internal_share"] = (int)eSocialActionPrivacy.ALLOW;
+                        }
+                        row["external_share"] = 0;
+
+                    }
+                    else // external 
+                    {
+                        row["internal_share"] = 0;
+                        row["external_share"] = (int)eSocialActionPrivacy.DONT_ALLOW;
+                    }
+                    dt.Rows.Add(row);
+                }
             }
         }
         
@@ -1209,7 +1251,7 @@ namespace Core.Social
         {
             SocialPrivacySettings settings = new SocialPrivacySettings();
             status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
-
+            List<eUserAction> actions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.WATCHES, eUserAction.SHARE, eUserAction.RATES };
             try
             {
                 DataTable dtSettings = m_oSocialSQL.GetSocialPrivacySettings(siteGUID, groupID);
@@ -1218,47 +1260,82 @@ namespace Core.Social
                     status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound, ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound.ToString());
                 }
                 else
-                {                   
-                    DataRow drow = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") == 999 && x.Field<int>("action_id") == 9999).FirstOrDefault();
+                {
                     int privacy = 0;
                     int socialPrivacy = 0;
-                    int network = 0;
-                    if (drow != null)
+                    //int network = 0;
+                    int action = 0;
+                    SocialActionPrivacy actionPrivecy;
+                    DataRow[] drows = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") == 999).ToArray();
+                    foreach (DataRow dr in drows)
                     {
-                        privacy = ODBCWrapper.Utils.GetIntSafeVal(drow, "internal_share");
-                        if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy))
+                        actionPrivecy = new SocialActionPrivacy();
+                        privacy = ODBCWrapper.Utils.GetIntSafeVal(dr, "internal_share");
+                        action = ODBCWrapper.Utils.GetIntSafeVal(dr, "action_id");
+
+                        if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy) && Enum.IsDefined(typeof(eUserAction), action))
                         {
-                            settings.InternalPrivacy = (eSocialActionPrivacy)privacy;
+                            actionPrivecy.Action = (eUserAction)action;
+                            actionPrivecy.Privacy = (eSocialActionPrivacy)privacy;
+                            settings.InternalPrivacy.Add(actionPrivecy);
                         }
                     }
-                    DataRow[] drows = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") != 999 && x.Field<int>("action_id") == 9999).ToArray();
-                    SocialNetwork sn;
-                    foreach (DataRow item in drows)
+                    // complete default privacy for actions 
+                    List<eUserAction> missingActions = actions.Where(a => settings.InternalPrivacy.All(i => i.Action != a)).ToList();
+                    if (missingActions != null && missingActions.Count() > 0)
                     {
+                        settings.InternalPrivacy.AddRange(SocialPrivacySettings.SetDefaultInternalPrivacy(missingActions));
+                    }
+                    settings.InternalPrivacy = settings.InternalPrivacy.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
 
-                        network = ODBCWrapper.Utils.GetIntSafeVal(item, "social_platform");
-                        privacy = ODBCWrapper.Utils.GetIntSafeVal(item, "external_share");
-                        socialPrivacy = ODBCWrapper.Utils.GetIntSafeVal(item, "external_privacy");
+                    List<int> networks = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") != 999 && x.Field<int>("social_platform") != 0).Select(x => x.Field<int>("social_platform")).Distinct().ToList();
+                    SocialNetwork sn;
+                    foreach (int network in networks)
+                    {
+                        drows = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") == network).ToArray();
                         sn = new SocialNetwork();
-                        if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy))
-                        {
-                            sn.Privacy = (eSocialActionPrivacy)privacy;
-                        }
+
                         if (Enum.IsDefined(typeof(SocialPlatform), network))
                         {
                             sn.Network = (SocialPlatform)network;
                         }
+                        socialPrivacy = ODBCWrapper.Utils.GetIntSafeVal(drows[0], "external_privacy");
+
                         if (Enum.IsDefined(typeof(eSocialPrivacy), socialPrivacy))
                         {
                             sn.SocialPrivacy = (eSocialPrivacy)socialPrivacy;
                         }
+                        sn.SocialAction = new List<SocialActionPrivacy>();
 
-                        if (settings.SocialNetworks == null)
+                        foreach (DataRow dr in drows)
                         {
-                            settings.SocialNetworks = new List<SocialNetwork>();
+                            actionPrivecy = new SocialActionPrivacy();
+                            privacy = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_share");
+                            action = ODBCWrapper.Utils.GetIntSafeVal(dr, "action_id");
+
+                            if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy) && Enum.IsDefined(typeof(eUserAction), action))
+                            {
+                                actionPrivecy.Action = (eUserAction)action;
+                                actionPrivecy.Privacy = (eSocialActionPrivacy)privacy;
+                                if (sn.SocialAction == null)
+                                {
+                                    sn.SocialAction = new List<SocialActionPrivacy>();
+                                }
+                                sn.SocialAction.Add(actionPrivecy);
+                            }
                         }
 
+                        missingActions = actions.Where(a => sn.SocialAction.All(i => i.Action != a)).ToList();
+                        if (missingActions != null && missingActions.Count() > 0)
+                        {
+                            sn.SocialAction.AddRange(SocialPrivacySettings.SetDefaultNetworkPlatformPrivacy(missingActions));
+                        }
+                        sn.SocialAction = sn.SocialAction.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
                         settings.SocialNetworks.Add(sn);
+                    }
+                    if (networks == null || networks.Count() == 0)
+                    {
+                        settings.SocialNetworks.AddRange(SocialPrivacySettings.SetDefultNetworkPrivacySettings());
                     }
                 }
             }
@@ -1270,90 +1347,6 @@ namespace Core.Social
             }
             return settings;
         }
-
-//        public override UserSocialActionResponse AddUserSocialAction(int groupID, UserSocialActionRequest actionRequest)
-//        {
-//            UserSocialActionResponse response = new UserSocialActionResponse();
-//            try
-//            {
-//                // check user is valid
-//                UserResponseObject uObj = Utils.GetUserDataByID(actionRequest.SiteGuid, groupID);         
-//                 if (uObj != null && uObj.m_RespStatus == TvinciUsers.ResponseStatus.OK)
-//            {
-               
-//                if (uObj.m_user == null || uObj.m_user.m_oBasicData == null)
-//                {
-//                    response.status =  new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.UserDoesNotExist, ApiObjects.Response.eResponseStatus.UserDoesNotExist.ToString());
-//                    return response;
-//                }
-//                 // get user social privacy settings per action 
-//                ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
-//                SocialPrivacySettings userPrivacySettings = UserSocialPrivacySettings(actionRequest.SiteGuid, groupID, out status);
-//                if (userPrivacySettings == null || status.Code == (int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound)
-//                {
-//                    // set default settings
-//                    userPrivacySettings = SocialPrivacySettings.SetDefultPrivacySettings();
-//                }
-//                SocialActivityDoc doc;
-//                     //Like / Watch / Rate – will “publish” to Friend’s activity and other platforms based on the settings for these actions
-//                switch (actionRequest.Action)
-//    {		
-//case eUserAction.LIKE:
-// #region like
-
-//                    GetUserSocialAction(actionRequest.SiteGuid, SocialPlatform.UNKNOWN , actionRequest.AssetType, actionRequest.Action, actionRequest.AssetID, out doc);
-//                    if (doc != null && doc.IsActive == true)
-//                    {
-//                        response.status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.AssetAlreadyLiked, ApiObjects.Response.eResponseStatus.AssetAlreadyLiked.ToString());
-//                    }
-//                    else
-//                    {
-//                        oFBCommand = new FBLikeExternalCommand(oUser, m_nGroupID, m_eAssetType, m_nAssetID, m_oKeyValue);
-//                        eExternalResponse = oFBCommand.Execute(out sFBObjectID, out sFBActionID);
-//                        doc = CreateSocialActivityDoc(oUser, ref sFBObjectID, ref sFBActionID);
-//                        m_oIncrementAssetLikeCounter(m_nAssetID, m_eAssetType);
-//                        eInternalResponse = m_oInsertUserSocialAction(doc, out sDbRecordId) ? SocialActionResponseStatus.OK : SocialActionResponseStatus.ERROR;
-//                        DateTime date = Utils.UnixTimeStampToDateTime(doc.CreateDate);
-//                        WriteActionToES(0, date);
-//                    }
-//                    #endregion
-// break;
-//case eUserAction.UNLIKE:
-// break;
-//case eUserAction.SHARE:
-// break;
-//case eUserAction.WATCHES:
-// break;
-//case eUserAction.RATES:
-// break;
-//default:
-// break;
-//                }
-
-//                log.Debug("External Action - " + string.Format("Response status:{0}; user={1};ObjectID={2};action={3}", oRes.m_eActionResponseStatusExtern.ToString(), uObj.m_user, sObjectID, m_eAction.ToString()));
-//                log.Debug("Internal Action - " + string.Format("Response status:{0}; user={1};ObjectID={2};actionID={3};action={4}", oRes.m_eActionResponseStatusIntern.ToString(), uObj.m_user, sObjectID, sActionID, m_eAction.ToString()));
-//            }
-//            else
-//            {
-//                oRes.m_eActionResponseStatusIntern = SocialActionResponseStatus.USER_DOES_NOT_EXIST;
-//                oRes.m_eActionResponseStatusExtern = SocialActionResponseStatus.USER_DOES_NOT_EXIST;
-//            }
-
-//                // call the right method by action if permitted 
-//                //and fill right status to response
-
-//            }
-//            catch (Exception ex)
-//            {
-//                log.ErrorFormat("AddUserSocialAction: Error while get user privacy settings . actionRequest = {0} ex = {2}", actionRequest.ToString(), ex);
-//                return response;
-//            }
-
-//            return response;
-//        }
-
-
-
 
         public override ApiObjects.Response.Status InsertUserSocialAction(SocialActivityDoc oSocialDoc, SocialPrivacySettings privacySettings, out string sDBRecordID)
         {
@@ -1371,7 +1364,8 @@ namespace Core.Social
             oSocialDoc.id = id;
             oSocialDoc.CreateDate = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
             oSocialDoc.LastUpdate = DalCB.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-            oSocialDoc.PermitSharing = (privacySettings.InternalPrivacy == eSocialActionPrivacy.DONT_ALLOW) ? false : true;
+            eSocialActionPrivacy socialActionPrivacy = privacySettings.InternalPrivacy.Where(x => (int)x.Action == oSocialDoc.ActivityVerb.ActionType).Select(x => x.Privacy).FirstOrDefault();
+            oSocialDoc.PermitSharing = (socialActionPrivacy == eSocialActionPrivacy.DONT_ALLOW) ? false : true;
 
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(oSocialDoc);
 

@@ -493,6 +493,7 @@ namespace Core.Social
         {
             SocialPrivacySettings settings = new SocialPrivacySettings();
             status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.OK, ApiObjects.Response.eResponseStatus.OK.ToString());
+            List<eUserAction> actions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.WATCHES, eUserAction.SHARE, eUserAction.RATES };
 
             try
             {
@@ -503,38 +504,64 @@ namespace Core.Social
                 }
                 else
                 {
-                    DataRow drow = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") == 999 && x.Field<int>("action_id") == 9999).FirstOrDefault();
                     int privacy = 0;
                     int socialPrivacy = 0;
-                    int network = 0;
-                    if (drow != null)
+                    //int network = 0;
+                    int action = 0;
+                    SocialActionPrivacy actionPrivecy;
+                    DataRow[] drows = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") == 999).ToArray();
+                    foreach (DataRow dr in drows)
                     {
-                        privacy = ODBCWrapper.Utils.GetIntSafeVal(drow, "internal_share");
-                        if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy))
+                        actionPrivecy = new SocialActionPrivacy();
+                        privacy = ODBCWrapper.Utils.GetIntSafeVal(dr, "internal_share");
+                        action = ODBCWrapper.Utils.GetIntSafeVal(dr, "action_id");
+
+                        if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy) && Enum.IsDefined(typeof(eUserAction), action))
                         {
-                            settings.InternalPrivacy = (eSocialActionPrivacy)privacy;
+                            actionPrivecy.Action = (eUserAction)action;
+                            actionPrivecy.Privacy = (eSocialActionPrivacy)privacy;
+                            settings.InternalPrivacy.Add(actionPrivecy);
                         }
                     }
-                    DataRow[] drows = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") != 999 && x.Field<int>("action_id") == 9999).ToArray();
-                    SocialNetwork sn;
-                    foreach (DataRow item in drows)
+                    // complete default privacy for actions 
+                    List<eUserAction> missingActions = actions.Where(a => settings.InternalPrivacy.All(i => i.Action != a)).ToList();
+                    if (missingActions != null && missingActions.Count() > 0)
                     {
+                        settings.InternalPrivacy.AddRange(SocialPrivacySettings.SetDefaultInternalPrivacy(missingActions));
+                    }
+                    settings.InternalPrivacy = settings.InternalPrivacy.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
 
-                        network = ODBCWrapper.Utils.GetIntSafeVal(item, "social_platform");
-                        privacy = ODBCWrapper.Utils.GetIntSafeVal(item, "external_share");
-                        socialPrivacy = ODBCWrapper.Utils.GetIntSafeVal(item, "external_privacy");
+                    List<int> networks = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") != 999 && x.Field<int>("social_platform") != 0).Select(x => x.Field<int>("social_platform")).Distinct().ToList();
+                    SocialNetwork sn;
+                    foreach (int network in networks)
+                    {
+                        drows = dtSettings.AsEnumerable().Where(x => x.Field<int>("social_platform") == network).ToArray();
                         sn = new SocialNetwork();
-                        if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy))
-                        {
-                            sn.Privacy = (eSocialActionPrivacy)privacy;
-                        }
+
                         if (Enum.IsDefined(typeof(SocialPlatform), network))
                         {
                             sn.Network = (SocialPlatform)network;
                         }
+                        socialPrivacy = ODBCWrapper.Utils.GetIntSafeVal(drows[0], "external_privacy");
+
                         if (Enum.IsDefined(typeof(eSocialPrivacy), socialPrivacy))
                         {
                             sn.SocialPrivacy = (eSocialPrivacy)socialPrivacy;
+                        }
+                        sn.SocialAction = new List<SocialActionPrivacy>();
+
+                        foreach (DataRow dr in drows)
+                        {
+                            actionPrivecy = new SocialActionPrivacy();
+                            privacy = ODBCWrapper.Utils.GetIntSafeVal(dr, "external_share");
+                            action = ODBCWrapper.Utils.GetIntSafeVal(dr, "action_id");
+
+                            if (Enum.IsDefined(typeof(eSocialActionPrivacy), privacy) && Enum.IsDefined(typeof(eUserAction), action))
+                            {
+                                actionPrivecy.Action = (eUserAction)action;
+                                actionPrivecy.Privacy = (eSocialActionPrivacy)privacy;
+                                sn.SocialAction.Add(actionPrivecy);
+                            }
                         }
 
                         if (settings.SocialNetworks == null)
@@ -542,7 +569,19 @@ namespace Core.Social
                             settings.SocialNetworks = new List<SocialNetwork>();
                         }
 
+                        missingActions = actions.Where(a => sn.SocialAction.All(i => i.Action != a)).ToList();
+                        if (missingActions != null && missingActions.Count() > 0)
+                        {
+                            sn.SocialAction.AddRange(SocialPrivacySettings.SetDefaultNetworkPlatformPrivacy(missingActions));
+                        }
+                        sn.SocialAction = sn.SocialAction.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
+
                         settings.SocialNetworks.Add(sn);
+                    }
+
+                    if (networks == null || networks.Count() == 0)
+                    {
+                        settings.SocialNetworks.AddRange(SocialPrivacySettings.SetDefultNetworkPrivacySettings());
                     }
                 }
             }

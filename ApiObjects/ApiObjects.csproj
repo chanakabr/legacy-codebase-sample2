@@ -402,6 +402,7 @@
     <Compile Include="Rules\RegistrySettings.cs" />
     <Compile Include="SearchObjects\SearchGroupBy.cs" />
     <Compile Include="Social\enums.cs" />
+    <Compile Include="Social\SocialActionPrivacy.cs" />
     <Compile Include="Social\SocialUserActionConfig.cs" />
     <Compile Include="Social\UserSocialActionRequest.cs" />
     <Compile Include="Social\UserSocialActionResponse.cs" />
