@@ -143,8 +143,16 @@ namespace Core.Catalog.Request
             }
             else if (assetType == eAssetTypes.NPVR)
             {
-                bool result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId,
-                    this.m_nGroupID, oMediaMarkRequest.domainId);
+                NPVR.INPVRProvider npvr;
+                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr);
+                if (result)
+                {
+                    recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+                }
+                else
+                {
+                    result = CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, ref recordingId, this.m_nGroupID, oMediaMarkRequest.domainId);
+                }
 
                 if (!result)
                 {
