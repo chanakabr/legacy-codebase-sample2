@@ -324,11 +324,45 @@ namespace Users
         public abstract UserActivationState GetUserActivationStatus(ref string sUserName, ref Int32 nUserID, ref bool isGracePeriod);
         public abstract bool SendPasswordMail(string sUN);
 
-        public virtual bool IsUserActivated(Int32 nUserID)
+        public virtual ApiObjects.Response.Status IsUserActivated(Int32 userID)
         {
-            Int32 nAS = DAL.UsersDal.IsUserActivated(m_nGroupID, nUserID);
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
-            return (nAS == 1);
+            try
+            {
+                bool isGracePeriod = false;
+                string userName = string.Empty;
+                UserActivationState userActivationState = GetUserActivationStatus(ref userName, ref userID, ref isGracePeriod);
+
+                switch (userActivationState)
+                {
+                    case UserActivationState.UserDoesNotExist:
+                        response.Code = (int)eResponseStatus.UserDoesNotExist;
+                        response.Message = "user does not exist";
+                        break;
+                    case UserActivationState.Activated:
+                        response.Code = (int)eResponseStatus.OK;
+                        response.Message = "OK";
+                        break;
+                    case UserActivationState.NotActivated:
+                        response.Code = (int)eResponseStatus.UserNotActivated;
+                        response.Message = "User not activated";
+                        break;
+                    case UserActivationState.NotActivatedByMaster:
+                    case UserActivationState.UserRemovedFromDomain:
+                    case UserActivationState.UserWIthNoDomain:
+                    case UserActivationState.UserSuspended:
+                    case UserActivationState.Error:
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, ex.Message);
+                log.ErrorFormat("IsUserActivated - Failed ex= {0}, userID={1}, groupID ={2}", ex, userID, m_nGroupID);
+            }
+            return response;
         }
 
         public abstract void Initialize();

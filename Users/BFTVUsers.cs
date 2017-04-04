@@ -42,7 +42,7 @@ namespace Users
             throw new NotImplementedException();
         }
 
-        public override bool IsUserActivated(ref string sUserName, ref Int32 nUserID)
+        public override ApiObjects.Response.Status IsUserActivated(ref string sUserName, ref Int32 nUserID)
         {
             throw new NotImplementedException();
         }
