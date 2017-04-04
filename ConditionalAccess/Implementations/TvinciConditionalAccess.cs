@@ -535,6 +535,18 @@ namespace ConditionalAccess
                     response.Status.Message = string.Format("{0} service is not allowed", eservice.ToString());
                     return response;
                 }
+                
+                int fileMainStreamingCoID = 0; // CDN Streaming id
+                int mediaId = 0;
+                string fileType = string.Empty;
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
+                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
+
+                //GetLicensedLink return empty link no need to continue
+                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new Exception("GetLicensedLinks returned empty response.");
+                }
 
                 //TODO - comment and replace
                 if (eformat == eEPGFormatType.NPVR)
@@ -554,18 +566,13 @@ namespace ConditionalAccess
                         response.mainUrl = npvrLicensedLink;
                         return response;
                     }
-                }
-                int nProgramId = Int32.Parse(sProgramId);
-                int fileMainStreamingCoID = 0; // CDN Streaming id
-                int mediaId = 0;
-                string fileType = string.Empty;
-                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, 
-                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
-                
-                //GetLicensedLink return empty link no need to continue
-                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
-                {
-                    throw new Exception("GetLicensedLinks returned empty response.");
+                    else
+                    {
+                        response.Status.Code = (int)eResponseStatus.Error;
+                        response.status = eLicensedLinkStatus.Error.ToString();
+                        response.mainUrl = string.Empty;
+                        return response;
+                    }
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
@@ -576,7 +583,7 @@ namespace ConditionalAccess
                 string sWSPass = string.Empty;
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.API, ref sWSUserName, ref sWSPass);
-
+                int nProgramId = Int32.Parse(sProgramId);
                 Scheduling scheduling = api.GetProgramSchedule(sWSUserName, sWSPass, nProgramId);
                 if (scheduling != null)
                 {
