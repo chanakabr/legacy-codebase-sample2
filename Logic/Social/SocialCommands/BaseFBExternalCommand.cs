@@ -86,7 +86,8 @@ namespace Core.Social.SocialCommands
             {
                 fbNetwork = privacySettings.SocialNetworks.Where(x => x.Network == SocialPlatform.FACEBOOK).FirstOrDefault();
                 // default value is dont_allow
-                if (fbNetwork == null || fbNetwork.Privacy == eSocialActionPrivacy.DONT_ALLOW)
+                eSocialActionPrivacy? socialActionPrivacy = fbNetwork.SocialAction.Where(x => (int)x.Action == (int)m_eUserAction).Select(x => x.Privacy).FirstOrDefault();
+                if (fbNetwork == null || !socialActionPrivacy.HasValue || socialActionPrivacy.Value == eSocialActionPrivacy.DONT_ALLOW)
                     return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.SocialActionPrivacyDontAllow, ApiObjects.Response.eResponseStatus.SocialActionPrivacyDontAllow.ToString());
             }
 

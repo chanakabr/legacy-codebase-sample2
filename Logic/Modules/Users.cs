@@ -1057,24 +1057,21 @@ namespace Core.Users
                 return null;
             }
         }
-
         
-        public static bool IsUserActivated(int nGroupID, Int32 nUserID)
+        public static ApiObjects.Response.Status IsUserActivated(int nGroupID, Int32 nUserID)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nUserID.ToString();
-
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             BaseUsers t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.IsUserActivated(nUserID);
+                response = t.IsUserActivated(nUserID);
             }
-            else
-            {
-                return false;
-            }
+
+            return response;
         }
         
         public static UserOfflineObject[] GetAllUserOfflineAssets(int nGroupID, string sSiteGuid)

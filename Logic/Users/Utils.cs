@@ -54,7 +54,7 @@ namespace Core.Users
             Credentials oCredentials = new Credentials(sWSUserName, sPass);
             Int32 nGroupID = TvinciCache.WSCredentials.GetGroupID(eWSModules.DOMAINS, oCredentials);
             if (nGroupID == 0)
-                log.Debug("WS ignored - eWSModules: eWSModules.USERS " + " UN: " + sWSUserName + " Pass: " + sPass);
+                log.Debug("WS ignored - eWSModules: eWSModules.DOMAINS " + " UN: " + sWSUserName + " Pass: " + sPass);
 
             return nGroupID;
         }
