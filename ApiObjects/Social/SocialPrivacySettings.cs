@@ -85,6 +85,37 @@ namespace ApiObjects.Social
             return socialNetwork;
         }
 
+
+        public static List<SocialActionPrivacy> SetDefaultInternalPrivacy(List<eUserAction> missingActions)
+        {
+            List<SocialActionPrivacy> internalPrivacy = new List<SocialActionPrivacy>();
+            foreach (eUserAction action in missingActions)
+            {
+                SocialActionPrivacy socialActionPrivacy = new SocialActionPrivacy()
+                {
+                    Action = action,
+                    Privacy = action == eUserAction.WATCHES ? eSocialActionPrivacy.DONT_ALLOW : eSocialActionPrivacy.ALLOW
+                };
+                internalPrivacy.Add(socialActionPrivacy);
+            }
+            return internalPrivacy;
+        }
+
+        public static List<SocialActionPrivacy> SetDefaultNetworkPlatformPrivacy(List<eUserAction> missingActions)
+        {
+            List<SocialActionPrivacy> socialNetwork = new List<SocialActionPrivacy>();
+            foreach (eUserAction action in missingActions)
+            {
+                SocialActionPrivacy socialActionPrivacy = new SocialActionPrivacy()
+                {
+                    Action = action,
+                    Privacy = eSocialActionPrivacy.DONT_ALLOW
+                };
+                socialNetwork.Add(socialActionPrivacy);
+            }
+            return socialNetwork;
+        }
+
         public override string ToString()
         {
             string res = string.Empty;
