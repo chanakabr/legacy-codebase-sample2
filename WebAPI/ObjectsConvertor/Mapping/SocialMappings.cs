@@ -780,7 +780,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
                     kapi.Action = string.Join(",", actionAllowed);
                     kapi.Network = null;
-                    ksc.PermissionItems.Add(kapi);
+                    if (actionAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
+                    {
+                        ksc.PermissionItems.Insert(0, kapi);
+                    }
+                    else
+                    {
+                        ksc.PermissionItems.Add(kapi);
+                    }
                 }
                 if (actionNotAllowed.Count() > 0)
                 {
@@ -788,6 +795,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                     kapi.Action = string.Join(",", actionNotAllowed);
                     kapi.Network = null;
+                    if (actionNotAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
+                    {
+                        ksc.PermissionItems.Insert(0, kapi);
+                    }
+                    else
+                    {
+                        ksc.PermissionItems.Add(kapi);
+                    }
                     ksc.PermissionItems.Add(kapi);
                 }
 
@@ -858,8 +873,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                                     break;
                             }
                             kapi.ActionPrivacy = KalturaSocialActionPrivacy.ALLOW;
-                            kapi.Action = string.Join(",", actionAllowed);                           
-                            ksc.PermissionItems.Add(kapi);
+                            kapi.Action = string.Join(",", actionAllowed);
+                            if (actionAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
+                            {
+                                ksc.PermissionItems.Insert(0, kapi);
+                            }
+                            else
+                            {
+                                ksc.PermissionItems.Add(kapi);
+                            }                           
                         }
 
                         if (actionNotAllowed.Count() > 0)
@@ -899,6 +921,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             }
                             kapi.ActionPrivacy = KalturaSocialActionPrivacy.DONT_ALLOW;
                             kapi.Action = string.Join(",", actionNotAllowed);
+                            if (actionNotAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
+                            {
+                                ksc.PermissionItems.Insert(0, kapi);
+                            }
+                            else
+                            {
+                                ksc.PermissionItems.Add(kapi);
+                            }        
                             ksc.PermissionItems.Add(kapi);
                         }
                     }
