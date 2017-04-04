@@ -187,26 +187,37 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int id in mediaIDs)
             {
-                if (id <= 0)
+                try
                 {
-                    log.WarnFormat("Received delete media request of invalid media id {0}", id);
-                }
-                else
-                {
-                    deleteResult = esApi.DeleteDoc(index, MEDIA, id.ToString());
-
-                    if (deleteResult != null)
+                    if (id <= 0)
                     {
-                        if (!deleteResult.Found)
+                        log.WarnFormat("Received delete media request of invalid media id {0}", id);
+                    }
+                    else
+                    {
+                        deleteResult = esApi.DeleteDoc(index, MEDIA, id.ToString());
+
+                        if (deleteResult != null)
                         {
-                            log.WarnFormat("ES Delete request: delete media with ID {0} not found", id);
-                        }
-                        else if (!deleteResult.Ok)
-                        {
-                            log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
+                            if (!deleteResult.Found)
+                            {
+                                log.WarnFormat("ES Delete request: delete media with ID {0} not found", id);
+
+                                continue;
+                            }
+
+                            if (!deleteResult.Ok)
+                            {
+                                log.Error("Error - " + String.Concat("Could not delete media from ES. Media id=", id));
+                            }
+
+                            result &= deleteResult.Ok;
                         }
                     }
-                    result &= deleteResult.Ok;
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Could not delete media from ES. Media id={0}, ex={1}", id, ex);
                 }
             }
 
