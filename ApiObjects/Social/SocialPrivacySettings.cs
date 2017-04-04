@@ -15,6 +15,7 @@ namespace ApiObjects.Social
         public SocialPrivacySettings()
         {
             InternalPrivacy = new List<SocialActionPrivacy>();
+            SocialNetworks = new List<SocialNetwork>();
         }
 
         public static SocialPrivacySettings SetDefultPrivacySettings()
@@ -57,8 +58,9 @@ namespace ApiObjects.Social
         
         private static List<SocialActionPrivacy> SetDefaultInternalPrivacy()
         {
+            List<eUserAction> actions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.WATCHES, eUserAction.SHARE, eUserAction.RATES };
             List<SocialActionPrivacy> internalPrivacy = new List<SocialActionPrivacy>();
-            foreach (eUserAction action in Enum.GetValues(typeof(eUserAction)))
+            foreach (eUserAction action in actions)
             {
                 SocialActionPrivacy socialActionPrivacy = new SocialActionPrivacy()
                 {
@@ -66,14 +68,16 @@ namespace ApiObjects.Social
                     Privacy = action == eUserAction.WATCHES ? eSocialActionPrivacy.DONT_ALLOW : eSocialActionPrivacy.ALLOW
                 };
                 internalPrivacy.Add(socialActionPrivacy);
-            }            
+            }
+            internalPrivacy = internalPrivacy.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
             return internalPrivacy;
         }
 
         private static List<SocialActionPrivacy> SetDefaultNetworkPlatformPrivacy()
         {
+            List<eUserAction> actions = new List<eUserAction>() { eUserAction.LIKE, eUserAction.WATCHES, eUserAction.SHARE, eUserAction.RATES };
             List<SocialActionPrivacy> socialNetwork = new List<SocialActionPrivacy>();
-            foreach (eUserAction action in Enum.GetValues(typeof(eUserAction)))
+            foreach (eUserAction action in actions)
             {
                 SocialActionPrivacy socialActionPrivacy = new SocialActionPrivacy()
                 {
@@ -82,6 +86,8 @@ namespace ApiObjects.Social
                 };
                 socialNetwork.Add(socialActionPrivacy);
             }
+
+            socialNetwork = socialNetwork.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
             return socialNetwork;
         }
 
@@ -98,6 +104,7 @@ namespace ApiObjects.Social
                 };
                 internalPrivacy.Add(socialActionPrivacy);
             }
+            internalPrivacy = internalPrivacy.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
             return internalPrivacy;
         }
 
@@ -113,7 +120,26 @@ namespace ApiObjects.Social
                 };
                 socialNetwork.Add(socialActionPrivacy);
             }
+            socialNetwork = socialNetwork.OrderByDescending(x => x.Action == eUserAction.WATCHES).ThenBy(x => x.Action != eUserAction.WATCHES).ToList();
             return socialNetwork;
+        }
+
+        public static List<SocialNetwork> SetDefultNetworkPrivacySettings()
+        {
+            List<SocialNetwork> SocialNetworks = new List<SocialNetwork>();
+            foreach (SocialPlatform platform in Enum.GetValues(typeof(SocialPlatform)))
+            {
+                SocialNetworks.Add(
+                     new SocialNetwork
+                     {
+                         Network = platform,
+                         SocialAction = SetDefaultNetworkPlatformPrivacy(),
+                         SocialPrivacy = eSocialPrivacy.SELF
+                     }
+                     );
+            }
+
+            return SocialNetworks;
         }
 
         public override string ToString()
