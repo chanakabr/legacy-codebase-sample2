@@ -44,18 +44,17 @@ namespace WebAPI.Models.Social
         /// </summary>
         [DataMember(Name = "action")]
         [JsonProperty("action")]
-        [XmlElement(ElementName = "action")]
+        [XmlElement(ElementName = "action", IsNullable = true)]
         [SchemeProperty(DynamicType = typeof(KalturaSocialActionType))]
         public string Action { get; set; }
 
 
         public List<KalturaSocialActionType> SocialAction()
         {
-            List<KalturaSocialActionType> socialActionsList = null;
+            List<KalturaSocialActionType> socialActionsList = new List<KalturaSocialActionType>();
             if (!string.IsNullOrEmpty(this.Action))
             {
-                string[] socialActions = this.Action.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                socialActionsList = new List<KalturaSocialActionType>();
+                string[] socialActions = this.Action.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);                
                 foreach (string action in socialActions)
                 {
                     KalturaSocialActionType socialActionType;
