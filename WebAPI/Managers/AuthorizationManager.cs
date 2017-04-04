@@ -116,6 +116,18 @@ namespace WebAPI.Managers
             // get group configurations
             Group group = GetGroupConfiguration(groupId);
 
+            // validate user is active
+            bool isUserActivated = false;
+            try
+            {
+                isUserActivated = ClientsManager.UsersClient().IsUserActivated(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                log.ErrorFormat("GenerateSession: error while getting user. userId = {0}, exception = {1}", userId, ex);
+                ErrorUtils.HandleClientException(ex);
+            }
+
             // generate access token and refresh token pair
             ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin);
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);

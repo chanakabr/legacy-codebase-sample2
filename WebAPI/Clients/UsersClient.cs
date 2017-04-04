@@ -1,5 +1,9 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using AutoMapper;
+using Core.Users;
 using KLogMonitor;
+using ObjectsConvertor.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -11,15 +15,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
-using ObjectsConvertor.Mapping;
-using ApiObjects;
-using ApiObjects.Response;
-using Core.Users;
 
 
 namespace WebAPI.Clients
@@ -1197,5 +1193,38 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Code, response.Message);
             }            
         }
+
+        internal bool IsUserActivated(int groupId, string userId)
+        {
+            ApiObjects.Response.Status response = null;
+
+            int userIdntifier = 0;
+            int.TryParse(userId, out userIdntifier);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.IsUserActivated(groupId, userIdntifier);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
     }
 }
