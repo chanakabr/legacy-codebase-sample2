@@ -802,8 +802,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     else
                     {
                         ksc.PermissionItems.Add(kapi);
-                    }
-                    ksc.PermissionItems.Add(kapi);
+                    }                    
                 }
 
 
@@ -929,7 +928,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             {
                                 ksc.PermissionItems.Add(kapi);
                             }        
-                            ksc.PermissionItems.Add(kapi);
                         }
                     }
                 }
