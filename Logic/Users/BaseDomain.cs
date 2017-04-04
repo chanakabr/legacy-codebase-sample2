@@ -876,11 +876,14 @@ namespace Core.Users
                 return result;
             }
 
+            domain.shouldUpdateSuspendStatus = true;
+            domain.nextSuspensionStatus = DomainSuspentionStatus.Suspended;
+            
             // suspend domain
-            bool SuspendSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.Suspended);
+            bool suspendSucceed = domain.Update();
 
             // remove from cache
-            if (SuspendSucceed)
+            if (suspendSucceed)
             {
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
@@ -893,7 +896,7 @@ namespace Core.Users
             }
 
             // update result
-            if (SuspendSucceed)
+            if (suspendSucceed)
             {
                 result.Code = (int)eResponseStatus.OK;
             }
@@ -928,11 +931,14 @@ namespace Core.Users
                 return result;
             }
 
+            domain.shouldUpdateSuspendStatus = true;
+            domain.nextSuspensionStatus = DomainSuspentionStatus.OK;
+
             // resume domain
-            bool ResumeSucceed = DAL.DomainDal.ChangeSuspendDomainStatus(nDomainID, m_nGroupID, DomainSuspentionStatus.OK);
+            bool resumeSucceed = domain.Update();
 
             // remove from cache
-            if (ResumeSucceed)
+            if (resumeSucceed)
             {
                 // Remove Domain
                 oDomainCache.RemoveDomain(nDomainID);
@@ -945,7 +951,7 @@ namespace Core.Users
             }
 
             // update result
-            if (ResumeSucceed)
+            if (resumeSucceed)
                 result.Code = (int)eResponseStatus.OK;
             else
             {

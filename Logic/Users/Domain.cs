@@ -140,6 +140,29 @@ namespace Core.Users
         [JsonIgnore()]
         private DomainResponseStatus removeResponse;
 
+        [XmlIgnore]
+        [JsonIgnore()]
+        public bool shouldUpdateInfo
+        {
+            get;
+            set;
+        }
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        public DomainSuspentionStatus nextSuspensionStatus
+        {
+            get;
+            set;
+        }
+
+        [XmlIgnore]
+        [JsonIgnore()]
+        public bool shouldUpdateSuspendStatus
+        {
+            get;
+            set;
+        }
 
         public Domain()
         {
@@ -2748,19 +2771,33 @@ namespace Core.Users
 
         protected override bool DoUpdate()
         {
-            bool dbRes = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
+            bool result = true;
 
-            if (!dbRes)
+            if (shouldUpdateInfo)
             {
-                m_DomainStatus = DomainStatus.Error;
-            }
-            else
-            {
-                DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain(m_nDomainID);
+                bool updateInfoResult = DomainDal.UpdateDomain(m_sName, m_sDescription, m_nDomainID, m_nGroupID, (int)m_DomainRestriction);
+
+                if (!updateInfoResult)
+                {
+                    m_DomainStatus = DomainStatus.Error;
+                }
+                else
+                {
+                    DomainsCache oDomainCache = DomainsCache.Instance();
+                    oDomainCache.RemoveDomain(m_nDomainID);
+                }
+
+                result &= updateInfoResult;
             }
 
-            return dbRes;
+            if (shouldUpdateSuspendStatus)
+            {
+                bool suspendUpdateSuccess = DAL.DomainDal.ChangeSuspendDomainStatus(m_nDomainID, m_nGroupID, nextSuspensionStatus);
+
+                result &= suspendUpdateSuccess;
+            }
+
+            return result;
         }
 
         protected override bool DoDelete()
