@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ApiObjects.Response;
+using System;
 using System.Linq;
-using System.Text;
-using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers;
-using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Catalog;
-using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -98,6 +93,7 @@ namespace WebAPI.Controllers
         [Route("switchUser"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotActivated)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
             KS ks = KS.GetFromRequest();

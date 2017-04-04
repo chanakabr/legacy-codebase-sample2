@@ -1241,23 +1241,23 @@ namespace WS_Users
         }
 
         [WebMethod]
-        public virtual bool IsUserActivated(string sWSUserName, string sWSPassword, Int32 nUserID)
+        public virtual ApiObjects.Response.Status IsUserActivated(string sWSUserName, string sWSPassword, Int32 userId)
+
         {
             // add siteguid to logs/monitor
-            HttpContext.Current.Items[Constants.USER_ID] = nUserID.ToString();
-
+            HttpContext.Current.Items[Constants.USER_ID] = userId.ToString();
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
-            {
-                return Core.Users.Module.IsUserActivated(nGroupID, nUserID);
-            }
+                response = Core.Users.Module.IsUserActivated(nGroupID, userId);
             else
             {
                 HttpContext.Current.Response.StatusCode = 404;
-                return false;
             }
+
+            return response;
         }
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(UserOfflineObject))]
