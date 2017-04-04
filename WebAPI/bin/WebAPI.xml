@@ -8321,6 +8321,11 @@
             Social privacy
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Social.KalturaActionPermissionItem.Action">
+            <summary>
+            Action - separated with comma
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocial.ID">
             <summary>
             Facebook identifier

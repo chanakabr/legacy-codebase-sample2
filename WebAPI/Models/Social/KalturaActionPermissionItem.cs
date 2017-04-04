@@ -33,10 +33,40 @@ namespace WebAPI.Models.Social
         /// <summary>
         /// Social privacy
         /// </summary>
-        [DataMember(Name = "privacy")]
+        [DataMember(Name = "privacy")] 
         [JsonProperty("privacy")]
         [XmlElement(ElementName = "privacy")]
         [SchemeProperty()]
         public KalturaSocialPrivacy Privacy { get; set; }
+
+        /// <summary>
+        /// Action - separated with comma
+        /// </summary>
+        [DataMember(Name = "action")]
+        [JsonProperty("action")]
+        [XmlElement(ElementName = "action")]
+        [SchemeProperty(DynamicType = typeof(KalturaSocialActionType))]
+        public string Action { get; set; }
+
+
+        public List<KalturaSocialActionType> SocialAction()
+        {
+            List<KalturaSocialActionType> socialActionsList = null;
+            if (!string.IsNullOrEmpty(this.Action))
+            {
+                string[] socialActions = this.Action.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                socialActionsList = new List<KalturaSocialActionType>();
+                foreach (string action in socialActions)
+                {
+                    KalturaSocialActionType socialActionType;
+                    if (Enum.TryParse<KalturaSocialActionType>(action.ToUpper(), out socialActionType))
+                    {
+                        socialActionsList.Add(socialActionType);
+                    }
+                }
+            }
+
+            return socialActionsList;
+        }
     }
 }
