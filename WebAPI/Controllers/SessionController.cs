@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,6 +98,7 @@ namespace WebAPI.Controllers
         /// <param name="userIdToSwitch">The identifier of the user to change</param>
         [Route("switchUser"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserNotActivated)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {

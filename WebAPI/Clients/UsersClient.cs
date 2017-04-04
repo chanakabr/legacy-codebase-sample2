@@ -1206,5 +1206,39 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Code, response.Message);
             }            
         }
+
+        internal bool IsUserActivated(int groupId, string userId)
+        {
+            ApiObjects.Response.Status response = null;
+
+            Group group = GroupsManager.GetGroup(groupId);
+            
+            int userIdntifier = 0;
+            int.TryParse(userId, out userIdntifier);
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Users.IsUserActivated(group.UsersCredentials.Username, group.UsersCredentials.Password, userIdntifier);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
     }
 }
