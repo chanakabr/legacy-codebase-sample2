@@ -500,7 +500,7 @@ namespace Core.Social
                 DataTable dtSettings = SocialSQL.GetSocialPrivacySettings(siteGUID, groupID);
                 if (dtSettings == null || dtSettings.Rows == null || dtSettings.Rows.Count == 0)
                 {
-                    status = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound, ApiObjects.Response.eResponseStatus.NoUserSocialSettingsFound.ToString());
+                    settings = SocialPrivacySettings.SetDefultPrivacySettings();
                 }
                 else
                 {
