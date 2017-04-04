@@ -353,6 +353,7 @@
     <Compile Include="Rules\PurchaseSettingsResponse.cs" />
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
+    <Compile Include="Social\SocialActionPrivacy.cs" />
     <Compile Include="Social\UserSocialActionRequest.cs" />
     <Compile Include="Social\UserSocialActionResponse.cs" />
     <Compile Include="Social\ActionPermissionItem.cs" />
