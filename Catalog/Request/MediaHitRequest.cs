@@ -123,7 +123,8 @@ namespace Catalog.Request
 
             if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR)
             {
-                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID);
+                NPVR.INPVRProvider npvr;
+                bool result = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvr);
                 if (result)
                 {
                     recordingId = long.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
