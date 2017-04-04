@@ -746,6 +746,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         {
             KalturaSocialUserConfig ksc = new KalturaSocialUserConfig();
             KalturaActionPermissionItem kapi = new KalturaActionPermissionItem();
+            int watchPosition = 0;
             if (socialPrivacySettings != null)
             {
                 ksc.PermissionItems = new List<KalturaActionPermissionItem>();
@@ -782,7 +783,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     kapi.Network = null;
                     if (actionAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
                     {
-                        ksc.PermissionItems.Insert(0, kapi);
+                        ksc.PermissionItems.Insert(watchPosition, kapi);
+                        watchPosition++;
                     }
                     else
                     {
@@ -797,13 +799,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     kapi.Network = null;
                     if (actionNotAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
                     {
-                        ksc.PermissionItems.Insert(0, kapi);
+                        ksc.PermissionItems.Insert(watchPosition, kapi);
+                        watchPosition++;
                     }
                     else
                     {
                         ksc.PermissionItems.Add(kapi);
                     }                    
-                }
+                };
 
 
                 if (socialPrivacySettings.SocialNetworks != null)
@@ -875,7 +878,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             kapi.Action = string.Join(",", actionAllowed);
                             if (actionAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
                             {
-                                ksc.PermissionItems.Insert(0, kapi);
+                                ksc.PermissionItems.Insert(watchPosition, kapi);
+                                watchPosition++;
                             }
                             else
                             {
@@ -922,7 +926,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             kapi.Action = string.Join(",", actionNotAllowed);
                             if (actionNotAllowed.Contains(KalturaSocialActionType.WATCH.ToString()))
                             {
-                                ksc.PermissionItems.Insert(0, kapi);
+                                ksc.PermissionItems.Insert(watchPosition, kapi);
+                                watchPosition++;
                             }
                             else
                             {
