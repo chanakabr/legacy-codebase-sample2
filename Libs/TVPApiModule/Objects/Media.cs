@@ -269,7 +269,10 @@ namespace TVPApi
                 MediaTypeID = row.MediaTypeID;
             }
 
-            MediaName = row.Title;
+            if (!row.IsNameNull())
+            {
+                MediaName = row.Title;
+            }
 
             if (!row.IsMediaTypeNull())
             {
