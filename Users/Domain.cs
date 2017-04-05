@@ -353,7 +353,7 @@ namespace Users
                 }
 
                 INPVRProvider npvr;
-                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr))
+                if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(m_nGroupID, out npvr) && npvr.SynchronizeNpvrWithDomain)
                 {
                     try
                     {

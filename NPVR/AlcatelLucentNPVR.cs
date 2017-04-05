@@ -83,9 +83,12 @@ namespace NPVR
 
         private int groupID;
 
-        public AlcatelLucentNPVR(int groupID)
+        public bool SynchronizeNpvrWithDomain { get; set; }
+
+        public AlcatelLucentNPVR(int groupID, bool synchronizeNpvrWithDomain)
         {
             this.groupID = groupID;
+            SynchronizeNpvrWithDomain = synchronizeNpvrWithDomain;
         }
 
         private bool IsCreateOrUpdateInputValid(NPVRParamsObj args)

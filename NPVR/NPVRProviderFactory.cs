@@ -40,16 +40,18 @@ namespace NPVR
             return instance;
         }
 
-        private NPVRProvider GetGroupNPVRImpl(int groupID)
+        private NPVRProvider GetGroupNPVRImpl(int groupID, out bool synchronizeNpvrWithDomain)
         {
             NPVRProvider provider = NPVRProvider.None;
+            synchronizeNpvrWithDomain = false;
+
             if (!groupsToNPVRImplMapping.ContainsKey(groupID))
             {
                 lock (dictMutex)
                 {
                     if (!groupsToNPVRImplMapping.ContainsKey(groupID))
-                    {
-                        int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID);
+                    {                        
+                        int npvrProviderID = UtilsDal.Get_NPVRProviderID(groupID, out synchronizeNpvrWithDomain);
                         if (Enum.IsDefined(typeof(NPVRProvider), npvrProviderID))
                         {
                             provider = (NPVRProvider)npvrProviderID;
@@ -84,13 +86,14 @@ namespace NPVR
         public INPVRProvider GetProvider(int groupID)
         {
             INPVRProvider res = null;
-            NPVRProvider provider = GetGroupNPVRImpl(groupID);
+            bool synchronizeNpvrWithDomain = false;
+            NPVRProvider provider = GetGroupNPVRImpl(groupID, out synchronizeNpvrWithDomain);
             switch (provider)
             {
                 case NPVRProvider.None:
                     break;
                 case NPVRProvider.AlcatelLucent:
-                    res = new AlcatelLucentNPVR(groupID);
+                    res = new AlcatelLucentNPVR(groupID, synchronizeNpvrWithDomain);
                     break;
                 case NPVRProvider.Kaltura:
                 // fall through
@@ -102,5 +105,6 @@ namespace NPVR
 
             return res;
         }
+
     }
 }

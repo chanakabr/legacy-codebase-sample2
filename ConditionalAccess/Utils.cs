@@ -6841,7 +6841,7 @@ namespace ConditionalAccess
             log.DebugFormat("Subscription with NPVR service, Quota: {0}", npvrObject.Quota);
 
             INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr))
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr) && npvr.SynchronizeNpvrWithDomain)
             {
                 try
                 {

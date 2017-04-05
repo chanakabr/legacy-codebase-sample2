@@ -8,6 +8,9 @@ namespace NPVR
 {
     public interface INPVRProvider
     {
+
+        bool SynchronizeNpvrWithDomain { get; set; }
+
         NPVRUserActionResponse CreateAccount(NPVRParamsObj args);
 
         NPVRUserActionResponse DeleteAccount(NPVRParamsObj args);
