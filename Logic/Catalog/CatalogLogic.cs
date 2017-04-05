@@ -874,7 +874,15 @@ namespace Core.Catalog
                         oMediaObj.CoGuid = Utils.GetStrSafeVal(dtMedia.Rows[0], "CO_GUID");
 
                         oMediaObj.Name = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "NAME");
+                        if (oMediaObj.Name != null && oMediaObj.Name.Length > 0)
+                        {
+                            oMediaObj.m_sName = oMediaObj.Name[0].m_sValue;
+                        }
                         oMediaObj.Description = GetMediaLanguageContainer(dtMedia.Rows[0], mediaMetas, groupLanguages, "DESCRIPTION");
+                        if (oMediaObj.Description != null && oMediaObj.Description.Length > 0)
+                        {
+                            oMediaObj.m_sDescription = oMediaObj.Description[0].m_sValue;
+                        }
 
                         oMediaObj.m_oMediaType = new MediaType();
                         oMediaObj.m_oMediaType.m_nTypeID = Utils.GetIntSafeVal(dtMedia.Rows[0], "MEDIA_TYPE_ID");
