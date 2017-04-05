@@ -12,6 +12,7 @@ using KLogMonitor;
 using System.Reflection;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using CachingProvider.LayeredCache;
 
 
 namespace NPVR
@@ -366,7 +367,7 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
@@ -838,8 +839,8 @@ namespace NPVR
                                     urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.AssetID));
                                 }
                                 break;
-                            case SearchByField.byChannelId:
-                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), args.EpgChannelID));
+                            case SearchByField.byChannelId:                                
+                                urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
                                 break;
                             case SearchByField.byProgramId:
                                 urlParams.Add(new KeyValuePair<string, string>(sbf.ToString(), ConvertToMultipleURLParams(args.EpgProgramIDs, false)));
@@ -918,7 +919,6 @@ namespace NPVR
 
                 }
 
-
                 foreach (EntryJSON entry in aluResponse.entries)
                 {
                     RecordedEPGChannelProgrammeObject obj = new RecordedEPGChannelProgrammeObject();
@@ -927,8 +927,8 @@ namespace NPVR
                     obj.ChannelName = entry.ChannelName;
                     obj.DESCRIPTION = entry.Description;
                     obj.START_DATE = GetStartTime(entry);
-                    obj.END_DATE = GetEndTime(entry);
-                    obj.EPG_CHANNEL_ID = entry.ChannelID;
+                    obj.END_DATE = GetEndTime(entry);                    
+                    obj.EPG_CHANNEL_ID = ConvertExternalIDToEpgChannelId(entry.ChannelID);
                     obj.EPG_ID = 0;
                     obj.EPG_IDENTIFIER = entry.ProgramID;
                     obj.EPG_Meta = new List<EPGDictionary>();
@@ -1225,10 +1225,11 @@ namespace NPVR
                 if (IsRecordAssetInputValid(args))
                 {
                     List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>(5);
+                    
                     urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "2.0"));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_PROGRAM_ID_URL_PARAM, args.AssetID));
-                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, args.EpgChannelID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_CHANNEL_ID_URL_PARAM, ConvertEpgChannelIdToExternalID(args.EpgChannelID)));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_START_TIME_URL_PARAM, TVinciShared.DateUtils.DateTimeToUnixTimestampMilliseconds(args.StartDate).ToString()));
 
                     string url = BuildRestCommand(ALU_ADD_BY_PROGRAM_COMMAND, ALU_ENDPOINT_SEASON, urlParams);
@@ -1566,7 +1567,7 @@ namespace NPVR
             foreach (SeriesEntryJSON entry in responseJson.Entries)
             {
                 RecordedSeriesObject obj = new RecordedSeriesObject();
-                obj.epgChannelID = entry.ChannelID;
+                obj.epgChannelID = ConvertExternalIDToEpgChannelId(entry.ChannelID);
                 obj.recordingID = entry.RecordingID;
                 obj.seriesID = entry.SeriesID;
                 obj.seriesName = entry.SeriesName;
@@ -1767,6 +1768,101 @@ namespace NPVR
                     throw;
                 }
             }
+        }
+
+        private string ConvertEpgChannelIdToExternalID(string epgChannelId)
+        {
+            string cdvrId = string.Empty;
+            try
+            {
+                string key = LayeredCacheKeys.GetEpgChannelExternalIdKey(groupID, epgChannelId);                
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<string>(key, ref cdvrId, GetExternalIdByEpgChannelId, new Dictionary<string, object>() { { "groupId", groupID },
+                                                                    { "epgChannelId", epgChannelId } }, groupID, LayeredCacheConfigNames.GET_EPG_CHANNEL_CDVR_ID);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail in ConvertEpgChannelIdToExternalID epgChannelId={0}, ex={1}", epgChannelId, ex);
+            }
+            return string.IsNullOrEmpty(cdvrId) ? epgChannelId : cdvrId ;
+        }
+
+        private string ConvertExternalIDToEpgChannelId(string cdvrId)
+        {
+            int epgChannelId = 0;
+            try
+            {
+                string key = LayeredCacheKeys.GetExternalIdEpgChannelKey(groupID, cdvrId);
+                // try to get from cache            
+                bool cacheResult = LayeredCache.Instance.Get<int>(key, ref epgChannelId, GetEpgChannelIdByExternalId, new Dictionary<string, object>() { { "groupId", groupID },
+                                                                    { "cdvrId", cdvrId } }, groupID, LayeredCacheConfigNames.GET_EPG_CHANNEL_CDVR_ID);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail in ConvertEpgChannelIdToExternalID epgChannelId={0}, ex={1}", epgChannelId, ex);
+            }
+            return epgChannelId > 0 ? epgChannelId.ToString() : cdvrId;
+        }
+
+
+        private Tuple<string, bool> GetExternalIdByEpgChannelId(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            string response = string.Empty;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("epgChannelId") && !string.IsNullOrEmpty(funcParams.ContainsKey("epgChannelId").ToString()))
+                    {
+                        int? epgChannelId;
+                        epgChannelId = funcParams["epgChannelId"] as int?;
+
+                        if (epgChannelId.HasValue)
+                        {
+                            response = DAL.ConditionalAccessDAL.GetExternalIdByEpgChannel(epgChannelId.Value);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetExternalIdByEpgChannelId failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<string, bool>(response, res);
+        }
+
+        private Tuple<int, bool> GetEpgChannelIdByExternalId(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            int response = 0;
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2)
+                {
+                    if (funcParams.ContainsKey("groupId") && funcParams.ContainsKey("cdvrId"))
+                    {
+                        int? groupId;
+                        string cdvrId = string.Empty;
+                        groupId = funcParams["groupId"] as int?;
+                        cdvrId = funcParams["cdvrId"].ToString();
+
+                        if (groupId.HasValue && !string.IsNullOrEmpty(cdvrId))
+                        {
+                            response = DAL.ConditionalAccessDAL.GetEpgChannelByExternalId(groupId.Value, cdvrId);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetEpgChannelIdByExternalId failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+            return new Tuple<int, bool>(response, res);
         }
     }
 }

@@ -30,6 +30,7 @@ namespace CachingProvider.LayeredCache
         public const string EPG_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME = "EpgParentalRules";
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
+        public const string GET_EPG_CHANNEL_CDVR_ID = "GetEpgChannelCdvrId";
 
         #endregion
 

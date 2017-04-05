@@ -2766,5 +2766,37 @@ namespace DAL
 
             return deviceName;
         }
+
+        public static string GetExternalIdByEpgChannel(int epgChannelId)
+        {
+            string cdvrId = string.Empty;
+            StoredProcedure sp = new StoredProcedure("GetExternalIdByEpgChannelId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@EpgChannelId", epgChannelId);
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                cdvrId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CDVR_ID");
+            }
+
+            return cdvrId;
+        }
+
+        public static int GetEpgChannelByExternalId(int groupId, string cdvrId)
+        {
+            int epgChannelId = 0;
+            StoredProcedure sp = new StoredProcedure("GetEpgChannelIdByExternalId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@CdvrId", cdvrId);
+
+            DataTable dt = sp.Execute();
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                epgChannelId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
+            }
+
+            return epgChannelId;
+        }
     }
 }
