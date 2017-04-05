@@ -100,6 +100,8 @@ namespace Core.Users
                 domain.m_sName = sDomainName;
                 domain.m_sDescription = sDomainDescription;
 
+                domain.shouldUpdateInfo = true;
+
                 if (domain.Update() && domain.m_DomainStatus == DomainStatus.OK)
                 {
                     res = new DomainResponseObject(domain, DomainResponseStatus.OK);
