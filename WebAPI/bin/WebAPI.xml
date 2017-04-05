@@ -1218,6 +1218,11 @@
             Indicates whether the user is currently in his grace period entitlement (only for subscription)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.UserId">
+            <summary>
+            The Identifier of the purchasing user
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
             <summary>
             Compensation request parameters
