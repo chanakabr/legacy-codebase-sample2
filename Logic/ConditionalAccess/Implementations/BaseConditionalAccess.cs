@@ -9707,6 +9707,7 @@ namespace Core.ConditionalAccess
                                                 Id = ppvPurchaseId,
                                                 startDate = createDate,
                                                 endDate = endDate,
+                                                entitlementDate = createDate,
                                                 billingTransactionId = billingTransactionId,
                                                 billingGuid = billingGuid
 											};
@@ -9733,7 +9734,8 @@ namespace Core.ConditionalAccess
 												endDate = endDate,
 												startDate = createDate,
 												billingTransactionId = billingTransactionId,
-												billingGuid = billingGuid
+												billingGuid = billingGuid,
+                                                entitlementDate = createDate
 											};
 
 											dalResult = subscriptionPurchase.Delete();
