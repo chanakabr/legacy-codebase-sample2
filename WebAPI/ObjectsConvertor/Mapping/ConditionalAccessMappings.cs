@@ -95,7 +95,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                ;
             Mapper.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
-               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.contentId))
+               //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
                 //.ForMember(dest => dest.CurrentUses, opt => opt.MapFrom(src => src.currentUses))
                //.ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.currentDate)))
@@ -109,7 +109,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
                //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
                //.ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.mediaFileID)))
-               .ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.contentId)))
+               .ForMember(dest => dest.MediaFileId, opt => opt.MapFrom(src => GetNullableInt(src.contentId)))
+               //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumOfViews))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                ;
