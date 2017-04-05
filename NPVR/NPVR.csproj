@@ -93,6 +93,10 @@
       <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
       <Name>ApiObjects</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CachingProvider\CachingProvider.csproj">
+      <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
+      <Name>CachingProvider</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>

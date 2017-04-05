@@ -199,5 +199,14 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("PricingSettings_groupId_{0}", groupId);
         }
+
+        public static string GetEpgChannelExternalIdKey(int groupId, string epgChannelId)
+        {
+            return string.Format("epgChannelExternalId_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
+        }
+        public static string GetExternalIdEpgChannelKey(int groupId, string cdvrId)
+        {
+            return string.Format("ExternalIdEpgChannel_groupId_{0}_cdvrId_{1}", groupId, cdvrId);
+        }
     }
 }
