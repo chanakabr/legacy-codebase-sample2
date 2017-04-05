@@ -45,7 +45,7 @@ public partial class adm_cdvr_adapter_settings_new : System.Web.UI.Page
                     string sIP = "1.1.1.1";
                     string sWSUserName = "";
                     string sWSPass = "";
-                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendCDVRAdapterConfiguration", "cas", sIP, ref sWSUserName, ref sWSPass);
+                    TVinciShared.WS_Utils.GetWSUNPass(LoginManager.GetLoginGroupID(), "SendCDVRAdapterConfiguration", "conditionalaccess", sIP, ref sWSUserName, ref sWSPass);
                     string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("conditionalaccess_ws");
                     if (!string.IsNullOrEmpty(sWSURL))
                         cas.Url = sWSURL;
