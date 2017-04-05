@@ -4166,20 +4166,24 @@ namespace DAL
 
         public static DataTable GetLanguages(int groupId, List<string> languageCodes)
         {
+            bool isLanguageCodesExists = languageCodes != null && languageCodes.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLanguages");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@LanguageCodes", languageCodes != null && languageCodes.Count > 0 ? languageCodes : null, "STR");
+            sp.AddParameter("@GroupId", groupId);            
+            sp.AddIDListParameter("@LanguageCodes", isLanguageCodesExists ? languageCodes : null, "STR");
+            sp.AddParameter("@IsLanguageCodesExists", isLanguageCodesExists ? 1 : 0);
 
             return sp.Execute();
         }
 
         public static DataTable GetCurrencies(int groupId, List<string> currencyCodes)
         {
+            bool isCurrencyCodesExists = currencyCodes != null && currencyCodes.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCurrencies");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@CurrencyCodes", currencyCodes != null && currencyCodes.Count > 0 ? currencyCodes : null, "STR");
+            sp.AddParameter("@IsCurrencyCodesExists", isCurrencyCodesExists ? 1 : 0);
 
             return sp.Execute();
         }
