@@ -107,6 +107,40 @@ namespace WebAPI.Models.Notification
         [JsonProperty("pushAdapterUrl")]
         [XmlElement(ElementName = "pushAdapterUrl", IsNullable = true)]
         public string PushAdapterUrl { get; set; }
+
+        /// <summary>
+        /// Churn mail template name
+        /// </summary>
+        [DataMember(Name = "churnMailTemplateName")]
+        [JsonProperty("churnMailTemplateName")]
+        [XmlElement(ElementName = "churnMailTemplateName", IsNullable = true)]
+        public string ChurnMailTemplateName { get; set; }
+
+        /// <summary>
+        /// Churn mail subject
+        /// </summary>
+        [DataMember(Name = "churnMailSubject")]
+        [JsonProperty("churnMailSubject")]
+        [XmlElement(ElementName = "churnMailSubject", IsNullable = true)]
+        public string ChurnMailSubject { get; set; }
+
+
+        /// <summary>
+        /// Sender email
+        /// </summary>
+        [DataMember(Name = "senderEmail")]
+        [JsonProperty("senderEmail")]
+        [XmlElement(ElementName = "senderEmail", IsNullable = true)]
+        public string SenderEmail { get; set; }
+
+
+        /// <summary>
+        /// Mail sender name
+        /// </summary>
+        [DataMember(Name = "mailSenderName")]
+        [JsonProperty("mailSenderName")]
+        [XmlElement(ElementName = "mailSenderName", IsNullable = true)]
+        public string MailSenderName { get; set; }
     }
 
     [Obsolete]
