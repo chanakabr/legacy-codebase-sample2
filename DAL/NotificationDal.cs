@@ -692,6 +692,31 @@ namespace DAL
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
             }
 
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
+            }
+
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
+            }
+
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
+            }
+
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
+            }
+
+            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
+            {
+                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
+            }
+
             return sp.ExecuteReturnValue<bool>();
         }
 
