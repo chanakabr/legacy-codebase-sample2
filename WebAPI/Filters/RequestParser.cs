@@ -998,8 +998,8 @@ namespace WebAPI.Filters
                 }
                 else
                 {
-                    list.Add((dynamic)item);
-                    //list.Add((dynamic)Convert.ChangeType(item, itemType));
+                    //list.Add((dynamic)item);
+                    list.Add((dynamic)Convert.ChangeType(item, itemType));
                 }
             }
 
