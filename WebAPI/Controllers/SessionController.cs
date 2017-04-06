@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [SchemeArgument("session", RequiresPermission = true)]
-        
+
         public KalturaSession Get(string session = null)
         {
             KS ks;
@@ -102,6 +102,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaLoginSession SwitchUser(string userIdToSwitch)
         {
+            KalturaLoginSession loginSession = null;
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
 
@@ -123,8 +124,9 @@ namespace WebAPI.Controllers
 
             string udid = KSUtils.ExtractKSPayload().UDID;
 
+            loginSession = AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
             AuthorizationManager.LogOut(ks);
-            return AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
+            return loginSession;
         }
 
         /// <summary>
