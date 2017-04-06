@@ -3311,13 +3311,12 @@ namespace ConditionalAccess
                 DateTime mediaStartDate, mediaFileStartDate;
                 DateTime mediaEndDate, mediaFileEndDate;
                 DateTime mediaFinalEndDate;
-                DateTime dbCurrentDate;
+                DateTime dbCurrentDate = DateTime.UtcNow;
 
                 if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dtMediaFiles.Rows)
-                    {
-                        dbCurrentDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "dbCurrentDate");
+                    {                        
                         //media
                         mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
                         mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
