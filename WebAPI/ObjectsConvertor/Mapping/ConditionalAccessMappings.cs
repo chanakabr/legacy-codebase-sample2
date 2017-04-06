@@ -122,7 +122,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
-               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.contentId))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ppvCode))
                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
                ;
