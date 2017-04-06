@@ -639,15 +639,7 @@ namespace Core.Users
                 long roleId;
                 if (long.TryParse(Utils.GetTcmConfigValue("user_role_id"), out roleId))
                 {
-                    if (DAL.UsersDal.Insert_UserRole(this.GroupId, m_sSiteGUID, roleId, true) > 0)
-                    {
-                        // add invalidation key for user roles cache
-                        string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(m_sSiteGUID);
-                        if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {
-                            log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
-                        }
-                    }
+                    DAL.UsersDal.Insert_UserRole(this.GroupId, m_sSiteGUID, roleId, true);
                 }
                 else
                 {
