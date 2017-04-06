@@ -4379,6 +4379,7 @@ namespace Tvinci.Core.DAL
         }
 
 
+
         /*Get all metas and tags for EPGs by groupID And it's mapping in the xml file*/
         public static List<FieldTypeEntity> GetAliasMappingFields(int groupID)
         {
@@ -4423,6 +4424,29 @@ namespace Tvinci.Core.DAL
                 aliasMapping = null;
             }
             return aliasMapping;
+        }
+
+        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
+        {
+            DataTable dt = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_ValidateMediaFiles");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                sp.AddParameter("@groupId", groupId);
+                dt = sp.Execute();
+
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+            }
+            return dt;
         }
     }
 }
