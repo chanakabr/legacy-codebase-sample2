@@ -679,21 +679,6 @@ namespace DAL
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
 
-            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-
-            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-
-            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-
-            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-
-            if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-                sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-
             if (!string.IsNullOrEmpty(settings.SenderEmail))
                 sp.AddParameter("@senderEmail", settings.SenderEmail);
 
