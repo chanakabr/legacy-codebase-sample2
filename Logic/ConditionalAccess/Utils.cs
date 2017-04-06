@@ -6499,7 +6499,7 @@ namespace Core.ConditionalAccess
             NpvrServiceObject npvrObject = (NpvrServiceObject)subscription.m_lServices.Where(x => x.ID == (int)eService.NPVR).FirstOrDefault();
             
             INPVRProvider npvr;
-            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr))
+            if (NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(groupId, out npvr) && npvr.SynchronizeNpvrWithDomain)
             {
                 log.DebugFormat("Subscription with NPVR service, Quota: {0}, Create={1}", npvrObject.Quota, isCreate);
                 NPVRUserActionResponse userActionResponse = new NPVRUserActionResponse();

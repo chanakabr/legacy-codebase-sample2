@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F4946ECD-BD5B-4ADB-8057-840767297FA6}</ProjectGuid>
+    <ProjectGuid>{190501C5-91F6-489D-BC5A-2D80E7AB179F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SSOKdgImplementation</RootNamespace>
-    <AssemblyName>SSOKdgImplementation</AssemblyName>
+    <RootNamespace>Kaltura</RootNamespace>
+    <AssemblyName>Kaltura</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,14 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KLogMonitor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\4.5\KLogMonitor.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,24 +37,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="TCMClient, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\tvincicommon\External\TCMClient.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ApiObjects\ApiObjects.csproj">
-      <Project>{6e476ad6-433c-4345-a26d-0e34bc03d9a9}</Project>
-      <Name>ApiObjects</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\tvmcore\DAL\DAL.csproj">
-      <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
-      <Name>DAL</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Logic\ApiLogic.csproj">
       <Project>{27c6f3ed-b660-466a-9415-de2d43e58ff0}</Project>
       <Name>ApiLogic</Name>
