@@ -251,6 +251,7 @@ namespace Core.ConditionalAccess
             DateTime dtSubEndDate = Utils.CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
             int maxNumberOfViews = bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0;
             int viewLifeCycle = bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0;
+            double price = bIsEntitledToPreviewModule ? 0.0 : dPrice;
 
             SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
             {
@@ -267,7 +268,7 @@ namespace Core.ConditionalAccess
                  languageCode = sLanguageCode,
                  maxNumberOfViews = maxNumberOfViews,
                  previewModuleId = lPreviewModuleID,
-                 price = dPrice,
+                 price = price,
                  productId = sSubscriptionCode,
                  siteGuid = sSiteGUID,
                  startDate = dtUtcNow,
