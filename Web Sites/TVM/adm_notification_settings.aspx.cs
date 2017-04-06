@@ -153,6 +153,22 @@ public partial class adm_notification_settings : System.Web.UI.Page
             pushAdapterUrl.Initialize("Push adapter URL", "adm_table_header_nbg", "FormInput", "push_adapter_url", false);
             theRecord.AddRecord(pushAdapterUrl);
 
+            DataRecordShortTextField shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Churn mail template name", "adm_table_header_nbg", "FormInput", "churn_mail_template_name", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Churn mail subject", "adm_table_header_nbg", "FormInput", "churn_mail_subject", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Sender email", "adm_table_header_nbg", "FormInput", "sender_email", false);
+            theRecord.AddRecord(shortTextField);
+
+            shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+            shortTextField.Initialize("Mail sender name", "adm_table_header_nbg", "FormInput", "mail_sender_name", false);
+            theRecord.AddRecord(shortTextField);
+
             sTable = theRecord.GetTableHTML("adm_notification_settings.aspx?submited=1");
         }
         return sTable;
