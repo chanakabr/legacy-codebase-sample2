@@ -7772,7 +7772,7 @@ namespace ConditionalAccess
 
                 // get details about files + media (validity about files)    
                 Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles, ref mediaFilesProductCode);
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(nMediaFiles, ref mediaFilesProductCode, m_nGroupID);
 
                 //return - MediaAdObject is NotFiniteNumberException validMediaFiles for purchase                    
                 List<MediaFileItemPricesContainer> tempRet = new List<MediaFileItemPricesContainer>();

@@ -4240,5 +4240,29 @@ namespace Tvinci.Core.DAL
             return cdvrId;
         }
 
+        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
+        {
+            DataTable dt = null;
+            try
+            {
+                StoredProcedure sp = new StoredProcedure("Get_ValidateMediaFiles");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                sp.AddParameter("@groupId", groupId);
+                dt = sp.Execute();
+
+                if (dt == null)
+                {
+                    dt = new DataTable();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+            }
+            return dt;
+        }
+
+
     }
 }
