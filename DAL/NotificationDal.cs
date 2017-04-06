@@ -644,78 +644,67 @@ namespace DAL
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@groupID", groupID);
+
             if (settings.IsPushNotificationEnabled.HasValue)
-            {
                 sp.AddParameter("@push_notification_enabled", settings.IsPushNotificationEnabled.Value);
-            }
+
             if (settings.IsPushSystemAnnouncementsEnabled.HasValue)
-            {
                 sp.AddParameter("@push_system_announcements_enabled", settings.IsPushSystemAnnouncementsEnabled.Value);
-            }
+
             sp.AddParameter("@date", DateTime.UtcNow);
             if (settings.PushStartHour.HasValue)
-            {
                 sp.AddParameter("@pushStartHour", settings.PushStartHour.Value);
-            }
+
             if (settings.PushEndHour.HasValue)
-            {
                 sp.AddParameter("@pushEndHour", settings.PushEndHour.Value);
-            }
+
             if (settings.IsInboxEnabled.HasValue)
-            {
                 sp.AddParameter("@isInboxEnabled", settings.IsInboxEnabled.Value);
-            }
+
             if (settings.MessageTTLDays.HasValue)
-            {
                 sp.AddParameter("@messageTTL", settings.MessageTTLDays.Value);
-            }
+
             if (settings.AutomaticIssueFollowNotifications.HasValue)
-            {
                 sp.AddParameter("@automaticSending", settings.AutomaticIssueFollowNotifications.Value);
-            }
+
             if (settings.TopicExpirationDurationDays.HasValue)
-            {
                 sp.AddParameter("@topicCleanupExpirationDays", settings.TopicExpirationDurationDays.Value);
-            }
 
             if (settings.IsRemindersEnabled.HasValue)
-            {
                 sp.AddParameter("@isRemindersEnabled", settings.IsRemindersEnabled.Value);
-            }
+
             if (settings.RemindersPrePaddingSec.HasValue)
-            {
                 sp.AddParameter("@remindersPrePaddingSec", settings.RemindersPrePaddingSec.Value);
-            }
 
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-            {
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-            }
 
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-            {
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-            }
 
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-            {
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-            }
 
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-            {
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-            }
 
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-            {
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-            }
 
             if (!string.IsNullOrEmpty(settings.PushAdapterUrl))
-            {
                 sp.AddParameter("@pushAdapterUrl", settings.PushAdapterUrl);
-            }
+
+            if (!string.IsNullOrEmpty(settings.SenderEmail))
+                sp.AddParameter("@senderEmail", settings.SenderEmail);
+
+            if (!string.IsNullOrEmpty(settings.MailSenderName))
+                sp.AddParameter("@mailSenderName", settings.MailSenderName);
+
+            if (!string.IsNullOrEmpty(settings.ChurnMailSubject))
+                sp.AddParameter("@churnMailSubject", settings.ChurnMailSubject);
+
+            if (!string.IsNullOrEmpty(settings.ChurnMailTemplateName))
+                sp.AddParameter("@churnMailTemplateName", settings.ChurnMailTemplateName);
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -756,7 +745,11 @@ namespace DAL
                         TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_cleanup_expiration_days"),
                         IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
                         RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec"),
-                        PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url")
+                        PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url"),
+                        ChurnMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_subject"),
+                        ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
+                        MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
+                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email")
                     });
                 }
             }
