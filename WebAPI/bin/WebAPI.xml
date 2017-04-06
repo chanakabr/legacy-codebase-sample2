@@ -1223,6 +1223,11 @@
             The Identifier of the purchasing user
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.HouseholdId">
+            <summary>
+            The Identifier of the purchasing household
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
             <summary>
             Compensation request parameters
@@ -1281,6 +1286,36 @@
         <member name="P:WebAPI.Models.ConditionalAccess.KalturaFairPlayPlaybackPluginData.Certificate">
             <summary>
             Custom data string
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation">
+            <summary>
+            Cancellation of a user's entitlement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.Id">
+             <summary>
+            Purchase identifier
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.Type">
+             <summary>
+            Entitlement type
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.ProductId">
+             <summary>
+            Product Id (Media File ID, Subscription ID)
+             </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.UserId">
+            <summary>
+            The Identifier of the purchasing user
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlementCancellation.HouseholdId">
+            <summary>
+            The Identifier of the purchasing household
             </summary>
         </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaNpvrPremiumService">
