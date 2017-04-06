@@ -2002,6 +2002,13 @@ namespace Users
                     UsersCache usersCache = UsersCache.Instance();
                     usersCache.RemoveUser(userId, m_nGroupID);
 
+                    // add invalidation key for user roles cache
+                    string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetAddRoleInvalidationKey(userId.ToString());
+                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                    }
+
                     return response;
                 }
             }
