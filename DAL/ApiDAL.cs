@@ -4058,14 +4058,13 @@ namespace DAL
 
         public static DataSet GetLifeCycleRules(int groupId = 0, List<long> ruleIds = null, bool shouldGetOnlyActive = true)
         {
+            bool isRuleIdsExists = ruleIds != null && ruleIds.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetAllLifeCycleRules");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            if (groupId > 0 && ruleIds != null && ruleIds.Count > 0)
-            {
-                sp.AddParameter("@GroupId", groupId);
-                sp.AddIDListParameter("@RuleIds", ruleIds, "id");
-                sp.AddParameter("@ShouldGetOnlyActive", shouldGetOnlyActive ? 1 : 0);
-            }
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@RuleIds", isRuleIdsExists ? ruleIds : new List<long>(), "id");
+            sp.AddParameter("@IsRuleIdsExists", isRuleIdsExists ? 1 : 0);
+            sp.AddParameter("@ShouldGetOnlyActive", shouldGetOnlyActive ? 1 : 0);
 
             return sp.ExecuteDataSet();
         }
@@ -4166,20 +4165,24 @@ namespace DAL
 
         public static DataTable GetLanguages(int groupId, List<string> languageCodes)
         {
+            bool isLanguageCodesExists = languageCodes != null && languageCodes.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetLanguages");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddIDListParameter("@LanguageCodes", languageCodes != null && languageCodes.Count > 0 ? languageCodes : null, "STR");
+            sp.AddParameter("@GroupId", groupId);            
+            sp.AddIDListParameter("@LanguageCodes", isLanguageCodesExists ? languageCodes : null, "STR");
+            sp.AddParameter("@IsLanguageCodesExists", isLanguageCodesExists ? 1 : 0);
 
             return sp.Execute();
         }
 
         public static DataTable GetCurrencies(int groupId, List<string> currencyCodes)
         {
+            bool isCurrencyCodesExists = currencyCodes != null && currencyCodes.Count > 0;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetCurrencies");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@CurrencyCodes", currencyCodes != null && currencyCodes.Count > 0 ? currencyCodes : null, "STR");
+            sp.AddParameter("@IsCurrencyCodesExists", isCurrencyCodesExists ? 1 : 0);
 
             return sp.Execute();
         }

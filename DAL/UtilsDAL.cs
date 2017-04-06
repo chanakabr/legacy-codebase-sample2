@@ -669,9 +669,10 @@ namespace DAL
         }
         #endregion
 
-        public static int Get_NPVRProviderID(long groupID)
+        public static int Get_NPVRProviderID(long groupID, out bool synchronizeNpvrWithDomain)
         {
             int res = 0;
+            synchronizeNpvrWithDomain = false;
             StoredProcedure sp = new StoredProcedure("Get_NPVRProviderID");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@ParentGroupID", groupID);
@@ -683,6 +684,7 @@ namespace DAL
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     res = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["npvr_provider_id"]);
+                    synchronizeNpvrWithDomain = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["synchronize_npvr_with_domain"]) == 0 ? false : true;
                 }
             }
 

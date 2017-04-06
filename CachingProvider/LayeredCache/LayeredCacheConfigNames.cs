@@ -36,7 +36,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME = "GetAllCurrencies";
         public const string GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME = "GetGroupDefaultCurrency";
         public const string GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME = "GetGroupAdsControl";
-
+        public const string GET_EPG_CHANNEL_CDVR_ID = "GetEpgChannelCdvrId";
 
         #endregion
 
