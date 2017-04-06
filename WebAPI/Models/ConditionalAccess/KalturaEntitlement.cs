@@ -224,5 +224,14 @@ namespace WebAPI.Models.ConditionalAccess
         [Obsolete]
         public bool? IsInGracePeriod { get; set; }
 
+        /// <summary>
+        /// The Identifier of the purchasing user
+        /// </summary>
+        [DataMember(Name = "userId")]
+        [JsonProperty("userId")]
+        [XmlElement(ElementName = "userId")]
+        [SchemeProperty(ReadOnly = true)]
+        public string UserId { get; set; }
+
     }
 }

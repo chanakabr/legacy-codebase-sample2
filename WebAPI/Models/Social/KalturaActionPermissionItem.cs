@@ -53,7 +53,7 @@ namespace WebAPI.Models.Social
             List<KalturaSocialActionType> socialActionsList = new List<KalturaSocialActionType>();
             if (!string.IsNullOrEmpty(this.Action))
             {
-                string[] socialActions = this.Action.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);                
+                string[] socialActions = this.Action.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string action in socialActions)
                 {
                     KalturaSocialActionType socialActionType;
@@ -62,6 +62,10 @@ namespace WebAPI.Models.Social
                         socialActionsList.Add(socialActionType);
                     }
                 }
+            }
+            else // fill in with all actions 
+            {
+                socialActionsList.AddRange(Enum.GetValues(typeof(KalturaSocialActionType)).Cast<KalturaSocialActionType>().ToList());
             }
 
             return socialActionsList;

@@ -73,6 +73,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
               //.ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
               //.ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
+              .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
               ;
 
 
@@ -113,6 +114,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => GetNullableInt(src.)))
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumOfViews))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                ;
 
             Mapper.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
