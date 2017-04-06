@@ -19,9 +19,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("mediaId_{0}_userTypeId_{1}", mediaID, userTypeID);
         }
 
-        public static string GetFileAndMediaBasicDetailsKey(int fileID)
+        public static string GetFileAndMediaBasicDetailsKey(int fileID, int groupId)
         {
-            return string.Format("validate_fileId_{0}", fileID);
+            return string.Format("validate_fileId_groupId_{0}_{1}", fileID, groupId);
         }
 
         public static string GetFileCoGuidKey(string coGuid)

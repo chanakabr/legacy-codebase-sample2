@@ -3069,7 +3069,7 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles)
+        public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
         {
             DataTable dt = null;
             try
@@ -3077,6 +3077,7 @@ namespace Tvinci.Core.DAL
                 StoredProcedure sp = new StoredProcedure("Get_ValidateMediaFiles");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddIDListParameter<int>("@mediaFiles", mediaFiles.ToList(), "id");
+                sp.AddParameter("@groupId", groupId);
                 dt = sp.Execute();
 
                 if (dt == null)

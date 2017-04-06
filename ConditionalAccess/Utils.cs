@@ -3195,17 +3195,20 @@ namespace ConditionalAccess
         internal static Tuple<Dictionary<string, DataTable>, bool> Get_FileAndMediaBasicDetails(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, DataTable> result = new Dictionary<string, DataTable>();            
+            Dictionary<string, DataTable> result = new Dictionary<string, DataTable>();
             try
             {
-                if (funcParams.ContainsKey("fileIDs"))
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("fileIDs") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
                     int[] fileIDs;
+
+                    int? groupId = funcParams["groupId"] as int?;
                     fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
-                    if (fileIDs != null)
+
+                    if (fileIDs != null && groupId.HasValue)
                     {
-                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs);
+                        DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs, groupId.Value);
                         if (dt != null && dt.Rows != null)
                         {
                             DataTable tempDt;
@@ -3223,13 +3226,13 @@ namespace ConditionalAccess
                             DataTable tempDt = dt != null ? dt.Clone() : new DataTable();
                             foreach (int missingKey in missingKeys)
                             {
-                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey), tempDt);
+                                result.Add(LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(missingKey, groupId.Value), tempDt);
                             }
                         }
-                    } 
+                    }
                     res = result.Keys.Count() == fileIDs.Count();
 
-                    result = result.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key)), x => x.Value);
+                    result = result.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(int.Parse(x.Key), groupId.Value), x => x.Value);
                 }
             }
             catch (Exception ex)
@@ -3262,12 +3265,12 @@ namespace ConditionalAccess
 
                 // get basic file details from cach / DB                 
                 Dictionary<string, DataTable> fileDatatables = null;
-                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x)).ToList();
+                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x, groupId)).ToList();
 
                 // try to get from cache            
                 bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails,new Dictionary<string, object>() { { "fileIDs", nMediaFiles } },
                                                                                 groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
-
+                
                 int mediaFileID;
                 int mediaIsActive = 0, mediaFileIsActive = 0;
                 int mediaStatus = 0, mediaFileStatus = 0;
@@ -3277,6 +3280,32 @@ namespace ConditionalAccess
 
                 if (cacheResult && fileDatatables != null)
                 {
+                    // get the media_file_id from key
+                    // find keys not exsits in result
+                    List<string> missingKeys = fileDatatables.Where(kvp => kvp.Value == null || kvp.Value.Rows == null || kvp.Value.Rows.Count == 0).Select(kvp => kvp.Key).ToList();
+                    if (missingKeys != null && missingKeys.Count > 0)
+                    {
+                        foreach (string missKey in missingKeys)
+                        {
+                            //todo
+                            int mf = 0;
+                            string[] missKeyArray = missKey.Replace("validate_fileId_groupId_", "").Split('_');
+                            if (missKeyArray != null && missKeyArray.Count() > 0)
+                            {
+                                mf = int.Parse(missKeyArray[0]);
+                            }
+
+                            if (mediaFilesStatus.ContainsKey(mf))
+                            {
+                                mediaFilesStatus[mf] = MediaFileStatus.NotForPurchase;
+                            }
+                            else
+                            {
+                                mediaFilesStatus.Add(mf, MediaFileStatus.NotForPurchase);
+                            }
+                        }
+                    }
+              
                     foreach (DataTable dt in fileDatatables.Values)
                     {
                         if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
