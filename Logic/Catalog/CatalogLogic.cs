@@ -320,7 +320,9 @@ namespace Core.Catalog
                 string sEndDate = string.Empty;
                 bool bOnlyActiveMedia = true;
                 bool bUseStartDate = true;
-                List<int> languages = new List<int>();
+                List<int> languagesIds = new List<int>();
+                List<LanguageObj> languages = new List<LanguageObj>();
+                LanguageObj language = null;
 
                 sEndDate = ProtocolsFuncs.GetFinalEndDateField(true);
 
@@ -328,16 +330,36 @@ namespace Core.Catalog
                 {
                     bOnlyActiveMedia = filter.m_bOnlyActiveMedia;
                     bUseStartDate = filter.m_bUseStartDate;
-                    languages.Add(filter.m_nLanguage);
-                }
 
-                foreach (var languageId in group.GetLangauges().Select(x => x.ID))
+                    if (filter.m_nLanguage == 0)
+                    {
+                        languages = group.GetLangauges();
+                    }
+                    else
+                    {
+                        // Getting the language  from the filter request 
+                        language = group.GetLanguage(filter.m_nLanguage);
+
+                        // in case no language was found - throw Exception
+                        if (language == null)
+                            throw new Exception(string.Format("Error while getting language: {0} for group: {1}", filter.m_nLanguage, groupId));
+                        else
+                            languages.Add(language);
+                    }
+                }
+                else
                 {
-                    if (!languages.Contains(languageId))
-                        languages.Add(languageId);
+                    // in case no language was found - return default language
+                    languages.Add(group.GetGroupDefaultLanguage());
                 }
 
-                DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languages, sEndDate, bUseStartDate);
+                foreach (var languageId in languages.Select(x => x.ID))
+                {
+                    if (!languagesIds.Contains(languageId))
+                        languagesIds.Add(languageId);
+                }
+
+                DataSet ds = CatalogDAL.Get_MediaDetailsWithLanguages(groupId, nMedia, bOnlyActiveMedia, languagesIds, sEndDate, bUseStartDate);
 
                 if (ds == null)
                     return null;
@@ -2917,8 +2939,6 @@ namespace Core.Catalog
                     }
                 }
             }
-
-
         }
 
 
@@ -2950,19 +2970,26 @@ namespace Core.Catalog
 
             if (pRequest.m_oFilter != null)
             {
-                // Getting the language  from the filter request 
-                language = group.GetLanguage(pRequest.m_oFilter.m_nLanguage);
-
-                // in case no language was found - return all groups' languages                
-                if (language == null)
+                if (pRequest.m_oFilter.m_nLanguage == 0)
+                {
                     languages = group.GetLangauges();
+                }
                 else
-                    languages.Add(language);
+                {
+                    // Getting the language  from the filter request 
+                    language = group.GetLanguage(pRequest.m_oFilter.m_nLanguage);
+
+                    // in case no language was found - throw Exception
+                    if (language == null)
+                        throw new Exception(string.Format("Error while getting language: {0} for group: {1}", pRequest.m_oFilter.m_nLanguage, pRequest.m_nGroupID));
+                    else
+                        languages.Add(language);
+                }
             }
             else
             {
-                // in case no language was found - return all groups' languages                
-                languages = group.GetLangauges();
+                // in case no language was found - return defalut language
+                languages.Add(group.GetGroupDefaultLanguage());
             }
 
             epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
@@ -3365,19 +3392,26 @@ namespace Core.Catalog
 
             if (filter != null)
             {
-                // Getting the language  from the filter request 
-                language = group.GetLanguage(filter.m_nLanguage);
-
-                // in case no language was found - return all groups' languages                
-                if (language == null)
+                if (filter.m_nLanguage == 0)
+                {
                     languages = group.GetLangauges();
+                }
                 else
-                    languages.Add(language);
+                {
+                    // Getting the language  from the filter request 
+                    language = group.GetLanguage(filter.m_nLanguage);
+
+                    // in case no language was found - throw Exception
+                    if (language == null)
+                        throw new Exception(string.Format("Error while getting language: {0} for group: {1}", filter.m_nLanguage, groupId));
+                    else
+                        languages.Add(language);
+                }
             }
             else
             {
-                // in case no language was found - return all groups' languages                
-                languages = group.GetLangauges();
+                // in case no language was found - return default language
+                languages.Add(group.GetGroupDefaultLanguage());
             }
 
             epgBL = EpgBL.Utils.GetInstance(groupId);
