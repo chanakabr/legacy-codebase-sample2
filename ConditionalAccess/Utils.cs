@@ -3298,9 +3298,8 @@ namespace ConditionalAccess
                 int mediaIsActive = 0, mediaFileIsActive = 0;
                 int mediaStatus = 0, mediaFileStatus = 0;
                 DateTime mediaStartDate, mediaFileStartDate;
-                DateTime mediaEndDate, mediaFileEndDate;
-                DateTime mediaFinalEndDate;
-                DateTime dbCurrentDate = DateTime.UtcNow;
+                DateTime? mediaEndDate, mediaFileEndDate, mediaFinalEndDate;                
+                DateTime currentDate = DateTime.UtcNow;
 
                 if (dtMediaFiles != null && dtMediaFiles.Rows != null && dtMediaFiles.Rows.Count > 0)
                 {
@@ -3310,15 +3309,15 @@ namespace ConditionalAccess
                         mediaIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_is_active");
                         mediaStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_status");
                         mediaStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_start_date");
-                        mediaEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_end_date");
-                        mediaFinalEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "media_final_end_date");
+                        mediaEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_end_date");
+                        mediaFinalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "media_final_end_date");
 
                         //mediaFiles
                         mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dr, "media_file_id");
                         mediaFileIsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_is_active");
                         mediaFileStatus = ODBCWrapper.Utils.GetIntSafeVal(dr, "file_status");
                         mediaFileStartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_start_date");
-                        mediaFileEndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "file_end_date");
+                        mediaFileEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "file_end_date");
                         productCode = ODBCWrapper.Utils.GetSafeStr(dr, "Product_Code");
 
                         if (!mediaFilesProductCode.ContainsKey(mediaFileID))
@@ -3334,15 +3333,16 @@ namespace ConditionalAccess
                         {
                             eMediaFileStatus = MediaFileStatus.NotForPurchase;
                         }
-                        else if (mediaStartDate > dbCurrentDate || mediaFileStartDate > dbCurrentDate)
+                        else if (mediaStartDate > currentDate || mediaFileStartDate > currentDate)
                         {
                             eMediaFileStatus = MediaFileStatus.NotForPurchase;
                         }
-                        else if (mediaFinalEndDate < dbCurrentDate || mediaFileEndDate < dbCurrentDate)
+                        else if ((mediaFinalEndDate.HasValue && mediaFinalEndDate.Value < currentDate) || (mediaFileEndDate.HasValue && mediaFileEndDate.Value < currentDate))
                         {
                             eMediaFileStatus = MediaFileStatus.NotForPurchase;
                         }
-                        else if (mediaEndDate < dbCurrentDate && mediaFinalEndDate > dbCurrentDate) // cun see only if purchased
+                        else if ((mediaEndDate.HasValue && mediaEndDate.Value < currentDate) && 
+                                (!mediaFinalEndDate.HasValue || (mediaFinalEndDate.HasValue && mediaFinalEndDate.Value > currentDate))) // can see only if purchased
                         {
                             eMediaFileStatus = MediaFileStatus.ValidOnlyIfPurchase;
                         }
