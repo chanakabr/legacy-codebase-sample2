@@ -19,6 +19,12 @@ namespace Core.ConditionalAccess.Modules
 
         public DateTime entitlementDate { get; set; }
 
+        public string ppvCode
+        {
+            get;
+            set;
+        }
+
         public override eTransactionType type
         {
             get

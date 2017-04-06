@@ -9582,7 +9582,7 @@ namespace Core.ConditionalAccess
 
 			WriteToUserLog(sSiteGuid, sb.ToString());
 		}
-
+        
 		/// <summary>
 		/// Immediately cancel a household service 
 		/// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
@@ -9697,6 +9697,7 @@ namespace Core.ConditionalAccess
                                             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
                                             DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
                                             long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
+                                            string ppvCode = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "assetCode");
 
 											PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
 											{
@@ -9709,7 +9710,8 @@ namespace Core.ConditionalAccess
                                                 endDate = endDate,
                                                 entitlementDate = createDate,
                                                 billingTransactionId = billingTransactionId,
-                                                billingGuid = billingGuid
+                                                billingGuid = billingGuid,
+                                                ppvCode = ppvCode
 											};
 
 											dalResult = ppvPurchase.Delete();
