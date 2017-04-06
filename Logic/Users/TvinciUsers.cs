@@ -2049,6 +2049,17 @@ namespace Core.Users
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "Users not found");
                     return response;
                 }
+                
+                // check if user not activated
+                int userIdentifierToChange = 0;
+                int.TryParse(userIdToChange, out userIdentifierToChange);
+                var userActivatedStatus = IsUserActivated(userIdentifierToChange);
+                if (userActivatedStatus == null || userActivatedStatus.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("ChangeUsers: users not activated  - {0},{1}", userId, userIdToChange);
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserNotActivated, "Users not activated");
+                    return response;
+                }
 
                 int initialDomaId = initialUserObj.m_user.m_domianID;
                 int newDomainId = newUserObj.m_user.m_domianID;
