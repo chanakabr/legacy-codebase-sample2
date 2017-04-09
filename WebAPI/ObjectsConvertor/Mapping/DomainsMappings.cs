@@ -107,7 +107,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ConvertDeviceStatus(src.ActivataionStatus)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.DomainId))
                 .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.DeviceBrandId))
-                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.ActivatedOn)));
+                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.ActivatedOn)))
+                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
+            ;
         }
         private static KalturaHouseholdState ConvertDomainStatus(DomainStatus type)
         {
