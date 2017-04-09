@@ -17758,8 +17758,6 @@ namespace ConditionalAccess
                     recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
                 }
 
-                // get current utc epoch
-                long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
                 // get first batch
                 int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
                 Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
