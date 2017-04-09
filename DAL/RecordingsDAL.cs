@@ -409,7 +409,7 @@ namespace DAL
             return isProtected;
         }
 
-        public static Dictionary<long, KeyValuePair<int, Recording>> GetRecordingsForCleanup(long utcNowEpoch)
+        public static Dictionary<long, KeyValuePair<int, Recording>> GetRecordingsForCleanup()
         {
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
