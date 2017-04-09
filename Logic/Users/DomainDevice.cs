@@ -11,7 +11,6 @@ namespace Core.Users
 {
     public class DomainDevice : CoreObject
     {
-
         public int DomainId { get; set; }
 
         public int DeviceId { get; set; }
@@ -27,6 +26,12 @@ namespace Core.Users
         public int DeviceBrandId { get; set; }
 
         public DateTime ActivatedOn { get; set; }
+
+        public long DeviceFamilyId
+        {
+            get;
+            set;
+        }
 
         protected override bool DoInsert()
         {
