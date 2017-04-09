@@ -59,7 +59,7 @@ namespace Core.ConditionalAccess
         private static readonly string BASIC_LINK_HASH = "!--hash--";
         private static readonly string BASIC_LINK_GROUP = "!--group--";
         private static readonly string BASIC_LINK_CONFIG_DATA = "!--config_data--";
-        private static readonly int RECOVERY_GRACE_PERIOD = 10;
+        private static readonly int RECOVERY_GRACE_PERIOD = 864000;
 
 
         static public void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
