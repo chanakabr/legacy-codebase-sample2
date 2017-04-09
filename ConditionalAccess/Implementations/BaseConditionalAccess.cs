@@ -15846,6 +15846,13 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                if (!IsServiceAllowed((int)domainId, eService.NPVR))
+                {
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainId, userId, eService.NPVR.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, "Service not allowed");
+                    return response;
+                }
+
                 MediaFileItemPricesContainer price = null;
                 bool isItemPurchased = false;
                 // validate entitlements if needed 
