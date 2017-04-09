@@ -13835,12 +13835,10 @@ namespace Core.ConditionalAccess
 					recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
 				}
 
-				// get current utc epoch
-				long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
 				// get first batch
 				int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
 				Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
-				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
+				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
 				HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
 				while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
 				{
@@ -13882,7 +13880,7 @@ namespace Core.ConditionalAccess
 
 					totalRecordingsDeleted += deletedRecordingIds.Count;
 
-					recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
+					recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
 					recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
 				}
 
