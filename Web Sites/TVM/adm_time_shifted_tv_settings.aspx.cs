@@ -243,7 +243,7 @@ public partial class adm_time_shifted_tv_settings : System.Web.UI.Page
 
         DataRecordShortIntField dr_gracePeriod = new DataRecordShortIntField(true, 9, 9, 1);
         dr_gracePeriod.setMulFactor(24 * 60 * 60);
-        dr_gracePeriod.Initialize("Grace Period", "adm_table_header_nbg", "FormInput", "recovery_grace_period_seconds", false);
+        dr_gracePeriod.Initialize("Recovery Grace Period (days)", "adm_table_header_nbg", "FormInput", "recovery_grace_period_seconds", false);
         dr_gracePeriod.SetDefault(10);
         theRecord.AddRecord(dr_gracePeriod);
 
