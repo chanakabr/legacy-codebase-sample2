@@ -154,11 +154,11 @@ public partial class adm_notification_settings : System.Web.UI.Page
             theRecord.AddRecord(pushAdapterUrl);
 
             DataRecordShortTextField shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
-            shortTextField.Initialize("Churn mail template name", "adm_table_header_nbg", "FormInput", "churn_mail_template_name", false);
+            shortTextField.Initialize("Engagement mail template name", "adm_table_header_nbg", "FormInput", "engagement_mail_template_name", false);
             theRecord.AddRecord(shortTextField);
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
-            shortTextField.Initialize("Churn mail subject", "adm_table_header_nbg", "FormInput", "churn_mail_subject", false);
+            shortTextField.Initialize("Engagement mail subject", "adm_table_header_nbg", "FormInput", "engagement_mail_subject", false);
             theRecord.AddRecord(shortTextField);
 
             shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
