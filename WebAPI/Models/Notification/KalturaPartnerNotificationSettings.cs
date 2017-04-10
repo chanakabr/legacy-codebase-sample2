@@ -109,20 +109,20 @@ namespace WebAPI.Models.Notification
         public string PushAdapterUrl { get; set; }
 
         /// <summary>
-        /// Churn mail template name
+        /// Engagement mail template name
         /// </summary>
-        [DataMember(Name = "churnMailTemplateName")]
-        [JsonProperty("churnMailTemplateName")]
-        [XmlElement(ElementName = "churnMailTemplateName", IsNullable = true)]
-        public string ChurnMailTemplateName { get; set; }
+        [DataMember(Name = "engagementMailTemplateName")]
+        [JsonProperty("engagementMailTemplateName")]
+        [XmlElement(ElementName = "engagementMailTemplateName", IsNullable = true)]
+        public string EngagementMailTemplateName { get; set; }
 
         /// <summary>
-        /// Churn mail subject
+        /// Engagement mail subject
         /// </summary>
-        [DataMember(Name = "churnMailSubject")]
-        [JsonProperty("churnMailSubject")]
-        [XmlElement(ElementName = "churnMailSubject", IsNullable = true)]
-        public string ChurnMailSubject { get; set; }
+        [DataMember(Name = "engagementMailSubjectMailSubject")]
+        [JsonProperty("engagementMailSubjectMailSubject")]
+        [XmlElement(ElementName = "engagementMailSubjectMailSubject", IsNullable = true)]
+        public string EngagementMailSubject { get; set; }
 
 
         /// <summary>

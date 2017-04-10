@@ -7521,6 +7521,26 @@
             Push adapter URL
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.EngagementMailTemplateName">
+            <summary>
+            Engagement mail template name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.EngagementMailSubject">
+            <summary>
+            Engagement mail subject
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.SenderEmail">
+            <summary>
+            Sender email
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.MailSenderName">
+            <summary>
+            Mail sender name
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaPersonalFollowFeedResponse">
             <summary>
             List of message follow data.
