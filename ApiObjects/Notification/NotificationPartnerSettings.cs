@@ -16,8 +16,8 @@ namespace ApiObjects.Notification
         public bool? IsRemindersEnabled { get; set; }
         public int? RemindersPrePaddingSec { get; set; }
         public string PushAdapterUrl { get; set; }
-        public string ChurnMailTemplateName { get; set; }
-        public string ChurnMailSubject { get; set; }
+        public string EngagementMailTemplateName { get; set; }
+        public string EngagementMailSubject { get; set; }
         public string SenderEmail { get; set; }
         public string MailSenderName { get; set; }
 
