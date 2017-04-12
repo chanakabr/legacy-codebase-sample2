@@ -3718,6 +3718,26 @@ namespace Core.Catalog
                         {
                             #region Old Get MediaStatistics code - goes to DB for views and to CB for likes\rate\votes
 
+                            if (dStartDate < System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                            {
+                                dStartDate = System.Data.SqlTypes.SqlDateTime.MinValue.Value;
+                            }
+
+                            if (dEndDate < System.Data.SqlTypes.SqlDateTime.MinValue.Value)
+                            {
+                                dEndDate = System.Data.SqlTypes.SqlDateTime.MinValue.Value;
+                            }
+
+                            if (dStartDate > System.Data.SqlTypes.SqlDateTime.MaxValue.Value)
+                            {
+                                dStartDate = System.Data.SqlTypes.SqlDateTime.MaxValue.Value;
+                            }
+
+                            if (dEndDate > System.Data.SqlTypes.SqlDateTime.MaxValue.Value)
+                            {
+                                dEndDate = System.Data.SqlTypes.SqlDateTime.MaxValue.Value;
+                            }
+
                             Dictionary<int, int[]> dict = CatalogDAL.Get_MediaStatistics(dStartDate, dEndDate, nGroupID, lAssetIDs);
                             if (dict.Count > 0)
                             {
