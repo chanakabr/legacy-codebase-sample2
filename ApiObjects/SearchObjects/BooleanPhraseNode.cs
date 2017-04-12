@@ -92,7 +92,7 @@ namespace ApiObjects.SearchObjects
                         stack.Push(eCutType.Or);
                     }
 
-                    else if ("!=<=>=!~^:".Contains(token)) // comparison operator - parse to enum and add to stack
+                    else if ("!=<=>=!~^:*".Contains(token)) // comparison operator - parse to enum and add to stack
                     {
                         ComparisonOperator comparisonOperator = GetComparisonOperator(token);
                         stack.Push(comparisonOperator);
@@ -203,6 +203,9 @@ namespace ApiObjects.SearchObjects
                 case ":":
                 comparisonOperator = ComparisonOperator.In;
                 break;
+                case "*":
+                comparisonOperator = ComparisonOperator.Phonetic;
+                break;
                 default:
                 comparisonOperator = ComparisonOperator.Contains;
                 break;
@@ -293,7 +296,9 @@ namespace ApiObjects.SearchObjects
                     buffer[lastBufferIndex] = '\0';
                     isOperand = true;
                 }
-                else if ((chr == ')' || chr == '~' || chr == '=' || chr == '^' || chr == ':') && !isQuote) // single comparison operator or end of expression with operand - get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
+                // single comparison operator or end of expression with operand - 
+                // get the full token from the buffer if availible and add to tokens list, add the seperator to tokens list
+                else if ((chr == ')' || chr == '~' || chr == '=' || chr == '^' || chr == ':' || chr == '*') && !isQuote) 
                 {
                     if (GetTokenFromBuffer(string.Empty, false, true, ref buffer, ref token))
                     {
