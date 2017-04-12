@@ -102,6 +102,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 string indexAnalyzer, searchAnalyzer;
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
+                string phoneticAnalyzer = null;
 
                 // create names for analyzers to be used in the mapping later on
                 string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION);
@@ -111,10 +112,17 @@ namespace ElasticSearchHandler.IndexBuilders
                     indexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
                     searchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
 
-                    if (ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName).Contains("autocomplete"))
+                    string analyzerDefinition = ElasticSearchApi.GetAnalyzerDefinition(analyzerDefinitionName);
+
+                    if (analyzerDefinition.Contains("autocomplete"))
                     {
                         autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
                         autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                    }
+
+                    if (analyzerDefinition.Contains("dbl_metaphone"))
+                    {
+                        phoneticAnalyzer = string.Concat(language.Code, "dbl_metaphone");
                     }
                 }
                 else
@@ -136,7 +144,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(
                     group.m_oMetasValuesByGroupId, group.m_oGroupTags,
-                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);      
+                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticAnalyzer);      
 
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 
