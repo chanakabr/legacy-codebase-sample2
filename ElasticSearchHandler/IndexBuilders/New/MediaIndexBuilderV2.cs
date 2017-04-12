@@ -122,7 +122,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (analyzerDefinition.Contains("dbl_metaphone"))
                     {
-                        phoneticAnalyzer = string.Concat(language.Code, "dbl_metaphone");
+                        phoneticAnalyzer = string.Concat(language.Code, "_dbl_metaphone");
                     }
                 }
                 else
