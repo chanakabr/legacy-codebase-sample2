@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using KLogMonitor;
+using System;
 using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_engagement_adapter_new : System.Web.UI.Page
@@ -87,10 +82,6 @@ public partial class adm_engagement_adapter_new : System.Web.UI.Page
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
         theRecord.AddRecord(dr_name);
-
-        //DataRecordShortTextField dr_external_identifier = new DataRecordShortTextField("ltr", true, 60, 128);
-        //dr_external_identifier.Initialize("External Identifier", "adm_table_header_nbg", "FormInput", "external_identifier", true);
-        //theRecord.AddRecord(dr_external_identifier);
 
         DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_adapter_url.Initialize("Provider URL", "adm_table_header_nbg", "FormInput", "provider_url", true);
