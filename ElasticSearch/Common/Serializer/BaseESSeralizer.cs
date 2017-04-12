@@ -220,7 +220,8 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
-            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
+            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null,
+            string phoneticAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
