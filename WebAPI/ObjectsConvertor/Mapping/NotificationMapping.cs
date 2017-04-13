@@ -390,6 +390,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case eOTTAssetTypes.Reminder:
                     result = KalturaOTTAssetType.Reminder;
                     break;
+                case eOTTAssetTypes.Engagement:
+                    result = KalturaOTTAssetType.Engagement;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
             }
@@ -408,6 +411,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaOTTAssetType.Reminder:
                     result = eOTTAssetTypes.Reminder;
+                    break;
+                case KalturaOTTAssetType.Engagement:
+                    result = eOTTAssetTypes.Engagement;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
