@@ -8,6 +8,7 @@ namespace WebAPI.Models.General
     public enum KalturaOTTAssetType
     {
         Series= 0,
-        Reminder = 1
+        Reminder = 1,
+        Engagement = 2
     }
 }
