@@ -158,6 +158,9 @@ namespace Core.Notification
                 case ApiObjects.eOTTAssetTypes.Reminder:
                     validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref message);
                     break;
+                case ApiObjects.eOTTAssetTypes.Engagement:
+                    validationStatus = ValidatePlaceholders<eEngagementPlaceHolders>(ref message);
+                    break;
                 default:
                     break;
             }
@@ -181,6 +184,9 @@ namespace Core.Notification
                     break;
                 case ApiObjects.eOTTAssetTypes.Reminder:
                     validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref url);
+                    break;
+                case ApiObjects.eOTTAssetTypes.Engagement:
+                    validationStatus = ValidatePlaceholders<eEngagementPlaceHolders>(ref url);
                     break;
                 default:
                     break;

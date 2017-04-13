@@ -259,7 +259,8 @@ namespace ApiObjects
     {
         None = 0,
         Series = 1,
-        Reminder = 2
+        Reminder = 2,
+        Engagement = 3
     }
 
     [XmlType("eAssetTypes", Namespace = "http://api.tvinci.com/schemas/eAssetTypes1")]
@@ -550,6 +551,15 @@ namespace ApiObjects
         CatalaogStartDate = 2,
         StartDate = 3,
         MediaId = 4
+    }
+
+    public enum eEngagementPlaceHolders
+    {
+        FirstName =0 , 
+        LastName = 1 , 
+        StartDate = 2,
+        ProgramId = 3,
+        CouponCode = 4
     }
 
     public enum eReminderPlaceHolders
