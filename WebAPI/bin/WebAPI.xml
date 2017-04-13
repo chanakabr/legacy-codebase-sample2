@@ -663,6 +663,62 @@
             <param name="filter">Filter option for the last position</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterController.List">
+            <summary>
+            Returns all Engagement adapters for partner : id + name
+            </summary>
+            <remarks>       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterController.Get(System.Int32)">
+            <summary>
+            Returns all Engagement adapters for partner : id + name
+            </summary>
+            <param name="id">Engagement adapter identifier</param>
+            <remarks>       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterController.Delete(System.Int32)">
+            <summary>
+            Delete Engagement adapter by Engagement adapter id
+            </summary>
+            <remarks>
+            Possible status codes:       
+            engagement adapter identifier required = 8025, engagement adapter not exist = 8026,  action is not allowed = 5011
+            </remarks>
+            <param name="engagementAdapterId">Engagement adapter identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterController.Add(WebAPI.Models.Notification.KalturaEngagementAdapter)">
+            <summary>
+            Insert new Engagement adapter for partner
+            </summary>
+            <remarks>
+            Possible status codes:     
+            no engagement adapter to insert = 8028, name required = 5005, adapter url required = 5013
+            </remarks>
+            <param name="engagementAdapter">Engagement adapter Object</param>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterController.Update(System.Int32,WebAPI.Models.Notification.KalturaEngagementAdapter)">
+            <summary>
+            Update Engagement adapter details
+            </summary>
+            <remarks>
+            Possible status codes:   
+            name required = 5005, engagement adapter identifier required = 8025, no engagement adapter to update = 8029, adapter url required = 5013
+            </remarks>
+            <param name="engagementAdapterId">Engagement adapter identifier</param>       
+            <param name="engagementAdapter">Engagement adapter Object</param>       
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterController.GenerateSharedSecret(System.Int32)">
+            <summary>
+            Generate engagement adapter shared secret
+            </summary>
+            <remarks>
+            Possible status codes:  
+            engagement adapter identifier required = 8025, engagement adapter not exist = 8026
+            </remarks>
+            <param name="engagementAdapterId">Engagement adapter identifier</param>
+        </member>
         <member name="M:WebAPI.Controllers.ReminderController.Add(WebAPI.Models.Notifications.KalturaReminder)">
             <summary>
             Add a new future reminder
@@ -7189,6 +7245,56 @@
         <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
             <summary>
             Asset id
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapter">
+            <summary>
+            Engagement Adapter
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterBase">
+            <summary>
+            Engagement adapter basic
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterBase.Id">
+            <summary>
+            Engagement adapter id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterBase.Name">
+            <summary>
+            Engagement adapter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.IsActive">
+            <summary>
+            Engagement adapter active status
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.AdapterUrl">
+            <summary>
+            Engagement adapter adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.Settings">
+            <summary>
+            Engagement adapter extra parameters
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.SharedSecret">
+            <summary>
+            Shared Secret
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse">
+            <summary>
+            Engagement adapter list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse.EngagementAdapters">
+            <summary>
+            A list of Engagement adapter
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">

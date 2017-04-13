@@ -2,6 +2,7 @@
 using ApiObjects.Notification;
 using ApiObjects.SearchObjects;
 using AutoMapper;
+using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
@@ -242,6 +243,86 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
+
+            #region Engagement Adapter
+
+            Mapper.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
+               .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+               .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
+               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
+               ;
+
+            Mapper.CreateMap<EngagementAdapter, KalturaEngagementAdapter>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
+              ;
+
+            Mapper.CreateMap<EngagementAdapterBase, KalturaEngagementAdapterBase>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            Mapper.CreateMap<EngagementAdapterResponse, KalturaEngagementAdapter>()
+             .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.EngagementAdapter.AdapterUrl))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EngagementAdapter.ID))
+             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.EngagementAdapter.IsActive))
+             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.EngagementAdapter.Name))
+             .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.EngagementAdapter.SharedSecret))
+             .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.EngagementAdapter.Settings)));
+
+            #endregion
+        }
+
+        private static Dictionary<string, KalturaStringValue> ConvertEngagementAdapterSettings(List<EngagementAdapterSettings> settings)
+        {
+            Dictionary<string, KalturaStringValue> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new Dictionary<string, KalturaStringValue>();
+                foreach (var data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.key))
+                    {
+                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                    }
+                }
+            }
+            return result;
+        }
+
+        private static List<EngagementAdapterSettings> ConvertEngagementAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        {
+            List<EngagementAdapterSettings> result = null;
+
+            if (settings != null && settings.Count > 0)
+            {
+                result = new List<EngagementAdapterSettings>();
+                EngagementAdapterSettings pc;
+                foreach (KeyValuePair<string, KalturaStringValue> data in settings)
+                {
+                    if (!string.IsNullOrEmpty(data.Key))
+                    {
+                        pc = new EngagementAdapterSettings();
+                        pc.key = data.Key;
+                        pc.value = data.Value.value;
+                        result.Add(pc);
+                    }
+                }
+            }
+            if (result != null && result.Count > 0)
+            {
+                return result;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public static eMessageState ConvertInboxMessageStatus(KalturaInboxMessageStatus kalturaInboxMessageStatus)

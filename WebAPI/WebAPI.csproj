@@ -234,6 +234,7 @@
     <Compile Include="Controllers\CurrencyController.cs" />
     <Compile Include="Controllers\LanguageController.cs" />
     <Compile Include="Controllers\LastPositionController.cs" />
+    <Compile Include="Controllers\EngagementAdapterController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
@@ -599,6 +600,9 @@
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
     <Compile Include="Models\Notification\KalturaAssetReminder.cs" />
+    <Compile Include="Models\Notification\KalturaEngagementAdapter.cs" />
+    <Compile Include="Models\Notification\KalturaEngagementAdapterBase.cs" />
+    <Compile Include="Models\Notification\KalturaEngagementAdapterListResponse.cs" />
     <Compile Include="Models\Notification\KalturaReminderFilter.cs" />
     <Compile Include="Models\Notification\KalturaReminderListResponse.cs" />
     <Compile Include="Models\Notification\KalturaReminder.cs" />

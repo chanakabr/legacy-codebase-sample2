@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -1451,8 +1450,6 @@ namespace WebAPI.Clients
             List<KalturaReminder> result = null;
             KalturaReminderListResponse ret = null;
 
-            
-
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -1492,6 +1489,201 @@ namespace WebAPI.Clients
             ret = new KalturaReminderListResponse() { Reminders = result, TotalCount = response.TotalCount };
 
             return ret;
+        }
+
+        internal List<KalturaEngagementAdapter> GetEngagementAdapters(int groupId)
+        {
+            List<KalturaEngagementAdapter> list = null;
+            EngagementAdapterResponseList response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetEngagementAdapters(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetEngagementAdapters. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            list = Mapper.Map<List<KalturaEngagementAdapter>>(response.EngagementAdapters);
+
+            return list;
+
+        }
+
+        internal KalturaEngagementAdapter GetEngagementAdapter(int groupId, int engagementAdapterId)
+        {
+            KalturaEngagementAdapter engagementAdapter = null;
+            EngagementAdapterResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetEngagementAdapter(groupId, engagementAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetEngagementAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            engagementAdapter = Mapper.Map<KalturaEngagementAdapter>(response);
+
+            return engagementAdapter;
+        }
+
+        internal bool DeleteEngagementAdapter(int groupId, int engagementAdapterId)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.DeleteEngagementAdapter(groupId, engagementAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteEngagementAdapter.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, engagementAdapterId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaEngagementAdapter InsertEngagementAdapter(int groupId, KalturaEngagementAdapter engagementAdapter)
+        {
+            EngagementAdapterResponse response = null;
+            KalturaEngagementAdapter kalturaEngagementAdapter = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    EngagementAdapter request = Mapper.Map<EngagementAdapter>(engagementAdapter);
+                    response = Core.Notification.Module.InsertEngagementAdapter(groupId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertEngagementAdapter.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaEngagementAdapter = Mapper.Map<KalturaEngagementAdapter>(response);
+            return kalturaEngagementAdapter;
+        }
+
+        internal KalturaEngagementAdapter SetEngagementAdapter(int groupId, KalturaEngagementAdapter engagementAdapter)
+        {
+            EngagementAdapterResponse response = null;
+            KalturaEngagementAdapter kalturaEngagementAdapter = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    EngagementAdapter request = Mapper.Map<EngagementAdapter>(engagementAdapter);
+                    response = Core.Notification.Module.SetEngagementAdapter(groupId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SetEngagementAdapter. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaEngagementAdapter = Mapper.Map<KalturaEngagementAdapter>(response);
+            return kalturaEngagementAdapter;
+        }
+
+        internal KalturaEngagementAdapter GenerateEngagementSharedSecret(int groupId, int engagementAdapterId)
+        {
+            EngagementAdapterResponse response = null;
+            KalturaEngagementAdapter engagementAdapter = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GenerateEngagementSharedSecret(groupId, engagementAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GenerateEngagementSharedSecret. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            engagementAdapter = Mapper.Map<KalturaEngagementAdapter>(response);
+            return engagementAdapter;
         }
     }
 }
