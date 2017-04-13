@@ -284,6 +284,11 @@ namespace ApiObjects.Response
         ReminderNotFound = 8022,
         UserAlreadySetReminder = 8023,
         PassedAsset = 8024,
+        EngagementAdapterIdentifierRequired = 8025,
+        EngagementAdapterNotExist = 8026,
+        EngagementAdapterParamsRequired = 8027,
+        NoEngagementAdapterToInsert = 8028,
+        NoEngagementAdapterToUpdate = 8029,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

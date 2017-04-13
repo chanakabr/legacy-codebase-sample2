@@ -958,5 +958,35 @@ namespace Core.Notification
 
             return response;
         }
+
+        public static EngagementAdapterResponseList GetEngagementAdapters(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static EngagementAdapterResponse GetEngagementAdapter(int groupId, int engagementAdapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status DeleteEngagementAdapter(int groupId, int engagementAdapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static EngagementAdapterResponse GenerateEngagementSharedSecret(int groupId, int engagementAdapterId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
