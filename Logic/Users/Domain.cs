@@ -601,7 +601,9 @@ namespace Core.Users
             DateTime activationDate = DateTime.MaxValue;
             string name = null;
             int brandId = 0;
-            bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name);
+            Device device = null;
+
+            bool bDeviceExist = IsDeviceExistInDomain(this, sUDID, ref isActive, ref nDeviceID, ref activationDate, ref brandId, ref name, out device);
 
             //int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
             //if (nDomainDeviceID > 0)
@@ -617,7 +619,8 @@ namespace Core.Users
                     ActivataionStatus = isActive == 1 ? DeviceState.Activated : DeviceState.UnActivated,
                     DeviceBrandId = brandId,
                     ActivatedOn = activationDate,
-                    Name = name
+                    Name = name,
+                    DeviceFamilyId = device.m_deviceFamilyID
                 };
 
                 bool deleted = domainDevice.Delete();
@@ -655,7 +658,7 @@ namespace Core.Users
                 }
 
                 DeviceContainer container = null;
-                Device device = GetDomainDevice(sUDID, ref container);
+                device = GetDomainDevice(sUDID, ref container);
                 if (container != null && device != null)
                 {
                     if (container.RemoveDeviceInstance(sUDID))
@@ -685,8 +688,11 @@ namespace Core.Users
             return bRes;
         }
 
-        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID, ref DateTime activationDate, ref int brandId, ref string name)
+        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int isActive, ref int nDeviceID, 
+                                            ref DateTime activationDate, ref int brandId, ref string name, out Device resultDevice)
         {
+            resultDevice = null;
+
             try
             {
                 bool bContinue = true;
@@ -705,6 +711,7 @@ namespace Core.Users
                                 activationDate = device.m_activationDate;
                                 brandId = device.m_deviceBrandID;
                                 name = device.m_deviceName;
+                                resultDevice = device;
                             }
                         }
                     }
@@ -1911,6 +1918,7 @@ namespace Core.Users
                 Name = device.m_deviceName,
                 Udid = sDeviceUdid,
                 GroupId = m_nGroupID,
+                DeviceFamilyId = device.m_deviceFamilyID
             };
 
             bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -2381,6 +2389,7 @@ namespace Core.Users
                             Udid = sUDID,
                             ActivatedOn = DateTime.UtcNow,
                             GroupId = m_nGroupID,
+                            DeviceFamilyId = device.m_deviceFamilyID
                         };
 
                         bool updated = domainDevice.Update();
@@ -2434,6 +2443,7 @@ namespace Core.Users
                     Udid = sUDID,
                     GroupId = m_nGroupID,
                     Name = deviceName,
+                    DeviceFamilyId = device.m_deviceFamilyID
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -2469,6 +2479,7 @@ namespace Core.Users
                         ActivatedOn = DateTime.UtcNow,
                         Udid = sUDID,
                         GroupId = m_nGroupID,
+                        DeviceFamilyId = device.m_deviceFamilyID
                     };
 
                     bool updated = domainDevice.Update();

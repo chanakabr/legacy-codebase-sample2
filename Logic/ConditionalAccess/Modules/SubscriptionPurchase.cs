@@ -27,6 +27,12 @@ namespace Core.ConditionalAccess.Modules
 
         public SubscriptionPurchaseStatus status { get; set; }
 
+        public string languageCode
+        {
+            get;
+            set;
+        }
+
         public override eTransactionType type
         {
             get
@@ -34,6 +40,7 @@ namespace Core.ConditionalAccess.Modules
                 return eTransactionType.Subscription;
             }
         }
+
 
         #endregion
 
@@ -65,9 +72,21 @@ namespace Core.ConditionalAccess.Modules
 
             try
             {
-                this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.isEntitledToPreviewModule ? 0.0 : this.price, this.currency, this.customData, this.country,
-                       this.deviceName, this.usageModuleExists ? this.maxNumberOfViews : 0, this.usageModuleExists ? this.viewLifeCycle : 0, this.isRecurring, this.billingTransactionId,
-                       this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid);
+                if (!string.IsNullOrEmpty(this.billingGuid))
+                {
+                    this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.isEntitledToPreviewModule ? 0.0 : this.price, this.currency, this.customData, this.country,
+                           this.deviceName, this.usageModuleExists ? this.maxNumberOfViews : 0, this.usageModuleExists ? this.viewLifeCycle : 0, this.isRecurring, this.billingTransactionId,
+                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid);
+                }
+                else
+                {
+                    this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.price, 
+                        this.currency, this.customData, this.country, this.languageCode,
+                        this.deviceName, this.maxNumberOfViews, this.viewLifeCycle, this.isRecurring, this.billingTransactionId, 
+                        this.previewModuleId, this.startDate.Value, this.endDate.Value,
+                        this.entitlementDate.Value, string.Empty, (int)this.houseHoldId);
+                }
+
                 if (this.purchaseId > 0)
                 {
                     success = true;

@@ -9582,7 +9582,7 @@ namespace Core.ConditionalAccess
 
 			WriteToUserLog(sSiteGuid, sb.ToString());
 		}
-
+        
 		/// <summary>
 		/// Immediately cancel a household service 
 		/// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
@@ -9697,6 +9697,7 @@ namespace Core.ConditionalAccess
                                             DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
                                             DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
                                             long billingTransactionId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "BILLING_TRANSACTION_ID");
+                                            string ppvCode = ODBCWrapper.Utils.ExtractString(userPurchaseRow, "assetCode");
 
 											PpvPurchase ppvPurchase = new PpvPurchase(this.m_nGroupID)
 											{
@@ -9709,7 +9710,8 @@ namespace Core.ConditionalAccess
                                                 endDate = endDate,
                                                 entitlementDate = createDate,
                                                 billingTransactionId = billingTransactionId,
-                                                billingGuid = billingGuid
+                                                billingGuid = billingGuid,
+                                                ppvCode = ppvCode
 											};
 
 											dalResult = ppvPurchase.Delete();
@@ -13833,12 +13835,10 @@ namespace Core.ConditionalAccess
 					recordingCleanupIntervalSec = RECORDING_CLEANUP_INTERVAL_SEC;
 				}
 
-				// get current utc epoch
-				long utcNowEpoch = TVinciShared.DateUtils.UnixTimeStampNow();
 				// get first batch
 				int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
 				Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
-				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
+				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
 				HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
 				while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
 				{
@@ -13880,7 +13880,7 @@ namespace Core.ConditionalAccess
 
 					totalRecordingsDeleted += deletedRecordingIds.Count;
 
-					recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(utcNowEpoch);
+					recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
 					recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
 				}
 
@@ -15250,6 +15250,13 @@ namespace Core.ConditionalAccess
 					response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel, "Recording playback is not allowed for non existing EPG channel");
 					return response;
 				}
+
+                if (!IsServiceAllowed((int)domainId, eService.NPVR))
+                {
+                    log.DebugFormat("Premium Service not allowed, DomainID: {0}, UserID: {1}, Service: {2}", domainId, userId, eService.NPVR.ToString());
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ServiceNotAllowed, "Service not allowed");
+                    return response;
+                }
 
 				MediaFileItemPricesContainer price = null;
 				bool isItemPurchased = false;

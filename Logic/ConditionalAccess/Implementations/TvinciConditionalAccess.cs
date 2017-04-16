@@ -249,44 +249,82 @@ namespace Core.ConditionalAccess
             bool bUsageModuleExists = (theSub != null && theSub.m_oUsageModule != null);
             DateTime dtUtcNow = DateTime.UtcNow;
             DateTime dtSubEndDate = Utils.CalcSubscriptionEndDate(theSub, bIsEntitledToPreviewModule, dtUtcNow);
+            int maxNumberOfViews = bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0;
+            int viewLifeCycle = bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0;
+            double price = bIsEntitledToPreviewModule ? 0.0 : dPrice;
 
-            lPurchaseID = ConditionalAccessDAL.Insert_NewMPPPurchase(m_nGroupID, sSubscriptionCode, sSiteGUID, bIsEntitledToPreviewModule ? 0.0 : dPrice, sCurrency, sCustomData, sCountryCd, sLanguageCode,
-                sDeviceName, bUsageModuleExists ? theSub.m_oUsageModule.m_nMaxNumberOfViews : 0, bUsageModuleExists ? theSub.m_oUsageModule.m_tsViewLifeCycle : 0, bIsRecurring, lBillingTransactionID,
-                lPreviewModuleID, dtUtcNow, dtSubEndDate, dtUtcNow, string.Empty, domianID);
-
-            if (lPurchaseID > 0)
+            SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(this.m_nGroupID)
             {
-                // writing to subscription_purchases succeeded
-                WriteToUserLog(sSiteGUID, string.Format("Subscription purchased. ID in billing transaction {0} , ID in subscriptions_purchases {1}", lBillingTransactionID, lPurchaseID));
-                if (lBillingTransactionID > 0)
+                 billingTransactionId = lBillingTransactionID,
+                 country = sCountryCd,
+                 currency = sCurrency,
+                 customData = sCustomData,
+                 deviceName = sDeviceName,
+                 endDate = dtSubEndDate,
+                 entitlementDate = dtUtcNow,
+                 houseHoldId = domianID,
+                 isEntitledToPreviewModule = bIsEntitledToPreviewModule,
+                 isRecurring = bIsRecurring,
+                 languageCode = sLanguageCode,
+                 maxNumberOfViews = maxNumberOfViews,
+                 previewModuleId = lPreviewModuleID,
+                 price = price,
+                 productId = sSubscriptionCode,
+                 siteGuid = sSiteGUID,
+                 startDate = dtUtcNow,
+                 usageModuleExists = bUsageModuleExists,
+                 viewLifeCycle = viewLifeCycle
+            };
+
+            bool insertResult = subscriptionPurchase.Insert();
+
+            if (insertResult)
+            {
+                long lPurchaseId = subscriptionPurchase.purchaseId;
+
+                if (lPurchaseID > 0)
                 {
-                    // update in billing_transactions
-                    if (!ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID))
+                    // writing to subscription_purchases succeeded
+                    WriteToUserLog(sSiteGUID, string.Format("Subscription purchased. ID in billing transaction {0} , ID in subscriptions_purchases {1}", lBillingTransactionID, lPurchaseID));
+                    if (lBillingTransactionID > 0)
                     {
-                        // purchase id in billing transactions is critical for renewal process. log if fails.
-                        #region Logging
-                        StringBuilder sb = new StringBuilder("Failed to update purchase id in billing_transactions table");
-                        sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
-                        sb.Append(String.Concat(" Purchase ID: ", lPurchaseID));
-                        sb.Append(String.Concat(" Billing transaction ID: ", lBillingTransactionID));
-                        sb.Append(String.Concat(" Subscription Code: ", sSubscriptionCode));
-                        sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
-                        sb.Append(String.Concat(" Custom Data: ", sCustomData));
-                        log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + sb.ToString());
-                        #endregion
+                        // update in billing_transactions
+                        if (!ApiDAL.Update_PurchaseIDInBillingTransactions(lBillingTransactionID, lPurchaseID))
+                        {
+                            // purchase id in billing transactions is critical for renewal process. log if fails.
+                            #region Logging
+                            StringBuilder sb = new StringBuilder("Failed to update purchase id in billing_transactions table");
+                            sb.Append(String.Concat(" Site Guid: ", sSiteGUID));
+                            sb.Append(String.Concat(" Purchase ID: ", lPurchaseID));
+                            sb.Append(String.Concat(" Billing transaction ID: ", lBillingTransactionID));
+                            sb.Append(String.Concat(" Subscription Code: ", sSubscriptionCode));
+                            sb.Append(String.Concat(" BaseConditionalAccess is: ", this.GetType().Name));
+                            sb.Append(String.Concat(" Custom Data: ", sCustomData));
+                            log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + sb.ToString());
+                            #endregion
+                        }
+                        else
+                        {
+                            UpdatePurchaseIDInExternalBillingTable(lPurchaseID, lBillingTransactionID);
+                        }
                     }
                     else
                     {
-                        UpdatePurchaseIDInExternalBillingTable(lPurchaseID, lBillingTransactionID);
+                        // no id in billing_transactions
+                        res = false;
+                        #region Logging
+                        log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sSubscriptionCode, sCouponCode));
+                        WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForSubscriptionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Sub Code: {1} , Coupon Code: {2}", lPurchaseID, sSubscriptionCode, sCouponCode));
+                        #endregion
                     }
                 }
                 else
                 {
-                    // no id in billing_transactions
+                    // writing to subscription_purchases failed
                     res = false;
                     #region Logging
-                    log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No billing_transactions ID. SiteGuid: {0} , Purchase ID: {1} , Sub Code: {2} , Coupon Code: {3}", sSiteGUID, lPurchaseID, sSubscriptionCode, sCouponCode));
-                    WriteToUserLog(sSiteGUID, string.Format("HandleChargeUserForSubscriptionBillingSuccess. Failed to update billing_transactions. Purchase ID: {0} , Sub Code: {1} , Coupon Code: {2}", lPurchaseID, sSubscriptionCode, sCouponCode));
+                    log.Debug("HandleChargeUserForSubscriptionBillingSuccess - " + string.Format("No ID in subscriptions_purchases. Site Guid: {0} , Sub Code: {1} , Coupon Code: {2} , User IP: {3}", sSiteGUID, sSubscriptionCode, sCouponCode, sUserIP));
+                    WriteToUserLog(sSiteGUID, string.Format("Failed to write to subscription_purchases. Sub Code: {0} , Coupon Code: {1}", sSubscriptionCode, sCouponCode));
                     #endregion
                 }
             }
@@ -505,6 +543,18 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                int fileMainStreamingCoID = 0; // CDN Streaming id
+                int mediaId = 0;
+                string fileType = string.Empty;
+                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode,
+                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
+
+                //GetLicensedLink return empty link no need to continue
+                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    throw new Exception("GetLicensedLinks returned empty response.");
+                }
+
                 //TODO - comment and replace
                 if (eformat == eEPGFormatType.NPVR)
                 {
@@ -523,22 +573,17 @@ namespace Core.ConditionalAccess
                         response.mainUrl = npvrLicensedLink;
                         return response;
                     }
-                }
-                int nProgramId = Int32.Parse(sProgramId);
-                int fileMainStreamingCoID = 0; // CDN Streaming id
-                int mediaId = 0;
-                string fileType = string.Empty;
-                LicensedLinkResponse oLicensedLinkResponse = GetLicensedLinks(sSiteGUID, nMediaFileID, sBasicLink, sUserIP, sRefferer, sCOUNTRY_CODE, sLANGUAGE_CODE, sDEVICE_NAME, sCouponCode, 
-                    eObjectType.EPG, ref fileMainStreamingCoID, ref mediaId, ref fileType);
-                
-                //GetLicensedLink return empty link no need to continue
-                if (oLicensedLinkResponse == null || oLicensedLinkResponse.Status == null || oLicensedLinkResponse.Status.Code != (int)eResponseStatus.OK)
-                {
-                    throw new Exception("GetLicensedLinks returned empty response.");
+                    else
+                    {
+                        response.Status.Code = (int)eResponseStatus.Error;
+                        response.status = eLicensedLinkStatus.Error.ToString();
+                        response.mainUrl = string.Empty;
+                        return response;
+                    }
                 }
 
                 Dictionary<string, object> dURLParams = new Dictionary<string, object>();
-
+                int nProgramId = Int32.Parse(sProgramId);
                 Scheduling scheduling = Api.Module.GetProgramSchedule(m_nGroupID, nProgramId);
                 if (scheduling != null)
                 {

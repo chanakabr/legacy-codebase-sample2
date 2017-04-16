@@ -349,7 +349,8 @@ namespace ApiObjects
         WordStartsWith,
         In,
         NotIn,
-        Prefix
+        Prefix,
+        Phonetic
     }
 
     [Serializable]
