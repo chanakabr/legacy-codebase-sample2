@@ -287,9 +287,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 result = new Dictionary<string, KalturaStringValue>();
                 foreach (var data in settings)
                 {
-                    if (!string.IsNullOrEmpty(data.key))
+                    if (!string.IsNullOrEmpty(data.Key))
                     {
-                        result.Add(data.key, new KalturaStringValue() { value = data.value });
+                        result.Add(data.Key, new KalturaStringValue() { value = data.Value });
                     }
                 }
             }
@@ -309,8 +309,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     if (!string.IsNullOrEmpty(data.Key))
                     {
                         pc = new EngagementAdapterSettings();
-                        pc.key = data.Key;
-                        pc.value = data.Value.value;
+                        pc.Key = data.Key;
+                        pc.Value = data.Value.value;
                         result.Add(pc);
                     }
                 }
