@@ -65,7 +65,8 @@ namespace ElasticSearch.Common
         /// <param name="autocompleteSearchAnalyzer"></param>
         /// <returns></returns>
         public override string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
-            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null)
+            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null,
+            string phoneticAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
@@ -208,6 +209,18 @@ namespace ElasticSearch.Common
                 });
             }
 
+            if (!string.IsNullOrEmpty(phoneticAnalyzer))
+            {
+                nameProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "phonetic",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    analyzer = phoneticAnalyzer
+                });
+            }
+
             mappingObj.AddProperty(nameProperty);
 
             ElasticSearch.Common.FieldsMappingPropertyV2 descProperty = new FieldsMappingPropertyV2()
@@ -245,6 +258,18 @@ namespace ElasticSearch.Common
                     index = eMappingIndex.analyzed,
                     search_analyzer = autocompleteSearchAnalyzer,
                     analyzer = autocompleteIndexAnalyzer
+                });
+            }
+
+            if (!string.IsNullOrEmpty(phoneticAnalyzer))
+            {
+                descProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "phonetic",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    analyzer = phoneticAnalyzer
                 });
             }
 
@@ -302,6 +327,18 @@ namespace ElasticSearch.Common
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = autocompleteSearchAnalyzer,
                                 analyzer = autocompleteIndexAnalyzer
+                            });
+                        }
+
+                        if (!string.IsNullOrEmpty(phoneticAnalyzer))
+                        {
+                            multiField.fields.Add(new BasicMappingPropertyV2()
+                            {
+                                name = "phonetic",
+                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                null_value = "",
+                                index = eMappingIndex.analyzed,
+                                analyzer = phoneticAnalyzer
                             });
                         }
 
@@ -376,6 +413,19 @@ namespace ElasticSearch.Common
                                             analyzer = autocompleteIndexAnalyzer
                                         });
                                     }
+
+                                    if (!string.IsNullOrEmpty(phoneticAnalyzer))
+                                    {
+                                        multiField.fields.Add(new BasicMappingPropertyV2()
+                                        {
+                                            name = "phonetic",
+                                            type = ElasticSearch.Common.eESFieldType.STRING,
+                                            null_value = "",
+                                            index = eMappingIndex.analyzed,
+                                            analyzer = phoneticAnalyzer
+                                        });
+                                    }
+
                                     metas.AddProperty(multiField);
                                 }
                                 else

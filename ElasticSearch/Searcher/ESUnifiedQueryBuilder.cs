@@ -826,17 +826,6 @@ namespace ElasticSearch.Searcher
             {
                 FilterCompositeType recoedingsDatesFilter = new FilterCompositeType(CutWith.AND);
                 
-                //if (SearchDefinitions.shouldUseSearchEndDate)
-                //{
-                //    // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
-                //    ESRange epgSearchEndDateRange = new ESRange(false)
-                //    {
-                //        Key = "search_end_date"
-                //    };
-                //    epgSearchEndDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GT, DateTime.UtcNow.ToString("yyyyMMddHHmmss")));
-                //    recoedingsDatesFilter.AddChild(epgSearchEndDateRange);
-                //}
-
                 if (!recoedingsDatesFilter.IsEmpty())
                 {
                     recordingFilter.AddChild(recoedingsDatesFilter);
@@ -881,7 +870,7 @@ namespace ElasticSearch.Searcher
 
                     // If it is contains - it is not exact and thus belongs to query
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
-                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                     {
                         queryNode = leaf;
                     }
@@ -920,7 +909,8 @@ namespace ElasticSearch.Searcher
                                 // If yes, this means the root-ancestor is a query and not a filter
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
-                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic)
                                 {
                                     queryRoots.Add(node);
 
@@ -1597,7 +1587,8 @@ namespace ElasticSearch.Searcher
 
                     // "Match" when search is not exact (contains)
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
-                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith ||
+                        leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                     {
                         string field = string.Empty;
 
@@ -1605,9 +1596,13 @@ namespace ElasticSearch.Searcher
                         {
                             field = string.Format("{0}.autocomplete", leaf.field);
                         }
-                        else 
+                        else if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                         {
                             field = string.Format("{0}.analyzed", leaf.field);
+                        }
+                        else if (leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
+                        {
+                            field = string.Format("{0}.phonetic", leaf.field);
                         }
 
                         term = new ESMatchQuery(null)
