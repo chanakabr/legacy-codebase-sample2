@@ -19,6 +19,7 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Exceptions;
 using WebAPI.Models.Renderers;
+using WebAPI.Controllers;
 
 namespace Validator.Managers.Scheme
 {
@@ -620,7 +621,18 @@ namespace Validator.Managers.Scheme
             writer.WriteAttributeString("description", getDescription(action));
             // writer.WriteAttributeString("path", string.Format("/{0}/{1}/{2}", routePrefix, serviceId, actionId));
             if (action.GetCustomAttribute<ObsoleteAttribute>() != null)
+            {
                 writer.WriteAttributeString("deprecated", "1");
+            }
+
+            if (action.GetCustomAttribute<ApiAuthorizeAttribute>() != null)
+            {
+                writer.WriteAttributeString("sessionRequired", "always");
+            }
+            else
+            {
+                writer.WriteAttributeString("sessionRequired", "none");
+            }
 
             foreach (var param in action.GetParameters())
             {

@@ -233,5 +233,19 @@ namespace WebAPI.Models.ConditionalAccess
         [SchemeProperty(ReadOnly = true)]
         public string UserId { get; set; }
 
+
+        /// <summary>
+        /// The Identifier of the purchasing household
+        /// </summary>
+        [DataMember(Name = "householdId")]
+        [JsonProperty("householdId")]
+        [XmlElement(ElementName = "householdId")]
+        [SchemeProperty(ReadOnly = true)]
+        public long HouseholdId
+        {
+            get;
+            set;
+        }
+
     }
 }

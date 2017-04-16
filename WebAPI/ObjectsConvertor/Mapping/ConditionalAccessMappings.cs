@@ -74,6 +74,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               //.ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
               //.ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+              .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
               ;
 
 
@@ -115,6 +116,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumOfViews))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+               ;
+
+            Mapper.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.ppv))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ppvCode))
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+               ;
+
+            Mapper.CreateMap<SubscriptionPurchase, KalturaEntitlementCancellation>()
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => (int)src.purchaseId))
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
+               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
                ;
 
             Mapper.CreateMap<KalturaSubscriptionEntitlement, Entitlement>()
