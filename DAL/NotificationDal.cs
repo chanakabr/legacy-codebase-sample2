@@ -2253,6 +2253,21 @@ namespace DAL
 
             return result;
         }
+
+        public static List<EngagementAdapter> GetEngagementAdapterList(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static EngagementAdapter GetEngagementAdapter(int groupId, int engagementAdapterId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool DeleteEngagementAdapter(int groupId, int engagementAdapterId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
