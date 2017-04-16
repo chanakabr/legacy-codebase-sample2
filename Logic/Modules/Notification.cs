@@ -977,16 +977,16 @@ namespace Core.Notification
         public static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
         {
             return EngagementManager.InsertEngagementAdapter(groupId, engagementAdapter);
-}
+        }
 
-        public static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter request)
+        public static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
         {
-            throw new NotImplementedException();
+            return EngagementManager.SetEngagementAdapter(groupId, engagementAdapter);
         }
 
         public static EngagementAdapterResponse GenerateEngagementSharedSecret(int groupId, int engagementAdapterId)
         {
-            throw new NotImplementedException();
+            return EngagementManager.GenerateEngagementSharedSecret(groupId, engagementAdapterId);
         }
     }
 }
