@@ -2268,6 +2268,11 @@ namespace DAL
         {
             throw new NotImplementedException();
         }
+
+        public static EngagementAdapter InsertEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
