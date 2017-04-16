@@ -13,6 +13,9 @@ namespace Core.Notification
 
         private const string ENGAGEMENT_ADAPTER_ID_REQUIRED = "Engagement adapter identifier is required";
         private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter not exist";
+        private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "No Engagement adapter to insert";
+        private const string NAME_REQUIRED = "Name must have a value";
+        private const string ADAPTER_URL_REQUIRED = "Adapter url must have a value";
 
 
 
@@ -48,7 +51,7 @@ namespace Core.Notification
                 response.EngagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (response.EngagementAdapter == null)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OSSAdapterNotExist, "Engagement adapter not exist");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, "Engagement adapter not exist");
                 }
                 else
                 {
@@ -69,7 +72,6 @@ namespace Core.Notification
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-
                 if (engagementAdapterId == 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
@@ -83,7 +85,6 @@ namespace Core.Notification
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
                     return response;
                 }
-
 
                 bool isSet = NotificationDal.DeleteEngagementAdapter(groupId, engagementAdapterId);
                 if (isSet)
@@ -103,5 +104,105 @@ namespace Core.Notification
             }
             return response;
         }
+
+        internal static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
+        {
+            EngagementAdapterResponse response = new EngagementAdapterResponse();
+
+            try
+            {
+                if (engagementAdapter  == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementAdapterToInsert, NO_ENGAGEMENT_ADAPTER_TO_INSERT);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(engagementAdapter.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                // Create Shared secret 
+                engagementAdapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
+
+                response.EngagementAdapter  = NotificationDal.InsertEngagementAdapter (groupId, engagementAdapter );
+                if (response.EngagementAdapter  != null && response.EngagementAdapter .ID > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new Engagement adapter insert");
+
+                    if (!SendConfigurationToAdapter(groupId, response.EngagementAdapter ))
+                    {
+                        log.ErrorFormat("InsertEngagementAdapter  - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter .ID);
+                    }
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new Engagement Adapter");
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
+            }
+            return response;
+        }
+
+
+        private static bool SendConfigurationToAdapter(int groupId, EngagementAdapter engagementAdapter)
+        {
+            //try
+            //{
+            //    if (engagementAdapter  != null && !string.IsNullOrEmpty(engagementAdapter .AdapterUrl))
+            //    {
+            //        //set unixTimestamp
+            //        long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            //        //set signature
+            //        string signature = string.Concat(engagementAdapter .ID, engagementAdapter .Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
+            //            groupId, unixTimestamp);
+
+            //        using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
+            //        {
+            //            if (!string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+            //            {
+            //                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.AdapterUrl);
+            //            }
+
+            //            APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
+            //                engagementAdapter.ID,
+            //                engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.engagementAdapterService.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
+            //                groupId,
+            //                unixTimestamp,
+            //                System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+
+            //            if (adapterResponse != null && adapterResponse.Code == (int)engagementAdapterStatus.OK)
+            //            {
+            //                log.DebugFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
+            //                return true;
+            //            }
+            //            else
+            //            {
+            //                log.ErrorFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
+            //                    engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
+            //                return false;
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
+            //}
+            return false; //TODO: Anat
+        }
+
     }
 }

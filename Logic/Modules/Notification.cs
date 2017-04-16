@@ -974,10 +974,10 @@ namespace Core.Notification
             return EngagementManager.DeleteEngagementAdapter(groupId, engagementAdapterId);
         }
 
-        public static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter request)
+        public static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
         {
-            throw new NotImplementedException();
-        }
+            return EngagementManager.InsertEngagementAdapter(groupId, engagementAdapter);
+}
 
         public static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter request)
         {
