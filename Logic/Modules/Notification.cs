@@ -961,17 +961,17 @@ namespace Core.Notification
 
         public static EngagementAdapterResponseList GetEngagementAdapters(int groupId)
         {
-            throw new NotImplementedException();
+            return EngagementManager.GetEngagementAdapters(groupId);
         }
 
         public static EngagementAdapterResponse GetEngagementAdapter(int groupId, int engagementAdapterId)
         {
-            throw new NotImplementedException();
+            return EngagementManager.GetEngagementAdapter(groupId, engagementAdapterId);
         }
 
         public static Status DeleteEngagementAdapter(int groupId, int engagementAdapterId)
         {
-            throw new NotImplementedException();
+            return EngagementManager.DeleteEngagementAdapter(groupId, engagementAdapterId);
         }
 
         public static EngagementAdapterResponse InsertEngagementAdapter(int groupId, EngagementAdapter request)

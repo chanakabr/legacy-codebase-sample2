@@ -411,6 +411,7 @@
     <Compile Include="Notification\ElisaEmailNotification.cs" />
     <Compile Include="Notification\ElisaSMSNotification.cs" />
     <Compile Include="Notification\EmailNotification.cs" />
+    <Compile Include="Notification\EngagementManager.cs" />
     <Compile Include="Notification\enums.cs" />
     <Compile Include="Notification\FactoryImp.cs" />
     <Compile Include="Notification\FollowManager.cs" />
