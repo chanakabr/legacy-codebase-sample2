@@ -719,6 +719,55 @@
             </remarks>
             <param name="engagementAdapterId">Engagement adapter identifier</param>
         </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.List">
+            <summary>
+            Returns all Engagement adapter settings for partner
+            </summary>
+            <remarks>       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.Delete(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+             <summary>
+             Delete Engagement adapter specific settings by settings keys 
+             </summary>
+             <remarks>
+             Possible status codes:       
+             engagement adapter identifier required = 8025, engagement adapter not exist = 8026, engagement adapter params required = 8027, conflicted params = 5014
+             </remarks>
+             <param name="engagementAdapterId">Engagement adapter Identifier</param>
+             <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+             "settings": { "key3": {"value": "value3"},
+            "key1": {"value": "value2"}}
+            </param>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.Add(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+             <summary>
+             Insert new settings for Engagement adapter for partner
+             </summary>
+             <remarks>
+             Possible status codes:       
+             engagement adapter identifier required = 8025, engagement adapter not exist = 8026, engagement adapter params required = 8027, conflicted params = 5014
+             </remarks>
+             <param name="engagementAdapterId">Engagement Adapter identifier</param> 
+             <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+             "settings": { "key3": {"value": "value3"},
+            "key1": {"value": "value2"}}
+            </param>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.Update(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+             <summary>
+             Update settings for Engagement adapter
+             </summary>
+             <remarks>
+             Possible status codes:       
+             engagement adapter identifier required = 8025, engagement adapter not exist = 8026, engagement adapter params required = 8027,conflicted params = 5014
+             </remarks>
+             <param name="engagementAdapterId">Engagement Adapter identifier</param> 
+             <param name="settings">Dictionary (string,KalturaStringValue) for partner specific settings: Format Example
+             "settings": { "key3": {"value": "value3"},
+            "key1": {"value": "value2"}}
+            </param>
+        </member>
         <member name="M:WebAPI.Controllers.ReminderController.Add(WebAPI.Models.Notifications.KalturaReminder)">
             <summary>
             Add a new future reminder

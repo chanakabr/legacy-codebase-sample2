@@ -278,7 +278,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
-        private static Dictionary<string, KalturaStringValue> ConvertEngagementAdapterSettings(List<EngagementAdapterSettings> settings)
+        internal static Dictionary<string, KalturaStringValue> ConvertEngagementAdapterSettings(List<EngagementAdapterSettings> settings)
         {
             Dictionary<string, KalturaStringValue> result = null;
 
@@ -296,7 +296,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static List<EngagementAdapterSettings> ConvertEngagementAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
+        internal static List<EngagementAdapterSettings> ConvertEngagementAdapterSettings(SerializableDictionary<string, KalturaStringValue> settings)
         {
             List<EngagementAdapterSettings> result = null;
 
@@ -686,6 +686,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
             }
             return result;
-        }
+        }       
     }
 }
