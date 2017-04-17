@@ -988,5 +988,25 @@ namespace Core.Notification
         {
             return EngagementManager.GenerateEngagementSharedSecret(groupId, engagementAdapterId);
         }
+
+        public static EngagementAdapterSettingsResponse GetEngagementAdapterSettings(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> configs)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

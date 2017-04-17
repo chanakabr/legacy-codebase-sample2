@@ -200,6 +200,7 @@
     <Compile Include="Notification\EngagementAdapterBase.cs" />
     <Compile Include="Notification\EngagementAdapterSettings.cs" />
     <Compile Include="Notification\EngagementAdapterResponse.cs" />
+    <Compile Include="Notification\EngagementAdapterSettingsResponse.cs" />
     <Compile Include="Notification\RemindersResponse.cs" />
     <Compile Include="Notification\DbReminder.cs" />
     <Compile Include="Notification\InboxMessageResponse.cs" />
