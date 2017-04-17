@@ -2448,8 +2448,8 @@ namespace DAL
                 sp.AddParameter("@groupID", groupId);
                 sp.AddParameter("@ID", engagementAdapter.ID);
                 sp.AddParameter("@name", engagementAdapter.Name);
-                sp.AddParameter("@shared_secret", engagementAdapter.SharedSecret);
-                sp.AddParameter("@adapter_url", engagementAdapter.AdapterUrl);
+                sp.AddParameter("@sharedSecret", engagementAdapter.SharedSecret);
+                sp.AddParameter("@adapterUrl", engagementAdapter.AdapterUrl);
                 sp.AddParameter("@isActive", engagementAdapter.IsActive);
 
                 DataSet ds = sp.ExecuteDataSet();
@@ -2471,7 +2471,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_EngagementAdapterSettings");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupID", groupId);
-                sp.AddParameter("@id", engagementAdapterId);
+                sp.AddParameter("@ID", engagementAdapterId);
 
                 DataTable dt = CreateDataTable(groupId, settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
