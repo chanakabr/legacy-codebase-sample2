@@ -328,5 +328,25 @@ namespace Core.Notification
             }
             return response;
         }
+
+        internal static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> engagementAdapterSettingsList)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> engagementAdapterSettingsList)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> engagementAdapterSettingsList)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static EngagementAdapterSettingsResponse GetEngagementAdapterSettings(int groupId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

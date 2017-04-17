@@ -991,22 +991,22 @@ namespace Core.Notification
 
         public static EngagementAdapterSettingsResponse GetEngagementAdapterSettings(int groupId)
         {
-            throw new NotImplementedException();
+            return EngagementManager.GetEngagementAdapterSettings(groupId);
         }
 
-        public static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> request)
+        public static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
         {
-            throw new NotImplementedException();
+            return EngagementManager.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
         }
 
-        public static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> request)
+        public static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
         {
-            throw new NotImplementedException();
+            return EngagementManager.InsertEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
         }
 
-        public static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> configs)
+        public static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
         {
-            throw new NotImplementedException();
+            return EngagementManager.SetEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
         }
     }
 }
