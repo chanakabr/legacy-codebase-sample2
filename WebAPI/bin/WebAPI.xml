@@ -719,14 +719,14 @@
             </remarks>
             <param name="engagementAdapterId">Engagement adapter identifier</param>
         </member>
-        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.List">
+        <member name="M:WebAPI.Controllers.EngagementAdapterSettingsController.List">
             <summary>
             Returns all Engagement adapter settings for partner
             </summary>
             <remarks>       
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.Delete(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.EngagementAdapterSettingsController.Delete(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Delete Engagement adapter specific settings by settings keys 
              </summary>
@@ -740,7 +740,7 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.Add(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.EngagementAdapterSettingsController.Add(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Insert new settings for Engagement adapter for partner
              </summary>
@@ -754,7 +754,7 @@
             "key1": {"value": "value2"}}
             </param>
         </member>
-        <member name="M:WebAPI.Controllers.EngagementAdapterProfileSettingsController.Update(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
+        <member name="M:WebAPI.Controllers.EngagementAdapterSettingsController.Update(System.Int32,SerializableDictionary{System.String,WebAPI.Models.General.KalturaStringValue})">
              <summary>
              Update settings for Engagement adapter
              </summary>
