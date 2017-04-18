@@ -7407,5 +7407,25 @@ namespace Core.ConditionalAccess
             }
             return DomainRecordingIdToRecordingMap;
         }
+
+        internal static List<int> GetMediaFilesByMediaId(int groupId, int mediaId)
+        {
+            List<int> result = null;
+            try
+            {                
+                if (mediaId > 0)
+                {                    
+                    result = Api.Module.GetMediaFilesByMediaId(groupId, mediaId);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaFilesByMediaId failed for groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return result;
+        }
+
     }
 }

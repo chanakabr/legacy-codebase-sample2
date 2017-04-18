@@ -480,23 +480,27 @@ namespace Core.ConditionalAccess
                     mediaId = funcParams["mediaId"] as int?;
                     if (groupId.HasValue && mediaId.HasValue && domainId.HasValue)
                     {
-                        DataTable dt = DAL.ConditionalAccessDAL.GetFilesCreditUsedDetails(groupId.Value, domainId.Value, mediaId.Value);
-                        if (dt != null && dt.Rows != null)
+                        List<int> mediaFileIds = Utils.GetMediaFilesByMediaId(groupId.Value, mediaId.Value);
+                        if (mediaFileIds != null && mediaFileIds.Count > 0)
                         {
-                            filesCreditUsedDetails = new List<FileCreditUsedDetails>();
-                            foreach (DataRow dr in dt.Rows)
+                            DataTable dt = DAL.ConditionalAccessDAL.GetFilesCreditUsedDetails(groupId.Value, domainId.Value, mediaFileIds);
+                            if (dt != null && dt.Rows != null)
                             {
-                                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_FILE_ID", 0);
-                                string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "PPVMODULE_CODE");
-                                DateTime? lastDateUsed = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
-
-                                if (id > 0 && !string.IsNullOrEmpty(productCode) && lastDateUsed.HasValue)
+                                filesCreditUsedDetails = new List<FileCreditUsedDetails>();
+                                foreach (DataRow dr in dt.Rows)
                                 {
-                                    filesCreditUsedDetails.Add(new FileCreditUsedDetails() { Id = id, ProductCode = productCode, DateUsed = TVinciShared.DateUtils.DateTimeToUnixTimestamp(lastDateUsed.Value) });
-                                }
-                            }
+                                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_FILE_ID", 0);
+                                    string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "PPVMODULE_CODE");
+                                    DateTime? lastDateUsed = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
 
-                            res = filesCreditUsedDetails != null;
+                                    if (id > 0 && !string.IsNullOrEmpty(productCode) && lastDateUsed.HasValue)
+                                    {
+                                        filesCreditUsedDetails.Add(new FileCreditUsedDetails() { Id = id, ProductCode = productCode, DateUsed = TVinciShared.DateUtils.DateTimeToUnixTimestamp(lastDateUsed.Value) });
+                                    }
+                                }
+
+                                res = filesCreditUsedDetails != null;
+                            }
                         }
                     }
                 }

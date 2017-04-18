@@ -9666,5 +9666,25 @@ namespace Core.Api
             return result;
         }
 
+        internal static List<int> GetMediaFilesByMediaId(int groupId, int mediaId)
+        {
+            List<int> result = null;
+            try
+            {
+                string key = LayeredCacheKeys.GetMediaFilesByMediaIdKey(groupId, mediaId);
+                if (!LayeredCache.Instance.Get<List<int>>(key, ref result, APILogic.Utils.GetMediaFilesByMediaId, new Dictionary<string, object>() { { "groupId", groupId }, { "mediaId", mediaId } },
+                                                        groupId, LayeredCacheConfigNames.MEDIA_FILES_BY_MEDIA_ID_LAYERED_CACHE_CONFIG_NAME))
+                {
+                    log.ErrorFormat("Failed getting mediaFilesByMediaId from LayeredCache, groupId: {0}, mediaId: {1}, key: {2}", groupId, mediaId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetMediaFilesByMediaId for groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+
+            return result;
+        }
+
     }
 }
