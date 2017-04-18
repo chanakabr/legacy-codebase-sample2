@@ -12,9 +12,9 @@ using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
-    [RoutePrefix("_service/engagementAdapterProfileSettings/action")]
+    [RoutePrefix("_service/engagementAdapterSettings/action")]
     [Obsolete]
-    public class EngagementAdapterProfileSettingsController : ApiController
+    public class EngagementAdapterSettingsController : ApiController
     {
         /// <summary>
         /// Returns all Engagement adapter settings for partner
