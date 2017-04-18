@@ -73,11 +73,10 @@ public partial class adm_engagements : System.Web.UI.Page
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
-        string sGroupLang = GetMainLang();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "SELECT ID ,group_id ,status,create_date,update_date,send_time,total_number_of_recipients,template_id,adapter_id,adapter_dynamic_data,interval,user_list ";
-        theTable += "FROM MessageBox.dbo.engagements with (nolock)";
-        theTable += string.Format(" Where group_id = {0} ", groupId);
+        theTable += "SELECT ID ,group_id ,status, is_active, template_id as 'Type' ,send_time as 'Send Time',total_number_of_recipients as '# Recipients',interval ";
+        theTable += "FROM engagements with (nolock)";
+        theTable += string.Format(" Where status<>2 and  group_id = {0} ", groupId);
 
         if (sOrderBy != "")
         {
@@ -88,86 +87,62 @@ public partial class adm_engagements : System.Web.UI.Page
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
+        theTable.AddHiddenField("is_active");
        
         //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&  LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         //{
         //    theTable.AddActivationField("engagements", "adm_engagements.aspx");
         //}
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
-        {
-            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_engagements_new.aspx", "Edit", "");
-            linkColumn1.AddQueryStringValue("engagement_id", "field=ID");
-            theTable.AddLinkColumn(linkColumn1);
-        }
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        //{
+        //    DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_engagements_new.aspx", "Edit", "");
+        //    linkColumn1.AddQueryStringValue("engagement_id", "field=ID");
+        //    theTable.AddLinkColumn(linkColumn1);
+        //}
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("db", "notifications_connection");
-            linkColumn.AddQueryStringValue("table", "engagements");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "14");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
-            theTable.AddLinkColumn(linkColumn);
-        }
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        //{
+        //    DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
+        //    linkColumn.AddQueryStringValue("id", "field=id");
+        //    linkColumn.AddQueryStringValue("db", "notifications_connection");
+        //    linkColumn.AddQueryStringValue("table", "engagements");
+        //    linkColumn.AddQueryStringValue("confirm", "true");
+        //    linkColumn.AddQueryStringValue("main_menu", "14");
+        //    linkColumn.AddQueryStringValue("sub_menu", "2");
+        //    linkColumn.AddQueryStringValue("rep_field", "username");
+        //    linkColumn.AddQueryStringValue("rep_name", "Username");
+        //    theTable.AddLinkColumn(linkColumn);
+        //}
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("db", "notifications_connection");
-            linkColumn.AddQueryStringValue("table", "engagements");
-            linkColumn.AddQueryStringValue("confirm", "true");
-            linkColumn.AddQueryStringValue("main_menu", "14");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
-            theTable.AddLinkColumn(linkColumn);
-        }
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+        //{
+        //    DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
+        //    linkColumn.AddQueryStringValue("id", "field=id");
+        //    linkColumn.AddQueryStringValue("db", "notifications_connection");
+        //    linkColumn.AddQueryStringValue("table", "engagements");
+        //    linkColumn.AddQueryStringValue("confirm", "true");
+        //    linkColumn.AddQueryStringValue("main_menu", "14");
+        //    linkColumn.AddQueryStringValue("sub_menu", "2");
+        //    linkColumn.AddQueryStringValue("rep_field", "username");
+        //    linkColumn.AddQueryStringValue("rep_name", "Username");
+        //    theTable.AddLinkColumn(linkColumn);
+        //}
 
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
-        {
-            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
-            linkColumn.AddQueryStringValue("id", "field=id");
-            linkColumn.AddQueryStringValue("table", "engagements");
-            linkColumn.AddQueryStringValue("db", "notifications_connection");
-            linkColumn.AddQueryStringValue("confirm", "false");
-            linkColumn.AddQueryStringValue("main_menu", "14");
-            linkColumn.AddQueryStringValue("sub_menu", "2");
-            linkColumn.AddQueryStringValue("rep_field", "username");
-            linkColumn.AddQueryStringValue("rep_name", "Username");
-            theTable.AddLinkColumn(linkColumn);
-        }
+        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        //{
+        //    DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
+        //    linkColumn.AddQueryStringValue("id", "field=id");
+        //    linkColumn.AddQueryStringValue("table", "engagements");
+        //    linkColumn.AddQueryStringValue("db", "notifications_connection");
+        //    linkColumn.AddQueryStringValue("confirm", "false");
+        //    linkColumn.AddQueryStringValue("main_menu", "14");
+        //    linkColumn.AddQueryStringValue("sub_menu", "2");
+        //    linkColumn.AddQueryStringValue("rep_field", "username");
+        //    linkColumn.AddQueryStringValue("rep_name", "Username");
+        //    theTable.AddLinkColumn(linkColumn);
+        //}
 
-    }
-
-    private DataTable Getengagements(int groupId)
-    {
-        DataTable dt = null;
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery.SetConnectionKey("notifications_connection");
-        selectQuery += "SELECT id ,group_id ,status,create_date,update_date,send_time,total_number_of_recipients,template_id,adapter_id,adapter_dynamic_data,interval,user_list ";  
-        selectQuery += "FROM MessageBox.dbo.engagements ";
-        selectQuery += string.Format(" Where group_id = {0} ", groupId);        
-        selectQuery += " order by id desc ";
-        
-        if (selectQuery.Execute("query", true) != null)
-        {
-            int nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
-            {
-                dt = selectQuery.Table("query");
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-
-
-        return dt;
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)

@@ -61,7 +61,7 @@ public partial class adm_engagement_churn_template : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": Engagement Template");
+        Response.Write(PageUtils.GetPreHeader() + ": Churn Template");
     }
 
     protected void GetLangMenu()
