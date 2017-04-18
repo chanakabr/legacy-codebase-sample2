@@ -2730,7 +2730,7 @@ namespace DAL
         public static DataTable GetFilesCreditUsedDetails(int groupId, int domainId, List<int> mediaFileIds)
         {
             DataTable dt = null;
-            ODBCWrapper.StoredProcedure sp_GetFilesCreditUsedDetails = new ODBCWrapper.StoredProcedure("GetFilesCreditUsedDetails");
+            ODBCWrapper.StoredProcedure sp_GetFilesCreditUsedDetails = new ODBCWrapper.StoredProcedure("GetFilesCreditUsedDetailsWithMediaFileIds");
             sp_GetFilesCreditUsedDetails.SetConnectionKey("CA_CONNECTION_STRING");
             sp_GetFilesCreditUsedDetails.AddParameter("@GroupId", groupId);
             sp_GetFilesCreditUsedDetails.AddParameter("@DomainId", domainId);
