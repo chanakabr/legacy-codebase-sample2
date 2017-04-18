@@ -4193,5 +4193,22 @@ namespace WS_API
             }
         }
 
+        [WebMethod]
+        public List<int> GetMediaFilesByMediaId(string sWSUserName, string sWSPassword, int mediaId)
+        {
+            List<int> result = null;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.GetMediaFilesByMediaId(groupId, mediaId);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
     }
 }
