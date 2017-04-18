@@ -13,7 +13,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/session/action")]
-    [OldStandardAction("getOldStandard", "get")]
     public class SessionController : ApiController
     {
         /// <summary>
@@ -57,8 +56,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="session">Additional KS to parse, if not passed the user's KS will be parsed</param>
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
-        [OldStandard("session", "ks_to_parse")]
+        [OldStandardArgument("session", "ks_to_parse")]
         [Obsolete]
         public KalturaSessionInfo GetOldStandard(string session = null)
         {

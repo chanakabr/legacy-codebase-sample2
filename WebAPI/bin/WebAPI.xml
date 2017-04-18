@@ -2280,7 +2280,7 @@
             <summary>
             Retrieve a message template used in push notifications and inbox
             </summary>
-            <param name="assetType">possible values: Asset type – Series</param>
+            <param name="messageType">possible values: Asset type – Series</param>
             <returns></returns>     
             <remarks>
             Possible status codes: message template not found = 8016

@@ -12,7 +12,6 @@ namespace WebAPI.Models.Social
     /// <summary>
     /// Returns social configuration for the partner 
     /// </summary>
-     [OldStandard("appId", "app_id")]
     public class KalturaSocialFacebookConfig : KalturaSocialConfig
     {
         /// <summary>
@@ -21,6 +20,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "appId")]
         [JsonProperty("appId")]
         [XmlElement(ElementName = "appId")]
+        [OldStandardProperty("app_id")]
        // [SchemeProperty(ReadOnly = true)]
         public string AppId { get; set; }
 

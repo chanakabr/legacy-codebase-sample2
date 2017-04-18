@@ -7,7 +7,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Billing
 {
-    [OldStandard("paymentGatewayConfiguration", "payment_gatewaye_configuration")]
     public class KalturaPaymentGatewayConfiguration : KalturaOTTObject
     {
         /// <summary>
@@ -17,6 +16,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("paymentGatewayConfiguration")]
         [XmlArray(ElementName = "paymentGatewayConfiguration", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [OldStandardProperty("payment_gatewaye_configuration")]
         public List<KalturaKeyValue> Configuration { get; set; }
     }
 }

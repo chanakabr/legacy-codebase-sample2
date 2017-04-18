@@ -11,8 +11,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
 {
-    [OldStandard("productId", "product_id")]
-    [OldStandard("productType", "product_type")]
     [XmlInclude(typeof(KalturaItemPrice))]
     [XmlInclude(typeof(KalturaPpvPrice))]
     [XmlInclude(typeof(KalturaSubscriptionPrice))]
@@ -24,6 +22,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "productId")]
         [JsonProperty("productId")]
         [XmlElement(ElementName = "productId")]
+        [OldStandardProperty("product_id")]
         public string ProductId { get; set; }
 
         /// <summary>
@@ -32,6 +31,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "productType")]
         [JsonProperty("productType")]
         [XmlElement(ElementName = "productType")]
+        [OldStandardProperty("product_type")]
         public KalturaTransactionType ProductType { get; set; }
 
         /// <summary>

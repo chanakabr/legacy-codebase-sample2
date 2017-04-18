@@ -10,11 +10,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Social
 {
-    [OldStandard("userId", "user_id")]
-    [OldStandard("kalturaUsername", "kaltura_username")]
-    [OldStandard("socialUsername", "social_username")]
-    [OldStandard("minFriendsLimitation", "min_friends_limitation")]
-    [OldStandard("socialUser", "social_user")]
     public class KalturaSocialResponse : KalturaOTTObject
     {
         /// <summary>
@@ -32,6 +27,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
+        [OldStandardProperty("user_id")]
         public string UserId { get; set; }
 
         /// <summary>
@@ -40,6 +36,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "kalturaUsername")]
         [JsonProperty("kalturaUsername")]
         [XmlElement(ElementName = "kalturaUsername")]
+        [OldStandardProperty("kaltura_username")]
         public string KalturaName { get; set; }
 
         /// <summary>
@@ -48,6 +45,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "socialUsername")]
         [JsonProperty("socialUsername")]
         [XmlElement(ElementName = "socialUsername")]
+        [OldStandardProperty("social_username")]
         public string SocialNetworkUsername { get; set; }
 
         /// <summary>
@@ -72,6 +70,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "minFriendsLimitation")]
         [JsonProperty("minFriendsLimitation")]
         [XmlElement(ElementName = "minFriendsLimitation")]
+        [OldStandardProperty("min_friends_limitation")]
         public string MinFriends { get; set; }
 
         /// <summary>
@@ -88,6 +87,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "socialUser")]
         [JsonProperty("socialUser")]
         [XmlElement(ElementName = "socialUser", IsNullable = true)]
+        [OldStandardProperty("social_user")]
         public KalturaSocialUser SocialUser { get; set; }
     }
 }

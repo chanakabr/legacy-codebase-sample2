@@ -18,10 +18,6 @@ using ApiObjects.Response;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/announcement/action")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("updateOldStandard", "update")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("enableSystemAnnouncements", "createAnnouncement")]
     public class AnnouncementController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -76,6 +72,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004
         /// AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
@@ -161,6 +158,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: AnnouncementMessageTooLong = 8010, AnnouncementMessageIsEmpty = 8004, AnnouncementNotFound = 8006,
         /// AnnouncementUpdateNotAllowed = 8007, AnnouncementInvalidTimezone = 8008, FeatureDisabled = 8009</remarks>
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
@@ -260,6 +258,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>Possible status codes: FeatureDisabled = 8009, FailCreateAnnouncement = 8011</remarks>
         [Route("enableSystemAnnouncements"), HttpPost]
+        [OldStandardAction("createAnnouncement")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.FeatureDisabled)]
@@ -320,6 +319,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         /// <remarks>FeatureDisabled = 8009</remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.FeatureDisabled)]

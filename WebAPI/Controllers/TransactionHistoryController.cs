@@ -15,7 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/transactionHistory/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class TransactionHistoryController : ApiController
     {
         /// <summary>
@@ -92,6 +91,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Page size and index, filter by household or user</param>   
         /// <remarks></remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaBillingTransactionListResponse ListOldStandard(KalturaTransactionsFilter filter = null)

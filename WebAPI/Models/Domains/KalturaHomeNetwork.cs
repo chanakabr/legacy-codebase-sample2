@@ -29,8 +29,6 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Home network details
     /// </summary>
-    [OldStandard("externalId", "external_id")]
-    [OldStandard("isActive", "is_active")]
     public class KalturaHomeNetwork : KalturaOTTObject
     {
         /// <summary>
@@ -40,6 +38,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
         [SchemeProperty(InsertOnly = true)]
+        [OldStandardProperty("external_id")]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -64,6 +63,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
 
         internal bool getIsActive()

@@ -30,19 +30,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing Transaction
     /// </summary>
     [Serializable]
-    [OldStandard("recieptCode", "reciept_code")]
-    [OldStandard("purchasedItemName", "purchased_item_name")]
-    [OldStandard("purchasedItemCode", "purchased_item_code")]
-    [OldStandard("itemType", "item_type")]
-    [OldStandard("billingAction", "billing_action")]
-    [OldStandard("actionDate", "action_date")]
-    [OldStandard("startDate", "start_date")]
-    [OldStandard("endDate", "end_date")]
-    [OldStandard("paymentMethod", "payment_method")]
-    [OldStandard("paymentMethodExtraDetails", "payment_method_extra_details")]
-    [OldStandard("isRecurring", "is_recurring")]
-    [OldStandard("billingProviderRef", "billing_provider_ref")]
-    [OldStandard("purchaseId", "purchase_id")]
     [XmlInclude(typeof(KalturaUserBillingTransaction))]
     public class KalturaBillingTransaction : KalturaOTTObject
     {
@@ -53,6 +40,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("recieptCode")]
         [XmlElement(ElementName = "recieptCode")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("reciept_code")]
         public string recieptCode { get; set; }
 
         /// <summary>
@@ -62,6 +50,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchasedItemName")]
         [XmlElement(ElementName = "purchasedItemName")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchased_item_name")]
         public string purchasedItemName { get; set; }
 
         /// <summary>
@@ -71,6 +60,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchasedItemCode")]
         [XmlElement(ElementName = "purchasedItemCode")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchased_item_code")]
         public string purchasedItemCode { get; set; }
 
         /// <summary>
@@ -80,6 +70,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("itemType")]
         [XmlElement(ElementName = "itemType")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("item_type")]
         public KalturaBillingItemsType itemType { get; set; }
 
         /// <summary>
@@ -89,6 +80,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("billingAction")]
         [XmlElement(ElementName = "billingAction")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("billing_action")]
         public KalturaBillingAction billingAction { get; set; }
 
         /// <summary>
@@ -107,6 +99,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("actionDate")]
         [XmlElement(ElementName = "actionDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("action_date")]
         public long? actionDate { get; set; }
 
         /// <summary>
@@ -116,6 +109,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("start_date")]
         public long? startDate { get; set; }
 
         /// <summary>
@@ -125,6 +119,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("end_date")]
         public long? endDate { get; set; }
 
         /// <summary>
@@ -134,6 +129,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("paymentMethod")]
         [XmlElement(ElementName = "paymentMethod")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("payment_method")]
         public KalturaPaymentMethodType paymentMethod { get; set; }
 
         /// <summary>
@@ -143,6 +139,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("paymentMethodExtraDetails")]
         [XmlElement(ElementName = "paymentMethodExtraDetails")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("payment_method_extra_details")]
         public string paymentMethodExtraDetails { get; set; }
 
         /// <summary>
@@ -152,6 +149,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRecurring")]
         [XmlElement(ElementName = "isRecurring")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_recurring")]
         public bool? isRecurring { get; set; }
 
         /// <summary>
@@ -161,6 +159,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("billingProviderRef")]
         [XmlElement(ElementName = "billingProviderRef")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("billing_provider_ref")]
         public Int32? billingProviderRef { get; set; }
 
         /// <summary>
@@ -170,6 +169,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchase_id")]
         public Int32? purchaseID { get; set; }
 
         /// <summary>
@@ -186,8 +186,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// Billing transactions of single user
     /// </summary>
     [Serializable]
-    [OldStandard("userId", "user_id")]
-    [OldStandard("userFullName", "user_full_name")]
     [Obsolete]
     public class KalturaUserBillingTransaction : KalturaBillingTransaction
     {
@@ -195,16 +193,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
         [SchemeProperty(ReadOnly = true)]
-        public string UserID
-        {
-            get;
-            set;
-        }
+        [OldStandardProperty("user_id")]
+        public string UserID { get; set; }
 
-        [DataMember(Name = "userFullNName")]
+        [DataMember(Name = "userFullName")]
         [JsonProperty("userFullName")]
         [XmlElement(ElementName = "userFullName")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("user_full_name")]
         public string UserFullName { get; set; }
     }
 

@@ -13,8 +13,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Channel details
     /// </summary>
-    [OldStandard("assetTypes", "asset_types")]
-    [OldStandard("filterExpression", "filter_expression")]
     public class KalturaChannel : KalturaBaseChannel
     {
         /// <summary>
@@ -42,6 +40,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "assetTypes")]
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("asset_types")]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
         
         /// <summary>
@@ -59,6 +58,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "filterExpression")]
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression")]
+        [OldStandardProperty("filter_expression")]
         public string FilterExpression
         {
             get;

@@ -14,8 +14,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/cDVRAdapterProfile/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class CDVRAdapterProfileController : ApiController
     {
         /// <summary>
@@ -53,6 +51,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public List<KalturaCDVRAdapterProfile> ListOldStandard()
         {
@@ -82,7 +81,7 @@ namespace WebAPI.Controllers
         /// <param name="adapterId">C-DVR adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("adapterId", "adapter_id")]
+        [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterNotExists)]
         public bool Delete(int adapterId)
         {
@@ -182,6 +181,7 @@ namespace WebAPI.Controllers
         /// <param name="adapter">C-DVR adapter Object</param>       
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("update")]
         [Obsolete]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
@@ -218,7 +218,7 @@ namespace WebAPI.Controllers
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("adapterId", "adapter_id")]
+        [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
         [Throws(eResponseStatus.AdapterNotExists)]
         public KalturaCDVRAdapterProfile GenerateSharedSecret(int adapterId)

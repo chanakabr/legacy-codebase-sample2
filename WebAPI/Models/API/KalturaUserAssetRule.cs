@@ -13,7 +13,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Generic rule - representing different type of rules (Parental, Geo, User Type, Device)
     /// </summary>
-    [OldStandard("ruleType", "rule_type")]
     [Obsolete]
     public class KalturaGenericRule : KalturaOTTObject
     {
@@ -31,6 +30,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "ruleType")]
         [JsonProperty("ruleType")]
         [XmlElement(ElementName = "ruleType")]
+        [OldStandardProperty("rule_type")]
         public KalturaRuleType RuleType { get; set; }
 
         /// <summary>

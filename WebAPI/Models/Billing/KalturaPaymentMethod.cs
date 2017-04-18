@@ -11,8 +11,6 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// payment method
     /// </summary>
-    [OldStandard("allowMultiInstance", "allow_multi_instance")]
-    [OldStandard("householdPaymentMethods", "household_payment_methods")]
     [Obsolete]
     public class KalturaPaymentMethod : KalturaOTTObject
     {
@@ -38,6 +36,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "allowMultiInstance")]
         [JsonProperty("allowMultiInstance")]
         [XmlElement(ElementName = "allowMultiInstance")]
+        [OldStandardProperty("allow_multi_instance")]
         public bool? AllowMultiInstance { get; set; }
 
         /// <summary>
@@ -47,6 +46,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("householdPaymentMethods")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [OldStandardProperty("household_payment_methods")]
         public List<KalturaHouseholdPaymentMethod> HouseholdPaymentMethods { get; set; }
     }
 }

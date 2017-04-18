@@ -15,8 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/externalChannelProfile/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class ExternalChannelProfileController : ApiController
     {
         /// <summary>
@@ -52,6 +50,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public List<KalturaExternalChannelProfile> ListOldStandard()
         {
@@ -82,7 +81,7 @@ namespace WebAPI.Controllers
         /// <param name="externalChannelId">External channel identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("externalChannelId", "external_channel_id")]
+        [OldStandardArgument("externalChannelId", "external_channel_id")]
         [Throws(eResponseStatus.ExternalChannelNotExist)]
         [Throws(eResponseStatus.ExternalChannelIdentifierRequired)]
         public bool Delete(int externalChannelId)
@@ -115,7 +114,7 @@ namespace WebAPI.Controllers
         /// <param name="externalChannel">External channel Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("externalChannel", "external_channel")]
+        [OldStandardArgument("externalChannel", "external_channel")]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.RecommendationEngineIdentifierRequired)]
         [Throws(eResponseStatus.InactiveExternalChannelEnrichment)]
@@ -190,6 +189,7 @@ namespace WebAPI.Controllers
         /// <param name="external_channel">External channel Object</param>       
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("update")]
         [Obsolete]
         [Throws(eResponseStatus.ExternalChannelNotExist)]
         [Throws(eResponseStatus.ExternalChannelIdentifierRequired)]

@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("pinCode", "pin_code")]
+        [OldStandardArgument("pinCode", "pin_code")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.MissingSecurityParameter)]
         [Throws(eResponseStatus.LoginViaPinNotAllowed)]
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("pinCode", "pin_code")]
+        [OldStandardArgument("pinCode", "pin_code")]
         public bool Delete(string pinCode)
         {
             bool res = false;

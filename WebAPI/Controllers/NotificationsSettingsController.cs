@@ -13,8 +13,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/notificationsSettings/action")]
-    [OldStandardAction("getOldStandard", "get")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class NotificationsSettingsController : ApiController
     {
         /// <summary>
@@ -53,6 +51,7 @@ namespace WebAPI.Controllers
         /// <returns>The notification settings that apply</returns>
         /// 
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaNotificationSettings GetOldStandard()
@@ -112,6 +111,7 @@ namespace WebAPI.Controllers
         /// <returns>The notification settings that apply for the user</returns>
         /// 
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         public bool UpdateOldStandard(KalturaNotificationSettings settings)

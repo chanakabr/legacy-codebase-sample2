@@ -15,8 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdDevice/action")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class HouseholdDeviceController : ApiController
     {
         /// <summary>
@@ -56,7 +54,7 @@ namespace WebAPI.Controllers
         /// Exceeded limit = 1001, Duplicate pin = 1028, Device not exists = 1019</remarks>
         [Route("addByPin"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("deviceName", "device_name")]
+        [OldStandardArgument("deviceName", "device_name")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.ExceededLimit)]
         [Throws(eResponseStatus.DuplicatePin)]
@@ -134,6 +132,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household suspended = 1009, Device exists in other household = 1016 , Device already exists = 1015</remarks>
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("add")]
         [Obsolete]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.DomainSuspended)]
@@ -235,7 +234,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("generatePin"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("brandId", "brand_id")]
+        [OldStandardArgument("brandId", "brand_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaDevicePin GeneratePin(string udid, int brandId)
         {
@@ -302,6 +301,7 @@ namespace WebAPI.Controllers
         /// Device not exists = 1019</remarks>
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("update")]
         [Obsolete]
         [Throws(eResponseStatus.DeviceNotExists)]
         public bool UpdateOldStandard(string device_name, string udid)

@@ -13,7 +13,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/registrySettings/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class RegistrySettingsController : ApiController
     {
         /// <summary>
@@ -50,6 +49,7 @@ namespace WebAPI.Controllers
         /// <returns>The registry settings that apply for the partner</returns>
         /// 
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<KalturaRegistrySettings> ListOldStandard()

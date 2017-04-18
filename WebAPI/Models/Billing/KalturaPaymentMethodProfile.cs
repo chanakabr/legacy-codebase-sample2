@@ -54,7 +54,6 @@ namespace WebAPI.Models.Billing
         }
     }
 
-    [OldStandard("allowMultiInstance", "allow_multi_instance")]
     public class KalturaPaymentMethodProfile : KalturaOTTObject
     {
         /// <summary>
@@ -88,6 +87,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "allowMultiInstance")]
         [JsonProperty("allowMultiInstance")]
         [XmlElement(ElementName = "allowMultiInstance")]
+        [OldStandardProperty("allow_multi_instance")]
         public bool? AllowMultiInstance { get; set; }
 
         internal bool getAllowMultiInstance()

@@ -117,8 +117,6 @@ namespace WebAPI.Models.Catalog
     /// Watch history asset info
     /// </summary>
     [Serializable]
-    [OldStandard("watchedDate", "watched_date")]
-    [OldStandard("finishedWatching", "finished_watching")]
     [Obsolete]
     public class KalturaWatchHistoryAsset : KalturaOTTObject
     {
@@ -152,6 +150,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "watchedDate")]
         [JsonProperty(PropertyName = "watchedDate")]
         [XmlElement(ElementName = "watchedDate")]
+        [OldStandardProperty("watched_date")]
         public long? LastWatched { get; set; }
 
         /// <summary>
@@ -160,6 +159,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "finishedWatching")]
         [JsonProperty(PropertyName = "finishedWatching")]
         [XmlElement(ElementName = "finishedWatching")]
+        [OldStandardProperty("finished_watching")]
         public bool? IsFinishedWatching { get; set; }
     }
 }

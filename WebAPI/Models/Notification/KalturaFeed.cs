@@ -8,7 +8,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    [OldStandard("assetId", "asset_id")]
     public class KalturaFeed : KalturaOTTObject
     {
         /// <summary>
@@ -18,6 +17,7 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("asset_id")]
         public long AssetId{ get; set; }
        
     }

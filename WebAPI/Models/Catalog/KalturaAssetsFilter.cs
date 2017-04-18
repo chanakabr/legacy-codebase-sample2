@@ -16,7 +16,6 @@ namespace WebAPI.Models.Catalog
     /// Filtering Assets requests
     /// </summary>
     [Serializable]
-    [OldStandard("assets", "Assets")]
     [Obsolete]
     public class KalturaAssetsFilter : KalturaOTTObject
     {
@@ -28,6 +27,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "assets")]
         [XmlArray(ElementName = "assets", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [OldStandardProperty("Assets")]
         public List<KalturaSlimAsset> Assets { get; set; }
     }
 }

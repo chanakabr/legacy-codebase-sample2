@@ -14,7 +14,6 @@ namespace WebAPI.Models.Catalog
     /// Asset info wrapper
     /// </summary>
     [Serializable]
-    [OldStandard("requestId", "request_id")]
     [Obsolete]
     public class KalturaAssetInfoListResponse : KalturaListResponse
     {
@@ -30,6 +29,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "requestId")]
         [JsonProperty(PropertyName = "requestId")]
         [XmlElement("requestId", IsNullable = true)]
+        [OldStandardProperty("request_id")]
         public string RequestId { get; set; }
     }
 
@@ -37,9 +37,6 @@ namespace WebAPI.Models.Catalog
     /// Asset info
     /// </summary>
     [Serializable]
-    [OldStandard("startDate", "start_date")]
-    [OldStandard("endDate", "end_date")]
-    [OldStandard("extraParams", "extra_params")]
     [Obsolete]
     public class KalturaAssetInfo : KalturaBaseAssetInfo, KalturaIAssetable
     {
@@ -65,6 +62,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
         [XmlElement(ElementName = "startDate")]
+        [OldStandardProperty("start_date")]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -73,6 +71,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
         [XmlElement(ElementName = "endDate")]
+        [OldStandardProperty("end_date")]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -83,6 +82,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "extraParams", EmitDefaultValue = true)]
         [JsonProperty(PropertyName = "extraParams", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement("extraParams", IsNullable = true)]
+        [OldStandardProperty("extra_params")]
         public SerializableDictionary<string, KalturaStringValue> ExtraParams { get; set; }
     }
 }

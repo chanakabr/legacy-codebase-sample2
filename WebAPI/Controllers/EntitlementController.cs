@@ -13,7 +13,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/entitlement/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class EntitlementController : ApiController
     {
         /// <summary>
@@ -25,8 +24,8 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Route("cancel"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("assetId", "asset_id")]
-        [OldStandard("transactionType", "transaction_type")]
+        [OldStandardArgument("assetId", "asset_id")]
+        [OldStandardArgument("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.DomainSuspended)]
@@ -75,8 +74,8 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, Invalid purchase = 3000</remarks>
         [Route("forceCancel"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("assetId", "asset_id")]
-        [OldStandard("transactionType", "transaction_type")]
+        [OldStandardArgument("assetId", "asset_id")]
+        [OldStandardArgument("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.DomainSuspended)]
@@ -121,7 +120,7 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Route("cancelRenewal"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("subscriptionId", "subscription_id")]
+        [OldStandardArgument("subscriptionId", "subscription_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
@@ -160,6 +159,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public KalturaEntitlementListResponse ListOldStandard(KalturaEntitlementsFilter filter)
         {
@@ -295,9 +295,9 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("grant"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("productId", "product_id")]
-        [OldStandard("productType", "product_type")]
-        [OldStandard("contentId", "content_id")]
+        [OldStandardArgument("productId", "product_id")]
+        [OldStandardArgument("productType", "product_type")]
+        [OldStandardArgument("contentId", "content_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -351,12 +351,12 @@ namespace WebAPI.Controllers
         [Route("buy"), HttpPost]
         [Obsolete]
         [ApiAuthorize]
-        [OldStandard("itemId", "item_id")]
-        [OldStandard("isSubscription", "is_subscription")]
-        [OldStandard("couponCode", "coupon_code")]
-        [OldStandard("extraParams", "extra_params")]
-        [OldStandard("encryptedCvv", "encrypted_cvv")]
-        [OldStandard("fileId", "file_id")]
+        [OldStandardArgument("itemId", "item_id")]
+        [OldStandardArgument("isSubscription", "is_subscription")]
+        [OldStandardArgument("couponCode", "coupon_code")]
+        [OldStandardArgument("extraParams", "extra_params")]
+        [OldStandardArgument("encryptedCvv", "encrypted_cvv")]
+        [OldStandardArgument("fileId", "file_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.IncorrectPrice)]
         [Throws(eResponseStatus.UnKnownPPVModule)]

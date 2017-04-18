@@ -20,7 +20,6 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Favorite request filter 
     /// </summary>
-    [OldStandard("mediaTypeIn", "media_type")]
     public class KalturaFavoriteFilter : KalturaFilter<KalturaFavoriteOrderBy>
     {
         /// <summary>
@@ -29,6 +28,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "mediaTypeIn")]
         [JsonProperty(PropertyName = "mediaTypeIn")]
         [XmlElement(ElementName = "mediaTypeIn")]
+        [OldStandardProperty("media_type")]
         [Obsolete]
         public int? MediaTypeIn
         {

@@ -14,8 +14,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/userAssetsListItem/action")]
-    [OldStandardAction("getOldStandard", "get")]
-    [OldStandardAction("deleteOldStandard", "delete")]
     public class UserAssetsListItemController : ApiController
     {
         /// <summary>
@@ -94,6 +92,7 @@ namespace WebAPI.Controllers
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.ItemNotFound)]
@@ -165,6 +164,7 @@ namespace WebAPI.Controllers
         /// Item was not found in list = 2032</remarks>
         /// <returns></returns>
         [Route("deleteOldStandard"), HttpPost]
+        [OldStandardAction("delete")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.ItemNotFound)]

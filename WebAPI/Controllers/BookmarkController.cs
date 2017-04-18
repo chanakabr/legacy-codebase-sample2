@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/bookmark/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("addOldStandard", "add")]
     public class BookmarkController : ApiController
     {
         /// <summary>
@@ -30,6 +28,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: User not exists in household = 1020, Invalid user = 1026, Invalid asset type = 4021
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserNotExistsInDomain)]
@@ -152,6 +151,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: BadRequest = 500003, ConcurrencyLimitation = 4001, InvalidAssetType = 4021, 
         /// ProgramDoesntExist = 4022, ActionNotRecognized = 4023, InvalidAssetId = 4024,</remarks>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize(true)]
         [Obsolete]
         [Throws(eResponseStatus.ConcurrencyLimitation)]

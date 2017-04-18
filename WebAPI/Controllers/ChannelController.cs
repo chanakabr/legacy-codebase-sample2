@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/channel/action")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class ChannelController : ApiController
     {
         /// <summary>
@@ -67,7 +65,7 @@ namespace WebAPI.Controllers
         /// <param name="channelId">channel identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("channelId", "channel_id")]
+        [OldStandardArgument("channelId", "channel_id")]
         [Throws(eResponseStatus.IdentifierRequired)]
         [Throws(eResponseStatus.ObjectNotExist)]
         public bool Delete(int channelId)
@@ -168,6 +166,7 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("add")]
         [Obsolete]
         [Throws(eResponseStatus.NoObjectToInsert)]
         [Throws(eResponseStatus.NameRequired)]
@@ -202,6 +201,7 @@ namespace WebAPI.Controllers
         /// <param name="channel">KSQL channel Object</param>       
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("update")]
         [Obsolete]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]

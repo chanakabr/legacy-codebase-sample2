@@ -19,7 +19,6 @@ using WebAPI.Filters;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/assetHistory/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class AssetHistoryController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -96,6 +95,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaWatchHistoryAssetWrapper ListOldStandard(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)

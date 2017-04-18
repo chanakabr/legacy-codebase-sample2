@@ -13,8 +13,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Discount module
     /// </summary>
-    [OldStandard("startDate", "start_date")]
-    [OldStandard("endDate", "end_date")]
     public class KalturaDiscountModule : KalturaOTTObject
     {
         /// <summary>
@@ -31,6 +29,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate", IsNullable = true)]
+        [OldStandardProperty("start_date")]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -39,6 +38,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate", IsNullable = true)]
+        [OldStandardProperty("end_date")]
         public long? EndDate { get; set; }
     }
 }

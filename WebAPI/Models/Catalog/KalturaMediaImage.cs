@@ -13,7 +13,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Image details
     /// </summary>
-    [OldStandard("isDefault", "is_default")]
     public class KalturaMediaImage : KalturaOTTObject
     {
         /// <summary>
@@ -71,6 +70,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isDefault")]
         [JsonProperty(PropertyName = "isDefault")]
         [XmlElement(ElementName = "isDefault")]
+        [OldStandardProperty("is_default")]
         public bool? IsDefault { get; set; }
     }
 }

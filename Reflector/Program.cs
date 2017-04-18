@@ -14,18 +14,59 @@ using Newtonsoft.Json;
 
 namespace Reflector
 {
+    class TypeComparer : IComparer<Type>
+    {
+        public int Compare(Type a, Type b)
+        {
+            return a.Name.CompareTo(b.Name);
+        }
+    }
+
+    class MethodInfoComparer : IComparer<MethodInfo>
+    {
+        public int Compare(MethodInfo a, MethodInfo b)
+        {
+            return a.Name.CompareTo(b.Name);
+        }
+    }
+
+    class PropertyInfoComparer : IComparer<PropertyInfo>
+    {
+        public int Compare(PropertyInfo a, PropertyInfo b)
+        {
+            return a.Name.CompareTo(b.Name);
+        }
+    }
+
+    class OldStandardArgumentAttributeComparer : IComparer<OldStandardArgumentAttribute>
+    {
+        public int Compare(OldStandardArgumentAttribute a, OldStandardArgumentAttribute b)
+        {
+            int compare = a.CompareVersion(b.sinceVersion);
+            if (compare != 0)
+            {
+                return compare;
+            }
+
+            return a.newName.CompareTo(b.newName);
+        }
+    }
+
     class Program
     {
         static private Assembly assembly;
-        static private IEnumerable<Type> types;
-        static private IEnumerable<Type> controllers;
+        static private List<Type> types;
+        static private List<Type> controllers;
         static private StreamWriter file;
 
         static void Main(string[] args)
         {
             assembly = Assembly.Load("WebAPI");
-            types = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(KalturaOTTObject)));
-            controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController)));
+            types = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(KalturaOTTObject))).ToList();
+            types.Sort(new TypeComparer());
+
+            controllers = assembly.GetTypes().Where(myType => myType.IsClass && myType.IsSubclassOf(typeof(ApiController))).ToList();
+            controllers.Sort(new TypeComparer());
 
             writeDataModel();
         }
@@ -83,7 +124,10 @@ namespace Reflector
             foreach (Type controller in controllers)
             {
                 needed = false;
-                foreach (MethodInfo action in controller.GetMethods())
+                List<MethodInfo> actions = controller.GetMethods().ToList();
+                actions.Sort(new MethodInfoComparer());
+
+                foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
                         continue;
@@ -102,7 +146,7 @@ namespace Reflector
                 file.WriteLine("                    switch(action.Name)");
                 file.WriteLine("                    {");
 
-                foreach (MethodInfo action in controller.GetMethods())
+                foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
                         continue;
@@ -145,7 +189,11 @@ namespace Reflector
                 authNeeded = false;
                 nonSilentNeeded = false;
                 returnNeeded = false;
-                foreach (MethodInfo action in controller.GetMethods())
+
+                List<MethodInfo> actions = controller.GetMethods().ToList();
+                actions.Sort(new MethodInfoComparer());
+
+                foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
                         continue;
@@ -176,7 +224,7 @@ namespace Reflector
                 file.WriteLine("                    switch(action.Name)");
                 file.WriteLine("                    {");
 
-                foreach (MethodInfo action in controller.GetMethods())
+                foreach (MethodInfo action in actions)
                 {
                     if (action.DeclaringType != controller)
                         continue;
@@ -221,7 +269,11 @@ namespace Reflector
             foreach (Type type in types)
             {
                 needed = false;
-                foreach (PropertyInfo property in type.GetProperties())
+
+                List<PropertyInfo> properties = type.GetProperties().ToList();
+                properties.Sort(new PropertyInfoComparer());
+
+                foreach (PropertyInfo property in properties)
                 {
                     if (property.DeclaringType != type)
                         continue;
@@ -239,7 +291,7 @@ namespace Reflector
                 file.WriteLine("                    switch(property.Name)");
                 file.WriteLine("                    {");
 
-                foreach (PropertyInfo property in type.GetProperties())
+                foreach (PropertyInfo property in properties)
                 {
                     if (property.DeclaringType != type)
                         continue;
@@ -276,7 +328,11 @@ namespace Reflector
             foreach (Type type in types)
             {
                 needed = false;
-                foreach (PropertyInfo property in type.GetProperties())
+
+                List<PropertyInfo> properties = type.GetProperties().ToList();
+                properties.Sort(new PropertyInfoComparer());
+
+                foreach (PropertyInfo property in properties)
                 {
                     if (property.DeclaringType != type)
                         continue;
@@ -294,7 +350,7 @@ namespace Reflector
                 file.WriteLine("                    switch(property.Name)");
                 file.WriteLine("                    {");
 
-                foreach (PropertyInfo property in type.GetProperties())
+                foreach (PropertyInfo property in properties)
                 {
                     if (property.DeclaringType != type)
                         continue;
@@ -321,8 +377,10 @@ namespace Reflector
 
         static void wrtieIsObsoleteCase(Type type)
         {
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            if (properties.Length == 0)
+            List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
+            properties.Sort(new PropertyInfoComparer());
+
+            if (properties.Count == 0)
                 return;
 
             List<string> propertyNames = new List<string>();
@@ -335,6 +393,8 @@ namespace Reflector
             }
             if (propertyNames.Count == 0)
                 return;
+
+            propertyNames.Sort();
 
             file.WriteLine("                case \"" + type.Name + "\":");
             file.WriteLine("                    switch (propertyName)");
@@ -353,8 +413,10 @@ namespace Reflector
 
         static void wrtieIsDeprecatedCase(Type type)
         {
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            if (properties.Length == 0)
+            List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
+            properties.Sort(new PropertyInfoComparer());
+
+            if (properties.Count == 0)
                 return;
 
             Dictionary<string, string> propertyNames = new Dictionary<string, string>();
@@ -368,7 +430,7 @@ namespace Reflector
             }
             if (propertyNames.Count == 0)
                 return;
-
+            
             file.WriteLine("                case \"" + type.Name + "\":");
             file.WriteLine("                    switch (propertyName)");
             file.WriteLine("                    {");
@@ -424,20 +486,25 @@ namespace Reflector
 
         static void wrtieMethodOldMembers()
         {
-            file.WriteLine("        public static Dictionary<string, string> getOldMembers(MethodInfo action)");
+            file.WriteLine("        public static Dictionary<string, string> getOldMembers(MethodInfo action, Version currentVersion)");
             file.WriteLine("        {");
+            file.WriteLine("            Dictionary<string, string> ret = null;");
             file.WriteLine("            switch (action.DeclaringType.Name)");
             file.WriteLine("            {");
 
             foreach (Type controller in controllers)
             {
                 bool hasOldStandard = false;
-                foreach (MethodInfo method in controller.GetMethods())
+
+                List<MethodInfo> actions = controller.GetMethods().ToList();
+                actions.Sort(new MethodInfoComparer());
+
+                foreach (MethodInfo method in actions)
                 {
                     if (method.DeclaringType != controller)
                         continue;
 
-                    OldStandardAttribute[] attributes = (OldStandardAttribute[])Attribute.GetCustomAttributes(method, typeof(OldStandardAttribute));
+                    OldStandardArgumentAttribute[] attributes = (OldStandardArgumentAttribute[])Attribute.GetCustomAttributes(method, typeof(OldStandardArgumentAttribute));
                     hasOldStandard = hasOldStandard || attributes.Length > 0;
                 }
 
@@ -448,22 +515,44 @@ namespace Reflector
                 file.WriteLine("                    switch(action.Name)");
                 file.WriteLine("                    {");
 
-                foreach (MethodInfo method in controller.GetMethods())
+                foreach (MethodInfo method in actions)
                 {
                     if (method.DeclaringType != controller)
                         continue;
 
-                    OldStandardAttribute[] attributes = (OldStandardAttribute[])Attribute.GetCustomAttributes(method, typeof(OldStandardAttribute));
-                    if (attributes.Length == 0)
+                    List<OldStandardArgumentAttribute> attributes = ((IEnumerable<OldStandardArgumentAttribute>)Attribute.GetCustomAttributes(method, typeof(OldStandardArgumentAttribute))).ToList();
+                    if (attributes.Count == 0)
                         continue;
 
-                    file.WriteLine("                       case \"" + method.Name + "\":");
-                    file.WriteLine("                            return new Dictionary<string, string>() { ");
-                    foreach (OldStandardAttribute attribute in attributes)
+                    attributes.Sort(new OldStandardArgumentAttributeComparer());
+
+                    file.WriteLine("                        case \"" + method.Name + "\":");
+                    file.WriteLine("                            ret = new Dictionary<string, string>() { ");
+                    foreach (OldStandardArgumentAttribute attribute in attributes)
                     {
-                        file.WriteLine("                                {\"" + attribute.newMember + "\", \"" + attribute.oldMember + "\"},");
+                        if (attribute.sinceVersion == null)
+                        {
+                            file.WriteLine("                                 {\"" + attribute.newName + "\", \"" + attribute.oldName + "\"},");
+                        }
                     }
-                    file.WriteLine("                           };");
+                    file.WriteLine("                            };");
+                    string lastVersion = null;
+                    foreach (OldStandardArgumentAttribute attribute in attributes)
+                    {
+                        if (attribute.sinceVersion == null)
+                        {
+                            continue;
+                        }
+                        file.WriteLine("                            if (currentVersion != null && currentVersion.CompareTo(new Version(\"" + attribute.sinceVersion + "\")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)");
+                        file.WriteLine("                            {");
+                        file.WriteLine("                                if (ret.ContainsKey(\"" + attribute.newName + "\"))");
+                        file.WriteLine("                                {");
+                        file.WriteLine("                                    ret.Remove(\"" + attribute.newName + "\");");
+                        file.WriteLine("                                }");
+                        file.WriteLine("                                ret.Add(\"" + attribute.newName + "\", \"" + attribute.oldName + "\");");
+                        file.WriteLine("                            }");
+                    }
+                    file.WriteLine("                            break;");
                 }
 
                 file.WriteLine("                    }");
@@ -473,22 +562,83 @@ namespace Reflector
 
             file.WriteLine("            }");
             file.WriteLine("            ");
-            file.WriteLine("            return null;");
+            file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
 
         static void wrtieTypeOldMembersCase(Type type)
         {
-            OldStandardAttribute[] attributes = (OldStandardAttribute[])Attribute.GetCustomAttributes(type, typeof(OldStandardAttribute));
-            if (attributes.Length == 0)
+            List<PropertyInfo> properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).ToList();
+            properties.Sort(new PropertyInfoComparer());
+
+            List<PropertyInfo> oldStandardProperties = new List<PropertyInfo>();
+            foreach (PropertyInfo property in properties)
+            {
+                OldStandardPropertyAttribute oldStandardProperty = property.GetCustomAttribute<OldStandardPropertyAttribute>();
+                if (oldStandardProperty != null)
+                {
+                    oldStandardProperties.Add(property);
+                }
+            }
+
+            if (oldStandardProperties.Count == 0)
                 return;
 
             file.WriteLine("                case \"" + type.Name + "\":");
             file.WriteLine("                    return new Dictionary<string, string>() { ");
-            foreach (OldStandardAttribute attribute in attributes)
+            foreach (PropertyInfo property in oldStandardProperties)
             {
-                file.WriteLine("                        {\"" + attribute.newMember + "\", \"" + attribute.oldMember + "\"},");
+                OldStandardPropertyAttribute oldStandardProperty = property.GetCustomAttribute<OldStandardPropertyAttribute>();
+                DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
+
+                string newName = property.Name;
+                if (dataMember != null)
+                {
+                    newName = dataMember.Name;
+                }
+
+                file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardProperty.oldName + "\"},");
+            }
+            file.WriteLine("                    };");
+            file.WriteLine("                    ");
+        }
+
+        static void wrtieControllerOldMembersCase(Type controller)
+        {
+            List<MethodInfo> actions = controller.GetMethods().ToList();
+            actions.Sort(new MethodInfoComparer());
+
+            List<MethodInfo> oldStandardActions = new List<MethodInfo>();
+            foreach (MethodInfo action in actions)
+            {
+                if (action.DeclaringType != controller)
+                    continue;
+
+                OldStandardActionAttribute oldStandardAction = action.GetCustomAttribute<OldStandardActionAttribute>(true);
+                if (oldStandardAction != null)
+                {
+                    oldStandardActions.Add(action);
+                }
+            }
+
+            if (oldStandardActions.Count == 0)
+                return;
+
+            file.WriteLine("                case \"" + controller.Name + "\":");
+            file.WriteLine("                    return new Dictionary<string, string>() { ");
+            foreach (MethodInfo action in oldStandardActions)
+            {
+                OldStandardActionAttribute oldStandardAction = action.GetCustomAttribute<OldStandardActionAttribute>(true);
+                RouteAttribute route = action.GetCustomAttribute<RouteAttribute>();
+
+                string newName = action.Name;
+                if (route != null)
+                {
+                    newName = route.Template;
+                }
+
+                file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardAction.oldName + "\"},");
             }
             file.WriteLine("                    };");
             file.WriteLine("                    ");
@@ -508,7 +658,7 @@ namespace Reflector
 
             foreach (Type type in controllers)
             {
-                wrtieTypeOldMembersCase(type);
+                wrtieControllerOldMembersCase(type);
             }
 
             file.WriteLine("            }");

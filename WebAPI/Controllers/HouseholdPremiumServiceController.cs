@@ -15,7 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdPremiumService/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class HouseholdPremiumServiceController : ApiController
     {
         /// <summary>
@@ -23,6 +22,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<KalturaPremiumService> ListOldStandard()

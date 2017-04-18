@@ -15,8 +15,6 @@ namespace WebAPI.Models.Domains
     /// Device details
     /// </summary>
     [XmlInclude(typeof(KalturaDevice))]
-    [OldStandard("brandId", "brand_id")]
-    [OldStandard("activatedOn", "activated_on")]
     public class KalturaHouseholdDevice : KalturaOTTObject
     {
         /// <summary>
@@ -60,6 +58,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "brandId")]
         [JsonProperty("brandId")]
         [XmlElement(ElementName = "brandId")]
+        [OldStandardProperty("brand_id")]
         public int? BrandId { get; set; }
 
         /// <summary>
@@ -68,6 +67,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "activatedOn")]
         [JsonProperty("activatedOn")]
         [XmlElement(ElementName = "activatedOn")]
+        [OldStandardProperty("activated_on")]
         public long? ActivatedOn { get; set; }
 
         /// <summary>

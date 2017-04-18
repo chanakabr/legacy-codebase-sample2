@@ -16,9 +16,6 @@ namespace WebAPI.Models.Catalog
         NONE
     }
 
-    [OldStandard("filterTypes", "filter_types")]
-    [OldStandard("statusEqual", "filter_status")]
-    [OldStandard("daysLessThanOrEqual", "days")]
     public class KalturaAssetHistoryFilter : KalturaFilter<KalturaAssetHistoryOrderBy>
     {
         public override KalturaAssetHistoryOrderBy GetDefaultOrderByValue()
@@ -35,6 +32,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "filterTypes")]
         [XmlArray(ElementName = "filterTypes", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [OldStandardProperty("filter_types")]
         [Obsolete]
         public List<KalturaIntegerValue> filterTypes { get; set; }
 
@@ -64,6 +62,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "statusEqual")]
         [JsonProperty(PropertyName = "statusEqual")]
         [XmlElement(ElementName = "statusEqual", IsNullable = true)]
+        [OldStandardProperty("filter_status")]
         public KalturaWatchStatus? StatusEqual { get; set; }
 
         /// <summary>
@@ -72,6 +71,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "daysLessThanOrEqual")]
         [JsonProperty(PropertyName = "daysLessThanOrEqual")]
         [XmlElement(ElementName = "daysLessThanOrEqual")]
+        [OldStandardProperty("days")]
         public int? DaysLessThanOrEqual { get; set; }
 
         /// <summary>

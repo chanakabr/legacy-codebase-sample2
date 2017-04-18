@@ -13,8 +13,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV price details
     /// </summary>
-    [OldStandard("fileId", "file_id")]
-    [OldStandard("ppvPriceDetails", "ppv_price_details")]
     public class KalturaItemPrice : KalturaProductPrice
     {
         /// <summary>
@@ -23,6 +21,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "fileId")]
         [JsonProperty("fileId")]
         [XmlElement(ElementName = "fileId")]
+        [OldStandardProperty("file_id")]
         public int? FileId { get; set; }
 
         /// <summary>
@@ -32,6 +31,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("ppvPriceDetails")]
         [XmlArray(ElementName = "ppvPriceDetails", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("ppv_price_details")]
         public List<KalturaPPVItemPriceDetails> PPVPriceDetails { get; set; }
     }
 }

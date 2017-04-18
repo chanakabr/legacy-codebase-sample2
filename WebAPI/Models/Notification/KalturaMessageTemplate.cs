@@ -11,8 +11,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    [OldStandard("dateFormat", "date_format")]
-    [OldStandard("assetType", "asset_type")]
     public class KalturaMessageTemplate : KalturaOTTObject
     {
         /// <summary>
@@ -29,6 +27,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "dateFormat")]
         [JsonProperty(PropertyName = "dateFormat")]
         [XmlElement(ElementName = "dateFormat")]
+        [OldStandardProperty("date_format")]
         public string DateFormat { get; set; }
 
         /// <summary>
@@ -37,6 +36,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "assetType")]
         [JsonProperty(PropertyName = "assetType")]
         [XmlElement(ElementName = "assetType")]
+        [OldStandardProperty("asset_type")]
         public KalturaOTTAssetType AssetType { get; set; }
 
         /// <summary>

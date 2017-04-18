@@ -20,7 +20,6 @@ using WebAPI.Managers.Scheme;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/subscription/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class SubscriptionController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -81,6 +80,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes:      
         ///   </remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<KalturaSubscription> ListOldStandard(KalturaSubscriptionsFilter filter)

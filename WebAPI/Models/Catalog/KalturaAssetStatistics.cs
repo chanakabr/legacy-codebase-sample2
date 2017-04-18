@@ -13,9 +13,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Asset statistics
     /// </summary>
-    [OldStandard("assetId", "asset_id")]
-    [OldStandard("ratingCount", "rating_count")]
-    [OldStandard("buzzScore", "buzz_score")]
     public class KalturaAssetStatistics : KalturaOTTObject
     {
         /// <summary>
@@ -24,6 +21,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
+        [OldStandardProperty("asset_id")]
         public int AssetId { get; set; }
 
         /// <summary>
@@ -48,6 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "ratingCount")]
         [JsonProperty(PropertyName = "ratingCount")]
         [XmlElement(ElementName = "ratingCount")]
+        [OldStandardProperty("rating_count")]
         public int RatingCount { get; set; }
 
         /// <summary>
@@ -64,6 +63,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "buzzScore")]
         [JsonProperty(PropertyName = "buzzScore")]
         [XmlElement(ElementName = "buzzScore", IsNullable = true)]
+        [OldStandardProperty("buzz_score")]
         public KalturaBuzzScore BuzzAvgScore { get; set; }
     }
 

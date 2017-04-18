@@ -10,7 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    [OldStandard("fileIds", "file_ids")]
     [Obsolete]
     public class KalturaPersonalAssetRequest : KalturaOTTObject
     {
@@ -45,6 +44,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "fileIds")]
         [XmlArray(ElementName = "fileIds", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("file_ids")]
         public List<long> FileIds
         {
             get;

@@ -15,7 +15,6 @@ namespace WebAPI.Models.Catalog
     /// Filtering assets
     /// </summary>
     [Serializable]
-    [OldStandard("referenceType", "reference_type")]
     [Obsolete]
     public class KalturaAssetInfoFilter : KalturaOTTObject
     {
@@ -43,6 +42,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "referenceType")]
         [JsonProperty("referenceType")]
         [XmlElement(ElementName = "referenceType")]
+        [OldStandardProperty("reference_type")]
         public KalturaCatalogReferenceBy ReferenceType { get; set; }
 
 

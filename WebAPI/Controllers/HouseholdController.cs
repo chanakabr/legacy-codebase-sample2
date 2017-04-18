@@ -16,9 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/household/action")]
-    [OldStandardAction("getOldStandard", "get")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class HouseholdController : ApiController
     {
         /// <summary>
@@ -68,6 +65,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, Household user failed = 1007</remarks>        
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("get")]
         [Obsolete]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
@@ -225,6 +223,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: 
         /// User exists in other household = 1018, Household user failed = 1007</remarks>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserExistsInOtherDomains)]
@@ -390,7 +389,7 @@ namespace WebAPI.Controllers
         [Route("resetFrequency"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("frequencyType", "household_frequency_type")]
+        [OldStandardArgument("frequencyType", "household_frequency_type")]
         public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType frequencyType)
         {
             KalturaHousehold household = null;
@@ -455,6 +454,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("updateOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("update")]
         [Obsolete]
         public KalturaHousehold UpdateOldStandard(string name, string description)
         {

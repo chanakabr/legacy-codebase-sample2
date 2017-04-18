@@ -13,8 +13,6 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Slim user data
     /// </summary>
-    [OldStandard("firstName", "first_name")]
-    [OldStandard("lastName", "last_name")]
     [XmlInclude(typeof(KalturaOTTUser))]
     public class KalturaBaseOTTUser : KalturaOTTObject
     {
@@ -41,6 +39,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "firstName")]
         [JsonProperty("firstName")]
         [XmlElement(ElementName = "firstName")]
+        [OldStandardProperty("first_name")]
         public string FirstName { get; set; }
 
         /// <summary>
@@ -49,6 +48,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "lastName")]
         [JsonProperty("lastName")]
         [XmlElement(ElementName = "lastName")]
+        [OldStandardProperty("last_name")]
         public string LastName { get; set; }
     }
 }

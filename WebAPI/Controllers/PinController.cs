@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/pin/action")]
-    [OldStandard("getOldStandard", "get")]
-    [OldStandard("updateOldStandard", "update")]
     public class PinController : ApiController
     {
         /// <summary>
@@ -158,6 +156,7 @@ namespace WebAPI.Controllers
         /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, No PIN defined = 5001</remarks>
         /// <returns>The PIN that applies for the user</returns>
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaPinResponse GetOldStandard(KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)
@@ -219,6 +218,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">New PIN to set</param>
         /// <returns>Success / Fail</returns>
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         public bool UpdateOldStandard(string pin, KalturaEntityReferenceBy by, KalturaPinType type, int? ruleId = null)

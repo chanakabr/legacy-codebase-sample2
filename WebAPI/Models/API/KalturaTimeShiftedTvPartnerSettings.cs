@@ -10,14 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
-    [OldStandard("catchUpEnabled", "catch_up_enabled")]
-    [OldStandard("cdvrEnabled", "cdvr_enabled")]
-    [OldStandard("startOverEnabled", "start_over_enabled")]
-    [OldStandard("trickPlayEnabled", "trick_play_enabled")]
-    [OldStandard("recordingScheduleWindowEnabled", "recording_schedule_window_enabled")]
-    [OldStandard("catchUpBufferLength", "catch_up_buffer_length")]
-    [OldStandard("trickPlayBufferLength", "trick_play_buffer_length")]
-    [OldStandard("recordingScheduleWindow", "recording_schedule_window")]
     public class KalturaTimeShiftedTvPartnerSettings : KalturaOTTObject
     {
         /// <summary>
@@ -26,6 +18,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "catchUpEnabled")]
         [JsonProperty("catchUpEnabled")]
         [XmlElement(ElementName = "catchUpEnabled", IsNullable = true)]
+        [OldStandardProperty("catch_up_enabled")]
         public bool? CatchUpEnabled { get; set; }
 
         /// <summary>
@@ -34,6 +27,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "cdvrEnabled")]
         [JsonProperty("cdvrEnabled")]
         [XmlElement(ElementName = "cdvrEnabled", IsNullable = true)]
+        [OldStandardProperty("cdvr_enabled")]
         public bool? CdvrEnabled { get; set; }
 
         /// <summary>
@@ -42,6 +36,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "startOverEnabled")]
         [JsonProperty("startOverEnabled")]
         [XmlElement(ElementName = "startOverEnabled", IsNullable = true)]
+        [OldStandardProperty("start_over_enabled")]
         public bool? StartOverEnabled { get; set; }
 
         /// <summary>
@@ -50,6 +45,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "trickPlayEnabled")]
         [JsonProperty("trickPlayEnabled")]
         [XmlElement(ElementName = "trickPlayEnabled", IsNullable = true)]
+        [OldStandardProperty("trick_play_enabled")]
         public bool? TrickPlayEnabled { get; set; }
 
         /// <summary>
@@ -58,6 +54,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "recordingScheduleWindowEnabled")]
         [JsonProperty("recordingScheduleWindowEnabled")]
         [XmlElement(ElementName = "recordingScheduleWindowEnabled", IsNullable = true)]
+        [OldStandardProperty("recording_schedule_window_enabled")]
         public bool? RecordingScheduleWindowEnabled { get; set; }
 
         /// <summary>
@@ -74,6 +71,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "catchUpBufferLength")]
         [JsonProperty("catchUpBufferLength")]
         [XmlElement(ElementName = "catchUpBufferLength", IsNullable = true)]
+        [OldStandardProperty("catch_up_buffer_length")]
         public long? CatchUpBufferLength { get; set; }
 
         /// <summary>
@@ -82,6 +80,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "trickPlayBufferLength")]
         [JsonProperty("trickPlayBufferLength")]
         [XmlElement(ElementName = "trickPlayBufferLength", IsNullable = true)]
+        [OldStandardProperty("trick_play_buffer_length")]
         public long? TrickPlayBufferLength { get; set; }
 
         /// <summary>
@@ -90,6 +89,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "recordingScheduleWindow")]
         [JsonProperty("recordingScheduleWindow")]
         [XmlElement(ElementName = "recordingScheduleWindow", IsNullable = true)]
+        [OldStandardProperty("recording_schedule_window")]
         public long? RecordingScheduleWindow { get; set; }
 
         /// <summary>

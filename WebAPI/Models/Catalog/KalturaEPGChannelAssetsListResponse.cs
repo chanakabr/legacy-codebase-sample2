@@ -10,7 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    [OldStandard("objects", "assets")]
     [Obsolete]
     public class KalturaEPGChannelAssetsListResponse : KalturaListResponse
     {
@@ -21,6 +20,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("assets")]
         public List<KalturaEPGChannelAssets> Channels { get; set; }
     }
 }

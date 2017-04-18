@@ -15,7 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentGatewayProfileSettings/action")]
-    [OldStandardAction("addOldStandard", "add")]
     [Obsolete]
     public class PaymentGatewayProfileSettingsController : ApiController
     {
@@ -124,6 +123,7 @@ namespace WebAPI.Controllers
         ///"key1": {"value": "value2"}}
         ///</param>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayParamsRequired)]

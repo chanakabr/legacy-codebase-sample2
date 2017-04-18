@@ -13,10 +13,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupons group details
     /// </summary>
-    [OldStandard("startDate", "start_date")]
-    [OldStandard("endDate", "end_date")]
-    [OldStandard("maxUsesNumber", "max_uses_number")]
-    [OldStandard("maxUsesNumberOnRenewableSub", "max_uses_number_on_renewable_sub")]
     public class KalturaCouponsGroup : KalturaOTTObject
     {
         /// <summary>
@@ -51,6 +47,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate", IsNullable = true)]
+        [OldStandardProperty("start_date")]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -59,6 +56,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate", IsNullable = true)]
+        [OldStandardProperty("end_date")]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -67,6 +65,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "maxUsesNumber")]
         [JsonProperty("maxUsesNumber")]
         [XmlElement(ElementName = "maxUsesNumber", IsNullable = true)]
+        [OldStandardProperty("max_uses_number")]
         public int? MaxUsesNumber { get; set; }
 
         /// <summary>
@@ -75,6 +74,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "maxUsesNumberOnRenewableSub")]
         [JsonProperty("maxUsesNumberOnRenewableSub")]
         [XmlElement(ElementName = "maxUsesNumberOnRenewableSub", IsNullable = true)]
+        [OldStandardProperty("max_uses_number_on_renewable_sub")]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
 
 

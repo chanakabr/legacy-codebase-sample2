@@ -18,11 +18,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/social/action")]
-    [OldStandardAction("getByTokenOldStandard", "getByToken")]
-    [OldStandardAction("mergeOldStandard", "merge")]
-    [OldStandardAction("unmergeOldStandard", "unmerge")]
-    [OldStandardAction("registerOldStandard", "register")]
-    [OldStandardAction("getConfiguration", "config")]
     public class SocialController : ApiController
     {
         /// <summary>
@@ -68,6 +63,7 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Route("getByTokenOldStandard"), HttpPost]
+        [OldStandardAction("getByToken")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.Conflict)]
@@ -244,6 +240,7 @@ namespace WebAPI.Controllers
         /// <param name="email">User email</param>
         /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Route("registerOldStandard"), HttpPost]
+        [OldStandardAction("register")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.Conflict)]
@@ -344,6 +341,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("mergeOldStandard"), HttpPost]
+        [OldStandardAction("merge")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
@@ -416,6 +414,7 @@ namespace WebAPI.Controllers
         /// <param name="type">Social network type</param>
         /// <remarks>Possible status codes: Wrong password or username = 1011, Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Route("unmergeOldStandard"), HttpPost]
+        [OldStandardAction("unmerge")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
@@ -452,6 +451,7 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <returns></returns>
         [Route("getConfiguration"), HttpPost]
+        [OldStandardAction("config")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public KalturaSocialConfig GetConfiguration( KalturaSocialNetwork? type, int? partnerId = null)

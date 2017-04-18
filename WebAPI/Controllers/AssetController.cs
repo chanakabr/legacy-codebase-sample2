@@ -21,8 +21,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/asset/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("getOldStandard", "get")]
     public class AssetController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -37,6 +35,7 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
@@ -373,6 +372,7 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks></remarks>
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]

@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/homeNetwork/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class HomeNetworkController : ApiController
     {
         /// <summary>
@@ -31,7 +29,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("homeNetwork", "home_network")]
+        [OldStandardArgument("homeNetwork", "home_network")]
         [Throws(eResponseStatus.HomeNetworkAlreadyExists)]
         [Throws(eResponseStatus.HomeNetworkLimitation)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
@@ -89,6 +87,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public List<KalturaHomeNetwork> ListOldStandard()
         {
@@ -150,6 +149,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns></returns>
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
@@ -182,7 +182,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("externalId", "external_id")]
+        [OldStandardArgument("externalId", "external_id")]
         [Throws(eResponseStatus.HomeNetworkDoesNotExist)]
         [Throws(eResponseStatus.HomeNetworkFrequency)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]

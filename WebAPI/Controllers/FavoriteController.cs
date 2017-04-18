@@ -18,9 +18,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/favorite/action")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("deleteOldStandard", "delete")]
-    [OldStandardAction("listOldStandard", "list")]
     public class FavoriteController : ApiController
     {
         /// <summary>
@@ -71,6 +68,7 @@ namespace WebAPI.Controllers
         /// <param name="extra_data">Extra data</param>        
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -146,6 +144,7 @@ namespace WebAPI.Controllers
         /// <param name="media_ids">Media identifiers</param>
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Route("deleteOldStandard"), HttpPost]
+        [OldStandardAction("delete")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -229,6 +228,7 @@ namespace WebAPI.Controllers
         /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.UserDoesNotExist)]

@@ -16,7 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/licensedUrl/action")]
-    [OldStandardAction("getOldStandard", "get")]
     public class LicensedUrlController : ApiController
     {
         /// <summary>
@@ -32,12 +31,13 @@ namespace WebAPI.Controllers
         /// Device type not allowed = 1002, Household suspended = 1009, User suspended = 2001, Service not allowed = 3003, Not entitled = 3032</remarks>
         [Route("getOldStandard"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("assetType", "asset_type")]
-        [OldStandard("contentId", "content_id")]
-        [OldStandard("baseUrl", "base_url")]
-        [OldStandard("assetId", "asset_id")]
-        [OldStandard("startDate", "start_date")]
-        [OldStandard("streamType", "stream_type")]
+        [OldStandardAction("get")]
+        [OldStandardArgument("assetType", "asset_type")]
+        [OldStandardArgument("contentId", "content_id")]
+        [OldStandardArgument("baseUrl", "base_url")]
+        [OldStandardArgument("assetId", "asset_id")]
+        [OldStandardArgument("startDate", "start_date")]
+        [OldStandardArgument("streamType", "stream_type")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Obsolete]
         [Throws(eResponseStatus.DeviceNotInDomain)]

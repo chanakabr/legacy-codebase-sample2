@@ -29,10 +29,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// OSS Adapter
     /// </summary>
-    [OldStandard("isActive", "is_active")]
-    [OldStandard("externalIdentifier", "external_identifier")]
-    [OldStandard("filterExpression", "filter_expression")]
-    [OldStandard("recommendationEngineId", "recommendation_engine_id")]
     public class KalturaExternalChannelProfile : KalturaOTTObject
     {
         /// <summary>
@@ -58,6 +54,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -66,6 +63,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "externalIdentifier")]
         [JsonProperty("externalIdentifier")]
         [XmlElement(ElementName = "externalIdentifier")]
+        [OldStandardProperty("external_identifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
@@ -74,6 +72,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "filterExpression")]
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression")]
+        [OldStandardProperty("filter_expression")]
         public string FilterExpression { get; set; }
 
         /// <summary>
@@ -82,6 +81,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "recommendationEngineId")]
         [JsonProperty("recommendationEngineId")]
         [XmlElement(ElementName = "recommendationEngineId")]
+        [OldStandardProperty("recommendation_engine_id")]
         public int? RecommendationEngineId { get; set; }
 
         /// <summary>

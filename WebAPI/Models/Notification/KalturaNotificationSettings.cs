@@ -10,8 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    [OldStandard("pushNotificationEnabled", "push_notification_enabled")]
-    [OldStandard("pushFollowEnabled", "push_follow_enabled")]
     public class KalturaNotificationsSettings : KalturaOTTObject
     {
         /// <summary>
@@ -20,6 +18,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "pushNotificationEnabled")]
         [JsonProperty("pushNotificationEnabled")]
         [XmlElement(ElementName = "pushNotificationEnabled", IsNullable = true)]
+        [OldStandardProperty("push_notification_enabled")]
         public bool? PushNotificationEnabled { get; set; }
 
         /// <summary>
@@ -28,6 +27,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "pushFollowEnabled")]
         [JsonProperty("pushFollowEnabled")]
         [XmlElement(ElementName = "pushFollowEnabled", IsNullable = true)]
+        [OldStandardProperty("push_follow_enabled")]
         public bool? PushFollowEnabled { get; set; }
     }
 

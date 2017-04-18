@@ -28,7 +28,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Slim asset info
     /// </summary>
-    [OldStandard("mediaFiles", "media_files")]
     [Obsolete]
     public class KalturaBaseAssetInfo : KalturaOTTObject, KalturaIAssetable
     {
@@ -82,6 +81,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "mediaFiles", NullValueHandling = NullValueHandling.Ignore)]
         [XmlArray(ElementName = "mediaFiles", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("media_files")]
         public List<KalturaMediaFile> MediaFiles { get; set; }
 
         /// <summary>

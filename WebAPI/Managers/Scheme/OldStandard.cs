@@ -8,20 +8,16 @@ using WebAPI.Reflection;
 
 namespace WebAPI.Managers.Scheme
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-    public class OldStandardAttribute : Attribute
+    abstract public class OldStandardAttribute : Attribute
     {
-        private const string version = "3.6.287.21521";
+        public const string Version = "3.6.287.21521";
 
-        public OldStandardAttribute(string newMember, string oldMember)
+        public OldStandardAttribute(string oldName)
         {
-            this.newMember = newMember;
-            this.oldMember = oldMember;
+            this.oldName = oldName;
         }
 
-        public string newMember { get; set; }
-
-        public string oldMember { get; set; }
+        public string oldName { get; set; }
 
         public static bool isCurrentRequestOldVersion()
         {
@@ -29,18 +25,16 @@ namespace WebAPI.Managers.Scheme
                 return true;
 
 
-            Version old = new Version(version);
-            Version current = (Version) HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            Version old = new Version(Version);
+            Version current = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
 
             return current.CompareTo(old) < 0;
         }
 
         public static Dictionary<string, string> getOldMembers(MethodInfo action)
         {
-            if (isCurrentRequestOldVersion())
-                return DataModel.getOldMembers(action);
-                
-            return null;
+            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            return DataModel.getOldMembers(action, currentVersion);
         }
 
         public static Dictionary<string, string> getOldMembers(Type type)
@@ -52,9 +46,58 @@ namespace WebAPI.Managers.Scheme
         }
     }
 
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class OldStandardPropertyAttribute : OldStandardAttribute
+    {
+        public OldStandardPropertyAttribute(string oldName)
+            : base(oldName)
+        {
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class OldStandardArgumentAttribute : OldStandardAttribute
+    {
+        public OldStandardArgumentAttribute(string newName, string oldName)
+            : base(oldName)
+        {
+            this.newName = newName;
+        }
+
+        public OldStandardArgumentAttribute(string newName, string oldName, string version) :
+            this(newName, oldName)
+        {
+            this.sinceVersion = version;
+        }
+
+        public string newName { get; set; }
+
+        public string sinceVersion { get; set; }
+
+        public int CompareVersion(string version)
+        {
+            if (sinceVersion != null && version == null)
+            {
+                return 1;
+            }
+            else if (sinceVersion == null && version != null)
+            {
+                return -1;
+            }
+            else if (sinceVersion != null && version != null)
+            {
+                return (new Version(sinceVersion)).CompareTo(new Version(version));
+            }
+
+            return 0;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class OldStandardActionAttribute : OldStandardAttribute
     {
-        public OldStandardActionAttribute(string newMember, string oldMember) : base(newMember, oldMember.ToLower())
+        public OldStandardActionAttribute(string oldName)
+            : base(oldName)
         {
         }
     }

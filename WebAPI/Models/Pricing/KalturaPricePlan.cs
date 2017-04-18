@@ -12,10 +12,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Price plan
     /// </summary>
-    [OldStandard("isRenewable", "is_renewable")]
-    [OldStandard("renewalsNumber", "renewals_number")]
-    [OldStandard("priceId", "price_id")]
-    [OldStandard("discountId", "discount_id")]
     public class KalturaPricePlan : KalturaUsageModule
     {
         /// <summary>
@@ -24,6 +20,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "isRenewable")]
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
+        [OldStandardProperty("is_renewable")]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
@@ -32,6 +29,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "renewalsNumber")]
         [JsonProperty("renewalsNumber")]
         [XmlElement(ElementName = "renewalsNumber")]
+        [OldStandardProperty("renewals_number")]
         public int? RenewalsNumber { get; set; }
 
         /// <summary>
@@ -40,6 +38,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "priceId")]
         [JsonProperty("priceId")]
         [XmlElement(ElementName = "priceId")]
+        [OldStandardProperty("price_id")]
         public int? PriceId { get; set; }
 
         /// <summary>
@@ -48,6 +47,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "discountId")]
         [JsonProperty("discountId")]
         [XmlElement(ElementName = "discountId")]
+        [OldStandardProperty("discount_id")]
         public long? DiscountId { get; set; }
     }
 }

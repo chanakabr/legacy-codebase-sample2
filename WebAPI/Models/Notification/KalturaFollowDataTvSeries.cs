@@ -11,7 +11,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    [OldStandard("assetId", "asset_id")]
     [Obsolete]
     public class KalturaFollowDataTvSeries : KalturaFollowDataBase
     {
@@ -21,6 +20,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
+        [OldStandardProperty("asset_id")]
         public int AssetId { get; set; }
     }
 

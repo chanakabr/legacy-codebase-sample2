@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdPaymentGateway/action")]
-    [OldStandardAction("enable", "set")]
-    [OldStandardAction("disable", "delete")]
     public class HouseholdPaymentGatewayController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -140,6 +138,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         [Route("enable"), HttpPost]
+        [OldStandardAction("set")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -183,6 +182,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("disable"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("delete")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
@@ -225,7 +225,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("invoke"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("extraParameters", "extra_parameters")]
+        [OldStandardArgument("extraParameters", "extra_parameters")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.SignatureMismatch)]

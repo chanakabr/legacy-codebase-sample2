@@ -14,7 +14,6 @@ namespace WebAPI.Models.API
     /// Purchase settings and PIN
     /// </summary>
     [Serializable]
-    [OldStandard("purchaseSettingsType", "purchase_settings_type")]
     [Obsolete]
     public class KalturaPurchaseSettingsResponse : KalturaPinResponse
     {
@@ -24,6 +23,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "purchaseSettingsType")]
         [JsonProperty(PropertyName = "purchaseSettingsType", NullValueHandling = NullValueHandling.Ignore)]
         [XmlElement(ElementName = "purchaseSettingsType", IsNullable = true)]
+        [OldStandardProperty("purchase_settings_type")]
         public KalturaPurchaseSettingsType? PurchaseSettingsType
         {
             get;

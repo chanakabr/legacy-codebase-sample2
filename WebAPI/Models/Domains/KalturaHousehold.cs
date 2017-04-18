@@ -14,19 +14,6 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Household details
     /// </summary>
-    [OldStandard("externalId", "external_id")]
-    [OldStandard("householdLimitationsId", "household_limitations_id")]
-    [OldStandard("devicesLimit", "devices_limit")]
-    [OldStandard("usersLimit", "users_limit")]
-    [OldStandard("concurrentLimit", "concurrent_limit")]
-    [OldStandard("masterUsers", "master_users")]
-    [OldStandard("defaultUsers", "default_users")]
-    [OldStandard("pendingUsers", "pending_users")]
-    [OldStandard("regionId", "region_id")]
-    [OldStandard("isFrequencyEnabled", "is_frequency_enabled")]
-    [OldStandard("frequencyNextDeviceAction", "frequency_next_device_action")]
-    [OldStandard("frequencyNextUserAction", "frequency_next_user_action")]
-    [OldStandard("deviceFamilies", "device_families")]
     public class KalturaHousehold : KalturaOTTObject
     {
         /// <summary>
@@ -61,6 +48,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
         [SchemeProperty(InsertOnly = true)]
+        [OldStandardProperty("external_id")]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -70,6 +58,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("householdLimitationsId")]
         [XmlElement(ElementName = "householdLimitationsId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("household_limitations_id")]
         public int? HouseholdLimitationsId { get; set; }
 
         /// <summary>
@@ -79,6 +68,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("devicesLimit")]
         [XmlElement(ElementName = "devicesLimit")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("devices_limit")]
         public int? DevicesLimit { get; set; }
 
         /// <summary>
@@ -88,6 +78,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("usersLimit")]
         [XmlElement(ElementName = "usersLimit")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("users_limit")]
         public int? UsersLimit { get; set; }
 
         /// <summary>
@@ -97,6 +88,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("concurrent_limit")]
         public int? ConcurrentLimit { get; set; }
 
         /// <summary>
@@ -116,6 +108,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("masterUsers")]
         [XmlArray(ElementName = "masterUsers", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("master_users")]
         [Obsolete]
         public List<KalturaBaseOTTUser> MasterUsers { get; set; }
 
@@ -126,6 +119,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("defaultUsers")]
         [XmlArray(ElementName = "defaultUsers", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("default_users")]
         [Obsolete]
         public List<KalturaBaseOTTUser> DefaultUsers { get; set; }
 
@@ -136,6 +130,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("pendingUsers")]
         [XmlArray(ElementName = "pendingUsers", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("pending_users")]
         [Obsolete]
         public List<KalturaBaseOTTUser> PendingUsers { get; set; }
 
@@ -146,6 +141,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("regionId")]
         [XmlElement(ElementName = "regionId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("region_id")]
         public int? RegionId { get; set; }
 
         /// <summary>
@@ -164,6 +160,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("isFrequencyEnabled")]
         [XmlElement(ElementName = "isFrequencyEnabled")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_frequency_enabled")]
         public bool? IsFrequencyEnabled { get; set; }
 
         /// <summary>
@@ -173,6 +170,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("frequencyNextDeviceAction")]
         [XmlElement(ElementName = "frequencyNextDeviceAction")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("frequency_next_device_action")]
         public long? FrequencyNextDeviceAction { get; set; }
 
         /// <summary>
@@ -182,6 +180,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("frequencyNextUserAction")]
         [XmlElement(ElementName = "frequencyNextUserAction")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("frequency_next_user_action")]
         public long? FrequencyNextUserAction { get; set; }
 
         /// <summary>
@@ -200,6 +199,7 @@ namespace WebAPI.Models.Domains
         [JsonProperty("deviceFamilies")]
         [XmlArray(ElementName = "deviceFamilies", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("device_families")]
         [Obsolete]
         public List<KalturaDeviceFamily> DeviceFamilies { get; set; }
 

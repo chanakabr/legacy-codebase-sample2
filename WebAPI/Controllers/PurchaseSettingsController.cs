@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/purchaseSettings/action")]
-    [OldStandard("getOldStandard", "get")]
-    [OldStandard("updateOldStandard", "update")]
     public class PurchaseSettingsController : ApiController
     {
         /// <summary>
@@ -79,6 +77,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>The purchase settings that apply for the user</returns>
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaPurchaseSettingsResponse GetOldStandard(KalturaEntityReferenceBy by)
@@ -169,6 +168,7 @@ namespace WebAPI.Controllers
         /// <param name="by">Reference type to filter by</param>
         /// <returns>Success / Fail</returns>
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         public bool UpdateOldStandard(int setting, KalturaEntityReferenceBy by)

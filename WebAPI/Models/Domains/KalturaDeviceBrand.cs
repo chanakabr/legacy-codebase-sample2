@@ -13,8 +13,6 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device brand details
     /// </summary>
-    [OldStandard("deviceLimit", "device_limit")]
-    [OldStandard("concurrentLimit", "concurrent_limit")]
     public class KalturaDeviceBrand : KalturaOTTObject
     {
         /// <summary>

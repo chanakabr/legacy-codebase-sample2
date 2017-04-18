@@ -14,9 +14,6 @@ namespace WebAPI.Models.Catalog
     /// Kaltura bookmark data
     /// </summary>
     [Serializable]
-    [OldStandard("averageBitrate", "average_bitrate")]
-    [OldStandard("totalBitrate", "total_bitrate")]
-    [OldStandard("currentBitrate", "current_bitrate")]
     public class KalturaPlayerAssetData : KalturaOTTObject
     {
         /// <summary>
@@ -41,6 +38,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "averageBitrate")]
         [JsonProperty(PropertyName = "averageBitrate")]
         [XmlArrayItem(ElementName = "averageBitrate")]
+        [OldStandardProperty("average_bitrate")]
         public int? averageBitRate { get; set; }
 
         /// <summary>
@@ -49,6 +47,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "totalBitrate")]
         [JsonProperty(PropertyName = "totalBitrate")]
         [XmlArrayItem(ElementName = "totalBitrate")]
+        [OldStandardProperty("total_bitrate")]
         public int? totalBitRate { get; set; }
 
         /// <summary>
@@ -57,6 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "currentBitrate")]
         [JsonProperty(PropertyName = "currentBitrate")]
         [XmlArrayItem(ElementName = "currentBitrate")]
+        [OldStandardProperty("current_bitrate")]
         public int? currentBitRate { get; set; }
 
         internal int getLocation()

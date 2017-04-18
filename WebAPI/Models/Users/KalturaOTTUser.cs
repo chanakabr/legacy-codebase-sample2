@@ -14,17 +14,6 @@ namespace WebAPI.Models.Users
     /// User
     /// </summary>
     [DataContract(Name = "user")]
-    [OldStandard("householdId", "household_id")]
-    [OldStandard("affiliateCode", "affiliate_code")]
-    [OldStandard("externalId", "external_id")]
-    [OldStandard("userType", "user_type")]
-    [OldStandard("dynamicData", "dynamic_data")]
-    [OldStandard("isHouseholdMaster", "is_household_master")]
-    [OldStandard("suspentionState", "suspention_state")]
-    [OldStandard("userState", "user_state")]
-    [OldStandard("facebookId", "facebook_id")]
-    [OldStandard("facebookImage", "facebook_image")]
-    [OldStandard("facebookToken", "facebook_token")]
     public class KalturaOTTUser : KalturaBaseOTTUser
     {
         /// <summary>
@@ -34,6 +23,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("householdId")]
         [XmlElement(ElementName = "householdId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("household_id")]
         public int? HouseholdID { get; set; }
 
         /// <summary>
@@ -99,6 +89,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "facebookId")]
         [JsonProperty("facebookId")]
         [XmlElement(ElementName = "facebookId")]
+        [OldStandardProperty("facebook_id")]
         [Obsolete]
         public string FacebookId { get; set; }
 
@@ -108,6 +99,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "facebookImage")]
         [JsonProperty("facebookImage")]
         [XmlElement(ElementName = "facebookImage")]
+        [OldStandardProperty("facebook_image")]
         [Obsolete]
         public string FacebookImage { get; set; }
 
@@ -118,6 +110,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("affiliateCode")]
         [XmlElement(ElementName = "affiliateCode")]
         [SchemeProperty(InsertOnly = true)]
+        [OldStandardProperty("affiliate_code")]
         public string AffiliateCode { get; set; }
 
         /// <summary>
@@ -126,6 +119,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "facebookToken")]
         [JsonProperty("facebookToken")]
         [XmlElement(ElementName = "facebookToken")]
+        [OldStandardProperty("facebook_token")]
         [Obsolete]
         public string FacebookToken { get; set; }
 
@@ -136,6 +130,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
         [SchemeProperty(InsertOnly = true)]
+        [OldStandardProperty("external_id")]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -144,6 +139,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "userType")]
         [JsonProperty("userType")]
         [XmlElement(ElementName = "userType", IsNullable = true)]
+        [OldStandardProperty("user_type")]
         public KalturaOTTUserType UserType { get; set; }
 
         /// <summary>
@@ -152,6 +148,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "dynamicData")]
         [JsonProperty("dynamicData")]
         [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        [OldStandardProperty("dynamic_data")]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         /// <summary>
@@ -161,6 +158,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("isHouseholdMaster")]
         [XmlElement(ElementName = "isHouseholdMaster")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_household_master")]
         public bool? IsHouseholdMaster { get; set; }
 
         /// <summary>
@@ -170,6 +168,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("suspentionState")]
         [XmlElement(ElementName = "suspentionState")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("suspention_state")]
         [Obsolete]
         public KalturaHouseholdSuspentionState SuspentionState { get; set; }
 
@@ -190,6 +189,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("userState")]
         [XmlElement(ElementName = "userState")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("user_state")]
         public KalturaUserState UserState { get; set; }
 
         internal int getHouseholdID()

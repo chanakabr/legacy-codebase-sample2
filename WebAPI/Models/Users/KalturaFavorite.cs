@@ -15,7 +15,6 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Favorite details
     /// </summary>
-    [OldStandard("extraData", "extra_data")]
     public class KalturaFavorite : KalturaOTTObject
     {
         /// <summary>
@@ -42,6 +41,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "extraData")]
         [JsonProperty("extraData")]
         [XmlElement(ElementName = "extraData")]
+        [OldStandardProperty("extra_data")]
         public string ExtraData { get; set; }
 
         /// <summary>

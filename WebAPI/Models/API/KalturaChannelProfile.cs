@@ -14,9 +14,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// KSQL Channel
     /// </summary>
-    [OldStandard("isActive", "is_active")]
-    [OldStandard("filterExpression", "filter_expression")]
-    [OldStandard("assetTypes", "asset_types")]
     [Obsolete]
     public class KalturaChannelProfile : KalturaOTTObject
     {
@@ -62,6 +59,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public bool? IsActive
         {
             get;
@@ -74,6 +72,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "filterExpression")]
         [JsonProperty("filterExpression")]
         [XmlElement(ElementName = "filterExpression")]
+        [OldStandardProperty("filter_expression")]
         public string FilterExpression
         {
             get;
@@ -87,6 +86,7 @@ namespace WebAPI.Models.API
         [JsonProperty("assetTypes")]
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("assetTypes")]
+        [OldStandardProperty("asset_types")]
         public List<int> AssetTypes
         {
             get;
