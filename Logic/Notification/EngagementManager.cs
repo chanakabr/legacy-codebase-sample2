@@ -362,7 +362,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                bool isSet = NotificationDal.DeleteEngagementAdapter(groupId, engagementAdapterId, settings);
+                bool isSet = NotificationDal.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, settings);
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "engagement adapter configs delete");
