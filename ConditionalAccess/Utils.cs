@@ -7536,5 +7536,40 @@ namespace ConditionalAccess
 
             return res;
         }
+
+        internal static List<int> GetMediaFilesByMediaId(int groupId, int mediaId)
+        {
+            List<int> result = null;
+            string sWSUserName = string.Empty;
+            string sWSPass = string.Empty;
+            API api = null;
+
+            try
+            {
+                GetWSCredentials(groupId, eWSModules.API, ref sWSUserName, ref sWSPass);
+                if (mediaId > 0 && !string.IsNullOrEmpty(sWSUserName) && !string.IsNullOrEmpty(sWSPass))
+                {
+                    api = new API();
+                    result = api.GetMediaFilesByMediaId(sWSUserName, sWSPass, mediaId);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaFilesByMediaId failed for groupId: {0}, mediaId: {1}", groupId, mediaId), ex);
+            }
+            finally
+            {
+                #region Disposing
+                if (api != null)
+                {
+                    api.Dispose();
+                }
+                #endregion
+            }
+
+            return result;
+        }
+
     }
 }

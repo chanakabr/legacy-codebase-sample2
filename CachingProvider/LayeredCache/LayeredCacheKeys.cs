@@ -168,9 +168,16 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("epgChannelExternalId_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
         }
+
         public static string GetExternalIdEpgChannelKey(int groupId, string cdvrId)
         {
             return string.Format("ExternalIdEpgChannel_groupId_{0}_cdvrId_{1}", groupId, cdvrId);
         }
+
+        public static string GetMediaFilesByMediaIdKey(int groupId, int mediaId)
+        {
+            return string.Format("mediaFilesByMediaId_g_{0}_m_{1}", groupId, mediaId);
+        }
+
     }
 }

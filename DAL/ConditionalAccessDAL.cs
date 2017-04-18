@@ -2665,7 +2665,6 @@ namespace DAL
             }
         }
 
-
         public static DataRow GetPurchaseByID(int purchaseID)
         {            
             try
@@ -2728,14 +2727,14 @@ namespace DAL
             return response;
         }
 
-        public static DataTable GetFilesCreditUsedDetails(int groupId, int domainId, int mediaId)
+        public static DataTable GetFilesCreditUsedDetails(int groupId, int domainId, List<int> mediaFileIds)
         {
             DataTable dt = null;
             ODBCWrapper.StoredProcedure sp_GetFilesCreditUsedDetails = new ODBCWrapper.StoredProcedure("GetFilesCreditUsedDetails");
             sp_GetFilesCreditUsedDetails.SetConnectionKey("CA_CONNECTION_STRING");
             sp_GetFilesCreditUsedDetails.AddParameter("@GroupId", groupId);
             sp_GetFilesCreditUsedDetails.AddParameter("@DomainId", domainId);
-            sp_GetFilesCreditUsedDetails.AddParameter("@MediaId", mediaId);
+            sp_GetFilesCreditUsedDetails.AddIDListParameter<int>("@MediaFileIds", mediaFileIds, "ID");            
 
             dt = sp_GetFilesCreditUsedDetails.Execute();
             if (dt == null)
@@ -2745,7 +2744,6 @@ namespace DAL
 
             return dt;
         }
-
 
         public static string GetDeviceName(string deviceUDID)
         {

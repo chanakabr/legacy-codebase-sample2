@@ -31,12 +31,13 @@ namespace CachingProvider.LayeredCache
         public const string CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME = "GetMediaChannels";
         public const string FILE_CDN_DATA_LAYERED_CACHE_CONFIG_NAME = "GetFileCdnData";
         public const string GET_EPG_CHANNEL_CDVR_ID = "GetEpgChannelCdvrId";
+        public const string MEDIA_FILES_BY_MEDIA_ID_LAYERED_CACHE_CONFIG_NAME = "GetMediaFilesByMediaId";
 
         #endregion
 
         #region Constant Invalidation Keys
 
-        public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
+        public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";        
 
         #endregion
 

@@ -4056,5 +4056,15 @@ namespace DAL
             }
             return res;
         }
+
+        public static DataTable GetMediaFilesByMediaId(int groupId, int mediaId)
+        {           
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByMediaId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@MediaId", mediaId);
+            return sp.Execute();
+        }
+
     }
 }
