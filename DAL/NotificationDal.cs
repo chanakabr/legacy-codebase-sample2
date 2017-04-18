@@ -2254,6 +2254,7 @@ namespace DAL
             return result;
         }
 
+        #region Engagement
         public static List<EngagementAdapter> GetEngagementAdapterList(int groupId)
         {
             List<EngagementAdapter> res = new List<EngagementAdapter>();
@@ -2508,6 +2509,131 @@ namespace DAL
 
             return adapterRes;
         }
+
+        public static bool DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_EngagementAdapterSettings");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupID", groupId);
+                sp.AddParameter("@ID", engagementAdapterId);
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                return false;
+            }
+        }
+
+        public static bool InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> settings)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EngagementAdapterSettings");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@GroupID", groupId);
+                sp.AddParameter("@ID", engagementAdapterId);
+
+                DataTable dt = CreateDataTable(settings);
+                sp.AddDataTableParameter("@KeyValueList", dt);
+
+                bool isInsert = sp.ExecuteReturnValue<bool>();
+                return isInsert;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                return false;
+            }
+        }
+
+        private static DataTable CreateDataTable(List<EngagementAdapterSettings> list)
+        {
+            DataTable resultTable = new DataTable("resultTable"); ;
+            try
+            {
+                resultTable.Columns.Add("idkey", typeof(string));
+                resultTable.Columns.Add("value", typeof(string));
+
+                foreach (EngagementAdapterSettings item in list)
+                {
+                    DataRow row = resultTable.NewRow();
+                    row["idkey"] = item.Key;
+                    row["value"] = item.Value;
+                    resultTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("", ex);
+                return null;
+            }
+
+            return resultTable;
+        }
+
+        public static List<EngagementAdapter> GetEngagementAdapterSettingsList(int groupId, int engagementAdapterId)
+        {
+            List<EngagementAdapter> res = new List<EngagementAdapter>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementAdapterSettingsList");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@GroupID", groupId);
+                sp.AddParameter("@engagementAdapterId", engagementAdapterId);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    DataTable dtPG = ds.Tables[0];
+                    DataTable dtConfig = ds.Tables[1];
+                    if (dtPG != null && dtPG.Rows != null && dtPG.Rows.Count > 0)
+                    {
+                        EngagementAdapter engagementAdapter = null;
+                        foreach (DataRow dr in dtPG.Rows)
+                        {
+                            engagementAdapter = new EngagementAdapter();
+                            engagementAdapter.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                            engagementAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
+                            engagementAdapter.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
+                            engagementAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "provider_url");
+                            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
+                            engagementAdapter.IsActive = is_Active == 1 ? true : false;
+
+                            if (dtConfig != null)
+                            {
+                                DataRow[] drpc = dtConfig.Select("engagement_adapter_id =" + engagementAdapter.ID);
+
+                                foreach (DataRow drp in drpc)
+                                {
+                                    string key = ODBCWrapper.Utils.GetSafeStr(drp, "key");
+                                    string value = ODBCWrapper.Utils.GetSafeStr(drp, "value");
+                                    if (engagementAdapter.Settings == null)
+                                    {
+                                        engagementAdapter.Settings = new List<EngagementAdapterSettings>();
+                                    }
+                                    engagementAdapter.Settings.Add(new EngagementAdapterSettings() { Key = key, Value = value });
+                                }
+                            }
+                            res.Add(engagementAdapter);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Empty, ex);
+                res = new List<EngagementAdapter>();
+            }
+            return res;
+        }
+        #endregion
+
     }
 }
 
