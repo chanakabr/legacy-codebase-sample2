@@ -1,4 +1,4 @@
-<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_engagement_template.aspx.cs" Inherits="adm_engagement_template" %>
+<%@ Page Language="C#" AutoEventWireup="true" CodeFile="adm_engagement_churn_template.aspx.cs" Inherits="adm_engagement_churn_template" %>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -21,7 +21,7 @@
     <script language="JavaScript" src="js/FCKeditor/fckeditor.js" type="text/javascript"></script>
     <script type="text/javascript">
         function GetPageTable(orderBy, pageNum) {
-            RS.Execute("adm_engagement_template.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
+            RS.Execute("adm_engagement_churn_template.aspx", "GetPageContent", orderBy, pageNum, callback_page_content_with_editor, errorCallback);
         }
     </script>
 </head>

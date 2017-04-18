@@ -7,7 +7,7 @@ using TvinciImporter;
 using TvinciImporter.WSCatalog;
 using TVinciShared;
 
-public partial class adm_engagement_template : System.Web.UI.Page
+public partial class adm_engagement_churn_template : System.Web.UI.Page
 {
     protected MessageTemplate messageTemplate;
     protected string m_sMenu;
@@ -18,7 +18,7 @@ public partial class adm_engagement_template : System.Web.UI.Page
     {
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
-        else if (LoginManager.IsPagePermitted("adm_engagement_template.aspx") == false)
+        else if (LoginManager.IsPagePermitted("adm_engagement_churn_template.aspx") == false)
             LoginManager.LogoutFromSite("login.html");
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
             return;
@@ -100,7 +100,7 @@ public partial class adm_engagement_template : System.Web.UI.Page
                 t = tableID;
             }
 
-            string sBack = "adm_engagement_template.aspx?search_save=1";
+            string sBack = "adm_engagement_churn_template.aspx?search_save=1";
             DBRecordWebEditor theRecord = new DBRecordWebEditor("message_templates", "adm_table_pager", sBack, "", "ID", t, sBack, "");
             theRecord.SetConnectionKey("notifications_connection");
 
@@ -124,7 +124,7 @@ public partial class adm_engagement_template : System.Web.UI.Page
             dr_url.Initialize("URL", "adm_table_header_nbg", "FormInput", "url", false);
             theRecord.AddRecord(dr_url);
 
-            sTable = theRecord.GetTableHTML("adm_engagement_template.aspx?submited=1");
+            sTable = theRecord.GetTableHTML("adm_engagement_churn_template.aspx?submited=1");
         }
         return sTable;
     }
