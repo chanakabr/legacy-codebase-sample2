@@ -333,8 +333,8 @@ namespace DalCB
             int res = 0;
             try
             {
-                object[] startKey = new object[4] { assetId, 2, (int)actionType, Utils.DateTimeToUnixTimestamp(startDate) };
-                object endKey = new object[4] { assetId, (int)assetType, (int)actionType, Utils.DateTimeToUnixTimestamp(endDate) };
+                object[] startKey = new object[4] { assetId, assetType.ToString(), (int)actionType, Utils.DateTimeToUnixTimestamp(startDate) };
+                object[] endKey = new object[4] { assetId, assetType.ToString(), (int)actionType, Utils.DateTimeToUnixTimestamp(endDate) };
                 var view = cbManager.View<int>(new ViewManager(CB_FEED_DESGIN, "AssetStats")
                 {
                     startKey = startKey,
