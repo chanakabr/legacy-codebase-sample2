@@ -1772,5 +1772,10 @@ namespace Core.Api
             return Core.Api.api.GetCurrencyList(groupId, currencyCodes);
         }
 
+        public static List<int> GetMediaFilesByMediaId(int groupId, int mediaId)
+        {
+            return Core.Api.api.GetMediaFilesByMediaId(groupId, mediaId);
+        }
+
     }
 }

@@ -693,7 +693,6 @@ namespace APILogic
             return result;
         }
 
-
         internal static Dictionary<int, CountryLocale> GetCountriesLocaleMap(int groupId, List<int> countryIds)
         {
             Dictionary<int, CountryLocale> result = null;            
@@ -747,5 +746,49 @@ namespace APILogic
 
             return result;
         }
+
+        internal static Tuple<List<int>, bool> GetMediaFilesByMediaId(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<int> result = null;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mediaId"))
+                {
+                    int? groupId, mediaId;
+                    groupId = funcParams["groupId"] as int?;
+                    mediaId = funcParams["mediaId"] as int?;
+                    if (groupId.HasValue && mediaId.HasValue)
+                    {
+                        DataTable dt = DAL.ApiDAL.GetMediaFilesByMediaId(groupId.Value, mediaId.Value);
+                        if (dt != null && dt.Rows != null)
+                        {
+                            result = new List<int>();
+                            HashSet<int> ids = new HashSet<int>();
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                int mediaFileId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
+                                if (mediaFileId > 0 && !ids.Contains(mediaFileId))
+                                {
+                                    ids.Add(mediaFileId);
+                                }
+                            }
+
+                            result = ids.ToList();
+                        }
+
+                        res = result != null;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetMediaFilesByMediaId failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<int>, bool>(result, res);
+        }
+
     }
 }
