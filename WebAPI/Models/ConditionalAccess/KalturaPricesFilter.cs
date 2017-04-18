@@ -10,9 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    [OldStandard("subscriptionsIds", "subscriptions_ids")]
-    [OldStandard("filesIds", "files_ids")]
-    [OldStandard("shouldGetOnlyLowest", "should_get_only_lowest")]
     [Obsolete]
     public class KalturaPricesFilter : KalturaOTTObject
     {
@@ -23,6 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("subscriptionsIds")]
         [XmlArray(ElementName = "subscriptionsIds", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("subscriptions_ids")]
         public List<KalturaIntegerValue> SubscriptionsIds { get; set; }
 
         /// <summary>
@@ -32,6 +30,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("filesIds")]
         [XmlArray(ElementName = "filesIds", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("files_ids")]
         public List<KalturaIntegerValue> FilesIds { get; set; }
 
         /// <summary>
@@ -40,6 +39,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "shouldGetOnlyLowest")]
         [JsonProperty("shouldGetOnlyLowest")]
         [XmlElement(ElementName = "shouldGetOnlyLowest")]
+        [OldStandardProperty("should_get_only_lowest")]
         public bool? ShouldGetOnlyLowest { get; set; }
 
         internal bool getShouldGetOnlyLowest()

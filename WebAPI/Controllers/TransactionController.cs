@@ -14,9 +14,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/transaction/action")]
-    [OldStandardAction("purchaseOldStandard", "purchase")]
-    [OldStandardAction("setWaiver", "waiver")]
-    [OldStandardAction("purchaseSessionIdOldStandard", "purchaseSessionId")]
     public class TransactionController : ApiController
     {
         /// <summary>
@@ -100,6 +97,7 @@ namespace WebAPI.Controllers
         ///  Payment method not exist = 6049       
         /// </remarks>
         [Route("purchaseOldStandard"), HttpPost]
+        [OldStandardAction("purchase")]
         [ApiAuthorize]
         [Obsolete]
         [SchemeArgument("price", MinFloat = 0)]
@@ -289,9 +287,10 @@ namespace WebAPI.Controllers
         ///  User suspended = 2001
         /// </remarks>
         [Route("setWaiver"), HttpPost]
+        [OldStandardAction("waiver")]
         [ApiAuthorize]
-        [OldStandard("assetId", "asset_id")]
-        [OldStandard("transactionType", "transaction_type")]
+        [OldStandardArgument("assetId", "asset_id")]
+        [OldStandardArgument("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
         public bool SetWaiver(int assetId, KalturaTransactionType transactionType)
@@ -370,6 +369,7 @@ namespace WebAPI.Controllers
         /// <remarks>
         /// </remarks>
         [Route("purchaseSessionIdOldStandard"), HttpPost]
+        [OldStandardAction("purchaseSessionId")]
         [ApiAuthorize]
         [Obsolete]
         public long PurchaseSessionIdOldStandard(double price, string currency, int product_id, KalturaTransactionType product_type, int content_id = 0, string coupon = null, int preview_module_id = 0)

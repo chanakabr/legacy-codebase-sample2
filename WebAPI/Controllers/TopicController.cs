@@ -11,7 +11,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/topic/action")]
-    [OldStandard("listOldStandard", "list")]
     public class TopicController : ApiController
     {
 
@@ -84,6 +83,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>        
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public KalturaTopicResponse ListOldStandard(KalturaFilterPager pager = null)
         {

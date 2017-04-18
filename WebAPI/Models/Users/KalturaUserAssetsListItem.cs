@@ -15,9 +15,6 @@ namespace WebAPI.Models.Users
     /// An item of user asset list
     /// </summary>
     [Serializable]
-    [OldStandard("orderIndex", "order_index")]
-    [OldStandard("userId", "user_id")]
-    [OldStandard("listType", "list_type")]
     public class KalturaUserAssetsListItem : KalturaOTTObject
     {
         /// <summary>
@@ -34,6 +31,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "orderIndex")]
         [JsonProperty("orderIndex")]
         [XmlElement(ElementName = "orderIndex")]
+        [OldStandardProperty("order_index")]
         public int? OrderIndex { get; set; }
 
         /// <summary>
@@ -51,6 +49,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("user_id")]
         public string UserId { get; set; }
 
         /// <summary>
@@ -59,6 +58,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "listType")]
         [JsonProperty("listType")]
         [XmlElement(ElementName = "listType")]
+        [OldStandardProperty("list_type")]
         public KalturaUserAssetsListType ListType { get; set; }
 
     }

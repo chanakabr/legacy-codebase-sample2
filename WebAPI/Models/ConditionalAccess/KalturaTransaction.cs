@@ -10,10 +10,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    [OldStandard("paymentGatewayReferenceId", "payment_gateway_reference_id")]
-    [OldStandard("paymentGatewayResponseId", "payment_gateway_response_id")]
-    [OldStandard("failReasonCode", "fail_reason_code")]
-    [OldStandard("createdAt", "created_at")]
     public class KalturaTransaction : KalturaOTTObject
     {
         /// <summary>
@@ -31,6 +27,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentGatewayReferenceId")]
         [JsonProperty("paymentGatewayReferenceId")]
         [XmlElement(ElementName = "paymentGatewayReferenceId")]
+        [OldStandardProperty("payment_gateway_reference_id")]
         public string PGReferenceID { get; set; }
 
         /// <summary>
@@ -40,6 +37,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "paymentGatewayResponseId")]
         [JsonProperty("paymentGatewayResponseId")]
         [XmlElement(ElementName = "paymentGatewayResponseId")]
+        [OldStandardProperty("payment_gateway_response_id")]
         public string PGResponseID { get; set; }
 
         /// <summary>
@@ -59,6 +57,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "failReasonCode")]
         [JsonProperty("failReasonCode")]
         [XmlElement(ElementName = "failReasonCode")]
+        [OldStandardProperty("fail_reason_code")]
         public int? FailReasonCode { get; set; }
 
         /// <summary>
@@ -67,6 +66,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "createdAt")]
         [JsonProperty("createdAt")]
         [XmlElement(ElementName = "createdAt")]
+        [OldStandardProperty("created_at")]
         public int? CreatedAt { get; set; }
     }
 }

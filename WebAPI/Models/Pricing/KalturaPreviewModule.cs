@@ -13,8 +13,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Preview module
     /// </summary>
-    [OldStandard("lifeCycle", "life_cycle")]
-    [OldStandard("nonRenewablePeriod", "non_renewable_period")]
     public class KalturaPreviewModule : KalturaOTTObject
     {
         /// <summary>
@@ -40,6 +38,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "lifeCycle")]
         [JsonProperty("lifeCycle")]
         [XmlElement(ElementName = "lifeCycle")]
+        [OldStandardProperty("life_cycle")]
         public int? LifeCycle { get; set; }
 
         /// <summary>
@@ -48,6 +47,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "nonRenewablePeriod")]
         [JsonProperty("nonRenewablePeriod")]
         [XmlElement(ElementName = "nonRenewablePeriod")]
+        [OldStandardProperty("non_renewable_period")]
         public int? NonRenewablePeriod { get; set; }
 
         

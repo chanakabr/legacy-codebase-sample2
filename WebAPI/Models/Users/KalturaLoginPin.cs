@@ -13,9 +13,6 @@ namespace WebAPI.Models.Users
     /// <summary>
     /// Log in pin code details
     /// </summary>
-    [OldStandard("pinCode", "pin_code")]
-    [OldStandard("expirationTime", "expiration_time")]
-    [OldStandard("userId", "user_id")]
     public class KalturaUserLoginPin : KalturaOTTObject
     {
         /// <summary>
@@ -24,6 +21,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "pinCode")]
         [JsonProperty(PropertyName = "pinCode")]
         [XmlElement(ElementName = "pinCode")]
+        [OldStandardProperty("pin_code")]
         public string PinCode { get; set; }
 
         /// <summary>
@@ -32,6 +30,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "expirationTime")]
         [JsonProperty(PropertyName = "expirationTime")]
         [XmlElement(ElementName = "expirationTime")]
+        [OldStandardProperty("expiration_time")]
         public long? ExpirationTime { get; set; }
 
         /// <summary>
@@ -41,6 +40,7 @@ namespace WebAPI.Models.Users
         [JsonProperty(PropertyName = "userId")]
         [XmlElement(ElementName = "userId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("user_id")]
         public string UserId { get; set; }
     }
 }

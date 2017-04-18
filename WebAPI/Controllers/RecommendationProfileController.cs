@@ -12,8 +12,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/recommendationProfile/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class RecommendationProfileController : ApiController
     {
         /// <summary>
@@ -53,6 +51,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public List<KalturaRecommendationProfile> ListOldStandard()
         {
@@ -114,7 +113,7 @@ namespace WebAPI.Controllers
         /// <param name="recommendationEngine">recommendation engine Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("recommendationEngine", "recommendation_engine")]
+        [OldStandardArgument("recommendationEngine", "recommendation_engine")]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
@@ -185,6 +184,7 @@ namespace WebAPI.Controllers
         /// </remarks>        
         /// <param name="recommendation_engine">recommendation engine Object</param>       
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
@@ -222,7 +222,7 @@ namespace WebAPI.Controllers
         /// <param name="recommendationEngineId">recommendation engine Identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("recommendationEngineId", "recommendation_engine_id")]
+        [OldStandardArgument("recommendationEngineId", "recommendation_engine_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.RecommendationEngineIdentifierRequired)]

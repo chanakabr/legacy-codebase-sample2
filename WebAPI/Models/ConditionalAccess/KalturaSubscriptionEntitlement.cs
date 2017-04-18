@@ -21,6 +21,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("nextRenewalDate")]
         [XmlElement(ElementName = "nextRenewalDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("next_renewal_date")]
         public long? NextRenewalDate { get; set; }
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewableForPurchase")]
         [XmlElement(ElementName = "isRenewableForPurchase")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_renewable_for_purchase")]
         public bool? IsRenewableForPurchase { get; set; }
 
         /// <summary>
@@ -39,6 +41,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_renewable")]
         public bool? IsRenewable { get; set; }
 
         /// <summary>
@@ -48,6 +51,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isInGracePeriod")]
         [XmlElement(ElementName = "isInGracePeriod")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_in_grace_period")]
         public bool? IsInGracePeriod { get; set; }
 
         /// <summary>

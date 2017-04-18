@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/followTvSeries/action")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("listOldStandard", "list")]
     public class FollowTvSeriesController : ApiController
     {
         /// <summary>
@@ -60,6 +58,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("listOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("list")]
         [Obsolete]
         public KalturaListFollowDataTvSeriesResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)
         {
@@ -91,7 +90,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("assetId", "asset_id")]
+        [OldStandardArgument("assetId", "asset_id")]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.UserNotFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
@@ -150,6 +149,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("add")]
         [Obsolete]
         [SchemeArgument("assetId", MinInteger = 1)]
         [Throws(eResponseStatus.UserAlreadyFollowing)]

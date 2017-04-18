@@ -10,8 +10,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.ConditionalAccess
 {
-    [OldStandard("mainUrl", "main_url")]
-    [OldStandard("altUrl", "alt_url")]
     public class KalturaLicensedUrl : KalturaOTTObject
     {
         /// <summary>
@@ -20,6 +18,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "mainUrl")]
         [JsonProperty("mainUrl")]
         [XmlElement(ElementName = "mainUrl")]
+        [OldStandardProperty("main_url")]
         public string MainUrl { get; set; }
 
         /// <summary>
@@ -28,6 +27,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "altUrl")]
         [JsonProperty("altUrl")]
         [XmlElement(ElementName = "altUrl")]
+        [OldStandardProperty("alt_url")]
         public string AltUrl { get; set; }
     }
 }

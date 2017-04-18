@@ -14,13 +14,6 @@ namespace WebAPI.Models.API
     /// Parental rule
     /// </summary>
     [Serializable]
-    [OldStandard("mediaTag", "media_tag")]
-    [OldStandard("epgTag", "epg_tag")]
-    [OldStandard("blockAnonymousAccess", "block_anonymous_access")]
-    [OldStandard("ruleType", "rule_type")]
-    [OldStandard("mediaTagValues", "media_tag_values")]
-    [OldStandard("epgTagValues", "epg_tag_values")]
-    [OldStandard("isDefault", "is_default")]
     public class KalturaParentalRule : KalturaOTTObject
     {
         /// <summary>
@@ -62,6 +55,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "mediaTag")]
         [JsonProperty("mediaTag")]
         [XmlElement(ElementName = "mediaTag")]
+        [OldStandardProperty("media_tag")]
         public int? mediaTagTypeId { get; set; }
 
         /// <summary>
@@ -70,6 +64,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "epgTag")]
         [JsonProperty("epgTag")]
         [XmlElement(ElementName = "epgTag")]
+        [OldStandardProperty("epg_tag")]
         public int? epgTagTypeId { get; set; }
 
         /// <summary>
@@ -78,6 +73,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "blockAnonymousAccess")]
         [JsonProperty("blockAnonymousAccess")]
         [XmlElement(ElementName = "blockAnonymousAccess")]
+        [OldStandardProperty("block_anonymous_access")]
         public bool? blockAnonymousAccess { get; set; }
 
         /// <summary>
@@ -86,6 +82,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "ruleType")]
         [JsonProperty("ruleType")]
         [XmlElement(ElementName = "ruleType")]
+        [OldStandardProperty("rule_type")]
         public KalturaParentalRuleType ruleType { get; set; }
 
         /// <summary>
@@ -95,6 +92,7 @@ namespace WebAPI.Models.API
         [JsonProperty("mediaTagValues")]
         [XmlArray(ElementName = "mediaTagValues", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("media_tag_values")]
         public List<KalturaStringValue> mediaTagValues { get; set; }
 
         /// <summary>
@@ -104,6 +102,7 @@ namespace WebAPI.Models.API
         [JsonProperty("epgTagValues")]
         [XmlArray(ElementName = "epgTagValues", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("epg_tag_values")]
         public List<KalturaStringValue> epgTagValues { get; set; }
 
         /// <summary>
@@ -112,6 +111,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
+        [OldStandardProperty("is_default")]
         public bool? isDefault { get; set; }
 
         /// <summary>

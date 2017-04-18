@@ -14,7 +14,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/householdUser/action")]
-    [OldStandardAction("addOldStandard", "add")]
     public class HouseholdUserController : ApiController
     {
         /// <summary>
@@ -26,7 +25,7 @@ namespace WebAPI.Controllers
         /// Household suspended = 1009, No users in household = 1017, User not allowed = 1027</remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("id", "user_id_to_delete")]
+        [OldStandardArgument("id", "user_id_to_delete")]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.UserNotExistsInDomain)]
@@ -143,6 +142,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("addOldStandard"), HttpPost]
         [ApiAuthorize]
+        [OldStandardAction("add")]
         [Obsolete]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.UserAlreadyInDomain)]

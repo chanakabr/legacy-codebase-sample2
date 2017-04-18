@@ -14,7 +14,6 @@ namespace WebAPI.Models.Users
     /// A user list of assets
     /// </summary>
     [Serializable]
-    [OldStandard("listType", "list_type")]
     [Obsolete]
     public class KalturaUserAssetsList : KalturaOTTObject
     {
@@ -33,6 +32,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "listType")]
         [JsonProperty("listType")]
         [XmlElement(ElementName = "listType")]
+        [OldStandardProperty("list_type")]
         public KalturaUserAssetsListType ListType { get; set; }
 
     }

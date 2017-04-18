@@ -13,9 +13,6 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment gateway base profile
     /// </summary>
-    [OldStandard("isDefault", "is_default")]
-    [OldStandard("selectedBy", "selected_by")]
-    [OldStandard("paymentMethods", "payment_methods")]
     public class KalturaPaymentGatewayBaseProfile : KalturaOTTObject
     {
         /// <summary>
@@ -41,6 +38,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "isDefault")]
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
+        [OldStandardProperty("is_default")]
         public bool? IsDefault { get; set; }
 
         /// <summary>
@@ -49,6 +47,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "selectedBy")]
         [JsonProperty("selectedBy")]
         [XmlElement(ElementName = "selectedBy", IsNullable = true)]
+        [OldStandardProperty("selected_by")]
         public KalturaHouseholdPaymentGatewaySelectedBy? selectedBy { get; set; }
 
         /// <summary>
@@ -58,6 +57,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("paymentMethods")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [OldStandardProperty("payment_methods")]
         [Obsolete]
         public List<KalturaPaymentMethod> PaymentMethods { get; set; }
     }

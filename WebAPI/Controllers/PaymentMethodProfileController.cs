@@ -12,10 +12,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentMethodProfile/action")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("updateOldStandard", "update")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("deleteOldStandard", "delete")]
     public class PaymentMethodProfileController : ApiController
     {
         /// <summary>
@@ -59,6 +55,7 @@ namespace WebAPI.Controllers
         /// Payment gateway not exist = 6008
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
@@ -128,6 +125,7 @@ namespace WebAPI.Controllers
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method name required = 6055
         /// </remarks>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
@@ -194,9 +192,10 @@ namespace WebAPI.Controllers
         /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
         /// </remarks>
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
-        [OldStandard("paymentGatewayId", "payment_gateway_id")]
-        [OldStandard("paymentMethod", "payment_method")]
+        [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
+        [OldStandardArgument("paymentMethod", "payment_method")]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
@@ -264,6 +263,7 @@ namespace WebAPI.Controllers
         ///  Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
         /// </remarks>
         [Route("deleteOldStandard"), HttpPost]
+        [OldStandardAction("delete")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]

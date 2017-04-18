@@ -10,7 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Users
 {
-    [OldStandard("loginSession", "login_session")]
     public class KalturaLoginResponse : KalturaOTTObject
     {
         /// <summary>
@@ -27,6 +26,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "loginSession")]
         [JsonProperty("loginSession")]
         [XmlElement(ElementName = "loginSession", IsNullable = true)]
+        [OldStandardProperty("login_session")]
         public KalturaLoginSession LoginSession { get; set; }
     }
 }

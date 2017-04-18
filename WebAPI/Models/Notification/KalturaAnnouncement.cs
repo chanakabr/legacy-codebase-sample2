@@ -11,7 +11,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notifications
 {
     [Serializable]
-    [OldStandard("startTime", "start_time")]
     public class KalturaAnnouncement : KalturaOTTObject
     {
         /// <summary>
@@ -44,6 +43,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "startTime")]
         [JsonProperty(PropertyName = "startTime")]
         [XmlElement(ElementName = "startTime")]
+        [OldStandardProperty("start_time")]
         public long? StartTime { get; set; }
 
         /// <summary>

@@ -15,9 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/paymentGatewayProfile/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("addOldStandard", "add")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class PaymentGatewayProfileController : ApiController
     {
         /// <summary>
@@ -57,6 +54,7 @@ namespace WebAPI.Controllers
         ///  
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<Models.Billing.KalturaPaymentGatewayProfile> ListOldStandard()
@@ -88,7 +86,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         public bool Delete(int paymentGatewayId)
         {
@@ -152,9 +150,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="paymentGateway">Payment Gateway Object</param>
         [Route("addOldStandard"), HttpPost]
+        [OldStandardAction("add")]
         [ApiAuthorize]
         [Obsolete]
-        [OldStandard("paymentGateway", "payment_gateway")]
+        [OldStandardArgument("paymentGateway", "payment_gateway")]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.SharedSecretRequired)]
@@ -225,9 +224,10 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentGateway">Payment Gateway Object</param>       
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
-        [OldStandard("paymentGatewayId", "payment_gateway_id")]
-        [OldStandard("paymentGateway", "payment_gateway")]
+        [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
+        [OldStandardArgument("paymentGateway", "payment_gateway")]
         [Obsolete]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
@@ -262,7 +262,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment gateway identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
@@ -297,7 +297,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("getConfiguration"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("extraParameters", "extra_parameters")]
+        [OldStandardArgument("extraParameters", "extra_parameters")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SignatureMismatch)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]

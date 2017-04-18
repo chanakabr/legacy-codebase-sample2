@@ -10,9 +10,6 @@ using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Social
 {
-    [OldStandard("firstName", "first_name")]
-    [OldStandard("lastName", "last_name")]
-    [OldStandard("userId", "user_id")]
     public class KalturaSocialUser : KalturaOTTObject
     {
         /// <summary>
@@ -37,6 +34,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "firstName")]
         [JsonProperty("firstName")]
         [XmlElement(ElementName = "firstName")]
+        [OldStandardProperty("first_name")]
         public string FirstName { get; set; }
 
         /// <summary>
@@ -45,6 +43,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "lastName")]
         [JsonProperty("lastName")]
         [XmlElement(ElementName = "lastName")]
+        [OldStandardProperty("last_name")]
         public string LastName { get; set; }
 
         /// <summary>
@@ -69,6 +68,7 @@ namespace WebAPI.Models.Social
         [DataMember(Name = "userId")]
         [JsonProperty("userId")]
         [XmlElement(ElementName = "userId")]
+        [OldStandardProperty("user_id")]
         public string UserId { get; set; }
 
         /// <summary>

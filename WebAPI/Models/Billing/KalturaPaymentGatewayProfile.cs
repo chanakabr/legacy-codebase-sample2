@@ -13,18 +13,6 @@ namespace WebAPI.Models.Billing
     /// <summary>
     /// Payment gateway profile 
     /// </summary>
-    [OldStandard("isActive", "is_active")]
-    [OldStandard("adapterUrl", "adapter_url")]
-    [OldStandard("transactUrl", "transact_url")]
-    [OldStandard("statusUrl", "status_url")]
-    [OldStandard("renewUrl", "renew_url")]
-    [OldStandard("paymentGatewayeSettings", "payment_gateway_settings")]
-    [OldStandard("externalIdentifier", "external_identifier")]
-    [OldStandard("pendingInterval", "pending_interval")]
-    [OldStandard("pendingRetries", "pending_retries")]
-    [OldStandard("sharedSecret", "shared_secret")]
-    [OldStandard("renewIntervalMinutes", "renew_interval_minutes")]
-    [OldStandard("renewStartMinutes", "renew_start_minutes")]
     public class KalturaPaymentGatewayProfile : KalturaPaymentGatewayBaseProfile
     {
         /// <summary>
@@ -33,6 +21,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public int? IsActive { get; set; }
 
         /// <summary>
@@ -41,6 +30,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "adapterUrl")]
         [JsonProperty("adapterUrl")]
         [XmlElement(ElementName = "adapterUrl")]
+        [OldStandardProperty("adapter_url")]
         public string AdapterUrl { get; set; }
 
         /// <summary>
@@ -49,6 +39,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "transactUrl")]
         [JsonProperty("transactUrl")]
         [XmlElement(ElementName = "transactUrl")]
+        [OldStandardProperty("transact_url")]
         public string TransactUrl { get; set; }
 
         /// <summary>
@@ -57,6 +48,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "statusUrl")]
         [JsonProperty("statusUrl")]
         [XmlElement(ElementName = "statusUrl")]
+        [OldStandardProperty("status_url")]
         public string StatusUrl { get; set; }
 
         /// <summary>
@@ -65,6 +57,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "renewUrl")]
         [JsonProperty("renewUrl")]
         [XmlElement(ElementName = "renewUrl")]
+        [OldStandardProperty("renew_url")]
         public string RenewUrl { get; set; }
 
         /// <summary>
@@ -73,6 +66,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "paymentGatewaySettings")]
         [JsonProperty("paymentGatewaySettings")]
         [XmlElement(ElementName = "paymentGatewaySettings", IsNullable = true)]
+        [OldStandardProperty("payment_gateway_settings")]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
@@ -81,6 +75,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "externalIdentifier")]
         [JsonProperty("externalIdentifier")]
         [XmlElement(ElementName = "externalIdentifier")]
+        [OldStandardProperty("external_identifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
@@ -89,6 +84,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "pendingInterval")]
         [JsonProperty("pendingInterval")]
         [XmlElement(ElementName = "pendingInterval")]
+        [OldStandardProperty("pending_interval")]
         public int? PendingInterval { get; set; }
 
         /// <summary>
@@ -97,6 +93,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "pendingRetries")]
         [JsonProperty("pendingRetries")]
         [XmlElement(ElementName = "pendingRetries")]
+        [OldStandardProperty("pending_retries")]
         public int? PendingRetries { get; set; }
 
         /// <summary>
@@ -105,6 +102,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "sharedSecret")]
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
+        [OldStandardProperty("shared_secret")]
         public string SharedSecret { get; set; }
 
         /// <summary>
@@ -113,6 +111,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "renewIntervalMinutes")]
         [JsonProperty("renewIntervalMinutes")]
         [XmlElement(ElementName = "renewIntervalMinutes")]
+        [OldStandardProperty("renew_interval_minutes")]
         public int? RenewIntervalMinutes { get; set; }
 
         /// <summary>
@@ -121,6 +120,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "renewStartMinutes")]
         [JsonProperty("renewStartMinutes")]
         [XmlElement(ElementName = "renewStartMinutes")]
+        [OldStandardProperty("renew_start_minutes")]
         public int? RenewStartMinutes { get; set; }
 
         internal int getId()

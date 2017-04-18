@@ -13,8 +13,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Generic rule filter
     /// </summary>
-    [OldStandard("assetId", "asset_id")]
-    [OldStandard("assetType", "asset_type")]
     [Obsolete]
     public class KalturaGenericRuleFilter : KalturaOTTObject
     {
@@ -24,6 +22,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetId")]
         [JsonProperty("assetId")]
         [XmlElement(ElementName = "assetId")]
+        [OldStandardProperty("asset_id")]
         public long? AssetId{ get; set; }
 
         /// <summary>
@@ -32,6 +31,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "assetType")]
         [JsonProperty("assetType")]
         [XmlElement(ElementName = "assetType")]
+        [OldStandardProperty("asset_type")]
         public int? AssetType { get; set; }
 
         internal long getAssetId()

@@ -103,7 +103,7 @@ namespace WebAPI.Controllers
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("paymentGatewayId", "payment_gateway_id")]
+        [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]

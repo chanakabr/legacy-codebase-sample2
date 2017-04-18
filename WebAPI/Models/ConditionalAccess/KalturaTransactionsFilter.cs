@@ -13,8 +13,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Transactions filter
     /// </summary>
-    [OldStandard("startDate", "start_date")]
-    [OldStandard("endDate", "end_date")]
     [Obsolete]
     public class KalturaTransactionsFilter : KalturaFilterPager
     {
@@ -36,6 +34,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate", IsNullable = true)]
+        [OldStandardProperty("start_date")]
         public DateTime? StartDate { get; set; }
 
         /// <summary>
@@ -44,6 +43,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate", IsNullable = true)]
+        [OldStandardProperty("end_date")]
         public DateTime? EndDate { get; set; }
     }
 }

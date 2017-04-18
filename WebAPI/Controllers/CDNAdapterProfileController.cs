@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
         /// <param name="adapterId">CDN adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("adapterId", "adapter_id")]
+        [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
         public bool Delete(int adapterId)

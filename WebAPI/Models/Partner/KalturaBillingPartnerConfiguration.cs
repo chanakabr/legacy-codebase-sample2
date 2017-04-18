@@ -10,7 +10,6 @@ namespace WebAPI.Models.Partner
     /// <summary>
     /// Partner billing configuration
     /// </summary>
-    [OldStandard("partnerConfigurationType", "partner_configuration_type")]
     public class KalturaBillingPartnerConfig : KalturaPartnerConfiguration
     {
         /// <summary>
@@ -27,6 +26,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "partnerConfigurationType")]
         [JsonProperty("partnerConfigurationType")]
         [XmlElement(ElementName = "partnerConfigurationType", IsNullable = true)]
+        [OldStandardProperty("partner_configuration_type")]
         [Obsolete]
         public KalturaPartnerConfigurationHolder PartnerConfigurationType { get; set; }
 

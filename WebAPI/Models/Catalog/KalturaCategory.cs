@@ -13,8 +13,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Category details
     /// </summary>
-    [OldStandard("parentCategoryId", "parent_category_id")]
-    [OldStandard("childCategories", "child_categories")]
     public class KalturaOTTCategory : KalturaOTTObject
     {
         /// <summary>
@@ -40,6 +38,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "parentCategoryId")]
         [JsonProperty(PropertyName = "parentCategoryId")]
         [XmlElement(ElementName = "parentCategoryId")]
+        [OldStandardProperty("parent_category_id")]
         public long? ParentCategoryId { get; set; }
 
         /// <summary>
@@ -49,6 +48,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "childCategories")]
         [XmlArray(ElementName = "childCategories", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("child_categories")]
         public List<KalturaOTTCategory> ChildCategories { get; set; }
 
         /// <summary>

@@ -10,7 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
 {
-    [OldStandard("channelId", "channel_id")]
     [Obsolete]
     public class KalturaEPGChannelAssets : KalturaListResponse
     {
@@ -29,6 +28,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "channelId")]
         [JsonProperty(PropertyName = "channelId")]
         [XmlElement(ElementName = "channelId")]
+        [OldStandardProperty("channel_id")]
         public int? ChannelID { get; set; }
 
     }

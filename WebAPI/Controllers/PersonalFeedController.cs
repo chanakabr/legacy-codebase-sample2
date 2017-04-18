@@ -15,7 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/personalFeed/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class PersonalFeedController : ApiController
     {
         /// <summary>
@@ -59,6 +58,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>
         /// <returns></returns>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaPersonalFollowFeedResponse ListOldStandard(KalturaOrder? order_by = null, KalturaFilterPager pager = null)

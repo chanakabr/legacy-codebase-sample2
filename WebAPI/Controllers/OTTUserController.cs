@@ -26,11 +26,6 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/ottUser/action")]
-    [OldStandardAction("register", "add")]
-    [OldStandardAction("updateLoginData", "changePassword")]
-    [OldStandardAction("setPassword", "resetPassword")]
-    [OldStandardAction("resetPassword", "sendPassword")]
-    [OldStandardAction("getOldStandard", "get")]
     public class OttUserController : ApiController
     {
         /// <summary>
@@ -113,7 +108,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("login"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("extraParams", "extra_params")]
+        [OldStandardArgument("extraParams", "extra_params")]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserSuspended)]
@@ -162,7 +157,7 @@ namespace WebAPI.Controllers
         [Route("refreshSession"), HttpPost]
         [ApiAuthorize(true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("refreshToken", "refresh_token")]
+        [OldStandardArgument("refreshToken", "refresh_token")]
         [Throws(WebAPI.Managers.Models.StatusCode.InvalidRefreshToken)]
         [Throws(WebAPI.Managers.Models.StatusCode.InvalidKS)]
         [Throws(WebAPI.Managers.Models.StatusCode.RefreshTokenFailed)]
@@ -241,6 +236,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("register"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [OldStandardAction("add")]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserExists)]
         public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
@@ -275,6 +271,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Route("resetPassword"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [OldStandardAction("sendPassword")]
         public bool resetPassword(int partnerId, string username)
         {
             bool response = false;
@@ -349,6 +346,7 @@ namespace WebAPI.Controllers
         [Route("setPassword"), HttpPost]
         [Obsolete("Please use setInitialPassword instead")]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [OldStandardAction("resetPassword")]
         public bool setPassword(int partnerId, string username, string password)
         {
             bool response = false;
@@ -458,8 +456,9 @@ namespace WebAPI.Controllers
         [Route("updateLoginData"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("oldPassword", "old_password")]
-        [OldStandard("newPassword", "new_password")]
+        [OldStandardArgument("oldPassword", "old_password")]
+        [OldStandardArgument("newPassword", "new_password")]
+        [OldStandardAction("changePassword")]
         public bool UpdateLoginData(string username, string oldPassword, string newPassword)
         {
             bool response = false;
@@ -545,6 +544,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         /// <remarks></remarks>        
         [Route("getOldStandard"), HttpPost]
+        [OldStandardAction("get")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaOTTUserListResponse GetOldStandard()
@@ -615,7 +615,7 @@ namespace WebAPI.Controllers
         [Route("addRole"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("roleId", "role_id")]
+        [OldStandardArgument("roleId", "role_id")]
         public bool AddRole(long roleId)
         {
             bool response = false;
@@ -714,7 +714,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Route("activate"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [OldStandard("activationToken", "activation_token")]
+        [OldStandardArgument("activationToken", "activation_token")]
         public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activationToken)
         {
             Models.Users.KalturaOTTUser response = null;

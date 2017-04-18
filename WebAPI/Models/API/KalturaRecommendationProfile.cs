@@ -30,11 +30,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// PaymentGW
     /// </summary>
-    [OldStandard("isActive", "is_active")]
-    [OldStandard("adapterUrl", "adapter_url")]
-    [OldStandard("recommendationEngineSettings", "recommendation_engine_settings")]
-    [OldStandard("externalIdentifier", "external_identifier")]
-    [OldStandard("sharedSecret", "shared_secret")]
     public class KalturaRecommendationProfile : KalturaOTTObject
     {
         /// <summary>
@@ -60,6 +55,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -68,6 +64,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "adapterUrl")]
         [JsonProperty("adapterUrl")]
         [XmlElement(ElementName = "adapterUrl")]
+        [OldStandardProperty("adapter_url")]
         public string AdapterUrl { get; set; }
 
         /// <summary>
@@ -76,6 +73,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "recommendationEngineSettings")]
         [JsonProperty("recommendationEngineSettings")]
         [XmlElement(ElementName = "recommendationEngineSettings", IsNullable = true)]
+        [OldStandardProperty("recommendation_engine_settings")]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
@@ -84,6 +82,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "externalIdentifier")]
         [JsonProperty("externalIdentifier")]
         [XmlElement(ElementName = "externalIdentifier")]
+        [OldStandardProperty("external_identifier")]
         public string ExternalIdentifier { get; set; }
        
         /// <summary>
@@ -93,6 +92,7 @@ namespace WebAPI.Models.API
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("shared_secret")]
         public string SharedSecret { get; set; }
 
         internal int getId()

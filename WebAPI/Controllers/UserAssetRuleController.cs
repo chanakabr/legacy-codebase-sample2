@@ -16,7 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/userAssetRule/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class UserAssetRuleController : ApiController
     {
         /// <summary>
@@ -27,6 +26,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter</param>
         /// <returns>All the rules that applies for a specific media and a specific user according to the user parental and userType settings.</returns>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public KalturaGenericRuleListResponse ListOldStandard(KalturaGenericRuleFilter filter)

@@ -29,11 +29,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// C-DVR Adapter
     /// </summary>
-    [OldStandard("isActive", "is_active")]
-    [OldStandard("adapterUrl", "adapter_url")]
-    [OldStandard("externalIdentifier", "external_identifier")]
-    [OldStandard("sharedSecret", "shared_secret")]
-    [OldStandard("dynamicLinksSupport", "dynamic_links_support")]
     public class KalturaCDVRAdapterProfile : KalturaOTTObject
     {
         /// <summary>
@@ -59,6 +54,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -67,6 +63,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "adapterUrl")]
         [JsonProperty("adapterUrl")]
         [XmlElement(ElementName = "adapterUrl")]
+        [OldStandardProperty("adapter_url")]
         public string AdapterUrl { get; set; }
                
         /// <summary>
@@ -83,6 +80,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "externalIdentifier")]
         [JsonProperty("externalIdentifier")]
         [XmlElement(ElementName = "externalIdentifier")]
+        [OldStandardProperty("external_identifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
@@ -92,6 +90,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("shared_secret")]
         public string SharedSecret { get; set; }
 
         /// <summary>
@@ -100,6 +99,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "dynamicLinksSupport")]
         [JsonProperty("dynamicLinksSupport")]
         [XmlElement(ElementName = "dynamicLinksSupport")]
+        [OldStandardProperty("dynamic_links_support")]
         public bool? DynamicLinksSupport { get; set; }
     }
 }

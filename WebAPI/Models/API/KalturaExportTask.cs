@@ -13,11 +13,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Bulk export task
     /// </summary>
-    [OldStandard("dataType", "data_type")]
-    [OldStandard("exportType", "export_type")]
-    [OldStandard("notificationUrl", "notification_url")]
-    [OldStandard("vodTypes", "vod_types")]
-    [OldStandard("isActive", "is_active")]
     public class KalturaExportTask : KalturaOTTObject
     {
         /// <summary>
@@ -51,6 +46,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "dataType")]
         [JsonProperty("dataType")]
         [XmlElement(ElementName = "dataType")]
+        [OldStandardProperty("data_type")]
         public KalturaExportDataType DataType { get; set; }
 
         /// <summary>
@@ -69,6 +65,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "exportType")]
         [JsonProperty("exportType")]
         [XmlElement(ElementName = "exportType")]
+        [OldStandardProperty("export_type")]
         public KalturaExportType ExportType { get; set; }
 
         /// <summary>
@@ -85,6 +82,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "notificationUrl")]
         [JsonProperty("notificationUrl")]
         [XmlElement(ElementName = "notificationUrl")]
+        [OldStandardProperty("notification_url")]
         public string NotificationUrl { get; set; }
 
         /// <summary>
@@ -94,6 +92,7 @@ namespace WebAPI.Models.API
         [JsonProperty("vodTypes")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem(ElementName = "item")]
+        [OldStandardProperty("vod_types")]
         public List<KalturaIntegerValue> VodTypes { get; set; }
 
         /// <summary>
@@ -102,6 +101,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive", IsNullable = true)]
+        [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
 
         internal long getFrequency()

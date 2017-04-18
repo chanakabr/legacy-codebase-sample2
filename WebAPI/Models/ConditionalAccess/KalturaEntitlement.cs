@@ -14,24 +14,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// Entitlement
     /// </summary>
     [Serializable]
-    [OldStandard("entitlementId", "entitlement_id")]
-    [OldStandard("currentUses", "current_uses")]
-    [OldStandard("endDate", "end_date")]
-    [OldStandard("currentDate", "current_date")]
-    [OldStandard("lastViewDate", "last_view_date")]
-    [OldStandard("purchaseDate", "purchase_date")]
-    [OldStandard("purchaseId", "purchase_id")]
-    [OldStandard("paymentMethod", "payment_method")]
-    [OldStandard("deviceUdid", "device_udid")]
-    [OldStandard("deviceName", "device_name")]
-    [OldStandard("isCancelationWindowEnabled", "is_cancelation_window_enabled")]
-    [OldStandard("maxUses", "max_uses")]
-    [OldStandard("nextRenewalDate", "next_renewal_date")]
-    [OldStandard("isRenewableForPurchase", "is_renewable_for_purchase")]
-    [OldStandard("isRenewable", "is_renewable")]
-    [OldStandard("mediaFileId", "media_file_id")]
-    [OldStandard("mediaId", "media_id")]
-    [OldStandard("isInGracePeriod", "is_in_grace_period")]
     [XmlInclude(typeof(KalturaSubscriptionEntitlement))]
     [XmlInclude(typeof(KalturaPpvEntitlement))]
     public class KalturaEntitlement : KalturaOTTObject
@@ -62,6 +44,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("entitlementId")]
         [XmlElement(ElementName = "entitlementId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("entitlement_id")]
         public string EntitlementId { get; set; }
 
         /// <summary>
@@ -71,6 +54,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("currentUses")]
         [XmlElement(ElementName = "currentUses")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("current_uses")]
         public int? CurrentUses { get; set; }
 
         /// <summary>
@@ -80,6 +64,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("end_date")]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -89,6 +74,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("currentDate")]
         [XmlElement(ElementName = "currentDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("current_date")]
         public long? CurrentDate { get; set; }
 
         /// <summary>
@@ -98,6 +84,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("lastViewDate")]
         [XmlElement(ElementName = "lastViewDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("last_view_date")]
         public long? LastViewDate { get; set; }
 
         /// <summary>
@@ -107,6 +94,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchaseDate")]
         [XmlElement(ElementName = "purchaseDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchase_date")]
         public long? PurchaseDate { get; set; }
 
         /// <summary>
@@ -116,6 +104,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("purchaseId")]
         [XmlElement(ElementName = "purchaseId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("purchase_id")]
         [Obsolete]
         public int? PurchaseId { get; set; }
 
@@ -126,6 +115,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("paymentMethod")]
         [XmlElement(ElementName = "paymentMethod")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("payment_method")]
         public KalturaPaymentMethodType PaymentMethod { get; set; }
 
         /// <summary>
@@ -135,6 +125,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("deviceUdid")]
         [XmlElement(ElementName = "deviceUdid")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("device_udid")]
         public string DeviceUDID { get; set; }
 
         /// <summary>
@@ -144,6 +135,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("deviceName")]
         [XmlElement(ElementName = "deviceName")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("device_name")]
         public string DeviceName { get; set; }
 
         /// <summary>
@@ -153,6 +145,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isCancelationWindowEnabled")]
         [XmlElement(ElementName = "isCancelationWindowEnabled")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_cancelation_window_enabled")]
         public bool? IsCancelationWindowEnabled { get; set; }
 
         /// <summary>
@@ -162,6 +155,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("maxUses")]
         [XmlElement(ElementName = "maxUses")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("max_uses")]
         public int? MaxUses { get; set; }
 
         /// <summary>
@@ -171,6 +165,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("nextRenewalDate")]
         [XmlElement(ElementName = "nextRenewalDate")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("next_renewal_date")]
         [Obsolete]
         public long? NextRenewalDate { get; set; }
 
@@ -181,6 +176,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewableForPurchase")]
         [XmlElement(ElementName = "isRenewableForPurchase")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_renewable_for_purchase")]
         [Obsolete]
         public bool? IsRenewableForPurchase { get; set; }
 
@@ -191,6 +187,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_renewable")]
         [Obsolete]
         public bool? IsRenewable { get; set; }
 
@@ -201,6 +198,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaFileId")]
         [XmlElement(ElementName = "mediaFileId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("media_file_id")]
         [Obsolete]
         public int? MediaFileId { get; set; }
 
@@ -211,6 +209,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaId")]
         [XmlElement(ElementName = "mediaId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("media_id")]
         [Obsolete]
         public int? MediaId { get; set; }
 
@@ -221,6 +220,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("isInGracePeriod")]
         [XmlElement(ElementName = "isInGracePeriod")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("is_in_grace_period")]
         [Obsolete]
         public bool? IsInGracePeriod { get; set; }
 

@@ -13,8 +13,6 @@ namespace WebAPI.Models.Domains
     /// <summary>
     /// Device family details
     /// </summary>
-    [OldStandard("deviceLimit", "device_limit")]
-    [OldStandard("concurrentLimit", "concurrent_limit")]
     public class KalturaDeviceFamilyBase : KalturaOTTObject
     {
         /// <summary>
@@ -40,6 +38,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
+        [OldStandardProperty("device_limit")]
         [Obsolete]
         public int? DeviceLimit { get; set; }
 
@@ -49,6 +48,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [OldStandardProperty("concurrent_limit")]
         [Obsolete]
         public int? ConcurrentLimit { get; set; }
     }
@@ -89,6 +89,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
+        [OldStandardProperty("device_limit")]
         public int? DeviceLimit { get; set; }
 
         /// <summary>
@@ -97,6 +98,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [OldStandardProperty("concurrent_limit")]
         public int? ConcurrentLimit { get; set; }
     }
 }

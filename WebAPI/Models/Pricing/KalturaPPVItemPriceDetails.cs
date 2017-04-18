@@ -14,23 +14,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// PPV item price details
     /// </summary>
-    [OldStandard("ppvModuleId", "ppv_module_id")]
-    [OldStandard("isSubscriptionOnly", "is_subscription_only")]
-    [OldStandard("fullPrice", "full_price")]
-    [OldStandard("purchaseStatus", "purchase_status")]
-    [OldStandard("subscriptionId", "subscription_id")]
-    [OldStandard("collectionId", "collection_id")]
-    [OldStandard("prePaidId", "pre_paid_id")]
-    [OldStandard("ppvDescriptions", "ppv_descriptions")]
-    [OldStandard("purchaseUserId", "purchase_user_id")]
-    [OldStandard("purchasedMediaFileId", "purchased_media_file_id")]
-    [OldStandard("relatedMediaFileIds", "related_media_file_ids")]
-    [OldStandard("startDate", "start_date")]
-    [OldStandard("endDate", "end_date")]
-    [OldStandard("discountEndDate", "discount_end_date")]
-    [OldStandard("firstDeviceName", "first_device_name")]
-    [OldStandard("isInCancelationPeriod", "is_in_cancelation_period")]
-    [OldStandard("ppvProductCode", "ppv_product_code")]
     public class KalturaPPVItemPriceDetails : KalturaOTTObject
     {
         /// <summary>
@@ -39,6 +22,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "ppvModuleId")]
         [JsonProperty("ppvModuleId")]
         [XmlElement(ElementName = "ppvModuleId")]
+        [OldStandardProperty("ppv_module_id")]
         public string PPVModuleId { get; set; }
 
         /// <summary>
@@ -47,6 +31,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "isSubscriptionOnly")]
         [JsonProperty("isSubscriptionOnly")]
         [XmlElement(ElementName = "isSubscriptionOnly")]
+        [OldStandardProperty("is_subscription_only")]
         public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
@@ -63,6 +48,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "fullPrice")]
         [JsonProperty("fullPrice")]
         [XmlElement(ElementName = "fullPrice", IsNullable = true)]
+        [OldStandardProperty("full_price")]
         public KalturaPrice FullPrice { get; set; }
 
         /// <summary>
@@ -71,6 +57,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "purchaseStatus")]
         [JsonProperty("purchaseStatus")]
         [XmlElement(ElementName = "purchaseStatus")]
+        [OldStandardProperty("purchase_status")]
         public KalturaPurchaseStatus PurchaseStatus { get; set; }
 
         /// <summary>
@@ -79,6 +66,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "subscriptionId")]
         [JsonProperty("subscriptionId")]
         [XmlElement(ElementName = "subscriptionId")]
+        [OldStandardProperty("subscription_id")]
         public string SubscriptionId { get; set; }
 
         /// <summary>
@@ -87,6 +75,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "collectionId")]
         [JsonProperty("collectionId")]
         [XmlElement(ElementName = "collectionId")]
+        [OldStandardProperty("collection_id")]
         public string CollectionId { get; set; }
 
         /// <summary>
@@ -95,6 +84,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "prePaidId")]
         [JsonProperty("prePaidId")]
         [XmlElement(ElementName = "prePaidId")]
+        [OldStandardProperty("pre_paid_id")]
         public string PrePaidId { get; set; }
 
         /// <summary>
@@ -104,6 +94,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("ppvDescriptions")]
         [XmlArray(ElementName = "ppvDescriptions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("ppv_descriptions")]
         public List<KalturaTranslationToken> PPVDescriptions { get; set; }
 
         /// <summary>
@@ -112,6 +103,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "purchaseUserId")]
         [JsonProperty("purchaseUserId")]
         [XmlElement(ElementName = "purchaseUserId")]
+        [OldStandardProperty("purchase_user_id")]
         public string PurchaseUserId { get; set; }
 
         /// <summary>
@@ -120,6 +112,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "purchasedMediaFileId")]
         [JsonProperty("purchasedMediaFileId")]
         [XmlElement(ElementName = "purchasedMediaFileId")]
+        [OldStandardProperty("purchased_media_file_id")]
         public int? PurchasedMediaFileId { get; set; }
 
         /// <summary>
@@ -129,6 +122,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("relatedMediaFileIds")]
         [XmlArray(ElementName = "relatedMediaFileIds", IsNullable = true)]
         [XmlArrayItem("item")]
+        [OldStandardProperty("related_media_file_ids")]
         public List<KalturaIntegerValue> RelatedMediaFileIds { get; set; }
 
         /// <summary>
@@ -137,6 +131,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
+        [OldStandardProperty("start_date")]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -145,6 +140,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
+        [OldStandardProperty("end_date")]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -153,6 +149,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "discountEndDate")]
         [JsonProperty("discountEndDate")]
         [XmlElement(ElementName = "discountEndDate")]
+        [OldStandardProperty("discount_end_date")]
         public long? DiscountEndDate { get; set; }
 
         /// <summary>
@@ -161,6 +158,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "firstDeviceName")]
         [JsonProperty("firstDeviceName")]
         [XmlElement(ElementName = "firstDeviceName")]
+        [OldStandardProperty("first_device_name")]
         public string FirstDeviceName { get; set; }
 
         /// <summary>
@@ -169,6 +167,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "isInCancelationPeriod")]
         [JsonProperty("isInCancelationPeriod")]
         [XmlElement(ElementName = "isInCancelationPeriod")]
+        [OldStandardProperty("is_in_cancelation_period")]
         public bool? IsInCancelationPeriod { get; set; }
 
         /// <summary>
@@ -177,6 +176,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "ppvProductCode")]
         [JsonProperty("ppvProductCode")]
         [XmlElement(ElementName = "ppvProductCode")]
+        [OldStandardProperty("ppv_product_code")]
         public string ProductCode { get; set; }
     }
 }

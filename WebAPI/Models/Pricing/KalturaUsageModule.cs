@@ -13,13 +13,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Pricing usage module
     /// </summary>
-    [OldStandard("maxViewsNumber", "max_views_number")]
-    [OldStandard("viewLifeCycle", "view_life_cycle")]
-    [OldStandard("fullLifeCycle", "full_life_cycle")]
-    [OldStandard("couponId", "coupon_id")]
-    [OldStandard("waiverPeriod", "waiver_period")]
-    [OldStandard("isWaiverEnabled", "is_waiver_enabled")]
-    [OldStandard("isOfflinePlayback", "is_offline_playback")]
     public class KalturaUsageModule : KalturaOTTObject
     {
         /// <summary>
@@ -45,6 +38,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "maxViewsNumber")]
         [JsonProperty("maxViewsNumber")]
         [XmlElement(ElementName = "maxViewsNumber", IsNullable = true)]
+        [OldStandardProperty("max_views_number")]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
@@ -53,6 +47,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "viewLifeCycle")]
         [JsonProperty("viewLifeCycle")]
         [XmlElement(ElementName = "viewLifeCycle", IsNullable = true)]
+        [OldStandardProperty("view_life_cycle")]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -61,6 +56,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "fullLifeCycle")]
         [JsonProperty("fullLifeCycle")]
         [XmlElement(ElementName = "fullLifeCycle", IsNullable = true)]
+        [OldStandardProperty("full_life_cycle")]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>
@@ -69,6 +65,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponId")]
         [JsonProperty("couponId")]
         [XmlElement(ElementName = "couponId", IsNullable = true)]
+        [OldStandardProperty("coupon_id")]
         public int? CouponId { get; set; }
                 
         /// <summary>
@@ -77,6 +74,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "waiverPeriod")]
         [JsonProperty("waiverPeriod")]
         [XmlElement(ElementName = "waiverPeriod", IsNullable = true)]
+        [OldStandardProperty("waiver_period")]
         public int? WaiverPeriod { get; set; }
 
         /// <summary>
@@ -85,6 +83,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "isWaiverEnabled")]
         [JsonProperty("isWaiverEnabled")]
         [XmlElement(ElementName = "isWaiverEnabled", IsNullable = true)]
+        [OldStandardProperty("is_waiver_enabled")]
         public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
@@ -93,6 +92,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "isOfflinePlayback")]
         [JsonProperty("isOfflinePlayback")]
         [XmlElement(ElementName = "isOfflinePlayback", IsNullable = true)]
+        [OldStandardProperty("is_offline_playback")]
         public bool? IsOfflinePlayback { get; set; }
     }
 }

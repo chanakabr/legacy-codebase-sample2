@@ -13,7 +13,6 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Coupon details container
     /// </summary>
-    [OldStandard("couponsGroup", "coupons_group")]
     public class KalturaCoupon : KalturaOTTObject
     {
         /// <summary>
@@ -23,6 +22,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("couponsGroup")]
         [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("coupons_group")]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>

@@ -13,11 +13,6 @@ namespace WebAPI.Models.API
     /// <summary>
     /// OSS Adapter
     /// </summary>
-    [OldStandard("isActive", "is_active")]
-    [OldStandard("adapterUrl", "adapter_url")]
-    [OldStandard("ossAdapterSettings", "oss_adapter_settings")]
-    [OldStandard("externalIdentifier", "external_identifier")]
-    [OldStandard("sharedSecret", "shared_secret")]
     public class KalturaOSSAdapterProfile : KalturaOSSAdapterBaseProfile
     {
         /// <summary>
@@ -26,6 +21,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [OldStandardProperty("is_active")]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -34,6 +30,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "adapterUrl")]
         [JsonProperty("adapterUrl")]
         [XmlElement(ElementName = "adapterUrl")]
+        [OldStandardProperty("adapter_url")]
         public string AdapterUrl { get; set; }
                
         /// <summary>
@@ -42,6 +39,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "ossAdapterSettings")]
         [JsonProperty("ossAdapterSettings")]
         [XmlElement("ossAdapterSettings", IsNullable = true)]
+        [OldStandardProperty("oss_adapter_settings")]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
@@ -50,6 +48,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "externalIdentifier")]
         [JsonProperty("externalIdentifier")]
         [XmlElement(ElementName = "externalIdentifier")]
+        [OldStandardProperty("external_identifier")]
         public string ExternalIdentifier { get; set; }
 
         /// <summary>
@@ -59,6 +58,7 @@ namespace WebAPI.Models.API
         [JsonProperty("sharedSecret")]
         [XmlElement(ElementName = "sharedSecret")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("shared_secret")]
         public string SharedSecret { get; set; }
     }
 }

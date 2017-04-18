@@ -99,16 +99,17 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieve a message template used in push notifications and inbox
         /// </summary>
-        /// <param name="assetType">possible values: Asset type – Series</param>
+        /// <param name="messageType">possible values: Asset type – Series</param>
         /// <returns></returns>     
         /// <remarks>
         /// Possible status codes: message template not found = 8016
         /// </remarks>
         [Route("get"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("assetType", "asset_Type")]
+        [OldStandardArgument("messageType", "asset_Type")]
+        [OldStandardArgument("messageType", "assetType", "3.6.287.23792")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaMessageTemplate Get(KalturaOTTAssetType assetType)
+        public KalturaMessageTemplate Get(KalturaOTTAssetType messageType)
         {
             KalturaMessageTemplate response = null;
 
@@ -117,7 +118,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().GetMessageTemplate(groupId, assetType);
+                response = ClientsManager.NotificationClient().GetMessageTemplate(groupId, messageType);
             }
             catch (ClientException ex)
             {

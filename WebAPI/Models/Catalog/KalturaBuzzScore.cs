@@ -13,9 +13,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Buzz score
     /// </summary>
-    [OldStandard("normalizedAvgScore", "normalized_avg_score")]
-    [OldStandard("updateDate", "update_date")]
-    [OldStandard("avgScore", "avg_score")]
     public class KalturaBuzzScore : KalturaOTTObject
     {
         /// <summary>
@@ -24,6 +21,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "normalizedAvgScore")]
         [JsonProperty(PropertyName = "normalizedAvgScore")]
         [XmlElement(ElementName = "normalizedAvgScore")]
+        [OldStandardProperty("normalized_avg_score")]
         public double? NormalizedAvgScore { get; set; }
 
         /// <summary>
@@ -32,6 +30,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "updateDate")]
         [JsonProperty(PropertyName = "updateDate")]
         [XmlElement(ElementName = "updateDate")]
+        [OldStandardProperty("update_date")]
         public long? UpdateDate { get; set; }
 
         /// <summary>
@@ -40,6 +39,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "avgScore")]
         [JsonProperty(PropertyName = "avgScore")]
         [XmlElement(ElementName = "avgScore")]
+        [OldStandardProperty("avg_score")]
         public double? AvgScore { get; set; }
     }
 }

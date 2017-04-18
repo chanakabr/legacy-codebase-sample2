@@ -11,8 +11,6 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.Notification
 {
     [Serializable]
-    [OldStandard("announcementId", "announcement_id")]
-    [OldStandard("followPhrase", "follow_phrase")]
     public class KalturaFollowDataBase : KalturaOTTObject
     {
         /// <summary>
@@ -22,6 +20,7 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "announcementId")]
         [XmlElement(ElementName = "announcementId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("announcement_id")]
         public long AnnouncementId { get; set; }
 
         /// <summary>
@@ -58,6 +57,7 @@ namespace WebAPI.Models.Notification
         [JsonProperty(PropertyName = "followPhrase")]
         [XmlElement(ElementName = "followPhrase")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("follow_phrase")]
         public string FollowPhrase { get; set; }
     }
 }

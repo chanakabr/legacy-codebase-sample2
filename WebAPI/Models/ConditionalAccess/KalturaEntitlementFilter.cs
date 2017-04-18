@@ -13,7 +13,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
-    [OldStandard("entitlementType", "entitlement_type")]
     public class KalturaEntitlementFilter : KalturaFilter<KalturaEntitlementOrderBy> 
     {
         /// <summary>
@@ -22,6 +21,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "entitlementTypeEqual")]
         [JsonProperty("entitlementTypeEqual")]
         [XmlElement(ElementName = "entitlementTypeEqual")]
+        [OldStandardProperty("entitlement_type")]
         public KalturaTransactionType EntitlementTypeEqual { get; set; }
 
         /// <summary>

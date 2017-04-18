@@ -13,8 +13,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Billing response
     /// </summary>
-    [OldStandard("receiptCode", "receipt_code")]
-    [OldStandard("externalReceiptCode", "external_receipt_code")]
     public class KalturaBillingResponse : KalturaOTTObject
     {
         /// <summary>
@@ -23,6 +21,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "receiptCode")]
         [JsonProperty("receiptCode")]
         [XmlElement(ElementName = "receiptCode")]
+        [OldStandardProperty("receipt_code")]
         public string ReceiptCode { get; set; }
 
         /// <summary>
@@ -31,6 +30,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "externalReceiptCode")]
         [JsonProperty("externalReceiptCode")]
         [XmlElement(ElementName = "externalReceiptCode")]
+        [OldStandardProperty("external_receipt_code")]
         public string ExternalReceiptCode { get; set; }
     }
 }

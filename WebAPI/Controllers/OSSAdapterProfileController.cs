@@ -15,8 +15,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/ossAdapterProfile/action")]
-    [OldStandardAction("updateOldStandard", "update")]
-    [OldStandardAction("listOldStandard", "list")]
     public class OssAdapterProfileController : ApiController
     {
         /// <summary>
@@ -82,6 +80,7 @@ namespace WebAPI.Controllers
         /// <remarks>       
         /// </remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<KalturaOSSAdapterProfile> ListOldStandard()
@@ -113,7 +112,7 @@ namespace WebAPI.Controllers
         /// <param name="ossAdapterId">OSS adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("ossAdapterId", "oss_adapter_id")]
+        [OldStandardArgument("ossAdapterId", "oss_adapter_id")]
         [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
         [Throws(eResponseStatus.OSSAdapterNotExist)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
@@ -146,7 +145,7 @@ namespace WebAPI.Controllers
         /// <param name="ossAdapter">OSS adapter Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("ossAdapter", "oss_adapter")]
+        [OldStandardArgument("ossAdapter", "oss_adapter")]
         [Throws(eResponseStatus.NoOSSAdapterToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
@@ -216,6 +215,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <param name="oss_adapter">OSS adapter Object</param>       
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
@@ -252,7 +252,7 @@ namespace WebAPI.Controllers
         /// <param name="ossAdapterId">OSS adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("ossAdapterId", "oss_adapter_id")]
+        [OldStandardArgument("ossAdapterId", "oss_adapter_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.OSSAdapterIdentifierRequired)]
         [Throws(eResponseStatus.OSSAdapterNotExist)]

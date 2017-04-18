@@ -14,7 +14,6 @@ namespace WebAPI.Models.Pricing
     /// Price 
     /// </summary>
     [Serializable]
-    [OldStandard("currencySign", "currency_sign")]
     public class KalturaPrice : KalturaOTTObject
     {
         /// <summary>
@@ -39,6 +38,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "currencySign")]
         [JsonProperty("currencySign")]
         [XmlElement(ElementName = "currencySign")]
+        [OldStandardProperty("currency_sign")]
         public string CurrencySign { get; set; }
     }
 }

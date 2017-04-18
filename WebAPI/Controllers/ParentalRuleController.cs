@@ -17,7 +17,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/parentalRule/action")]
-    [OldStandardAction("listOldStandard", "list")]
     public class ParentalRuleController : ApiController 
     {
         /// <summary>
@@ -31,6 +30,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns>List of parental rules applied to the user</returns>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         [Throws(eResponseStatus.DomainNotExists)]
@@ -125,8 +125,8 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         [Route("enable"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("entityReference", "by")]
-        [OldStandard("ruleId", "rule_id")]
+        [OldStandardArgument("entityReference", "by")]
+        [OldStandardArgument("ruleId", "rule_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -173,8 +173,8 @@ namespace WebAPI.Controllers
         /// <returns>Success or failure and reason</returns>
         [Route("disable"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("entityReference", "by")]
-        [OldStandard("ruleId", "rule_id")]
+        [OldStandardArgument("entityReference", "by")]
+        [OldStandardArgument("ruleId", "rule_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -223,7 +223,7 @@ namespace WebAPI.Controllers
         /// <returns>Success / fail</returns>
         [Route("disableDefault"), HttpPost]
         [ApiAuthorize]
-        [OldStandard("entityReference", "by")]
+        [OldStandardArgument("entityReference", "by")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]

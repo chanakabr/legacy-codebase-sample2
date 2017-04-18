@@ -16,8 +16,6 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [RoutePrefix("_service/exportTask/action")]
-    [OldStandardAction("listOldStandard", "list")]
-    [OldStandardAction("updateOldStandard", "update")]
     public class ExportTaskController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -95,6 +93,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         /// <returns></returns>
         [Route("updateOldStandard"), HttpPost]
+        [OldStandardAction("update")]
         [ApiAuthorize]
         [Obsolete]
         public bool UpdateOldStandard(KalturaExportTask task)
@@ -208,6 +207,7 @@ namespace WebAPI.Controllers
         /// 
         /// <returns></returns>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<KalturaExportTask> ListOldStandard(KalturaExportFilter filter = null)

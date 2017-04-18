@@ -10,8 +10,6 @@ namespace WebAPI.Models.Catalog
     /// <summary>
     /// Media file details
     /// </summary>
-    [OldStandard("assetId", "asset_id")]
-    [OldStandard("externalId", "external_id")]
     [Serializable]
     public class KalturaMediaFile : KalturaOTTObject
     {
@@ -21,6 +19,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetId")]
         [JsonProperty(PropertyName = "assetId")]
         [XmlElement(ElementName = "assetId")]
+        [OldStandardProperty("asset_id")]
         public int? AssetId { get; set; }
 
         /// <summary>
@@ -62,6 +61,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "externalId")]
         [JsonProperty(PropertyName = "externalId")]
         [XmlElement(ElementName = "externalId")]
+        [OldStandardProperty("external_id")]
         public string ExternalId { get; set; }
 
         /// <summary>

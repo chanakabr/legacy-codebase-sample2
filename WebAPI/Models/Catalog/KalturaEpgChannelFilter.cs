@@ -15,8 +15,6 @@ namespace WebAPI.Models.Catalog
     /// Filtering epg channels
     /// </summary>
     [Serializable]
-    [OldStandard("startTime", "start_time")]
-    [OldStandard("endTime", "end_time")]
     [Obsolete]
     public class KalturaEpgChannelFilter : KalturaOTTObject
     {
@@ -35,6 +33,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "startTime")]
         [JsonProperty(PropertyName = "startTime")]
         [XmlElement("startTime")]
+        [OldStandardProperty("start_time")]
         public long? StartTime { get; set; }
 
         /// <summary>
@@ -43,6 +42,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "endTime")]
         [JsonProperty(PropertyName = "endTime")]
         [XmlElement("endTime")]
+        [OldStandardProperty("end_time")]
         public long? EndTime { get; set; }
 
         internal long getStartTime()

@@ -20,7 +20,8 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "mediaFileId")]
         [JsonProperty("mediaFileId")]
         [XmlElement(ElementName = "mediaFileId")]
-        [SchemeProperty(ReadOnly = true)]       
+        [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("media_file_id")]
         public int? MediaFileId { get; set; }
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("mediaId")]
         [XmlElement(ElementName = "mediaId")]
         [SchemeProperty(ReadOnly = true)]
+        [OldStandardProperty("media_id")]
         public int? MediaId { get; set; }
     }
 }

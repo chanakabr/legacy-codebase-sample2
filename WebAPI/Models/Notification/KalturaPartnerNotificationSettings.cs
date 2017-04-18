@@ -10,10 +10,6 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.Notification
 {
-    [OldStandard("pushNotificationEnabled", "push_notification_enabled")]
-    [OldStandard("pushSystemAnnouncementsEnabled", "push_system_announcements_enabled")]
-    [OldStandard("pushStartHour", "push_start_hour")]
-    [OldStandard("pushEndHour", "push_end_hour")]
     public class KalturaNotificationsPartnerSettings : KalturaOTTObject
     {
         /// <summary>
@@ -22,6 +18,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "pushNotificationEnabled")]
         [JsonProperty("pushNotificationEnabled")]
         [XmlElement(ElementName = "pushNotificationEnabled", IsNullable = true)]
+        [OldStandardProperty("push_notification_enabled")]
         public bool? PushNotificationEnabled { get; set; }
 
         /// <summary>
@@ -30,6 +27,7 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "pushSystemAnnouncementsEnabled")]
         [JsonProperty("pushSystemAnnouncementsEnabled")]
         [XmlElement(ElementName = "pushSystemAnnouncementsEnabled", IsNullable = true)]
+        [OldStandardProperty("push_system_announcements_enabled")]
         public bool? PushSystemAnnouncementsEnabled { get; set; }
 
         /// <summary>
@@ -39,6 +37,7 @@ namespace WebAPI.Models.Notification
         [JsonProperty("pushStartHour")]
         [XmlElement(ElementName = "pushStartHour", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, MaxInteger = 24)]
+        [OldStandardProperty("push_start_hour")]
         public int? PushStartHour { get; set; }
 
         /// <summary>
@@ -48,6 +47,7 @@ namespace WebAPI.Models.Notification
         [JsonProperty("pushEndHour")]
         [XmlElement(ElementName = "pushEndHour", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, MaxInteger = 24)]
+        [OldStandardProperty("push_end_hour")]
         public int? PushEndHour { get; set; }
 
         /// <summary>

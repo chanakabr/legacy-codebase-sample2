@@ -18,7 +18,6 @@ namespace WebAPI.Controllers
     /// 
     /// </summary>
     [RoutePrefix("_service/userRole/action")]
-    [OldStandard("listOldStandard", "list")]
     public class UserRoleController : ApiController
     {
         /// <summary>
@@ -60,6 +59,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks></remarks>
         [Route("listOldStandard"), HttpPost]
+        [OldStandardAction("list")]
         [ApiAuthorize]
         [Obsolete]
         public List<KalturaUserRole> ListOldStandard(KalturaUserRoleFilter filter = null)

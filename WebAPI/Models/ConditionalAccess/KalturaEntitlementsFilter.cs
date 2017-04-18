@@ -13,7 +13,6 @@ namespace WebAPI.Models.ConditionalAccess
     /// <summary>
     /// Entitlements filter 
     /// </summary>
-    [OldStandard("entitlementType", "entitlement_type")]
     [Obsolete]
     public class KalturaEntitlementsFilter : KalturaOTTObject 
     {
@@ -23,6 +22,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "entitlementType")]
         [JsonProperty("entitlementType")]
         [XmlElement(ElementName = "entitlementType")]
+        [OldStandardProperty("entitlement_type")]
         public KalturaTransactionType EntitlementType { get; set; }
 
         /// <summary>

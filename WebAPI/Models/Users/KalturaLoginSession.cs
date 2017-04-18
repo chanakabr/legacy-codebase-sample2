@@ -14,7 +14,6 @@ namespace WebAPI.Models.Users
     /// Login response
     /// </summary>
     /// 
-    [OldStandard("refreshToken", "refresh_token")]
     public class KalturaLoginSession : KalturaOTTObject
     {
         /// <summary>
@@ -31,6 +30,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "refreshToken")]
         [JsonProperty("refreshToken")]
         [XmlElement(ElementName = "refreshToken")]
+        [OldStandardProperty("refresh_token")]
         public string RefreshToken { get; set; }
 
         
