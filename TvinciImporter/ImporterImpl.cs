@@ -5433,7 +5433,6 @@ namespace TvinciImporter
             }
         }
 
-
         static public bool UpdateMessageAnnouncementStatus(int groupID, int id, bool status)
         {
             try
@@ -6394,6 +6393,11 @@ namespace TvinciImporter
             }
 
             return result;
+        }
+
+        public static Status AddEngagement(int groupId, ref ApiObjects.Notification.Engagement engagement)
+        {
+            throw new NotImplementedException();
         }
     }
 }

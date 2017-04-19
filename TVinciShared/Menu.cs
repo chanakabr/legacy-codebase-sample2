@@ -479,6 +479,14 @@ namespace TVinciShared
                         {
                             sTemp.Append("' class=btn_ksql_channel href='");
                         }
+                        else if (splitted[0] == "Add A.UserList")
+                        {
+                            sTemp.Append("' class=btn_a_user_list href='");
+                        }
+                        else if (splitted[0] == "Add M.UserList")
+                        {
+                            sTemp.Append("' class=btn_m_user_list href='");
+                        }
                         else
                         {
                             sTemp.Append("' class=btn href='");
@@ -490,7 +498,9 @@ namespace TVinciShared
 
                     if (splitted[0] != "Add A.Channel" &&
                         splitted[0] != "Add M.Channel" &&
-                        splitted[0] != "Add KSQL.Channel")
+                        splitted[0] != "Add KSQL.Channel" &&
+                        splitted[0] != "Add A.UserList" &&
+                        splitted[0] != "Add M.UserList")
                     {
                         sTemp.Append(splitted[0]);
                     }
