@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Catalog.Cache;
+using System;
 using System.Collections;
 using System.Configuration;
 using System.Data;
@@ -49,6 +50,7 @@ namespace WebAPI
                         {
                             CachingManager.CachingManager.RemoveFromCache("");
                             TvinciCache.WSCache.ClearAll();
+                            CatalogCache.ClearAll();
                             //bool layeredCacheCleared = false;
                             //bool addGroupIdInResponse = false;
                             //int groupId;
