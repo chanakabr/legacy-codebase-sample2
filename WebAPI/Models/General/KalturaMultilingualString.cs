@@ -31,6 +31,16 @@ namespace WebAPI.Models.General
             Values = AutoMapper.Mapper.Map<List<KalturaTranslationToken>>(values);
         }
 
+        public static string GetCurrent(LanguageContainer[] values, string value)
+        {
+            if (values != null)
+            {
+                return new KalturaMultilingualString(values).ToString();
+            }
+
+            return value;
+        }
+
         public static string GetMultilingualName(string name)
         {
             return string.Format("multilingual{0}{1}", name.Substring(0, 1).ToUpper(), name.Substring(1)); ;
