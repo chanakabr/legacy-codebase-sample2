@@ -408,6 +408,7 @@
     <Compile Include="Rules\RegistryResponse.cs" />
     <Compile Include="Rules\RegistrySettings.cs" />
     <Compile Include="SearchObjects\SearchGroupBy.cs" />
+    <Compile Include="SearchObjects\SearchHistory.cs" />
     <Compile Include="Social\enums.cs" />
     <Compile Include="Social\SocialActionPrivacy.cs" />
     <Compile Include="Social\SocialUserActionConfig.cs" />
