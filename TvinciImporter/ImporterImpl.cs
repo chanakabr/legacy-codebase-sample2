@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.DRM;
+using ApiObjects.Notification;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
@@ -5558,7 +5559,7 @@ namespace TvinciImporter
                 string sWSPass = "";
                 int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupid);
                 TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
-                bUpdate = service.AddNotificationRequest(sWSUserName, sWSPass, string.Empty, Notification_WCF.NotificationTriggerType.FollowUpByTag, nMediaID);
+                bUpdate = service.AddNotificationRequest(sWSUserName, sWSPass, string.Empty, NotificationTriggerType.FollowUpByTag, nMediaID);
             }
             catch (Exception ex)
             {
