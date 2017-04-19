@@ -9,13 +9,13 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Catalog
-{    
-    public class KalturaAssetFilter : KalturaFilter<KalturaAssetOrderBy>
+{
+    public class KalturaAssetFilter : KalturaPersistedFilter<KalturaAssetOrderBy>
     {
         public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {
             return KalturaAssetOrderBy.RELEVANCY_DESC;
-        }       
+        }
 
         internal virtual void Validate()
         {            

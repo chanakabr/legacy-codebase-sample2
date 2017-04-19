@@ -4258,6 +4258,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPersistedFilter`1":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
                 case "KalturaPersonalAsset":
                     switch(property.Name)
                     {

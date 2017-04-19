@@ -1908,6 +1908,11 @@
             Name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
+            <summary>
+            Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Catalog.KalturaScheduledRecordingProgramFilter.RecordingTypeEqual">
              <summary>
             The type of recordings to return

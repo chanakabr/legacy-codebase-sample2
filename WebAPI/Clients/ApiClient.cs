@@ -27,6 +27,7 @@ using ApiObjects.Roles;
 using ApiObjects.CDNAdapter;
 using ApiObjects.BulkExport;
 using Core.Pricing;
+using Newtonsoft.Json.Linq;
 
 namespace WebAPI.Clients
 {
@@ -3531,5 +3532,33 @@ namespace WebAPI.Clients
             return result;
         }
 
+
+        internal void SaveSearchHistory(string name, string service, string action, string language, JObject persistedFilter)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.SaveSearchHistory(name, service, action, language, persistedFilter);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+        }
     }
 }

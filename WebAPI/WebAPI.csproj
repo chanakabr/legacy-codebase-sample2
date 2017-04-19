@@ -589,6 +589,7 @@
     <Compile Include="Models\General\KalturaClientConfiguration.cs" />
     <Compile Include="Models\API\KalturaPermission.cs" />
     <Compile Include="Models\API\KalturaPermissionItem.cs" />
+    <Compile Include="Models\General\KalturaPersistedFilter.cs" />
     <Compile Include="Models\General\KalturaReport.cs" />
     <Compile Include="Models\General\KalturaReportFilter.cs" />
     <Compile Include="Models\General\KalturaReportListResponse.cs" />

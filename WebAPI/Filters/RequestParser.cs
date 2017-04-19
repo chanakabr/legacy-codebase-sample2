@@ -701,16 +701,32 @@ namespace WebAPI.Filters
                     else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
                     {
                         Dictionary<string, object> param;
+                        JObject jObject = null;
+
                         if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
                         {
                             param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
+                            jObject = (JObject)reqParams[name];
                         }
                         else
                         {
                             param = (Dictionary<string, object>) reqParams[name];
+                            jObject = new JObject();
+
+                            foreach (var item in param)
+                            {
+                                jObject[item.Key] = JToken.FromObject(item.Value);
+                            }
                         }
 
                         KalturaOTTObject res = buildObject(t, param);
+
+                        string currentService = Convert.ToString(HttpContext.Current.Items[REQUEST_SERVICE]);
+                        string currentAction = Convert.ToString(HttpContext.Current.Items[REQUEST_ACTION]);
+                        string currentLanguage = Convert.ToString(HttpContext.Current.Items[REQUEST_LANGUAGE]);
+                        
+                        res.AfterRequestParsed(currentService, currentAction, currentLanguage, jObject);
+
                         value = res;
                     }
                     else if (t.IsArray || t.IsGenericType) // array or list
@@ -792,6 +808,7 @@ namespace WebAPI.Filters
                             schemaArgument.Validate(methodInfo, name, value);
                     }
 
+                    
                     methodParams.Add(value);
                 }
                 catch (ApiException ex)
