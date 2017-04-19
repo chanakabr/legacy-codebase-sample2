@@ -255,6 +255,11 @@ namespace ApiObjects
         EPG
     }
 
+    public enum eEngagementType
+    {
+        Churn = 1
+    }
+
     public enum eOTTAssetTypes
     {
         None = 0,
