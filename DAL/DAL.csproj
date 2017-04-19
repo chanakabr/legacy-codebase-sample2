@@ -76,6 +76,7 @@
     <Compile Include="BillingDAL.cs" />
     <Compile Include="ConditionalAccessDAL.cs" />
     <Compile Include="CrowdsourceDAL.cs" />
+    <Compile Include="EngagementDal.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="ProtocolsFuncsDAL.cs" />
     <Compile Include="RecordingsDAL.cs" />
