@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Data;
 using TVinciShared;
 
@@ -6,7 +7,8 @@ public partial class adm_engagements : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
-  
+    protected string m_sSubSubMenu;
+      
     protected void Page_Load(object sender, EventArgs e)
     {
         if (LoginManager.CheckLogin() == false)
@@ -19,12 +21,32 @@ public partial class adm_engagements : System.Web.UI.Page
         {
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(23, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 7, false);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, false);
             if (Request.QueryString["search_save"] != null)
                 Session["search_save"] = "1";
             else
                 Session["search_save"] = null;
+
+            System.Collections.SortedList sortedMenu = GetSubMenuList();
+            m_sSubSubMenu = TVinciShared.Menu.GetSubMenu(sortedMenu, -1, false);
         }
+    }
+
+    private SortedList GetSubMenuList()
+    {
+        SortedList sortedMenu = new SortedList();
+        string sButton = "Add A.UserList";
+        sButton += "|";
+        sButton += "adm_engagements_new.aspx?user_list=1";
+        sortedMenu[0] = sButton;
+
+        sButton = "Add M.UserList";
+        sButton += "|";
+        sButton += "adm_engagements_new.aspx?user_list=2";
+        sortedMenu[1] = sButton;
+
+        return sortedMenu;
+
     }
 
     protected void GetMainMenu()
@@ -35,6 +57,11 @@ public partial class adm_engagements : System.Web.UI.Page
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
+    }
+
+    protected void GetSubSubMenu()
+    {
+        Response.Write(m_sSubSubMenu);
     }
 
     public string GetTableCSV()
@@ -150,7 +177,7 @@ public partial class adm_engagements : System.Web.UI.Page
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
-        DBTableWebEditor theTable = new DBTableWebEditor(true, true, true, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
+        DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("notifications_connection");
         FillTheTableEditor(ref theTable, sOrderBy);
 

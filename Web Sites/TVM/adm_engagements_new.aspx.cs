@@ -7,7 +7,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
-           
+
     protected void Page_Load(object sender, EventArgs e)
     {
         Int32 nMenuID = 0;
@@ -41,11 +41,16 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 Session["engagement_id"] = 0;
             }
 
+            if (Request.QueryString["user_list"] != null &&
+               Request.QueryString["user_list"].ToString() != "")
+                Session["user_list"] = int.Parse(Request.QueryString["user_list"].ToString());
+
+
             if (Session["error_msg_s"] != null && Session["error_msg_s"].ToString() != "")
             {
                 lblError.Visible = true;
                 lblError.Text = Session["error_msg_s"].ToString();
-                Session["error_msg_s"] = null;                
+                Session["error_msg_s"] = null;
             }
             else
             {
@@ -121,11 +126,16 @@ public partial class adm_engagements_new : System.Web.UI.Page
     public void GetHeader()
     {
         string sRet = PageUtils.GetPreHeader() + ": Engagement";
-        if (Session["engagement_id"] != null && Session["engagement_id"].ToString() != "" && Session["engagement_id"].ToString() != "0")
-            sRet += " - Edit";
+        if (IsViewMode())
+            sRet += " - View";
         else
             sRet += " - New";
         Response.Write(sRet);
+    }
+
+    private bool IsViewMode()
+    {
+        return (Session["engagement_id"] != null && Session["engagement_id"].ToString() != "" && Session["engagement_id"].ToString() != "0");
     }
 
     protected void GetMainMenu()
@@ -145,47 +155,91 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
-       
+
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
         {
             Session["error_msg"] = "";
             return Session["last_page_html"].ToString();
         }
-        
-        object groupId = LoginManager.GetLoginGroupID();        
+
+        object groupId = LoginManager.GetLoginGroupID();
         object engagementId = null;
-       
-        if (Session["engagement_id"] != null && Session["engagement_id"].ToString() != "" && int.Parse(Session["engagement_id"].ToString()) != 0)
-            engagementId = Session["engagement_id"];      
-            
+
+
+        bool isViewMode = IsViewMode();
+        if (isViewMode)
+        {
+            engagementId = Session["engagement_id"];
+        }
+
         string sBack = "adm_engagements.aspx?search_save=1";
         DBRecordWebEditor theRecord = new DBRecordWebEditor("engagements", "adm_table_pager", sBack, "", "ID", engagementId, sBack, "");
-        theRecord.SetConnectionKey("notifications_connection");      
+        theRecord.SetConnectionKey("notifications_connection");
 
-        DataRecordDropDownField dropDownField = new DataRecordDropDownField("engagement_adapter", "name", "id", "group_id", groupId, 60, true);
-        dropDownField.Initialize("Engagement adapter", "adm_table_header_nbg", "FormInput", "ADAPTER_ID", false);
-        dropDownField.SetWhereString("status=1 and is_active=1");
+        DataRecordLongTextField longTextField;
+        DataRecordShortIntField shortIntField;
+
+        DataRecordDropDownField dropDownField = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
+        dropDownField.SetSelectsDT(GetEngagementType());
+        dropDownField.Initialize("Engagement type", "adm_table_header_nbg", "FormInput", "TEMPLATE_TYPE", true);
+        dropDownField.SetEnable(!isViewMode);
         theRecord.AddRecord(dropDownField);
 
+        if (isViewMode)
+        {
+            shortIntField = new DataRecordShortIntField(!isViewMode, 9, 9);
+            shortIntField.Initialize("Total recipients number", "adm_table_header_nbg", "FormInput", "TOTAL_NUMBER_OF_RECIPIENTS", false);
+            theRecord.AddRecord(shortIntField);
+        }
 
-        //DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 256);
-        //dr_name.setFiledName("Name");
-        //dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "name", true);
-        //theRecord.AddRecord(dr_name);
+        DataRecordDateTimeField dateTimeField = new DataRecordDateTimeField(!isViewMode);
+        dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", false);
+        dateTimeField.SetDefault(DateTime.Now);
+        theRecord.AddRecord(dateTimeField);
 
-        //DataRecordLongTextField dr_Message = new DataRecordLongTextField("ltr", true, 60, 4);
-        //dr_Message.setFiledName("Message");
-        //dr_Message.Initialize("Message", "adm_table_header_nbg", "FormInput", "Message", true);
-        //theRecord.AddRecord(dr_Message);
+        // this fields relevant only for adapter user list
+        if (int.Parse(Session["user_list"].ToString()) == 1)
+        {
+            dropDownField = new DataRecordDropDownField("engagement_adapter", "name", "id", "group_id", groupId, 60, true);
+            dropDownField.Initialize("Source user's list", "adm_table_header_nbg", "FormInput", "ADAPTER_ID", true);
+            dropDownField.SetWhereString("status=1 and is_active=1");
+            dropDownField.SetEnable(!isViewMode);
+            theRecord.AddRecord(dropDownField);
 
-        //DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
-        //dr_start_date.setFiledName("StartDateTime");
-        //dr_start_date.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "start_time", true);
-        //dr_start_date.SetDefault(DateTime.Now);
-        
+            longTextField = new DataRecordLongTextField("ltr", !isViewMode, 60, 4);
+            longTextField.Initialize("Adapter dynamic data", "adm_table_header_nbg", "FormInput", "ADAPTER_DYNAMIC_DATA", true);
+            theRecord.AddRecord(longTextField);
+
+            shortIntField = new DataRecordShortIntField(!isViewMode, 9, 9);
+            shortIntField.Initialize("Recurring interval (hours)", "adm_table_header_nbg", "FormInput", "INTERVAL", false);
+            shortIntField.setMulFactor(60 * 60);
+            theRecord.AddRecord(shortIntField);
+        }
+
+        // this fields relevant only for manual user list
+        if (int.Parse(Session["user_list"].ToString()) == 2)
+        {
+            longTextField = new DataRecordLongTextField("ltr", !isViewMode, 60, 4);
+            longTextField.Initialize("User list", "adm_table_header_nbg", "FormInput", "USER_LIST", true);
+            theRecord.AddRecord(longTextField);
+        }
 
         string sTable = theRecord.GetTableHTML("adm_engagements_new.aspx?submited=1");
 
         return sTable;
-    }   
+    }
+
+    private System.Data.DataTable GetEngagementType()
+    {
+        System.Data.DataTable dt = new System.Data.DataTable();
+        dt.Columns.Add("id", typeof(int));
+        dt.Columns.Add("txt", typeof(string));
+        int i = 0;
+        foreach (ApiObjects.eEngagementType r in Enum.GetValues(typeof(ApiObjects.eEngagementType)))
+        {
+
+            dt.Rows.Add((int)r, r);
+        }
+        return dt;
+    }
 }
