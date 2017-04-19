@@ -26,7 +26,7 @@ namespace Core.Notification
             EngagementAdapterResponseList response = new EngagementAdapterResponseList();
             try
             {
-                response.EngagementAdapters = NotificationDal.GetEngagementAdapterList(groupId);
+                response.EngagementAdapters = EngagementDal.GetEngagementAdapterList(groupId);
                 if (response.EngagementAdapters == null || response.EngagementAdapters.Count == 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no engagement adapter related to group");
@@ -50,7 +50,7 @@ namespace Core.Notification
             EngagementAdapterResponse response = new EngagementAdapterResponse();
             try
             {
-                response.EngagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (response.EngagementAdapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, "Engagement adapter not exist");
@@ -81,14 +81,14 @@ namespace Core.Notification
                 }
 
                 //check Engagement Adapter exist
-                EngagementAdapter adapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                EngagementAdapter adapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (adapter == null || adapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
                     return response;
                 }
 
-                bool isSet = NotificationDal.DeleteEngagementAdapter(groupId, engagementAdapterId);
+                bool isSet = EngagementDal.DeleteEngagementAdapter(groupId, engagementAdapterId);
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter deleted");
@@ -134,7 +134,7 @@ namespace Core.Notification
                 // Create Shared secret 
                 engagementAdapter.SharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 
-                response.EngagementAdapter = NotificationDal.InsertEngagementAdapter(groupId, engagementAdapter);
+                response.EngagementAdapter = EngagementDal.InsertEngagementAdapter(groupId, engagementAdapter);
                 if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new Engagement adapter insert");
@@ -240,14 +240,14 @@ namespace Core.Notification
                 engagementAdapter.SharedSecret = null;
 
                 // check engagementAdapter with this ID exists
-                EngagementAdapter existingEngagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
+                EngagementAdapter existingEngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
                 if (existingEngagementAdapter == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
                     return response;
                 }
 
-                response.EngagementAdapter = NotificationDal.SetEngagementAdapter(groupId, engagementAdapter);
+                response.EngagementAdapter = EngagementDal.SetEngagementAdapter(groupId, engagementAdapter);
 
                 if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
                 {
@@ -255,10 +255,10 @@ namespace Core.Notification
 
                     if (!engagementAdapter.SkipSettings)
                     {
-                        bool isSet = NotificationDal.SetEngagementAdapterSettings(groupId, engagementAdapter.ID, engagementAdapter.Settings);
+                        bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapter.ID, engagementAdapter.Settings);
                         if (isSet)
                         {
-                            response.EngagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
+                            response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
                         }
                         else
                         {
@@ -300,7 +300,7 @@ namespace Core.Notification
                 }
 
                 //check Engagement Adapter exist
-                EngagementAdapter engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
@@ -310,7 +310,7 @@ namespace Core.Notification
                 // Create Shared secret 
                 string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
 
-                response.EngagementAdapter = NotificationDal.SetEngagementAdapterSharedSecret(groupId, engagementAdapterId, sharedSecret);
+                response.EngagementAdapter = EngagementDal.SetEngagementAdapterSharedSecret(groupId, engagementAdapterId, sharedSecret);
 
                 if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
                 {
@@ -348,7 +348,7 @@ namespace Core.Notification
                 }
 
                 //check engagement Adapter exist
-                EngagementAdapter engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
@@ -362,13 +362,13 @@ namespace Core.Notification
                     return response;
                 }
 
-                bool isSet = NotificationDal.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, settings);
+                bool isSet = EngagementDal.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, settings);
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "engagement adapter configs delete");
 
                     //Get engagement Adapter updated                        
-                    engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                    engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                     if (!SendConfigurationToAdapter(groupId, engagementAdapter))
                     {
                         log.ErrorFormat("DeleteengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
@@ -407,7 +407,7 @@ namespace Core.Notification
                 }
 
                 //check engagement Adapter exist
-                EngagementAdapter engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
@@ -422,12 +422,12 @@ namespace Core.Notification
                 }
 
 
-                bool isSet = NotificationDal.SetEngagementAdapterSettings(groupId, engagementAdapterId, settings);
+                bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapterId, settings);
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "engagement adapter set changes");
                     //Get engagement Adapter updated                        
-                    engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                    engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                     if (!SendConfigurationToAdapter(groupId, engagementAdapter))
                     {
                         log.ErrorFormat("SetengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
@@ -480,7 +480,7 @@ namespace Core.Notification
                 }
 
                 //check engagement Adapter exist
-                EngagementAdapter engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                 if (engagementAdapter == null || engagementAdapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
@@ -494,13 +494,13 @@ namespace Core.Notification
                     return response;
                 }
 
-                bool isInsert = NotificationDal.InsertEngagementAdapterSettings(groupId, engagementAdapterId, settings);
+                bool isInsert = EngagementDal.InsertEngagementAdapterSettings(groupId, engagementAdapterId, settings);
                 if (isInsert)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "engagement adapter configs insert");
 
                     //Get engagement Adapter updated                        
-                    engagementAdapter = NotificationDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                    engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
                     if (!SendConfigurationToAdapter(groupId, engagementAdapter))
                     {
                         log.ErrorFormat("InsertengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
@@ -525,7 +525,7 @@ namespace Core.Notification
             EngagementAdapterSettingsResponse response = new EngagementAdapterSettingsResponse();
             try
             {
-                response.EngagementAdapters = NotificationDal.GetEngagementAdapterSettingsList(groupId, 0);
+                response.EngagementAdapters = EngagementDal.GetEngagementAdapterSettingsList(groupId, 0);
                 if (response.EngagementAdapters == null || response.EngagementAdapters.Count == 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no engagement adapter config related to group");
