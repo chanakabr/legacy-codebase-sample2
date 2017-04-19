@@ -1,9 +1,14 @@
-﻿using System;
+﻿using ApiObjects.Notification;
+using ApiObjects.Response;
+using System;
+using System.Collections.Specialized;
 using System.Web;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_engagements_new : System.Web.UI.Page
 {
+    protected Engagement engagement;
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -25,7 +30,26 @@ public partial class adm_engagements_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                DBManipulator.DoTheWork("notifications_connection");
+                int groupId = LoginManager.GetLoginGroupID();
+                ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+                engagement = GetPageData();
+
+                if (engagement != null)
+                {
+                    result = ImporterImpl.AddEngagement(groupId, ref engagement);
+                }
+
+                if (result == null)
+                {
+                    Session["error_msg_s"] = "Error";
+                    Session["error_msg"] = "Error";
+                }
+                else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    Session["error_msg"] = result.Message;
+                    Session["error_msg_s"] = result.Message;
+                }
                 return;
             }
 
@@ -58,6 +82,52 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 lblError.Text = "";
             }
         }
+    }
+
+    private Engagement GetPageData()
+    {
+        NameValueCollection nvc = Request.Form;
+
+        Engagement engagement = new Engagement();
+
+        if (!string.IsNullOrEmpty(nvc["0_val"]))
+        {
+            engagement.EngagementType = int.Parse(nvc["0_val"]);
+        }
+
+        if (!string.IsNullOrEmpty(nvc["1_val"]))
+        {
+            //engagement.SendTime = nvc["1_val"]; + nvc["1_valHour"] + nvc["1_valMin"]
+        }
+        // this fields relevant only for adapter user list
+        if (int.Parse(Session["user_list"].ToString()) == 1)
+        {
+            if (!string.IsNullOrEmpty(nvc["2_val"]))
+            {
+                engagement.AdapterId = int.Parse(nvc["2_val"]);
+            }
+
+            if (!string.IsNullOrEmpty(nvc["3_val"]))
+            {
+                engagement.AdapterDynamicData = nvc["3_val"];
+            }
+
+            if (!string.IsNullOrEmpty(nvc["4_val"]))
+            {
+                engagement.Interval = int.Parse(nvc["4_val"]);
+            }
+        }
+
+        // this fields relevant only for manual user list
+        if (int.Parse(Session["user_list"].ToString()) == 2)
+        {
+            if (!string.IsNullOrEmpty(nvc["2_val"]))
+            {
+                engagement.UserList = nvc["2_val"];
+            }
+        }
+
+        return engagement;
     }
 
     protected string GetLangMenu(Int32 nGroupID)
