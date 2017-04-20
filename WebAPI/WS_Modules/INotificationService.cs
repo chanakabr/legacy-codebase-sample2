@@ -158,5 +158,8 @@ namespace WS_Notification
 
         [OperationContract]
         RemindersResponse GetUserReminders(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, OrderObj orderObj);
+
+        [OperationContract]
+        EngagementResponse AddEngagement(string wsUserName, string wsSPassword, Engagement engagement);
     }
 }
