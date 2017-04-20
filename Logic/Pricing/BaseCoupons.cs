@@ -23,6 +23,6 @@ namespace Core.Pricing
 
         protected Int32 m_nGroupID;
 
-        public abstract List<Coupon> GenerateCoupons(int numberOfCoupons, int couponGroupId);
+        public abstract List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId);
     }
 }

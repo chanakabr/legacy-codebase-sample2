@@ -1123,7 +1123,7 @@ namespace Core.Pricing
             }
         }
 
-        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, int couponGroupId)
+        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, long couponGroupId)
         {
             Pricing.BaseCoupons t = null;
             Utils.GetBaseImpl(ref t, groupId);

@@ -439,7 +439,7 @@ namespace Core.Pricing
             return new Tuple<APILogic.ConditionalAccess.AdsControlData, bool>(adsData, res);
         }
 
-        internal static void BuildCouponXML(XmlNode rootNode, XmlDocument xmlDoc, string couponCode, int groupId, int couponGroupId)
+        internal static void BuildCouponXML(XmlNode rootNode, XmlDocument xmlDoc, string couponCode, int groupId, long couponGroupId)
         {
             XmlNode rowNode;
             XmlNode codeNode;

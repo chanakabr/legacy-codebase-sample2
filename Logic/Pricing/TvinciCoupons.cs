@@ -100,14 +100,14 @@ namespace Core.Pricing
             return Coupon.SetCouponUsed(sCouponCode, m_nGroupID, sSiteGUID,nCollectionCode, nMFID, nSubCode, nPrePaidCode);
         }
 
-        public override List<Coupon> GenerateCoupons(int numberOfCoupons, int couponGroupId)
+        public override List<Coupon> GenerateCoupons(int numberOfCoupons, long couponGroupId)
         {
             List<Coupon> coupons = new List<Coupon>();
 
             try
             {
                 // check that coupon groupId exsits 
-                bool isCouponGroupId = DAL.PricingDAL.IsCouponGroupExsits(m_nGroupID, (long)couponGroupId);
+                bool isCouponGroupId = DAL.PricingDAL.IsCouponGroupExsits(m_nGroupID, couponGroupId);
                 if (!isCouponGroupId)
                 {
                     log.ErrorFormat("fail GenerateCoupons coupon group not exsits groupId={0}, numberOfCoupons={1},couponGroupId={2} ", m_nGroupID, numberOfCoupons, couponGroupId);
@@ -125,6 +125,7 @@ namespace Core.Pricing
                 p.Minimum = 12;
                 p.RepeatCharacters = false;
                 string couponCode = string.Empty;
+
                 for (i = 1; i <= numberOfCoupons; i++)
                 {
                     // generate coupon code
@@ -135,13 +136,22 @@ namespace Core.Pricing
 
                     if (i % bulkToInsert == 0)
                     {
-                        InsertCoupons(numberOfCoupons, couponGroupId, coupons, ref xmlDoc, ref rootNode);
+                        if (!InsertCoupons(couponGroupId, coupons, xmlDoc, rootNode))
+                        {
+                            return new List<Coupon>();
+                        }
+                        xmlDoc = new XmlDocument();
+                        rootNode = xmlDoc.CreateElement("root");
+                        xmlDoc.AppendChild(rootNode);
                     }
                 }
                 // check if still rows to insert
-                if ((i-1) % bulkToInsert > 0)
+                if ((i - 1) % bulkToInsert > 0)
                 {
-                    InsertCoupons(numberOfCoupons, couponGroupId, coupons, ref xmlDoc, ref rootNode);
+                    if (!InsertCoupons(couponGroupId, coupons, xmlDoc, rootNode))
+                    {
+                        return new List<Coupon>();
+                    }
                 }
             }
             catch (Exception ex)
@@ -152,8 +162,9 @@ namespace Core.Pricing
             return coupons;
         }
 
-        private void InsertCoupons(int numberOfCoupons, int couponGroupId, List<Coupon> coupons, ref XmlDocument xmlDoc, ref XmlNode rootNode)
+        private bool InsertCoupons(long couponGroupId, List<Coupon> coupons, XmlDocument xmlDoc, XmlNode rootNode, int retry = 0 )
         {
+            bool result = false;
             try
             {
                 // call dal to insert roes to DB 
@@ -161,23 +172,23 @@ namespace Core.Pricing
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     coupons.AddRange(dt.AsEnumerable().Select(dr => new Coupon((int)dr.Field<Int64>("id"), dr.Field<string>("code"))).ToList());
+                    result = true;                   
                 }
                 else
                 {
-                    log.ErrorFormat("fail to insert coupon bulk to DB groupId={0}, numberOfCoupons={1},couponGroupId={2},xmlDoc={3} ", m_nGroupID, numberOfCoupons, couponGroupId, xmlDoc.InnerXml);
+                    log.ErrorFormat("fail to insert coupon bulk to DB groupId={0}, numberOfCoupons={1},couponGroupId={2},xmlDoc={3} ", m_nGroupID, couponGroupId, xmlDoc.InnerXml);
+                    if (retry < 3)
+                    {
+                        InsertCoupons(couponGroupId, coupons, xmlDoc, rootNode, ++retry);
+                    }                    
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail to insert coupon bulk to DB groupId={0}, numberOfCoupons={1},couponGroupId={2},xmlDoc={3}, ex={4} ", m_nGroupID, numberOfCoupons, couponGroupId, xmlDoc.InnerXml, ex);              
+                log.ErrorFormat("fail to insert coupon bulk to DB groupId={0}, couponGroupId={1},xmlDoc={2}, ex={3} ", m_nGroupID, couponGroupId, xmlDoc.InnerXml, ex);
             }
-            finally
-            {
-                // clear the doc to start new bulk
-                xmlDoc = new XmlDocument();
-                rootNode = xmlDoc.CreateElement("root");
-                xmlDoc.AppendChild(rootNode);
-            }
+
+            return result;
         }
     }
 }
