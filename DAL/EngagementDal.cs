@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using ApiObjects;
 using ApiObjects.Notification;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
+
 
 namespace DAL
 {
@@ -530,7 +529,51 @@ namespace DAL
 
         public static Engagement InsertEngagement(int groupId, Engagement engagement)
         {
-            throw new NotImplementedException();
+            Engagement res = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Engagement");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@sendTime", engagement.SendTime);
+                sp.AddParameter("@engagementType", engagement.EngagementType);
+                sp.AddParameter("@adapterId", engagement.AdapterId);
+                sp.AddParameter("@adapterDynamicData", engagement.AdapterDynamicData);
+                sp.AddParameter("@interval", engagement.Interval);
+
+                DataSet ds = sp.ExecuteDataSet();
+                res = CreateEngagement(ds);
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at InsertEngagement. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return res;
+        }
+
+        private static Engagement CreateEngagement(DataSet ds)
+        {
+            Engagement result = null;
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            {
+                int engagementType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ENGAGEMENT_TYPE");
+
+                result = new Engagement()
+                {
+                    AdapterDynamicData = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "ADAPTER_DYNAMIC_DATA"),
+                    AdapterId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ADAPTER_ID"),
+                    EngagementType = Enum.IsDefined(typeof(eEngagementType), engagementType) ? (eEngagementType)engagementType : eEngagementType.Churn,
+                    Interval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "INTERVAL"),
+                    SendTime = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[0].Rows[0], "SEND_TIME"),
+                    TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "TOTAL_NUMBER_OF_RECIPIENTS"),
+                    UserList = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "USER_LIST")
+                };
+            }
+            return result;
         }
     }
 }
