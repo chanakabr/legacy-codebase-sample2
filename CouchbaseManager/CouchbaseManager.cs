@@ -388,6 +388,7 @@ namespace CouchbaseManager
         {
             return (uint)(dateTime - new DateTime(1970, 1, 1).ToUniversalTime()).TotalSeconds;
         }
+
         #endregion
 
         #region Public Methods
@@ -810,6 +811,7 @@ namespace CouchbaseManager
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 IOperationResult unlockResult = bucket.Unlock(key, cas);
+
                 if (unlockResult != null)
                 {
                     if (unlockResult.Exception != null)
