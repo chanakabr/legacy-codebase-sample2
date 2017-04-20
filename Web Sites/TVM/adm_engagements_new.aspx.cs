@@ -133,7 +133,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
             if (!string.IsNullOrEmpty(nvc["4_val"]))
             {
-                engagement.Interval = int.Parse(nvc["4_val"]);
+                engagement.IntervalSeconds = int.Parse(nvc["4_val"]) * 3600;
             }
         }
 
@@ -300,8 +300,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
             theRecord.AddRecord(longTextField);
 
             shortIntField = new DataRecordShortIntField(!isViewMode, 9, 9);
-            shortIntField.Initialize("Recurring interval (hours)", "adm_table_header_nbg", "FormInput", "INTERVAL", false);
-            shortIntField.setMulFactor(60 * 60);
+            shortIntField.Initialize("Recurring interval (hours)", "adm_table_header_nbg", "FormInput", "INTERVAL_SECONDES", false);            
             theRecord.AddRecord(shortIntField);
         }
 

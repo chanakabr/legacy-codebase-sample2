@@ -101,7 +101,8 @@ public partial class adm_engagements : System.Web.UI.Page
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "SELECT ID ,group_id ,status, is_active, engagement_type as 'Type' ,send_time as 'Send Time',total_number_of_recipients as '# Recipients',interval ";
+        theTable += "SELECT ID ,group_id ,status, is_active, case engagement_type when 1 then 'Churn' else '' end as 'Type',send_time as 'Send Time',total_number_of_recipients as '# Recipients' ";
+        theTable += ", Interval_seconds / CAST(3600 AS float)  as 'Interval (hours)' ";
         theTable += "FROM engagements with (nolock)";
         theTable += string.Format(" Where status<>2 and  group_id = {0} ", groupId);
 
