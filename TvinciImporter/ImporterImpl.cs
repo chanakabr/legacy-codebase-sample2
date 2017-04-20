@@ -5625,7 +5625,7 @@ namespace TvinciImporter
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-
+                
                 string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
@@ -5637,9 +5637,10 @@ namespace TvinciImporter
                     AdapterDynamicData = engagement.AdapterDynamicData,
                     AdapterId = engagement.AdapterId,
                     EngagementType= engagement.EngagementType,
-                    Interval = engagement.Interval,
+                    IntervalSeconds = engagement.IntervalSeconds,
                     SendTime = engagement.SendTime,
-                    TotalNumberOfRecipients = engagement.TotalNumberOfRecipients
+                    TotalNumberOfRecipients = engagement.TotalNumberOfRecipients,
+                    UserList = engagement.UserList
                 };
 
                 response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);                

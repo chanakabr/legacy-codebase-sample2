@@ -540,7 +540,8 @@ namespace DAL
                 sp.AddParameter("@engagementType", engagement.EngagementType);
                 sp.AddParameter("@adapterId", engagement.AdapterId);
                 sp.AddParameter("@adapterDynamicData", engagement.AdapterDynamicData);
-                sp.AddParameter("@interval", engagement.Interval);
+                sp.AddParameter("@intervalSeconds", engagement.IntervalSeconds);
+                sp.AddParameter("@userList", engagement.UserList);
 
                 DataSet ds = sp.ExecuteDataSet();
                 res = CreateEngagement(ds);
@@ -564,10 +565,11 @@ namespace DAL
 
                 result = new Engagement()
                 {
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
                     AdapterDynamicData = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "ADAPTER_DYNAMIC_DATA"),
                     AdapterId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ADAPTER_ID"),
                     EngagementType = Enum.IsDefined(typeof(eEngagementType), engagementType) ? (eEngagementType)engagementType : eEngagementType.Churn,
-                    Interval = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "INTERVAL"),
+                    IntervalSeconds = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "INTERVAL_SECONDES"),
                     SendTime = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[0].Rows[0], "SEND_TIME"),
                     TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "TOTAL_NUMBER_OF_RECIPIENTS"),
                     UserList = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "USER_LIST")
