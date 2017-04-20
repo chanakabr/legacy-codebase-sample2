@@ -11,7 +11,7 @@ namespace ApiObjects.Notification
         public eEngagementType EngagementType { get; set; }
         public int AdapterId { get; set; }
         public string AdapterDynamicData { get; set; }
-        public int Interval { get; set; }
+        public int IntervalSeconds { get; set; }
         public string UserList { get; set; }
     }
 }
