@@ -8,6 +8,7 @@ using KLogMonitor;
 using System.Reflection;
 using ApiObjects.Pricing;
 using System.Data;
+using System.Xml;
 
 namespace Core.Pricing
 {
@@ -436,6 +437,41 @@ namespace Core.Pricing
                 log.Error(string.Format("GetGetGroupAdsControl failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
             return new Tuple<APILogic.ConditionalAccess.AdsControlData, bool>(adsData, res);
+        }
+
+        internal static void BuildCouponXML(XmlNode rootNode, XmlDocument xmlDoc, string couponCode, int groupId, int couponGroupId)
+        {
+            XmlNode rowNode;
+            XmlNode codeNode;
+            XmlNode groupIdNode;
+            XmlNode couponGroupIdNode;
+
+            rowNode = xmlDoc.CreateElement("row");
+
+            codeNode = xmlDoc.CreateElement("code");
+            codeNode.InnerText = couponCode;
+            rowNode.AppendChild(codeNode);
+
+            groupIdNode = xmlDoc.CreateElement("group_id");
+            groupIdNode.InnerText = groupId.ToString();
+            rowNode.AppendChild(groupIdNode);
+
+            couponGroupIdNode = xmlDoc.CreateElement("coupon_group_id");
+            couponGroupIdNode.InnerText = couponGroupId.ToString();
+            rowNode.AppendChild(couponGroupIdNode);
+
+            rootNode.AppendChild(rowNode);
+        }
+
+        public static int GetIntValFromConfig(string sKey, int deafultVal)
+        {
+            int result = 0;
+            result = TVinciShared.WS_Utils.GetTcmIntValue(sKey);
+            if (result == 0)
+            {
+                result = deafultVal;
+            }
+            return result;
         }
     }
 }

@@ -466,6 +466,7 @@
     <Compile Include="Pricing\Coupon.cs" />
     <Compile Include="Pricing\CouponData.cs" />
     <Compile Include="Pricing\CouponDataResponse.cs" />
+    <Compile Include="Pricing\CouponGenerator.cs" />
     <Compile Include="Pricing\CouponsGroup.cs" />
     <Compile Include="Pricing\Currency.cs" />
     <Compile Include="Pricing\CurrencyResponse.cs" />

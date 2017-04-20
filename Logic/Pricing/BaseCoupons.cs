@@ -22,5 +22,7 @@ namespace Core.Pricing
         public abstract CouponsStatus SetCouponUsed(string sCouponCode, string sSiteGUID, Int32 nMFID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode);
 
         protected Int32 m_nGroupID;
+
+        public abstract List<Coupon> GenerateCoupons(int numberOfCoupons, int couponGroupId);
     }
 }
