@@ -1,4 +1,5 @@
-﻿using ApiObjects.Notification;
+﻿using ApiObjects;
+using ApiObjects.Notification;
 using ApiObjects.Response;
 using System;
 using System.Collections.Specialized;
@@ -92,12 +93,30 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {
-            engagement.EngagementType = int.Parse(nvc["0_val"]);
+            int engagementType = int.Parse(nvc["0_val"]);
+            engagement.EngagementType = Enum.IsDefined(typeof(eEngagementType), engagementType) ? (eEngagementType)engagementType : eEngagementType.Churn;
         }
 
         if (!string.IsNullOrEmpty(nvc["1_val"]))
         {
-            //engagement.SendTime = nvc["1_val"]; + nvc["1_valHour"] + nvc["1_valMin"]
+            string date = nvc["1_val"].ToString();
+            string minutes = nvc["1_valMin"].ToString();
+            string hour = nvc["1_valHour"].ToString();
+            bool isValid = DBManipulator.validateParam("int", hour, 0, 23);
+            if (isValid == true)
+                isValid = DBManipulator.validateParam("int", minutes, 0, 59);
+            if (isValid == true)
+                isValid = DBManipulator.validateParam("date", date, 0, 59);
+            DateTime sendTime = DateUtils.GetDateFromStr(date);
+
+            if (!string.IsNullOrEmpty(hour))
+                sendTime = sendTime.AddHours(int.Parse(hour));
+
+            if (!string.IsNullOrEmpty(minutes))
+                sendTime = sendTime.AddMinutes(int.Parse(minutes));
+
+            engagement.SendTime = sendTime;
+
         }
         // this fields relevant only for adapter user list
         if (int.Parse(Session["user_list"].ToString()) == 1)
@@ -263,7 +282,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
         }
 
         DataRecordDateTimeField dateTimeField = new DataRecordDateTimeField(!isViewMode);
-        dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", false);
+        dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", true);
         dateTimeField.SetDefault(DateTime.Now);
         theRecord.AddRecord(dateTimeField);
 
@@ -277,7 +296,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
             theRecord.AddRecord(dropDownField);
 
             longTextField = new DataRecordLongTextField("ltr", !isViewMode, 60, 4);
-            longTextField.Initialize("Adapter dynamic data", "adm_table_header_nbg", "FormInput", "ADAPTER_DYNAMIC_DATA", true);
+            longTextField.Initialize("Adapter dynamic data", "adm_table_header_nbg", "FormInput", "ADAPTER_DYNAMIC_DATA", false);
             theRecord.AddRecord(longTextField);
 
             shortIntField = new DataRecordShortIntField(!isViewMode, 9, 9);
