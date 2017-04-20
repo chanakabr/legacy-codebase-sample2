@@ -1343,6 +1343,23 @@ namespace DAL
 
             return sp.Execute();
         }
+
+        public static bool IsCouponGroupExsits(int m_nGroupID, long couponGroupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_CouponGroupExsitsById");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupID", m_nGroupID);
+            sp.AddParameter("@couponGroupID", couponGroupId);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataTable InsertCoupons(System.Xml.XmlDocument xmlDoc)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewCoupons");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@xmlDoc", xmlDoc.InnerXml);
+            return sp.Execute();
+        }    
     }
 }
 
