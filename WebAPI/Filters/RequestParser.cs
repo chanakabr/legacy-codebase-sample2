@@ -721,11 +721,13 @@ namespace WebAPI.Filters
 
                         KalturaOTTObject res = buildObject(t, param);
 
-                        string currentService = Convert.ToString(HttpContext.Current.Items[REQUEST_SERVICE]);
-                        string currentAction = Convert.ToString(HttpContext.Current.Items[REQUEST_ACTION]);
-                        string currentLanguage = Convert.ToString(HttpContext.Current.Items[REQUEST_LANGUAGE]);
-                        
-                        res.AfterRequestParsed(currentService, currentAction, currentLanguage, jObject);
+                        string service = Convert.ToString(HttpContext.Current.Items[REQUEST_SERVICE]);
+                        string action = Convert.ToString(HttpContext.Current.Items[REQUEST_ACTION]);
+                        string language = Convert.ToString(HttpContext.Current.Items[REQUEST_LANGUAGE]);
+                        string userId = Convert.ToString(HttpContext.Current.Items[REQUEST_USER_ID]);
+                        string deviceId = KSUtils.ExtractKSPayload().UDID;
+
+                        res.AfterRequestParsed(service, action, language, userId, deviceId, jObject);
 
                         value = res;
                     }
