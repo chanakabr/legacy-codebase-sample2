@@ -4,6 +4,8 @@ using DAL;
 using KLogMonitor;
 using System;
 using System.Reflection;
+using QueueWrapper.Queues.QueueObjects;
+using ApiObjects.QueueObjects;
 
 namespace Core.Notification
 {
@@ -21,6 +23,8 @@ namespace Core.Notification
         private const string CONFLICTED_PARAMS = "Conflicted params";
         private const string NO_PARAMS_TO_DELETE = "no params to delete";
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
+
+        private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
 
         internal static EngagementAdapterResponseList GetEngagementAdapters(int groupId)
@@ -588,6 +592,24 @@ namespace Core.Notification
                 log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
+        }
+
+        public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId)
+        {
+            EngagementQueue queue = new EngagementQueue();
+            EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
+            {
+                ETA = ODBCWrapper.Utils.UnixTimestampToDateTime(startTime)
+            };
+
+            bool res = queue.Enqueue(queueData, ROUTING_KEY_ENGAGEMENTS);
+
+            if (res)
+                log.DebugFormat("Successfully inserted engagement message to queue: {0}", queueData);
+            else
+                log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
+
+            return res;
         }
     }
 }
