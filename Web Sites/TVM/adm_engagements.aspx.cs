@@ -116,11 +116,16 @@ public partial class adm_engagements : System.Web.UI.Page
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
-       
-        //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) &&  LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
-        //{
-        //    theTable.AddActivationField("engagements", "adm_engagements.aspx");
-        //}
+
+
+        DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_engagements_new.aspx", "View", "");
+        linkColumnKeParams.AddQueryStringValue("engagement_id", "field=id");        
+        theTable.AddLinkColumn(linkColumnKeParams);
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) && LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
+        {
+            theTable.AddActivationField("engagements", "adm_engagements.aspx");
+        }
 
         //if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         //{
