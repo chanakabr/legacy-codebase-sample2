@@ -773,10 +773,10 @@ a.btn_vid_browse { display:block; text-align:center; background:url(../images/bu
 a.btn_vid_browse:hover { background-position: left -22px; text-decoration:none;}
 
 
-a.btn_a_user_list { display:block; text-align:center; background:url(../images/but_aUserList.png) no-repeat; width:120px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase; margin-right: 5px;  margin-right: 5px;}
+a.btn_a_user_list { display:block; text-align:center; background:url(../images/but_aUserList.png) no-repeat; width:140px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase; margin-right: 5px;  margin-right: 5px;}
 a.btn_a_user_list:hover { background-position: left -22px; text-decoration:none;}
 
-a.btn_m_user_list { display:block; text-align:center; background:url(../images/but_mUserList.png) no-repeat; width:120px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase; margin-right: 5px;  margin-right: 5px;}
+a.btn_m_user_list { display:block; text-align:center; background:url(../images/but_mUserList.png) no-repeat; width:130px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase; margin-right: 5px;  margin-right: 5px;}
 a.btn_m_user_list:hover { background-position: left -22px; text-decoration:none;}
 
 #confirm_btn .btn {display:block; text-align:center; background:url(../images/but_confirm.png) no-repeat; width:110px; height:22px; font-size: 12px; text-align:center; line-height:20px; font-weight:normal; text-decoration:none; color: #3399FF; text-transform:uppercase;  margin-right: 5px;}
