@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ApiObjects.Notification;
 using CouchbaseManager;
@@ -16,6 +17,14 @@ namespace DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
         private const string MESSAGE_BOX_CONNECTION = "MESSAGE_BOX_CONNECTION_STRING";
+        private const string CB_DESIGN_DOC_ENGAGEMENT = "engagements";
+        private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
+        private const int NUM_OF_TRIES = 3;
+
+        private static string GetUserEngagementKey(int partnerId, int engagementId, int userId)
+        {
+            return string.Format("user_engagement:{0}:{1}:{2}", partnerId, engagementId, userId);
+        }
 
         public static List<EngagementAdapter> GetEngagementAdapterList(int groupId)
         {
@@ -393,6 +402,80 @@ namespace DAL
                 res = new List<EngagementAdapter>();
             }
             return res;
+        }
+
+        public static UserEngagement GetUserEngagement(int partnerId, int engagementId, int userId)
+        {
+            UserEngagement userEngagement = null;
+            Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
+            string key = GetUserEngagementKey(partnerId, engagementId, userId);
+
+            try
+            {
+                bool result = false;
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_TRIES)
+                {
+                    userEngagement = cbManager.Get<UserEngagement>(key, out status);
+                    if (userEngagement == null)
+                    {
+                        if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            numOfTries++;
+                            log.ErrorFormat("Error while getting user engagement data. number of tries: {0}/{1}. key: {2}",
+                                numOfTries,
+                                NUM_OF_TRIES,
+                                key);
+
+                            Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                        }
+                    }
+                    else
+                    {
+                        result = true;
+
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully received user engagement data. number of tries: {0}/{1}. key {2}",
+                            numOfTries,
+                            NUM_OF_TRIES,
+                            key);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get user engagement data. key: {0}, ex: {1}", key, ex);
+            }
+
+            return userEngagement;
+        }
+
+        public static List<UserEngagement> GetBulkUserEngagementView(int engagementId, int bulk)
+        {
+            List<UserEngagement> bulkEngagements = null;
+            try
+            {
+                // prepare view request
+                ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_ENGAGEMENT, "get_bulk_engagements")
+                {
+                    startKey = new object[] { engagementId, bulk },
+                    endKey = new object[] { engagementId, bulk },
+                    staleState = ViewStaleState.False
+                };
+
+                // execute request
+                bulkEngagements = cbManager.View<UserEngagement>(viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get bulk engagement. engagementId: {0}, bulk: {1}, ex: {2}", engagementId, bulk, ex);
+            }
+
+            return bulkEngagements;
         }
     }
 }
