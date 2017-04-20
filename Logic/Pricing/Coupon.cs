@@ -13,6 +13,12 @@ namespace Core.Pricing
         {
         }
 
+        public Coupon(Int32 couponID, string couponCode)
+        {
+            m_nCouponID = couponID;
+            code = couponCode;
+        }
+
         public void Initialize(Int32 nCouponID)
         {
             m_nCouponID = nCouponID;
@@ -195,10 +201,11 @@ namespace Core.Pricing
             return ret;
         }
 
-        protected Int32 m_nCouponID;
+        public Int32 m_nCouponID;
         public CouponType m_couponType;
         public long m_campaignID;
         public long m_ownerGUID;
         public long m_ownerMedia;
+        public string code;
     }
 }

@@ -22,6 +22,7 @@ using Core.Catalog.Response;
 using Core.Pricing;
 using EpgBL;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
@@ -9686,5 +9687,27 @@ namespace Core.Api
             return result;
         }
 
+        internal static Status SaveSearchHistory(string name, string service, string action, string language, JObject persistedFilter)
+        {
+            Status status = new Status();
+
+            SearchHistory searchHistory = new SearchHistory()
+            {
+                action = action,
+                createDate = DateTime.UtcNow,
+                filter = persistedFilter,
+                name = name,
+                service = service
+            };
+
+            CouchbaseManager.CouchbaseManager manager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
+
+            // 3 months
+            uint expiration = 60 * 60 * 24 * 90;
+
+            manager.Add(searchHistory.id, searchHistory, expiration, true);
+
+            return status;
+        }
     }
 }

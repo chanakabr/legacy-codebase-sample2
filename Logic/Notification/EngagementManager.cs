@@ -320,13 +320,13 @@ namespace Core.Notification
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "engagement adapter failed set changes");
                 }
-
             }
             catch (Exception ex)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}", groupId, engagementAdapterId), ex);
             }
+
             return response;
         }
 

@@ -10,7 +10,7 @@ namespace ApiObjects.Notification
         public DateTime UpdatedAt { get; set; }
         public DateTime SendTime { get; set; }
         public int TotalNumberOfRecipients { get; set; }
-        public int TemplateId { get; set; }
+        public int EngagementType { get; set; }
         public int AdapterId { get; set; }
         public string AdapterDynamicData { get; set; }
         public int Interval { get; set; }

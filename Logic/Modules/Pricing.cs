@@ -1122,5 +1122,19 @@ namespace Core.Pricing
                 return null;
             }
         }
+
+        public static List<Coupon> GenerateCoupons(int groupId, int numberOfCoupons, int couponGroupId)
+        {
+            Pricing.BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.GenerateCoupons(numberOfCoupons, couponGroupId);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

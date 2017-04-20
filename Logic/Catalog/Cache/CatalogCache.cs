@@ -572,5 +572,14 @@ namespace Core.Catalog.Cache
             }
             return mediaQualities;
         }
+
+        public static void ClearAll()
+        {
+            if (instance != null)
+            {
+                instance = null;
+            }
+        }
+
     }
 }
