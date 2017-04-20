@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ApiObjects.Notification;
 using CouchbaseManager;
 using KLogMonitor;
+using Newtonsoft.Json;
 
 namespace DAL
 {
@@ -20,6 +21,9 @@ namespace DAL
         private const string CB_DESIGN_DOC_ENGAGEMENT = "engagements";
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
         private const int NUM_OF_TRIES = 3;
+
+        private const int TTL_USER_ENGAGEMENT_DAYS = 30;
+
 
         private static string GetUserEngagementKey(int partnerId, int engagementId, int userId)
         {
@@ -454,7 +458,7 @@ namespace DAL
             return userEngagement;
         }
 
-        public static List<UserEngagement> GetBulkUserEngagementView(int engagementId, int bulk)
+        public static List<UserEngagement> GetBulkUserEngagementView(int engagementId, int engagementBulkId)
         {
             List<UserEngagement> bulkEngagements = null;
             try
@@ -462,8 +466,8 @@ namespace DAL
                 // prepare view request
                 ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_ENGAGEMENT, "get_bulk_engagements")
                 {
-                    startKey = new object[] { engagementId, bulk },
-                    endKey = new object[] { engagementId, bulk },
+                    startKey = new object[] { engagementId, engagementBulkId },
+                    endKey = new object[] { engagementId, engagementBulkId },
                     staleState = ViewStaleState.False
                 };
 
@@ -472,10 +476,56 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while trying to get bulk engagement. engagementId: {0}, bulk: {1}, ex: {2}", engagementId, bulk, ex);
+                log.ErrorFormat("Error while trying to get bulk engagement. engagementId: {0}, bulk ID: {1}, ex: {2}", engagementId, engagementBulkId, ex);
             }
 
             return bulkEngagements;
+        }
+
+        public static bool SetUserEngagement(UserEngagement userEngagement)
+        {
+            bool result = false;
+            try
+            {
+                // get user engagement TTL
+                int userEngagementTtl = TCMClient.Settings.Instance.GetValue<int>("ttl_user_engagement_days");
+                if (userEngagementTtl == 0)
+                    userEngagementTtl = TTL_USER_ENGAGEMENT_DAYS;
+
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_TRIES)
+                {
+                    result = cbManager.Set(GetUserEngagementKey(userEngagement.PartnerId, userEngagement.EngagementId, userEngagement.UserId), userEngagement, (uint)TimeSpan.FromDays(userEngagementTtl).TotalSeconds);
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while setting user engagement document. number of tries: {0}/{1}. User engagement object: {2}",
+                             numOfTries,
+                            NUM_OF_TRIES,
+                            JsonConvert.SerializeObject(userEngagement));
+
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set user engagement document. number of tries: {0}/{1}. User engagement object {2}",
+                            numOfTries,
+                            NUM_OF_TRIES,
+                            JsonConvert.SerializeObject(userEngagement));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting user engagement document.  User engagement object: {0}, ex: {1}", JsonConvert.SerializeObject(userEngagement), ex);
+            }
+
+            return result;
         }
 
         public static Engagement InsertEngagement(int groupId, Engagement engagement)
