@@ -216,6 +216,7 @@
     <Compile Include="Notification\RegistryResponse.cs" />
     <Compile Include="Notification\SendVia.cs" />
     <Compile Include="Notification\TagIDValue.cs" />
+    <Compile Include="Notification\UserEngagement.cs" />
     <Compile Include="Notification\UserDevice.cs" />
     <Compile Include="Notification\UserFollowSettings.cs" />
     <Compile Include="Notification\UserNotification.cs" />
