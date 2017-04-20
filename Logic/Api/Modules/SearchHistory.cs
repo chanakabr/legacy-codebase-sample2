@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using APILogic;
+using ApiObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,6 +14,14 @@ namespace Core.Api.Modules
     [JsonObject()]
     public class SearchHistory : CoreObject
     {
+        #region Consts
+
+        private const string KEY_FORMAT = "search_history_{0}_{1}";
+
+        #endregion
+
+        #region Properties
+
         [JsonProperty("id")]
         public string id
         {
@@ -47,22 +56,16 @@ namespace Core.Api.Modules
             get;
             set;
         }
-
-        //[JsonIgnore()]
-        //public DateTime createDate
-        //{
-        //    get
-        //    {
-        //        return TVinciShared.DateUtils.UnixTimeStampToDateTime(this.createdAt);
-        //    }
-        //    set
-        //    {
-        //        this.createdAt = TVinciShared.DateUtils.DateTimeToUnixTimestamp(value);
-        //    }
-        //}
+        
+        [JsonIgnore()]
+        public JObject filter
+        {
+            get;
+            set;
+        }
 
         [JsonProperty("filter")]
-        public JObject filter
+        public string filterKey
         {
             get;
             set;
@@ -96,6 +99,8 @@ namespace Core.Api.Modules
             set;
         }
 
+        #endregion
+
         public SearchHistory()
         {
             this.type = "searchHistory";
@@ -106,12 +111,17 @@ namespace Core.Api.Modules
         {
             bool result = false;
 
-            CouchbaseManager.CouchbaseManager manager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
 
             // 3 months
             uint expiration = 60 * 60 * 24 * 90;
 
-            result = manager.Add(this.id, this, expiration, true);
+            this.id = string.Format(KEY_FORMAT, this.userId, this.createdAt);
+            this.filterKey = Utils.CalculateMD5Hash(this.filter.ToString());
+
+            result = couchbaseManager.Set(this.id, this, expiration, true);
+
+            result &= couchbaseManager.Set(this.filterKey, filter, expiration, true);
 
             return result;
         }
