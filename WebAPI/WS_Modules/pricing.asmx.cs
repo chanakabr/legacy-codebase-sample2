@@ -59,7 +59,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetSubscriptionsList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -92,7 +92,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetSubscriptionsContainingUserTypes(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName, int nIsActive, int[] userTypesIDs)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -126,7 +126,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetSubscriptionsContainingMedia(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -159,7 +159,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual string GetSubscriptionsContainingMediaSTR(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -192,7 +192,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetIndexedSubscriptionsContainingMedia(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID, int count)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -225,7 +225,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetSubscriptionsContainingMediaShrinked(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -258,7 +258,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetSubscriptionsContainingMediaFile(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nMediaFileID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -276,7 +276,7 @@ namespace WS_Pricing
         [WebMethod]
         public virtual ApiObjects.Response.IdsResponse GetSubscriptionIDsContainingMediaFile(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nMediaFileID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -308,7 +308,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         public virtual Subscription[] GetSubscriptionsShrinkList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -329,7 +329,7 @@ namespace WS_Pricing
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -350,7 +350,7 @@ namespace WS_Pricing
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -370,7 +370,7 @@ namespace WS_Pricing
         public virtual Campaign GetCampaignsByHash(string sWSUserName, string sWSPassword, string hashCode)
         {
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -389,7 +389,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
         public virtual Campaign GetCampaignData(string sWSUserName, string sWSPassword, long nCampaignID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -423,7 +423,7 @@ namespace WS_Pricing
         public virtual Subscription GetSubscriptionData(string sWSUserName, string sWSPassword, string sSubscriptionCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -456,7 +456,7 @@ namespace WS_Pricing
         public virtual Collection GetCollectionData(string sWSUserName, string sWSPassword, string sCollectionCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -489,7 +489,7 @@ namespace WS_Pricing
         public virtual Subscription GetSubscriptionDataByProductCode(string sWSUserName, string sWSPassword, string sProductCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -507,7 +507,7 @@ namespace WS_Pricing
         public int[] GetSubscriptionMediaList(string sWSUserName, string sWSPassword, string sSubscriptionCode,
             Int32 nFileTypeID, string sDevice)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -525,7 +525,7 @@ namespace WS_Pricing
         public List<int> GetSubscriptionMediaList2(string sWSUserName, string sWSPassword, string sSubscriptionCode,
             Int32 nFileTypeID, string sDevice)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -542,7 +542,7 @@ namespace WS_Pricing
         [WebMethod]
         public virtual bool DoesMediaBelongToSubscription(string sWSUserName, string sWSPassword, string sSubscriptionCode, Int32 nMediaID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -571,7 +571,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(PPVModule))]
         public virtual PPVModule[] GetPPVModuleList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -602,7 +602,7 @@ namespace WS_Pricing
         public virtual PPVModuleContainer[] GetPPVModuleListForAdmin(string sWSUserName, string sWSPassword, Int32 nMediaFileID,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -626,7 +626,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(DiscountModule))]
         public virtual DiscountModule[] GetDiscountsModuleListForAdmin(string sWSUserName, string sWSPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -658,7 +658,7 @@ namespace WS_Pricing
         public virtual MediaFilePPVModule[] GetPPVModuleListForMediaFiles(string sWSUserName, string sWSPassword, Int32[] nMediaFileIDs,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -698,7 +698,7 @@ namespace WS_Pricing
             for (int j = 0; j < sMediaIDs.Length; j++)
                 nMediaFileIDs[j] = int.Parse(sMediaIDs[j]);
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -731,7 +731,7 @@ namespace WS_Pricing
         public virtual MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(string sWSUserName, string sWSPassword, Int32[] nMediaFileIDs,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -760,7 +760,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(PPVModule))]
         public virtual PPVModule[] GetPPVModuleShrinkList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -790,7 +790,7 @@ namespace WS_Pricing
         public virtual PPVModule GetPPVModuleData(string sWSUserName, string sWSPassword, string sPPVCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -842,7 +842,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(LanguageContainer))]
         public virtual PriceCode[] GetPriceCodeList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -865,7 +865,7 @@ namespace WS_Pricing
         public virtual PriceCode GetPriceCodeData(string sWSUserName, string sWSPassword, string sPriceCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -888,7 +888,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(LanguageContainer))]
         public virtual DiscountModule GetDiscountCodeData(string sWSUserName, string sWSPassword, string sDiscountCode)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -906,7 +906,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
         public virtual UsageModule GetUsageModuleData(string sWSUserName, string sWSPassword, string sUsageModuleCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -924,7 +924,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
         public virtual UsageModule[] GetUsageModuleList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -942,7 +942,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
         public virtual UsageModule GetOfflineUsageModule(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -967,7 +967,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(CouponData))]
         public virtual CouponsGroup GetCouponGroupData(string sWSUserName, string sWSPassword, string sCouponGroupID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -992,7 +992,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(CouponData))]
         public virtual CouponsGroup[] GetCouponGroupListForAdmin(string sWSUserName, string sWSPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1017,7 +1017,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(CouponData))]
         public virtual CouponsGroup[] GetVoucherGroupList(string sWSUserName, string sWSPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1037,7 +1037,7 @@ namespace WS_Pricing
         public virtual CouponDataResponse GetCouponStatus(string sWSUserName, string sWSPassword, string sCouponCode)
         {
             CouponDataResponse response = new CouponDataResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1063,7 +1063,7 @@ namespace WS_Pricing
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1085,7 +1085,7 @@ namespace WS_Pricing
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1104,7 +1104,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BasePreviewModule))]
         public virtual PreviewModule GetPreviewModuleByID(string sWSUserName, string sWSPassword, long lPreviewModuleID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1123,7 +1123,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BasePreviewModule))]
         public virtual PreviewModule[] GetPreviewModulesArrayByGroupIDForAdmin(string sWSUserName, string sWSPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1142,7 +1142,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(UsageModule))]
         public virtual UsageModule GetUsageModule(string sWSUserName, string sWSPassword, string sAssetCode, eTransactionType transactionType)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1202,7 +1202,7 @@ namespace WS_Pricing
             string sCountryCd2, string sLanguageCode3, string sDeviceName, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc)
         {
             SubscriptionsResponse response = new SubscriptionsResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1236,7 +1236,7 @@ namespace WS_Pricing
         public virtual Collection[] GetCollectionsData(string sWSUserName, string sWSPassword, string[] oCollCodes,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1255,7 +1255,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(PPVModule))]
         public virtual PPVModule ValidatePPVModuleForMediaFile(string sWSUserName, string sWSPassword, Int32 mediaFileID, long ppvModuleCode)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1271,8 +1271,8 @@ namespace WS_Pricing
 
         [WebMethod]
         public virtual Subscription[] GetSubscriptionsByProductCodes(string sWSUserName, string sWSPassword, string[] productCodes)
-        {            
-                        
+        {
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1289,7 +1289,7 @@ namespace WS_Pricing
         [WebMethod]
         public virtual PPVModule[] GetPPVModulesByProductCodes(string sWSUserName, string sWSPassword, string[] productCodes)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1307,7 +1307,7 @@ namespace WS_Pricing
         public virtual PPVModuleResponse GetPPVModulesData(string sWSUserName, string sWSPassword, string[] sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             PPVModuleResponse response = new PPVModuleResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1318,7 +1318,7 @@ namespace WS_Pricing
                 catch (Exception)
                 {
                     response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                }                
+                }
             }
             else
             {
@@ -1614,7 +1614,7 @@ namespace WS_Pricing
         {
 
             ApiObjects.IngestMultiPricePlan mpp = new ApiObjects.IngestMultiPricePlan();
-            
+
 
 
             //ApiObjects.IngestPPV ppv = new ApiObjects.IngestPPV();
@@ -1643,7 +1643,7 @@ namespace WS_Pricing
             mpp.PricePlansCodes = new List<string>();
             mpp.PricePlansCodes.Add("Price Plan for Ingest Sharon");
 
-            mpp.FileTypes = new List<string>();            
+            mpp.FileTypes = new List<string>();
             mpp.FileTypes.Add("shdhsdfhsdfhdfs");
             mpp.FileTypes.Add("");
 
@@ -1747,5 +1747,21 @@ namespace WS_Pricing
                 return null;
             }
         }
+
+        [WebMethod]
+        public virtual List<Coupon> GenerateCoupons(string sWSUserName, string sWSPassword, int numberOfCoupons, int couponGroupId)
+        {           
+            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
+            if (nGroupID != 0)
+            {
+                return Core.Pricing.Module.GenerateCoupons(nGroupID, numberOfCoupons, couponGroupId);
+            }
+            else
+            {
+                if (nGroupID == 0)
+                    HttpContext.Current.Response.StatusCode = 404;
+                return null;
+            }
         }
     }
+}
