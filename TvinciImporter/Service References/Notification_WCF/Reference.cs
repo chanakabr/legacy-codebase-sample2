@@ -401,6 +401,12 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserReminders", ReplyAction="http://tempuri.org/INotificationService/GetUserRemindersResponse")]
         System.Threading.Tasks.Task<ApiObjects.Notification.RemindersResponse> GetUserRemindersAsync(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderObj orderObj);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddEngagement", ReplyAction="http://tempuri.org/INotificationService/AddEngagementResponse")]
+        ApiObjects.Notification.EngagementResponse AddEngagement(string wsUserName, string wsSPassword, ApiObjects.Notification.Engagement engagement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddEngagement", ReplyAction="http://tempuri.org/INotificationService/AddEngagementResponse")]
+        System.Threading.Tasks.Task<ApiObjects.Notification.EngagementResponse> AddEngagementAsync(string wsUserName, string wsSPassword, ApiObjects.Notification.Engagement engagement);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -804,6 +810,14 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Threading.Tasks.Task<ApiObjects.Notification.RemindersResponse> GetUserRemindersAsync(string sWSUserName, string sWSPassword, int userId, string filter, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderObj orderObj) {
             return base.Channel.GetUserRemindersAsync(sWSUserName, sWSPassword, userId, filter, pageSize, pageIndex, orderObj);
+        }
+        
+        public ApiObjects.Notification.EngagementResponse AddEngagement(string wsUserName, string wsSPassword, ApiObjects.Notification.Engagement engagement) {
+            return base.Channel.AddEngagement(wsUserName, wsSPassword, engagement);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Notification.EngagementResponse> AddEngagementAsync(string wsUserName, string wsSPassword, ApiObjects.Notification.Engagement engagement) {
+            return base.Channel.AddEngagementAsync(wsUserName, wsSPassword, engagement);
         }
     }
 }

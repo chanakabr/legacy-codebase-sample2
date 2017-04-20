@@ -5615,7 +5615,41 @@ namespace TvinciImporter
             }
         }
 
+        public static Status AddEngagement(int groupId, ref Engagement engagement)
+        {
+            ApiObjects.Notification.EngagementResponse response = null;
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
 
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+                ApiObjects.Notification.Engagement wcfEngagement = new ApiObjects.Notification.Engagement()
+                {
+                    AdapterDynamicData = engagement.AdapterDynamicData,
+                    AdapterId = engagement.AdapterId,
+                    EngagementType= engagement.EngagementType,
+                    Interval = engagement.Interval,
+                    SendTime = engagement.SendTime,
+                    TotalNumberOfRecipients = engagement.TotalNumberOfRecipients
+                };
+
+                response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);                
+                return response.Status;
+            }
+            catch
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+        }
         #endregion
 
         private static string GetConfigVal(string sKey)
@@ -6395,11 +6429,7 @@ namespace TvinciImporter
 
             return result;
         }
-
-        public static Status AddEngagement(int groupId, ref ApiObjects.Notification.Engagement engagement)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }
 

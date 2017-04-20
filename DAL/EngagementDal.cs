@@ -477,5 +477,10 @@ namespace DAL
 
             return bulkEngagements;
         }
+
+        public static Engagement InsertEngagement(int groupId, Engagement engagement)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
