@@ -16,6 +16,7 @@ using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
+using Core.Api.Modules;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
@@ -9687,25 +9688,23 @@ namespace Core.Api
             return result;
         }
 
-        internal static Status SaveSearchHistory(string name, string service, string action, string language, JObject persistedFilter)
+        internal static Status SaveSearchHistory(string name, string service, string action, string language, string userId, string deviceId, JObject persistedFilter)
         {
             Status status = new Status();
 
             SearchHistory searchHistory = new SearchHistory()
             {
                 action = action,
-                createDate = DateTime.UtcNow,
+                createdAt = TVinciShared.DateUtils.UnixTimeStampNow(),
                 filter = persistedFilter,
                 name = name,
-                service = service
+                service = service,
+                language = language,
+                userId = userId,
+                deviceId = deviceId
             };
 
-            CouchbaseManager.CouchbaseManager manager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
-
-            // 3 months
-            uint expiration = 60 * 60 * 24 * 90;
-
-            manager.Add(searchHistory.id, searchHistory, expiration, true);
+            searchHistory.Insert();
 
             return status;
         }

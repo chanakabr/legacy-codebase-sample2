@@ -1778,9 +1778,9 @@ namespace Core.Api
             return Core.Api.api.GetMediaFilesByMediaId(groupId, mediaId);
         }
 
-        public static Status SaveSearchHistory(string name, string service, string action, string language, JObject persistedFilter)
+        public static Status SaveSearchHistory(string name, string service, string action, string language, string userId, string deviceId, JObject persistedFilter)
         {
-            return Core.Api.api.SaveSearchHistory(name, service, action, language, persistedFilter);
+            return Core.Api.api.SaveSearchHistory(name, service, action, language, userId, deviceId, persistedFilter);
         }
     }
 }

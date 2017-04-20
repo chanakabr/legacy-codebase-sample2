@@ -326,6 +326,7 @@
     <Compile Include="Catalog\Searcher\Helper.cs" />
     <Compile Include="Catalog\Searcher\ISearcher.cs" />
     <Compile Include="Catalog\Searcher\LuceneWrapper.cs" />
+    <Compile Include="Api\Modules\SearchHistory.cs" />
     <Compile Include="Catalog\TagMeta.cs" />
     <Compile Include="Catalog\UnifiedSearchDefinitionsBuilder.cs" />
     <Compile Include="Catalog\Utils.cs" />
