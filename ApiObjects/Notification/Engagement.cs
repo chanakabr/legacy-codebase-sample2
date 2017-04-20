@@ -8,7 +8,7 @@ namespace ApiObjects.Notification
         public int Status { get; set; }
         public DateTime SendTime { get; set; }
         public int TotalNumberOfRecipients { get; set; }
-        public int EngagementType { get; set; }
+        public eEngagementType EngagementType { get; set; }
         public int AdapterId { get; set; }
         public string AdapterDynamicData { get; set; }
         public int Interval { get; set; }
