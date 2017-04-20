@@ -20,6 +20,8 @@ namespace Core.Notification
         private const string NO_PARAMS_TO_INSERT = "no params to insert";
         private const string CONFLICTED_PARAMS = "Conflicted params";
         private const string NO_PARAMS_TO_DELETE = "no params to delete";
+        private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
+
 
         internal static EngagementAdapterResponseList GetEngagementAdapters(int groupId)
         {
@@ -541,6 +543,50 @@ namespace Core.Notification
                 log.Error(string.Format("Failed groupID = {0} ", groupId), ex);
             }
 
+            return response;
+        }
+
+        internal static EngagementResponse AddEngagement(int groupId, Engagement engagement)
+        {
+            EngagementResponse response = new EngagementResponse();
+
+            try
+            {
+                if (engagement == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementToInsert, NO_ENGAGEMENT_TO_INSERT);
+                    return response;
+                }
+
+                // validate input
+
+                //if (string.IsNullOrEmpty(engagementAdapter.Name))
+                //{
+                //    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                //    return response;
+                //}
+
+                //if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+                //{
+                //    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                //    return response;
+                //}
+
+
+                response.Engagement = EngagementDal.InsertEngagement(groupId, engagement);
+                if (response.Engagement != null && response.Engagement.Id > 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new Engagement adapter insert");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new Engagement");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
+            }
             return response;
         }
     }

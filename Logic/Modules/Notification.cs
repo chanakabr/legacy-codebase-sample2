@@ -1008,5 +1008,10 @@ namespace Core.Notification
         {
             return EngagementManager.SetEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
         }
+
+        public static EngagementResponse AddEngagement(int groupId, Engagement engagement)
+        {
+            return EngagementManager.AddEngagement(groupId, engagement);
+        }
     }
 }
