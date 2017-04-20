@@ -12,11 +12,13 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.ServiceModel;
+using System.ServiceModel.Activation;
 using System.Text;
 
 namespace WS_Catalog
 {
     [ServiceBehavior(AddressFilterMode = AddressFilterMode.Any, InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple)]
+    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
     public class Service : Iservice
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
