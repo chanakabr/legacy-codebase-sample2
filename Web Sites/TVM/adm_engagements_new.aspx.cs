@@ -66,6 +66,15 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 Session["engagement_id"] = 0;
             }
 
+            if (Request.QueryString["adapter_id"] != null && Request.QueryString["adapter_id"].ToString() != "")
+            {
+                Session["adapter_id"] = int.Parse(Request.QueryString["adapter_id"].ToString());
+            }
+            else
+            {
+                Session["adapter_id"] = 0;
+            }
+
             if (Request.QueryString["user_list"] != null &&
                Request.QueryString["user_list"].ToString() != "")
                 Session["user_list"] = int.Parse(Request.QueryString["user_list"].ToString());
@@ -227,6 +236,11 @@ public partial class adm_engagements_new : System.Web.UI.Page
         return (Session["engagement_id"] != null && Session["engagement_id"].ToString() != "" && Session["engagement_id"].ToString() != "0");
     }
 
+    private bool IsAdapterUserListMode()
+    {
+        return (Session["adapter_id"] != null && Session["adapter_id"].ToString() != "" && Session["adapter_id"].ToString() != "0");
+    }
+
     protected void GetMainMenu()
     {
         Response.Write(m_sMenu);
@@ -256,6 +270,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
 
         bool isViewMode = IsViewMode();
+        bool isAdapterUserListMode = IsAdapterUserListMode();
         if (isViewMode)
         {
             engagementId = Session["engagement_id"];
@@ -270,7 +285,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
         DataRecordDropDownField dropDownField = new DataRecordDropDownField("", "name", "id", "", null, 60, false);
         dropDownField.SetSelectsDT(GetEngagementType());
-        dropDownField.Initialize("Engagement type", "adm_table_header_nbg", "FormInput", "TEMPLATE_TYPE", true);
+        dropDownField.Initialize("Engagement type", "adm_table_header_nbg", "FormInput", "engagement_type", true);
         dropDownField.SetEnable(!isViewMode);
         theRecord.AddRecord(dropDownField);
 
@@ -284,10 +299,12 @@ public partial class adm_engagements_new : System.Web.UI.Page
         DataRecordDateTimeField dateTimeField = new DataRecordDateTimeField(!isViewMode);
         dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", true);
         dateTimeField.SetDefault(DateTime.Now);
+        dateTimeField.setTimeZone("UTC");
         theRecord.AddRecord(dateTimeField);
 
         // this fields relevant only for adapter user list
-        if (int.Parse(Session["user_list"].ToString()) == 1)
+        if ((Session["user_list"] != null && int.Parse(Session["user_list"].ToString()) == 1) ||
+            (isAdapterUserListMode))
         {
             dropDownField = new DataRecordDropDownField("engagement_adapter", "name", "id", "group_id", groupId, 60, true);
             dropDownField.Initialize("Source user's list", "adm_table_header_nbg", "FormInput", "ADAPTER_ID", true);
@@ -300,12 +317,13 @@ public partial class adm_engagements_new : System.Web.UI.Page
             theRecord.AddRecord(longTextField);
 
             shortIntField = new DataRecordShortIntField(!isViewMode, 9, 9);
-            shortIntField.Initialize("Recurring interval (hours)", "adm_table_header_nbg", "FormInput", "INTERVAL_SECONDES", false);            
+            shortIntField.Initialize("Recurring interval (hours)", "adm_table_header_nbg", "FormInput", "INTERVAL_SECONDS", false);
             theRecord.AddRecord(shortIntField);
         }
 
         // this fields relevant only for manual user list
-        if (int.Parse(Session["user_list"].ToString()) == 2)
+        if ((Session["user_list"] != null && int.Parse(Session["user_list"].ToString()) == 2) ||
+            (!isAdapterUserListMode))
         {
             longTextField = new DataRecordLongTextField("ltr", !isViewMode, 60, 4);
             longTextField.Initialize("User list", "adm_table_header_nbg", "FormInput", "USER_LIST", true);
@@ -325,7 +343,6 @@ public partial class adm_engagements_new : System.Web.UI.Page
         int i = 0;
         foreach (ApiObjects.eEngagementType r in Enum.GetValues(typeof(ApiObjects.eEngagementType)))
         {
-
             dt.Rows.Add((int)r, r);
         }
         return dt;

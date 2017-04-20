@@ -262,7 +262,7 @@ public partial class adm_system_announcements_new : System.Web.UI.Page
 
         DataRecordDateTimeField dr_start_date = new DataRecordDateTimeField(true);
         dr_start_date.setFiledName("StartDateTime");
-        dr_start_date.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "start_time", true);
+        dr_start_date.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput","start_time", true);
         dr_start_date.SetDefault(DateTime.Now);
         // get timezone by id 
         string tempTimeZone = "UTC";
