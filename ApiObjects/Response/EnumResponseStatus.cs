@@ -290,6 +290,8 @@ namespace ApiObjects.Response
         NoEngagementAdapterToInsert = 8028,
         NoEngagementAdapterToUpdate = 8029,
         NoEngagementToInsert = 8030,
+        EngagementRequired = 8031,
+        EngagementNotExist = 8032,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

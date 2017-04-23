@@ -1013,5 +1013,21 @@ namespace Core.Notification
         {
             return EngagementManager.AddEngagement(groupId, engagement);
         }
+
+        public static Status DeleteEngagement(int groupId, int id)
+        {
+            return EngagementManager.DeleteEngagement(groupId, id);
+
+        }
+
+        public static EngagementResponse GetEngagement(int groupId, int id)
+        {
+            return EngagementManager.GetEngagement(groupId, id);
+        }
+
+        public static EngagementResponseList GetEngagements(int groupId)
+        {
+            return EngagementManager.GetEngagements(groupId);
+        }
     }
 }
