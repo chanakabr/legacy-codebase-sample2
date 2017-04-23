@@ -22,6 +22,11 @@ namespace WebAPI.Managers.Models
 
         public static WebAPI.Managers.Models.KS.KSData ExtractKSPayload(KS ks)
         {
+            if (ks == null)
+            {
+                return new KS.KSData();
+            }
+
             var pl = WebAPI.Managers.Models.KS.ExtractPayloadData(ks.Data);
             string udid = "";
             int createDate = 0;
