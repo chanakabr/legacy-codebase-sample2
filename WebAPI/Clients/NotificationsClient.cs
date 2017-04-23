@@ -1872,7 +1872,7 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            engagement = Mapper.Map<KalturaEngagement>(response);
+            engagement = Mapper.Map<KalturaEngagement>(response.Engagement);
 
             return engagement;
         }

@@ -177,13 +177,13 @@ namespace WebAPI.Controllers
         /// Possible status codes:  
         /// engagement adapter identifier required = 8025, engagement adapter not exist = 8026
         /// </remarks>
-        /// <param name="engagementAdapterId">Engagement adapter identifier</param>
+        /// <param name="id">Engagement adapter identifier</param>
         [Route("generateSharedSecret"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
-        public KalturaEngagementAdapter GenerateSharedSecret(int engagementAdapterId)
+        public KalturaEngagementAdapter GenerateSharedSecret(int id)
         {
             KalturaEngagementAdapter response = null;
 
@@ -192,7 +192,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().GenerateEngagementSharedSecret(groupId, engagementAdapterId);
+                response = ClientsManager.NotificationClient().GenerateEngagementSharedSecret(groupId, id);
             }
             catch (ClientException ex)
             {
