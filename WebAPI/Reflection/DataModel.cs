@@ -2858,6 +2858,28 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEngagement":
+                    switch(property.Name)
+                    {
+                        case "AdapterDynamicData":
+                            return "adapterDynamicData";
+                        case "AdapterId":
+                            return "adapterId";
+                        case "Id":
+                            return "id";
+                        case "IntervalSeconds":
+                            return "intervalSeconds";
+                        case "SendTimeInSeconds":
+                            return "sendTimeInSeconds";
+                        case "TotalNumberOfRecipients":
+                            return "totalNumberOfRecipients";
+                        case "Type":
+                            return "type";
+                        case "UserList":
+                            return "userList";
+                    }
+                    break;
+                    
                 case "KalturaEngagementAdapter":
                     switch(property.Name)
                     {
@@ -2886,6 +2908,14 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "EngagementAdapters":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaEngagementListResponse":
+                    switch(property.Name)
+                    {
+                        case "Engagements":
                             return "objects";
                     }
                     break;

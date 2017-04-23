@@ -7393,7 +7393,7 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagement.Type">
             <summary>
-            Engagement adapter name
+            Engagement type
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterId">

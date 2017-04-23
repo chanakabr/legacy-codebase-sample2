@@ -31,7 +31,7 @@ namespace WebAPI.Models.Notification
         public int TotalNumberOfRecipients { get; set; }
 
         /// <summary>
-        /// Engagement adapter name
+        /// Engagement type
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
@@ -44,7 +44,6 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "adapterId")]
         [JsonProperty("adapterId")]
         [XmlElement(ElementName = "adapterId")]
-        [SchemeProperty(ReadOnly = true)]
         public int AdapterId { get; set; }
 
         /// <summary>
@@ -52,8 +51,7 @@ namespace WebAPI.Models.Notification
         /// </summary>
         [DataMember(Name = "adapterDynamicData")]
         [JsonProperty("adapterDynamicData")]
-        [XmlElement(ElementName = "adapterDynamicData")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "adapterDynamicData")]        
         public string AdapterDynamicData { get; set; }
 
         /// <summary>
@@ -61,8 +59,7 @@ namespace WebAPI.Models.Notification
         /// </summary>
         [DataMember(Name = "intervalSeconds")]
         [JsonProperty("intervalSeconds")]
-        [XmlElement(ElementName = "intervalSeconds")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "intervalSeconds")]        
         public int IntervalSeconds { get; set; }
 
         /// <summary>
