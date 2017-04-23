@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileUploadHandler", "FileUploadHandler\FileUploadHandler.csproj", "{82876744-9A82-4730-B9E0-29810B4CDE81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageResizeHandler", "ImageResizeHandler\ImageResizeHandler.csproj", "{EAD60549-3A6D-455C-ABAB-B2F29945B97F}"
@@ -103,6 +105,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiLogic", "..\Core\Logic\ApiLogic.csproj", "{27C6F3ED-B660-466A-9415-DE2D43E58FF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionRuleHandler", "ActionRuleHandler\ActionRuleHandler.csproj", "{4DACAC2D-5673-466F-8133-40DA97130D85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngagementHandler", "EngagementHandler\EngagementHandler.csproj", "{7F38AA35-1508-4699-AE07-4740D669BB0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -680,6 +684,18 @@ Global
 		{4DACAC2D-5673-466F-8133-40DA97130D85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DACAC2D-5673-466F-8133-40DA97130D85}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4DACAC2D-5673-466F-8133-40DA97130D85}.Release|x86.ActiveCfg = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Basic|Any CPU.ActiveCfg = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Basic|Any CPU.Build.0 = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Basic|x86.ActiveCfg = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Local|Any CPU.Build.0 = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Local|x86.ActiveCfg = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
