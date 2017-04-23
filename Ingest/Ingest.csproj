@@ -41,7 +41,7 @@
   <ItemGroup>
     <Reference Include="CouchbaseManager, Version=3.4.118.16578, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Master\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
+      <HintPath>..\..\tvincicommon\External\4.5\CouchbaseManager.dll</HintPath>
     </Reference>
     <Reference Include="Jil">
       <HintPath>..\..\tvincicommon\External\Jil.dll</HintPath>
