@@ -29,6 +29,13 @@ namespace Core.Api.Modules
             set;
         }
 
+        [JsonProperty("groupId")]
+        public int groupId
+        {
+            get;
+            set;
+        }
+
         [JsonProperty("type")]
         public string type
         {
