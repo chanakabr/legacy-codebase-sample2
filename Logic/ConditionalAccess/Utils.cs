@@ -6203,7 +6203,8 @@ namespace Core.ConditionalAccess
             List<MediaFile> allMediafiles = null;
             string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
             bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
-                                                                        { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
+                                                                        { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
+                                                                        new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
