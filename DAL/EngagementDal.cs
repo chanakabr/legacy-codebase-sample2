@@ -544,7 +544,10 @@ namespace DAL
                 sp.AddParameter("@userList", engagement.UserList);
 
                 DataSet ds = sp.ExecuteDataSet();
-                res = CreateEngagement(ds);
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = CreateEngagement(ds.Tables[0].Rows[0]);
+                }
             }
 
             catch (Exception ex)
@@ -553,29 +556,97 @@ namespace DAL
             }
 
             return res;
+        }       
+
+        public static List<Engagement> GetEngagementList(int groupId)
+        {
+            List<Engagement> res = new List<Engagement>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    Engagement engagement = null;
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        engagement = CreateEngagement(dr);
+                        res.Add(engagement);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetEngagementList. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return res;
         }
 
-        private static Engagement CreateEngagement(DataSet ds)
+        private static Engagement CreateEngagement(DataRow dr)
         {
             Engagement result = null;
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (dr != null)
             {
-                int engagementType = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ENGAGEMENT_TYPE");
+                int engagementType = ODBCWrapper.Utils.GetIntSafeVal(dr, "ENGAGEMENT_TYPE");
 
                 result = new Engagement()
                 {
-                    Id = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID"),
-                    AdapterDynamicData = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "ADAPTER_DYNAMIC_DATA"),
-                    AdapterId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ADAPTER_ID"),
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
+                    AdapterDynamicData = ODBCWrapper.Utils.GetSafeStr(dr, "ADAPTER_DYNAMIC_DATA"),
+                    AdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ADAPTER_ID"),
                     EngagementType = Enum.IsDefined(typeof(eEngagementType), engagementType) ? (eEngagementType)engagementType : eEngagementType.Churn,
-                    IntervalSeconds = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "INTERVAL_SECONDES"),
-                    SendTime = ODBCWrapper.Utils.GetDateSafeVal(ds.Tables[0].Rows[0], "SEND_TIME"),
-                    TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "TOTAL_NUMBER_OF_RECIPIENTS"),
-                    UserList = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "USER_LIST")
+                    IntervalSeconds = ODBCWrapper.Utils.GetIntSafeVal(dr, "INTERVAL_SECONDES"),
+                    SendTime = ODBCWrapper.Utils.GetDateSafeVal(dr, "SEND_TIME"),
+                    TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOTAL_NUMBER_OF_RECIPIENTS"),
+                    UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST")
                 };
             }
             return result;
+        }
+
+        public static Engagement GetEngagement(int groupId, int id)
+        {
+            Engagement res = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_Engagement");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = CreateEngagement(ds.Tables[0].Rows[0]);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetEngagement. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return res;
+        }
+
+        public static bool DeleteEngagement(int groupId, int id)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_Engagement");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at DeleteEngagement. groupId: {0}. Error {1}", groupId, ex);
+                return false;
+            }
         }
     }
 }
