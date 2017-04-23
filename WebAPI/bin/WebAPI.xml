@@ -828,6 +828,15 @@
             <returns></returns>
             <remarks>Possible status codes: SyntaxError = 4004, FeatureDisabled = 8009</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.SearchHistoryController.List(WebAPI.Models.API.KalturaSearchHistoryFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get user's last search requests
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+            <remarks>Possible status codes: 
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.SocialCommentController.List(WebAPI.Models.Social.KalturaSocialCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get a list of all social comments filtered by asset ID and social platform
@@ -1121,6 +1130,51 @@
         <member name="P:WebAPI.Models.API.KalturaOSSAdapterProfileListResponse.OSSAdapterProfiles">
             <summary>
             A list of OSS adapter-profiles
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaSearchHistoryListResponse">
+            <summary>
+            Search history wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistoryListResponse.Objects">
+            <summary>
+            KalturaSearchHistory Models
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaSearchHistory">
+            <summary>
+            Search history info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Name">
+            <summary>
+            Search name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Language">
+            <summary>
+            Search language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.SearchDate">
+            <summary>
+            Search date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Service">
+            <summary>
+            Kaltura OTT Service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Action">
+            <summary>
+            Kaltura OTT Service Action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.DeviceId">
+            <summary>
+            Unique Device ID
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
