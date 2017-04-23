@@ -45,20 +45,6 @@ namespace WebAPI.Controllers
             if (pager == null)
                 pager = new KalturaFilterPager();
 
-            //// page size - 5 <= size <= 50
-            //if (pager.PageSize == 0)
-            //{
-            //    pager.PageSize = 25;
-            //}
-            //else if (pager.PageSize > 50)
-            //{
-            //    pager.PageSize = 50;
-            //}
-            //else if (pager.PageSize < 5)
-            //{
-            //    throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaAssetHistoryFilter.pageSize", "5");
-            //}
-
             string language = Utils.Utils.GetLanguageFromRequest();
 
             try
