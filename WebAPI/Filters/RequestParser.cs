@@ -702,6 +702,8 @@ namespace WebAPI.Filters
                     {
                         Dictionary<string, object> param;
                         string requestName = name;
+                        JObject jObject;
+
                         if (typeof(KalturaMultilingualString).IsAssignableFrom(t))
                         {
                             requestName = KalturaMultilingualString.GetMultilingualName(name);
