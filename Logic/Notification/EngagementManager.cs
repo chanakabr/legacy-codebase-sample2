@@ -23,6 +23,7 @@ namespace Core.Notification
         private const string CONFLICTED_PARAMS = "Conflicted params";
         private const string NO_PARAMS_TO_DELETE = "no params to delete";
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
+        private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -75,26 +76,26 @@ namespace Core.Notification
             return response;
         }
 
-        internal static Status DeleteEngagementAdapter(int groupId, int engagementAdapterId)
+        internal static Status DeleteEngagementAdapter(int groupId, int id)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             try
             {
-                if (engagementAdapterId == 0)
+                if (id == 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
                     return response;
                 }
 
                 //check Engagement Adapter exist
-                EngagementAdapter adapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
+                EngagementAdapter adapter = EngagementDal.GetEngagementAdapter(groupId, id);
                 if (adapter == null || adapter.ID <= 0)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
                     return response;
                 }
 
-                bool isSet = EngagementDal.DeleteEngagementAdapter(groupId, engagementAdapterId);
+                bool isSet = EngagementDal.DeleteEngagementAdapter(groupId, id);
                 if (isSet)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter deleted");
@@ -108,7 +109,7 @@ namespace Core.Notification
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}", groupId, engagementAdapterId), ex);
+                log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}", groupId, id), ex);
             }
             return response;
         }
@@ -610,6 +611,86 @@ namespace Core.Notification
                 log.ErrorFormat("Error while inserting engagement {0} to queue", queueData);
 
             return res;
+        }
+
+        internal static Status DeleteEngagement(int groupId, int id)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            try
+            {
+                //check Engagement exist
+                Engagement engagement = EngagementDal.GetEngagement(groupId, id);
+                if (engagement == null || engagement.Id <= 0)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementNotExist, ENGAGEMENT_NOT_EXIST);
+                    return response;
+                }
+
+                bool isSet = EngagementDal.DeleteEngagement(groupId, id);
+                if (isSet)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement deleted");
+                }
+                else
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementNotExist, ENGAGEMENT_NOT_EXIST);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, engagementId={1}", groupId, id), ex);
+            }
+            return response;
+        }
+
+        internal static EngagementResponseList GetEngagements(int groupId)
+        {
+            EngagementResponseList response = new EngagementResponseList();
+            try
+            {
+                response.Engagements = EngagementDal.GetEngagementList(groupId);
+                if (response.Engagements == null || response.Engagements.Count == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no engagement related to group");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}", groupId), ex);
+            }
+
+            return response;
+        }
+
+        internal static EngagementResponse GetEngagement(int groupId, int id)
+        {
+            EngagementResponse response = new EngagementResponse();
+            try
+            {
+                response.Engagement = EngagementDal.GetEngagement(groupId, id);
+                if (response.Engagement == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, "Engagement not exist");
+                }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed groupID={0}, engagementId={1}", groupId, id), ex);
+            }
+
+            return response;
         }
     }
 }

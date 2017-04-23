@@ -5,7 +5,6 @@ namespace ApiObjects.Notification
     public class Engagement
     {
         public int Id { get; set; }
-        public int Status { get; set; }
         public DateTime SendTime { get; set; }
         public int TotalNumberOfRecipients { get; set; }
         public eEngagementType EngagementType { get; set; }
