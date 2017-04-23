@@ -752,7 +752,7 @@
             Possible status codes:  
             engagement adapter identifier required = 8025, engagement adapter not exist = 8026
             </remarks>
-            <param name="engagementAdapterId">Engagement adapter identifier</param>
+            <param name="id">Engagement adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.EngagementAdapterSettingsController.List">
             <summary>
