@@ -18,8 +18,6 @@ namespace InitiateNotificationActionHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        #region ITaskHandler Members
-
         public string HandleTask(string data)
         {
             string result = "failure";
@@ -41,23 +39,20 @@ namespace InitiateNotificationActionHandler
                 bool success = false;
 
                 eUserMessageAction action = (eUserMessageAction)request.UserAction;
-
                 success = Core.Notification.Module.InitiateNotificationAction(request.GroupId, action, request.UserId, request.Udid, request.pushToken);
 
                 if (!success)
-                {
-                    throw new Exception(string.Format(
-                        "Announcement did not finish successfully. group: {0} user id: {1} Udid: {2}, push token: {3}", request.GroupId, request.UserId, request.Udid, request.pushToken));
-                }
+                    throw new Exception(string.Format("Announcement did not finish successfully. data: {0}", data));
+                else
+                    result = "success";
             }
             catch (Exception ex)
             {
+                log.Error("Announcement did not finish successfully. Exception occured. data:" + data, ex);
                 throw ex;
             }
 
             return result;
         }
-
-        #endregion
     }
 }

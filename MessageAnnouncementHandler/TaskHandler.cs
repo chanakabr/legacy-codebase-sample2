@@ -31,14 +31,14 @@ namespace MessageAnnouncementHandler
                 bool success = Core.Notification.Module.SendMessageAnnouncement(request.GroupId, request.StartTime, request.MessageAnnouncementId);
 
                 if (!success)
-                {
-                    throw new Exception(string.Format(
-                        "Announcement did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageAnnouncementId));
-                }
+                    throw new Exception(string.Format("Announcement did not finish successfully. data: {0}", data));
+                else
+                    result = "success";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                log.Error("Announcement did not finish successfully. Exception occured. data: " + data, ex);
+                throw ex;
             }
 
             return result;

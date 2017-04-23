@@ -58,6 +58,8 @@ namespace ImageUploadHandler
                 {
                     log.DebugFormat("post image success. {0}", data);
 
+                    result = "success";
+
                     // update image status
                     UpdateImageStatus(request, eTableStatus.OK);
 

@@ -26,17 +26,19 @@ namespace EngagementHandler
                 EngagementRequest request = JsonConvert.DeserializeObject<EngagementRequest>(data);
 
                 bool success = false;
-
-             //   success = Core.Notification.Module.InitiateNotificationAction(request.GroupId, action, request.UserId, request.Udid, request.pushToken);
+                if (request.EngagementBulkId > 0)
+                    success = Core.Notification.Module.SendEngagement(request.GroupId, request.EngagementId, request.StartTime);
+                else
+                    success = Core.Notification.Module.SendEngagementBulk(request.GroupId, request.EngagementId, request.EngagementBulkId, request.StartTime);
 
                 if (!success)
-                {
-                    //throw new Exception(string.Format(
-                    //    "Engagement did not finish successfully. group: {0} user id: {1} Udid: {2}, push token: {3}", request.GroupId, request.UserId, request.Udid, request.pushToken));
-                }
+                    throw new Exception(string.Format("Engagement did not finish successfully. Data: {0}", data));
+                else
+                    result = "success";
             }
             catch (Exception ex)
             {
+                log.Error("Engagement did not finish successfully. Exception occured. Data: " + data, ex);
                 throw ex;
             }
 

@@ -39,14 +39,14 @@ namespace MessageReminderHandler
                 bool success = Core.Notification.Module.SendMessageReminder(request.GroupId, request.StartTime, request.MessageReminderId);
 
                 if (!success)
-                {
-                    throw new Exception(string.Format(
-                        "Message reminder did not finish successfully. group: {0} start time: {1} Id: {2}", request.GroupId, request.StartTime, request.MessageReminderId));
-                }
+                    throw new Exception(string.Format("Message reminder did not finish successfully. data: {0}", data));
+                else
+                    result = "success";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                log.Error("Message reminder did not finish successfully. Exception occured. Data: " + data, ex);
+                throw ex;
             }
 
             return result;

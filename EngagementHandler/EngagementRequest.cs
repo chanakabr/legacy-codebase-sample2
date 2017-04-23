@@ -10,31 +10,15 @@ namespace EngagementHandler
     public class EngagementRequest
     {
         [JsonProperty("group_id")]
-        public int GroupId
-        {
-            get;
-            set;
-        }
+        public int GroupId { get; set; }
 
         [JsonProperty("start_time")]
-        public int StartTime
-        {
-            get;
-            set;
-        }
+        public int StartTime { get; set; }
 
         [JsonProperty("engagement_id")]
-        public int EngagementId
-        {
-            get;
-            set;
-        }
+        public int EngagementId { get; set; }
 
         [JsonProperty("engagement_bulk_id")]
-        public string EngagementBulkId
-        {
-            get;
-            set;
-        }
+        public int EngagementBulkId { get; set; }
     }
 }
