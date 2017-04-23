@@ -598,7 +598,7 @@ namespace DAL
                     AdapterDynamicData = ODBCWrapper.Utils.GetSafeStr(dr, "ADAPTER_DYNAMIC_DATA"),
                     AdapterId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ADAPTER_ID"),
                     EngagementType = Enum.IsDefined(typeof(eEngagementType), engagementType) ? (eEngagementType)engagementType : eEngagementType.Churn,
-                    IntervalSeconds = ODBCWrapper.Utils.GetIntSafeVal(dr, "INTERVAL_SECONDES"),
+                    IntervalSeconds = ODBCWrapper.Utils.GetIntSafeVal(dr, "INTERVAL_SECONDS"),
                     SendTime = ODBCWrapper.Utils.GetDateSafeVal(dr, "SEND_TIME"),
                     TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOTAL_NUMBER_OF_RECIPIENTS"),
                     UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST")
