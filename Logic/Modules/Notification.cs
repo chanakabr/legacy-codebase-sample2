@@ -1017,7 +1017,6 @@ namespace Core.Notification
         public static Status DeleteEngagement(int groupId, int id)
         {
             return EngagementManager.DeleteEngagement(groupId, id);
-
         }
 
         public static EngagementResponse GetEngagement(int groupId, int id)
@@ -1028,6 +1027,16 @@ namespace Core.Notification
         public static EngagementResponseList GetEngagements(int groupId)
         {
             return EngagementManager.GetEngagements(groupId);
+        }
+
+        public static bool SendEngagement(int groupId, int engagementId, int startTime)
+        {
+            return false;
+        }
+
+        public static bool SendEngagementBulk(int groupId, int engagementId, int engagementBulkId, int startTime)
+        {
+            return false;
         }
     }
 }
