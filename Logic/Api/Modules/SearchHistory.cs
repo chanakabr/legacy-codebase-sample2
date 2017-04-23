@@ -17,6 +17,7 @@ namespace Core.Api.Modules
         #region Consts
 
         private const string KEY_FORMAT = "search_history_{0}_{1}";
+        private static readonly string CB_SEARCH_HISTORY_DESIGN_DOC = ODBCWrapper.Utils.GetTcmConfigValue("search_history_design_doc");
 
         #endregion
 
@@ -146,6 +147,32 @@ namespace Core.Api.Modules
         public override CoreObject CoreClone()
         {
             throw new NotImplementedException();
+        }
+
+        internal static List<SearchHistory> List(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize)
+        {
+            List<SearchHistory> result = new List<SearchHistory>();
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
+
+            int skip = 0;
+            int limit = 0;
+
+            if (pageSize != null && pageSize.HasValue)
+            {
+                limit = pageSize.Value;
+                skip = pageSize.Value * pageIndex;
+            }
+
+            result = couchbaseManager.View<SearchHistory>(new CouchbaseManager.ViewManager(CB_SEARCH_HISTORY_DESIGN_DOC, "user_search_history")
+            {
+                key = new object[]{userId, language},
+                inclusiveEnd = true,
+                fullSet = true,
+                skip = skip,
+                limit = limit
+            });
+
+            return result;
         }
     }
 }

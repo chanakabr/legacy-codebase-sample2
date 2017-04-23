@@ -9708,5 +9708,24 @@ namespace Core.Api
 
             return status;
         }
+
+        internal static SearchHistoryResponse GetSearchHistory(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize)
+        {
+            SearchHistoryResponse response = new SearchHistoryResponse();
+
+            try
+            {
+                response.Searches = SearchHistory.List(groupId, userId, udid, language, pageIndex, pageSize);
+
+                response.Status = new Status();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception when getting search history for userId = {0}, groupId = {1}. ex = {2}", userId, groupId, ex);
+                response.Status = new Status((int)eResponseStatus.Error);
+            }
+
+            return response;
+        }
     }
 }
