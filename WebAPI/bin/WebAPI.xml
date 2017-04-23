@@ -649,6 +649,41 @@
             <param name="filter">currency filter</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.EngagementController.List">
+            <summary>
+            Returns all Engagement for partner
+            </summary>
+            <remarks>       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementController.Get(System.Int32)">
+            <summary>
+            Return engagement
+            </summary>
+            <param name="id">Engagement identifier</param>
+            <remarks>       
+            </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementController.Delete(System.Int32)">
+            <summary>
+            Delete engagement by engagement adapter id
+            </summary>
+            <remarks>
+            Possible status codes:       
+            engagement identifier required = 8031, engagement not exist = 8032,  action is not allowed = 5011
+            </remarks>
+            <param name="id">Engagement identifier</param>
+        </member>
+        <member name="M:WebAPI.Controllers.EngagementController.Add(WebAPI.Models.Notification.KalturaEngagement)">
+            <summary>
+            Insert new Engagement for partner
+            </summary>
+            <remarks>
+            Possible status codes:     
+            no engagement to insert = 8030
+            </remarks>
+            <param name="engagement">Engagement adapter Object</param>
+        </member>
         <member name="M:WebAPI.Controllers.LanguageController.List(WebAPI.Models.API.KalturaLanguageFilter)">
             <summary>
             Get the list of languages for the partner with option to filter by language codes
@@ -686,7 +721,7 @@
             Possible status codes:       
             engagement adapter identifier required = 8025, engagement adapter not exist = 8026,  action is not allowed = 5011
             </remarks>
-            <param name="engagementAdapterId">Engagement adapter identifier</param>
+            <param name="id">Engagement adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.EngagementAdapterController.Add(WebAPI.Models.Notification.KalturaEngagementAdapter)">
             <summary>
@@ -7321,6 +7356,11 @@
             Current Bitrate
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
+            <summary>
+            Engagement type: Churn=1
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Name">
             <summary>
             Reminder name
@@ -7334,6 +7374,51 @@
         <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
             <summary>
             Asset id
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagement">
+            <summary>
+            Engagement
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.Id">
+            <summary>
+            Engagement id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.TotalNumberOfRecipients">
+            <summary>
+            Total number of recipients
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.Type">
+            <summary>
+            Engagement adapter name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterId">
+            <summary>
+            Engagement adapter id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterDynamicData">
+            <summary>
+            Engagement adapter dynamic data
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.IntervalSeconds">
+            <summary>
+            Interval (seconds)
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.UserList">
+            <summary>
+            Manual User list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.SendTimeInSeconds">
+            <summary>
+            Send time (seconds)
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapter">
@@ -7374,6 +7459,16 @@
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.SharedSecret">
             <summary>
             Shared Secret
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementListResponse">
+            <summary>
+            Engagement adapter list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementListResponse.Engagements">
+            <summary>
+            A list of Engagement
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse">

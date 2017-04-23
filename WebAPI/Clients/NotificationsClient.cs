@@ -1522,7 +1522,6 @@ namespace WebAPI.Clients
             list = Mapper.Map<List<KalturaEngagementAdapter>>(response.EngagementAdapters);
 
             return list;
-
         }
 
         internal KalturaEngagementAdapter GetEngagementAdapter(int groupId, int engagementAdapterId)
@@ -1571,7 +1570,7 @@ namespace WebAPI.Clients
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while DeleteEngagementAdapter.  groupID: {0}, paymentGWID: {1}, exception: {2}", groupId, engagementAdapterId, ex);
+                log.ErrorFormat("Error while DeleteEngagementAdapter.  groupID: {0}, engagementAdapterId: {1}, exception: {2}", groupId, engagementAdapterId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -1810,6 +1809,135 @@ namespace WebAPI.Clients
             }
 
             return true;
+        }
+
+        internal List<KalturaEngagement> GetEngagements(int groupId)
+        {
+            List<KalturaEngagement> list = null;
+            EngagementResponseList response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetEngagements(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetEngagements. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            list = Mapper.Map<List<KalturaEngagement>>(response.Engagements);
+
+            return list;
+        }
+
+        internal KalturaEngagement GetEngagement(int groupId, int id)
+        {
+            KalturaEngagement engagement = null;
+            EngagementResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetEngagement(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetEngagement. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            engagement = Mapper.Map<KalturaEngagement>(response);
+
+            return engagement;
+        }
+
+        internal bool DeleteEngagement(int groupId, int id)
+        {
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.DeleteEngagement(groupId, id);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while DeleteEngagement.  groupID: {0}, engagementId: {1}, exception: {2}", groupId, id, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaEngagement InsertEngagement(int groupId, KalturaEngagement engagement)
+        {
+            EngagementResponse response = null;
+            KalturaEngagement kalturaEngagement = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    Engagement request = Mapper.Map<Engagement>(engagement);
+                    response = Core.Notification.Module.AddEngagement(groupId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertEngagement.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaEngagement = Mapper.Map<KalturaEngagement>(response.Engagement);
+            return kalturaEngagement;
         }
     }
 }

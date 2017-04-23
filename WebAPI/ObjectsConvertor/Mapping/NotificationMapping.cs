@@ -2,6 +2,7 @@
 using ApiObjects.Notification;
 using ApiObjects.SearchObjects;
 using AutoMapper;
+using System;
 using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -276,6 +277,64 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.EngagementAdapter.Settings)));
 
             #endregion
+
+            #region Engagement
+
+            Mapper.CreateMap<KalturaEngagement, Engagement>()
+               .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
+               .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
+               .ForMember(dest => dest.EngagementType, opt => opt.MapFrom(src => ConvertEngagementType( src.Type)))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
+               .ForMember(dest => dest.SendTime, opt => opt.MapFrom(src => ConvertSendTime(src.SendTimeInSeconds)))
+               .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
+               .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
+               ;
+
+            Mapper.CreateMap<Engagement, KalturaEngagement>()
+               .ForMember(dest => dest.AdapterDynamicData, opt => opt.MapFrom(src => src.AdapterDynamicData))
+               .ForMember(dest => dest.AdapterId, opt => opt.MapFrom(src => src.AdapterId))
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertEngagementType(src.EngagementType)))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.IntervalSeconds, opt => opt.MapFrom(src => src.IntervalSeconds))
+               .ForMember(dest => dest.SendTimeInSeconds, opt => opt.MapFrom(src => ConvertSendTime(src.SendTime)))
+               .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
+               .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
+               ;
+            
+            #endregion
+        }
+
+        private static long ConvertSendTime(DateTime dateTime)
+        {
+            return WebAPI.Utils.SerializationUtils.ConvertToUnixTimestamp(dateTime);
+        }
+
+        private static DateTime ConvertSendTime(long dateTime)
+        {
+            return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime);
+        }
+
+        private static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
+        {
+            switch (eEngagementType)
+            {
+                case eEngagementType.Churn:
+                    return KalturaEngagementType.Churn;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
+            }
+        }
+
+        private static eEngagementType ConvertEngagementType(KalturaEngagementType kalturaEngagementType)
+        {
+            switch (kalturaEngagementType)
+            {
+                case KalturaEngagementType.Churn:
+                    return eEngagementType.Churn;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
+            }
         }
 
         internal static Dictionary<string, KalturaStringValue> ConvertEngagementAdapterSettings(List<EngagementAdapterSettings> settings)

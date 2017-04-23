@@ -77,13 +77,13 @@ namespace WebAPI.Controllers
         /// Possible status codes:       
         /// engagement adapter identifier required = 8025, engagement adapter not exist = 8026,  action is not allowed = 5011
         /// </remarks>
-        /// <param name="engagementAdapterId">Engagement adapter identifier</param>
+        /// <param name="id">Engagement adapter identifier</param>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
-        public bool Delete(int engagementAdapterId)
+        public bool Delete(int id)
         {
             bool response = false;
             
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.NotificationClient().DeleteEngagementAdapter(groupId, engagementAdapterId);
+                response = ClientsManager.NotificationClient().DeleteEngagementAdapter(groupId, id);
             }
             catch (ClientException ex)
             {
