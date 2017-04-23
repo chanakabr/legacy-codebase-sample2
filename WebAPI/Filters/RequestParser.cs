@@ -701,16 +701,19 @@ namespace WebAPI.Filters
                     else if (t.IsSubclassOf(typeof(KalturaOTTObject)))
                     {
                         Dictionary<string, object> param;
-                        JObject jObject = null;
-
-                        if (reqParams[name].GetType() == typeof(JObject) || reqParams[name].GetType().IsSubclassOf(typeof(JObject)))
+                        string requestName = name;
+                        if (typeof(KalturaMultilingualString).IsAssignableFrom(t))
                         {
-                            param = ((JObject)reqParams[name]).ToObject<Dictionary<string, object>>();
-                            jObject = (JObject)reqParams[name];
+                            requestName = KalturaMultilingualString.GetMultilingualName(name);
+                        }
+                        if (reqParams[requestName].GetType() == typeof(JObject) || reqParams[requestName].GetType().IsSubclassOf(typeof(JObject)))
+                        {
+                            param = ((JObject)reqParams[requestName]).ToObject<Dictionary<string, object>>();
+                            jObject = (JObject)reqParams[requestName];
                         }
                         else
                         {
-                            param = (Dictionary<string, object>) reqParams[name];
+                            param = (Dictionary<string, object>)reqParams[requestName];
                             jObject = new JObject();
 
                             foreach (var item in param)
@@ -915,8 +918,16 @@ namespace WebAPI.Filters
             foreach (PropertyInfo property in classProperties)
             {
                 var parameterName = getApiName(property);
+
                 if (!parameters.ContainsKey(parameterName) && oldStandardProperties != null && oldStandardProperties.ContainsKey(parameterName))
+                {
                     parameterName = oldStandardProperties[parameterName];
+                }
+
+                if (typeof(KalturaMultilingualString).IsAssignableFrom(property.PropertyType))
+                {
+                    parameterName = KalturaMultilingualString.GetMultilingualName(parameterName);
+                }
 
                 if (!parameters.ContainsKey(parameterName) || !property.CanWrite)
                 {
