@@ -38,12 +38,14 @@ namespace CachingProvider.LayeredCache
         public const string GET_GROUP_ADS_CONTROL_CACHE_CONFIG_NAME = "GetGroupAdsControl";
         public const string GET_EPG_CHANNEL_CDVR_ID = "GetEpgChannelCdvrId";
         public const string MEDIA_FILES_BY_MEDIA_ID_LAYERED_CACHE_CONFIG_NAME = "GetMediaFilesByMediaId";
+        public const string IS_PROXY_ALLOWED_FOR_IP_LAYERED_CACHE_CONFIG_NAME = "IsProxyAllowed";
 
         #endregion
 
         #region Constant Invalidation Keys
 
         public const string GET_COUNTRY_BY_IP_INVALIDATION_KEY = "invalidateGetCountryByIp";
+        public const string GET_PROXY_IP_INVALIDATION_KEY = "invalidateProxyIp";
 
         #endregion
 

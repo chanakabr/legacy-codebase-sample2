@@ -204,6 +204,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("epgChannelExternalId_groupId_{0}_epgChannelId_{1}", groupId, epgChannelId);
         }
+
         public static string GetExternalIdEpgChannelKey(int groupId, string cdvrId)
         {
             return string.Format("ExternalIdEpgChannel_groupId_{0}_cdvrId_{1}", groupId, cdvrId);
@@ -213,5 +214,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("mediaFilesByMediaId_g_{0}_m_{1}", groupId, mediaId);
         }
+
+        public static string GetProxyIpKey(string ip)
+        {
+            return string.Format("proxyIp_{0}", ip);
+        }
+
     }
 }
