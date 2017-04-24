@@ -178,6 +178,7 @@
     <Compile Include="Notification\Announcement.cs" />
     <Compile Include="Notification\DMSPushRequest.cs" />
     <Compile Include="Notification\DMSPushResponse.cs" />
+    <Compile Include="Notification\EngagementBulkMessage.cs" />
     <Compile Include="Notification\EngagementResponseList .cs" />
     <Compile Include="Notification\EngagementResponse.cs" />
     <Compile Include="Notification\enums.cs" />
