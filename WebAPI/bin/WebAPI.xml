@@ -1152,6 +1152,11 @@
             Search name
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Filter">
+            <summary>
+            Filter
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaSearchHistory.Language">
             <summary>
             Search language

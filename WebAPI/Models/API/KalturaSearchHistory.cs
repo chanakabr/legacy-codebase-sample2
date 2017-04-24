@@ -50,6 +50,19 @@ namespace WebAPI.Models.API
         }
 
         /// <summary>
+        /// Filter
+        /// </summary>
+        [DataMember(Name = "filter")]
+        [JsonProperty(PropertyName = "filter")]
+        [XmlElement(ElementName = "filter")]
+        [SchemeProperty(ReadOnly = true)]
+        public string Filter
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Search language
         /// </summary>
         [DataMember(Name = "language")]
