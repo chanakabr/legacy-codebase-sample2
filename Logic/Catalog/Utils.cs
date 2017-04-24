@@ -1214,5 +1214,46 @@ namespace Core.Catalog
             return res;
         }
 
+        public static bool CheckMetaExsits(bool shouldSearchEpg, bool shouldSearchMedia, bool shouldSearchRecordings, Group group, string metaName)
+        {
+            if (string.IsNullOrEmpty(metaName))
+            {
+                return true;// no need to check we'll use default order 
+            }
+            if (shouldSearchMedia)
+            {
+                // check meta in Media
+                if (group.m_oMetasValuesByGroupId == null)
+                {
+                    return false;
+                }
+
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList().ConvertAll(x => x.ToLower());
+                if (!metas.Contains(metaName))
+                {
+                    return false;
+                }
+            }
+            if (shouldSearchEpg || shouldSearchRecordings)
+            {
+                if (group.m_oEpgGroupSettings == null)
+                {
+                    return false;
+                }
+
+                if (group.m_oEpgGroupSettings.metas == null)
+                {
+                    return false;
+                }
+
+                var EpgMetas = group.m_oEpgGroupSettings.metas.Select(i => i.Value.ToLower()).ToList();
+                if (!EpgMetas.Contains(metaName))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
     }
 }

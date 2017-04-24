@@ -89,6 +89,7 @@ namespace Core.Catalog
                     order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                 }
 
+
                 definitions.order = new OrderObj();
                 definitions.order.m_eOrderDir = order.m_eOrderDir;
                 definitions.order.m_eOrderBy = order.m_eOrderBy;
@@ -150,6 +151,14 @@ namespace Core.Catalog
                             throw new KalturaException(string.Format("Invalid media type was sent: {0}", mediaType), (int)eResponseStatus.BadSearchRequest);
                         }
                     }
+                }
+
+                if (order.m_eOrderBy == OrderBy.META && 
+                    !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, order.m_sOrderValue.ToLower()))
+                {
+                    //return error - meta not erxsits
+                    log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                    throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
                 }
 
                 #endregion

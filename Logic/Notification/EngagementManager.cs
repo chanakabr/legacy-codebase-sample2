@@ -137,7 +137,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
@@ -192,7 +192,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
@@ -246,7 +246,7 @@ namespace Core.Notification
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}, name={2}, adapterUrl={3}, isActive={4}",
-                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.ProviderUrl, engagementAdapter.IsActive), ex);
+                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.AdapterUrl, engagementAdapter.IsActive), ex);
             }
             return response;
         }

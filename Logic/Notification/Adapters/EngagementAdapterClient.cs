@@ -30,6 +30,11 @@ namespace APILogic.Notification.Adapters
 
                     using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.ProviderUrl))
                     {
+                        if (!string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                        {
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.ProviderUrl);
+                        }
+
                         APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
                             engagementAdapter.ID,
                             engagementAdapter.ProviderUrl,
@@ -74,24 +79,23 @@ namespace APILogic.Notification.Adapters
                     //set signature
                     string signature = string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow);
 
+
                     using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.ProviderUrl))
                     {
-                        if (!string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
-                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.ProviderUrl);
-
                         adapterResponse = client.GetList(engagementAdapter.ID, adapterDynamicData, unixTimeNow, signature);
                         if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)EngagementAdapterStatus.OK)
                         {
                             log.DebugFormat("Successfully received engagement Adapter List Result: AdapterID = {0}, AdapterStatus = {1}, number of results: {2}",
-                                    engagementAdapter.ID,
-                                    ((EngagementAdapterStatus)adapterResponse.Status.Code).ToString(),
-                                    adapterResponse.UserIds != null ? adapterResponse.UserIds.Count() : 0);
+                                            engagementAdapter.ID,
+                                            ((EngagementAdapterStatus)adapterResponse.Status.Code).ToString(),
+                                            adapterResponse.UserIds != null ? adapterResponse.UserIds.Count() : 0);
+
                         }
                         else
                         {
                             log.ErrorFormat("Engagement Adapter GetList error. Adapter: {0}, result: {1}",
-                                JsonConvert.SerializeObject(engagementAdapter),
-                                adapterResponse != null ? JsonConvert.SerializeObject(adapterResponse) : "null");
+                                     JsonConvert.SerializeObject(engagementAdapter),
+                                     adapterResponse != null ? JsonConvert.SerializeObject(adapterResponse) : "null");
                             return null;
                         }
                     }
@@ -99,7 +103,7 @@ namespace APILogic.Notification.Adapters
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
+                log.ErrorFormat("GetAdapterList Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
             }
 
             return adapterResponse.UserIds != null ? adapterResponse.UserIds.ToList() : null;

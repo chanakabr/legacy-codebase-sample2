@@ -1267,7 +1267,7 @@ namespace Core.Catalog
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, out aggregationResult);
 
                 if (searchResults != null)
-                {
+                {                   
                     searchResultsList = searchResults;
                 }
             }
@@ -1768,6 +1768,17 @@ namespace Core.Catalog
                 if (request.m_nMediaID > 0)
                 {
                     searchObj.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RELATED;
+                }
+                if (searchObj.m_oOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META)
+                {
+                    GroupManager groupManager = new GroupManager();
+                    Group group = groupManager.GetGroup(request.m_nGroupID);
+                    if (!Utils.CheckMetaExsits(false, true, false, group, searchObj.m_oOrder.m_sOrderValue.ToLower()))
+                    {
+                        //return error - meta not erxsits
+                        log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue);
+                        throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue));
+                    }
                 }
 
                 if (request.m_oFilter != null)
@@ -6370,6 +6381,15 @@ namespace Core.Catalog
                     order.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
                     order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
                 }
+                else if (order.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && !string.IsNullOrEmpty(order.m_sOrderValue))
+                {
+                    if (!Utils.CheckMetaExsits(false, true, false, group, order.m_sOrderValue.ToLower()))
+                    {
+                        //return error - meta not erxsits
+                        log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
+                        throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue));
+                    }
+                }
 
                 definitions.order = new OrderObj()
                 {
@@ -7061,6 +7081,14 @@ namespace Core.Catalog
                     }
                 }
 
+
+                if (searcherOrderObj.m_eOrderBy == OrderBy.META && 
+                    !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, searcherOrderObj.m_sOrderValue.ToLower()))
+                {
+                    //return error - meta not erxsits
+                    log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue);
+                    throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue));
+                }
                 #endregion
             }
             else
