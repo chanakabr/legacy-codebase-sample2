@@ -1,15 +1,15 @@
-﻿using ApiObjects.Notification;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using ApiObjects.Notification;
+using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
-using System;
-using System.Reflection;
-using QueueWrapper.Queues.QueueObjects;
-using ApiObjects.QueueObjects;
-using TVinciShared;
-using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
+using QueueWrapper.Queues.QueueObjects;
+using TVinciShared;
 
 namespace Core.Notification
 {
@@ -21,7 +21,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter not exist";
         private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "No Engagement adapter to insert";
         private const string NAME_REQUIRED = "Name must have a value";
-        private const string ADAPTER_URL_REQUIRED = "Adapter URL must have a value";
+        private const string PROVIDER_URL_REQUIRED = "Provider URL must have a value";
         private const string NO_ENGAGEMENT_ADAPTER_TO_UPDATE = "No Engagement adapter to update";
         private const string NO_PARAMS_TO_INSERT = "no params to insert";
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -136,9 +136,9 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
 
@@ -170,50 +170,52 @@ namespace Core.Notification
 
         private static bool SendConfigurationToAdapter(int groupId, EngagementAdapter engagementAdapter)
         {
-            //try
-            //{
-            //    if (engagementAdapter  != null && !string.IsNullOrEmpty(engagementAdapter .AdapterUrl))
-            //    {
-            //        //set unixTimestamp
-            //        long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            try
+            {
+                if (engagementAdapter != null && !string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                {
+                    //set unixTimestamp
+                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //        //set signature
-            //        string signature = string.Concat(engagementAdapter .ID, engagementAdapter .Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
-            //            groupId, unixTimestamp);
+                    //set signature
+                    string signature = string.Concat(engagementAdapter.ID, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
+                        groupId, unixTimestamp);
 
-            //        using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
-            //        {
-            //            if (!string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
-            //            {
-            //                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.AdapterUrl);
-            //            }
+                    using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.ProviderUrl))
+                    {
+                        if (!string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                        {
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.ProviderUrl);
+                        }
 
-            //            APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-            //                engagementAdapter.ID,
-            //                engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.engagementAdapterService.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
-            //                groupId,
-            //                unixTimestamp,
-            //                System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
+                            engagementAdapter.ID,
+                            engagementAdapter.ProviderUrl,
+                            engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.EngagementAdapterService.KeyValue() { Key = s.Key, Value = s.Value }).ToArray() : null,
+                            groupId,
+                            unixTimestamp,
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-            //            if (adapterResponse != null && adapterResponse.Code == (int)engagementAdapterStatus.OK)
-            //            {
-            //                log.DebugFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
-            //                return true;
-            //            }
-            //            else
-            //            {
-            //                log.ErrorFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
-            //                    engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
-            //                return false;
-            //            }
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
-            //}
-            return false; //TODO: Anat
+                        if (adapterResponse != null && adapterResponse.Code == (int)EngagementAdapterStatus.OK)
+                        {
+                            log.DebugFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
+                            return true;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
+                                engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
+            }
+
+            return false;
         }
 
         internal static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
@@ -239,9 +241,9 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
 
@@ -293,7 +295,7 @@ namespace Core.Notification
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}, name={2}, adapterUrl={3}, isActive={4}",
-                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.AdapterUrl, engagementAdapter.IsActive), ex);
+                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.ProviderUrl, engagementAdapter.IsActive), ex);
             }
             return response;
         }

@@ -108,5 +108,13 @@ namespace ApiObjects.Notification
         [EnumMember]
         TV_Series_VOD = 0
     }
+
+    public enum EngagementAdapterStatus
+    {
+        OK = 0,
+        Error = 1,
+        SignatureMismatch = 2,
+        NoConfigurationFound = 3
+    }
 }
 
