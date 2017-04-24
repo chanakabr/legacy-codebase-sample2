@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
         [Route("get"), HttpPost]
         [ApiAuthorize]
         [OldStandardArgument("messageType", "asset_Type")]
-        [OldStandardArgument("messageType", "assetType", "3.6.287.23792")]
+        [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public KalturaMessageTemplate Get(KalturaOTTAssetType messageType)
         {
