@@ -9715,8 +9715,11 @@ namespace Core.Api
 
             try
             {
-                response.Searches = SearchHistory.List(groupId, userId, udid, language, pageIndex, pageSize);
+                int totalItems = 0;
 
+                response.Searches = SearchHistory.List(groupId, userId, udid, language, pageIndex, pageSize, out totalItems);
+                
+                response.TotalItems = totalItems;
                 response.Status = new Status();
             }
             catch (Exception ex)

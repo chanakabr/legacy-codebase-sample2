@@ -149,7 +149,7 @@ namespace Core.Api.Modules
             throw new NotImplementedException();
         }
 
-        internal static List<SearchHistory> List(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize)
+        internal static List<SearchHistory> List(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize, out int totalItems)
         {
             List<SearchHistory> result = new List<SearchHistory>();
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
@@ -163,6 +163,9 @@ namespace Core.Api.Modules
                 skip = pageSize.Value * pageIndex;
             }
 
+            long totalNumOfResults = 0;
+
+            // 1. get the basic search history documents, without the filter
             result = couchbaseManager.View<SearchHistory>(new CouchbaseManager.ViewManager(CB_SEARCH_HISTORY_DESIGN_DOC, "user_search_history")
             {
                 key = new object[]{userId, language},
@@ -170,11 +173,12 @@ namespace Core.Api.Modules
                 fullSet = true,
                 skip = skip,
                 limit = limit
-            });
+            }, ref totalNumOfResults);
 
             List<string> filterKeys = new List<string>();
             Dictionary<string, List<SearchHistory>> filterKeyToSearchHistory = new Dictionary<string, List<SearchHistory>>();
 
+            // 2. map the filter keys to the search history items
             foreach (var searchHistory in result)
             {
                 filterKeys.Add(searchHistory.filterKey);
@@ -187,8 +191,10 @@ namespace Core.Api.Modules
                 filterKeyToSearchHistory[searchHistory.filterKey].Add(searchHistory);
             }
 
+            // 3. get from CB all the filter objects
             var filters = couchbaseManager.GetValues<object>(filterKeys);
 
+            // 4. complete search history item with filter object
             foreach (var filter in filters)
             {
                 string filterKey = filter.Key;
@@ -198,6 +204,8 @@ namespace Core.Api.Modules
                     searchHistory.filter = JObject.Parse(filter.Value.ToString());
                 }
             }
+
+            totalItems = (int)totalNumOfResults;
 
             return result;
         }

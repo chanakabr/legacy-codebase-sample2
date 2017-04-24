@@ -17,10 +17,17 @@ namespace Core.Api.Modules
             set;
         }
 
+        public int TotalItems
+        {
+            get;
+            set;
+        }
+
         public SearchHistoryResponse()            
         {
             this.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             this.Searches = new List<SearchHistory>();
+            this.TotalItems = 0;
         }
     }
 }
