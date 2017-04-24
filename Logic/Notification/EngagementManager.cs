@@ -1,11 +1,15 @@
-﻿using ApiObjects.Notification;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using ApiObjects.Notification;
+using ApiObjects.QueueObjects;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
-using System;
-using System.Reflection;
+using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
-using ApiObjects.QueueObjects;
+using TVinciShared;
 
 namespace Core.Notification
 {
@@ -17,7 +21,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter not exist";
         private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "No Engagement adapter to insert";
         private const string NAME_REQUIRED = "Name must have a value";
-        private const string ADAPTER_URL_REQUIRED = "Adapter URL must have a value";
+        private const string PROVIDER_URL_REQUIRED = "Provider URL must have a value";
         private const string NO_ENGAGEMENT_ADAPTER_TO_UPDATE = "No Engagement adapter to update";
         private const string NO_PARAMS_TO_INSERT = "no params to insert";
         private const string CONFLICTED_PARAMS = "Conflicted params";
@@ -134,7 +138,7 @@ namespace Core.Notification
 
                 if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
 
@@ -166,50 +170,52 @@ namespace Core.Notification
 
         private static bool SendConfigurationToAdapter(int groupId, EngagementAdapter engagementAdapter)
         {
-            //try
-            //{
-            //    if (engagementAdapter  != null && !string.IsNullOrEmpty(engagementAdapter .AdapterUrl))
-            //    {
-            //        //set unixTimestamp
-            //        long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+            try
+            {
+                if (engagementAdapter != null && !string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+                {
+                    //set unixTimestamp
+                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-            //        //set signature
-            //        string signature = string.Concat(engagementAdapter .ID, engagementAdapter .Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.key, s.value))) : string.Empty,
-            //            groupId, unixTimestamp);
+                    //set signature
+                    string signature = string.Concat(engagementAdapter.ID, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
+                        groupId, unixTimestamp);
 
-            //        using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
-            //        {
-            //            if (!string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
-            //            {
-            //                client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.AdapterUrl);
-            //            }
+                    using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
+                    {
+                        if (!string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
+                        {
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.AdapterUrl);
+                        }
 
-            //            APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-            //                engagementAdapter.ID,
-            //                engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.engagementAdapterService.KeyValue() { Key = s.key, Value = s.value }).ToArray() : null,
-            //                groupId,
-            //                unixTimestamp,
-            //                System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
+                        APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
+                            engagementAdapter.ID,
+                            engagementAdapter.AdapterUrl,
+                            engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.EngagementAdapterService.KeyValue() { Key = s.Key, Value = s.Value }).ToArray() : null,
+                            groupId,
+                            unixTimestamp,
+                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
-            //            if (adapterResponse != null && adapterResponse.Code == (int)engagementAdapterStatus.OK)
-            //            {
-            //                log.DebugFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
-            //                return true;
-            //            }
-            //            else
-            //            {
-            //                log.ErrorFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
-            //                    engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
-            //                return false;
-            //            }
-            //        }
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
-            //}
-            return false; //TODO: Anat
+                        if (adapterResponse != null && adapterResponse.Code == (int)EngagementAdapterStatus.OK)
+                        {
+                            log.DebugFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
+                            return true;
+                        }
+                        else
+                        {
+                            log.ErrorFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
+                                engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
+            }
+
+            return false;
         }
 
         internal static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
@@ -237,7 +243,7 @@ namespace Core.Notification
 
                 if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
 
@@ -595,7 +601,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId)
+        public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId = 0)
         {
             EngagementQueue queue = new EngagementQueue();
             EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
@@ -652,13 +658,9 @@ namespace Core.Notification
             {
                 response.Engagements = EngagementDal.GetEngagementList(groupId);
                 if (response.Engagements == null || response.Engagements.Count == 0)
-                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no engagement related to group");
-                }
                 else
-                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
             }
             catch (Exception ex)
             {
@@ -691,6 +693,111 @@ namespace Core.Notification
             }
 
             return response;
+        }
+
+        internal static bool SendEngagement(int partnerId, int engagementId, int startTime)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            // Get all engagemnts from the last hour forward
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            if (lastHourAndFutureEngagement == null || lastHourAndFutureEngagement.Count == 0)
+            {
+                log.ErrorFormat("No Engagements were found in DB. Engagement ID: {0}", engagementId);
+                return false;
+            }
+
+            // get relevant engagement 
+            Engagement engagementToBeSent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id == engagementId);
+            if (engagementToBeSent == null)
+            {
+                log.ErrorFormat("Engagement was not found in DB. Engagement ID: {0}", engagementId);
+                return false;
+            }
+
+            // validate engagement time is the same as message time 
+            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(engagementToBeSent.SendTime) - startTime) > 30)
+            {
+                log.ErrorFormat("Engagement time was changed (to more than 30 seconds). Engagement ID: {0}, engageemnt time: {1}, message time: {2}",
+                    engagementId,
+                    engagementToBeSent.SendTime,
+                    DateUtils.UnixTimeStampToDateTime(startTime));
+
+                // return true - do not retry
+                return true;
+            }
+
+            // validate same engagement was not already sent in the last hour
+            Engagement engagementAlreadySent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
+                                                                                               x.EngagementType == engagementToBeSent.EngagementType &&
+                                                                                               x.AdapterId == engagementToBeSent.AdapterId &&
+                                                                                               x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
+                                                                                               x.SendTime > engagementToBeSent.SendTime.AddHours(-1) &&
+                                                                                               x.SendTime < engagementToBeSent.SendTime);
+            if (engagementAlreadySent != null)
+            {
+                log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
+                 JsonConvert.SerializeObject(engagementAlreadySent),
+                 JsonConvert.SerializeObject(engagementToBeSent));
+
+                // return true - do not retry
+                return true;
+            }
+
+            // if scheduler engagement - create next iteration
+            if (engagementToBeSent.IntervalSeconds > 0)
+            {
+                // validate there isn't another one in the future 
+                Engagement futureEngagement = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
+                                                                                        x.EngagementType == engagementToBeSent.EngagementType &&
+                                                                                        x.AdapterId == engagementToBeSent.AdapterId &&
+                                                                                        x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
+                                                                                        x.IntervalSeconds > 0 &&
+                                                                                        x.SendTime > engagementToBeSent.SendTime);
+                if (engagementAlreadySent != null)
+                {
+                    log.ErrorFormat("Scheduler engagement was canceled - future scheduler was detected. cancelled engagement: {0}, future engagement: {1}",
+                        JsonConvert.SerializeObject(engagementToBeSent),
+                        JsonConvert.SerializeObject(futureEngagement));
+
+                    // return true - do not retry
+                    return true;
+                }
+
+                // create next iteration
+                futureEngagement = new Engagement()
+                {
+                    AdapterDynamicData = engagementToBeSent.AdapterDynamicData,
+                    AdapterId = engagementToBeSent.AdapterId,
+                    EngagementType = engagementToBeSent.EngagementType,
+                    IntervalSeconds = engagementToBeSent.IntervalSeconds,
+                    SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
+                };
+
+                // insert to DB
+                if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
+                {
+                    log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+                    return false;
+                }
+
+                // create engagement Rabbit message
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
+                {
+
+                }
+
+            }
+
+
+
+
+            throw new NotImplementedException();
+        }
+
+        internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using Core.Api.Managers;
 using Core.Pricing;
 using Newtonsoft.Json.Linq;
+using Core.Api.Modules;
 
 namespace Core.Api
 {
@@ -1781,6 +1782,12 @@ namespace Core.Api
         public static Status SaveSearchHistory(string name, string service, string action, string language, string userId, string deviceId, JObject persistedFilter)
         {
             return Core.Api.api.SaveSearchHistory(name, service, action, language, userId, deviceId, persistedFilter);
+        }
+
+        public static SearchHistoryResponse GetSearchHistory(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize)
+        {
+            return Core.Api.api.GetSearchHistory(groupId, userId, udid, language, pageIndex, pageSize);
+
         }
     }
 }

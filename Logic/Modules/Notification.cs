@@ -1029,14 +1029,39 @@ namespace Core.Notification
             return EngagementManager.GetEngagements(groupId);
         }
 
-        public static bool SendEngagement(int groupId, int engagementId, int startTime)
+        public static bool SendEngagement(int partnerId, int engagementId, int startTime)
         {
-            return false;
+            try
+            {
+                return EngagementManager.SendEngagement(partnerId, engagementId, startTime);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to send engagement. Partner ID: {0}, Engagement ID: {1}, startTime: {2}, Ex: {3}",
+                    partnerId,
+                    engagementId,
+                    TVinciShared.DateUtils.UnixTimeStampToDateTime(startTime),
+                    ex);
+                return false;
+            }
         }
 
-        public static bool SendEngagementBulk(int groupId, int engagementId, int engagementBulkId, int startTime)
+        public static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
         {
-            return false;
+            try
+            {
+                return EngagementManager.SendEngagementBulk(partnerId, engagementId, engagementBulkId, startTime);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to send bulk engagement. Partner ID: {0}, engagement ID: {1}, engagement bulk ID: {2}, startTime: {3}, Ex: {4}",
+                    partnerId,
+                    engagementId,
+                    engagementId,
+                    TVinciShared.DateUtils.UnixTimeStampToDateTime(startTime),
+                    ex);
+                return false;
+            }
         }
     }
 }
