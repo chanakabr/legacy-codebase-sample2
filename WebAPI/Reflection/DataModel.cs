@@ -5087,16 +5087,18 @@ namespace WebAPI.Reflection
                     {
                         case "Action":
                             return "action";
+                        case "CreatedAt":
+                            return "createdAt";
                         case "DeviceId":
                             return "deviceId";
                         case "Filter":
                             return "filter";
+                        case "Id":
+                            return "id";
                         case "Language":
                             return "language";
                         case "Name":
                             return "name";
-                        case "SearchDate":
-                            return "searchDate";
                         case "Service":
                             return "service";
                     }
