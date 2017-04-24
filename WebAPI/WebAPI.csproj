@@ -238,6 +238,7 @@
     <Compile Include="Controllers\EngagementAdapterController.cs" />
     <Compile Include="Controllers\EngagementAdapterSettingsController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
+    <Compile Include="Controllers\SearchHistoryController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
     <Compile Include="Controllers\SocialActionController.cs" />
     <Compile Include="Controllers\SocialFriendActivityController.cs" />
@@ -287,6 +288,8 @@
     <Compile Include="Models\API\KalturaCountryOrderBy.cs" />
     <Compile Include="Models\API\KalturaMetaType.cs" />
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
+    <Compile Include="Models\API\KalturaSearchHistory.cs" />
+    <Compile Include="Models\API\KalturaSearchHistoryFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetCount.cs" />
     <Compile Include="Models\Catalog\KalturaAssetGroupBy.cs" />
     <Compile Include="Models\Catalog\KalturaDynamicOrderBy.cs" />

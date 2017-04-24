@@ -729,7 +729,7 @@
             </summary>
             <remarks>
             Possible status codes:     
-            no engagement adapter to insert = 8028, name required = 5005, adapter url required = 5013
+            no engagement adapter to insert = 8028, name required = 5005, provider url required = 8033
             </remarks>
             <param name="engagementAdapter">Engagement adapter Object</param>
         </member>
@@ -739,7 +739,7 @@
             </summary>
             <remarks>
             Possible status codes:   
-            name required = 5005, engagement adapter identifier required = 8025, no engagement adapter to update = 8029, adapter url required = 5013
+            name required = 5005, engagement adapter identifier required = 8025, no engagement adapter to update = 8029, provider url required = 8033
             </remarks>
             <param name="engagementAdapterId">Engagement adapter identifier</param>       
             <param name="engagementAdapter">Engagement adapter Object</param>       
@@ -752,7 +752,7 @@
             Possible status codes:  
             engagement adapter identifier required = 8025, engagement adapter not exist = 8026
             </remarks>
-            <param name="engagementAdapterId">Engagement adapter identifier</param>
+            <param name="id">Engagement adapter identifier</param>
         </member>
         <member name="M:WebAPI.Controllers.EngagementAdapterSettingsController.List">
             <summary>
@@ -827,6 +827,15 @@
             <param name="pager">Paging the request</param>
             <returns></returns>
             <remarks>Possible status codes: SyntaxError = 4004, FeatureDisabled = 8009</remarks>        
+        </member>
+        <member name="M:WebAPI.Controllers.SearchHistoryController.List(WebAPI.Models.API.KalturaSearchHistoryFilter,WebAPI.Models.General.KalturaFilterPager)">
+            <summary>
+            Get user's last search requests
+            </summary>
+            <param name="filter">Filter parameters for filtering out the result</param>
+            <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+            <remarks>Possible status codes: 
+            </remarks>
         </member>
         <member name="M:WebAPI.Controllers.SocialCommentController.List(WebAPI.Models.Social.KalturaSocialCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
@@ -1121,6 +1130,56 @@
         <member name="P:WebAPI.Models.API.KalturaOSSAdapterProfileListResponse.OSSAdapterProfiles">
             <summary>
             A list of OSS adapter-profiles
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaSearchHistoryListResponse">
+            <summary>
+            Search history wrapper
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistoryListResponse.Objects">
+            <summary>
+            KalturaSearchHistory Models
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KalturaSearchHistory">
+            <summary>
+            Search history info
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Name">
+            <summary>
+            Search name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Filter">
+            <summary>
+            Filter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Language">
+            <summary>
+            Search language
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.SearchDate">
+            <summary>
+            Search date
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Service">
+            <summary>
+            Kaltura OTT Service
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Action">
+            <summary>
+            Kaltura OTT Service Action
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.DeviceId">
+            <summary>
+            Unique Device ID
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
@@ -7413,7 +7472,7 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagement.Type">
             <summary>
-            Engagement adapter name
+            Engagement type
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagement.AdapterId">
@@ -7469,6 +7528,11 @@
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.AdapterUrl">
             <summary>
             Engagement adapter adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.ProviderUrl">
+            <summary>
+            Engagement provider adapter URL
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.Settings">

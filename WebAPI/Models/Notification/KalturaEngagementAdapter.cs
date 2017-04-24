@@ -26,6 +26,14 @@ namespace WebAPI.Models.Notification
         [JsonProperty("adapterUrl")]
         [XmlElement(ElementName = "adapterUrl")]
         public string AdapterUrl { get; set; }
+
+        /// <summary>
+        /// Engagement provider adapter URL
+        /// </summary>
+        [DataMember(Name = "providerUrl")]
+        [JsonProperty("providerUrl")]
+        [XmlElement(ElementName = "providerUrl")]
+        public string ProviderUrl { get; set; }
                
         /// <summary>
         /// Engagement adapter extra parameters

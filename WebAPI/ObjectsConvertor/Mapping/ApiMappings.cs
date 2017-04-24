@@ -6,6 +6,7 @@ using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
+using Core.Api.Modules;
 using System;
 using System.Collections.Generic;
 using WebAPI.Exceptions;
@@ -479,6 +480,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
              ;
+
+            #endregion
+
+            #region Search History
+
+            Mapper.CreateMap<SearchHistory, KalturaSearchHistory>()
+              .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.action))
+              .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.deviceId))
+              .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.language))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
+              .ForMember(dest => dest.SearchDate, opt => opt.MapFrom(src => src.createdAt))
+              .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.service))
+              .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))              
+              ;
 
             #endregion
         }

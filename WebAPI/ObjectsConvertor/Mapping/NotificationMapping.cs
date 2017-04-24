@@ -251,6 +251,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+               .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.ProviderUrl))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.SkipSettings, opt => opt.MapFrom(src => src.Settings == null))
                .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
@@ -260,6 +261,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
+              .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.ProviderUrl))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => ConvertEngagementAdapterSettings(src.Settings)))
               ;
@@ -270,6 +272,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<EngagementAdapterResponse, KalturaEngagementAdapter>()
              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.EngagementAdapter.AdapterUrl))
+             .ForMember(dest => dest.ProviderUrl, opt => opt.MapFrom(src => src.EngagementAdapter.ProviderUrl))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.EngagementAdapter.ID))
              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.EngagementAdapter.IsActive))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.EngagementAdapter.Name))

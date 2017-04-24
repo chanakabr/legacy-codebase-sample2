@@ -28,6 +28,7 @@ using ApiObjects.CDNAdapter;
 using ApiObjects.BulkExport;
 using Core.Pricing;
 using Newtonsoft.Json.Linq;
+using Core.Api.Modules;
 
 namespace WebAPI.Clients
 {
@@ -3559,6 +3560,46 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response.Code, response.Message);
             }
+        }
+
+        public KalturaSearchHistoryListResponse GetSearchHistory(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize)
+        {
+            KalturaSearchHistoryListResponse result = new KalturaSearchHistoryListResponse()
+            {
+                TotalCount = 0
+            };
+
+            Core.Api.Modules.SearchHistoryResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetSearchHistory(groupId, userId, udid, language, pageIndex, pageSize);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Searches != null && response.Searches.Count > 0)
+            {
+                result.Objects = AutoMapper.Mapper.Map<List<KalturaSearchHistory>>(response.Searches);
+                result.TotalCount = result.Objects.Count;
+            }
+
+            return result;
         }
     }
 }
