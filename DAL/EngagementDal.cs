@@ -71,7 +71,7 @@ namespace DAL
             EngagementAdapter adapterRes = null;
 
             adapterRes = new EngagementAdapter();
-            adapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "adapter_url");
+            adapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "provider_url");
             adapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "ID");
             int is_Active = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "is_active");
             adapterRes.IsActive = is_Active == 1 ? true : false;
@@ -267,7 +267,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_EngagementAdapterSharedSecret");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", engagementAdapterId);
                 sp.AddParameter("@sharedSecret", sharedSecret);
@@ -289,7 +289,7 @@ namespace DAL
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_EngagementAdapterSettings");
-                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@GroupID", groupId);
                 sp.AddParameter("@ID", engagementAdapterId);
                 DataTable dt = CreateDataTable(settings);
