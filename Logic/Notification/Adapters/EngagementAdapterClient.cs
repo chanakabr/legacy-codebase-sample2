@@ -76,12 +76,12 @@ namespace APILogic.Notification.Adapters
                 {
                     long unixTimeNow = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
-                    //set signature
+                    // set signature
                     string signature = string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow);
-
 
                     using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.ProviderUrl))
                     {
+                        // get list
                         adapterResponse = client.GetList(engagementAdapter.ID, adapterDynamicData, unixTimeNow, signature);
                         if (adapterResponse != null && adapterResponse.Status != null && adapterResponse.Status.Code == (int)EngagementAdapterStatus.OK)
                         {
@@ -89,7 +89,6 @@ namespace APILogic.Notification.Adapters
                                             engagementAdapter.ID,
                                             ((EngagementAdapterStatus)adapterResponse.Status.Code).ToString(),
                                             adapterResponse.UserIds != null ? adapterResponse.UserIds.Count() : 0);
-
                         }
                         else
                         {
