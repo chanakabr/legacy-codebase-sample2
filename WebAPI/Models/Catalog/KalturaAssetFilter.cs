@@ -18,8 +18,18 @@ namespace WebAPI.Models.Catalog
         }
 
         internal virtual void Validate()
-        {            
+        {   
         }
+
+        /// <summary>
+        /// dynamicOrderBy - order by Meta
+        /// </summary>
+        [DataMember(Name = "dynamicOrderBy")]
+        [JsonProperty("dynamicOrderBy")]
+        [XmlElement(ElementName = "dynamicOrderBy", IsNullable = true)]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public KalturaDynamicOrderBy DynamicOrderBy { get; set; }
+      
     }
 }
 
