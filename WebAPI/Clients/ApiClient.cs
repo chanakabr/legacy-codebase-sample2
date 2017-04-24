@@ -3596,7 +3596,7 @@ namespace WebAPI.Clients
             if (response.Searches != null && response.Searches.Count > 0)
             {
                 result.Objects = AutoMapper.Mapper.Map<List<KalturaSearchHistory>>(response.Searches);
-                result.TotalCount = result.Objects.Count;
+                result.TotalCount = response.TotalItems;
             }
 
             return result;
