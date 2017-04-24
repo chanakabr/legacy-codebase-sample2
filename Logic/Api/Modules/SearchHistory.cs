@@ -172,6 +172,33 @@ namespace Core.Api.Modules
                 limit = limit
             });
 
+            List<string> filterKeys = new List<string>();
+            Dictionary<string, List<SearchHistory>> filterKeyToSearchHistory = new Dictionary<string, List<SearchHistory>>();
+
+            foreach (var searchHistory in result)
+            {
+                filterKeys.Add(searchHistory.filterKey);
+
+                if (!filterKeyToSearchHistory.ContainsKey(searchHistory.filterKey))
+                {
+                    filterKeyToSearchHistory[searchHistory.filterKey] = new List<SearchHistory>();
+                }
+
+                filterKeyToSearchHistory[searchHistory.filterKey].Add(searchHistory);
+            }
+
+            var filters = couchbaseManager.GetValues<object>(filterKeys);
+
+            foreach (var filter in filters)
+            {
+                string filterKey = filter.Key;
+
+                foreach (var searchHistory in filterKeyToSearchHistory[filterKey])
+                {
+                    searchHistory.filter = JObject.Parse(filter.Value.ToString());
+                }
+            }
+
             return result;
         }
     }
