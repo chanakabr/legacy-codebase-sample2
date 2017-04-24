@@ -136,7 +136,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
@@ -172,7 +172,7 @@ namespace Core.Notification
         {
             try
             {
-                if (engagementAdapter != null && !string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                if (engagementAdapter != null && !string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
                     //set unixTimestamp
                     long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -181,16 +181,16 @@ namespace Core.Notification
                     string signature = string.Concat(engagementAdapter.ID, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
                         groupId, unixTimestamp);
 
-                    using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.ProviderUrl))
+                    using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
                     {
-                        if (!string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                        if (!string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                         {
-                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.ProviderUrl);
+                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.AdapterUrl);
                         }
 
                         APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
                             engagementAdapter.ID,
-                            engagementAdapter.ProviderUrl,
+                            engagementAdapter.AdapterUrl,
                             engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.EngagementAdapterService.KeyValue() { Key = s.Key, Value = s.Value }).ToArray() : null,
                             groupId,
                             unixTimestamp,
@@ -241,7 +241,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
@@ -295,7 +295,7 @@ namespace Core.Notification
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Failed groupID={0}, engagementAdapterId={1}, name={2}, adapterUrl={3}, isActive={4}",
-                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.ProviderUrl, engagementAdapter.IsActive), ex);
+                    groupId, engagementAdapter.ID, engagementAdapter.Name, engagementAdapter.AdapterUrl, engagementAdapter.IsActive), ex);
             }
             return response;
         }
