@@ -292,6 +292,7 @@ namespace ApiObjects.Response
         NoEngagementToInsert = 8030,
         EngagementRequired = 8031,
         EngagementNotExist = 8032,
+        ProviderUrlRequired = 8033,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

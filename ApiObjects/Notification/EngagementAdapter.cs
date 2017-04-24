@@ -5,7 +5,7 @@ namespace ApiObjects.Notification
     public class EngagementAdapter : EngagementAdapterBase
     {
         public bool IsActive { get; set; }
-        public string AdapterUrl { get; set; }
+        public string ProviderUrl { get; set; }
         public string SharedSecret { get; set; }
 
         public bool SkipSettings { get; set; }
