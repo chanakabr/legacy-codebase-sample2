@@ -556,16 +556,18 @@ namespace DAL
             }
 
             return res;
-        }       
+        }
 
-        public static List<Engagement> GetEngagementList(int groupId)
+        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, bool shouldOnlyGetActive = false)
         {
             List<Engagement> res = new List<Engagement>();
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
-                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@groupId", partnerId);
+                sp.AddParameter("@shouldGetOnlyActive", shouldOnlyGetActive);
+                sp.AddParameter("@fromDate", fromSendDate);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
@@ -579,7 +581,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at GetEngagementList. groupId: {0}. Error {1}", groupId, ex);
+                log.ErrorFormat("Error at GetEngagementList. groupId: {0}. Error {1}", partnerId, ex);
             }
             return res;
         }
