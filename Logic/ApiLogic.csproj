@@ -520,6 +520,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="Service References\EngagementAdapterService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\OSSAdapterService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -880,6 +885,22 @@
     <None Include="Service References\DmsService\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.AdapterStatus.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.ChurnResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\EngagementAdapterService\Service.wsdl" />
+    <None Include="Service References\EngagementAdapterService\Service.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EngagementAdapterService\Service1.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EngagementAdapterService\Service2.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -1093,6 +1114,7 @@
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\AmazonSnsAdapter\" />
     <WCFMetadataStorage Include="Service References\DmsService\" />
+    <WCFMetadataStorage Include="Service References\EngagementAdapterService\" />
     <WCFMetadataStorage Include="Service References\PaymentGWAdapter\" />
   </ItemGroup>
   <ItemGroup>
@@ -1163,6 +1185,21 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Social\SocialFeed\Logs\IDAN-PC\Unknown\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EngagementAdapterService\Service.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EngagementAdapterService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EngagementAdapterService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EngagementAdapterService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
