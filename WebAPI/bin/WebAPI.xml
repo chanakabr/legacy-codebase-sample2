@@ -7510,6 +7510,11 @@
             Engagement adapter adapter URL
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.ProviderUrl">
+            <summary>
+            Engagement provider adapter URL
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.Settings">
             <summary>
             Engagement adapter extra parameters
