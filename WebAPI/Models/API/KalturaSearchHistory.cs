@@ -37,6 +37,19 @@ namespace WebAPI.Models.API
     public class KalturaSearchHistory : KalturaOTTObject
     {
         /// <summary>
+        /// Search ID
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty(PropertyName = "id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
+        public string Id
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Search name
         /// </summary>
         [DataMember(Name = "name")]
@@ -76,13 +89,13 @@ namespace WebAPI.Models.API
         }
 
         /// <summary>
-        /// Search date
+        /// When search was performed
         /// </summary>
-        [DataMember(Name = "searchDate")]
-        [JsonProperty(PropertyName = "searchDate")]
-        [XmlElement(ElementName = "searchDate")]
+        [DataMember(Name = "createdAt")]
+        [JsonProperty(PropertyName = "createdAt")]
+        [XmlElement(ElementName = "createdAt")]
         [SchemeProperty(ReadOnly = true)]
-        public long SearchDate
+        public long CreatedAt
         {
             get;
             set;

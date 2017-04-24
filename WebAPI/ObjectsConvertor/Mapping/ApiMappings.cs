@@ -487,12 +487,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<SearchHistory, KalturaSearchHistory>()
               .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.action))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
               .ForMember(dest => dest.DeviceId, opt => opt.MapFrom(src => src.deviceId))
               .ForMember(dest => dest.Language, opt => opt.MapFrom(src => src.language))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.name))
-              .ForMember(dest => dest.SearchDate, opt => opt.MapFrom(src => src.createdAt))
+              .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.createdAt))
               .ForMember(dest => dest.Service, opt => opt.MapFrom(src => src.service))
-              .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))              
+              .ForMember(dest => dest.Filter, opt => opt.MapFrom(src => src.filter.ToString()))
               ;
 
             #endregion

@@ -1147,6 +1147,11 @@
             Search history info
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.Id">
+            <summary>
+            Search ID
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaSearchHistory.Name">
             <summary>
             Search name
@@ -1162,9 +1167,9 @@
             Search language
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaSearchHistory.SearchDate">
+        <member name="P:WebAPI.Models.API.KalturaSearchHistory.CreatedAt">
             <summary>
-            Search date
+            When search was performed
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaSearchHistory.Service">
