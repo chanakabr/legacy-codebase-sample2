@@ -731,8 +731,30 @@ namespace WebAPI.Filters
                         string language = Convert.ToString(HttpContext.Current.Items[REQUEST_LANGUAGE]);
                         string userId = Convert.ToString(HttpContext.Current.Items[REQUEST_USER_ID]);
                         string deviceId = KSUtils.ExtractKSPayload().UDID;
+                        int groupId = Convert.ToInt32(HttpContext.Current.Items[REQUEST_GROUP_ID]);
 
-                        res.AfterRequestParsed(service, action, language, userId, deviceId, jObject);
+                        object ksObject = HttpContext.Current.Items[REQUEST_KS];
+                        KS ks = null;
+
+                        if (ksObject != null)
+                        {
+                            ks = ksObject as KS;
+                        }
+
+                        if (ks != null)
+                        {
+                            if (string.IsNullOrEmpty(userId))
+                            {
+                                userId = ks.UserId;
+                            }
+
+                            if (groupId <= 0)
+                            {
+                                groupId = ks.GroupId;
+                            }
+                        }
+
+                        res.AfterRequestParsed(service, action, language, groupId, userId, deviceId, jObject);
 
                         value = res;
                     }

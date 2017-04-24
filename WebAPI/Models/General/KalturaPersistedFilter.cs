@@ -27,11 +27,11 @@ namespace WebAPI.Models.General
             set;
         }
 
-        public override void AfterRequestParsed(string service, string action, string language, string userId, string deviceId, JObject json = null)
+        public override void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)
         {
             if (!string.IsNullOrEmpty(Name))
             {
-                ClientsManager.ApiClient().SaveSearchHistory(this.Name, service, action, language, userId, deviceId, json);
+                ClientsManager.ApiClient().SaveSearchHistory(this.Name, service, action, language, groupId, userId, deviceId, json);
             }
         }
     }

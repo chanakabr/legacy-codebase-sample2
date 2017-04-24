@@ -3534,7 +3534,7 @@ namespace WebAPI.Clients
         }
 
 
-        internal void SaveSearchHistory(string name, string service, string action, string language, string userId, string deviceId, JObject persistedFilter)
+        internal void SaveSearchHistory(string name, string service, string action, string language, int groupId, string userId, string deviceId, JObject persistedFilter)
         {
             Status response = null;
 
@@ -3542,7 +3542,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.SaveSearchHistory(name, service, action, language, userId, deviceId, persistedFilter);
+                    response = Core.Api.Module.SaveSearchHistory(name, service, action, language, groupId, userId, deviceId, persistedFilter);
                 }
             }
             catch (Exception ex)

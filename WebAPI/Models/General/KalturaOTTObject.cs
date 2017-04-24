@@ -34,7 +34,7 @@ namespace WebAPI.Models.General
             }
         }
 
-        public virtual void AfterRequestParsed(string service, string action, string language, string userId, string deviceId, JObject json = null)
+        public virtual void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null)
         {
 
         }
