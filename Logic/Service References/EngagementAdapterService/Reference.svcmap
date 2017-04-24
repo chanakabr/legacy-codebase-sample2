@@ -19,14 +19,15 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://localhost:86/EngagementAdapterNPAW/Service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost/EngagementAdapterNPAW/Service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="3392acca-e8e8-48f7-99c4-dd8310d4996e" SourceId="1" SourceUrl="http://localhost:86/EngagementAdapterNPAW/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="32eee954-794d-4f6b-8bf5-70dd59c25e9a" SourceId="1" SourceUrl="http://localhost:86/EngagementAdapterNPAW/Service.svc?disco" />
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="05186ec8-fcff-4117-9e75-dd10dfc2300e" SourceId="1" SourceUrl="http://localhost:86/EngagementAdapterNPAW/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="877583d7-d920-4e45-bc84-c71d741df2c4" SourceId="1" SourceUrl="http://localhost:86/EngagementAdapterNPAW/Service.svc?wsdl" />
-    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="7d1589f6-8491-4d10-ad1f-e04a3bc3f93e" SourceId="1" SourceUrl="http://localhost:86/EngagementAdapterNPAW/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service31.xsd" MetadataType="Schema" ID="3dae133b-17e8-47f3-9169-9e8c3ad7e54d" SourceId="1" SourceUrl="http://localhost/EngagementAdapterNPAW/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="cf695480-139a-43b6-963f-52dfefe7308d" SourceId="1" SourceUrl="http://localhost/EngagementAdapterNPAW/Service.svc?wsdl" />
+    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="74c9219d-113b-448c-9e2b-676b55dcdbe6" SourceId="1" SourceUrl="http://localhost/EngagementAdapterNPAW/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service1.disco" MetadataType="Disco" ID="495086d2-b414-49d6-8910-91bbd4229dde" SourceId="1" SourceUrl="http://localhost/EngagementAdapterNPAW/Service.svc?disco" />
+    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="49efe17a-6680-4328-93ee-55b1a2c2a6c0" SourceId="1" SourceUrl="http://localhost/EngagementAdapterNPAW/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service32.xsd" MetadataType="Schema" ID="f47ae081-fa9f-420d-9388-5ba8625e0fc4" SourceId="1" SourceUrl="http://localhost/EngagementAdapterNPAW/Service.svc?xsd=xsd2" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

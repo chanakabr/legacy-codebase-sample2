@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using APILogic.Notification.Adapters;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
@@ -150,7 +151,7 @@ namespace Core.Notification
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new Engagement adapter insert");
 
-                    if (!SendConfigurationToAdapter(groupId, response.EngagementAdapter))
+                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter))
                     {
                         log.ErrorFormat("InsertEngagementAdapter  - SendConfigurationToAdapter failed : AdapterID = {0}", response.EngagementAdapter.ID);
                     }
@@ -166,56 +167,6 @@ namespace Core.Notification
                 log.Error(string.Format("Failed groupID={0}", groupId), ex);
             }
             return response;
-        }
-
-        private static bool SendConfigurationToAdapter(int groupId, EngagementAdapter engagementAdapter)
-        {
-            try
-            {
-                if (engagementAdapter != null && !string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
-                {
-                    //set unixTimestamp
-                    long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
-
-                    //set signature
-                    string signature = string.Concat(engagementAdapter.ID, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
-                        groupId, unixTimestamp);
-
-                    using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.ProviderUrl))
-                    {
-                        if (!string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
-                        {
-                            client.Endpoint.Address = new System.ServiceModel.EndpointAddress(engagementAdapter.ProviderUrl);
-                        }
-
-                        APILogic.EngagementAdapterService.AdapterStatus adapterResponse = client.SetConfiguration(
-                            engagementAdapter.ID,
-                            engagementAdapter.ProviderUrl,
-                            engagementAdapter.Settings != null ? engagementAdapter.Settings.Select(s => new APILogic.EngagementAdapterService.KeyValue() { Key = s.Key, Value = s.Value }).ToArray() : null,
-                            groupId,
-                            unixTimestamp,
-                            System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
-
-                        if (adapterResponse != null && adapterResponse.Code == (int)EngagementAdapterStatus.OK)
-                        {
-                            log.DebugFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}", engagementAdapter.ID, adapterResponse.Code);
-                            return true;
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Engagement Adapter SetConfiguration Result: AdapterID = {0}, AdapterStatus = {1}",
-                                engagementAdapter.ID, adapterResponse != null ? adapterResponse.Code.ToString() : "ERROR");
-                            return false;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("SendConfigurationToAdapter Failed: AdapterID = {0}, ex = {1}", engagementAdapter.ID, ex);
-            }
-
-            return false;
         }
 
         internal static EngagementAdapterResponse SetEngagementAdapter(int groupId, EngagementAdapter engagementAdapter)
@@ -279,7 +230,7 @@ namespace Core.Notification
                         }
                     }
 
-                    bool isSendSucceeded = SendConfigurationToAdapter(groupId, response.EngagementAdapter);
+                    bool isSendSucceeded = EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter);
                     if (!isSendSucceeded)
                     {
                         log.DebugFormat("SetEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapter.ID);
@@ -378,18 +329,18 @@ namespace Core.Notification
                 bool isSet = EngagementDal.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, settings);
                 if (isSet)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "engagement adapter configs delete");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "successfully deleted engagement adapter configuration delete");
 
                     //Get engagement Adapter updated                        
                     engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                    if (!SendConfigurationToAdapter(groupId, engagementAdapter))
+                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
                     {
                         log.ErrorFormat("DeleteengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
                     }
                 }
                 else
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "engagement adapter configs faild delete");
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "engagement adapter delete configuration failed delete");
                 }
 
             }
@@ -441,7 +392,7 @@ namespace Core.Notification
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "engagement adapter set changes");
                     //Get engagement Adapter updated                        
                     engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                    if (!SendConfigurationToAdapter(groupId, engagementAdapter))
+                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
                     {
                         log.ErrorFormat("SetengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
                     }
@@ -514,7 +465,7 @@ namespace Core.Notification
 
                     //Get engagement Adapter updated                        
                     engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                    if (!SendConfigurationToAdapter(groupId, engagementAdapter))
+                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
                     {
                         log.ErrorFormat("InsertengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
                     }
@@ -699,7 +650,7 @@ namespace Core.Notification
         {
             DateTime utcNow = DateTime.UtcNow;
 
-            // Get all engagemnts from the last hour forward
+            // Get all engagements from the last hour forward
             List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
             if (lastHourAndFutureEngagement == null || lastHourAndFutureEngagement.Count == 0)
             {
@@ -718,7 +669,7 @@ namespace Core.Notification
             // validate engagement time is the same as message time 
             if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(engagementToBeSent.SendTime) - startTime) > 30)
             {
-                log.ErrorFormat("Engagement time was changed (to more than 30 seconds). Engagement ID: {0}, engageemnt time: {1}, message time: {2}",
+                log.ErrorFormat("Engagement time was changed (to more than 30 seconds). Engagement ID: {0}, engagement time: {1}, message time: {2}",
                     engagementId,
                     engagementToBeSent.SendTime,
                     DateUtils.UnixTimeStampToDateTime(startTime));
@@ -784,9 +735,32 @@ namespace Core.Notification
                 // create engagement Rabbit message
                 if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
                 {
+                    log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
 
+                    // remove new engagement 
+                    if (!EngagementDal.DeleteEngagement(partnerId, futureEngagement.Id))
+                    {
+                        log.ErrorFormat("Error while trying to delete engagement after failed to create a rabbit message. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+
+                        // return true - do not retry
+                        return true;
+                    }
+
+                    return false;
                 }
 
+                // check if user list exist or get them from external adapter
+                if (string.IsNullOrEmpty(engagementToBeSent.UserList))
+                {
+                    // user list exists
+
+                }
+                else
+                {
+                    // get user list from adapter
+
+
+                }
             }
 
 
