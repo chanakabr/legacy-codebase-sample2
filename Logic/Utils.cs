@@ -813,5 +813,53 @@ namespace APILogic
 
             return sb.ToString();
         }
+
+        internal static Tuple<bool, bool> IsProxyAllowedForIp(Dictionary<string, object> funcParams)
+        {
+            bool res = false, isProxyAllowed = false;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("ip"))
+                {
+                    string ip = funcParams["ip"].ToString();
+                    if (!string.IsNullOrEmpty(ip))
+                    {
+                        long convertedIp = 0;
+                        if (ConvertIpToInt(ip, ref convertedIp) && convertedIp > 0)
+                        {
+                            isProxyAllowed = DAL.ApiDAL.IsProxyAllowedForIp(convertedIp);
+                            res = true;
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("IsProxyAllowedForIp failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool, bool>(isProxyAllowed, res);
+        }
+
+        public static bool ConvertIpToInt(string ip, ref long convertedIp)
+        {
+            if (string.IsNullOrEmpty(ip))
+            {
+                return false;
+            }            
+            try
+            {
+                string[] splitted = ip.Split('.');
+                convertedIp = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed ConvertIpToInt for ip: {0}", ip), ex);
+                return false;
+            }            
+        }
+
     }
 }

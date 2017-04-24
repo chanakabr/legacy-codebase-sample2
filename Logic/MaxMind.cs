@@ -8,6 +8,7 @@ using System.Configuration;
 using System.IO;
 using KLogMonitor;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 
 namespace APILogic
 {
@@ -94,6 +95,34 @@ namespace APILogic
                 
             }
             return bAllowed;
+        }
+
+        public static bool IsProxyAllowed(int shouldCheckProxy, int groupId, string ip)
+        {
+            bool isProxyAllowed = true;
+            if (shouldCheckProxy == 0)
+            {
+                return isProxyAllowed;
+            }
+            
+            try
+            {
+                string key = LayeredCacheKeys.GetProxyIpKey(ip);
+                if (!LayeredCache.Instance.Get<bool>(key, ref isProxyAllowed, APILogic.Utils.IsProxyAllowedForIp, new Dictionary<string, object>() { { "ip", ip } }, groupId,
+                                                    LayeredCacheConfigNames.IS_PROXY_ALLOWED_FOR_IP_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY }))
+                {
+                    log.ErrorFormat("Failed checking IsProxyAllowed from LayeredCache, ip: {0}, key: {1}", ip, key);
+                    /* ********************* TODO: Ask Ira what to do when failing layered cache / exception *************************
+                     * should return that proxy is allowed or not?
+                    */
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsProxyAllowed for ip: {0}", ip), ex);
+            }
+
+            return isProxyAllowed;
         }
 
         static public string GetWSURL(string sKey)
