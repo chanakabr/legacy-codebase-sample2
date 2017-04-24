@@ -510,7 +510,7 @@ namespace WebAPI.Reflection
                             ret = new Dictionary<string, string>() { 
                                  {"messageType", "asset_Type"},
                             };
-                            if (currentVersion != null && currentVersion.CompareTo(new Version("3.6.287.23792")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
+                            if (currentVersion != null && currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
                             {
                                 if (ret.ContainsKey("messageType"))
                                 {
