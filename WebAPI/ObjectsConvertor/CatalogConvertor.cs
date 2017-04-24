@@ -242,50 +242,70 @@ namespace WebAPI.ObjectsConvertor
             return result;
         }
 
-        public static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy order)
+        public static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy order, KalturaDynamicOrderBy dynamicOrderBy = null)
         {
             OrderObj result = new OrderObj();
-
-            switch (order)
+            if (dynamicOrderBy != null && dynamicOrderBy.OrderBy.HasValue)
             {
-                case KalturaAssetOrderBy.NAME_ASC:
-                    result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.ASC;
-                    break;
-                case KalturaAssetOrderBy.NAME_DESC:
-                    result.m_eOrderBy = OrderBy.NAME;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.VIEWS_DESC:
-                    result.m_eOrderBy = OrderBy.VIEWS;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.RATINGS_DESC:
-                    result.m_eOrderBy = OrderBy.RATING;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.VOTES_DESC:
-                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.START_DATE_DESC:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.RELEVANCY_DESC:
-                    result.m_eOrderBy = OrderBy.RELATED;
-                    result.m_eOrderDir = OrderDir.DESC;
-                    break;
-                case KalturaAssetOrderBy.START_DATE_ASC:
-                    result.m_eOrderBy = OrderBy.START_DATE;
-                    result.m_eOrderDir = OrderDir.ASC;
-                    break;
-                case KalturaAssetOrderBy.LIKES_DESC:
-                    {
-                        result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                switch (dynamicOrderBy.OrderBy.Value)
+                {
+                    case KalturaMetaTagOrderBy.META_ASC:
+                        result.m_eOrderBy = OrderBy.META;
+                        result.m_eOrderDir = OrderDir.ASC;
+                        result.m_sOrderValue = dynamicOrderBy.Name;
+                        break;
+                    case KalturaMetaTagOrderBy.META_DESC:
+                        result.m_eOrderBy = OrderBy.META;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        result.m_sOrderValue = dynamicOrderBy.Name;
+                        break;
+                }
+            }
+
+            else
+            {
+
+                switch (order)
+                {
+                    case KalturaAssetOrderBy.NAME_ASC:
+                        result.m_eOrderBy = OrderBy.NAME;
+                        result.m_eOrderDir = OrderDir.ASC;
+                        break;
+                    case KalturaAssetOrderBy.NAME_DESC:
+                        result.m_eOrderBy = OrderBy.NAME;
                         result.m_eOrderDir = OrderDir.DESC;
                         break;
-                    }
+                    case KalturaAssetOrderBy.VIEWS_DESC:
+                        result.m_eOrderBy = OrderBy.VIEWS;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case KalturaAssetOrderBy.RATINGS_DESC:
+                        result.m_eOrderBy = OrderBy.RATING;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case KalturaAssetOrderBy.VOTES_DESC:
+                        result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case KalturaAssetOrderBy.START_DATE_DESC:
+                        result.m_eOrderBy = OrderBy.START_DATE;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case KalturaAssetOrderBy.RELEVANCY_DESC:
+                        result.m_eOrderBy = OrderBy.RELATED;
+                        result.m_eOrderDir = OrderDir.DESC;
+                        break;
+                    case KalturaAssetOrderBy.START_DATE_ASC:
+                        result.m_eOrderBy = OrderBy.START_DATE;
+                        result.m_eOrderDir = OrderDir.ASC;
+                        break;
+                    case KalturaAssetOrderBy.LIKES_DESC:
+                        {
+                            result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                            result.m_eOrderDir = OrderDir.DESC;
+                            break;
+                        }
+                }
             }
             return result;
         }

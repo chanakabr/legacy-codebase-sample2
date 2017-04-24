@@ -1992,6 +1992,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaAssetFilter":
+                    switch(property.Name)
+                    {
+                        case "DynamicOrderBy":
+                            return "dynamicOrderBy";
+                    }
+                    break;
+                    
                 case "KalturaAssetHistory":
                     switch(property.Name)
                     {
@@ -2858,6 +2866,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDynamicOrderBy":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                        case "OrderBy":
+                            return "orderBy";
+                    }
+                    break;
+                    
                 case "KalturaEngagement":
                     switch(property.Name)
                     {
@@ -2887,6 +2905,8 @@ namespace WebAPI.Reflection
                             return "adapterUrl";
                         case "IsActive":
                             return "isActive";
+                        case "ProviderUrl":
+                            return "providerUrl";
                         case "Settings":
                             return "engagementAdapterSettings";
                         case "SharedSecret":
@@ -5069,6 +5089,8 @@ namespace WebAPI.Reflection
                             return "action";
                         case "DeviceId":
                             return "deviceId";
+                        case "Filter":
+                            return "filter";
                         case "Language":
                             return "language";
                         case "Name":

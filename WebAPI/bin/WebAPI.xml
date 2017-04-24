@@ -1267,6 +1267,21 @@
             Group by a specific field that is defined in enum
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Catalog.KalturaDynamicOrderBy">
+            <summary>
+            Kaltura Asset Order
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicOrderBy.Name">
+            <summary>
+            order by name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaDynamicOrderBy.OrderBy">
+            <summary>
+            order by meta asc/desc
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Catalog.KalturaLastPositionListResponse">
             <summary>
             List of last positions
@@ -2010,6 +2025,11 @@
         <member name="P:WebAPI.Models.General.KalturaPersistedFilter`1.Name">
             <summary>
             Name for the presisted filter. If empty, no action will be done. If has value, the filter will be saved and persisted in user's search history.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Catalog.KalturaAssetFilter.DynamicOrderBy">
+            <summary>
+            dynamicOrderBy - order by Meta
             </summary>
         </member>
         <member name="P:WebAPI.Models.Catalog.KalturaScheduledRecordingProgramFilter.RecordingTypeEqual">
@@ -7513,6 +7533,11 @@
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.AdapterUrl">
             <summary>
             Engagement adapter adapter URL
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.ProviderUrl">
+            <summary>
+            Engagement provider adapter URL
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapter.Settings">

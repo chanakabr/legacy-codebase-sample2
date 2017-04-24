@@ -154,11 +154,11 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
-            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
@@ -634,7 +634,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, KalturaAssetOrderBy orderBy)
+        public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, 
+            KalturaAssetOrderBy orderBy,  KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -642,7 +643,7 @@ namespace WebAPI.Clients
             Group group = GroupsManager.GetGroup(groupId);
 
             // convert order by
-            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // build request
             MediaRelatedRequest request = new MediaRelatedRequest()
@@ -1705,12 +1706,12 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetExternalChannelAssets(int groupId, string channelId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, 
-            KalturaAssetOrderBy orderBy, string deviceType, string utcOffset, string freeParam)
+            KalturaAssetOrderBy orderBy, string deviceType, string utcOffset, string freeParam, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // convert order by
-            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
+            OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
@@ -1781,7 +1782,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetRelatedMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, 
+        internal KalturaAssetListResponse GetRelatedMediaExternal(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId,
             List<int> mediaTypes, int utcOffset, string freeParam)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -1866,20 +1867,20 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id, 
-            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault)
+        internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
+            KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-            if (orderBy == null || shouldUseChannelDefault)
+            if (assetOrder != null || orderBy != null)
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
+            }
+            else if (shouldUseChannelDefault)
             {
                 order.m_eOrderBy = OrderBy.NONE;
-            }
-            else
-            {
-                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
 
             // get group configuration 
@@ -1943,19 +1944,19 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetBundleAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType)
+            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType, KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-            if (orderBy == null)
+            if (assetOrder != null || orderBy != null)
             {
-                order.m_eOrderBy = OrderBy.NONE;
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
             }
             else
             {
-                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+                order.m_eOrderBy = OrderBy.NONE;
             }
 
             // get group configuration 
@@ -2125,19 +2126,20 @@ namespace WebAPI.Clients
         }
 
         internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, string udid, string language, List<long> channelIdsToFilter, int pageIndex, int? pageSize,
-                                                                        long? startDateToFilter, long? endDateToFilter, KalturaAssetOrderBy? orderBy, KalturaScheduledRecordingAssetType scheduledRecordingType)
+                                        long? startDateToFilter, long? endDateToFilter, KalturaAssetOrderBy? orderBy, KalturaScheduledRecordingAssetType scheduledRecordingType,
+                                        KalturaDynamicOrderBy assetOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-            if (orderBy == null)
+            if (assetOrder != null || orderBy != null)
             {
-                order.m_eOrderBy = OrderBy.NONE;
+                   order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
             }
             else
             {
-                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value);
+                order.m_eOrderBy = OrderBy.NONE;
             }
 
             // get group configuration 

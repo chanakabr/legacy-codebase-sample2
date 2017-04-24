@@ -185,14 +185,14 @@ namespace WebAPI.Controllers
                     KalturaChannelExternalFilter channelExternalFilter = (KalturaChannelExternalFilter)filter;                   
                     string deviceType = System.Web.HttpContext.Current.Request.UserAgent;
                     response = ClientsManager.CatalogClient().GetExternalChannelAssets(groupId, channelExternalFilter.IdEqual.ToString(), userID, domainId, udid,
-                        language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual.ToString(), channelExternalFilter.FreeText);
+                        language, pager.getPageIndex(), pager.PageSize, filter.OrderBy, deviceType, channelExternalFilter.UtcOffsetEqual.ToString(), channelExternalFilter.FreeText, channelExternalFilter.DynamicOrderBy);
                 }
                 //SearchAssets - Unified search across – VOD: Movies, TV Series/episodes, EPG content.
                 else if (filter is KalturaSearchAssetFilter)
                 {
                     KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                     response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(), pager.PageSize, regularAssetFilter.KSql,
-                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData);
+                        regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), managementData, regularAssetFilter.DynamicOrderBy);
                 }
                 //Return list of media assets that are related to a provided asset ID (of type VOD). 
                 //Returned assets can be within multi VOD asset types or be of same type as the provided asset. 
@@ -201,7 +201,7 @@ namespace WebAPI.Controllers
                 {
                     KalturaRelatedFilter relatedFilter = (KalturaRelatedFilter)filter;
                     response = ClientsManager.CatalogClient().GetRelatedMedia(groupId, userID, domainId, udid,
-                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy);
+                    language, pager.getPageIndex(), pager.PageSize, relatedFilter.getMediaId(), relatedFilter.KSql, relatedFilter.getTypeIn(), relatedFilter.OrderBy, relatedFilter.DynamicOrderBy);
                 }
                 //Return list of assets that are related to a provided asset ID. Returned assets can be within multi asset types or be of same type as the provided asset. 
                 //Support on-demand, per asset enrichment. Related assets are provided from the external source (e.g. external recommendation engine). 
@@ -241,20 +241,21 @@ namespace WebAPI.Controllers
                         pager = new KalturaFilterPager();
 
                     response = ClientsManager.CatalogClient().GetChannelAssets(groupId, userID, domainId, udid, language, pager.getPageIndex(),
-                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault());
+                        pager.PageSize, channelFilter.IdEqual, channelFilter.OrderBy, channelFilter.KSql, channelFilter.GetShouldUseChannelDefault(), channelFilter.DynamicOrderBy);
                 }
                 else if (filter is KalturaBundleFilter)
                 {
                     KalturaBundleFilter bundleFilter = (KalturaBundleFilter)filter;
                     response = ClientsManager.CatalogClient().GetBundleAssets(groupId, userID, domainId, udid, language,
-                       pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual);
+                       pager.getPageIndex(), pager.PageSize, bundleFilter.IdEqual, bundleFilter.OrderBy, bundleFilter.getTypeIn(), bundleFilter.BundleTypeEqual, bundleFilter.DynamicOrderBy);
                 }
                 // returns assets that are scheduled to be recorded
                 else if (filter is KalturaScheduledRecordingProgramFilter)
                 {
                     KalturaScheduledRecordingProgramFilter scheduledRecordingFilter = (KalturaScheduledRecordingProgramFilter)filter;
                     response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(groupId, userID, domainId, udid, language, scheduledRecordingFilter.ConvertChannelsIn(), pager.getPageIndex(), 
-                                    pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual);
+                                    pager.getPageSize(), scheduledRecordingFilter.StartDateGreaterThanOrNull, scheduledRecordingFilter.EndDateLessThanOrNull, scheduledRecordingFilter.OrderBy, scheduledRecordingFilter.RecordingTypeEqual,
+                                    scheduledRecordingFilter.DynamicOrderBy);
                 }
                 else
                 {

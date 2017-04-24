@@ -292,7 +292,9 @@
     <Compile Include="Models\API\KalturaSearchHistoryFilter.cs" />
     <Compile Include="Models\Catalog\KalturaAssetCount.cs" />
     <Compile Include="Models\Catalog\KalturaAssetGroupBy.cs" />
+    <Compile Include="Models\Catalog\KalturaDynamicOrderBy.cs" />
     <Compile Include="Models\Catalog\KalturaLastPosition.cs" />
+    <Compile Include="Models\Catalog\KalturaMetaTagOrderBy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAccessControlMessage.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaAdsPolicy.cs" />
     <Compile Include="Models\ConditionalAccess\KalturaCollectionEntitlement.cs" />
