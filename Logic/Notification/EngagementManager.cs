@@ -6,6 +6,10 @@ using System;
 using System.Reflection;
 using QueueWrapper.Queues.QueueObjects;
 using ApiObjects.QueueObjects;
+using TVinciShared;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace Core.Notification
 {
@@ -595,7 +599,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId)
+        public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId = 0)
         {
             EngagementQueue queue = new EngagementQueue();
             EngagementData queueData = new EngagementData(groupId, startTime, engagementId, engagementBulkId)
@@ -652,13 +656,9 @@ namespace Core.Notification
             {
                 response.Engagements = EngagementDal.GetEngagementList(groupId);
                 if (response.Engagements == null || response.Engagements.Count == 0)
-                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no engagement related to group");
-                }
                 else
-                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
             }
             catch (Exception ex)
             {
@@ -691,6 +691,111 @@ namespace Core.Notification
             }
 
             return response;
+        }
+
+        internal static bool SendEngagement(int partnerId, int engagementId, int startTime)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+
+            // Get all engagemnts from the last hour forward
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            if (lastHourAndFutureEngagement == null || lastHourAndFutureEngagement.Count == 0)
+            {
+                log.ErrorFormat("No Engagements were found in DB. Engagement ID: {0}", engagementId);
+                return false;
+            }
+
+            // get relevant engagement 
+            Engagement engagementToBeSent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id == engagementId);
+            if (engagementToBeSent == null)
+            {
+                log.ErrorFormat("Engagement was not found in DB. Engagement ID: {0}", engagementId);
+                return false;
+            }
+
+            // validate engagement time is the same as message time 
+            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(engagementToBeSent.SendTime) - startTime) > 30)
+            {
+                log.ErrorFormat("Engagement time was changed (to more than 30 seconds). Engagement ID: {0}, engageemnt time: {1}, message time: {2}",
+                    engagementId,
+                    engagementToBeSent.SendTime,
+                    DateUtils.UnixTimeStampToDateTime(startTime));
+
+                // return true - do not retry
+                return true;
+            }
+
+            // validate same engagement was not already sent in the last hour
+            Engagement engagementAlreadySent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
+                                                                                               x.EngagementType == engagementToBeSent.EngagementType &&
+                                                                                               x.AdapterId == engagementToBeSent.AdapterId &&
+                                                                                               x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
+                                                                                               x.SendTime > engagementToBeSent.SendTime.AddHours(-1) &&
+                                                                                               x.SendTime < engagementToBeSent.SendTime);
+            if (engagementAlreadySent != null)
+            {
+                log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
+                 JsonConvert.SerializeObject(engagementAlreadySent),
+                 JsonConvert.SerializeObject(engagementToBeSent));
+
+                // return true - do not retry
+                return true;
+            }
+
+            // if scheduler engagement - create next iteration
+            if (engagementToBeSent.IntervalSeconds > 0)
+            {
+                // validate there isn't another one in the future 
+                Engagement futureEngagement = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
+                                                                                        x.EngagementType == engagementToBeSent.EngagementType &&
+                                                                                        x.AdapterId == engagementToBeSent.AdapterId &&
+                                                                                        x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
+                                                                                        x.IntervalSeconds > 0 &&
+                                                                                        x.SendTime > engagementToBeSent.SendTime);
+                if (engagementAlreadySent != null)
+                {
+                    log.ErrorFormat("Scheduler engagement was canceled - future scheduler was detected. cancelled engagement: {0}, future engagement: {1}",
+                        JsonConvert.SerializeObject(engagementToBeSent),
+                        JsonConvert.SerializeObject(futureEngagement));
+
+                    // return true - do not retry
+                    return true;
+                }
+
+                // create next iteration
+                futureEngagement = new Engagement()
+                {
+                    AdapterDynamicData = engagementToBeSent.AdapterDynamicData,
+                    AdapterId = engagementToBeSent.AdapterId,
+                    EngagementType = engagementToBeSent.EngagementType,
+                    IntervalSeconds = engagementToBeSent.IntervalSeconds,
+                    SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
+                };
+
+                // insert to DB
+                if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
+                {
+                    log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+                    return false;
+                }
+
+                // create engagement Rabbit message
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
+                {
+
+                }
+
+            }
+
+
+
+
+            throw new NotImplementedException();
+        }
+
+        internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
+        {
+            throw new NotImplementedException();
         }
     }
 }

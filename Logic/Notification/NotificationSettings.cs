@@ -324,7 +324,6 @@ namespace Core.Notification
             return false;
         }
 
-
         public static bool IsPartnerRemindersEnabled(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
@@ -376,6 +375,30 @@ namespace Core.Notification
                 return partnerSettingsResponse.settings.PushAdapterUrl;
             }
             return string.Empty;
+        }
+
+        public static bool IsWithinPushSendTimeWindow(int groupId, TimeSpan time)
+        {
+            var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+            if (partnerSettingsResponse == null &&
+                partnerSettingsResponse.settings != null &&
+                partnerSettingsResponse.settings.PushStartHour.HasValue &&
+                partnerSettingsResponse.settings.PushEndHour.HasValue)
+            {
+                DateTime startTime = DateUtils.UnixTimeStampToDateTime(partnerSettingsResponse.settings.PushStartHour.Value);
+                DateTime endTime = DateUtils.UnixTimeStampToDateTime(partnerSettingsResponse.settings.PushEndHour.Value);
+
+                TimeSpan allowedStart = startTime.TimeOfDay;
+                TimeSpan allowedEnd = endTime.TimeOfDay;
+
+                if ((time >= allowedStart && time <= allowedEnd) ||
+                     allowedStart == allowedEnd)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
