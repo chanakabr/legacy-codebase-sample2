@@ -173,7 +173,8 @@ namespace Core.Api.Modules
                 fullSet = true,
                 skip = skip,
                 limit = limit
-            }, ref totalNumOfResults);
+            }, 
+            ref totalNumOfResults);
 
             List<string> filterKeys = new List<string>();
             Dictionary<string, List<SearchHistory>> filterKeyToSearchHistory = new Dictionary<string, List<SearchHistory>>();

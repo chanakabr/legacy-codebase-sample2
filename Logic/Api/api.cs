@@ -9688,7 +9688,7 @@ namespace Core.Api
             return result;
         }
 
-        internal static Status SaveSearchHistory(string name, string service, string action, string language, string userId, string deviceId, JObject persistedFilter)
+        internal static Status SaveSearchHistory(string name, string service, string action, string language, int groupId, string userId, string deviceId, JObject persistedFilter)
         {
             Status status = new Status();
 
@@ -9701,7 +9701,9 @@ namespace Core.Api
                 service = service,
                 language = language,
                 userId = userId,
-                deviceId = deviceId
+                deviceId = deviceId,
+                groupId = groupId,
+                GroupId = groupId
             };
 
             searchHistory.Insert();
