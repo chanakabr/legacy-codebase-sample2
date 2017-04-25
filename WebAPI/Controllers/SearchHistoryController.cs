@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         /// Get user's last search requests
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
-        /// <param name="pager"><![CDATA[Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50]]></param>
+        /// <param name="pager">Page size and index. Number of assets to return per page. Possible range 5 ≤ size ≥ 50. If omitted - will be set to 25. If a value > 50 provided – will set to 50></param>
         /// <remarks>Possible status codes: 
         /// </remarks>
         [Route("list"), HttpPost]
@@ -43,6 +43,20 @@ namespace WebAPI.Controllers
 
             if (pager == null)
                 pager = new KalturaFilterPager();
+
+            // page size - 5 <= size <= 50
+            if (pager.PageSize == 0)
+            {
+                pager.PageSize = 25;
+            }
+            else if (pager.PageSize > 50)
+            {
+                pager.PageSize = 50;
+            }
+            else if (pager.PageSize < 5)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "KalturaAssetHistoryFilter.pageSize", "5");
+            }
 
             string language = Utils.Utils.GetLanguageFromRequest();
 
