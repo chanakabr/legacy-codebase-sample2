@@ -5587,7 +5587,7 @@ namespace TvinciImporter
 
                 ApiObjects.Notification.MessageTemplate wcfMessageTemplate = new ApiObjects.Notification.MessageTemplate()
                 {
-                    AssetType = messageTemplate.AssetType,
+                    TemplateType = messageTemplate.TemplateType,
                     Message = messageTemplate.Message,
                     Sound = messageTemplate.Sound,
                     Action = messageTemplate.Action,
@@ -5604,7 +5604,7 @@ namespace TvinciImporter
                         Id = response.MessageTemplate.Id,
                         Message = response.MessageTemplate.Message,
                         DateFormat = response.MessageTemplate.DateFormat,
-                        AssetType = response.MessageTemplate.AssetType,
+                        TemplateType = response.MessageTemplate.TemplateType,
                     };
                 }
                 return response.Status;

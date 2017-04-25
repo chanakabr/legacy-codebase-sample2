@@ -1205,7 +1205,7 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@message", messageTemplate.Message);
                 sp.AddParameter("@dateFormat", messageTemplate.DateFormat);
-                sp.AddParameter("@assetType", (int)messageTemplate.AssetType);
+                sp.AddParameter("@assetType", (int)messageTemplate.TemplateType);
                 sp.AddParameter("@sound", messageTemplate.Sound);
                 sp.AddParameter("@action", messageTemplate.Action);
                 sp.AddParameter("@url", messageTemplate.URL);
@@ -1270,7 +1270,7 @@ namespace DAL
                 Sound = ODBCWrapper.Utils.GetSafeStr(row, "SOUND"),
                 Action = ODBCWrapper.Utils.GetSafeStr(row, "ACTION"),
                 URL = ODBCWrapper.Utils.GetSafeStr(row, "URL"),
-                AssetType = Enum.IsDefined(typeof(eOTTAssetTypes), assetType) ? (eOTTAssetTypes)assetType : eOTTAssetTypes.Series
+                TemplateType = Enum.IsDefined(typeof(MessageTemplateType), assetType) ? (MessageTemplateType)assetType : MessageTemplateType.Series
             };
             return result;
         }
