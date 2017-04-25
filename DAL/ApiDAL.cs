@@ -4196,13 +4196,13 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static bool IsProxyAllowedForIp(long ip)
+        public static bool IsProxyBlockedForIp(long ip)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetProxyByIp");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@Ip", ip);            
 
-            return sp.ExecuteReturnValue<int>() == 0;
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
     }
