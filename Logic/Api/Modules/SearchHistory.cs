@@ -1,10 +1,12 @@
 ﻿using APILogic;
 using ApiObjects;
+using KLogMonitor;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +16,8 @@ namespace Core.Api.Modules
     [JsonObject()]
     public class SearchHistory : CoreObject
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Consts
 
         private const string KEY_FORMAT = "search_history_{0}_{1}";
@@ -23,7 +27,7 @@ namespace Core.Api.Modules
 
         #region Properties
 
-        [JsonProperty("id")]
+        [JsonProperty("documentId")]
         public string id
         {
             get;
@@ -121,6 +125,11 @@ namespace Core.Api.Modules
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
 
+            if (this.language == null)
+            {
+                this.language = string.Empty;
+            }
+
             // 3 months
             uint expiration = 60 * 60 * 24 * 90;
 
@@ -130,6 +139,11 @@ namespace Core.Api.Modules
             result = couchbaseManager.Set(this.id, this, expiration, true);
 
             result &= couchbaseManager.Set(this.filterKey, filter, expiration, true);
+
+            if (!result)
+            {
+                log.ErrorFormat("Failed inserting Search History object to Couchbase. id = {0}, name = {1}", id, name);
+            }
 
             return result;
         }
@@ -161,6 +175,11 @@ namespace Core.Api.Modules
             {
                 limit = pageSize.Value;
                 skip = pageSize.Value * pageIndex;
+            }
+
+            if (language == null)
+            {
+                language = string.Empty;
             }
 
             long totalNumOfResults = 0;
