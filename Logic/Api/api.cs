@@ -9749,7 +9749,7 @@ namespace Core.Api
             {
                 log.ErrorFormat("Error when cleaning search history. groupId = {0}, userId = {1}; ex = {2}",
                     groupId, userId, ex);
-                response.Status = new Status((int)eResponseStatus.Error);
+                status = new Status((int)eResponseStatus.Error);
             }
 
             return status;
