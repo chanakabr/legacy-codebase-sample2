@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Set the account’s push notifications and inbox messages templates
         /// </summary>
-        /// <param name="assetType">The asset type to update its template</param>  
+        /// <param name="messageType">The asset type to update its template</param>  
         /// <param name="template">The actual message with placeholders to be presented to the user</param>       
         /// <returns></returns>
         /// <remarks>
@@ -64,8 +64,10 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Route("update"), HttpPost]
         [ApiAuthorize]
+        [OldStandardArgument("messageType", "asset_Type")]
+        [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]        
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaMessageTemplate Update(KalturaOTTAssetType assetType, KalturaMessageTemplate template)
+        public KalturaMessageTemplate Update(KalturaMessageTemplateType messageType, KalturaMessageTemplate template)
         {
             KalturaMessageTemplate response = null;
 
@@ -73,7 +75,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                template.AssetType = assetType;
+                template.AssetType = messageType;
 
                 if (string.IsNullOrEmpty(template.Message))
                 {
@@ -99,7 +101,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieve a message template used in push notifications and inbox
         /// </summary>
-        /// <param name="messageType">possible values: Asset type – Series</param>
+        /// <param name="messageType">possible values: Asset type – Series, Reminder,Churn</param>
         /// <returns></returns>     
         /// <remarks>
         /// Possible status codes: message template not found = 8016
@@ -109,7 +111,7 @@ namespace WebAPI.Controllers
         [OldStandardArgument("messageType", "asset_Type")]
         [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        public KalturaMessageTemplate Get(KalturaOTTAssetType messageType)
+        public KalturaMessageTemplate Get(KalturaMessageTemplateType messageType)
         {
             KalturaMessageTemplate response = null;
 

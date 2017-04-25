@@ -519,6 +519,19 @@ namespace WebAPI.Reflection
                                 ret.Add("messageType", "assetType");
                             }
                             break;
+                        case "Update":
+                            ret = new Dictionary<string, string>() { 
+                                 {"messageType", "asset_Type"},
+                            };
+                            if (currentVersion != null && currentVersion.CompareTo(new Version("3.6.2094.15157")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)
+                            {
+                                if (ret.ContainsKey("messageType"))
+                                {
+                                    ret.Remove("messageType");
+                                }
+                                ret.Add("messageType", "assetType");
+                            }
+                            break;
                     }
                     break;
                     
@@ -3961,10 +3974,10 @@ namespace WebAPI.Reflection
                     {
                         case "AutomaticIssueFollowNotification":
                             return "automaticIssueFollowNotification";
-                        case "EngagementMailSubject":
-                            return "engagementMailSubjectMailSubject";
-                        case "EngagementMailTemplateName":
-                            return "engagementMailTemplateName";
+                        case "ChurnMailSubject":
+                            return "churnMailSubject";
+                        case "ChurnMailTemplateName":
+                            return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
                         case "MailSenderName":

@@ -2,12 +2,13 @@
 namespace WebAPI.Models.General
 {
     /// <summary>
-    /// OTT Asset Type
+    /// Message template type
     /// </summary>
     [KalturaIntEnum]
-    public enum KalturaOTTAssetType
+    public enum KalturaMessageTemplateType
     {
         Series= 0,
-        Reminder = 1
+        Reminder = 1,
+        Churn = 2
     }
 }

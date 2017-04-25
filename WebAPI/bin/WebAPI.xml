@@ -837,6 +837,21 @@
             <remarks>Possible status codes: 
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.SearchHistoryController.Clean(WebAPI.Models.API.KalturaSearchHistoryFilter)">
+            <summary>
+            Clean the user’s search history
+            </summary>
+            <param name="filter">Filter of search history</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.SearchHistoryController.Delete(System.String)">
+            <summary>
+            Delete a specific search history.
+            Possible error code: 2032 - ItemNotFound
+            </summary>
+            <param name="id">ID of the search history reference as shown in the list action</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.SocialCommentController.List(WebAPI.Models.Social.KalturaSocialCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get a list of all social comments filtered by asset ID and social platform
@@ -2389,22 +2404,22 @@
             Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MessageTemplateController.Update(WebAPI.Models.General.KalturaOTTAssetType,WebAPI.Models.Notification.KalturaMessageTemplate)">
+        <member name="M:WebAPI.Controllers.MessageTemplateController.Update(WebAPI.Models.General.KalturaMessageTemplateType,WebAPI.Models.Notification.KalturaMessageTemplate)">
             <summary>
             Set the account’s push notifications and inbox messages templates
             </summary>
-            <param name="assetType">The asset type to update its template</param>  
+            <param name="messageType">The asset type to update its template</param>  
             <param name="template">The actual message with placeholders to be presented to the user</param>       
             <returns></returns>
             <remarks>
             Possible status codes: message place holders invalid = 8014, url placeholders invalid = 8017
             </remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MessageTemplateController.Get(WebAPI.Models.General.KalturaOTTAssetType)">
+        <member name="M:WebAPI.Controllers.MessageTemplateController.Get(WebAPI.Models.General.KalturaMessageTemplateType)">
             <summary>
             Retrieve a message template used in push notifications and inbox
             </summary>
-            <param name="messageType">possible values: Asset type – Series</param>
+            <param name="messageType">possible values: Asset type – Series, Reminder,Churn</param>
             <returns></returns>     
             <remarks>
             Possible status codes: message template not found = 8016
@@ -7070,6 +7085,11 @@
             All values in different languages
             </summary>
         </member>
+        <member name="T:WebAPI.Models.General.KalturaMessageTemplateType">
+            <summary>
+            Message template type
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.General.KalturaOTTAssetType">
             <summary>
             OTT Asset Type
@@ -7767,7 +7787,7 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.AssetType">
             <summary>
-            Template type. Possible values: Series
+            Template type. Possible values: Series, Reminder,Churn
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Sound">
@@ -7900,14 +7920,14 @@
             Push adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.EngagementMailTemplateName">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailTemplateName">
             <summary>
-            Engagement mail template name
+            Churn mail template name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.EngagementMailSubject">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailSubject">
             <summary>
-            Engagement mail subject
+            Churn mail subject
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.SenderEmail">

@@ -31,13 +31,13 @@ namespace WebAPI.Models.Notification
         public string DateFormat { get; set; }
 
         /// <summary>
-        /// Template type. Possible values: Series
+        /// Template type. Possible values: Series, Reminder,Churn
         /// </summary>
         [DataMember(Name = "assetType")]
         [JsonProperty(PropertyName = "assetType")]
         [XmlElement(ElementName = "assetType")]
         [OldStandardProperty("asset_type")]
-        public KalturaOTTAssetType AssetType { get; set; }
+        public KalturaMessageTemplateType AssetType { get; set; }
 
         /// <summary>
         /// Sound file name to play upon message arrival to the device (if supported by target device)

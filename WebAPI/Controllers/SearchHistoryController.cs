@@ -73,5 +73,59 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Clean the user’s search history
+        /// </summary>
+        /// <param name="filter">Filter of search history</param>
+        /// <returns></returns>
+        [Route("clean"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool Clean(KalturaSearchHistoryFilter filter = null)
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                return ClientsManager.ApiClient().CleanSearchHistory(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Delete a specific search history.
+        /// Possible error code: 2032 - ItemNotFound
+        /// </summary>
+        /// <param name="id">ID of the search history reference as shown in the list action</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(string id)
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                return ClientsManager.ApiClient().DeleteSearchHistory(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
     }
 }
