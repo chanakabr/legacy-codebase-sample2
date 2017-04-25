@@ -2299,10 +2299,7 @@ namespace Core.Api
         static public bool CheckGeoBlockMedia(Int32 groupId, Int32 mediaId, string ip, out string ruleName)
         {
             bool isBlocked = false;
-            Int32 nGeoBlockID = 0;
-            int nProxyRule = 0;
-            double dProxyLevel = 0.0;
-
+            Int32 geoBlockID = 0;
             ruleName = string.Empty;
             string key = LayeredCacheKeys.GetCheckGeoBlockMediaKey(groupId, mediaId);
             DataTable dt = null;
@@ -2317,15 +2314,15 @@ namespace Core.Api
                     Country country = GetCountryByIp(groupId, ip);
                     Int32 nCountryID = country != null ? country.Id : 0;
                     ruleName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME");
-                    nGeoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
+                    geoBlockID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID");
                     int nONLY_OR_BUT = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ONLY_OR_BUT");
 
                     DataRow[] existingRows = dt.Select(string.Format("COUNTRY_ID={0}", nCountryID));
                     bool bExsitInRuleM2M = existingRows != null && existingRows.Length == 1 ? true : false;
 
-                    log.Debug("Geo Blocks - Geo Block ID " + nGeoBlockID + " Country ID " + nCountryID);
+                    log.Debug("Geo Blocks - Geo Block ID " + geoBlockID + " Country ID " + nCountryID);
 
-                    if (nGeoBlockID > 0)
+                    if (geoBlockID > 0)
                     {
                         //No one except
                         if (nONLY_OR_BUT == 0)
@@ -2334,11 +2331,9 @@ namespace Core.Api
                         if (nONLY_OR_BUT == 1)
                             isBlocked = bExsitInRuleM2M;
 
-                        if (!isBlocked) // then check what about the proxy - is it reliable 
+                        if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) > 0) // then check what about the proxy - is it reliable 
                         {
-                            nProxyRule = APILogic.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE");
-                            dProxyLevel = APILogic.Utils.GetDoubleSafeVal(dt.Rows[0], "PROXY_LEVEL");
-                            isBlocked = !(MaxMind.IsProxyAllowed(nProxyRule, dProxyLevel, ip, groupId));
+                            isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
                         }
                     }
                 }

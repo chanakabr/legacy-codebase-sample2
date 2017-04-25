@@ -19,6 +19,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.AssetLifeCycleRules;
 using Core.Api.Managers;
 using System.Security.Cryptography;
+using CachingProvider.LayeredCache;
 
 namespace APILogic
 {
@@ -814,9 +815,30 @@ namespace APILogic
             return sb.ToString();
         }
 
-        internal static Tuple<bool, bool> IsProxyAllowedForIp(Dictionary<string, object> funcParams)
+        public static bool IsProxyBlocked(int groupId, string ip)
         {
-            bool res = false, isProxyAllowed = false;
+            bool isProxyBlocked = false;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetProxyIpKey(ip);
+                if (!LayeredCache.Instance.Get<bool>(key, ref isProxyBlocked, IsProxyBlockedForIp, new Dictionary<string, object>() { { "ip", ip } }, groupId,
+                                                    LayeredCacheConfigNames.IS_PROXY_BLOCKED_FOR_IP_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY }))
+                {
+                    log.ErrorFormat("Failed checking IsProxyAllowed from LayeredCache, ip: {0}, key: {1}", ip, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsProxyAllowed for ip: {0}", ip), ex);
+            }
+
+            return isProxyBlocked;
+        }
+
+        internal static Tuple<bool, bool> IsProxyBlockedForIp(Dictionary<string, object> funcParams)
+        {
+            bool res = false, isProxyBlocked = false;
             try
             {
                 if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("ip"))
@@ -827,7 +849,7 @@ namespace APILogic
                         long convertedIp = 0;
                         if (ConvertIpToInt(ip, ref convertedIp) && convertedIp > 0)
                         {
-                            isProxyAllowed = DAL.ApiDAL.IsProxyAllowedForIp(convertedIp);
+                            isProxyBlocked = DAL.ApiDAL.IsProxyBlockedForIp(convertedIp);
                             res = true;
                         }
                     }
@@ -836,10 +858,10 @@ namespace APILogic
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("IsProxyAllowedForIp failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("IsProxyBlockedForIp failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<bool, bool>(isProxyAllowed, res);
+            return new Tuple<bool, bool>(isProxyBlocked, res);
         }
 
         public static bool ConvertIpToInt(string ip, ref long convertedIp)
