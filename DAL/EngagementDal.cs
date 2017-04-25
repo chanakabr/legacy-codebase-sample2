@@ -72,6 +72,7 @@ namespace DAL
 
             adapterRes = new EngagementAdapter();
             adapterRes.ProviderUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "provider_url");
+            adapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "adapter_url");
             adapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "ID");
             int is_Active = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "is_active");
             adapterRes.IsActive = is_Active == 1 ? true : false;
@@ -167,7 +168,8 @@ namespace DAL
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", engagementAdapter.Name);
-                sp.AddParameter("@adapterUrl", engagementAdapter.ProviderUrl);
+                sp.AddParameter("@adapterUrl", engagementAdapter.AdapterUrl);
+                sp.AddParameter("@providerUrl", engagementAdapter.ProviderUrl);
                 sp.AddParameter("@sharedSecret", engagementAdapter.SharedSecret);
                 sp.AddParameter("@isActive", engagementAdapter.IsActive);
 
@@ -224,7 +226,8 @@ namespace DAL
                 sp.AddParameter("@ID", engagementAdapter.ID);
                 sp.AddParameter("@name", engagementAdapter.Name);
                 sp.AddParameter("@sharedSecret", engagementAdapter.SharedSecret);
-                sp.AddParameter("@adapterUrl", engagementAdapter.ProviderUrl);
+                sp.AddParameter("@adapterUrl", engagementAdapter.AdapterUrl);
+                sp.AddParameter("@providerUrl", engagementAdapter.ProviderUrl);
                 sp.AddParameter("@isActive", engagementAdapter.IsActive);
 
                 DataSet ds = sp.ExecuteDataSet();
@@ -376,6 +379,7 @@ namespace DAL
                             engagementAdapter.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                             engagementAdapter.SharedSecret = ODBCWrapper.Utils.GetSafeStr(dr, "shared_secret");
                             engagementAdapter.ProviderUrl = ODBCWrapper.Utils.GetSafeStr(dr, "provider_url");
+                            engagementAdapter.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(dr, "adapter_url");
                             int is_Active = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_active");
                             engagementAdapter.IsActive = is_Active == 1 ? true : false;
 
@@ -650,5 +654,102 @@ namespace DAL
                 return false;
             }
         }
+
+        public static EngagementBulkMessage InsertEngagementBulkMessage(int groupId, EngagementBulkMessage engagementBulkMessage)
+        {
+            EngagementBulkMessage res = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EngagementBulkMessage");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@engagementId", engagementBulkMessage.EngagementId);
+                sp.AddParameter("@isSent", engagementBulkMessage.IsSent ? 1 : 0);
+                sp.AddParameter("@iterationOffset", engagementBulkMessage.IterationOffset);
+                sp.AddParameter("@iterationSize", engagementBulkMessage.IterationSize);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = CreateEngagementBulkMessage(ds.Tables[0].Rows[0]);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at InsertEngagementBulkMessage. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return res;
+        }
+
+        private static EngagementBulkMessage CreateEngagementBulkMessage(DataRow dataRow)
+        {
+            EngagementBulkMessage result = null;
+
+            if (dataRow != null)
+            {
+                result = new EngagementBulkMessage()
+                {
+                    Id = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID"),
+                    EngagementId = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ENGAGEMENT_ID"),                    
+                    IsSent = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_SENT") == 1 ? true : false,
+                    IterationOffset = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ITERATION_OFFSET"),
+                    IterationSize = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ITERATION_SIZE")
+                };
+            }
+            return result;
+        }
+
+        public static EngagementBulkMessage GetEngagementBulkMessage(int groupId, int id)
+        {
+            EngagementBulkMessage res = null;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementBulkMessage");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", id);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = CreateEngagementBulkMessage(ds.Tables[0].Rows[0]);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetEngagementBulkMessage. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return res;
+        }
+
+        public static EngagementBulkMessage SetEngagementBulkMessage(int groupId, EngagementBulkMessage engagementBulkMessage)
+        {
+            EngagementBulkMessage res = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_EngagementBulkMessage");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", engagementBulkMessage.EngagementId);
+                sp.AddParameter("@isSent", engagementBulkMessage.IsSent ? 1 : 0);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = CreateEngagementBulkMessage(ds.Tables[0].Rows[0]);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetEngagementBulkMessage. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return res;
+        }
+
     }
 }
