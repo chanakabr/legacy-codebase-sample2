@@ -478,6 +478,42 @@ namespace CouchbaseManager
             return result;
         }
 
+        public int QueryReduce(IBucket bucket)
+        {
+            int result = 0;
+
+            IViewQuery query = InitializeQuery(bucket);
+            IViewResult<object> queryResult = null;
+
+            string action = string.Format("Action: Query, ViewName: {0}, Bucket: {1}, RestURI: {2}", viewName, bucket.Name, query.RawUri().ToString());
+            using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
+            {
+                queryResult = bucket.Query<object>(query);
+            }
+
+            if (queryResult != null)
+            {
+                // If something went wrong - log it and throw exception (if there is one)
+                if (!queryResult.Success)
+                {
+                    log.ErrorFormat("Something went wrong when performing Couchbase query. bucket = {0}, view = {1}, message = {2}, error = {3}",
+                        bucket.Name, viewName, queryResult.Message, queryResult.Error, queryResult.Exception);
+
+                    if (queryResult.Exception != null)
+                    {
+                        throw queryResult.Exception;
+                    }
+                }
+                // Make sure we have at least one result
+                else if (queryResult.Rows != null && queryResult.Rows.Count() > 0)
+                {
+                    result = Convert.ToInt32(queryResult.Rows.First().Value);
+                }
+            }
+
+            return result;
+        }
+
         #endregion
 
         #region Private Methods

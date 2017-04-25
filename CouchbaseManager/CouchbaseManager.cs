@@ -1743,6 +1743,33 @@ namespace CouchbaseManager
             return result;
         }
 
+        /// <summary>
+        /// Returns the map-reduce result of a view
+        /// </summary>
+        /// <param name="definitions"></param>
+        /// <returns></returns>
+        public int ViewReduce(ViewManager definitions)
+        {
+            int result = 0;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                
+                if (definitions != null)
+                {
+                    definitions.reduce = true;
+
+                    result = definitions.QueryReduce(bucket);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchBaseCache - " + string.Format("Failed Getting view. error = {0}, ST = {1}", ex.Message, ex.StackTrace), ex);
+            }
+
+            return result;
+        }
         #endregion
 
         public ulong Increment(string key, ulong delta)
