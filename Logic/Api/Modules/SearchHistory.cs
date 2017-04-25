@@ -200,19 +200,20 @@ namespace Core.Api.Modules
 
             var view = new CouchbaseManager.ViewManager(CB_SEARCH_HISTORY_DESIGN_DOC, "user_search_history")
             {
-                startKey = new object[] { userId, language, 0 },
-                endKey = new object[] { userId, language, "\uefff"},
+                isDescending = true,
+                endKey = new object[] { userId, language, 0 },
+                startKey = new object[] { userId, language, "\uefff"},
                 inclusiveEnd = true,
                 fullSet = true,
                 skip = skip,
                 limit = limit,
                 reduce = false,
-                isDescending = false
             };
 
             // 1. get the basic search history documents, without the filter
             result = couchbaseManager.View<SearchHistory>(view);
 
+            // now get the reduce result, which gives the total count of the query
             view.reduce = true;
 
             totalItems = couchbaseManager.ViewReduce(view);
@@ -252,7 +253,27 @@ namespace Core.Api.Modules
 
         internal static void Clean(string userId)
         {
-            throw new NotImplementedException();
+            List<SearchHistory> items = new List<SearchHistory>();
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
+
+            var view = new CouchbaseManager.ViewManager(CB_SEARCH_HISTORY_DESIGN_DOC, "user_search_history")
+            {
+                isDescending = true,
+                endKey = new object[] { userId, null, 0 },
+                startKey = new object[] { userId, "\uefff", "\uefff" },
+                inclusiveEnd = true,
+                fullSet = true,
+                skip = 0,
+                limit = int.MaxValue,
+                reduce = false,
+            };
+
+            items = couchbaseManager.View<SearchHistory>(view);
+
+            foreach (var item in items)
+            {
+                item.Delete();
+            }
         }
     }
 }
