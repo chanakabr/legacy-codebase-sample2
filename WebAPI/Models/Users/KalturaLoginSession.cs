@@ -31,6 +31,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("refreshToken")]
         [XmlElement(ElementName = "refreshToken")]
         [OldStandardProperty("refresh_token")]
+        [Deprecated("3.6.287.27312")]
         public string RefreshToken { get; set; }
 
         

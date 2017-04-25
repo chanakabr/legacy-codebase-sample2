@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
 using System.Xml.Serialization;
+using WebAPI.Filters;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 
@@ -71,6 +72,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "sessionType")]
         [JsonProperty("sessionType")]
         [XmlElement(ElementName = "sessionType")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public KalturaSessionType SessionType { get; set; }
 
         /// <summary>
@@ -96,6 +98,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "sessionUserId")]
         [JsonProperty("sessionUserId")]
         [XmlElement(ElementName = "sessionUserId")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public string SessionUserId { get; set; }
 
         public KalturaAppToken()

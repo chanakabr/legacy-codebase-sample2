@@ -111,6 +111,9 @@ namespace WebAPI.Managers.Models
         [JsonProperty("udrm_url")]
         public string UDrmUrl { get; set; }
 
+        [JsonProperty("is_refresh_token_enabled")]
+        public bool IsRefreshTokenEnabled { get; set; }
+
         [JsonIgnore]
         public List<Language> Languages { get; set; }
 

@@ -107,6 +107,8 @@ namespace WebAPI.Managers
 
         public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, string udid = null)
         {
+            KalturaLoginSession session = new KalturaLoginSession();
+
             if (string.IsNullOrEmpty(userId))
             {
                 log.ErrorFormat("GenerateSession: userId is missing");
@@ -134,24 +136,28 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
+
             if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new InternalServerErrorException();
             }
 
-            // try store in CB, will return false if the same token already exists
-            if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+            if (group.IsRefreshTokenEnabled)
             {
-                log.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                throw new InternalServerErrorException();
+                // try store in CB, will return false if the same token already exists
+                if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - Utils.SerializationUtils.ConvertToUnixTimestamp(DateTime.UtcNow)), true))
+                {
+                    log.ErrorFormat("GenerateSession: Failed to store refreshed token");
+                    throw new InternalServerErrorException();
+                }
+
+                session.RefreshToken = token.RefreshToken;
             }
 
-            return new KalturaLoginSession()
-            {
-                KS = token.KS,
-                RefreshToken = token.RefreshToken
-            };
+            session.KS = token.KS;
+
+            return session;
         }
 
         private static Group GetGroupConfiguration(int groupId)
