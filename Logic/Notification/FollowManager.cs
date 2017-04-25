@@ -79,7 +79,7 @@ namespace Core.Notification
             // 1. check if eFollowSeriesPlaceHolders
             // 2. replace placeHolder case Sensitive   (formattedMessage)         
             string formattedMessage = messageTemplate.Message;
-            validationStatus = ValidateMessage(ref formattedMessage, messageTemplate.AssetType);
+            validationStatus = ValidateMessage(ref formattedMessage, messageTemplate.TemplateType);
 
             if (validationStatus.Code != (int)eResponseStatus.OK)
             {
@@ -101,7 +101,7 @@ namespace Core.Notification
             // 1. check if eFollowSeriesPlaceHolders
             // 2. replace placeHolder case Sensitive   (formattedMessage)         
             string formattedUrl = messageTemplate.URL;
-            validationStatus = ValidateUrl(ref formattedUrl, messageTemplate.AssetType);
+            validationStatus = ValidateUrl(ref formattedUrl, messageTemplate.TemplateType);
 
             if (validationStatus.Code != (int)eResponseStatus.OK)
             {
@@ -114,12 +114,12 @@ namespace Core.Notification
             return validationStatus;
         }
 
-        public static MessageTemplateResponse GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
+        public static MessageTemplateResponse GetMessageTemplate(int groupId, MessageTemplateType assetType)
         {
             MessageTemplateResponse response = new MessageTemplateResponse();
             response.Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
-            response.MessageTemplate = NotificationCache.Instance().GetMessageTemplates(groupId).First(x => x.AssetType == assetType);
+            response.MessageTemplate = NotificationCache.Instance().GetMessageTemplates(groupId).First(x => x.TemplateType == assetType);
 
             if (response.MessageTemplate == null || response.MessageTemplate.Id <= 0)
             {
@@ -146,20 +146,20 @@ namespace Core.Notification
             return validationStatus;
         }
 
-        private static Status ValidateMessage(ref string message, eOTTAssetTypes assetTypes)
+        private static Status ValidateMessage(ref string message, MessageTemplateType assetTypes)
         {
             Status validationStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
             switch (assetTypes)
             {
-                case ApiObjects.eOTTAssetTypes.Series:
+                case ApiObjects.MessageTemplateType.Series:
                     validationStatus = ValidatePlaceholders<eFollowSeriesPlaceHolders>(ref message);
                     break;
-                case ApiObjects.eOTTAssetTypes.Reminder:
+                case ApiObjects.MessageTemplateType.Reminder:
                     validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref message);
                     break;
-                case ApiObjects.eOTTAssetTypes.Engagement:
-                    validationStatus = ValidatePlaceholders<eEngagementPlaceHolders>(ref message);
+                case ApiObjects.MessageTemplateType.Churn:
+                    validationStatus = ValidatePlaceholders<eChurnPlaceHolders>(ref message);
                     break;
                 default:
                     break;
@@ -173,20 +173,20 @@ namespace Core.Notification
             return validationStatus;
         }
 
-        private static Status ValidateUrl(ref string url, eOTTAssetTypes assetTypes)
+        private static Status ValidateUrl(ref string url, MessageTemplateType assetTypes)
         {
             Status validationStatus = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
 
             switch (assetTypes)
             {
-                case ApiObjects.eOTTAssetTypes.Series:
+                case ApiObjects.MessageTemplateType.Series:
                     validationStatus = ValidatePlaceholders<eFollowSeriesPlaceHolders>(ref url);
                     break;
-                case ApiObjects.eOTTAssetTypes.Reminder:
+                case ApiObjects.MessageTemplateType.Reminder:
                     validationStatus = ValidatePlaceholders<eReminderPlaceHolders>(ref url);
                     break;
-                case ApiObjects.eOTTAssetTypes.Engagement:
-                    validationStatus = ValidatePlaceholders<eEngagementPlaceHolders>(ref url);
+                case ApiObjects.MessageTemplateType.Churn:
+                    validationStatus = ValidatePlaceholders<eChurnPlaceHolders>(ref url);
                     break;
                 default:
                     break;
@@ -761,12 +761,12 @@ namespace Core.Notification
             }
 
             // get message template and build message with it
-            MessageTemplateResponse msgTemplateResponse = GetMessageTemplate(groupId, eOTTAssetTypes.Series);
+            MessageTemplateResponse msgTemplateResponse = GetMessageTemplate(groupId, MessageTemplateType.Series);
             if (msgTemplateResponse.Status.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("message template not found. group: {0}, asset type: {1}, error: {2}-{3}",
                     groupId,
-                    eOTTAssetTypes.Series.ToString(),
+                    MessageTemplateType.Series.ToString(),
                     msgTemplateResponse.Status.Code,
                     msgTemplateResponse.Status.Message);
                 return;

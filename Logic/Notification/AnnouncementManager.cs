@@ -377,7 +377,7 @@ namespace Core.Notification
             log.DebugFormat("HandleRecipientOtherTvSeries: about to send message announcement for: group {0}, asset: {1}, id: {2}", groupId, assetId, messageId);
 
             // get msg template and build msg with it
-            var msgTemplateResponse = FollowManager.GetMessageTemplate(groupId, eOTTAssetTypes.Series);
+            var msgTemplateResponse = FollowManager.GetMessageTemplate(groupId, MessageTemplateType.Series);
             if (msgTemplateResponse != null &&
                 msgTemplateResponse.Status != null &&
                 msgTemplateResponse.Status.Code == (int)eResponseStatus.OK &&

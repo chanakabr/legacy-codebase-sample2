@@ -155,7 +155,23 @@ namespace Core.Api.Modules
 
         protected override bool DoDelete()
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
+
+            if (string.IsNullOrEmpty(this.id))
+            {
+                this.id = string.Format(KEY_FORMAT, this.userId, this.createdAt);
+            }
+
+            result = couchbaseManager.Remove(this.id);
+
+            if (!result)
+            {
+                log.ErrorFormat("Failed deleting Search History object from Couchbase. id = {0}, name = {1}", id, name);
+            }
+
+            return result;        
         }
 
         public override CoreObject CoreClone()
@@ -182,18 +198,24 @@ namespace Core.Api.Modules
                 language = string.Empty;
             }
 
-            long totalNumOfResults = 0;
-
-            // 1. get the basic search history documents, without the filter
-            result = couchbaseManager.View<SearchHistory>(new CouchbaseManager.ViewManager(CB_SEARCH_HISTORY_DESIGN_DOC, "user_search_history")
+            var view = new CouchbaseManager.ViewManager(CB_SEARCH_HISTORY_DESIGN_DOC, "user_search_history")
             {
-                key = new object[]{userId, language},
+                startKey = new object[] { userId, language, 0 },
+                endKey = new object[] { userId, language, "\uefff"},
                 inclusiveEnd = true,
                 fullSet = true,
                 skip = skip,
-                limit = limit
-            }, 
-            ref totalNumOfResults);
+                limit = limit,
+                reduce = false,
+                isDescending = false
+            };
+
+            // 1. get the basic search history documents, without the filter
+            result = couchbaseManager.View<SearchHistory>(view);
+
+            view.reduce = true;
+
+            totalItems = couchbaseManager.ViewReduce(view);
 
             List<string> filterKeys = new List<string>();
             Dictionary<string, List<SearchHistory>> filterKeyToSearchHistory = new Dictionary<string, List<SearchHistory>>();
@@ -224,10 +246,13 @@ namespace Core.Api.Modules
                     searchHistory.filter = JObject.Parse(filter.Value.ToString());
                 }
             }
-
-            totalItems = (int)totalNumOfResults;
-
+            
             return result;
+        }
+
+        internal static void Clean(string userId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

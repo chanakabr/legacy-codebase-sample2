@@ -260,12 +260,19 @@ namespace ApiObjects
         Churn = 1
     }
 
-    public enum eOTTAssetTypes
+    public enum MessageTemplateType
     {
         None = 0,
         Series = 1,
         Reminder = 2,
-        Engagement = 3
+        Churn = 3
+    }
+
+    public enum eOTTAssetTypes
+    {
+        None = 0,
+        Series = 1,
+        Reminder = 2
     }
 
     [XmlType("eAssetTypes", Namespace = "http://api.tvinci.com/schemas/eAssetTypes1")]
@@ -559,7 +566,7 @@ namespace ApiObjects
         MediaId = 4
     }
 
-    public enum eEngagementPlaceHolders
+    public enum eChurnPlaceHolders
     {
         FirstName =0 , 
         LastName = 1 , 

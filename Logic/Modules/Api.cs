@@ -1788,5 +1788,10 @@ namespace Core.Api
         {
             return Core.Api.api.GetSearchHistory(groupId, userId, udid, language, pageIndex, pageSize);
         }
+
+        public static Status CleanSearchHistory(int groupId, string userId)
+        {
+            return Core.Api.api.CleanSearchHistory(groupId, userId);
+        }
     }
 }

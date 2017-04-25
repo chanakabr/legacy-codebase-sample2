@@ -9709,7 +9709,9 @@ namespace Core.Api
             {
                 log.ErrorFormat("Error when saving search history. name = {0}, groupId = {1}, userId = {2}; ex = {3}",
                     name, groupId, userId, ex);
+                status = new Status((int)eResponseStatus.Error);
             }
+
             return status;
         }
 
@@ -9733,6 +9735,23 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        internal static Status CleanSearchHistory(int groupId, string userId)
+        {
+            Status status = new Status();
+
+            try
+            {
+                SearchHistory.Clean(userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when clrsninh search history. groupId = {0}, userId = {1}; ex = {2}",
+                    groupId, userId, ex);
+            }
+
+            return status;
         }
     }
 }
