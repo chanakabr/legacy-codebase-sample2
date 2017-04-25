@@ -416,6 +416,12 @@ namespace WebAPI.Managers
             // session type - currently can be only USER
             appToken.SessionType = KalturaSessionType.USER;
 
+            // default hash type is SHA-256
+            if (!appToken.HashType.HasValue)
+            {
+                appToken.HashType = KalturaAppTokenHashType.SHA256;
+            }
+
             // status - status deleted id not supported (when a token is deleted its deleted from CB) and is default value if status is omitted in request while default value should be active
             if (appToken.Status == KalturaAppTokenStatus.DELETED)
             {

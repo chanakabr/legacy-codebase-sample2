@@ -101,7 +101,7 @@ namespace WebAPI.Managers.Models
             Expiry = kalturaAppToken.getExpiry();
             PartnerId = kalturaAppToken.getPartnerId();
             SessionDuration = kalturaAppToken.getSessionDuration();
-            HashType = kalturaAppToken.HashType;
+            HashType = kalturaAppToken.HashType.HasValue ? kalturaAppToken.HashType.Value : KalturaAppTokenHashType.SHA256;
             SessionType = kalturaAppToken.SessionType;
             Status = kalturaAppToken.Status;
             Token = kalturaAppToken.Token;
