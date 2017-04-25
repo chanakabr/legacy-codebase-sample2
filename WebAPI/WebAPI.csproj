@@ -570,6 +570,7 @@
     <Compile Include="Models\General\KalturaNotification.cs" />
     <Compile Include="Models\General\KalturaFilter.cs" />
     <Compile Include="Models\General\KalturaMultilingualString.cs" />
+    <Compile Include="Models\General\KalturaMessageTemplateType.cs" />
     <Compile Include="Models\General\KalturaOTTAssetType.cs" />
     <Compile Include="Models\General\KalturaApiActionPermissionItem.cs" />
     <Compile Include="Models\General\KalturaAppToken.cs" />
