@@ -637,7 +637,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static MessageTemplateResponse GetMessageTemplate(int nGroupID, eOTTAssetTypes assetType)
+        public static MessageTemplateResponse GetMessageTemplate(int nGroupID, MessageTemplateType assetType)
         {
             MessageTemplateResponse response = null;
             try

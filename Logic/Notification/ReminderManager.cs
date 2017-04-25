@@ -650,7 +650,7 @@ namespace Core.Notification
                 MessageTemplate reminderTemplate = null;
                 List<MessageTemplate> messageTemplates = NotificationCache.Instance().GetMessageTemplates(partnerId);
                 if (messageTemplates != null)
-                    reminderTemplate = messageTemplates.FirstOrDefault(x => x.AssetType == eOTTAssetTypes.Reminder);
+                    reminderTemplate = messageTemplates.FirstOrDefault(x => x.TemplateType == MessageTemplateType.Reminder);
 
                 if (reminderTemplate == null)
                 {
