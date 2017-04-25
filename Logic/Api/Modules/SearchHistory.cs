@@ -27,7 +27,7 @@ namespace Core.Api.Modules
 
         #region Properties
 
-        [JsonProperty("id")]
+        [JsonProperty("documentId")]
         public string id
         {
             get;
