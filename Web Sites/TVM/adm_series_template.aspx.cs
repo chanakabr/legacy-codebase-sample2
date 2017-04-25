@@ -193,7 +193,7 @@ public partial class adm_series_template : System.Web.UI.Page
     {
         NameValueCollection nvc = Request.Form;
 
-        MessageTemplate followTemplate = new MessageTemplate() { AssetType = eOTTAssetTypes.Series };
+        MessageTemplate followTemplate = new MessageTemplate() { TemplateType = MessageTemplateType.Series };
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {

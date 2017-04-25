@@ -193,7 +193,7 @@ public partial class adm_reminder_template : System.Web.UI.Page
     {
         NameValueCollection nvc = Request.Form;
 
-        MessageTemplate template = new MessageTemplate() { AssetType = eOTTAssetTypes.Reminder };
+        MessageTemplate template = new MessageTemplate() { TemplateType = MessageTemplateType.Reminder };
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {

@@ -137,7 +137,7 @@ public partial class adm_engagement_churn_template : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("notifications_connection");
-            selectQuery += string.Format("select ID, Message, date_format from message_templates where status=1 and asset_type={0} and", (int)eOTTAssetTypes.Engagement);
+            selectQuery += string.Format("select ID, Message, date_format from message_templates where status=1 and asset_type={0} and", (int)MessageTemplateType.Churn);
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
             if (selectQuery.Execute("query", true) != null)
             {
@@ -193,7 +193,7 @@ public partial class adm_engagement_churn_template : System.Web.UI.Page
     {
         NameValueCollection nvc = Request.Form;
 
-        MessageTemplate template = new MessageTemplate() { AssetType = eOTTAssetTypes.Engagement };
+        MessageTemplate template = new MessageTemplate() { TemplateType = MessageTemplateType.Churn };
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {
