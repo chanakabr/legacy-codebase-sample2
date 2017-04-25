@@ -9692,22 +9692,29 @@ namespace Core.Api
         {
             Status status = new Status();
 
-            SearchHistory searchHistory = new SearchHistory()
+            try
             {
-                action = action,
-                createdAt = TVinciShared.DateUtils.UnixTimeStampNow(),
-                filter = persistedFilter,
-                name = name,
-                service = service,
-                language = language,
-                userId = userId,
-                deviceId = deviceId,
-                groupId = groupId,
-                GroupId = groupId
-            };
+                SearchHistory searchHistory = new SearchHistory()
+                {
+                    action = action,
+                    createdAt = TVinciShared.DateUtils.UnixTimeStampNow(),
+                    filter = persistedFilter,
+                    name = name,
+                    service = service,
+                    language = language,
+                    userId = userId,
+                    deviceId = deviceId,
+                    groupId = groupId,
+                    GroupId = groupId
+                };
 
-            searchHistory.Insert();
-
+                searchHistory.Insert();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when saving search history. name = {0}, groupId = {1}, userId = {2}; ex = {3}",
+                    name, groupId, userId, ex);
+            }
             return status;
         }
 
