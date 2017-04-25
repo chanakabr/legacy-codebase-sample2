@@ -55,7 +55,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "hashType")]
         [JsonProperty("hashType")]
         [XmlElement(ElementName = "hashType")]
-        public KalturaAppTokenHashType HashType { get; set; }
+        public KalturaAppTokenHashType? HashType { get; set; }
 
         /// <summary>
         /// Comma separated privileges to be applied on KS (Kaltura Session) that created using the current token

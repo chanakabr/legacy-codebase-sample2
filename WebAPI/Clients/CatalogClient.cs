@@ -1874,14 +1874,15 @@ namespace WebAPI.Clients
 
             // Create catalog order object
             OrderObj order = new OrderObj();
-            if (assetOrder != null || orderBy != null)
-            {
-                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
-            }
-            else if (shouldUseChannelDefault)
+            if ((assetOrder == null && orderBy == null) || shouldUseChannelDefault)
             {
                 order.m_eOrderBy = OrderBy.NONE;
             }
+            else
+            {
+                order = CatalogConvertor.ConvertOrderToOrderObj(orderBy.Value, assetOrder);
+            }
+            
 
             // get group configuration 
             Group group = GroupsManager.GetGroup(groupId);
