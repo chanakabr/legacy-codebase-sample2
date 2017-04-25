@@ -137,15 +137,18 @@ namespace APILogic.EngagementAdapterService {
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
-    [System.Runtime.Serialization.DataContractAttribute(Name="ChurnResponse", Namespace="http://schemas.datacontract.org/2004/07/EngagementAdapterCommon.Models")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="EngagementResponse", Namespace="http://schemas.datacontract.org/2004/07/EngagementAdapterCommon.Models")]
     [System.SerializableAttribute()]
-    public partial class ChurnResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+    public partial class EngagementResponse : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
         
         [System.NonSerializedAttribute()]
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
         private APILogic.EngagementAdapterService.AdapterStatus StatusField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int[] UserIdsField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -170,6 +173,19 @@ namespace APILogic.EngagementAdapterService {
             }
         }
         
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int[] UserIds {
+            get {
+                return this.UserIdsField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.UserIdsField, value) != true)) {
+                    this.UserIdsField = value;
+                    this.RaisePropertyChanged("UserIds");
+                }
+            }
+        }
+        
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
         
         protected void RaisePropertyChanged(string propertyName) {
@@ -185,16 +201,16 @@ namespace APILogic.EngagementAdapterService {
     public interface IService {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        APILogic.EngagementAdapterService.AdapterStatus SetConfiguration(int paymentGatewayId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
+        APILogic.EngagementAdapterService.AdapterStatus SetConfiguration(int adapterId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
-        System.Threading.Tasks.Task<APILogic.EngagementAdapterService.AdapterStatus> SetConfigurationAsync(int paymentGatewayId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
+        System.Threading.Tasks.Task<APILogic.EngagementAdapterService.AdapterStatus> SetConfigurationAsync(int adapterId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetChurnList", ReplyAction="http://tempuri.org/IService/GetChurnListResponse")]
-        APILogic.EngagementAdapterService.ChurnResponse GetChurnList(int paymentGatewayId, string ip, string dynamicData, long timeStamp, string signature);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetList", ReplyAction="http://tempuri.org/IService/GetListResponse")]
+        APILogic.EngagementAdapterService.EngagementResponse GetList(int adapterId, string dynamicData, long timeStamp, string signature);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetChurnList", ReplyAction="http://tempuri.org/IService/GetChurnListResponse")]
-        System.Threading.Tasks.Task<APILogic.EngagementAdapterService.ChurnResponse> GetChurnListAsync(int paymentGatewayId, string ip, string dynamicData, long timeStamp, string signature);
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetList", ReplyAction="http://tempuri.org/IService/GetListResponse")]
+        System.Threading.Tasks.Task<APILogic.EngagementAdapterService.EngagementResponse> GetListAsync(int adapterId, string dynamicData, long timeStamp, string signature);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -224,20 +240,20 @@ namespace APILogic.EngagementAdapterService {
                 base(binding, remoteAddress) {
         }
         
-        public APILogic.EngagementAdapterService.AdapterStatus SetConfiguration(int paymentGatewayId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
-            return base.Channel.SetConfiguration(paymentGatewayId, providerUrl, connectionSettings, partnerId, timeStamp, signature);
+        public APILogic.EngagementAdapterService.AdapterStatus SetConfiguration(int adapterId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
+            return base.Channel.SetConfiguration(adapterId, providerUrl, connectionSettings, partnerId, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.EngagementAdapterService.AdapterStatus> SetConfigurationAsync(int paymentGatewayId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
-            return base.Channel.SetConfigurationAsync(paymentGatewayId, providerUrl, connectionSettings, partnerId, timeStamp, signature);
+        public System.Threading.Tasks.Task<APILogic.EngagementAdapterService.AdapterStatus> SetConfigurationAsync(int adapterId, string providerUrl, APILogic.EngagementAdapterService.KeyValue[] connectionSettings, int partnerId, long timeStamp, string signature) {
+            return base.Channel.SetConfigurationAsync(adapterId, providerUrl, connectionSettings, partnerId, timeStamp, signature);
         }
         
-        public APILogic.EngagementAdapterService.ChurnResponse GetChurnList(int paymentGatewayId, string ip, string dynamicData, long timeStamp, string signature) {
-            return base.Channel.GetChurnList(paymentGatewayId, ip, dynamicData, timeStamp, signature);
+        public APILogic.EngagementAdapterService.EngagementResponse GetList(int adapterId, string dynamicData, long timeStamp, string signature) {
+            return base.Channel.GetList(adapterId, dynamicData, timeStamp, signature);
         }
         
-        public System.Threading.Tasks.Task<APILogic.EngagementAdapterService.ChurnResponse> GetChurnListAsync(int paymentGatewayId, string ip, string dynamicData, long timeStamp, string signature) {
-            return base.Channel.GetChurnListAsync(paymentGatewayId, ip, dynamicData, timeStamp, signature);
+        public System.Threading.Tasks.Task<APILogic.EngagementAdapterService.EngagementResponse> GetListAsync(int adapterId, string dynamicData, long timeStamp, string signature) {
+            return base.Channel.GetListAsync(adapterId, dynamicData, timeStamp, signature);
         }
     }
 }

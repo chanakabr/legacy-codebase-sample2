@@ -402,6 +402,7 @@
     <Compile Include="Modules\Social.cs" />
     <Compile Include="Modules\Users.cs" />
     <Compile Include="Notification\Adapters\DmsAdapter.cs" />
+    <Compile Include="Notification\Adapters\EngagementAdapterClient.cs" />
     <Compile Include="Notification\Adapters\NotificationAdapter.cs" />
     <Compile Include="Notification\AnnouncementManager.cs" />
     <Compile Include="Notification\BaseImplementor.cs" />
@@ -887,17 +888,20 @@
     <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.AdapterStatus.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.ChurnResponse.datasource">
+    <None Include="Service References\EngagementAdapterService\APILogic.EngagementAdapterService.EngagementResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\EngagementAdapterService\Service.wsdl" />
     <None Include="Service References\EngagementAdapterService\Service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\EngagementAdapterService\Service1.xsd">
+    <None Include="Service References\EngagementAdapterService\Service1.wsdl" />
+    <None Include="Service References\EngagementAdapterService\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\EngagementAdapterService\Service2.xsd">
+    <None Include="Service References\EngagementAdapterService\Service31.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\EngagementAdapterService\Service32.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\OSSAdapterService\APILogic.OSSAdapterService.AdapterStatus.datasource">
@@ -1186,9 +1190,6 @@
     <Folder Include="Social\SocialFeed\Logs\IDAN-PC\Unknown\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\EngagementAdapterService\Service.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\EngagementAdapterService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
@@ -1199,6 +1200,9 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\EngagementAdapterService\Service1.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

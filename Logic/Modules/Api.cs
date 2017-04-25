@@ -1779,15 +1779,14 @@ namespace Core.Api
             return Core.Api.api.GetMediaFilesByMediaId(groupId, mediaId);
         }
 
-        public static Status SaveSearchHistory(string name, string service, string action, string language, string userId, string deviceId, JObject persistedFilter)
+        public static Status SaveSearchHistory(string name, string service, string action, string language, int groupId, string userId, string deviceId, JObject persistedFilter)
         {
-            return Core.Api.api.SaveSearchHistory(name, service, action, language, userId, deviceId, persistedFilter);
+            return Core.Api.api.SaveSearchHistory(name, service, action, language, groupId, userId, deviceId, persistedFilter);
         }
 
         public static SearchHistoryResponse GetSearchHistory(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize)
         {
             return Core.Api.api.GetSearchHistory(groupId, userId, udid, language, pageIndex, pageSize);
-
         }
     }
 }
