@@ -19,6 +19,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.AssetLifeCycleRules;
 using Core.Api.Managers;
 using System.Security.Cryptography;
+using CachingProvider.LayeredCache;
 
 namespace APILogic
 {
@@ -813,5 +814,74 @@ namespace APILogic
 
             return sb.ToString();
         }
+
+        public static bool IsProxyBlocked(int groupId, string ip)
+        {
+            bool isProxyBlocked = false;
+
+            try
+            {
+                string key = LayeredCacheKeys.GetProxyIpKey(ip);
+                if (!LayeredCache.Instance.Get<bool>(key, ref isProxyBlocked, IsProxyBlockedForIp, new Dictionary<string, object>() { { "ip", ip } }, groupId,
+                                                    LayeredCacheConfigNames.IS_PROXY_BLOCKED_FOR_IP_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY }))
+                {
+                    log.ErrorFormat("Failed checking IsProxyBlocked from LayeredCache, ip: {0}, key: {1}", ip, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsProxyBlocked for ip: {0}", ip), ex);
+            }
+
+            return isProxyBlocked;
+        }
+
+        internal static Tuple<bool, bool> IsProxyBlockedForIp(Dictionary<string, object> funcParams)
+        {
+            bool res = false, isProxyBlocked = false;
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("ip"))
+                {
+                    string ip = funcParams["ip"].ToString();
+                    if (!string.IsNullOrEmpty(ip))
+                    {
+                        long convertedIp = 0;
+                        if (ConvertIpToInt(ip, ref convertedIp) && convertedIp > 0)
+                        {
+                            isProxyBlocked = DAL.ApiDAL.IsProxyBlockedForIp(convertedIp);
+                            res = true;
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("IsProxyBlockedForIp failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool, bool>(isProxyBlocked, res);
+        }
+
+        public static bool ConvertIpToInt(string ip, ref long convertedIp)
+        {
+            if (string.IsNullOrEmpty(ip))
+            {
+                return false;
+            }            
+            try
+            {
+                string[] splitted = ip.Split('.');
+                convertedIp = Int64.Parse(splitted[3]) + Int64.Parse(splitted[2]) * 256 + Int64.Parse(splitted[1]) * 256 * 256 + Int64.Parse(splitted[0]) * 256 * 256 * 256;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed ConvertIpToInt for ip: {0}", ip), ex);
+                return false;
+            }            
+        }
+
     }
 }

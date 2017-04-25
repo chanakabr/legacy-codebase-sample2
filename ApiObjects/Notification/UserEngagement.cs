@@ -16,7 +16,7 @@ namespace ApiObjects.Notification
 
         public bool IsChurnSent { get; set; }
 
-        public UserEngagement(int partnerId, int userId, int engagementId, int engagementBulkId = 0)
+        public UserEngagement(int partnerId, int userId, int engagementId, int engagementBulkId)
         {
             this.PartnerId = partnerId;
             this.UserId = userId;

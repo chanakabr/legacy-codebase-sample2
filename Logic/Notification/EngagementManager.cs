@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using APILogic.Notification.Adapters;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
@@ -19,14 +20,14 @@ namespace Core.Notification
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string ENGAGEMENT_ADAPTER_ID_REQUIRED = "Engagement adapter identifier is required";
-        private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter not exist";
-        private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "No Engagement adapter to insert";
+        private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter doesn't exist";
+        private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "Engagement adapter wasn't found";
         private const string NAME_REQUIRED = "Name must have a value";
         private const string PROVIDER_URL_REQUIRED = "Provider URL must have a value";
         private const string NO_ENGAGEMENT_ADAPTER_TO_UPDATE = "No Engagement adapter to update";
-        private const string NO_PARAMS_TO_INSERT = "no params to insert";
+        private const string NO_PARAMS_TO_INSERT = "No parameters to insert";
         private const string CONFLICTED_PARAMS = "Conflicted params";
-        private const string NO_PARAMS_TO_DELETE = "no params to delete";
+        private const string NO_PARAMS_TO_DELETE = "No parameters to delete";
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
         private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
 
@@ -470,6 +471,8 @@ namespace Core.Notification
                     return response;
                 }
 
+
+
                 // validate input
 
                 //if (string.IsNullOrEmpty(engagementAdapter.Name))
@@ -624,6 +627,7 @@ namespace Core.Notification
                                                                                                x.EngagementType == engagementToBeSent.EngagementType &&
                                                                                                x.AdapterId == engagementToBeSent.AdapterId &&
                                                                                                x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
+                                                                                               x.UserList == engagementToBeSent.UserList &&
                                                                                                x.SendTime > engagementToBeSent.SendTime.AddHours(-1) &&
                                                                                                x.SendTime < engagementToBeSent.SendTime);
             if (engagementAlreadySent != null)
@@ -639,75 +643,142 @@ namespace Core.Notification
             // if scheduler engagement - create next iteration
             if (engagementToBeSent.IntervalSeconds > 0)
             {
-                // validate there isn't another one in the future 
-                Engagement futureEngagement = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
-                                                                                        x.EngagementType == engagementToBeSent.EngagementType &&
-                                                                                        x.AdapterId == engagementToBeSent.AdapterId &&
-                                                                                        x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
-                                                                                        x.IntervalSeconds > 0 &&
-                                                                                        x.SendTime > engagementToBeSent.SendTime);
-                if (engagementAlreadySent != null)
+                if (!HandleSchedularEngagement(partnerId, lastHourAndFutureEngagement, engagementToBeSent))
+                    return true;
+            }
+
+            // check if user list exist or get them from external adapter
+            List<int> userList = new List<int>();
+            if (engagementToBeSent.AdapterId > 0)
+            {
+                // get adapter 
+                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(partnerId, engagementToBeSent.AdapterId);
+                if (engagementAdapter == null)
                 {
-                    log.ErrorFormat("Scheduler engagement was canceled - future scheduler was detected. cancelled engagement: {0}, future engagement: {1}",
-                        JsonConvert.SerializeObject(engagementToBeSent),
-                        JsonConvert.SerializeObject(futureEngagement));
+                    log.ErrorFormat("Engagement adapter wasn't found. Engagement: {0}", JsonConvert.SerializeObject(engagementToBeSent));
 
                     // return true - do not retry
                     return true;
                 }
 
-                // create next iteration
-                futureEngagement = new Engagement()
+                // user list exists
+                userList = EngagementAdapterClient.GetAdapterList(partnerId, engagementAdapter, engagementToBeSent.AdapterDynamicData);
+                if (userList == null || userList.Count() == 0)
                 {
-                    AdapterDynamicData = engagementToBeSent.AdapterDynamicData,
-                    AdapterId = engagementToBeSent.AdapterId,
-                    EngagementType = engagementToBeSent.EngagementType,
-                    IntervalSeconds = engagementToBeSent.IntervalSeconds,
-                    SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
-                };
+                    log.ErrorFormat("No users were received from adapter. Engagement: {0}, Adapter: {1}", JsonConvert.SerializeObject(engagementToBeSent), JsonConvert.SerializeObject(engagementAdapter));
 
-                // insert to DB
-                if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
-                {
-                    log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
-                    return false;
+                    // return true - do not retry
+                    return true;
                 }
-
-                // create engagement Rabbit message
-                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
+            }
+            else
+            {
+                // get user list from adapter
+                userList = engagementToBeSent.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                if (userList == null || userList.Count() == 0)
                 {
-                    log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+                    log.ErrorFormat("Error getting user list from engagement. Engagement: {0}", JsonConvert.SerializeObject(engagementToBeSent));
 
-                    // remove new engagement 
-                    if (!EngagementDal.DeleteEngagement(partnerId, futureEngagement.Id))
-                    {
-                        log.ErrorFormat("Error while trying to delete engagement after failed to create a rabbit message. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
-
-                        // return true - do not retry
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                // check if user list exist or get them from external adapter
-                if (string.IsNullOrEmpty(engagementToBeSent.UserList))
-                {
-                    // user list exists
-
-                }
-                else
-                {
-                    // get user list from adapter
-
-
+                    // return true - do not retry
+                    return true;
                 }
             }
 
+            // get bulk from TCM
+            int engagementBulkMessages = TCMClient.Settings.Instance.GetValue<int>("num_of_bulk_message_engagements");
 
+            // calculate number of iterations
+            int remainder = 0;
+            long numOfBulkMessages = Math.DivRem(userList.Count, engagementBulkMessages, out remainder);
+            if (remainder > 0)
+                numOfBulkMessages++;
 
+            Parallel.For(0, numOfBulkMessages, index =>
+            {
+                // create bulk message
+                EngagementBulkMessage bulkMessage = new EngagementBulkMessage()
+                {
+                    EngagementId = engagementToBeSent.Id,
+                    IsSent = false,
+                    IterationSize = engagementBulkMessages,
+                    IterationOffset = (int)index * engagementBulkMessages
+                };
 
-            throw new NotImplementedException();
+                // insert into DB
+                EngagementBulkMessage insertedBulkMessage = EngagementDal.SetEngagementBulkMessage(partnerId, bulkMessage);
+                if (insertedBulkMessage == null || insertedBulkMessage.Id == 0)
+                    log.ErrorFormat("Error inserting bulk message in DB. Engagement: {0}, bulk message: {1}", JsonConvert.SerializeObject(engagementToBeSent), JsonConvert.SerializeObject(bulkMessage));
+                else
+                {
+                    // insert to CB
+                    for (long i = index * engagementBulkMessages; i < index * engagementBulkMessages + engagementBulkMessages; i++)
+                    {
+                        if (i == userList.Count)
+                            break;
+
+                        // insert create user engagement message to CB
+                        UserEngagement userEngagement = new UserEngagement(partnerId, userList[(int)i], engagementToBeSent.Id, insertedBulkMessage.Id);
+                        if (!EngagementDal.SetUserEngagement(userEngagement))
+                            log.ErrorFormat("Error inserting user engagement message into CB. User message: {0}", JsonConvert.SerializeObject(userEngagement));
+                    }
+
+                    // create rabbit message
+                    if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(utcNow), engagementToBeSent.Id, insertedBulkMessage.Id))
+                        log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(insertedBulkMessage));
+                }
+            });
+
+            return true;
+        }
+
+        internal static bool HandleSchedularEngagement(int partnerId, List<Engagement> lastHourAndFutureEngagement, Engagement engagementToBeSent)
+        {
+            // validate there isn't another one in the future 
+            Engagement futureEngagement = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementToBeSent.Id &&
+                                                                                    x.EngagementType == engagementToBeSent.EngagementType &&
+                                                                                    x.AdapterId == engagementToBeSent.AdapterId &&
+                                                                                    x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
+                                                                                    x.IntervalSeconds > 0 &&
+                                                                                    x.SendTime > engagementToBeSent.SendTime);
+
+            if (futureEngagement != null)
+            {
+                log.ErrorFormat("Scheduler engagement was canceled - future scheduler was detected. cancelled engagement: {0}, future engagement: {1}",
+                    JsonConvert.SerializeObject(engagementToBeSent),
+                    JsonConvert.SerializeObject(futureEngagement));
+
+                return false;
+            }
+
+            // create next iteration
+            futureEngagement = new Engagement()
+            {
+                AdapterDynamicData = engagementToBeSent.AdapterDynamicData,
+                AdapterId = engagementToBeSent.AdapterId,
+                EngagementType = engagementToBeSent.EngagementType,
+                IntervalSeconds = engagementToBeSent.IntervalSeconds,
+                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
+            };
+
+            // insert to DB
+            if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
+            {
+                log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+                return false;
+            }
+
+            // create engagement Rabbit message
+            if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
+            {
+                log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+
+                // remove new engagement 
+                if (!EngagementDal.DeleteEngagement(partnerId, futureEngagement.Id))
+                    log.ErrorFormat("Error while trying to delete engagement after failed to create a rabbit message. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
+
+                return false;
+            }
+            return true;
         }
 
         internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
