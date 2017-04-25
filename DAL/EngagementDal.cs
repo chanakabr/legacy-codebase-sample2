@@ -562,6 +562,33 @@ namespace DAL
             return res;
         }
 
+        public static Engagement SetEngagement(int groupId, Engagement engagement)
+        {
+            Engagement res = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_Engagement");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@id", engagement.Id);
+                sp.AddParameter("@totalNumberOfRecipients", engagement.TotalNumberOfRecipients);
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    res = CreateEngagement(ds.Tables[0].Rows[0]);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetEngagement. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return res;
+        }
+
         public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, bool shouldOnlyGetActive = false)
         {
             List<Engagement> res = new List<Engagement>();
