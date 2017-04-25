@@ -121,7 +121,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
+                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
             Mapper.CreateMap<KalturaMessageTemplate, MessageTemplate>()
@@ -130,7 +130,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertOTTAssetType(src.AssetType)));
+                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.AssetType)));
 
             Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
@@ -521,45 +521,45 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static KalturaOTTAssetType ConvertOTTAssetType(eOTTAssetTypes assetType)
+        public static KalturaMessageTemplateType ConvertTemplateAssetType(MessageTemplateType assetType)
         {
-            KalturaOTTAssetType result;
+            KalturaMessageTemplateType result;
 
             switch (assetType)
             {
-                case eOTTAssetTypes.Series:
-                    result = KalturaOTTAssetType.Series;
+                case MessageTemplateType.Series:
+                    result = KalturaMessageTemplateType.Series;
                     break;
-                case eOTTAssetTypes.Reminder:
-                    result = KalturaOTTAssetType.Reminder;
+                case MessageTemplateType.Reminder:
+                    result = KalturaMessageTemplateType.Reminder;
                     break;
-                case eOTTAssetTypes.Engagement:
-                    result = KalturaOTTAssetType.Engagement;
+                case MessageTemplateType.Churn:
+                    result = KalturaMessageTemplateType.Churn;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown message Type");
             }
 
             return result;
         }
 
-        public static eOTTAssetTypes ConvertOTTAssetType(KalturaOTTAssetType assetType)
+        public static MessageTemplateType ConvertTemplateAssetType(KalturaMessageTemplateType assetType)
         {
-            eOTTAssetTypes result;
+            MessageTemplateType result;
 
             switch (assetType)
             {
-                case KalturaOTTAssetType.Series:
-                    result = eOTTAssetTypes.Series;
+                case KalturaMessageTemplateType.Series:
+                    result = MessageTemplateType.Series;
                     break;
-                case KalturaOTTAssetType.Reminder:
-                    result = eOTTAssetTypes.Reminder;
+                case KalturaMessageTemplateType.Reminder:
+                    result = MessageTemplateType.Reminder;
                     break;
-                case KalturaOTTAssetType.Engagement:
-                    result = eOTTAssetTypes.Engagement;
+                case KalturaMessageTemplateType.Churn:
+                    result = MessageTemplateType.Churn;
                     break;
                 default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset Type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown message Type");
             }
 
             return result;

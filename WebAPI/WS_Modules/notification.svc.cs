@@ -716,7 +716,7 @@ namespace WS_Notification
             return response;
         }
 
-        public MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, eOTTAssetTypes assetType)
+        public MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, MessageTemplateType assetType)
         {
             MessageTemplateResponse response = null;
             int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);

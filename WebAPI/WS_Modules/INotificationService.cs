@@ -82,8 +82,7 @@ namespace WS_Notification
         MessageTemplateResponse SetMessageTemplate(string sWSUserName, string sWSPassword, MessageTemplate followTemplate);
 
         [OperationContract]
-        MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, eOTTAssetTypes assetTypes);
-
+        MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, MessageTemplateType assetTypes);
 
         [OperationContract]
         GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, OrderDir order);

@@ -710,18 +710,16 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaMessageTemplate GetMessageTemplate(int groupId, KalturaOTTAssetType asset_Type)
+        internal KalturaMessageTemplate GetMessageTemplate(int groupId, KalturaMessageTemplateType messageTemplateType)
         {
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
-
-            
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetMessageTemplate(groupId, NotificationMapping.ConvertOTTAssetType(asset_Type));
+                    response = Core.Notification.Module.GetMessageTemplate(groupId, NotificationMapping.ConvertTemplateAssetType(messageTemplateType));
                 }
             }
             catch (Exception ex)
