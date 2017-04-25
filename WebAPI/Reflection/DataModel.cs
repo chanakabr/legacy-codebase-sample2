@@ -3974,10 +3974,10 @@ namespace WebAPI.Reflection
                     {
                         case "AutomaticIssueFollowNotification":
                             return "automaticIssueFollowNotification";
-                        case "EngagementMailSubject":
-                            return "engagementMailSubjectMailSubject";
-                        case "EngagementMailTemplateName":
-                            return "engagementMailTemplateName";
+                        case "ChurnMailSubject":
+                            return "churnMailSubject";
+                        case "ChurnMailTemplateName":
+                            return "churnMailTemplateName";
                         case "InboxEnabled":
                             return "inboxEnabled";
                         case "MailSenderName":

@@ -7912,14 +7912,14 @@
             Push adapter URL
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.EngagementMailTemplateName">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailTemplateName">
             <summary>
-            Engagement mail template name
+            Churn mail template name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.EngagementMailSubject">
+        <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.ChurnMailSubject">
             <summary>
-            Engagement mail subject
+            Churn mail subject
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaNotificationsPartnerSettings.SenderEmail">

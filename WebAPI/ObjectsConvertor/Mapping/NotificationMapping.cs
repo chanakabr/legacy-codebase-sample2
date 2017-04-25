@@ -30,8 +30,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
                  .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
                  .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.EngagementMailSubject, opt => opt.MapFrom(src => src.EngagementMailSubject))
-                 .ForMember(dest => dest.EngagementMailTemplateName, opt => opt.MapFrom(src => src.EngagementMailTemplateName))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  ;
@@ -49,8 +49,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
                  .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset))
                  .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.EngagementMailSubject, opt => opt.MapFrom(src => src.EngagementMailSubject))
-                 .ForMember(dest => dest.EngagementMailTemplateName, opt => opt.MapFrom(src => src.EngagementMailTemplateName))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  ;
@@ -68,8 +68,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.ReminderEnabled, opt => opt.MapFrom(src => src.IsRemindersEnabled))
                  .ForMember(dest => dest.ReminderOffset, opt => opt.MapFrom(src => src.RemindersPrePaddingSec))
                  .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.EngagementMailSubject, opt => opt.MapFrom(src => src.EngagementMailSubject))
-                 .ForMember(dest => dest.EngagementMailTemplateName, opt => opt.MapFrom(src => src.EngagementMailTemplateName))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  ;
@@ -87,8 +87,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsRemindersEnabled, opt => opt.MapFrom(src => src.ReminderEnabled))
                  .ForMember(dest => dest.RemindersPrePaddingSec, opt => opt.MapFrom(src => src.ReminderOffset))
                  .ForMember(dest => dest.PushAdapterUrl, opt => opt.MapFrom(src => src.PushAdapterUrl))
-                 .ForMember(dest => dest.EngagementMailSubject, opt => opt.MapFrom(src => src.EngagementMailSubject))
-                 .ForMember(dest => dest.EngagementMailTemplateName, opt => opt.MapFrom(src => src.EngagementMailTemplateName))
+                 .ForMember(dest => dest.ChurnMailSubject, opt => opt.MapFrom(src => src.ChurnMailSubject))
+                 .ForMember(dest => dest.ChurnMailTemplateName, opt => opt.MapFrom(src => src.ChurnMailTemplateName))
                  .ForMember(dest => dest.SenderEmail, opt => opt.MapFrom(src => src.SenderEmail))
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  ;
