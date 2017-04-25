@@ -837,6 +837,13 @@
             <remarks>Possible status codes: 
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.SearchHistoryController.Clean(WebAPI.Models.API.KalturaSearchHistoryFilter)">
+            <summary>
+            Clean the user’s search history
+            </summary>
+            <param name="filter">Filter of search history</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.SocialCommentController.List(WebAPI.Models.Social.KalturaSocialCommentFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Get a list of all social comments filtered by asset ID and social platform

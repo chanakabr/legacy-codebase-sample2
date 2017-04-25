@@ -73,5 +73,35 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+
+        /// <summary>
+        /// Clean the user’s search history
+        /// </summary>
+        /// <param name="filter">Filter of search history</param>
+        /// <returns></returns>
+        [Route("clean"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool Clean(KalturaSearchHistoryFilter filter = null)
+        {
+            var ks = KS.GetFromRequest();
+            int groupId = KS.GetFromRequest().GroupId;
+            string userId = KS.GetFromRequest().UserId;
+
+            try
+            {
+                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+                // call client
+                return ClientsManager.ApiClient().CleanSearchHistory(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return true;
+        }
     }
 }

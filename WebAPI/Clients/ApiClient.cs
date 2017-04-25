@@ -2762,8 +2762,6 @@ namespace WebAPI.Clients
         {
             bool success = false;
 
-            
-
             Status response = null;
             int mediaId = 0;
             List<int> mediaIds = new List<int>();
@@ -3600,6 +3598,42 @@ namespace WebAPI.Clients
             }
 
             return result;
+        }
+
+        internal bool CleanSearchHistory(int groupId, string userId)
+        {
+            bool success = false;
+
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.CleanSearchHistory(groupId, userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+            else
+            {
+                success = true;
+            }
+
+            return success;
         }
     }
 }
