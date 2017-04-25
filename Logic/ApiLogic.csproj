@@ -69,6 +69,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvmcore\External\ComponentSpace.SAML2.dll</HintPath>
     </Reference>
+    <Reference Include="Couchbase.NetClient, Version=2.2.6.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
+    </Reference>
     <Reference Include="CouchbaseManager, Version=3.4.118.16077, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>

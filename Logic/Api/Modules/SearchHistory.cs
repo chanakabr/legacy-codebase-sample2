@@ -119,6 +119,8 @@ namespace Core.Api.Modules
             id = Guid.NewGuid().ToString();
         }
 
+        #region Override Methods
+
         protected override bool DoInsert()
         {
             bool result = false;
@@ -171,13 +173,17 @@ namespace Core.Api.Modules
                 log.ErrorFormat("Failed deleting Search History object from Couchbase. id = {0}, name = {1}", id, name);
             }
 
-            return result;        
+            return result;
         }
 
         public override CoreObject CoreClone()
         {
             throw new NotImplementedException();
         }
+
+        #endregion
+        
+        #region Static Methods
 
         internal static List<SearchHistory> List(int groupId, string userId, string udid, string language, int pageIndex, int? pageSize, out int totalItems)
         {
@@ -202,7 +208,7 @@ namespace Core.Api.Modules
             {
                 isDescending = true,
                 endKey = new object[] { userId, language, 0 },
-                startKey = new object[] { userId, language, "\uefff"},
+                startKey = new object[] { userId, language, "\uefff" },
                 inclusiveEnd = true,
                 fullSet = true,
                 skip = skip,
@@ -247,7 +253,7 @@ namespace Core.Api.Modules
                     searchHistory.filter = JObject.Parse(filter.Value.ToString());
                 }
             }
-            
+
             return result;
         }
 
@@ -272,8 +278,23 @@ namespace Core.Api.Modules
 
             foreach (var item in items)
             {
-                item.Delete();
+                bool deleteResult = item.Delete();
             }
+
+            // Used to fix stale problems
+            couchbaseManager.View<SearchHistory>(view);
         }
+
+        internal static SearchHistory Get(string documentId)
+        {
+            SearchHistory searchHistory = null;
+
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SOCIAL);
+
+            searchHistory = couchbaseManager.Get<SearchHistory>(documentId, true);
+
+            return searchHistory;
+        } 
+        #endregion
     }
 }

@@ -9754,5 +9754,32 @@ namespace Core.Api
 
             return status;
         }
+
+        internal static Status DeleteSearchHistory(int groupId, string userId, string documentId)
+        {
+            Status status = new Status();
+
+            try
+            {
+                SearchHistory searchHistory = SearchHistory.Get(documentId);
+
+                if (searchHistory.userId != userId)
+                {
+                    status = new Status((int)eResponseStatus.ItemNotFound, "Could not find a search history item with this ID for this user");
+                }
+                else
+                {
+                    searchHistory.Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when cleaning search history. groupId = {0}, userId = {1}; ex = {2}",
+                    groupId, userId, ex);
+                status = new Status((int)eResponseStatus.Error);
+            }
+
+            return status;
+        }
     }
 }
