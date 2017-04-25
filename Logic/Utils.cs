@@ -825,12 +825,12 @@ namespace APILogic
                 if (!LayeredCache.Instance.Get<bool>(key, ref isProxyBlocked, IsProxyBlockedForIp, new Dictionary<string, object>() { { "ip", ip } }, groupId,
                                                     LayeredCacheConfigNames.IS_PROXY_BLOCKED_FOR_IP_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheConfigNames.GET_PROXY_IP_INVALIDATION_KEY }))
                 {
-                    log.ErrorFormat("Failed checking IsProxyAllowed from LayeredCache, ip: {0}, key: {1}", ip, key);
+                    log.ErrorFormat("Failed checking IsProxyBlocked from LayeredCache, ip: {0}, key: {1}", ip, key);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed IsProxyAllowed for ip: {0}", ip), ex);
+                log.Error(string.Format("Failed IsProxyBlocked for ip: {0}", ip), ex);
             }
 
             return isProxyBlocked;
