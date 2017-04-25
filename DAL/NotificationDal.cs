@@ -685,11 +685,11 @@ namespace DAL
             if (!string.IsNullOrEmpty(settings.MailSenderName))
                 sp.AddParameter("@mailSenderName", settings.MailSenderName);
 
-            if (!string.IsNullOrEmpty(settings.EngagementMailSubject))
-                sp.AddParameter("@engagementMailSubject", settings.EngagementMailSubject);
+            //if (!string.IsNullOrEmpty(settings.EngagementMailSubject))
+            //    sp.AddParameter("@engagementMailSubject", settings.EngagementMailSubject);
 
-            if (!string.IsNullOrEmpty(settings.EngagementMailTemplateName))
-                sp.AddParameter("@engagementMailTemplateName", settings.EngagementMailTemplateName);
+            //if (!string.IsNullOrEmpty(settings.EngagementMailTemplateName))
+            //    sp.AddParameter("@engagementMailTemplateName", settings.EngagementMailTemplateName);
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -731,8 +731,8 @@ namespace DAL
                         IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
                         RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec"),
                         PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url"),
-                        EngagementMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "engagement_mail_subject"),
-                        EngagementMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "engagement_mail_template_name"),
+                        //EngagementMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "engagement_mail_subject"),
+                        //EngagementMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "engagement_mail_template_name"),
                         MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
                         SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email")
                     });
