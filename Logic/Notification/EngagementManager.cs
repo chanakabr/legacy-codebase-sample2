@@ -30,6 +30,10 @@ namespace Core.Notification
         private const string NO_PARAMS_TO_DELETE = "No parameters to delete";
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
         private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
+        private const string EMPTY_SOURCE_USER_LIST = "User list and adapter ID are empty";
+        private const string FUTURE_SEND_TIME = "Send time must be in the future";
+        private const string ILLEGAL_USER_LIST = "Illegal user list";
+        
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -459,18 +463,58 @@ namespace Core.Notification
             return response;
         }
 
-        internal static EngagementResponse AddEngagement(int groupId, Engagement engagement)
+        internal static EngagementResponse AddEngagement(int partnerId, Engagement engagement)
         {
             EngagementResponse response = new EngagementResponse();
 
             try
             {
+                // validate engagement exists
                 if (engagement == null)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementToInsert, NO_ENGAGEMENT_TO_INSERT);
+                    log.ErrorFormat("Empty engagement received. Partner ID: {0}", partnerId);
                     return response;
                 }
 
+                // validate send time is in the future
+                if (engagement.SendTime > DateTime.UtcNow.AddMinutes(-2))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, FUTURE_SEND_TIME);
+                    log.ErrorFormat("Send time must be in the future. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                    return response;
+                }
+
+                // validate user list is legal (if sent)
+                if (!string.IsNullOrEmpty(engagement.UserList))
+                {
+                    try
+                    {
+                        List<int> userList = engagement.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                        if (userList == null || userList.Count() == 0)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
+                            log.ErrorFormat("Illegal user list were inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                            return response;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
+                        log.ErrorFormat("Illegal user list were inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                        return response;
+                    }
+                }
+
+                // validate user list or adapter ID exists
+                if (string.IsNullOrEmpty(engagement.UserList) && engagement.AdapterId == 0)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, EMPTY_SOURCE_USER_LIST);
+                    log.ErrorFormat("User list and adapter ID are empty. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                    return response;
+                }
+
+               
 
 
                 // validate input
@@ -488,7 +532,7 @@ namespace Core.Notification
                 //}
 
 
-                response.Engagement = EngagementDal.InsertEngagement(groupId, engagement);
+                response.Engagement = EngagementDal.InsertEngagement(partnerId, engagement);
                 if (response.Engagement != null && response.Engagement.Id > 0)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new Engagement adapter insert");
                 else
@@ -496,7 +540,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed to add engagement. GroupID: {0}", groupId), ex);
+                log.Error(string.Format("Failed to add engagement. GroupID: {0}", partnerId), ex);
             }
             return response;
         }
@@ -684,6 +728,9 @@ namespace Core.Notification
                 }
             }
 
+            // update engagement table with number of users
+            //EngagementDal.enga
+
             // get bulk from TCM
             int engagementBulkMessages = TCMClient.Settings.Instance.GetValue<int>("num_of_bulk_message_engagements");
 
@@ -731,7 +778,7 @@ namespace Core.Notification
             return true;
         }
 
-        internal static bool HandleSchedularEngagement(int partnerId, List<Engagement> lastHourAndFutureEngagement, Engagement engagementToBeSent)
+        private static bool HandleSchedularEngagement(int partnerId, List<Engagement> lastHourAndFutureEngagement, Engagement engagementToBeSent)
         {
             // validate there isn't another one in the future 
             Engagement futureEngagement = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementToBeSent.Id &&
