@@ -139,5 +139,7 @@ namespace NPVR
             sb.Append(String.Concat(" HAS Format: ", hasFormat));
             return sb.ToString();
         }
+
+        public string XkData { get; set; }
     }
 }
