@@ -1494,7 +1494,7 @@ namespace NPVR
                     Dictionary<string, string> headersToAdd = null;
                     if (!string.IsNullOrEmpty(args.XkData))
                     {
-                        headersToAdd = new Dictionary<string, string>() { { "X-KDATA", args.XkData } };
+                        headersToAdd = new Dictionary<string, string>() { { ALU_X_KDATA, args.XkData } };
                     }
 
                     if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, headersToAdd))
@@ -1812,7 +1812,6 @@ namespace NPVR
             }
             return epgChannelId > 0 ? epgChannelId.ToString() : cdvrId;
         }
-
 
         private Tuple<string, bool> GetExternalIdByEpgChannelId(Dictionary<string, object> funcParams)
         {
