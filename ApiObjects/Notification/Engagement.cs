@@ -13,5 +13,6 @@ namespace ApiObjects.Notification
         public int IntervalSeconds { get; set; }
         public string UserList { get; set; }
         public bool IsActive { get; set; }
+        public int CouponGroupId { get; set; }
     }
 }

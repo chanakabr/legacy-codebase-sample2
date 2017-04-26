@@ -12,6 +12,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using TVinciShared;
+using ApiObjects;
 
 namespace Core.Notification
 {
@@ -792,7 +793,7 @@ namespace Core.Notification
 
                 // user list exists
                 userList = EngagementAdapterClient.GetAdapterList(partnerId, engagementAdapter, engagementToBeSent.AdapterDynamicData);
-                if (userList == null || userList.Count() == 0)
+                if (userList == null || userList.Count == 0)
                 {
                     log.ErrorFormat("No users were received from adapter. Engagement: {0}, Adapter: {1}", JsonConvert.SerializeObject(engagementToBeSent), JsonConvert.SerializeObject(engagementAdapter));
 
@@ -804,7 +805,7 @@ namespace Core.Notification
             {
                 // get user list from adapter
                 userList = engagementToBeSent.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
-                if (userList == null || userList.Count() == 0)
+                if (userList == null || userList.Count == 0)
                 {
                     log.ErrorFormat("Error getting user list from engagement. Engagement: {0}", JsonConvert.SerializeObject(engagementToBeSent));
 
@@ -814,7 +815,14 @@ namespace Core.Notification
             }
 
             // update engagement table with number of users
-            //EngagementDal.enga
+            engagementToBeSent.TotalNumberOfRecipients = userList.Count;
+            if (EngagementDal.SetEngagement(partnerId, engagementToBeSent) == null)
+            {
+                log.ErrorFormat("Error update engagement with number of users. Engagement: {0}", JsonConvert.SerializeObject(engagementToBeSent));
+
+                // return true - do not retry
+                return true;
+            }
 
             // get bulk from TCM
             int engagementBulkMessages = TCMClient.Settings.Instance.GetValue<int>("num_of_bulk_message_engagements");
@@ -915,7 +923,96 @@ namespace Core.Notification
 
         internal static bool SendEngagementBulk(int partnerId, int engagementId, int engagementBulkId, int startTime)
         {
-            throw new NotImplementedException();
+            // get relevant engagement 
+            Engagement engagement = EngagementDal.GetEngagement(partnerId, engagementId);
+            if (engagement == null)
+            {
+                log.ErrorFormat("Engagement was not found in DB. Engagement ID: {0}", engagementId);
+                return true;
+            }
+
+            // validate engagement
+            if (engagement.IsActive == false)
+            {
+                log.ErrorFormat("Engagement is active false. Engagement ID: {0}", engagementId);
+                return true;
+            }
+
+            // get relevant engagementBulkMessage 
+            EngagementBulkMessage engagementBulkMessage = EngagementDal.GetEngagementBulkMessage(partnerId, engagementBulkId);
+            if (engagementBulkMessage == null)
+            {
+                log.ErrorFormat("EngagementBulkMessage was not found in DB. engagementBulkId: {0}", engagementBulkId);
+                return true;
+            }
+
+            // validate engagementBulkMessage
+            if (engagementBulkMessage.IsSent == true)
+            {
+                log.ErrorFormat("Engagement BulkMessage already sent . engagementBulkId: {0}", engagementBulkId);
+                return true;
+            }
+
+            // get relevant usersengagementBulkMessage 
+            List<UserEngagement> userEngagements = EngagementDal.GetBulkUserEngagementView(engagementId, engagementBulkId);
+            if (userEngagements == null || userEngagements.Count == 0)
+            {
+                log.ErrorFormat("No User engagement found. engagementBulkId: {0}", engagementBulkId);
+                return true;
+            }
+
+            UserNotification userNotificationData = null;
+            bool docExists = false;
+            foreach (UserEngagement userEngagement in userEngagements)
+            {
+                docExists = false;
+                // get user notifications
+                userNotificationData = DAL.NotificationDal.GetUserNotificationData(partnerId, userEngagement.UserId, ref docExists);
+
+                if (userNotificationData == null && docExists)
+                {
+                    log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}", partnerId, userEngagement.UserId);
+                    continue;
+                }
+
+                if (userNotificationData.Settings.EnableInbox.Value)
+                {
+                }
+
+                //UserResponseObject response = Core.Users.Module.GetUserData(partnerId, userEngagement.UserId.ToString(), string.Empty);
+
+                //List<Pricing.Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, 500, 1);
+
+                //ChurnMailRequest churn = new ChurnMailRequest();
+                //churn.CouponCode = coupons[0].code;
+
+                ////Core.Api.api.SendMailTemplate()
+
+
+
+            }
+
+            // take a look at reminders
+
+            // 1. send mail
+
+
+            // According to partner settings  send push & inbox
+            // get partner notifications settings
+            var partnerSettings = NotificationSettings.GetPartnerNotificationSettings(partnerId);
+            if (partnerSettings == null && partnerSettings.settings != null)
+            {
+                log.ErrorFormat("Could not find partner notification settings. Partner ID: {0}", partnerId);
+                return true;
+            }
+
+
+
+
+            // 2 .send to inbox
+
+            // 3. send push
+            return true;
         }
     }
 }
