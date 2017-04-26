@@ -7525,6 +7525,11 @@
             Send time (seconds)
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.IsActive">
+            <summary>
+            Engagement active status
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapter">
             <summary>
             Engagement Adapter

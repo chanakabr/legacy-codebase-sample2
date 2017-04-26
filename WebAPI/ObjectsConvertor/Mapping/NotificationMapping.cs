@@ -292,6 +292,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SendTime, opt => opt.MapFrom(src => ConvertSendTime(src.SendTimeInSeconds)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                ;
 
             Mapper.CreateMap<Engagement, KalturaEngagement>()
@@ -303,6 +304,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SendTimeInSeconds, opt => opt.MapFrom(src => ConvertSendTime(src.SendTime)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
+               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                ;
             
             #endregion

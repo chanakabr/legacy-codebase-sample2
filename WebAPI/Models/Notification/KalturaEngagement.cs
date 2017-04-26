@@ -77,5 +77,13 @@ namespace WebAPI.Models.Notification
         [JsonProperty("sendTimeInSeconds")]
         [XmlElement(ElementName = "sendTimeInSeconds")]
         public long SendTimeInSeconds { get; set; }
+
+        /// <summary>
+        /// Engagement active status
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        public bool? IsActive { get; set; }
     }
 }
