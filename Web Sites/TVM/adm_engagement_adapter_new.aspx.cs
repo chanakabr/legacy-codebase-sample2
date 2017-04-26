@@ -36,15 +36,9 @@ public partial class adm_engagement_adapter_new : System.Web.UI.Page
                 {
                     result = ImporterImpl.SetEngagementAdapterConfiguration(groupId, engagementAdapterId);
                 }
-                if (result == null)
+                if (result == null || result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
                 {
-                    Session["error_msg_s"] = "Error";
-                    Session["error_msg"] = "Error";
-                }
-                else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
-                {
-                    Session["error_msg"] = result.Message;
-                    Session["error_msg_s"] = result.Message;
+                    log.ErrorFormat("Error while SetEngagementAdapterConfiguration. Message: {0}", result.Message);
                 }
                 return;
             }
@@ -97,6 +91,7 @@ public partial class adm_engagement_adapter_new : System.Web.UI.Page
         object group_id = LoginManager.GetLoginGroupID();
 
         DBRecordWebEditor theRecord = new DBRecordWebEditor("engagement_adapter", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+        theRecord.SetConnectionKey("notifications_connection");
 
         DataRecordShortTextField shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
         shortTextField.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
