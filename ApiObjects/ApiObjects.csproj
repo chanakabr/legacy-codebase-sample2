@@ -147,6 +147,7 @@
     <Compile Include="MailRequests\CinepolisPurchaseMailRequest.cs" />
     <Compile Include="MailRequests\CinepolisRenewalFailMailRequest.cs" />
     <Compile Include="MailRequests\ForgotPasswordMailRequest.cs" />
+    <Compile Include="MailRequests\ChurnMailRequest.cs" />
     <Compile Include="MailRequests\GiftCardReminderMailRequest.cs" />
     <Compile Include="MailRequests\MailRequestObj.cs" />
     <Compile Include="MailRequests\PurchaseMailRequest.cs" />

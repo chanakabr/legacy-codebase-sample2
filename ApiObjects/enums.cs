@@ -74,7 +74,8 @@ namespace ApiObjects
         AddDeviceToDomain = 13,
         RemoveDomain = 14,
         PurchaseWithGiftCard = 15,
-        GiftCardRenewReminder = 16
+        GiftCardRenewReminder = 16,
+        Churn = 17
     }
 
     public enum eGroupRuleType
@@ -653,7 +654,8 @@ namespace ApiObjects
     public enum eMessageCategory
     {
         SystemAnnouncement = 0,
-        Followed = 1
+        Followed = 1,
+        Engagement = 2
     }
 
     public enum eMessageState
