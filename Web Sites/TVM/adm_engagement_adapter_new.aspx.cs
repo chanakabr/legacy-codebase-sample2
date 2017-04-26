@@ -1,6 +1,8 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Reflection;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_engagement_adapter_new : System.Web.UI.Page
@@ -26,10 +28,27 @@ public partial class adm_engagement_adapter_new : System.Web.UI.Page
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
-                DBManipulator.DoTheWork("notifications_connection");
+                int groupId = LoginManager.GetLoginGroupID();
+                ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+                int engagementAdapterId = DBManipulator.DoTheWork("notifications_connection");
+                if (engagementAdapterId > 0)
+                {
+                    result = ImporterImpl.SetEngagementAdapterConfiguration(groupId, engagementAdapterId);
+                }
+                if (result == null)
+                {
+                    Session["error_msg_s"] = "Error";
+                    Session["error_msg"] = "Error";
+                }
+                else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                {
+                    Session["error_msg"] = result.Message;
+                    Session["error_msg_s"] = result.Message;
+                }
                 return;
             }
-            
+
             int menuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(23, true, ref menuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(menuID, 8, true);
@@ -79,22 +98,26 @@ public partial class adm_engagement_adapter_new : System.Web.UI.Page
 
         DBRecordWebEditor theRecord = new DBRecordWebEditor("engagement_adapter", "adm_table_pager", sBack, "", "ID", t, sBack, "");
 
-        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
-        theRecord.AddRecord(dr_name);
+        DataRecordShortTextField shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+        shortTextField.Initialize("Name", "adm_table_header_nbg", "FormInput", "NAME", true);
+        theRecord.AddRecord(shortTextField);
 
-        DataRecordShortTextField dr_adapter_url = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_adapter_url.Initialize("Provider URL", "adm_table_header_nbg", "FormInput", "provider_url", true);
-        theRecord.AddRecord(dr_adapter_url);
+        shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+        shortTextField.Initialize("Adapter URL", "adm_table_header_nbg", "FormInput", "adapter_url", true);
+        theRecord.AddRecord(shortTextField);
 
-        DataRecordShortTextField dr_shared_secret = new DataRecordShortTextField("ltr", false, 60, 128);
-        dr_shared_secret.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
-        theRecord.AddRecord(dr_shared_secret);
+        shortTextField = new DataRecordShortTextField("ltr", true, 60, 128);
+        shortTextField.Initialize("Provider URL", "adm_table_header_nbg", "FormInput", "provider_url", true);
+        theRecord.AddRecord(shortTextField);
+
+        shortTextField = new DataRecordShortTextField("ltr", false, 60, 128);
+        shortTextField.Initialize("Shared Secret", "adm_table_header_nbg", "FormInput", "shared_secret", false);
+        theRecord.AddRecord(shortTextField);
 
         if (t == null)
         {
             string sharedSecret = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16);
-            dr_shared_secret.SetValue(sharedSecret);
+            shortTextField.SetValue(sharedSecret);
         }
 
         DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);

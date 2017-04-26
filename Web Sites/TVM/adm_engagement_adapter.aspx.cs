@@ -56,7 +56,7 @@ public partial class adm_engagement_adapter : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "SELECT ID ,name as 'Name',group_id,is_active,status,provider_url as 'Provider URL' ,shared_secret ";
+        theTable += "SELECT ID ,name as 'Name',group_id,is_active,status,adapter_url as 'Adapter URL' , provider_url as 'Provider URL' ,shared_secret ";
         theTable += " FROM engagement_adapter";
         theTable += "where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
