@@ -83,8 +83,9 @@ namespace AdapterControllers
         #region Public Methods
         
         public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, 
-            Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize)
+            Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize, out int totalResults)
         {
+            totalResults = 0;
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
@@ -101,7 +102,7 @@ namespace AdapterControllers
             
             RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
+            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://localhost/REAdapter/service.svc");//engine.AdapterUrl);
             
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
@@ -202,6 +203,7 @@ namespace AdapterControllers
                                     type = (eAssetTypes)result.AssetType
                                 }).ToList();
                     }
+                    totalResults = adapterResponse.TotalResults;
                 }
             }
             catch (Exception ex)

@@ -5251,7 +5251,7 @@ namespace Catalog
             // Adapter will respond with a collection of media assets ID with Kaltura terminology
             List<RecommendationResult> recommendations =
                 RecommendationAdapterController.GetInstance().GetChannelRecommendations(externalChannel, enrichments, request.free, out requestId,
-                request.m_nPageIndex, request.m_nPageSize);
+                request.m_nPageIndex, request.m_nPageSize, out totalItems);
 
             if (recommendations == null)
             {
@@ -5266,10 +5266,11 @@ namespace Catalog
             }
 
             ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
+           
             // If there is no filter - no need to go to Searcher, just page the results list, fill update date and return it to client
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
+                int tempTotalItems = 0;
                 var allRecommendations = recommendations.Select(result =>
                     new UnifiedSearchResult()
                     {
@@ -5279,8 +5280,9 @@ namespace Catalog
                     }
                     ).ToList();
 
+               
                 searchResultsList =
-                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations, ref totalItems, request.m_nPageSize, request.m_nPageIndex);
+                    searcher.FillUpdateDates(request.m_nGroupID, allRecommendations, ref tempTotalItems, request.m_nPageSize, request.m_nPageIndex);
             }
             // If there is, go to ES and perform further filter
             else

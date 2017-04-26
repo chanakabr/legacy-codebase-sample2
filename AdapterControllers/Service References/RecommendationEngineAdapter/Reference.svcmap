@@ -18,16 +18,16 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://localhost:620/Rec/Service.svc" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost/RecommendationEngineAdapter/service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="449e814c-d32c-459e-be98-5d6aa0e01959" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?xsd=xsd4" />
-    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="f84728bd-80d0-482e-a0bd-1c604e808017" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?wsdl" />
-    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="f6e6e26e-d97f-47c3-b390-008015abb5c7" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?disco" />
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="ddc36adf-8cdc-4a78-b8fd-645132ccf94d" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?xsd=xsd3" />
-    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="edef8efe-e6d0-4379-9d47-141565495ad4" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="a782a8e3-d8bc-4f1b-a33c-334773476bfc" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="05e42c65-2fdd-4dd0-abcb-639a8321abe4" SourceId="1" SourceUrl="http://localhost:620/Rec/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service12.wsdl" MetadataType="Wsdl" ID="94fa1185-7044-471f-b60b-ef8ef394b78e" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?wsdl" />
+    <MetadataFile FileName="Service12.disco" MetadataType="Disco" ID="88247468-f21e-4d2c-85ce-188347b7079d" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?disco" />
+    <MetadataFile FileName="Service410.xsd" MetadataType="Schema" ID="1c96bc43-db17-44ba-86f4-25226cf34ffd" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service411.xsd" MetadataType="Schema" ID="1dce20d3-7e54-446c-a275-7fb6ba5848ed" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service412.xsd" MetadataType="Schema" ID="42e89d35-ad9f-45aa-9c0c-8517a4f5dd23" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service413.xsd" MetadataType="Schema" ID="a5125013-0e2e-43f4-886e-8fbf76d99fa9" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service414.xsd" MetadataType="Schema" ID="e8b1efae-ab0d-4705-ac0d-8241dbadcaa2" SourceId="1" SourceUrl="http://localhost/RecommendationEngineAdapter/Service.svc?xsd=xsd4" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
