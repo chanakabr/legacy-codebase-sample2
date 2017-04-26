@@ -545,6 +545,8 @@ namespace DAL
                 sp.AddParameter("@adapterDynamicData", engagement.AdapterDynamicData);
                 sp.AddParameter("@intervalSeconds", engagement.IntervalSeconds);
                 sp.AddParameter("@userList", engagement.UserList);
+                sp.AddParameter("@couponGroupId", engagement.CouponGroupId);
+                sp.AddParameter("@isActive", engagement.IsActive);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -634,13 +636,14 @@ namespace DAL
                     SendTime = ODBCWrapper.Utils.GetDateSafeVal(dr, "SEND_TIME"),
                     TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOTAL_NUMBER_OF_RECIPIENTS"),
                     UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST"),
-                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1 ? true : false
+                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1 ? true : false,
+                    CouponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID")
                 };
             }
             return result;
         }
 
-        public static Engagement GetEngagement(int groupId, int id, bool shouldOnlyGetActive = false)
+        public static Engagement GetEngagement(int groupId, int id)
         {
             Engagement res = null;
             try
@@ -649,8 +652,9 @@ namespace DAL
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", id);
-
+                
                 DataSet ds = sp.ExecuteDataSet();
+
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
                     res = CreateEngagement(ds.Tables[0].Rows[0]);
@@ -719,7 +723,7 @@ namespace DAL
                 result = new EngagementBulkMessage()
                 {
                     Id = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ID"),
-                    EngagementId = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ENGAGEMENT_ID"),                    
+                    EngagementId = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ENGAGEMENT_ID"),
                     IsSent = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_SENT") == 1 ? true : false,
                     IterationOffset = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ITERATION_OFFSET"),
                     IterationSize = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "ITERATION_SIZE")
