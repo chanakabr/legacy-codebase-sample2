@@ -2900,6 +2900,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IntervalSeconds":
                             return "intervalSeconds";
+                        case "IsActive":
+                            return "isActive";
                         case "SendTimeInSeconds":
                             return "sendTimeInSeconds";
                         case "TotalNumberOfRecipients":
