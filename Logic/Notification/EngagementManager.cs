@@ -33,7 +33,13 @@ namespace Core.Notification
         private const string EMPTY_SOURCE_USER_LIST = "User list and adapter ID are empty";
         private const string FUTURE_SEND_TIME = "Send time must be in the future";
         private const string ILLEGAL_USER_LIST = "Illegal user list";
-        
+        private const string ILLEGAL_ENGAGEMENT_INTERVAL = "Illegal interval inserted";
+        private const string ENGAGEMENT_RECENTLY_SENT = "Other engagement was recently sent";
+        private const string ENGAGEMENT_SEND_WINDOW_FRAME = "Send time is not between the allowed time window";
+        private const string FUTURE_SCHEDULE_ENGAGEMENT_DETECTED = "Future engagement scheduler detected";
+        private const string ENGAGEMENT_TEMPLATE_NOT_DOUND = "Engagement template wasn't found";
+        private const string ENGAGEMENT_SUCCESSFULLY_INSERTED = "Engagement was successfully inserted";
+        private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -469,80 +475,159 @@ namespace Core.Notification
 
             try
             {
-                // validate engagement exists
-                if (engagement == null)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementToInsert, NO_ENGAGEMENT_TO_INSERT);
-                    log.ErrorFormat("Empty engagement received. Partner ID: {0}", partnerId);
-                    return response;
-                }
-
-                // validate send time is in the future
-                if (engagement.SendTime > DateTime.UtcNow.AddMinutes(-2))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, FUTURE_SEND_TIME);
-                    log.ErrorFormat("Send time must be in the future. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
-                    return response;
-                }
-
-                // validate user list is legal (if sent)
-                if (!string.IsNullOrEmpty(engagement.UserList))
-                {
-                    try
-                    {
-                        List<int> userList = engagement.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
-                        if (userList == null || userList.Count() == 0)
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
-                            log.ErrorFormat("Illegal user list were inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
-                            return response;
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
-                        log.ErrorFormat("Illegal user list were inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
-                        return response;
-                    }
-                }
-
-                // validate user list or adapter ID exists
-                if (string.IsNullOrEmpty(engagement.UserList) && engagement.AdapterId == 0)
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, EMPTY_SOURCE_USER_LIST);
-                    log.ErrorFormat("User list and adapter ID are empty. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
-                    return response;
-                }
-
-               
-
-
                 // validate input
+                if (!ValidateInputEngagement(partnerId, engagement, ref response))
+                    return response;
 
-                //if (string.IsNullOrEmpty(engagementAdapter.Name))
-                //{
-                //    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
-                //    return response;
-                //}
-
-                //if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
-                //{
-                //    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
-                //    return response;
-                //}
-
-
+                // insert engagement to DB
                 response.Engagement = EngagementDal.InsertEngagement(partnerId, engagement);
                 if (response.Engagement != null && response.Engagement.Id > 0)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "new Engagement adapter insert");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, ENGAGEMENT_SUCCESSFULLY_INSERTED);
                 else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to insert new Engagement");
+                {
+                    log.ErrorFormat("Error occurred while inserting engagement to DB");
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ERROR_INSERTING_ENGAGEMENT);
+                    return response;
+                }
+
+                // create rabbit message
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow), response.Engagement.Id))
+                {
+                    log.ErrorFormat("Error while trying to create engagement rabbit message. Engagement data: {0}", JsonConvert.SerializeObject(engagement));
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ERROR_INSERTING_ENGAGEMENT);
+
+                    // remove newly created engagement from DB
+                    if (!EngagementDal.DeleteEngagement(partnerId, response.Engagement.Id))
+                        log.ErrorFormat("Error while trying to delete engagement from DB. Engagement: {0}", JsonConvert.SerializeObject(engagement));
+
+                    return response;
+                }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed to add engagement. GroupID: {0}", partnerId), ex);
             }
             return response;
+        }
+
+        private static bool ValidateInputEngagement(int partnerId, Engagement engagement, ref EngagementResponse response)
+        {
+            DateTime utcNow = DateTime.UtcNow;
+            response = new EngagementResponse();
+
+            // validate engagement exists
+            if (engagement == null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoEngagementToInsert, NO_ENGAGEMENT_TO_INSERT);
+                log.ErrorFormat("Empty engagement received. Partner ID: {0}", partnerId);
+                return false;
+            }
+
+            // validate send time is in the future
+            if (engagement.SendTime > DateTime.UtcNow.AddMinutes(-2))
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, FUTURE_SEND_TIME);
+                log.ErrorFormat("Send time must be in the future. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                return false;
+            }
+
+            // validate user list is legal (if sent)
+            if (!string.IsNullOrEmpty(engagement.UserList))
+            {
+                try
+                {
+                    List<int> userList = engagement.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                    if (userList == null || userList.Count() == 0)
+                    {
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
+                        log.ErrorFormat("Illegal user list were inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                        return false;
+                    }
+                }
+                catch (Exception)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
+                    log.ErrorFormat("Illegal user list were inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                    return false;
+                }
+            }
+
+            // validate user list or adapter ID exists
+            if (string.IsNullOrEmpty(engagement.UserList) && engagement.AdapterId == 0)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, EMPTY_SOURCE_USER_LIST);
+                log.ErrorFormat("User list and adapter ID are empty. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                return false;
+            }
+
+            // validate interval is legal
+            if (engagement.IntervalSeconds >= 0)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_ENGAGEMENT_INTERVAL);
+                log.ErrorFormat("Illegal interval was inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                return false;
+            }
+
+            // Get all engagements from the last hour and forward
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            if (lastHourAndFutureEngagement != null)
+            {
+                // validate same engagement was not already sent in the last hour
+                Engagement engagementAlreadySent = lastHourAndFutureEngagement.FirstOrDefault(x => x.EngagementType == engagement.EngagementType &&
+                                                                                                   x.AdapterId == engagement.AdapterId &&
+                                                                                                   x.AdapterDynamicData == engagement.AdapterDynamicData &&
+                                                                                                   x.UserList == engagement.UserList &&
+                                                                                                   x.SendTime > engagement.SendTime.AddHours(-1) &&
+                                                                                                   x.SendTime < engagement.SendTime);
+                if (engagementAlreadySent != null)
+                {
+                    log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
+                     JsonConvert.SerializeObject(engagementAlreadySent),
+                     JsonConvert.SerializeObject(engagement));
+
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementRecentlySent, ENGAGEMENT_RECENTLY_SENT);
+                    return false;
+                }
+            }
+
+            // if push enabled - validate time window
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            {
+                if (!NotificationSettings.IsWithinPushSendTimeWindow(partnerId, engagement.SendTime.TimeOfDay))
+                {
+                    log.ErrorFormat("Engagement send time is not between the allowed time window. Engagement: {0}", JsonConvert.SerializeObject(engagement));
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementIllegalSendTime, ENGAGEMENT_SEND_WINDOW_FRAME);
+                    return false;
+                }
+            }
+
+            // check if engagement is a scheduled type
+            if (engagement.IntervalSeconds > 0)
+            {
+                // validate there isn't another one in the future 
+                Engagement futureEngagement = lastHourAndFutureEngagement.FirstOrDefault(x => x.EngagementType == engagement.EngagementType &&
+                                                                                              x.AdapterId == engagement.AdapterId &&
+                                                                                              x.AdapterDynamicData == engagement.AdapterDynamicData &&
+                                                                                              x.IntervalSeconds > 0 &&
+                                                                                              x.SendTime > engagement.SendTime);
+                if (futureEngagement != null)
+                {
+                    log.ErrorFormat("Future scheduled engagement detected. Future Engagement: {0}", JsonConvert.SerializeObject(futureEngagement));
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FutureScheduledEngagementDetected, FUTURE_SCHEDULE_ENGAGEMENT_DETECTED);
+                    return false;
+                }
+            }
+
+            // validate template exists
+            var templates = NotificationDal.GetMessageTemplate(partnerId, ApiObjects.MessageTemplateType.Churn);
+            if (templates == null || templates.Count == 0)
+            {
+                log.ErrorFormat("Engagement template wasn't found: {0}", JsonConvert.SerializeObject(engagement));
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTemplateNotFound, ENGAGEMENT_TEMPLATE_NOT_DOUND);
+                return false;
+            }
+
+            return true;
         }
 
         public static bool AddEngagementToQueue(int groupId, long startTime, int engagementId, int engagementBulkId = 0)
