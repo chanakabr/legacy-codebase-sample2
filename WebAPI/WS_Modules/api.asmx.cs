@@ -4257,7 +4257,7 @@ namespace WS_API
                     layeredCacheSettingsToExclude = new string[0];
                 }
 
-                response = Core.Api.Module..UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
+                response = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
             }
             else
             {
