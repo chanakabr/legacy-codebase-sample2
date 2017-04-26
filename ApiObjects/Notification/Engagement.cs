@@ -12,5 +12,6 @@ namespace ApiObjects.Notification
         public string AdapterDynamicData { get; set; }
         public int IntervalSeconds { get; set; }
         public string UserList { get; set; }
+        public bool IsActive { get; set; }
     }
 }
