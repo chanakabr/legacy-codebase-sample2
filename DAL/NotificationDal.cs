@@ -1256,6 +1256,33 @@ namespace DAL
             return result;
         }
 
+        public static List<MessageTemplate> GetMessageTemplate(int groupId, MessageTemplateType assetType)
+        {
+            List<MessageTemplate> result = new List<MessageTemplate>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@assetType", (int)assetType);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                            result.Add(CreateMessageTemplate(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}. Error {1}", groupId, ex);
+            }
+            return result;
+        }
+
         private static MessageTemplate CreateMessageTemplate(DataRow row)
         {
             MessageTemplate result = new MessageTemplate();
