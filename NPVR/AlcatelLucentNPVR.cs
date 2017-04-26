@@ -69,6 +69,7 @@ namespace NPVR
         private static readonly string ALU_HAS_FORMAT_URL_PARAM = "HASFormat";
         private static readonly string ALU_SORT_FIELD_URL_PARAM = "sortField";
         private static readonly string ALU_SORT_DIRECTION_URL_PARAM = "sortDirection";
+        private static readonly string ALU_X_KDATA = "X-KDATA";
 
         private static readonly string ALU_SEASON_ID = "seasonId";
         private static readonly string ALU_SEASON_NAME = "seasonName";
@@ -1489,8 +1490,13 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
+                    Dictionary<string, string> headersToAdd = null;
+                    if (!string.IsNullOrEmpty(args.XkData))
+                    {
+                        headersToAdd = new Dictionary<string, string>() { { ALU_X_KDATA, args.XkData } };
+                    }
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, headersToAdd))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {
