@@ -26,7 +26,7 @@ namespace Core.Notification
             };
 
             // validate partner inbox configuration is enabled
-            if (!NotificationSettings.IsPartnerInboxAnnouncementEnabled(groupId))
+            if (!NotificationSettings.IsPartnerInboxEnabled(groupId))
             {
                 log.ErrorFormat("Partner inbox feature is off. GID: {0}, UID: {1}", groupId, userId);
                 response.Status = new Status() { Code = (int)eResponseStatus.FeatureDisabled, Message = eResponseStatus.FeatureDisabled.ToString() };
@@ -72,7 +72,7 @@ namespace Core.Notification
             InboxMessageResponse response = new InboxMessageResponse() { Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() } };
 
             // validate partner inbox configuration is enabled
-            if (!NotificationSettings.IsPartnerInboxAnnouncementEnabled(groupId))
+            if (!NotificationSettings.IsPartnerInboxEnabled(groupId))
             {
                 log.ErrorFormat("Partner inbox feature is off. GID: {0}, UID: {1}", groupId, userId);
                 response.Status = new Status() { Code = (int)eResponseStatus.FeatureDisabled, Message = eResponseStatus.FeatureDisabled.ToString() };
@@ -194,7 +194,7 @@ namespace Core.Notification
             string logData = string.Format("GID: {0}, UserId: {1}, messageId: {2}, status: {3}", groupId, userId, messageId, status.ToString());
 
             // validate partner inbox configuration is enabled
-            if (!NotificationSettings.IsPartnerInboxAnnouncementEnabled(groupId))
+            if (!NotificationSettings.IsPartnerInboxEnabled(groupId))
             {
                 log.ErrorFormat("Partner inbox feature is off. GID: {0}, UID: {1}", groupId, userId);
                 return new Status() { Code = (int)eResponseStatus.FeatureDisabled, Message = eResponseStatus.FeatureDisabled.ToString() };

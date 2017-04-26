@@ -631,7 +631,7 @@ namespace Core.Notification
                     }
 
                     // send inbox messages
-                    if (NotificationSettings.IsPartnerInboxAnnouncementEnabled(groupId))
+                    if (NotificationSettings.IsPartnerInboxEnabled(groupId))
                     {
                         InboxMessage inboxMessage = new InboxMessage()
                         {
@@ -690,7 +690,7 @@ namespace Core.Notification
                     }
 
                     // send inbox messages
-                    if (NotificationSettings.IsPartnerInboxAnnouncementEnabled(groupId))
+                    if (NotificationSettings.IsPartnerInboxEnabled(groupId))
                     {
                         InboxMessage inboxMessage = new InboxMessage()
                         {
@@ -742,7 +742,7 @@ namespace Core.Notification
 
 
                     // send inbox messages
-                    if (NotificationSettings.IsPartnerInboxAnnouncementEnabled(groupId))
+                    if (NotificationSettings.IsPartnerInboxEnabled(groupId))
                     {
                         List<int> followingUserIds = NotificationDal.GetUsersFollowNotificationView(groupId, announcementId);
                         if (followingUserIds != null)

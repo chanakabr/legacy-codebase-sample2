@@ -14,7 +14,7 @@ namespace ApiObjects.Notification
         public int EngagementId { get; set; }
         public int EngagementBulkId { get; set; }
 
-        public bool IsChurnSent { get; set; }
+        public bool IsEngagementSent { get; set; }
 
         public UserEngagement(int partnerId, int userId, int engagementId, int engagementBulkId)
         {

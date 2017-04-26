@@ -310,7 +310,7 @@ namespace Core.Notification
             return false;
         }
 
-        public static bool IsPartnerInboxAnnouncementEnabled(int groupId)
+        public static bool IsPartnerInboxEnabled(int groupId)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
             if (partnerSettingsResponse != null &&

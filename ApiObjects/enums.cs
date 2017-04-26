@@ -569,11 +569,10 @@ namespace ApiObjects
 
     public enum eChurnPlaceHolders
     {
-        FirstName =0 , 
-        LastName = 1 , 
+        FirstName = 0,
+        LastName = 1,
         StartDate = 2,
-        ProgramId = 3,
-        CouponCode = 4
+        CouponCode = 3
     }
 
     public enum eReminderPlaceHolders
@@ -794,7 +793,7 @@ namespace ApiObjects
         CancelNow = 2,
         Fail = 3,
         HouseholdCancel = 4,
-        Switched = 5, 
+        Switched = 5,
         Switched_To = 6
     }
 
@@ -808,7 +807,7 @@ namespace ApiObjects
 
     public enum StreamerType
     {
-        applehttp = 0, 
+        applehttp = 0,
         mpegdash = 1,
         url = 2,
         smothstreaming = 3

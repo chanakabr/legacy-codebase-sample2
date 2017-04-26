@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using TVinciShared;
 using ApiObjects;
+using Core.Pricing;
+using APILogic.AmazonSnsAdapter;
 
 namespace Core.Notification
 {
@@ -946,13 +948,6 @@ namespace Core.Notification
                 return true;
             }
 
-            // validate engagementBulkMessage
-            if (engagementBulkMessage.IsSent == true)
-            {
-                log.ErrorFormat("Engagement BulkMessage already sent . engagementBulkId: {0}", engagementBulkId);
-                return true;
-            }
-
             // get relevant usersengagementBulkMessage 
             List<UserEngagement> userEngagements = EngagementDal.GetBulkUserEngagementView(engagementId, engagementBulkId);
             if (userEngagements == null || userEngagements.Count == 0)
@@ -961,44 +956,22 @@ namespace Core.Notification
                 return true;
             }
 
-            UserNotification userNotificationData = null;
-            bool docExists = false;
-            foreach (UserEngagement userEngagement in userEngagements)
+            // remove already engaged users
+            userEngagements.RemoveAll(x => x.IsEngagementSent);
+
+            // generate coupon according to user count
+            List<Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, userEngagements.Count, engagement.CouponGroupId);
+            if (coupons == null || coupons.Count != userEngagements.Count)
             {
-                docExists = false;
-                // get user notifications
-                userNotificationData = DAL.NotificationDal.GetUserNotificationData(partnerId, userEngagement.UserId, ref docExists);
-
-                if (userNotificationData == null && docExists)
-                {
-                    log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}", partnerId, userEngagement.UserId);
-                    continue;
-                }
-
-                if (userNotificationData.Settings.EnableInbox.Value)
-                {
-                }
-
-                //UserResponseObject response = Core.Users.Module.GetUserData(partnerId, userEngagement.UserId.ToString(), string.Empty);
-
-                //List<Pricing.Coupon> coupons = Core.Pricing.Module.GenerateCoupons(partnerId, 500, 1);
-
-                //ChurnMailRequest churn = new ChurnMailRequest();
-                //churn.CouponCode = coupons[0].code;
-
-                ////Core.Api.api.SendMailTemplate()
-
-
-
+                log.ErrorFormat("Number of coupons not equal to users number. engagementBulkId: {0}, requested coupons: {1}, received: {2} ",
+                    engagementBulkId,
+                    userEngagements.Count,
+                    coupons != null ? coupons.Count.ToString() : "null");
+                return true;
             }
 
-            // take a look at reminders
-
-            // 1. send mail
-
-
-            // According to partner settings  send push & inbox
-            // get partner notifications settings
+            // According to partner settings  send push & inbox 
+            // get partner notifications settings 
             var partnerSettings = NotificationSettings.GetPartnerNotificationSettings(partnerId);
             if (partnerSettings == null && partnerSettings.settings != null)
             {
@@ -1006,13 +979,131 @@ namespace Core.Notification
                 return true;
             }
 
+            // get message templates 
+            MessageTemplate churnTemplate = null;
+            List<MessageTemplate> messageTemplates = NotificationCache.Instance().GetMessageTemplates(partnerId);
+            if (messageTemplates != null)
+                churnTemplate = messageTemplates.FirstOrDefault(x => x.TemplateType == MessageTemplateType.Reminder);
 
+            if (churnTemplate == null)
+            {
+                log.ErrorFormat("churn message template was not found. group: {0}", partnerId);
+            }
 
-
-            // 2 .send to inbox
+            List<UserEngagement> SuccessfullySentEngagementUsers = new List<UserEngagement>();
+            for (int userIndex = 0; userIndex < userEngagements.Count; userIndex++)
+            {
+                if (HandleChurn(partnerId, engagement, userEngagements[userIndex], coupons[userIndex].code,
+                     partnerSettings.settings, churnTemplate))
+                {
+                    SuccessfullySentEngagementUsers.Add(userEngagements[userIndex]);
+                }
+            }
 
             // 3. send push
             return true;
         }
+
+
+        internal static bool HandleChurn(int partnerId, Engagement engagement, UserEngagement userEngagement, string couponCode,
+            NotificationPartnerSettings notificationPartnerSettings, MessageTemplate churnTemplate)
+        {
+            Core.Users.UserResponseObject response = Core.Users.Module.GetUserData(partnerId, userEngagement.UserId.ToString(), string.Empty);
+            if (response == null || response.m_RespStatus != ResponseStatus.OK || response.m_user == null || response.m_user.m_oBasicData == null)
+            {
+                log.ErrorFormat("Could not send churn - User invalid. partnerId: {0}, userId: {1}, userObj: {2}",
+                    partnerId,
+                    userEngagement.UserId,
+                    response != null ? JsonConvert.SerializeObject(response) : "null");
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(response.m_user.m_oBasicData.m_sEmail))
+            {
+                log.ErrorFormat("Error: user email is empty. partnerId: {0}, userId: {1}", partnerId, userEngagement.UserId);
+                return true;
+            }
+
+            ChurnMailRequest mailRequest = new ChurnMailRequest()
+            {
+                CouponCode = couponCode,
+                m_sTemplateName = notificationPartnerSettings.ChurnMailTemplateName,
+                m_sSubject = notificationPartnerSettings.ChurnMailSubject,
+                m_sSenderFrom = notificationPartnerSettings.SenderEmail,
+                m_sSenderName = notificationPartnerSettings.MailSenderName,
+                m_sFirstName = response.m_user.m_oBasicData.m_sFirstName,
+                m_sLastName = response.m_user.m_oBasicData.m_sLastName,
+                m_sSenderTo = response.m_user.m_oBasicData.m_sEmail
+            };
+
+            // send mail 
+            if (!Core.Api.Module.SendMailTemplate(partnerId, mailRequest))
+            {
+                log.ErrorFormat("Could not send churn - User invalid. partnerId: {0}, userId: {1}", partnerId, userEngagement.UserId);
+                return false;
+            }
+
+            userEngagement.IsEngagementSent = true;
+            //TODO: update doc
+
+            // 2 .send to inbox 
+            bool docExists = false;
+            // get user notifications 
+            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(partnerId, userEngagement.UserId, ref docExists);
+            if (userNotificationData == null)
+            {
+                log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}", partnerId, userEngagement.UserId);
+                return true;
+            }
+
+            // validate partner inbox configuration is enabled 
+            if (!NotificationSettings.IsPartnerInboxEnabled(partnerId))
+            {
+                log.ErrorFormat("Partner inbox feature is off. GID: {0}, UID: {1}", partnerId, userEngagement.UserId);
+                return true;
+            }
+
+
+            if (churnTemplate == null)
+            {
+                log.ErrorFormat("churnTemplate is empty.GID: {0}, UID: {1}", partnerId, userEngagement.UserId);
+                return true;
+            }
+            // build message 
+            MessageData messageData = new MessageData()
+            {
+                Category = churnTemplate.Action,
+                Sound = churnTemplate.Sound,
+                Url = churnTemplate.URL.Replace("{" + eChurnPlaceHolders.StartDate + "}", engagement.SendTime.ToString(churnTemplate.DateFormat)).
+                                                     Replace("{" + eChurnPlaceHolders.CouponCode + "}", couponCode).
+                                                     Replace("{" + eChurnPlaceHolders.FirstName + "}", response.m_user.m_oBasicData.m_sFirstName).
+                                                     Replace("{" + eChurnPlaceHolders.LastName + "}", response.m_user.m_oBasicData.m_sLastName),
+                Alert = churnTemplate.Message.Replace("{" + eChurnPlaceHolders.StartDate + "}", engagement.SendTime.ToString(churnTemplate.DateFormat)).
+                                                     Replace("{" + eChurnPlaceHolders.CouponCode + "}", couponCode).
+                                                     Replace("{" + eChurnPlaceHolders.FirstName + "}", response.m_user.m_oBasicData.m_sFirstName).
+                                                     Replace("{" + eChurnPlaceHolders.LastName + "}", response.m_user.m_oBasicData.m_sLastName)
+            };
+
+            long currentTimeSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
+
+            InboxMessage inboxMessage = new InboxMessage()
+            {
+                Category = eMessageCategory.Engagement,
+                CreatedAtSec = currentTimeSec,
+                Id = Guid.NewGuid().ToString(),
+                Message = messageData.Alert,
+                State = eMessageState.Unread,
+                UpdatedAtSec = currentTimeSec,
+                Url = messageData.Url//  from template
+            };
+
+            if (!NotificationDal.SetSystemAnnouncementMessage(partnerId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(partnerId)))
+                log.ErrorFormat("Error while setting churn inbox message. GID: {0}, InboxMessage: {1}", partnerId, JsonConvert.SerializeObject(inboxMessage));
+
+            // 3. send push
+
+            return true;
+        }
+
     }
 }
