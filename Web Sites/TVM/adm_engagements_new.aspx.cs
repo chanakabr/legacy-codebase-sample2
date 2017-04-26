@@ -12,7 +12,6 @@ using System.Reflection;
 public partial class adm_engagements_new : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-    protected Engagement engagement;
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -37,11 +36,15 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 int groupId = LoginManager.GetLoginGroupID();
                 ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-                engagement = GetPageData();
-
-                if (engagement != null)
+                int type = 0;
+                if (Session["type"] != null && int.TryParse(Session["type"].ToString(), out type))
                 {
-                    result = ImporterImpl.AddEngagement(groupId, ref engagement);
+                    Engagement engagement = GetPageData(type);
+
+                    if (engagement != null)
+                    {
+                        result = ImporterImpl.AddEngagement(groupId, ref engagement);
+                    }
                 }
 
                 if (result == null)
@@ -88,11 +91,13 @@ public partial class adm_engagements_new : System.Web.UI.Page
         }
     }
 
-    private Engagement GetPageData()
+    private Engagement GetPageData(int type)
     {
         NameValueCollection nvc = Request.Form;
 
         Engagement engagement = new Engagement();
+
+        engagement.IsActive = true;
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {
@@ -121,31 +126,38 @@ public partial class adm_engagements_new : System.Web.UI.Page
             engagement.SendTime = sendTime;
 
         }
-        // this fields relevant only for adapter user list
-        if (int.Parse(Session["user_list"].ToString()) == 1)
-        {
-            if (!string.IsNullOrEmpty(nvc["2_val"]))
-            {
-                engagement.AdapterId = int.Parse(nvc["2_val"]);
-            }
 
-            if (!string.IsNullOrEmpty(nvc["3_val"]))
+        int tempValue = 0;
+
+        if (!string.IsNullOrEmpty(nvc["2_val"]) && int.TryParse(nvc["2_val"], out tempValue))
+        {
+            engagement.CouponGroupId = tempValue;
+        }
+
+        // this fields relevant only for adapter user list
+        if (type == 1)
+        {
+            if (!string.IsNullOrEmpty(nvc["3_val"]) && int.TryParse(nvc["3_val"], out tempValue))
             {
-                engagement.AdapterDynamicData = nvc["3_val"];
+                engagement.AdapterId = tempValue;
             }
 
             if (!string.IsNullOrEmpty(nvc["4_val"]))
             {
-                engagement.IntervalSeconds = int.Parse(nvc["4_val"]) * 3600;
+                engagement.AdapterDynamicData = nvc["4_val"];
+            }
+
+            if (!string.IsNullOrEmpty(nvc["5_val"]) && int.TryParse(nvc["5_val"], out tempValue))
+            {
+                engagement.IntervalSeconds = tempValue * 3600;
             }
         }
-
-        // this fields relevant only for manual user list
-        if (int.Parse(Session["user_list"].ToString()) == 2)
+        
+        if (type == 2)
         {
-            if (!string.IsNullOrEmpty(nvc["2_val"]))
+            if (!string.IsNullOrEmpty(nvc["3_val"]))
             {
-                engagement.UserList = nvc["2_val"];
+                engagement.UserList = nvc["3_val"];
             }
         }
 
