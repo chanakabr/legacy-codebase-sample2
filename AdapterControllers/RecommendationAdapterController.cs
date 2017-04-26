@@ -102,7 +102,7 @@ namespace AdapterControllers
             
             RecommendationEngineAdapter.ServiceClient adapterClient = new RecommendationEngineAdapter.ServiceClient(string.Empty, engine.AdapterUrl);
 
-            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress("http://localhost/REAdapter/service.svc");//engine.AdapterUrl);
+            adapterClient.Endpoint.Address = new System.ServiceModel.EndpointAddress(engine.AdapterUrl);
             
             //set unixTimestamp
             long unixTimestamp = TVinciShared.DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow);
