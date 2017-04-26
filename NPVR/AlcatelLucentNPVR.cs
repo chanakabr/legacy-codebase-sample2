@@ -69,6 +69,7 @@ namespace NPVR
         private static readonly string ALU_HAS_FORMAT_URL_PARAM = "HASFormat";
         private static readonly string ALU_SORT_FIELD_URL_PARAM = "sortField";
         private static readonly string ALU_SORT_DIRECTION_URL_PARAM = "sortDirection";
+        private static readonly string ALU_X_KDATA = "X-KDATA";
 
         private static readonly string ALU_SEASON_ID = "seasonId";
         private static readonly string ALU_SEASON_NAME = "seasonName";
@@ -79,7 +80,7 @@ namespace NPVR
         private static readonly string ALU_SEASON_NUMBER = "seasonNumber";
         private static readonly string ALU_RATING = "rating";
 
-        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";
+        private const string USE_OLD_IMAGE_SERVER_KEY = "USE_OLD_IMAGE_SERVER";        
 
         private int groupID;
 
@@ -1469,7 +1470,7 @@ namespace NPVR
 
         public NPVRLicensedLinkResponse GetNPVRLicensedLink(NPVRParamsObj args)
         {
-            NPVRLicensedLinkResponse res = new NPVRLicensedLinkResponse();
+            NPVRLicensedLinkResponse res = new NPVRLicensedLinkResponse();            
             try
             {
                 if (IsLicensedLinkInputValid(args))
@@ -1480,9 +1481,9 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
                     if (!string.IsNullOrEmpty(args.StreamType) && !string.IsNullOrEmpty(args.HASFormat))
-                    {
+                    {                        
                         urlParams.Add(new KeyValuePair<string, string>(ALU_STREAM_TYPE_URL_PARAM, args.StreamType));
-                        urlParams.Add(new KeyValuePair<string, string>(ALU_HAS_FORMAT_URL_PARAM, args.HASFormat));
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_HAS_FORMAT_URL_PARAM, args.HASFormat));                        
                     }
 
                     string url = BuildRestCommand(ALU_GET_LOCATOR_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
@@ -1490,8 +1491,13 @@ namespace NPVR
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
                     string errorMsg = string.Empty;
+                    Dictionary<string, string> headersToAdd = null;
+                    if (!string.IsNullOrEmpty(args.XkData))
+                    {
+                        headersToAdd = new Dictionary<string, string>() { { "X-KDATA", args.XkData } };
+                    }
 
-                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    if (TVinciShared.WS_Utils.TrySendHttpGetRequest(url, Encoding.UTF8, ref httpStatusCode, ref responseJson, ref errorMsg, headersToAdd))
                     {
                         if (httpStatusCode == HTTP_STATUS_OK)
                         {

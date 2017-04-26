@@ -19,6 +19,9 @@ namespace ConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly DateTime UNIX_ZERO_TIME = new DateTime(1970, 1, 1, 0, 0, 0);
+        private const string NPVR_TYPE_PREFIX = "NPVR_TYPE_";
+        private const string TCM_NPVR_TYPE_FORMAT = "NPVR_TYPE.GROUP_{0}_CUSTOMER_TYPE_{1}";
+        private const string STREAM_TYPE_AND_PROFILE_HEADER = "deviceBrand={0};customerType={1}";
 
         public VodafoneConditionalAccess(Int32 nGroupID)
             : base(nGroupID)
@@ -646,9 +649,10 @@ namespace ConditionalAccess
                     {
                         string streamType = string.Empty;
                         string profile = string.Empty;
-                        if (GetDeviceStreamTypeAndProfile(sDEVICE_NAME, domainID, ref streamType, ref profile))
+                        string xkData = string.Empty;
+                        if (GetDeviceStreamTypeAndProfile(sDEVICE_NAME, domainID, ref streamType, ref profile, ref xkData, sRefferer))
                         {
-                            NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = streamType, StreamType = profile }); // it is not a bug we call ALU's HASFormat is Kaltura's StreamType.
+                            NPVRLicensedLinkResponse resp = npvr.GetNPVRLicensedLink(new NPVRParamsObj() { AssetID = sProgramId, EntityID = domainID.ToString(), HASFormat = streamType, StreamType = profile, XkData = xkData }); // it is not a bug we call ALU's HASFormat is Kaltura's StreamType.
                             if (resp != null)
                             {
                                 if (resp.isOK)
@@ -691,7 +695,7 @@ namespace ConditionalAccess
             return res;
         }
 
-        private bool GetDeviceStreamTypeAndProfile(string udid, int domainID, ref string streamType, ref string profile)
+        private bool GetDeviceStreamTypeAndProfile(string udid, int domainID, ref string streamType, ref string profile, ref string xkData, string customerType)
         {
             DeviceResponseObject resp = null;
             bool res = false;
@@ -707,8 +711,16 @@ namespace ConditionalAccess
                 resp = domains.GetDeviceInfo(wsUsername, wsPassword, udid, true);
                 if (resp != null && resp.m_oDeviceResponseStatus == DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
                 {
-                    streamType = resp.m_oDevice.m_sStreamType;
-                    profile = resp.m_oDevice.m_sProfile;
+                    if (string.IsNullOrEmpty(customerType) || customerType.ToUpper().StartsWith(NPVR_TYPE_PREFIX)
+                        || !GetDeviceStreamTypeAndProfileByCustomerType(m_nGroupID, customerType, ref streamType, ref profile))
+                    {
+                        streamType = resp.m_oDevice.m_sStreamType;
+                        profile = resp.m_oDevice.m_sProfile;
+                        // in case customer type is not empty but contains invalid value
+                        customerType = string.Empty;
+                    }
+
+                    xkData = string.Format(STREAM_TYPE_AND_PROFILE_HEADER, resp.m_oDevice.m_deviceBrandID, customerType);
                     res = true;
                 }
                 else
@@ -721,6 +733,39 @@ namespace ConditionalAccess
             }
 
             return res;
+        }
+
+        private bool GetDeviceStreamTypeAndProfileByCustomerType(int groupId, string customerType, ref string streamType, ref string profile)
+        {
+            bool result = false;
+            try
+            {
+                customerType = customerType.Substring(NPVR_TYPE_PREFIX.Length);
+                string deviceStreamAndProfile = Utils.GetValueFromConfig(string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType));
+                if (string.IsNullOrEmpty(deviceStreamAndProfile))
+                {
+                    log.ErrorFormat("Failed to get GetDeviceStreamTypeAndProfileByCustomerType for key: {0}, key was not found on TCM", string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType));
+                }
+
+                string[] values = deviceStreamAndProfile.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+                if (values != null && values.Length == 2)
+                {
+                    streamType = values[0];
+                    profile = values[1];
+                    result = true;
+                }
+                else
+                {
+                    log.ErrorFormat("streamType and profile for key: {0} are invalid, value: {1}", string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType), deviceStreamAndProfile);
+                }                
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetDeviceStreamTypeAndProfileByCustomerType for key: {0}", string.Format(TCM_NPVR_TYPE_FORMAT, groupId, customerType)), ex);
+            }
+
+            return result;
         }
     }
 }
