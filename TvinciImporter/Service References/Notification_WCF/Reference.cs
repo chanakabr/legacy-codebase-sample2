@@ -246,10 +246,10 @@ namespace TvinciImporter.Notification_WCF {
         System.Threading.Tasks.Task<ApiObjects.Notification.MessageTemplateResponse> SetMessageTemplateAsync(string sWSUserName, string sWSPassword, ApiObjects.Notification.MessageTemplate followTemplate);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetMessageTemplate", ReplyAction="http://tempuri.org/INotificationService/GetMessageTemplateResponse")]
-        ApiObjects.Notification.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes);
+        ApiObjects.Notification.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.MessageTemplateType assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetMessageTemplate", ReplyAction="http://tempuri.org/INotificationService/GetMessageTemplateResponse")]
-        System.Threading.Tasks.Task<ApiObjects.Notification.MessageTemplateResponse> GetMessageTemplateAsync(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes);
+        System.Threading.Tasks.Task<ApiObjects.Notification.MessageTemplateResponse> GetMessageTemplateAsync(string sWSUserName, string sWSPassword, ApiObjects.MessageTemplateType assetTypes);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/GetUserFollows", ReplyAction="http://tempuri.org/INotificationService/GetUserFollowsResponse")]
         ApiObjects.Notification.GetUserFollowsResponse GetUserFollows(string sWSUserName, string sWSPassword, int userId, int pageSize, int pageIndex, ApiObjects.SearchObjects.OrderDir order);
@@ -407,6 +407,14 @@ namespace TvinciImporter.Notification_WCF {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/AddEngagement", ReplyAction="http://tempuri.org/INotificationService/AddEngagementResponse")]
         System.Threading.Tasks.Task<ApiObjects.Notification.EngagementResponse> AddEngagementAsync(string wsUserName, string wsSPassword, ApiObjects.Notification.Engagement engagement);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetEngagementAdapterConfiguration", ReplyAction="http://tempuri.org/INotificationService/SetEngagementAdapterConfigurationResponse" +
+            "")]
+        ApiObjects.Response.Status SetEngagementAdapterConfiguration(string wsUserName, string wsSPassword, int engagementAdapterId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/INotificationService/SetEngagementAdapterConfiguration", ReplyAction="http://tempuri.org/INotificationService/SetEngagementAdapterConfigurationResponse" +
+            "")]
+        System.Threading.Tasks.Task<ApiObjects.Response.Status> SetEngagementAdapterConfigurationAsync(string wsUserName, string wsSPassword, int engagementAdapterId);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -612,11 +620,11 @@ namespace TvinciImporter.Notification_WCF {
             return base.Channel.SetMessageTemplateAsync(sWSUserName, sWSPassword, followTemplate);
         }
         
-        public ApiObjects.Notification.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes) {
+        public ApiObjects.Notification.MessageTemplateResponse GetMessageTemplate(string sWSUserName, string sWSPassword, ApiObjects.MessageTemplateType assetTypes) {
             return base.Channel.GetMessageTemplate(sWSUserName, sWSPassword, assetTypes);
         }
         
-        public System.Threading.Tasks.Task<ApiObjects.Notification.MessageTemplateResponse> GetMessageTemplateAsync(string sWSUserName, string sWSPassword, ApiObjects.eOTTAssetTypes assetTypes) {
+        public System.Threading.Tasks.Task<ApiObjects.Notification.MessageTemplateResponse> GetMessageTemplateAsync(string sWSUserName, string sWSPassword, ApiObjects.MessageTemplateType assetTypes) {
             return base.Channel.GetMessageTemplateAsync(sWSUserName, sWSPassword, assetTypes);
         }
         
@@ -818,6 +826,14 @@ namespace TvinciImporter.Notification_WCF {
         
         public System.Threading.Tasks.Task<ApiObjects.Notification.EngagementResponse> AddEngagementAsync(string wsUserName, string wsSPassword, ApiObjects.Notification.Engagement engagement) {
             return base.Channel.AddEngagementAsync(wsUserName, wsSPassword, engagement);
+        }
+        
+        public ApiObjects.Response.Status SetEngagementAdapterConfiguration(string wsUserName, string wsSPassword, int engagementAdapterId) {
+            return base.Channel.SetEngagementAdapterConfiguration(wsUserName, wsSPassword, engagementAdapterId);
+        }
+        
+        public System.Threading.Tasks.Task<ApiObjects.Response.Status> SetEngagementAdapterConfigurationAsync(string wsUserName, string wsSPassword, int engagementAdapterId) {
+            return base.Channel.SetEngagementAdapterConfigurationAsync(wsUserName, wsSPassword, engagementAdapterId);
         }
     }
 }

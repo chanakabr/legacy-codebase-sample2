@@ -22,7 +22,6 @@ using System.Web;
 using System.Xml;
 using System.Xml.Serialization;
 using Tvinci.Core.DAL;
-using TvinciImporter.Notification_WCF;
 using TVinciShared;
 
 namespace TvinciImporter
@@ -466,7 +465,7 @@ namespace TvinciImporter
 
         public static DateTime? GetDateTimeFromStrUTF(string sDate)
         {
-            DateTime? date = null; 
+            DateTime? date = null;
             try
             {
                 string sTime = "";
@@ -507,7 +506,7 @@ namespace TvinciImporter
             }
             catch
             {
-                
+
             }
 
             return date;
@@ -5625,7 +5624,7 @@ namespace TvinciImporter
                 Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
                 if (!string.IsNullOrEmpty(sWSURL))
                     service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
-                
+
                 string sIP = "1.1.1.1";
                 string sWSUserName = "";
                 string sWSPass = "";
@@ -5645,7 +5644,7 @@ namespace TvinciImporter
                     IsActive = engagement.IsActive
                 };
 
-                response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);                
+                response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);
                 return response.Status;
             }
             catch
@@ -5653,6 +5652,31 @@ namespace TvinciImporter
                 return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
             }
         }
+
+        public static Status SetEngagementAdapterConfiguration(int groupId, int engagementAdapterId)
+        {
+            try
+            {
+                //Call Notifications WCF service
+                string sWSURL = GetConfigVal("NotificationService");
+                Notification_WCF.NotificationServiceClient service = new Notification_WCF.NotificationServiceClient();
+                if (!string.IsNullOrEmpty(sWSURL))
+                    service.Endpoint.Address = new System.ServiceModel.EndpointAddress(sWSURL);
+
+                string sIP = "1.1.1.1";
+                string sWSUserName = "";
+                string sWSPass = "";
+                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(groupId);
+                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "", "notifications", sIP, ref sWSUserName, ref sWSPass);
+
+                return service.SetEngagementAdapterConfiguration(sWSUserName, sWSPass, engagementAdapterId);
+            }
+            catch
+            {
+                return new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+        }
+
         #endregion
 
         private static string GetConfigVal(string sKey)
@@ -6432,7 +6456,6 @@ namespace TvinciImporter
 
             return result;
         }
-       
     }
 }
 
