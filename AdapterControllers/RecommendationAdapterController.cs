@@ -82,9 +82,10 @@ namespace AdapterControllers
 
         #region Public Methods
         
-        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel, 
-            Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize)
+        public List<RecommendationResult> GetChannelRecommendations(ExternalChannel externalChannel,
+            Dictionary<string, string> enrichments, string free, out string requestId, int pageIndex, int pageSize, out int totalResults)
         {
+            totalResults = 0;
             List<RecommendationResult> searchResults = new List<RecommendationResult>();
 
             RecommendationEngine engine = RecommendationEnginesCache.Instance().GetRecommendationEngine(externalChannel.GroupId, externalChannel.RecommendationEngineId);
@@ -202,6 +203,7 @@ namespace AdapterControllers
                                     type = (eAssetTypes)result.AssetType
                                 }).ToList();
                     }
+                    totalResults = adapterResponse.TotalResults;
                 }
             }
             catch (Exception ex)
