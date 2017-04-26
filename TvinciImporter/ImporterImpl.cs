@@ -5636,11 +5636,13 @@ namespace TvinciImporter
                 {
                     AdapterDynamicData = engagement.AdapterDynamicData,
                     AdapterId = engagement.AdapterId,
-                    EngagementType= engagement.EngagementType,
+                    EngagementType = engagement.EngagementType,
                     IntervalSeconds = engagement.IntervalSeconds,
                     SendTime = engagement.SendTime,
                     TotalNumberOfRecipients = engagement.TotalNumberOfRecipients,
-                    UserList = engagement.UserList
+                    UserList = engagement.UserList,
+                    CouponGroupId = engagement.CouponGroupId,
+                    IsActive = engagement.IsActive
                 };
 
                 response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);                
