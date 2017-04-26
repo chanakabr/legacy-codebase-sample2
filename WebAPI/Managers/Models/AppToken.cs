@@ -102,7 +102,7 @@ namespace WebAPI.Managers.Models
             PartnerId = kalturaAppToken.getPartnerId();
             SessionDuration = kalturaAppToken.getSessionDuration();
             HashType = kalturaAppToken.HashType.HasValue ? kalturaAppToken.HashType.Value : KalturaAppTokenHashType.SHA256;
-            SessionType = kalturaAppToken.SessionType;
+            SessionType = kalturaAppToken.SessionType.HasValue ? kalturaAppToken.SessionType.Value : KalturaSessionType.USER; 
             Status = kalturaAppToken.Status;
             Token = kalturaAppToken.Token;
             SessionUserId = kalturaAppToken.SessionUserId;

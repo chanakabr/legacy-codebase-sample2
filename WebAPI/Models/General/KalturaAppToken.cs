@@ -64,6 +64,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "sessionPrivileges")]
         [JsonProperty("sessionPrivileges")]
         [XmlElement(ElementName = "sessionPrivileges")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public string SessionPrivileges { get; set; }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace WebAPI.Models.General
         [JsonProperty("sessionType")]
         [XmlElement(ElementName = "sessionType")]
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
-        public KalturaSessionType SessionType { get; set; }
+        public KalturaSessionType? SessionType { get; set; }
 
         /// <summary>
         /// Application token status
@@ -90,6 +91,7 @@ namespace WebAPI.Models.General
         [DataMember(Name = "token")]
         [JsonProperty("token")]
         [XmlElement(ElementName = "token")]
+        [SchemeProperty(ReadOnly = true)]
         public string Token { get; set; }
 
         /// <summary>
