@@ -749,7 +749,8 @@ namespace WebAPI.Clients
                 m_nMediaTypes = mediaTypes,
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
-                m_nUtcOffset = utcOffset
+                m_nUtcOffset = utcOffset,
+                m_sDeviceID = udid
             };
 
             // build failover cache key
@@ -1853,7 +1854,8 @@ namespace WebAPI.Clients
                 m_nMediaTypes = mediaTypes,
                 m_sSiteGuid = userID,
                 domainId = domainId,
-                m_nUtcOffset = utcOffset
+                m_nUtcOffset = utcOffset,
+                m_sDeviceID = udid
             };
 
             // build failover cache key
