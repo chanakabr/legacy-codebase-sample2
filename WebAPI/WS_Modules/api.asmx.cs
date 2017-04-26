@@ -4194,6 +4194,80 @@ namespace WS_API
         }
 
         [WebMethod]
+        public Country GetCountryByIp(string sWSUserName, string sWSPassword, string ip)
+        {
+            Country result = null;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.GetCountryByIp(groupId, ip);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
+        [WebMethod]
+        public string GetLayeredCacheGroupConfig(string sWSUserName, string sWSPassword)
+        {
+            string result = null;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.GetLayeredCacheGroupConfig(groupId);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
+        [WebMethod]
+        public bool UpdateLayeredCacheGroupConfig(string sWSUserName, string sWSPassword, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings)
+        {
+            bool result = false;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                result = Core.Api.Module.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, layeredCacheSettingsToExclude, shouldOverrideExistingExludeSettings);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
+        [WebMethod]
+        public bool UpdateLayeredCacheGroupConfigST(string sWSUserName, string sWSPassword, int version, bool disableLayeredCache, string layeredCacheSettingsToExcludeCommaSeperated, bool shouldOverrideExistingExludeSettings)
+        {
+            bool response = false;
+            int groupId = GetGroupID(sWSUserName, sWSPassword);
+            if (groupId > 0)
+            {
+                string[] layeredCacheSettingsToExclude = layeredCacheSettingsToExcludeCommaSeperated.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
+                if (layeredCacheSettingsToExclude == null)
+                {
+                    layeredCacheSettingsToExclude = new string[0];
+                }
+
+                response = Core.Api.Module..UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
+            }
+            else
+            {
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        [WebMethod]
         public List<int> GetMediaFilesByMediaId(string sWSUserName, string sWSPassword, int mediaId)
         {
             List<int> result = null;
