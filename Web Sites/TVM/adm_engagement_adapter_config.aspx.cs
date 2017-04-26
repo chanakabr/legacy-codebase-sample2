@@ -71,7 +71,7 @@ public partial class adm_engagement_adapter_config : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "select ID, group_id, status, keyName as 'key', [value] ";
+        theTable += "select ID, group_id, status, key_Name as 'key', [value] ";
         theTable += " from engagement_adapter_config ";
         theTable += " where ( status = 1 or status = 4 ) AND " ;
         theTable += ODBCWrapper.Parameter.NEW_PARAM("engagement_adapter_id", "=", int.Parse(Session["engagement_adapter_id"].ToString()));

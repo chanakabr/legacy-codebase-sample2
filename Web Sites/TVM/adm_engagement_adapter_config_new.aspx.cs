@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
+﻿using ApiObjects.Response;
 using KLogMonitor;
+using System;
+using System.Reflection;
+using TvinciImporter;
 using TVinciShared;
 
 public partial class adm_engagement_adapter_config_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
 
@@ -34,6 +33,20 @@ public partial class adm_engagement_adapter_config_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
                 DBManipulator.DoTheWork("notifications_connection");
+                int engagementAdapterId = 0;
+
+                if (Session["engagement_adapter_id"] != null && !string.IsNullOrEmpty(Session["engagement_adapter_id"].ToString()) && int.TryParse(Session["engagement_adapter_id"].ToString(), out engagementAdapterId))
+                {
+                    int groupId = LoginManager.GetLoginGroupID();
+                    ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    result = ImporterImpl.SetEngagementAdapterConfiguration(groupId, engagementAdapterId);
+
+                    if (result == null || result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                    {
+                        log.ErrorFormat("Error while SetEngagementAdapterConfiguration. Message: {0}", result.Message);
+                    }
+                }
+
                 return;
             }
 
@@ -91,7 +104,7 @@ public partial class adm_engagement_adapter_config_new : System.Web.UI.Page
         theRecord.SetConnectionKey("notifications_connection");
 
         DataRecordShortTextField dr_key = new DataRecordShortTextField("ltr", true, 60, 128);
-        dr_key.Initialize("Key", "adm_table_header_nbg", "FormInput", "keyName", false);
+        dr_key.Initialize("Key", "adm_table_header_nbg", "FormInput", "key_Name", false);
         theRecord.AddRecord(dr_key);
 
         DataRecordLongTextField dr_value = new DataRecordLongTextField("ltr", true, 60, 4);
