@@ -1081,5 +1081,27 @@ namespace WS_Notification
 
             return response;
         }
+
+        public ApiObjects.Response.Status SetEngagementAdapterConfiguration(string wsUserName, string wsSPassword, int engagementAdapterId)
+        {
+            ApiObjects.Response.Status response = null;
+            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", wsUserName, wsSPassword);
+
+            try
+            {
+                if (groupID != 0)
+                {
+                    return Core.Notification.Module.SetEngagementAdapterConfiguration(groupID, engagementAdapterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SetEngagementAdapterConfiguration caught an exception: GroupID: {0}, engagementAdapterId: {1}, ex: {2}", groupID, engagementAdapterId, ex);
+                HttpContext.Current.Response.StatusCode = 404;
+                response = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
     }
 }
