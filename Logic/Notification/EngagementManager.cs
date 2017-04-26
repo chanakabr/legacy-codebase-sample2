@@ -1105,5 +1105,45 @@ namespace Core.Notification
             return true;
         }
 
+
+        internal static ApiObjects.Response.Status SetEngagementAdapterConfiguration(int groupId, int engagementAdapterId)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                if (engagementAdapterId == 0)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
+                    return status;
+                }
+
+                //get engagementAdapter
+                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
+
+                if (engagementAdapter == null || engagementAdapter.ID <= 0)
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+                    return status;
+                }
+
+                if (EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    log.ErrorFormat("SetEngagementAdapterConfiguration - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapter.ID);
+                }
+            }
+            catch (Exception ex)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed ex={0}", ex);
+            }
+
+            return status;
+        }
     }
 }

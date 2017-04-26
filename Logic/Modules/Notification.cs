@@ -1063,5 +1063,10 @@ namespace Core.Notification
                 return false;
             }
         }
+
+        public static ApiObjects.Response.Status SetEngagementAdapterConfiguration(int groupId, int engagementId)
+        {
+            return EngagementManager.SetEngagementAdapterConfiguration(groupId, engagementId);
+        }
     }
 }
