@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections;
+using System.Reflection;
+using KLogMonitor;
 using TVinciShared;
 
 public partial class adm_engagements : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sSubSubMenu;
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        log.DebugFormat("Start");
+
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
         else if (LoginManager.IsPagePermitted("adm_engagements.aspx") == false)
@@ -36,13 +42,15 @@ public partial class adm_engagements : System.Web.UI.Page
         SortedList sortedMenu = new SortedList();
         string sButton = "Add A.UserList";
         sButton += "|";
-        sButton += "adm_engagements_new.aspx?user_list=1";
+        sButton += "adm_engagements_new.aspx?type=1";
         sortedMenu[0] = sButton;
 
         sButton = "Add M.UserList";
         sButton += "|";
-        sButton += "adm_engagements_new.aspx?user_list=2";
+        sButton += "adm_engagements_new.aspx?type=2";
         sortedMenu[1] = sButton;
+
+        log.DebugFormat("TYPE!!!");
 
         return sortedMenu;
 
@@ -77,33 +85,14 @@ public partial class adm_engagements : System.Web.UI.Page
         return sCSVFile;
     }
 
-    static protected string GetMainLang()
-    {
-        string sMainLang = "";
-        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        selectQuery += "select l.CODE3,l.id from groups g,lu_languages l where l.id=g.language_id and  ";
-        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", LoginManager.GetLoginGroupID());
-        if (selectQuery.Execute("query", true) != null)
-        {
-            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-            if (nCount > 0)
-            {
-                sMainLang = selectQuery.Table("query").DefaultView[0].Row["CODE3"].ToString();
-            }
-        }
-        selectQuery.Finish();
-        selectQuery = null;
-        return sMainLang;
-    }
-
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "SELECT ID ,group_id ,status, is_active, adapter_id, case engagement_type when 1 then 'Churn' else '' end as 'Type',send_time as 'Send Time',total_number_of_recipients as '# Recipients' ";
-        theTable += ", Interval_seconds / CAST(3600 AS float)  as 'Interval (hours)' ";
+        theTable += "SELECT ID ,group_id ,status, is_active, adapter_id, case engagement_type when 1 then 'Churn' else '' end as 'Type',send_time as 'Send Time',total_number_of_recipients as '# Recipients'";
+        theTable += ", INTERVAL_SECONDS / CAST(3600 AS float)  as 'Interval (hours)', case when adapter_id > 0 then 1 else 2 end as 'isAdapter'";
         theTable += "FROM engagements with (nolock)";
-        theTable += string.Format(" Where status<>2 and  group_id = {0} ", groupId);
+        theTable += string.Format(" Where status<>2 and group_id = {0} ", groupId);
 
         if (sOrderBy != "")
         {
@@ -116,10 +105,11 @@ public partial class adm_engagements : System.Web.UI.Page
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("adapter_id");
+        theTable.AddHiddenField("isAdapter");
 
         DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_engagements_new.aspx", "Expand", "");
         linkColumnKeParams.AddQueryStringValue("engagement_id", "field=id");
-        linkColumnKeParams.AddQueryStringValue("adapter_id", "field=adapter_id");
+        linkColumnKeParams.AddQueryStringValue("type", "field=isAdapter");
         theTable.AddLinkColumn(linkColumnKeParams);
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) && LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))

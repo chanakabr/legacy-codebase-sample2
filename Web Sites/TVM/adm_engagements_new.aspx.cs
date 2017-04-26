@@ -6,9 +6,12 @@ using System.Collections.Specialized;
 using System.Web;
 using TvinciImporter;
 using TVinciShared;
+using KLogMonitor;
+using System.Reflection;
 
 public partial class adm_engagements_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected Engagement engagement;
     protected string m_sMenu;
     protected string m_sSubMenu;
@@ -66,18 +69,9 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 Session["engagement_id"] = 0;
             }
 
-            if (Request.QueryString["adapter_id"] != null && Request.QueryString["adapter_id"].ToString() != "")
-            {
-                Session["adapter_id"] = int.Parse(Request.QueryString["adapter_id"].ToString());
-            }
-            else
-            {
-                Session["adapter_id"] = 0;
-            }
-
-            if (Request.QueryString["user_list"] != null &&
-               Request.QueryString["user_list"].ToString() != "")
-                Session["user_list"] = int.Parse(Request.QueryString["user_list"].ToString());
+            if (Request.QueryString["type"] != null &&
+               Request.QueryString["type"].ToString() != "")
+                Session["type"] = int.Parse(Request.QueryString["type"].ToString());
 
 
             if (Session["error_msg_s"] != null && Session["error_msg_s"].ToString() != "")
@@ -158,69 +152,6 @@ public partial class adm_engagements_new : System.Web.UI.Page
         return engagement;
     }
 
-    protected string GetLangMenu(Int32 nGroupID)
-    {
-        try
-        {
-            string sTemp = "";
-            Int32 nCount = 0;
-            string sMainLang = "";
-            Int32 nMainLangID = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select l.name,l.id from groups g,lu_languages l where l.id=g.language_id and  ";
-            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("g.id", "=", nGroupID);
-            if (selectQuery.Execute("query", true) != null)
-            {
-                nCount = selectQuery.Table("query").DefaultView.Count;
-                if (nCount > 0)
-                {
-                    sMainLang = selectQuery.Table("query").DefaultView[0].Row["name"].ToString();
-                    nMainLangID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
-                }
-            }
-            selectQuery.Finish();
-            selectQuery = null;
-            sTemp += "<li><a class=\"on\" href=\"";
-            sTemp += "adm_media_new.aspx?media_id=" + Session["media_id"].ToString();
-            sTemp += "\"><span>";
-            sTemp += sMainLang;
-            sTemp += "</span></a></li>";
-
-            Int32 nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("media", "group_id", int.Parse(Session["media_id"].ToString())).ToString());
-            ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery1 += "select l.name,l.id from group_extra_languages gel,lu_languages l where gel.language_id=l.id and l.status=1 and gel.status=1 and  ";
-            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("l.id", "<>", nMainLangID);
-            selectQuery1 += "and";
-            selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("gel.group_id", "=", nOwnerGroupID);
-            selectQuery1 += " order by l.name";
-            if (selectQuery1.Execute("query", true) != null)
-            {
-                Int32 nCount1 = selectQuery1.Table("query").DefaultView.Count;
-                for (int i = 0; i < nCount1; i++)
-                {
-                    Int32 nLangID = int.Parse(selectQuery1.Table("query").DefaultView[i].Row["id"].ToString());
-                    string nLangName = selectQuery1.Table("query").DefaultView[i].Row["name"].ToString();
-                    sTemp += "<li><a href=\"";
-                    sTemp += "adm_media_translate.aspx?media_id=" + Session["media_id"].ToString() + "&lang_id=" + nLangID.ToString();
-                    sTemp += "\"><span>";
-                    sTemp += nLangName;
-                    sTemp += "</span></a></li>";
-                }
-                if (nCount1 == 0)
-                    sTemp = "";
-            }
-            selectQuery1.Finish();
-            selectQuery1 = null;
-
-            return sTemp;
-        }
-        catch
-        {
-            HttpContext.Current.Response.Redirect("login.html");
-            return "";
-        }
-    }
-
     public void GetHeader()
     {
         string sRet = PageUtils.GetPreHeader() + ": Engagement";
@@ -234,11 +165,6 @@ public partial class adm_engagements_new : System.Web.UI.Page
     private bool IsViewMode()
     {
         return (Session["engagement_id"] != null && Session["engagement_id"].ToString() != "" && Session["engagement_id"].ToString() != "0");
-    }
-
-    private bool IsAdapterUserListMode()
-    {
-        return (Session["adapter_id"] != null && Session["adapter_id"].ToString() != "" && Session["adapter_id"].ToString() != "0");
     }
 
     protected void GetMainMenu()
@@ -258,7 +184,6 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
-
         if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
         {
             Session["error_msg"] = "";
@@ -266,18 +191,17 @@ public partial class adm_engagements_new : System.Web.UI.Page
         }
 
         object groupId = LoginManager.GetLoginGroupID();
-        object engagementId = null;
-
+        int engagementId = 0;
 
         bool isViewMode = IsViewMode();
-        bool isAdapterUserListMode = IsAdapterUserListMode();
+        
         if (isViewMode)
         {
-            engagementId = Session["engagement_id"];
+            int.TryParse(Session["engagement_id"].ToString(), out engagementId);    
         }
 
         string sBack = "adm_engagements.aspx?search_save=1";
-        DBRecordWebEditor theRecord = new DBRecordWebEditor("engagements", "adm_table_pager", sBack, "", "ID", engagementId, sBack, "");
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("engagements", "adm_table_pager", sBack, "", "ID", isViewMode ? engagementId.ToString() : null, sBack, "");
         theRecord.SetConnectionKey("notifications_connection");
 
         DataRecordLongTextField longTextField;
@@ -298,15 +222,38 @@ public partial class adm_engagements_new : System.Web.UI.Page
 
         DataRecordDateTimeField dateTimeField = new DataRecordDateTimeField(!isViewMode);
         dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", true);
-        dateTimeField.SetDefault(DateTime.Now);
-        dateTimeField.setTimeZone("UTC");
+        if (!isViewMode)
+        {
+            dateTimeField.SetDefault(DateTime.UtcNow);
+        }
+        //dateTimeField.setTimeZone("UTC");
         theRecord.AddRecord(dateTimeField);
 
-        // this fields relevant only for adapter user list
-        if ((Session["user_list"] != null && int.Parse(Session["user_list"].ToString()) == 1) ||
-            (isAdapterUserListMode))
+        if (!isViewMode)
         {
-            dropDownField = new DataRecordDropDownField("engagement_adapter", "name", "id", "group_id", groupId, 60, true);
+            dropDownField = new DataRecordDropDownField("coupons_groups", "CODE", "id", "group_id", groupId, 60, false);
+            dropDownField.SetSelectsQuery("select id, CODE as 'txt' from pricing.dbo.coupons_groups where status<>2 and is_active=1 and ISNULL(COUPON_GROUP_TYPE, 0) <> 1 and group_id=" + groupId);
+            dropDownField.Initialize("Coupon group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_ID", true);
+            theRecord.AddRecord(dropDownField);
+        }
+        else
+        {
+            DataRecordShortTextField couponsGroup = new DataRecordShortTextField("ltr", false, 60, 60);
+            couponsGroup.Initialize("Coupon group", "adm_table_header_nbg", "FormInput", "ADAPTER_DYNAMIC_DATA", false);
+            couponsGroup.SetValue(GetCouponGroupName(engagementId));
+            theRecord.AddRecord(couponsGroup);
+        }
+
+        // this fields relevant only for adapter user list
+        int type = 0;
+        if (Session["type"] != null)
+        {
+            int.TryParse(Session["type"].ToString(), out type);
+        }
+
+        if (type == 1)
+        {
+            dropDownField = new DataRecordDropDownField("engagement_adapter", "name", "id", "group_id", groupId, 60, false);
             dropDownField.Initialize("Source user's list", "adm_table_header_nbg", "FormInput", "ADAPTER_ID", true);
             dropDownField.SetWhereString("status=1 and is_active=1");
             dropDownField.SetEnable(!isViewMode);
@@ -322,8 +269,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
         }
 
         // this fields relevant only for manual user list
-        if ((Session["user_list"] != null && int.Parse(Session["user_list"].ToString()) == 2) ||
-            (!isAdapterUserListMode))
+        if (type == 2)
         {
             longTextField = new DataRecordLongTextField("ltr", !isViewMode, 60, 4);
             longTextField.Initialize("User list", "adm_table_header_nbg", "FormInput", "USER_LIST", true);
@@ -346,5 +292,27 @@ public partial class adm_engagements_new : System.Web.UI.Page
             dt.Rows.Add((int)r, r);
         }
         return dt;
+    }
+
+    private string GetCouponGroupName(int engagementId)
+    {
+        string couponName = "";
+
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery += "select cg.CODE from pricing.dbo.coupons_groups cg join MessageBox.dbo.engagements e on e.COUPON_GROUP_ID = cg.id";
+        selectQuery += "and e.id=" + engagementId;
+        selectQuery.SetCachedSec(0);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            int count = selectQuery.Table("query").DefaultView.Count;
+            if (count > 0)
+            {
+                couponName = ODBCWrapper.Utils.GetStrSafeVal(selectQuery, "CODE", 0);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        return couponName;
     }
 }

@@ -114,9 +114,6 @@
 											<tr>
 												<td nowrap="nowrap" class="selectorList"><ul><% GetSubMenu(); %></ul></td>
 											</tr>
-											<tr>
-											    <td nowrap="nowrap" class="selectorList"><ul><% GetLangMenu(); %></ul></td>
-											</tr>
 										</table>
 									</td>
 								</tr>
