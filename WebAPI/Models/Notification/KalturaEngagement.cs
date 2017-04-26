@@ -85,5 +85,13 @@ namespace WebAPI.Models.Notification
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Coupon GroupId 
+        /// </summary>
+        [DataMember(Name = "couponGroupId")]
+        [JsonProperty("couponGroupId")]
+        [XmlElement(ElementName = "couponGroupId")]
+        public int CouponGroupId { get; set; }
     }
 }

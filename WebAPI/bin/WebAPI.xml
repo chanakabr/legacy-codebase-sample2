@@ -7530,6 +7530,11 @@
             Engagement active status
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagement.CouponGroupId">
+            <summary>
+            Coupon GroupId 
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementAdapter">
             <summary>
             Engagement Adapter
