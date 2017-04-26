@@ -74,8 +74,7 @@ namespace DAL
             adapterRes.ProviderUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "provider_url");
             adapterRes.AdapterUrl = ODBCWrapper.Utils.GetSafeStr(adapterRow, "adapter_url");
             adapterRes.ID = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "ID");
-            int is_Active = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "is_active");
-            adapterRes.IsActive = is_Active == 1 ? true : false;
+            adapterRes.IsActive = ODBCWrapper.Utils.GetIntSafeVal(adapterRow, "is_active") == 1 ? true : false;
             adapterRes.Name = ODBCWrapper.Utils.GetSafeStr(adapterRow, "name");
             adapterRes.SharedSecret = ODBCWrapper.Utils.GetSafeStr(adapterRow, "shared_secret");
 
@@ -634,13 +633,14 @@ namespace DAL
                     IntervalSeconds = ODBCWrapper.Utils.GetIntSafeVal(dr, "INTERVAL_SECONDS"),
                     SendTime = ODBCWrapper.Utils.GetDateSafeVal(dr, "SEND_TIME"),
                     TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOTAL_NUMBER_OF_RECIPIENTS"),
-                    UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST")
+                    UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST"),
+                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1 ? true : false
                 };
             }
             return result;
         }
 
-        public static Engagement GetEngagement(int groupId, int id)
+        public static Engagement GetEngagement(int groupId, int id, bool shouldOnlyGetActive = false)
         {
             Engagement res = null;
             try
