@@ -31,6 +31,10 @@ public partial class adm_engagements_new : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
+            m_sMenu = TVinciShared.Menu.GetMainMenu(23, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 7, true);
+
+
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
                 int groupId = LoginManager.GetLoginGroupID();
@@ -56,13 +60,9 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 {
                     Session["error_msg"] = result.Message;
                     Session["error_msg_s"] = result.Message;
-                }
-                return;
+                }                
             }
-
-            m_sMenu = TVinciShared.Menu.GetMainMenu(23, true, ref nMenuID);
-            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 7, true);
-
+         
             if (Request.QueryString["engagement_id"] != null && Request.QueryString["engagement_id"].ToString() != "")
             {
                 Session["engagement_id"] = int.Parse(Request.QueryString["engagement_id"].ToString());
