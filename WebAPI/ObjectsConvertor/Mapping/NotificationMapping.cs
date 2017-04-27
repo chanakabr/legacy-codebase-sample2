@@ -447,6 +447,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaInboxMessageType.Followed:
                     result = eMessageCategory.Followed;
                     break;
+                case KalturaInboxMessageType.Engagement:
+                    result = eMessageCategory.Engagement;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
             }
@@ -464,6 +467,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case eMessageCategory.Followed:
                     result = KalturaInboxMessageType.Followed;
+                    break;
+                case eMessageCategory.Engagement:
+                    result = KalturaInboxMessageType.Engagement;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
@@ -672,6 +678,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaInboxMessageType.Followed:
                     messageCategory = eMessageCategory.Followed;
+                    break;
+                case KalturaInboxMessageType.Engagement:
+                    messageCategory = eMessageCategory.Engagement;
                     break;
                 default:
                     break;
