@@ -64,7 +64,7 @@ namespace Core.Users
                     // get group ID + user type
                     Utils.GetBaseImpl(ref kUser, nGroupID);
                     if (kUser != null)
-                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, KeyValuePairs.ToList());
+                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, KeyValuePairs.ToList(), sUserName, sPassword);
                 }
             }
             catch (Exception ex)
@@ -180,7 +180,7 @@ namespace Core.Users
                         // add the provider ID to the key-value list
                         List<KeyValuePair> keyValuePair = new List<KeyValuePair>();
                         keyValuePair.Add(new KeyValuePair() { key = "operator", value = nSSOProviderID.ToString() });
-                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValuePair);
+                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValuePair, sUserName, sPassword);
                     }
                 }
             }
@@ -1395,7 +1395,7 @@ namespace Core.Users
                     if (kUser != null)
                     {
                         // execute Sign in
-                        response.user = FlowManager.SignIn(int.Parse(response.user.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
+                        response.user = FlowManager.SignIn(int.Parse(response.user.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, response.user.m_user.m_oBasicData.m_sUserName, string.Empty);
                         if (response.user != null)
                         {
                             // convert response status
