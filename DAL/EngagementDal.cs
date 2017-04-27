@@ -652,7 +652,7 @@ namespace DAL
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", id);
-                
+
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -782,5 +782,31 @@ namespace DAL
             return res;
         }
 
+        public static List<EngagementBulkMessage> GetEngagementBulkMessages(int partnerId, int engagementId)
+        {
+            List<EngagementBulkMessage> res = new List<EngagementBulkMessage>();
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementBulkList");
+                sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
+                sp.AddParameter("@groupId", partnerId);
+                sp.AddParameter("@engagementId", engagementId);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    EngagementBulkMessage bulkMessage = null;
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        bulkMessage = CreateEngagementBulkMessage(dr);
+                        res.Add(bulkMessage);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetEngagementBulkMessages. groupId: {0}, engagementId: {1}. Error {2}", partnerId, engagementId, ex);
+            }
+            return res;
+        }
     }
 }
