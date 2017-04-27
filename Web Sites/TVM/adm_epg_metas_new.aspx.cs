@@ -118,6 +118,12 @@ public partial class adm_epg_metas_new : System.Web.UI.Page
         theRecord.AddRecord(dr_meta_type_mapping);
 
 
+        //protection for specific epg meta so manual changes of meta values in the tvm will not be overridden by epg updates (in INGEST)
+        //is_searchable true/ false
+        DataRecordCheckBoxField dr_protection_meta_update = new DataRecordCheckBoxField(true);
+        dr_protection_meta_update.Initialize("Protection meta from ingest updates", "adm_table_header_nbg", "FormInput", "is_protect_from_updates", false);
+        theRecord.AddRecord(dr_protection_meta_update);
+
         string sTable = theRecord.GetTableHTML("adm_epg_metas_new.aspx?submited=1");
 
         return sTable;
