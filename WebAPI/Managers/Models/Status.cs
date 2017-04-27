@@ -123,6 +123,7 @@ namespace WebAPI.Managers.Models
         ArgumentShouldContainMinValueCrossed = 500058,
         ArgumentShouldContainMaxValueCrossed = 500059,
         InvalidUdid = 500060,
-        ArgumentsConflictEachOther = 500061
+        ArgumentsConflictEachOther = 500061,
+        UnableToCreateHouseholdForRole = 500062,
     }
 }

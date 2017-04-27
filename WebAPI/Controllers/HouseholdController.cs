@@ -6,6 +6,7 @@ using System.Linq;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
@@ -195,6 +196,12 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             string userId = KS.GetFromRequest().UserId;
+
+            var userRoles = RolesManager.GetRoleIds(KS.GetFromRequest());
+            if (userRoles.Where(ur => ur > RolesManager.MASTER_ROLE_ID).Count() > 0)
+            {
+                throw new BadRequestException(BadRequestException.UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE);
+            }
 
             try
             {

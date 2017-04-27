@@ -54,6 +54,7 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType LIST_TYPE_CANNOT_BE_EMPTY_OR_ALL = new ApiExceptionType(StatusCode.ListTypeCannotBeEmptyOrAll, StatusCode.BadRequest, "Argument [@argument@] cannot be empty or all", "argument");
         public static ApiExceptionType DUPLICATE_ASSET = new ApiExceptionType(StatusCode.DuplicateAsset, StatusCode.BadRequest, "Duplicate asset: id [@id@] type = [@type@]", "id", "type");
         public static ApiExceptionType DUPLICATE_FILE = new ApiExceptionType(StatusCode.DuplicateFile, StatusCode.BadRequest, "Duplicate file: id [@id@]", "id");
+        public static ApiExceptionType UNABLE_TO_CREATE_HOUSEHOLD_FOR_USER_ROLE = new ApiExceptionType(StatusCode.UnableToCreateHouseholdForRole, StatusCode.BadRequest, "Unable to create household for role");
 
         public BadRequestException()
             : this(BAD_REQUEST)
