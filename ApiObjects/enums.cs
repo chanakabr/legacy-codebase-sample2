@@ -570,9 +570,7 @@ namespace ApiObjects
     public enum eChurnPlaceHolders
     {
         FirstName = 0,
-        LastName = 1,
-        StartDate = 2,
-        CouponCode = 3
+        LastName = 1
     }
 
     public enum eReminderPlaceHolders

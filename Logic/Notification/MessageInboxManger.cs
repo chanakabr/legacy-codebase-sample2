@@ -3,10 +3,10 @@ using ApiObjects.Notification;
 using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Linq;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Core.Notification
 {
@@ -129,8 +129,7 @@ namespace Core.Notification
                 if (messageCategorys == null)
                 {
                     messageCategorys = new List<eMessageCategory>();
-                    messageCategorys.Add(eMessageCategory.SystemAnnouncement);
-                    messageCategorys.Add(eMessageCategory.Followed);
+                    messageCategorys = Enum.GetValues(typeof(eMessageCategory)).Cast<eMessageCategory>().ToList();
                 }
 
                 // filter userMessage according to category and CreatedAtLessThanOrEqual
