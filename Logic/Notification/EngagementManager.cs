@@ -44,6 +44,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_TEMPLATE_NOT_DOUND = "Engagement template wasn't found";
         private const string ENGAGEMENT_SUCCESSFULLY_INSERTED = "Engagement was successfully inserted";
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
+        private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -565,7 +566,7 @@ namespace Core.Notification
             }
 
             // validate interval is legal
-            if (engagement.IntervalSeconds >= 0)
+            if (engagement.IntervalSeconds < 0)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_ENGAGEMENT_INTERVAL);
                 log.ErrorFormat("Illegal interval was inserted. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
@@ -628,6 +629,14 @@ namespace Core.Notification
             {
                 log.ErrorFormat("Engagement template wasn't found: {0}", JsonConvert.SerializeObject(engagement));
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTemplateNotFound, ENGAGEMENT_TEMPLATE_NOT_DOUND);
+                return false;
+            }
+
+            // validate coupon group exists
+            if (engagement.CouponGroupId == 0 || !PricingDAL.IsCouponGroupExsits(partnerId, engagement.CouponGroupId))
+            {
+                log.ErrorFormat("Coupon group ID wasn't found: {0}", JsonConvert.SerializeObject(engagement));
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidCouponGroup, COUPON_GROUP_NOT_FOUND);
                 return false;
             }
 

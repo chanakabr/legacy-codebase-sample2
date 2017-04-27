@@ -380,7 +380,7 @@ namespace Core.Notification
         public static bool IsWithinPushSendTimeWindow(int groupId, TimeSpan time)
         {
             var partnerSettingsResponse = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
-            if (partnerSettingsResponse == null &&
+            if (partnerSettingsResponse != null &&
                 partnerSettingsResponse.settings != null &&
                 partnerSettingsResponse.settings.PushStartHour.HasValue &&
                 partnerSettingsResponse.settings.PushEndHour.HasValue)
