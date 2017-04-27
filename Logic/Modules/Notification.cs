@@ -1068,5 +1068,29 @@ namespace Core.Notification
         {
             return EngagementManager.SetEngagementAdapterConfiguration(groupId, engagementId);
         }
+
+        public static bool ReSendEngagement(int partnerId, int engagementId)
+        {
+            try
+            {
+                //check Engagement exist
+                Engagement engagement = DAL.EngagementDal.GetEngagement(partnerId, engagementId);
+                if (engagement == null || engagement.Id <= 0)
+                {
+                    log.ErrorFormat("Engagement wasn't found. ID: {0}", engagementId);
+                    return false;
+                }
+
+                return SendEngagement(partnerId, engagement.Id, (int)TVinciShared.DateUtils.DateTimeToUnixTimestamp(engagement.SendTime));
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to resend an engagement. Partner ID: {0}, engagement ID: {1}, Ex: {2}",
+                    partnerId,
+                    engagementId,
+                    ex);
+                return false;
+            }
+        }
     }
 }
