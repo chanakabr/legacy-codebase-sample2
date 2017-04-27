@@ -1073,15 +1073,7 @@ namespace Core.Notification
         {
             try
             {
-                //check Engagement exist
-                Engagement engagement = DAL.EngagementDal.GetEngagement(partnerId, engagementId);
-                if (engagement == null || engagement.Id <= 0)
-                {
-                    log.ErrorFormat("Engagement wasn't found. ID: {0}", engagementId);
-                    return false;
-                }
-
-                return SendEngagement(partnerId, engagement.Id, (int)TVinciShared.DateUtils.DateTimeToUnixTimestamp(engagement.SendTime));
+                return EngagementManager.ReSendEngagement(partnerId, engagementId);
             }
             catch (Exception ex)
             {

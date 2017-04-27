@@ -1279,5 +1279,34 @@ namespace Core.Notification
 
             return status;
         }
+
+        internal static bool ReSendEngagement(int partnerId, int engagementId)
+        {
+            //check Engagement exist
+            Engagement engagement = DAL.EngagementDal.GetEngagement(partnerId, engagementId);
+            if (engagement == null || engagement.Id <= 0)
+            {
+                log.ErrorFormat("Engagement wasn't found. ID: {0}", engagementId);
+                return false;
+            }
+
+            // get all corresponding bulk engagements
+            List<EngagementBulkMessage> bulkEngagements = EngagementDal.GetEngagementBulkMessages(partnerId, engagement.Id);
+            if (bulkEngagements == null || bulkEngagements.Count == 0)
+            {
+                log.ErrorFormat("Engagement bulk messages were not found. ID: {0}", engagementId);
+                return false;
+            }
+
+            // create rabbit message for each bulk message
+            foreach (var bulk in bulkEngagements)
+            {
+                 // create rabbit message
+                    if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow), engagement.Id, bulk.Id))
+                        log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(bulk));
+            }
+
+            return SendEngagement(partnerId, engagement.Id, (int)TVinciShared.DateUtils.DateTimeToUnixTimestamp(engagement.SendTime));
+        }
     }
 }
