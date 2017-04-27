@@ -9,7 +9,7 @@ namespace ApiObjects.QueueObjects
     {
         #region Consts
 
-        public const string TASK = "distributed_tasks.process_engagement";
+        public const string TASK = "distributed_tasks.process_engagements";
 
         #endregion
 

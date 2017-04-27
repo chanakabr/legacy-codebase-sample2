@@ -1,4 +1,10 @@
-﻿using APILogic.AmazonSnsAdapter;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Web;
+using APILogic.AmazonSnsAdapter;
 using APILogic.DmsService;
 using ApiObjects;
 using ApiObjects.Notification;
@@ -8,18 +14,12 @@ using ApiObjects.SearchObjects;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.Notification.Adapters;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
-using Core.Notification.Adapters;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Web;
 using TVinciShared;
 
 namespace Core.Notification
