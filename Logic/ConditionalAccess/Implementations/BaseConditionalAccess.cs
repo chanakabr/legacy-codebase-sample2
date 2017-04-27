@@ -13884,31 +13884,24 @@ namespace Core.ConditionalAccess
 					recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
 				}
 
-				// update successful cleanup date
-				if (totalRecordingsDeleted == totalRecordingsToCleanup)
+				// update last run date
+				cleanupScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, totalRecordingsDeleted, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
+				if (!cleanupScheduledTask.SetLastRunDetails())
 				{
-					cleanupScheduledTask = new BaseScheduledTaskLastRunDetails(DateTime.UtcNow, totalRecordingsDeleted, recordingCleanupIntervalSec, ScheduledTaskType.recordingsCleanup);
-					if (!cleanupScheduledTask.SetLastRunDetails())
-					{
-						log.InfoFormat("Failed updating recordings cleanup last run details, RecordingsScheduledTask: {0}", cleanupScheduledTask.ToString());
-					}
-					else
-					{
-						log.Debug("Successfully updated recordings cleanup date");
-					}
-
-					if (totalRecordingsDeleted > 0)
-					{
-						log.DebugFormat("Successfully cleaned up {0} recordings and updated {1} rows on domain recordings", totalRecordingsDeleted);
-					}
-					else
-					{
-						log.DebugFormat("Did not find any recordings to cleanup");
-					}
+					log.InfoFormat("Failed updating recordings cleanup last run details, RecordingsScheduledTask: {0}", cleanupScheduledTask.ToString());
 				}
 				else
 				{
-					log.Info("Failed recordings cleanup");
+					log.Debug("Successfully updated recordings cleanup date");
+				}
+
+				if (totalRecordingsDeleted > 0)
+				{
+					log.DebugFormat("Successfully deleted {0} recordings out of {1} that were found on the cleanup process", totalRecordingsDeleted, totalRecordingsToCleanup);
+				}
+				else
+				{
+					log.DebugFormat("Did not find any recordings to cleanup");
 				}
 			}
 			catch (Exception ex)
