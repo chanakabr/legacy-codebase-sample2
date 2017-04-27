@@ -106,11 +106,7 @@ public partial class adm_engagement_churn_template : System.Web.UI.Page
 
             DataRecordLongTextField dr_message = new DataRecordLongTextField("ltr", true, 60, 4);
             dr_message.Initialize("Message", "adm_table_header_nbg", "FormInput", "message", true);
-            theRecord.AddRecord(dr_message);
-
-            DataRecordShortTextField dr_dateFormat = new DataRecordShortTextField("ltr", true, 60, 256);
-            dr_dateFormat.Initialize("Date format", "adm_table_header_nbg", "FormInput", "date_format", true);
-            theRecord.AddRecord(dr_dateFormat);
+            theRecord.AddRecord(dr_message);            
 
             DataRecordShortTextField dr_sound = new DataRecordShortTextField("ltr", true, 60, 256);
             dr_sound.Initialize("Sound", "adm_table_header_nbg", "FormInput", "sound", false);
