@@ -1229,7 +1229,7 @@ namespace DAL
 
         }
 
-        public static List<MessageTemplate> GetMessageTemplate(int groupId, eOTTAssetTypes assetType)
+        public static List<MessageTemplate> GetMessageTemplate(int groupId, MessageTemplateType messageTemplateType)
         {
             List<MessageTemplate> result = new List<MessageTemplate>();
             try
@@ -1237,7 +1237,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@assetType", (int)assetType);
+                sp.AddParameter("@assetType", (int)messageTemplateType);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -1251,34 +1251,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}. Error {1}", groupId, ex);
-            }
-            return result;
-        }
-
-        public static List<MessageTemplate> GetMessageTemplate(int groupId, MessageTemplateType assetType)
-        {
-            List<MessageTemplate> result = new List<MessageTemplate>();
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMessageTemplate");
-                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@assetType", (int)assetType);
-                DataSet ds = sp.ExecuteDataSet();
-
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                {
-                    if (ds.Tables[0].Rows.Count > 0)
-                    {
-                        foreach (DataRow row in ds.Tables[0].Rows)
-                            result.Add(CreateMessageTemplate(row));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}. Error {1}", groupId, ex);
+                log.ErrorFormat("Error at GetMessageTemplate. groupId: {0}, messageTemplateType {1}. Error {2}", groupId, messageTemplateType, ex);
             }
             return result;
         }
