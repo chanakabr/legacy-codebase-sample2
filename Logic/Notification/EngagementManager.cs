@@ -994,15 +994,18 @@ namespace Core.Notification
 
             for (int userIndex = 0; userIndex < userEngagements.Count; userIndex++)
             {
-                if (SendMailAndSendToInboxEngagement(partnerId, engagement, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
+                if (SendMailAndSendToInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
                 {
                     successfullySentEngagementUsers.Add(userEngagements[userIndex]);
                 }
             }
 
             // 3. send push
-            bool b = SendPushEngagement(partnerId, successfullySentEngagementUsers, messageTemplate, engagement.EngagementType, engagementId);
-
+            if (!SendPushEngagement(partnerId, successfullySentEngagementUsers, messageTemplate, engagement.EngagementType, engagementId))
+            {
+                log.ErrorFormat("Error occur at  SendPushEngagement. GID: {0}, engagementId: {1}", partnerId, engagementId);
+                return false;
+            }
 
             return true;
         }
@@ -1131,7 +1134,7 @@ namespace Core.Notification
             return userAttributes;
         }
 
-        internal static bool SendMailAndSendToInboxEngagement(int partnerId, Engagement engagement, UserEngagement userEngagement, string couponCode,
+        internal static bool SendMailAndSendToInboxEngagement(int partnerId, UserEngagement userEngagement, string couponCode,
             NotificationPartnerSettings notificationPartnerSettings, MessageTemplate messageTemplate, eEngagementType engagementType)
         {
             Core.Users.UserResponseObject dbUserData = Core.Users.Module.GetUserData(partnerId, userEngagement.UserId.ToString(), string.Empty);
