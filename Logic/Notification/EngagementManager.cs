@@ -527,7 +527,7 @@ namespace Core.Notification
             }
 
             // validate send time is in the future
-            if (engagement.SendTime > DateTime.UtcNow.AddMinutes(-2))
+            if (engagement.SendTime < DateTime.UtcNow.AddMinutes(-2))
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, FUTURE_SEND_TIME);
                 log.ErrorFormat("Send time must be in the future. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
