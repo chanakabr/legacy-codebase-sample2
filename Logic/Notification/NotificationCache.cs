@@ -168,33 +168,6 @@ namespace Core.Notification
             return announcements;
         }
 
-        //public List<DbReminder> GetReminders(int groupId)
-        //{
-        //    List<DbReminder> reminders = null;
-        //    try
-        //    {
-        //        string sKey = GetKey(eNotificationCacheTypes.Reminders, groupId);
-
-        //        // search reminders in cache
-        //        reminders = Get<List<DbReminder>>(sKey);
-        //        if (reminders == null || reminders.Count == 0)
-        //        {
-        //            // get reminders DB
-        //            reminders = NotificationDal.GetReminders(groupId);
-        //            if (reminders != null && reminders.Count > 0)
-        //            {
-        //                // update cache
-        //                Set(sKey, reminders, SHORT_IN_CACHE_MINUTES);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        log.ErrorFormat("Error while getting cache partner reminders. GID {0}, ex: {1}", groupId, ex);
-        //    }
-        //    return reminders;
-        //}
-
         public List<MessageTemplate> GetMessageTemplates(int groupId)
         {
             List<MessageTemplate> messageTemplates = null;
@@ -207,7 +180,7 @@ namespace Core.Notification
                 if (messageTemplates == null || messageTemplates.Count == 0)
                 {
                     // get reminders DB
-                    messageTemplates = NotificationDal.GetMessageTemplate(groupId, eOTTAssetTypes.None);
+                    messageTemplates = NotificationDal.GetMessageTemplate(groupId, MessageTemplateType.None);
                     if (messageTemplates != null && messageTemplates.Count > 0)
                     {
                         // update cache
