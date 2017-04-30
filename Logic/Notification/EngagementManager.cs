@@ -1,21 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
+﻿using APILogic.AmazonSnsAdapter;
 using APILogic.Notification.Adapters;
+using ApiObjects;
 using ApiObjects.Notification;
 using ApiObjects.QueueObjects;
 using ApiObjects.Response;
+using Core.Notification.Adapters;
+using Core.Pricing;
 using DAL;
 using KLogMonitor;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using TVinciShared;
-using ApiObjects;
-using Core.Pricing;
-using APILogic.AmazonSnsAdapter;
-using Core.Notification.Adapters;
 
 namespace Core.Notification
 {
@@ -691,7 +691,7 @@ namespace Core.Notification
             return response;
         }
 
-        internal static EngagementResponseList GetEngagements(int groupId, int pageSize, int pageIndex, List<eEngagementType> convertedtypeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        internal static EngagementResponseList GetEngagements(int groupId, List<eEngagementType> convertedtypeIn, DateTime? sendTimeLessThanOrEqual)
         {
             EngagementResponseList response = new EngagementResponseList();
             try
@@ -1071,40 +1071,40 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}", partnerId, userEngagement.UserId);
                     continue;
+                }
 
-                    if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+                if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+                {
+                    log.ErrorFormat("No devices for user. partnerId: {0}, UserId: {1}", partnerId, userEngagement.UserId);
+                    continue;
+                }
+
+                foreach (var device in userNotificationData.devices)
+                {
+                    DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                    if (deviceData == null)
                     {
-                        log.ErrorFormat("No devices for user. partnerId: {0}, UserId: {1}", partnerId, userEngagement.UserId);
+                        log.DebugFormat("device data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userEngagement.UserId);
                         continue;
                     }
 
-                    foreach (var device in userNotificationData.devices)
+                    var pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                    if (pushData == null)
                     {
-                        DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
-                        if (deviceData == null)
-                        {
-                            log.DebugFormat("device data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userEngagement.UserId);
-                            continue;
-                        }
-
-                        var pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
-                        if (pushData == null)
-                        {
-                            log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userEngagement.UserId);
-                            continue;
-                        }
-
-                        userEndPointData = new EndPointData()
-                        {
-                            Attributes = GetUserAttributes(partnerId, userEngagement.UserId, engagementType),
-                            EndPointArn = pushData.ExternalToken,
-                            Category = messageTemplate.Action,
-                            Sound = messageTemplate.Sound,
-                            Url = messageTemplate.URL
-                        };
-
-                        usersEndPointDatas.Add(userEndPointData);
+                        log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userEngagement.UserId);
+                        continue;
                     }
+
+                    userEndPointData = new EndPointData()
+                    {
+                        Attributes = GetUserAttributes(partnerId, userEngagement.UserId, engagementType),
+                        EndPointArn = pushData.ExternalToken,
+                        Category = messageTemplate.Action,
+                        Sound = messageTemplate.Sound,
+                        Url = messageTemplate.URL
+                    };
+
+                    usersEndPointDatas.Add(userEndPointData);
                 }
             }
 
