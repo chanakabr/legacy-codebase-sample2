@@ -322,7 +322,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime);
         }
 
-        private static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
+        public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
             switch (eEngagementType)
             {
@@ -333,7 +333,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static eEngagementType ConvertEngagementType(KalturaEngagementType kalturaEngagementType)
+        public static eEngagementType ConvertEngagementType(KalturaEngagementType kalturaEngagementType)
         {
             switch (kalturaEngagementType)
             {

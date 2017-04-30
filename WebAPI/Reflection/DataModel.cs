@@ -2957,6 +2957,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEngagementFilter":
+                    switch(property.Name)
+                    {
+                        case "CreatedAtGreaterThanOrEqual":
+                            return "createdAtGreaterThanOrEqual";
+                        case "CreatedAtLessThanOrEqual":
+                            return "createdAtLessThanOrEqual";
+                        case "TypeIn":
+                            return "typeIn";
+                    }
+                    break;
+                    
                 case "KalturaEngagementListResponse":
                     switch(property.Name)
                     {

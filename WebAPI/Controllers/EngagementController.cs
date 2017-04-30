@@ -5,6 +5,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Notification;
 using WebAPI.Utils;
 
@@ -18,18 +19,36 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <remarks>       
         /// </remarks>
+        /// <param name="filter">filter</param>   
+        /// <param name="pager">Page size and index</param>                
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaEngagementListResponse List()
+        public KalturaEngagementListResponse List(KalturaEngagementFilter filter, KalturaFilterPager pager = null)
         {
             List<KalturaEngagement> list = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
+            if (pager == null)
+                pager = new KalturaFilterPager();
+
+            if (filter == null)
+                filter = new KalturaEngagementFilter();
+
+            if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
+            {
+                filter.CreatedAtGreaterThanOrEqual = 0;
+            }
+
+            if (!filter.CreatedAtLessThanOrEqual.HasValue)
+            {
+                filter.CreatedAtLessThanOrEqual = 0;
+            }
+
             try
             {
                 // call client
-                list = ClientsManager.NotificationClient().GetEngagements(groupId);
+                list = ClientsManager.NotificationClient().GetEngagements(groupId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
             }
             catch (ClientException ex)
             {

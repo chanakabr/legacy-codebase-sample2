@@ -649,12 +649,14 @@
             <param name="filter">currency filter</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.EngagementController.List">
+        <member name="M:WebAPI.Controllers.EngagementController.List(WebAPI.Models.Notification.KalturaEngagementFilter,WebAPI.Models.General.KalturaFilterPager)">
             <summary>
             Returns all Engagement for partner
             </summary>
             <remarks>       
             </remarks>
+            <param name="filter">filter</param>   
+            <param name="pager">Page size and index</param>                
         </member>
         <member name="M:WebAPI.Controllers.EngagementController.Get(System.Int32)">
             <summary>
@@ -7598,6 +7600,21 @@
         <member name="P:WebAPI.Models.Notification.KalturaEngagementAdapterListResponse.EngagementAdapters">
             <summary>
             A list of Engagement adapter
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.TypeIn">
+            <summary>
+            List of inbox message types to search within.
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.CreatedAtGreaterThanOrEqual">
+            <summary>
+            createdAtGreaterThanOrEqual
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.CreatedAtLessThanOrEqual">
+            <summary>
+            createdAtLessThanOrEqual
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">
