@@ -47,6 +47,7 @@ namespace Core.Notification
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
+        private static int NUM_OF_ENGAGEMENT_THREADS = 10;
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -690,7 +691,7 @@ namespace Core.Notification
             return response;
         }
 
-        internal static EngagementResponseList GetEngagements(int groupId, int pageSize, int pageIndex, List<eEngagementType> convertedtypeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)        
+        internal static EngagementResponseList GetEngagements(int groupId, int pageSize, int pageIndex, List<eEngagementType> convertedtypeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
         {
             EngagementResponseList response = new EngagementResponseList();
             try
@@ -849,7 +850,12 @@ namespace Core.Notification
             if (remainder > 0)
                 numOfBulkMessages++;
 
-            Parallel.For(0, numOfBulkMessages, index =>
+            // get number of allowed threads
+            int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
+            if (numberOfEngagementThread == 0)
+                numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
+
+            Parallel.For(0, numOfBulkMessages, new ParallelOptions() { MaxDegreeOfParallelism = numberOfEngagementThread }, index =>
             {
                 // create bulk message
                 EngagementBulkMessage bulkMessage = new EngagementBulkMessage()
@@ -1001,7 +1007,7 @@ namespace Core.Notification
             }
 
             // stop process  if push = true and template empty 
-            if(NotificationSettings.IsPartnerPushEnabled(partnerId) &&  (messageTemplate == null || string.IsNullOrEmpty( messageTemplate.Message)))
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId) && (messageTemplate == null || string.IsNullOrEmpty(messageTemplate.Message)))
             {
                 log.ErrorFormat("Stop process! partentSettings push is enabled but template empty. group: {0}", partnerId);
                 return true;
@@ -1310,9 +1316,9 @@ namespace Core.Notification
             // create rabbit message for each bulk message
             foreach (var bulk in bulkEngagements)
             {
-                 // create rabbit message
-                    if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow), engagement.Id, bulk.Id))
-                        log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(bulk));
+                // create rabbit message
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow), engagement.Id, bulk.Id))
+                    log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(bulk));
             }
 
             return SendEngagement(partnerId, engagement.Id, (int)TVinciShared.DateUtils.DateTimeToUnixTimestamp(engagement.SendTime));
