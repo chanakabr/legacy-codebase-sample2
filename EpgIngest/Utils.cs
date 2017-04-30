@@ -218,6 +218,11 @@ namespace EpgIngest
                             item.XmlReffName.Add(ODBCWrapper.Utils.GetSafeStr(x, "external_ref"));
                         }
                     }
+
+                    if (fieldTypes == FieldTypes.Meta)
+                    {
+                        item.isProtectFromUpdates = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_protect_from_updates") == 0 ? false : true;
+                    }
                 }
 
                 AllFieldTypeMapping.Add(item);

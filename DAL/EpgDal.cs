@@ -506,6 +506,17 @@ namespace Tvinci.Core.DAL
             return retVal;
         }
 
+        public static bool DeleteEpgProgramDetails(List<int> epgIDs, List<int> protectedMetas)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_Epg_Program_Details");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@epgIDs", epgIDs, "Id");            
+            sp.AddIDListParameter<int>("@protectedMetas", protectedMetas, "Id");
+
+            bool retVal = sp.ExecuteReturnValue<bool>();
+            return retVal;
+        }
+
         public static DataTable DeleteEpgs(int channelID, int groupID, DateTime dPublishDate, List<DateTime> deletedDays)
         {
             StoredProcedure sp = new StoredProcedure("DeleteEpgs");
@@ -673,6 +684,16 @@ namespace Tvinci.Core.DAL
                 return null;
             }
             return list;
+        }
+
+        public static DataTable GetProtectedEpgMetas(List<int> epgIds, List<int> protectedMetas)
+        {
+            StoredProcedure sp = new StoredProcedure("GetProtectedEpgMetas");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddIDListParameter<int>("@epgIDs", epgIds, "Id");            
+            sp.AddIDListParameter<int>("@protectedMetas", protectedMetas, "Id");
+
+            return sp.Execute();
         }
     }
 }

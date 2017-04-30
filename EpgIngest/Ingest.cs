@@ -381,7 +381,8 @@ namespace EpgIngest
                         {
                             var cloneEpg = new EpgCB(mainLanguageEpgCB);
                             var clonePair = new KeyValuePair<string, EpgCB>(currentLanguage.Code, cloneEpg);
-                            dEpgCbTranslate.Add(currentLanguage.Code, cloneEpg);
+                            cloneEpg.Language = currentLanguage.Code;
+                            dEpgCbTranslate.Add(currentLanguage.Code, cloneEpg);                            
 
                             if (dEpg.ContainsKey(mainLanguageEpgCB.EpgIdentifier))
                             {
@@ -403,8 +404,9 @@ namespace EpgIngest
             #endregion
 
             //insert EPGs to DB in batches
-            // find the epg that need to be updated                    
-            UpdateEpgDic(ref dEpg, m_Channels.groupid, dPublishDate, kalturaChannelID);
+            // find the epg that need to be updated                 
+            List<EpgCB> currentEpgCB = new List<EpgCB>();
+            UpdateEpgDic(ref dEpg, m_Channels.groupid, dPublishDate, kalturaChannelID, FieldEntityMapping, ref currentEpgCB);
 
             //insert EPGs to DB in batches
             InsertEpgsDBBatches(ref dEpg, m_Channels.groupid, nCountPackage, FieldEntityMapping, m_Channels.mainlang.ToLower(), dPublishDate, kalturaChannelID);
@@ -424,6 +426,10 @@ namespace EpgIngest
                     log.ErrorFormat("Error. delete programIds:[{0}], kalturaChannelID:{1}", string.Join(",", programIds), kalturaChannelID);
             }
 
+            // get all protected meta data from DB and insert it to dEpg meta value 
+            List<string> protectedMetas = FieldEntityMapping.Where(x => x.isProtectFromUpdates.HasValue && x.isProtectFromUpdates.Value).Select(x => x.Name.ToLower()).ToList();
+            GetProtectedEpgMetas(ref dEpg, currentEpgCB, protectedMetas);            
+
             foreach (List<KeyValuePair<string, EpgCB>> lEpg in dEpg.Values)
             {
                 foreach (KeyValuePair<string, EpgCB> epg in lEpg)
@@ -440,6 +446,7 @@ namespace EpgIngest
                     }
                     else
                     {
+
                         bool bInsert = oEpgBL.InsertEpg(epg.Value, isMainLang, out epgID);
                         if (bInsert)
                             log.DebugFormat("Succeeded. insert EpgProgram to CB. EpgID:{0}, EpgIdentifier:{1}, CoGuid {2}", epg.Value.EpgID, epg.Value.EpgIdentifier, epg.Value.CoGuid);
@@ -492,6 +499,38 @@ namespace EpgIngest
 
             success = true;
             return success;
+        }
+
+        private void GetProtectedEpgMetas(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg, List<EpgCB> lResCB, List<string> protectedMetaName)
+        {
+            if (lResCB == null || lResCB.Count() == 0)
+            {
+                return;
+            }
+            // fill the dictionary with the relevant meta protected value
+            foreach (EpgCB epg in lResCB)
+            {
+                if (epg.Metas != null && epg.Metas.Count > 0)
+                {
+                    List<KeyValuePair<string, List<string>>> protectedMeta = epg.Metas.Where(x => protectedMetaName.Contains(x.Key.ToLower())).ToList();
+
+                    //fill the right element in the dictionary with the meta protected value 
+                    if (dEpg.ContainsKey(epg.EpgIdentifier))
+                    {
+                        KeyValuePair<string, EpgCB> temp = dEpg[epg.EpgIdentifier].Where(x => x.Value.Language.ToLower() == epg.Language.ToLower()).FirstOrDefault();
+                        foreach (KeyValuePair<string, List<string>> kvp in protectedMeta)
+                        {
+                            if (temp.Value != null)
+                            {
+                                if (!temp.Value.Metas.ContainsKey(kvp.Key))
+                                {
+                                    temp.Value.Metas.Add(kvp.Key, kvp.Value);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private int EnableLinearSetting(string enable)
@@ -625,10 +664,11 @@ namespace EpgIngest
             }
         }
 
-        private void UpdateEpgDic(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> epgDic, int groupID, DateTime dPublishDate, int channelID)
+        private void UpdateEpgDic(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> epgDic, int groupID, DateTime dPublishDate, int channelID, List<FieldTypeEntity> fieldEntityMapping,
+            ref List<EpgCB> currentEpgCB)
         {
             try
-            {
+            {                
                 List<int> epgIdsToUpdate = new List<int>();
                 List<string> epgGuid = epgDic.Keys.ToList();
                 List<string> epgIds = new List<string>(); // list of all exsits epg programs ids 
@@ -679,7 +719,7 @@ namespace EpgIngest
                                 // comper object 
                                 foreach (KeyValuePair<string, EpgCB> item in epgDic[cbEpg.EpgIdentifier])
                                 {
-                                    bool bEquals = cbEpg.Equals(item.Value);
+                                    bool bEquals = cbEpg.Equals(item.Value, fieldEntityMapping);
                                     if (bEquals)
                                     {
                                         // build list with programs ids to update there Publish Date in DB later
@@ -689,6 +729,10 @@ namespace EpgIngest
                                         }
                                         // remove the object from the dictionary (specific for the lang)
                                         removeLang.Add(item);
+                                    }
+                                    else
+                                    {
+                                        currentEpgCB.Add(cbEpg); // save all epg document that will be needed ilater in code (for protected metas )
                                     }
                                 }
                                 // remove all lang item for the EpgIdentifier
@@ -799,7 +843,7 @@ namespace EpgIngest
 
                 string sConn = "MAIN_CONNECTION_STRING";
 
-                List<FieldTypeEntity> FieldEntityMappingMetas = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta).ToList();
+                List<FieldTypeEntity> FieldEntityMappingMetas = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Meta).ToList();                
                 List<FieldTypeEntity> FieldEntityMappingTags = FieldEntityMapping.Where(x => x.FieldType == FieldTypes.Tag).ToList();
 
                 Dictionary<KeyValuePair<string, int>, List<string>> newTagValueEpgs = new Dictionary<KeyValuePair<string, int>, List<string>>();// new tag values and the EPGs that have them
@@ -833,8 +877,10 @@ namespace EpgIngest
 
                 InsertNewTagValues(epgDic, dtEpgTagsValues, ref dtEpgTags, newTagValueEpgs, groupID, nUpdaterID);
 
+                
                 // delete all values per tag and meta for programIDS that exsits 
-                bool bDelete = EpgDal.DeleteEpgProgramDetails(epgIDs, groupID);
+                List<int> protectedMetas = FieldEntityMappingMetas.Where(x => x.isProtectFromUpdates.HasValue && x.isProtectFromUpdates.Value).Select(x => x.ID).ToList();               
+                bool bDelete = EpgDal.DeleteEpgProgramDetails(epgIDs, protectedMetas);
                 bool bDeletePictures = EpgDal.DeleteEpgProgramPicturess(epgIDs, groupID, channelID);
 
                 Utils.InsertBulk(dtEpgMetas, "EPG_program_metas", sConn); //insert EPG Metas to DB
@@ -1161,7 +1207,7 @@ namespace EpgIngest
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("fail to DeleteEpgs from DB ex = {0}", ex.Message), ex);
+                log.Error(string.Format("fail to ProtecteDeleteEpgs from DB ex = {0}", ex.Message), ex);
                 return null;
             }
         }
