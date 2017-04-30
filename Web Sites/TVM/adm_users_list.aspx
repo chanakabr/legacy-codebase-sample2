@@ -97,6 +97,60 @@
 	    oDiv.style.top = mouseY + 'px';
 	    oDiv.innerHTML = theHtml;
     }
+
+    function Engagements(user_id, coupon_groups, engagement_type) {
+      
+        theHtml = "<table dir=ltr style=\"background-color: #FFFFFF;\"  cellspacing='1' cellpadding='0' border='1'>";
+        theHtml += "<tr><td>";
+        theHtml += "<table dir='ltr' border='0' cellpadding='6' cellspacing='0'>";
+        theHtml += "<tr class='adm_table_header_nbg' style=\"FONT-WEIGHT: bold;FONT-SIZE: 12px;COLOR: #000000;FONT-FAMILY: Arial, Arial , David , Courier New ;border-color: #aaaaaa; TEXT-DECORATION: none;\">";
+        theHtml += "<td class=calendar_table_cell align='left'  style='width: 100%;cursor: pointer;' onclick='openmouseX = 0;openmouseY = 0;closeCollDiv(\"\")'>X</td>";
+        theHtml += "<td class=calendar_table_cell align='right'></td>";
+        theHtml += "<table>";
+        theHtml += "<tr>";
+       // theHtml += "<td class='adm_table_header_nbg' nowrap>Coupon Group</td>";      
+        
+        theHtml += '<select id="CouponGroup">  <option value=-999>Coupon Group</option>';
+
+        for (var i = 0; i < coupon_groups.length; i++) {
+            var obj = coupon_groups[i];
+            theHtml += '<option value=\"' + obj["Key"] + "\">" +  obj["Value"] + '</option>';
+            }
+        theHtml += '</select><br><br>';
+
+        theHtml += '<select id="EngagementType" > <option value=-999>Engagement Type</option>';
+
+        for (var i = 0; i < engagement_type.length; i++) {
+            var obj = engagement_type[i];
+            theHtml += '<option value=\"' + obj["Key"] + "\">" + obj["Value"] + '</option>';
+        }
+        theHtml += '</select><br><br>';
+        theHtml += "<tr>";
+        theHtml += "<td id='confirm_btn'><a href='javascript:ManipEngagements(" + user_id + ",document.getElementById(\"CouponGroup\"),document.getElementById(\"EngagementType\"));' class='btn'></a></td>";
+        theHtml += "</tr>";
+        theHtml += "</table></td></tr></table>";
+        oDiv = window.document.getElementById("tag_collections_div");
+        oDiv.style.display = "block";
+        oDiv.style.left = (mouseX - 100) + 'px';
+        oDiv.style.top = mouseY + 'px';
+        oDiv.innerHTML = theHtml;
+    }   
+
+    function ManipEngagements(user_id, coupon_group, engagement_type) {
+        debugger;
+        var couponGroupVal = coupon_group.options[coupon_group.selectedIndex].value;
+
+        var engagementTypeVal = engagement_type.options[engagement_type.selectedIndex].value;
+
+        if (couponGroupVal == -999 || engagementTypeVal == -999) {
+            alert("couponGroupVal or engagementTypeVal choss no value");
+        }
+        else {
+            sURL = "AjaxManinEngagements.aspx?user_id=" + escape(user_id) + "&coupon_group=" + escape(couponGroupVal) + "&engagement_type=" + escape(engagementTypeVal);
+            postFile(sURL, callback_ManipPassword);
+        }
+    }
+
     
     function ManipFreeSub(user_id,sub_id,remarks)
     {
