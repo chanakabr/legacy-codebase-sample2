@@ -39,7 +39,7 @@ namespace EngagementHandler
             }
             catch (Exception ex)
             {
-                log.Error("Engagement did not finish successfully. Exception occured. Data: " + data, ex);
+                log.Error("Engagement did not finish successfully. Exception occurred. Data: " + data, ex);
                 throw ex;
             }
 
