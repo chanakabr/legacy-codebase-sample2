@@ -741,7 +741,7 @@
             Possible status codes:   
             name required = 5005, engagement adapter identifier required = 8025, no engagement adapter to update = 8029, provider url required = 8033
             </remarks>
-            <param name="engagementAdapterId">Engagement adapter identifier</param>       
+            <param name="id">Engagement adapter identifier</param>       
             <param name="engagementAdapter">Engagement adapter Object</param>       
         </member>
         <member name="M:WebAPI.Controllers.EngagementAdapterController.GenerateSharedSecret(System.Int32)">

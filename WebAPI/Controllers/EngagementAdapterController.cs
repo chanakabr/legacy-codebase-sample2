@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
         /// Possible status codes:   
         /// name required = 5005, engagement adapter identifier required = 8025, no engagement adapter to update = 8029, provider url required = 8033
         /// </remarks>
-        /// <param name="engagementAdapterId">Engagement adapter identifier</param>       
+        /// <param name="id">Engagement adapter identifier</param>       
         /// <param name="engagementAdapter">Engagement adapter Object</param>       
         [Route("update"), HttpPost]
         [ApiAuthorize]
@@ -149,12 +149,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoEngagementAdapterToUpdate)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ProviderUrlRequired)]
-        public KalturaEngagementAdapter Update(int engagementAdapterId, KalturaEngagementAdapter engagementAdapter)
+        public KalturaEngagementAdapter Update(int id, KalturaEngagementAdapter engagementAdapter)
         {
             KalturaEngagementAdapter response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
-            engagementAdapter.Id = engagementAdapterId;
+            engagementAdapter.Id = id;
 
             try
             {
