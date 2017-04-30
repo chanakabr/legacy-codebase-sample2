@@ -111,8 +111,8 @@ namespace ApiObjects.Notification
 
     public enum EngagementAdapterStatus
     {
-        Error = 0,
-        OK = 1,
+        OK = 0,
+        Error = 1,
         SignatureMismatch = 2,
         NoConfigurationFound = 3
     }
