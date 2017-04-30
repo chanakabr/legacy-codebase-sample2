@@ -27,9 +27,10 @@ namespace EngagementHandler
 
                 bool success = false;
                 if (request.EngagementBulkId > 0)
-                    success = Core.Notification.Module.SendEngagement(request.GroupId, request.EngagementId, request.StartTime);
-                else
                     success = Core.Notification.Module.SendEngagementBulk(request.GroupId, request.EngagementId, request.EngagementBulkId, request.StartTime);
+                else
+                    success = Core.Notification.Module.SendEngagement(request.GroupId, request.EngagementId, request.StartTime);
+                    
 
                 if (!success)
                     throw new Exception(string.Format("Engagement did not finish successfully. Data: {0}", data));
