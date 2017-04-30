@@ -160,11 +160,14 @@ namespace WS_Notification
 
         [OperationContract]
         EngagementResponse AddEngagement(string wsUserName, string wsSPassword, Engagement engagement);
-        
+
         [OperationContract]
         ApiObjects.Response.Status SetEngagementAdapterConfiguration(string wsUserName, string wsSPassword, int engagementAdapterId);
 
         [OperationContract]
         bool ReSendEngagement(string wsUserName, string wsSPassword, int engagementId);
+
+        [OperationContract]
+        bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime);
     }
 }
