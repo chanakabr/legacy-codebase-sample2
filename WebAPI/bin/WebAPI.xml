@@ -7460,11 +7460,6 @@
             Current Bitrate
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
-            <summary>
-            Engagement type: Churn=1
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Name">
             <summary>
             Reminder name
@@ -7473,6 +7468,26 @@
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
             <summary>
             Reminder id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeasonReminder.SeriesId">
+            <summary>
+            Series identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeasonReminder.SeasonId">
+            <summary>
+            Season identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeriesId">
+            <summary>
+            Series identifier
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
+            <summary>
+            Engagement type: Churn=1
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
