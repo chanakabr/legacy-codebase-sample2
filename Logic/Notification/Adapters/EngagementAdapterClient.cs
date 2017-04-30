@@ -31,7 +31,7 @@ namespace APILogic.Notification.Adapters
                 long unixTimestamp = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
                 //set signature
-                string signature = string.Concat(engagementAdapter.ID, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
+                string signature = string.Concat(engagementAdapter.ID, engagementAdapter.ProviderUrl, engagementAdapter.Settings != null ? string.Concat(engagementAdapter.Settings.Select(s => string.Concat(s.Key, s.Value))) : string.Empty,
                     groupId, unixTimestamp);
 
                 using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
@@ -83,8 +83,7 @@ namespace APILogic.Notification.Adapters
                 long unixTimeNow = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
                 // set signature
-                string signature = string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow);
-
+                string signature = System.Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(engagementAdapter.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(string.Concat(engagementAdapter.ID, adapterDynamicData, unixTimeNow))));
                 using (APILogic.EngagementAdapterService.ServiceClient client = new APILogic.EngagementAdapterService.ServiceClient(string.Empty, engagementAdapter.AdapterUrl))
                 {
                     // get list
