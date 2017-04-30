@@ -89,8 +89,11 @@ public partial class adm_engagements : System.Web.UI.Page
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "SELECT ID ,group_id ,status, is_active, adapter_id, case engagement_type when 1 then 'Churn' else '' end as 'Type',send_time as 'Send Time',total_number_of_recipients as '# Recipients'";
-        theTable += ", INTERVAL_SECONDS / CAST(3600 AS float)  as 'Interval (hours)', case when adapter_id > 0 then 1 else 2 end as 'isAdapter'";
+        theTable += "SELECT ID ,group_id ,status, is_active, case engagement_type when 1 then 'Churn' else '' end as 'Type',";
+        theTable += "case when adapter_id > 0 then 'External' else 'Manual' end as 'Source',";
+        theTable += "case when adapter_id > 0 then 1 else 2 end as 'isAdapter',";
+        theTable += "send_time as 'Send Time', total_number_of_recipients as '# Recipients',";
+        theTable += "INTERVAL_SECONDS / CAST(3600 AS float)  as 'Interval (hours)'";
         theTable += "FROM engagements with (nolock)";
         theTable += string.Format(" Where status<>2 and group_id = {0} ", groupId);
 
@@ -99,13 +102,17 @@ public partial class adm_engagements : System.Web.UI.Page
             theTable += " order by ";
             theTable += sOrderBy;
         }
+        else
+        {
+            theTable += " order by id desc";
+        }
 
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
-        theTable.AddHiddenField("adapter_id");
         theTable.AddHiddenField("isAdapter");
+        theTable.AddOrderByColumn("Send Time", "Send Time");
 
         DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_engagements_new.aspx", "Expand", "");
         linkColumnKeParams.AddQueryStringValue("engagement_id", "field=id");

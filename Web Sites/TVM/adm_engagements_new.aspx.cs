@@ -34,9 +34,15 @@ public partial class adm_engagements_new : System.Web.UI.Page
             m_sMenu = TVinciShared.Menu.GetMainMenu(23, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 7, true);
 
-
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
             {
+                if (IsViewMode())
+                {      
+                    EndOfAction();
+                    Session["engagement_id"] = 0;
+                    return;
+                }
+
                 int groupId = LoginManager.GetLoginGroupID();
                 ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -230,30 +236,28 @@ public partial class adm_engagements_new : System.Web.UI.Page
             shortIntField = new DataRecordShortIntField(!isViewMode, 9, 9);
             shortIntField.Initialize("Total recipients number", "adm_table_header_nbg", "FormInput", "TOTAL_NUMBER_OF_RECIPIENTS", false);
             theRecord.AddRecord(shortIntField);
-        }
 
-        DataRecordDateTimeField dateTimeField = new DataRecordDateTimeField(!isViewMode);
-        dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", true);
-        if (!isViewMode)
-        {
-            dateTimeField.SetDefault(DateTime.UtcNow);
-        }
-        //dateTimeField.setTimeZone("UTC");
-        theRecord.AddRecord(dateTimeField);
+            DataRecordShortTextField dateText = new DataRecordShortTextField("ltr", false, 60, 60);
+            dateText.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", false);
+            theRecord.AddRecord(dateText);
 
-        if (!isViewMode)
-        {
-            dropDownField = new DataRecordDropDownField("coupons_groups", "CODE", "id", "group_id", groupId, 60, false);
-            dropDownField.SetSelectsQuery("select id, CODE as 'txt' from pricing.dbo.coupons_groups where status<>2 and is_active=1 and ISNULL(COUPON_GROUP_TYPE, 0) <> 1 and group_id=" + groupId);
-            dropDownField.Initialize("Coupon group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_ID", true);
-            theRecord.AddRecord(dropDownField);
-        }
-        else
-        {
             DataRecordShortTextField couponsGroup = new DataRecordShortTextField("ltr", false, 60, 60);
             couponsGroup.Initialize("Coupon group", "adm_table_header_nbg", "FormInput", "ADAPTER_DYNAMIC_DATA", false);
             couponsGroup.SetValue(GetCouponGroupName(engagementId));
             theRecord.AddRecord(couponsGroup);
+        }
+
+        if (!isViewMode)
+        {
+            DataRecordDateTimeField dateTimeField = new DataRecordDateTimeField(!isViewMode);
+            dateTimeField.Initialize("Begin send date & time", "adm_table_header_nbg", "FormInput", "SEND_TIME", true);
+            dateTimeField.SetDefault(DateTime.UtcNow);
+            theRecord.AddRecord(dateTimeField);
+        
+            dropDownField = new DataRecordDropDownField("coupons_groups", "CODE", "id", "group_id", groupId, 60, false);
+            dropDownField.SetSelectsQuery("select id, CODE as 'txt' from pricing.dbo.coupons_groups where status<>2 and is_active=1 and ISNULL(COUPON_GROUP_TYPE, 0) <> 1 and group_id=" + groupId);
+            dropDownField.Initialize("Coupon group", "adm_table_header_nbg", "FormInput", "COUPON_GROUP_ID", true);
+            theRecord.AddRecord(dropDownField);
         }
 
         // this fields relevant only for adapter user list
@@ -326,5 +330,14 @@ public partial class adm_engagements_new : System.Web.UI.Page
         selectQuery = null;
 
         return couponName;
+    }
+
+    private void EndOfAction()
+    {
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (coll["success_back_page"] != null)
+            HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+        else
+            HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
     }
 }
