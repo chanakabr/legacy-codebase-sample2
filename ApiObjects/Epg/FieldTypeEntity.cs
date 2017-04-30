@@ -15,5 +15,7 @@ namespace ApiObjects.Epg
         // add this in storm version
         public string Alias { get; set; }
         public string RegexExpression { get; set; }
+
+        public bool? isProtectFromUpdates { get; set; }
     }
 }
