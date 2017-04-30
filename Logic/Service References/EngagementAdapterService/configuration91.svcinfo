@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="r0jV/qH5d414mGduIzQZPUzB7Og=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="X7kGgOyd2x9esn/9pJEbAmg3mm8=">
   <bindingConfigurations>
     <bindingConfiguration bindingType="basicHttpBinding" name="BasicHttpBinding_IService4">
       <properties>
@@ -112,10 +112,10 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="BasicHttpBinding_IService4" contract="EngagementAdapterService.IService" bindingType="basicHttpBinding" address="http://localhost:86/EngagementAdapterNPAW/Service.svc" bindingConfiguration="BasicHttpBinding_IService4">
+    <endpoint name="BasicHttpBinding_IService4" contract="EngagementAdapterService.IService" bindingType="basicHttpBinding" address="http://localhost/EngagementAdapterNPAW/Service.svc" bindingConfiguration="BasicHttpBinding_IService4">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>http://localhost:86/EngagementAdapterNPAW/Service.svc</serializedValue>
+          <serializedValue>http://localhost/EngagementAdapterNPAW/Service.svc</serializedValue>
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
