@@ -950,7 +950,7 @@ namespace Core.Notification
             if (engagement == null)
             {
                 log.ErrorFormat("Engagement was not found in DB. Engagement ID: {0}", engagementId);
-                return true;
+                return false;
             }
 
             // validate engagement 
@@ -965,7 +965,7 @@ namespace Core.Notification
             if (engagementBulkMessage == null)
             {
                 log.ErrorFormat("EngagementBulkMessage was not found in DB. engagementBulkId: {0}", engagementBulkId);
-                return true;
+                return false;
             }
 
             // get relevant usersengagementBulkMessage  
@@ -973,7 +973,7 @@ namespace Core.Notification
             if (userEngagements == null || userEngagements.Count == 0)
             {
                 log.ErrorFormat("No User engagement found. engagementBulkId: {0}", engagementBulkId);
-                return true;
+                return false;
             }
 
             // remove already engaged users 
@@ -987,7 +987,7 @@ namespace Core.Notification
                     engagementBulkId,
                     userEngagements.Count,
                     coupons != null ? coupons.Count.ToString() : "null");
-                return true;
+                return false;
             }
 
             // get partner notifications settings  
@@ -995,16 +995,14 @@ namespace Core.Notification
             if (partnerSettings == null && partnerSettings.settings != null)
             {
                 log.ErrorFormat("Could not find partner notification settings. Partner ID: {0}", partnerId);
-                return true;
+                return false;
             }
 
             // get message templates  
             MessageTemplate messageTemplate = GetMessageTemplate(partnerId, engagement.EngagementType);
 
             if (messageTemplate == null)
-            {
                 log.ErrorFormat("churn message template was not found. group: {0}", partnerId);
-            }
 
             // stop process  if push = true and template empty 
             if (NotificationSettings.IsPartnerPushEnabled(partnerId) && (messageTemplate == null || string.IsNullOrEmpty(messageTemplate.Message)))
@@ -1013,32 +1011,32 @@ namespace Core.Notification
                 return true;
             }
 
-
-            List<UserEngagement> successfullySentEngagementUsers = new List<UserEngagement>();
-
+            // get number of engagements threads
             int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
             if (numberOfEngagementThread == 0)
                 numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
 
+            // send mail and inbox message in parallel
+            List<UserEngagement> successfullySentEngagementUsers = new List<UserEngagement>();
             Parallel.For(0, userEngagements.Count, new ParallelOptions() { MaxDegreeOfParallelism = numberOfEngagementThread }, userIndex =>
             {
-                if (SendMailAndSendToInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
+                if (SendMailInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
                     successfullySentEngagementUsers.Add(userEngagements[userIndex]);
             });
 
-            //for (int userIndex = 0; userIndex < userEngagements.Count; userIndex++)
-            //{
-            //    if (SendMailAndSendToInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
-            //    {
-            //        successfullySentEngagementUsers.Add(userEngagements[userIndex]);
-            //    }
-            //}
+            // update bulk engagement
+            engagementBulkMessage.IsSent = true;
+            if (EngagementDal.SetEngagementBulkMessage(partnerId, engagementBulkMessage) == null)
+            {
+                log.ErrorFormat("Error occurred while updating bulk engagement message. GID: {0}, engagementId: {1}, engagementBulkId: {2}", partnerId, engagementId, engagementBulkId);
+                return true;
+            }
 
             // 3. send push
             if (!SendPushEngagement(partnerId, successfullySentEngagementUsers, messageTemplate, engagement.EngagementType, engagementId))
             {
-                log.ErrorFormat("Error occur at  SendPushEngagement. GID: {0}, engagementId: {1}", partnerId, engagementId);
-                return false;
+                log.ErrorFormat("Error occurred while trying to send push engagement. GID: {0}, engagementId: {1}, engagementBulkId: {2}", partnerId, engagementId, engagementBulkId);
+                return true;
             }
 
             return true;
@@ -1168,7 +1166,7 @@ namespace Core.Notification
             return userAttributes;
         }
 
-        internal static bool SendMailAndSendToInboxEngagement(int partnerId, UserEngagement userEngagement, string couponCode,
+        internal static bool SendMailInboxEngagement(int partnerId, UserEngagement userEngagement, string couponCode,
             NotificationPartnerSettings notificationPartnerSettings, MessageTemplate messageTemplate, eEngagementType engagementType)
         {
             Core.Users.UserResponseObject dbUserData = Core.Users.Module.GetUserData(partnerId, userEngagement.UserId.ToString(), string.Empty);
