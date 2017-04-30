@@ -1016,13 +1016,23 @@ namespace Core.Notification
 
             List<UserEngagement> successfullySentEngagementUsers = new List<UserEngagement>();
 
-            for (int userIndex = 0; userIndex < userEngagements.Count; userIndex++)
+            int numberOfEngagementThread = TCMClient.Settings.Instance.GetValue<int>("num_of_engagement_threads");
+            if (numberOfEngagementThread == 0)
+                numberOfEngagementThread = NUM_OF_ENGAGEMENT_THREADS;
+
+            Parallel.For(0, userEngagements.Count, new ParallelOptions() { MaxDegreeOfParallelism = numberOfEngagementThread }, userIndex =>
             {
                 if (SendMailAndSendToInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
-                {
                     successfullySentEngagementUsers.Add(userEngagements[userIndex]);
-                }
-            }
+            });
+
+            //for (int userIndex = 0; userIndex < userEngagements.Count; userIndex++)
+            //{
+            //    if (SendMailAndSendToInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
+            //    {
+            //        successfullySentEngagementUsers.Add(userEngagements[userIndex]);
+            //    }
+            //}
 
             // 3. send push
             if (!SendPushEngagement(partnerId, successfullySentEngagementUsers, messageTemplate, engagement.EngagementType, engagementId))
