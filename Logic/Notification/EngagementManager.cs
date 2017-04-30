@@ -996,7 +996,12 @@ namespace Core.Notification
                 log.ErrorFormat("churn message template was not found. group: {0}", partnerId);
             }
 
-            // TODO: stop process  if push = true and template empty 
+            // stop process  if push = true and template empty 
+            if(NotificationSettings.IsPartnerPushEnabled(partnerId) &&  (messageTemplate == null || string.IsNullOrEmpty( messageTemplate.Message)))
+            {
+                log.ErrorFormat("Stop process! partentSettings push is enabled but template empty. group: {0}", partnerId);
+                return true;
+            }
 
 
             List<UserEngagement> successfullySentEngagementUsers = new List<UserEngagement>();
