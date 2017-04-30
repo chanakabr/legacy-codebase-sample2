@@ -121,7 +121,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
+                 .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
             Mapper.CreateMap<KalturaMessageTemplate, MessageTemplate>()
@@ -130,7 +130,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
-                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.AssetType)));
+                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.MessageType)));
 
             Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))

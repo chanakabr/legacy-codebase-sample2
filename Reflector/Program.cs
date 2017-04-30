@@ -38,17 +38,11 @@ namespace Reflector
         }
     }
 
-    class OldStandardArgumentAttributeComparer : IComparer<OldStandardArgumentAttribute>
+    class OldStandardArgumentAttributeComparer : IComparer<OldStandardVersionedAttribute>
     {
-        public int Compare(OldStandardArgumentAttribute a, OldStandardArgumentAttribute b)
+        public int Compare(OldStandardVersionedAttribute a, OldStandardVersionedAttribute b)
         {
-            int compare = a.CompareVersion(b.sinceVersion);
-            if (compare != 0)
-            {
-                return compare;
-            }
-
-            return a.newName.CompareTo(b.newName);
+            return a.Compare(b);
         }
     }
 
@@ -575,8 +569,8 @@ namespace Reflector
             List<PropertyInfo> oldStandardProperties = new List<PropertyInfo>();
             foreach (PropertyInfo property in properties)
             {
-                OldStandardPropertyAttribute oldStandardProperty = property.GetCustomAttribute<OldStandardPropertyAttribute>();
-                if (oldStandardProperty != null)
+                List<OldStandardPropertyAttribute> oldStandardPropertyAttributes = property.GetCustomAttributes<OldStandardPropertyAttribute>().ToList();
+                if (oldStandardPropertyAttributes.Count > 0)
                 {
                     oldStandardProperties.Add(property);
                 }
@@ -586,21 +580,58 @@ namespace Reflector
                 return;
 
             file.WriteLine("                case \"" + type.Name + "\":");
-            file.WriteLine("                    return new Dictionary<string, string>() { ");
+            file.WriteLine("                    ret = new Dictionary<string, string>() { ");
             foreach (PropertyInfo property in oldStandardProperties)
             {
-                OldStandardPropertyAttribute oldStandardProperty = property.GetCustomAttribute<OldStandardPropertyAttribute>();
-                DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
+                List<OldStandardPropertyAttribute> attributes = property.GetCustomAttributes<OldStandardPropertyAttribute>().ToList();
 
-                string newName = property.Name;
-                if (dataMember != null)
+                foreach (OldStandardPropertyAttribute attribute in attributes)
                 {
-                    newName = dataMember.Name;
-                }
+                    if (attribute.sinceVersion == null)
+                    {
+                        DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
 
-                file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardProperty.oldName + "\"},");
+                        string newName = property.Name;
+                        if (dataMember != null)
+                        {
+                            newName = dataMember.Name;
+                        }
+
+                        file.WriteLine("                        {\"" + newName + "\", \"" + attribute.oldName + "\"},");
+                    }
+                }
             }
             file.WriteLine("                    };");
+
+            foreach (PropertyInfo property in oldStandardProperties)
+            {
+                List<OldStandardPropertyAttribute> attributes = property.GetCustomAttributes<OldStandardPropertyAttribute>().ToList();
+
+                foreach (OldStandardPropertyAttribute attribute in attributes)
+                {
+                    if (attribute.sinceVersion != null)
+                    {
+                        DataMemberAttribute dataMember = property.GetCustomAttribute<DataMemberAttribute>();
+
+                        string newName = property.Name;
+                        if (dataMember != null)
+                        {
+                            newName = dataMember.Name;
+                        }
+
+                        file.WriteLine("                    if (currentVersion != null && currentVersion.CompareTo(new Version(\"" + attribute.sinceVersion + "\")) < 0 && currentVersion.CompareTo(new Version(OldStandardAttribute.Version)) > 0)");
+                        file.WriteLine("                    {");
+                        file.WriteLine("                        if (ret.ContainsKey(\"" + newName + "\"))");
+                        file.WriteLine("                        {");
+                        file.WriteLine("                            ret.Remove(\"" + newName + "\");");
+                        file.WriteLine("                        }");
+                        file.WriteLine("                        ret.Add(\"" + newName + "\", \"" + attribute.oldName + "\");");
+                        file.WriteLine("                    }");
+                    }
+                }
+            }
+
+            file.WriteLine("                    break;");
             file.WriteLine("                    ");
         }
 
@@ -626,7 +657,7 @@ namespace Reflector
                 return;
 
             file.WriteLine("                case \"" + controller.Name + "\":");
-            file.WriteLine("                    return new Dictionary<string, string>() { ");
+            file.WriteLine("                    ret = new Dictionary<string, string>() { ");
             foreach (MethodInfo action in oldStandardActions)
             {
                 OldStandardActionAttribute oldStandardAction = action.GetCustomAttribute<OldStandardActionAttribute>(true);
@@ -641,13 +672,15 @@ namespace Reflector
                 file.WriteLine("                        {\"" + newName + "\", \"" + oldStandardAction.oldName + "\"},");
             }
             file.WriteLine("                    };");
+            file.WriteLine("                    break;");
             file.WriteLine("                    ");
         }
 
         static void wrtieTypeOldMembers()
         {
-            file.WriteLine("        public static Dictionary<string, string> getOldMembers(Type type)");
+            file.WriteLine("        public static Dictionary<string, string> getOldMembers(Type type, Version currentVersion)");
             file.WriteLine("        {");
+            file.WriteLine("            Dictionary<string, string> ret = null;");
             file.WriteLine("            switch (type.Name)");
             file.WriteLine("            {");
 
@@ -663,7 +696,7 @@ namespace Reflector
 
             file.WriteLine("            }");
             file.WriteLine("            ");
-            file.WriteLine("            return null;");
+            file.WriteLine("            return ret;");
             file.WriteLine("        }");
             file.WriteLine("        ");
         }
