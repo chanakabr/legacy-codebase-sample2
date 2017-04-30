@@ -46,6 +46,8 @@ namespace Core.Notification
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
 
+        private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
+
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
 
@@ -838,6 +840,8 @@ namespace Core.Notification
 
             // get bulk from TCM
             int engagementBulkMessages = TCMClient.Settings.Instance.GetValue<int>("num_of_bulk_message_engagements");
+            if (engagementBulkMessages == 0)
+                engagementBulkMessages = NUM_OF_BULK_MESSAGE_ENGAGEMENTS;
 
             // calculate number of iterations
             int remainder = 0;
