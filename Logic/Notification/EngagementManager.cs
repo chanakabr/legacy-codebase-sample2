@@ -867,7 +867,7 @@ namespace Core.Notification
                 };
 
                 // insert into DB
-                EngagementBulkMessage insertedBulkMessage = EngagementDal.SetEngagementBulkMessage(partnerId, bulkMessage);
+                EngagementBulkMessage insertedBulkMessage = EngagementDal.InsertEngagementBulkMessage(partnerId, bulkMessage);
                 if (insertedBulkMessage == null || insertedBulkMessage.Id == 0)
                     log.ErrorFormat("Error inserting bulk message in DB. Engagement: {0}, bulk message: {1}", JsonConvert.SerializeObject(engagementToBeSent), JsonConvert.SerializeObject(bulkMessage));
                 else
