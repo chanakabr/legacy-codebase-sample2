@@ -23,32 +23,19 @@ namespace WebAPI.Controllers
         /// <param name="pager">Page size and index</param>                
         [Route("list"), HttpPost]
         [ApiAuthorize]
-        public KalturaEngagementListResponse List(KalturaEngagementFilter filter, KalturaFilterPager pager = null)
+        public KalturaEngagementListResponse List(KalturaEngagementFilter filter)
         {
             List<KalturaEngagement> list = null;
 
             int groupId = KS.GetFromRequest().GroupId;
 
-            if (pager == null)
-                pager = new KalturaFilterPager();
-
             if (filter == null)
                 filter = new KalturaEngagementFilter();
-
-            if (!filter.CreatedAtGreaterThanOrEqual.HasValue)
-            {
-                filter.CreatedAtGreaterThanOrEqual = 0;
-            }
-
-            if (!filter.CreatedAtLessThanOrEqual.HasValue)
-            {
-                filter.CreatedAtLessThanOrEqual = 0;
-            }
 
             try
             {
                 // call client
-                list = ClientsManager.NotificationClient().GetEngagements(groupId, pager.getPageSize(), pager.getPageIndex(), filter.getTypeIn(), filter.CreatedAtGreaterThanOrEqual.Value, filter.CreatedAtLessThanOrEqual.Value);
+                list = ClientsManager.NotificationClient().GetEngagements(groupId, filter.getTypeIn(), filter.SendTimeLessThanOrEqual);
             }
             catch (ClientException ex)
             {

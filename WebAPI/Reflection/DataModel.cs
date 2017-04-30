@@ -3105,10 +3105,8 @@ namespace WebAPI.Reflection
                 case "KalturaEngagementFilter":
                     switch(property.Name)
                     {
-                        case "CreatedAtGreaterThanOrEqual":
-                            return "createdAtGreaterThanOrEqual";
-                        case "CreatedAtLessThanOrEqual":
-                            return "createdAtLessThanOrEqual";
+                        case "SendTimeLessThanOrEqual":
+                            return "sendTimeLessThanOrEqual";
                         case "TypeIn":
                             return "typeIn";
                     }

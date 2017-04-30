@@ -317,9 +317,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return WebAPI.Utils.SerializationUtils.ConvertToUnixTimestamp(dateTime);
         }
 
-        private static DateTime ConvertSendTime(long dateTime)
+        public static DateTime? ConvertSendTime(long? dateTime)
         {
-            return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime);
+            if (dateTime.HasValue)
+                return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime.Value);
+            else
+                return null;
         }
 
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)

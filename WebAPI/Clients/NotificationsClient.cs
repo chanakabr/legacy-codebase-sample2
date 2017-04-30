@@ -1803,7 +1803,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal List<KalturaEngagement> GetEngagements(int groupId, int pageSize, int pageIndex, List<KalturaEngagementType> typeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)        
+        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)        
         {
             List<KalturaEngagement> list = null;
             EngagementResponseList response = null;
@@ -1820,7 +1820,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetEngagements(groupId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+                    response = Core.Notification.Module.GetEngagements(groupId, convertedtypeIn, NotificationMapping.ConvertSendTime(sendTimeLessThanOrEqual));
                 }
             }
             catch (Exception ex)

@@ -27,23 +27,15 @@ namespace WebAPI.Models.Notification
         [DataMember(Name = "typeIn")]
         [JsonProperty(PropertyName = "typeIn")]
         [XmlElement(ElementName = "typeIn", IsNullable = true)]
-        public string TypeIn { get; set; }
+        public string TypeIn { get; set; }       
 
         /// <summary>
-        /// createdAtGreaterThanOrEqual
+        /// SendTime LessThanOrEqual 
         /// </summary>
-        [DataMember(Name = "createdAtGreaterThanOrEqual")]
-        [JsonProperty(PropertyName = "createdAtGreaterThanOrEqual")]
-        [XmlElement(ElementName = "createdAtGreaterThanOrEqual", IsNullable = true)]
-        public long? CreatedAtGreaterThanOrEqual { get; set; }
-
-        /// <summary>
-        /// createdAtLessThanOrEqual
-        /// </summary>
-        [DataMember(Name = "createdAtLessThanOrEqual")]
-        [JsonProperty(PropertyName = "createdAtLessThanOrEqual")]
-        [XmlElement(ElementName = "createdAtLessThanOrEqual", IsNullable = true)]
-        public long? CreatedAtLessThanOrEqual { get; set; }
+        [DataMember(Name = "sendTimeLessThanOrEqual")]
+        [JsonProperty(PropertyName = "sendTimeLessThanOrEqual")]
+        [XmlElement(ElementName = "sendTimeLessThanOrEqual", IsNullable = true)]
+        public long? SendTimeLessThanOrEqual { get; set; }
 
 
         internal List<KalturaEngagementType> getTypeIn()
