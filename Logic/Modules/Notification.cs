@@ -1024,9 +1024,9 @@ namespace Core.Notification
             return EngagementManager.GetEngagement(groupId, id);
         }
 
-        public static EngagementResponseList GetEngagements(int groupId, int pageSize, int pageIndex, List<eEngagementType> convertedtypeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)
+        public static EngagementResponseList GetEngagements(int groupId, List<eEngagementType> convertedtypeIn, DateTime? sendTimeLessThanOrEqual)
         {
-            return EngagementManager.GetEngagements(groupId, pageSize, pageIndex, convertedtypeIn, createdAtGreaterThanOrEqual, createdAtLessThanOrEqual);
+            return EngagementManager.GetEngagements(groupId, convertedtypeIn, sendTimeLessThanOrEqual);
         }
 
         public static bool SendEngagement(int partnerId, int engagementId, int startTime)
