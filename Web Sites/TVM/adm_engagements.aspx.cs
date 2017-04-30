@@ -14,8 +14,6 @@ public partial class adm_engagements : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
-        log.DebugFormat("Start");
-
         if (LoginManager.CheckLogin() == false)
             Response.Redirect("login.html");
         else if (LoginManager.IsPagePermitted("adm_engagements.aspx") == false)
@@ -49,8 +47,6 @@ public partial class adm_engagements : System.Web.UI.Page
         sButton += "|";
         sButton += "adm_engagements_new.aspx?type=2";
         sortedMenu[1] = sButton;
-
-        log.DebugFormat("TYPE!!!");
 
         return sortedMenu;
 
@@ -92,7 +88,7 @@ public partial class adm_engagements : System.Web.UI.Page
         theTable += "SELECT ID ,group_id ,status, is_active, case engagement_type when 1 then 'Churn' else '' end as 'Type',";
         theTable += "case when adapter_id > 0 then 'External' else 'Manual' end as 'Source',";
         theTable += "case when adapter_id > 0 then 1 else 2 end as 'isAdapter',";
-        theTable += "send_time as 'Send Time', total_number_of_recipients as '# Recipients',";
+        theTable += "send_time as 'SendTime', total_number_of_recipients as '# Recipients',";
         theTable += "INTERVAL_SECONDS / CAST(3600 AS float)  as 'Interval (hours)'";
         theTable += "FROM engagements with (nolock)";
         theTable += string.Format(" Where status<>2 and group_id = {0} ", groupId);
@@ -104,32 +100,41 @@ public partial class adm_engagements : System.Web.UI.Page
         }
         else
         {
-            theTable += " order by id desc";
+            theTable += " order by ID desc";
         }
 
-        theTable.AddHiddenField("ID");
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("isAdapter");
-        theTable.AddOrderByColumn("Send Time", "Send Time");
+        theTable.AddOrderByColumn("SendTime", "SendTime");
+        theTable.AddOrderByColumn("ID", "ID");
 
         DataTableLinkColumn linkColumnKeParams = new DataTableLinkColumn("adm_engagements_new.aspx", "Expand", "");
         linkColumnKeParams.AddQueryStringValue("engagement_id", "field=id");
         linkColumnKeParams.AddQueryStringValue("type", "field=isAdapter");
         theTable.AddLinkColumn(linkColumnKeParams);
 
+        /*
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) && LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             theTable.AddActivationField("engagements", "adm_engagements.aspx");
-        }
+        */
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
     {
+        if (sOrderBy != "")
+            Session["order_by"] = sOrderBy;
+        else if (Session["search_save"] == null)
+            Session["order_by"] = "";
+        else
+            sOrderBy = Session["order_by"].ToString();
+
         string sOldOrderBy = "";
         if (Session["order_by"] != null)
             sOldOrderBy = Session["order_by"].ToString();
+
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, false, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("notifications_connection");
         FillTheTableEditor(ref theTable, sOrderBy);
