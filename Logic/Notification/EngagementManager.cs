@@ -950,7 +950,7 @@ namespace Core.Notification
                 return true;
             }
 
-            // get relevant engagementBulkMessage   
+            // get relevant engagement bulk message   
             EngagementBulkMessage engagementBulkMessage = EngagementDal.GetEngagementBulkMessage(partnerId, engagementBulkId);
             if (engagementBulkMessage == null)
             {
