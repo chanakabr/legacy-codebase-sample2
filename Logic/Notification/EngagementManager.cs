@@ -690,7 +690,7 @@ namespace Core.Notification
             return response;
         }
 
-        internal static EngagementResponseList GetEngagements(int groupId, int pageSize, int pageIndex, List<eEngagementType> convertedtypeIn, long createdAtGreaterThanOrEqual, long createdAtLessThanOrEqual)        
+        internal static EngagementResponseList GetEngagements(int groupId, List<eEngagementType> convertedtypeIn, DateTime? sendTimeLessThanOrEqual)        
         {
             EngagementResponseList response = new EngagementResponseList();
             try
