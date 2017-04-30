@@ -161,8 +161,8 @@ namespace ApiObjects
             this.Crid = epgCb.Crid;
         }
 
-              
-        public bool Equals(EpgCB obj)
+
+        public bool Equals(EpgCB obj, List<FieldTypeEntity> fieldEntityMapping)
         {
             //Check for null and compare run-time types. 
             if ((obj == null) || !this.GetType().Equals(obj.GetType()))
@@ -250,7 +250,13 @@ namespace ApiObjects
                         {
                             // compare the values between the lists
                             foreach (string sMetaValue in obj.Metas[objMetaKey])
-                            {
+                            {                                
+                                bool? isMetaProtected = fieldEntityMapping.Where(x => x.Name.ToLower() == objMetaKey).Select(x => x.isProtectFromUpdates).FirstOrDefault();
+                                if (isMetaProtected.HasValue && isMetaProtected.Value) // no need to check meta value for protected meta !!!!! 
+                                {
+                                    continue;
+                                }
+
                                 if (!this.Metas[objMetaKey].Contains(sMetaValue))
                                 {
                                     return false;
