@@ -75,7 +75,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                template.AssetType = messageType;
+                template.MessageType = messageType;
 
                 if (string.IsNullOrEmpty(template.Message))
                 {

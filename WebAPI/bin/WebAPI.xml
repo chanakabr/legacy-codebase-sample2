@@ -7812,7 +7812,7 @@
             Default date format for the date &amp; time entries used in the template
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.AssetType">
+        <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MessageType">
             <summary>
             Template type. Possible values: Series, Reminder,Churn
             </summary>
