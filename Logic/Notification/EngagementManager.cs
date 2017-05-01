@@ -691,12 +691,19 @@ namespace Core.Notification
             return response;
         }
 
-        internal static EngagementResponseList GetEngagements(int groupId, List<eEngagementType> convertedtypeIn, DateTime? sendTimeLessThanOrEqual)
+        internal static EngagementResponseList GetEngagements(int groupId, List<eEngagementType> engagementTypes, DateTime? sendTimeLessThanOrEqual)
         {
             EngagementResponseList response = new EngagementResponseList();
+
+            if (engagementTypes == null || engagementTypes.Count == 0)
+            {
+                engagementTypes = new List<eEngagementType>();
+                engagementTypes = Enum.GetValues(typeof(eEngagementType)).Cast<eEngagementType>().ToList();
+            }            
+
             try
             {
-                response.Engagements = EngagementDal.GetEngagementList(groupId);
+                response.Engagements = EngagementDal.GetEngagementList(groupId, sendTimeLessThanOrEqual, false, engagementTypes);
                 if (response.Engagements == null || response.Engagements.Count == 0)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No engagement were found");
                 else
