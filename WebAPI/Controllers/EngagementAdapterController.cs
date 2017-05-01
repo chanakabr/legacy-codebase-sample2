@@ -119,6 +119,15 @@ namespace WebAPI.Controllers
         {
             KalturaEngagementAdapter response = null;
 
+            if (string.IsNullOrWhiteSpace(engagementAdapter.AdapterUrl))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "adapterUrl");
+
+            if (string.IsNullOrWhiteSpace(engagementAdapter.ProviderUrl))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "providerUrl");
+            
+            if (string.IsNullOrWhiteSpace(engagementAdapter.Name))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+
             int groupId = KS.GetFromRequest().GroupId;
 
             try
@@ -155,6 +164,15 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             engagementAdapter.Id = id;
+
+            if (string.IsNullOrWhiteSpace(engagementAdapter.AdapterUrl))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "adapterUrl");
+
+            if (string.IsNullOrWhiteSpace(engagementAdapter.ProviderUrl))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "providerUrl");
+
+            if (string.IsNullOrWhiteSpace(engagementAdapter.Name))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
 
             try
             {
