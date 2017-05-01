@@ -598,10 +598,13 @@ namespace DAL
 
             try
             {
-                if (engagementTypes != null && engagementTypes.Count > 0)
+                if (engagementTypes == null && engagementTypes.Count == 0)
                 {
-                    engagementTypeIds = engagementTypes.Select(i => (int)i).ToList();
+                    engagementTypes = new List<eEngagementType>();
+                    engagementTypes = Enum.GetValues(typeof(eEngagementType)).Cast<eEngagementType>().ToList();
                 }
+
+                engagementTypeIds = engagementTypes.Select(i => (int)i).ToList();
 
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
