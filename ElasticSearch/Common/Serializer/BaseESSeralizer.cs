@@ -220,8 +220,11 @@ namespace ElasticSearch.Common
         }
 
         public virtual string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
-            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null,
-            string phoneticAnalyzer = null)
+            string normalIndexAnalyzer, string normalSearchAnalyzer, 
+            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, 
+            string suffix = null,
+            string phoneticIndexAnalyzer = null,
+            string phoneticSearchAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
@@ -359,8 +362,8 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
-                search_analyzer = sSearchAnalyzer,
-                index_analyzer = sIndexAnalyzer
+                search_analyzer = normalSearchAnalyzer,
+                index_analyzer = normalIndexAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -396,8 +399,8 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
-                search_analyzer = sSearchAnalyzer,
-                index_analyzer = sIndexAnalyzer
+                search_analyzer = normalSearchAnalyzer,
+                index_analyzer = normalIndexAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -450,8 +453,8 @@ namespace ElasticSearch.Common
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = "",
                             analyzed = true,
-                            search_analyzer = sSearchAnalyzer,
-                            index_analyzer = sIndexAnalyzer
+                            search_analyzer = normalSearchAnalyzer,
+                            index_analyzer = normalIndexAnalyzer
                         });
 
                         if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -515,8 +518,8 @@ namespace ElasticSearch.Common
                                         type = ElasticSearch.Common.eESFieldType.STRING,
                                         null_value = "",
                                         analyzed = true,
-                                        search_analyzer = sSearchAnalyzer,
-                                        index_analyzer = sIndexAnalyzer
+                                        search_analyzer = normalSearchAnalyzer,
+                                        index_analyzer = normalIndexAnalyzer
                                     });
 
                                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -586,7 +589,9 @@ namespace ElasticSearch.Common
         public virtual string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
                                                 string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
                                                 string suffix = null,
-                                                bool shouldAddRouting = true)
+                                                bool shouldAddRouting = true,
+                                                string phoneticIndexAnalyzer = null,
+                                                string phoneticSearchAnalyzer = null)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
