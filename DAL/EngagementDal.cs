@@ -600,7 +600,7 @@ namespace DAL
             {
                 if (engagementTypes != null && engagementTypes.Count > 0)
                 {
-                    engagementTypeIds = engagementTypes.Select(i=>(int)i).ToList();
+                    engagementTypeIds = engagementTypes.Select(i => (int)i).ToList();
                 }
 
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
@@ -609,7 +609,7 @@ namespace DAL
                 sp.AddParameter("@shouldGetOnlyActive", shouldOnlyGetActive);
                 sp.AddParameter("@fromDate", fromSendDate);
                 if (engagementTypeIds.Count > 0)
-                    sp.AddXMLParameter<int>("@engagementTypes", engagementTypeIds, "Id");
+                    sp.AddIDListParameter("@engagementTypes", engagementTypeIds, "id");
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
