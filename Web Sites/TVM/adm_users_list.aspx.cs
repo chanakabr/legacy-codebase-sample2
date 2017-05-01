@@ -30,7 +30,7 @@ public partial class adm_users_list : System.Web.UI.Page
             }
         }
         selectQuery.Finish();
-        selectQuery = null;       
+        selectQuery = null;
         if (nImplID > 0)
             return true;
         return false;
@@ -91,9 +91,9 @@ public partial class adm_users_list : System.Web.UI.Page
     protected void GetSubMenu()
     {
         Response.Write(m_sSubMenu);
-    }   
+    }
 
-  
+
 
     protected void FillTheTableEditor(ref DBTableWebEditor theTable, string sOrderBy)
     {
@@ -180,15 +180,15 @@ public partial class adm_users_list : System.Web.UI.Page
             theTable.AddLinkColumn(linkColumn1);
         }
 
-         List<KeyValuePair<int, string>> couponGroups = GetAllGroupCouponByGroup();
-         List<KeyValuePair<int, string>> engagementType = new List<KeyValuePair<int, string>>();
-         foreach (ApiObjects.eEngagementType r in Enum.GetValues(typeof(ApiObjects.eEngagementType)))
-         {
-             engagementType.Add(new KeyValuePair<int,string>((int)r, r.ToString()));
-         }
-             
+        List<KeyValuePair<int, string>> couponGroups = GetAllGroupCouponByGroup();
+        List<KeyValuePair<int, string>> engagementType = new List<KeyValuePair<int, string>>();
+        foreach (ApiObjects.eEngagementType r in Enum.GetValues(typeof(ApiObjects.eEngagementType)))
+        {
+            engagementType.Add(new KeyValuePair<int, string>((int)r, r.ToString()));
+        }
 
-         DataTableLinkColumn linkColumnEngagements = new DataTableLinkColumn("javascript:Engagements", "Engagements", "");
+
+        DataTableLinkColumn linkColumnEngagements = new DataTableLinkColumn("javascript:Engagements", "Engagements", "");
         linkColumnEngagements.AddQueryStringValue("user_id", "field=id");
         linkColumnEngagements.AddQueryStringValue("coupon_groups", couponGroups.ToJSON());
         linkColumnEngagements.AddQueryStringValue("engagement_type", engagementType.ToJSON());
@@ -266,12 +266,12 @@ public partial class adm_users_list : System.Web.UI.Page
 
     private List<KeyValuePair<int, string>> GetAllGroupCouponByGroup()
     {
-        List<KeyValuePair<int, string>> couponGroups = new List<KeyValuePair<int,string>>();
+        List<KeyValuePair<int, string>> couponGroups = new List<KeyValuePair<int, string>>();
         try
         {
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select code, id  from pricing.dbo.coupons_groups cg where group_id = 203 and is_active = 1 and status = 1";
+            selectQuery += "select code, id  from pricing.dbo.coupons_groups cg where is_active = 1 and status <> 2 and ISNULL(COUPON_GROUP_TYPE, 0) <> 1";
             selectQuery += "and group_id=" + LoginManager.GetLoginGroupID();
             selectQuery.SetCachedSec(0);
             if (selectQuery.Execute("query", true) != null)
@@ -282,7 +282,7 @@ public partial class adm_users_list : System.Web.UI.Page
                     string couponName = ODBCWrapper.Utils.GetSafeStr(dr, "CODE");
                     int couponId = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
 
-                    couponGroups.Add(new KeyValuePair<int,string>(couponId, couponName));
+                    couponGroups.Add(new KeyValuePair<int, string>(couponId, couponName));
                 }
             }
             selectQuery.Finish();
@@ -298,7 +298,7 @@ public partial class adm_users_list : System.Web.UI.Page
 
     public string GetPageContent(string sOrderBy, string sPageNum, string search_free_ul, string search_only_paid_users, string search_only_open_tickets)
     {
-        Session["search_free_ul"] = search_free_ul.Replace("'", "''");      
+        Session["search_free_ul"] = search_free_ul.Replace("'", "''");
 
         if (search_only_paid_users != "")
             Session["search_only_paid_users"] = search_only_paid_users.Replace("'", "''");
