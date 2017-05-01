@@ -245,6 +245,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
 
+            //DbReminder to KalturaAssetReminder
+            Mapper.CreateMap<SeriesDbReminder, KalturaSeriesReminder>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
+                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
+
+            Mapper.CreateMap<DbReminder, KalturaReminder>()
+                .Include<DbReminder, KalturaAssetReminder>()
+                .Include<SeriesDbReminder, KalturaSeriesReminder>();
+
             #region Engagement Adapter
 
             Mapper.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
