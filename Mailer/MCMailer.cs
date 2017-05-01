@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Web.Script.Serialization;
 using KLogMonitor;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace Mailer
 {
@@ -59,7 +60,7 @@ namespace Mailer
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("m_sSenderTo={0}, ex={1}", request.m_sSenderTo, ex.Message);
+                log.ErrorFormat("Error while sending mail template. request: {0}, ex: {1}", JsonConvert.SerializeObject(request), ex);
                 return false;
             }
         }
