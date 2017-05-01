@@ -57,16 +57,14 @@ namespace ElasticSearch.Common
         /// and this:
         /// https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
         /// </summary>
-        /// <param name="oMetasValuesByGroupId"></param>
-        /// <param name="oGroupTags"></param>
-        /// <param name="sIndexAnalyzer"></param>
-        /// <param name="sSearchAnalyzer"></param>
-        /// <param name="autocompleteIndexAnalyzer"></param>
         /// <param name="autocompleteSearchAnalyzer"></param>
         /// <returns></returns>
         public override string CreateMediaMapping(Dictionary<int, Dictionary<string, string>> oMetasValuesByGroupId, Dictionary<int, string> oGroupTags,
-            string sIndexAnalyzer, string sSearchAnalyzer, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null, string suffix = null,
-            string phoneticAnalyzer = null)
+            string normalIndexAnalyzer, string normalSearchAnalyzer,
+            string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
+            string suffix = null,
+            string phoneticIndexAnalyzer = null,
+            string phoneticSearchAnalyzer = null)
         {
             if (oMetasValuesByGroupId == null || oGroupTags == null)
                 return string.Empty;
@@ -192,8 +190,8 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = sSearchAnalyzer,
-                analyzer = sIndexAnalyzer
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -209,7 +207,7 @@ namespace ElasticSearch.Common
                 });
             }
 
-            if (!string.IsNullOrEmpty(phoneticAnalyzer))
+            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
             {
                 nameProperty.fields.Add(new BasicMappingPropertyV2()
                 {
@@ -217,7 +215,8 @@ namespace ElasticSearch.Common
                     type = ElasticSearch.Common.eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
-                    analyzer = phoneticAnalyzer
+                    search_analyzer = phoneticSearchAnalyzer,
+                    analyzer = phoneticIndexAnalyzer
                 });
             }
 
@@ -244,8 +243,8 @@ namespace ElasticSearch.Common
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
-                search_analyzer = sSearchAnalyzer,
-                analyzer = sIndexAnalyzer
+                search_analyzer = normalSearchAnalyzer,
+                analyzer = normalIndexAnalyzer
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -261,7 +260,7 @@ namespace ElasticSearch.Common
                 });
             }
 
-            if (!string.IsNullOrEmpty(phoneticAnalyzer))
+            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
             {
                 descProperty.fields.Add(new BasicMappingPropertyV2()
                 {
@@ -269,7 +268,8 @@ namespace ElasticSearch.Common
                     type = ElasticSearch.Common.eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
-                    analyzer = phoneticAnalyzer
+                    search_analyzer = phoneticSearchAnalyzer,
+                    analyzer = phoneticIndexAnalyzer
                 });
             }
 
@@ -313,8 +313,8 @@ namespace ElasticSearch.Common
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
-                            search_analyzer = sSearchAnalyzer,
-                            analyzer = sIndexAnalyzer
+                            search_analyzer = normalSearchAnalyzer,
+                            analyzer = normalIndexAnalyzer
                         });
 
                         if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -330,7 +330,7 @@ namespace ElasticSearch.Common
                             });
                         }
 
-                        if (!string.IsNullOrEmpty(phoneticAnalyzer))
+                        if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
                         {
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
@@ -338,7 +338,8 @@ namespace ElasticSearch.Common
                                 type = ElasticSearch.Common.eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
-                                analyzer = phoneticAnalyzer
+                                search_analyzer = phoneticSearchAnalyzer,
+                                analyzer = phoneticIndexAnalyzer
                             });
                         }
 
@@ -397,8 +398,8 @@ namespace ElasticSearch.Common
                                         type = ElasticSearch.Common.eESFieldType.STRING,
                                         null_value = "",
                                         index = eMappingIndex.analyzed,
-                                        search_analyzer = sSearchAnalyzer,
-                                        analyzer = sIndexAnalyzer
+                                        search_analyzer = normalSearchAnalyzer,
+                                        analyzer = normalIndexAnalyzer
                                     });
 
                                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -414,7 +415,7 @@ namespace ElasticSearch.Common
                                         });
                                     }
 
-                                    if (!string.IsNullOrEmpty(phoneticAnalyzer))
+                                    if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
                                     {
                                         multiField.fields.Add(new BasicMappingPropertyV2()
                                         {
@@ -422,7 +423,8 @@ namespace ElasticSearch.Common
                                             type = ElasticSearch.Common.eESFieldType.STRING,
                                             null_value = "",
                                             index = eMappingIndex.analyzed,
-                                            analyzer = phoneticAnalyzer
+                                            search_analyzer = phoneticSearchAnalyzer,
+                                            analyzer = phoneticIndexAnalyzer
                                         });
                                     }
 
@@ -460,7 +462,9 @@ namespace ElasticSearch.Common
         public override string CreateEpgMapping(List<string> lMetasNames, List<string> lTags, string indexAnalyzer, string searchAnalyzer,
                                                 string mappingName, string autocompleteIndexAnalyzer = null, string autocompleteSearchAnalyzer = null,
                                                 string suffix = null,
-                                                bool shouldAddRouting = true)
+                                                bool shouldAddRouting = true,
+                                                string phoneticIndexAnalyzer = null,
+                                                string phoneticSearchAnalyzer = null)
         {
             if (lMetasNames == null || lTags == null)
                 return string.Empty;
@@ -573,6 +577,19 @@ namespace ElasticSearch.Common
                 });
             }
 
+            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+            {
+                nameProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "phonetic",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = phoneticSearchAnalyzer,
+                    analyzer = phoneticIndexAnalyzer
+                });
+            }
+
             mappingObj.AddProperty(nameProperty);
 
             ElasticSearch.Common.FieldsMappingPropertyV2 descrpitionMapping = new ElasticSearch.Common.FieldsMappingPropertyV2()
@@ -610,6 +627,19 @@ namespace ElasticSearch.Common
                     index = eMappingIndex.analyzed,
                     search_analyzer = autocompleteSearchAnalyzer,
                     analyzer = autocompleteIndexAnalyzer
+                });
+            }
+
+            if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+            {
+                descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "phonetic",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = phoneticSearchAnalyzer,
+                    analyzer = phoneticIndexAnalyzer
                 });
             }
 
@@ -684,6 +714,19 @@ namespace ElasticSearch.Common
                         });
                     }
 
+                    if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+                    {
+                        multiField.fields.Add(new BasicMappingPropertyV2()
+                        {
+                            name = "phonetic",
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = phoneticSearchAnalyzer,
+                            analyzer = phoneticIndexAnalyzer
+                        });
+                    }
+
                     tags.AddProperty(multiField);
                 }
             }
@@ -737,6 +780,19 @@ namespace ElasticSearch.Common
                             index = eMappingIndex.analyzed,
                             search_analyzer = autocompleteSearchAnalyzer,
                             analyzer = autocompleteIndexAnalyzer
+                        });
+                    }
+
+                    if (!string.IsNullOrEmpty(phoneticIndexAnalyzer) && !string.IsNullOrEmpty(phoneticSearchAnalyzer))
+                    {
+                        multiField.fields.Add(new BasicMappingPropertyV2()
+                        {
+                            name = "phonetic",
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = phoneticSearchAnalyzer,
+                            analyzer = phoneticIndexAnalyzer
                         });
                     }
 
