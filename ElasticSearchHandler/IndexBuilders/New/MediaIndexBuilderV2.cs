@@ -102,7 +102,8 @@ namespace ElasticSearchHandler.IndexBuilders
                 string indexAnalyzer, searchAnalyzer;
                 string autocompleteIndexAnalyzer = null;
                 string autocompleteSearchAnalyzer = null;
-                string phoneticAnalyzer = null;
+                string phoneticIndexAnalyzer = null;
+                string phoneticSearchAnalyzer = null;
 
                 // create names for analyzers to be used in the mapping later on
                 string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION);
@@ -122,7 +123,8 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (analyzerDefinition.Contains("dbl_metaphone"))
                     {
-                        phoneticAnalyzer = string.Concat(language.Code, "_dbl_metaphone");
+                        phoneticIndexAnalyzer = string.Concat(language.Code, "_index_dbl_metaphone");
+                        phoneticSearchAnalyzer = string.Concat(language.Code, "_search_dbl_metaphone");
                     }
                 }
                 else
@@ -144,7 +146,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(
                     group.m_oMetasValuesByGroupId, group.m_oGroupTags,
-                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticAnalyzer);      
+                    indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix, phoneticIndexAnalyzer, phoneticSearchAnalyzer);      
 
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
 
