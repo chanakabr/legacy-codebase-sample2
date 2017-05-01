@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
             if (controller == null)
                 throw new BadRequestException(BadRequestException.INVALID_SERVICE, serviceName);
 
-            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
+            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldActions(controller);
             string lowerActionName = actionName.ToLower();
             if (oldStandardActions != null && oldStandardActions.ContainsValue(lowerActionName))
                 actionName = oldStandardActions.FirstOrDefault(value => value.Value == lowerActionName).Key;

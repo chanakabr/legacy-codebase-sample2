@@ -139,7 +139,7 @@ namespace WebAPI.Filters
                 throw new RequestParserException(RequestParserException.INVALID_SERVICE, serviceName);
             }
 
-            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldMembers(controller);
+            Dictionary<string, string> oldStandardActions = OldStandardAttribute.getOldActions(controller);
             string action = actionName;
 
             if (serviceName.Equals("multirequest", StringComparison.CurrentCultureIgnoreCase))

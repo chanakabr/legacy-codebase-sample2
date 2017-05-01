@@ -44,6 +44,14 @@ namespace WebAPI.Managers.Scheme
 
             return null;
         }
+
+        public static Dictionary<string, string> getOldActions(Type type)
+        {
+            if (isCurrentRequestOldVersion())
+                return DataModel.getOldMembers(type, null);
+
+            return null;
+        }
     }
 
     abstract public class OldStandardVersionedAttribute : OldStandardAttribute
