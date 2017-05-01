@@ -892,13 +892,10 @@ namespace WebAPI.Clients
             if (typeIn == null || typeIn.Count == 0)
             {
                 typeIn = new List<KalturaInboxMessageType>();
-                typeIn.Add(KalturaInboxMessageType.Followed);
-                typeIn.Add(KalturaInboxMessageType.SystemAnnouncement);
+                typeIn = Enum.GetValues(typeof(KalturaInboxMessageType)).Cast<KalturaInboxMessageType>().ToList();
             }
 
             List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
-
-            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -948,13 +945,10 @@ namespace WebAPI.Clients
             if (typeIn == null || typeIn.Count == 0)
             {
                 typeIn = new List<KalturaInboxMessageType>();
-                typeIn.Add(KalturaInboxMessageType.Followed);
-                typeIn.Add(KalturaInboxMessageType.SystemAnnouncement);
+                typeIn = Enum.GetValues(typeof(KalturaInboxMessageType)).Cast<KalturaInboxMessageType>().ToList();
             }
 
-            List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
-
-            
+            List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();            
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1809,16 +1803,24 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal List<KalturaEngagement> GetEngagements(int groupId)
+        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)        
         {
             List<KalturaEngagement> list = null;
             EngagementResponseList response = null;
+
+            if (typeIn == null || typeIn.Count == 0)
+            {
+                typeIn = new List<KalturaEngagementType>();
+                typeIn = Enum.GetValues(typeof(KalturaEngagementType)).Cast<KalturaEngagementType>().ToList();
+            }
+
+            List<eEngagementType> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertEngagementType(x)).ToList();
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetEngagements(groupId);
+                    response = Core.Notification.Module.GetEngagements(groupId, convertedtypeIn, NotificationMapping.ConvertSendTime(sendTimeLessThanOrEqual));
                 }
             }
             catch (Exception ex)

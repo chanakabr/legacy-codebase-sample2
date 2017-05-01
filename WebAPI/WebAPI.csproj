@@ -154,6 +154,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="clear_cache.aspx" />
+    <Content Include="NotificationService.svc" />
     <Content Include="service.svc" />
     <Content Include="Global.asax" />
     <Content Include="log4net.config">
@@ -617,6 +618,7 @@
     <Compile Include="Models\Notification\KalturaEngagementAdapterBase.cs" />
     <Compile Include="Models\Notification\KalturaEngagementListResponse.cs" />
     <Compile Include="Models\Notification\KalturaEngagementAdapterListResponse.cs" />
+    <Compile Include="Models\Notification\KalturaEngagementFilter.cs" />
     <Compile Include="Models\Notification\KalturaReminderFilter.cs" />
     <Compile Include="Models\Notification\KalturaReminderListResponse.cs" />
     <Compile Include="Models\Notification\KalturaReminder.cs" />

@@ -33,11 +33,12 @@ namespace WebAPI.Models.Notification
         /// <summary>
         /// Template type. Possible values: Series, Reminder,Churn
         /// </summary>
-        [DataMember(Name = "assetType")]
-        [JsonProperty(PropertyName = "assetType")]
-        [XmlElement(ElementName = "assetType")]
+        [DataMember(Name = "messageType")]
+        [JsonProperty(PropertyName = "messageType")]
+        [XmlElement(ElementName = "messageType")]
         [OldStandardProperty("asset_type")]
-        public KalturaMessageTemplateType AssetType { get; set; }
+        [OldStandardProperty("assetType", "3.6.2094.15157")]
+        public KalturaMessageTemplateType MessageType { get; set; }
 
         /// <summary>
         /// Sound file name to play upon message arrival to the device (if supported by target device)

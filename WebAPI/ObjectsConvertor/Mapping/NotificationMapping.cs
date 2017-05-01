@@ -121,7 +121,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
-                 .ForMember(dest => dest.AssetType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
+                 .ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.TemplateType)));
 
             //KalturaMessageTemplate TO MessageTemplate
             Mapper.CreateMap<KalturaMessageTemplate, MessageTemplate>()
@@ -130,7 +130,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Action, opt => opt.MapFrom(src => src.Action))
                  .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                  .ForMember(dest => dest.URL, opt => opt.MapFrom(src => src.URL))
-                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.AssetType)));
+                 .ForMember(dest => dest.TemplateType, opt => opt.MapFrom(src => ConvertTemplateAssetType(src.MessageType)));
 
             Mapper.CreateMap<FollowDataBase, KalturaFollowDataTvSeries>()
                  .ForMember(dest => dest.AnnouncementId, opt => opt.MapFrom(src => src.AnnouncementId))
@@ -329,12 +329,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return WebAPI.Utils.SerializationUtils.ConvertToUnixTimestamp(dateTime);
         }
 
-        private static DateTime ConvertSendTime(long dateTime)
+        public static DateTime? ConvertSendTime(long? dateTime)
         {
-            return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime);
+            if (dateTime.HasValue)
+                return WebAPI.Utils.SerializationUtils.ConvertFromUnixTimestamp(dateTime.Value);
+            else
+                return null;
         }
 
-        private static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
+        public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
             switch (eEngagementType)
             {
@@ -345,7 +348,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
         }
 
-        private static eEngagementType ConvertEngagementType(KalturaEngagementType kalturaEngagementType)
+        public static eEngagementType ConvertEngagementType(KalturaEngagementType kalturaEngagementType)
         {
             switch (kalturaEngagementType)
             {

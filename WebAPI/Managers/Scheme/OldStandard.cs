@@ -39,24 +39,71 @@ namespace WebAPI.Managers.Scheme
 
         public static Dictionary<string, string> getOldMembers(Type type)
         {
+            Version currentVersion = (Version)HttpContext.Current.Items[RequestParser.REQUEST_VERSION];
+            return DataModel.getOldMembers(type, currentVersion);
+
+            return null;
+        }
+
+        public static Dictionary<string, string> getOldActions(Type type)
+        {
             if (isCurrentRequestOldVersion())
-                return DataModel.getOldMembers(type);
+                return DataModel.getOldMembers(type, null);
 
             return null;
         }
     }
 
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public class OldStandardPropertyAttribute : OldStandardAttribute
+    abstract public class OldStandardVersionedAttribute : OldStandardAttribute
+    {
+        public OldStandardVersionedAttribute(string oldName)
+            : base(oldName)
+        {
+        }
+
+        public OldStandardVersionedAttribute(string oldName, string version)
+            : base(oldName)
+        {
+            this.sinceVersion = version;
+        }
+
+        public string sinceVersion { get; set; }
+
+        public virtual int Compare(OldStandardVersionedAttribute attribute)
+        {
+            if (sinceVersion != null && attribute.sinceVersion == null)
+            {
+                return 1;
+            }
+            else if (sinceVersion == null && attribute.sinceVersion != null)
+            {
+                return -1;
+            }
+            else if (sinceVersion != null && attribute.sinceVersion != null)
+            {
+                return (new Version(sinceVersion)).CompareTo(new Version(attribute.sinceVersion));
+            }
+
+            return 0;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
+    public class OldStandardPropertyAttribute : OldStandardVersionedAttribute
     {
         public OldStandardPropertyAttribute(string oldName)
             : base(oldName)
         {
         }
+
+        public OldStandardPropertyAttribute(string oldName, string version)
+            : base(oldName, version)
+        {
+        }
     }
 
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-    public class OldStandardArgumentAttribute : OldStandardAttribute
+    public class OldStandardArgumentAttribute : OldStandardVersionedAttribute
     {
         public OldStandardArgumentAttribute(string newName, string oldName)
             : base(oldName)
@@ -65,31 +112,22 @@ namespace WebAPI.Managers.Scheme
         }
 
         public OldStandardArgumentAttribute(string newName, string oldName, string version) :
-            this(newName, oldName)
+            base(oldName, version)
         {
-            this.sinceVersion = version;
+            this.newName = newName;
         }
 
         public string newName { get; set; }
 
-        public string sinceVersion { get; set; }
-
-        public int CompareVersion(string version)
+        public override int Compare(OldStandardVersionedAttribute attribute)
         {
-            if (sinceVersion != null && version == null)
+            int compare = base.Compare(attribute);
+            if (compare != 0)
             {
-                return 1;
-            }
-            else if (sinceVersion == null && version != null)
-            {
-                return -1;
-            }
-            else if (sinceVersion != null && version != null)
-            {
-                return (new Version(sinceVersion)).CompareTo(new Version(version));
+                return compare;
             }
 
-            return 0;
+            return newName.CompareTo((attribute as OldStandardArgumentAttribute).newName);
         }
     }
 
