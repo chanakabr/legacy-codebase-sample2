@@ -108,10 +108,8 @@
         theHtml += "<td class=calendar_table_cell align='right'></td>";
         theHtml += "<table>";
         theHtml += "<tr>";
-       // theHtml += "<td class='adm_table_header_nbg' nowrap>Coupon Group</td>";      
-        
-        theHtml += '<select id="CouponGroup">  <option value=-999>Coupon Group</option>';
 
+        theHtml += '<select id="CouponGroup">  <option value=-999>Coupon Group</option>';
         for (var i = 0; i < coupon_groups.length; i++) {
             var obj = coupon_groups[i];
             theHtml += '<option value=\"' + obj["Key"] + "\">" +  obj["Value"] + '</option>';
@@ -119,11 +117,11 @@
         theHtml += '</select><br><br>';
 
         theHtml += '<select id="EngagementType" > <option value=-999>Engagement Type</option>';
-
         for (var i = 0; i < engagement_type.length; i++) {
             var obj = engagement_type[i];
             theHtml += '<option value=\"' + obj["Key"] + "\">" + obj["Value"] + '</option>';
         }
+
         theHtml += '</select><br><br>';
         theHtml += "<tr>";
         theHtml += "<td id='confirm_btn'><a href='javascript:ManipEngagements(" + user_id + ",document.getElementById(\"CouponGroup\"),document.getElementById(\"EngagementType\"));' class='btn'></a></td>";
@@ -137,7 +135,7 @@
     }   
 
     function ManipEngagements(user_id, coupon_group, engagement_type) {
-        debugger;
+      
         var couponGroupVal = coupon_group.options[coupon_group.selectedIndex].value;
 
         var engagementTypeVal = engagement_type.options[engagement_type.selectedIndex].value;
@@ -147,7 +145,7 @@
         }
         else {
             sURL = "AjaxManinEngagements.aspx?user_id=" + escape(user_id) + "&coupon_group=" + escape(couponGroupVal) + "&engagement_type=" + escape(engagementTypeVal);
-            postFile(sURL, callback_ManipPassword);
+            postFile(sURL, callback_ManipEngagements);
         }
     }
 
@@ -174,6 +172,7 @@
             postFile(sURL , callback_ManipPassword);
         }
     }
+
     function callback_ManipPassword() {
         if (xmlhttp.readyState == 4) {
             if (xmlhttp.status == 200) {
@@ -226,6 +225,31 @@
         }
     }
 
+    function callback_ManipEngagements() {
+        if (xmlhttp.readyState == 4) {
+            if (xmlhttp.status == 200) {
+
+                result1 = xmlhttp.responseText;
+                result = result1.split("~~|~~")[0];
+                try {
+                    result2 = result1.split("~~|~~")[1];
+                }
+                catch (e) {
+                    result2 = "???";
+                }
+                if (result == "OK") {
+                    alert("Done...");
+                }
+                else {
+                    alert(result2);
+                }
+
+            }
+            else
+                alert("Error!");
+            closeCollDiv('');
+        }
+    }
     
     function FreeSub(user_id)
     {
