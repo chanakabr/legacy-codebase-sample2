@@ -1025,11 +1025,18 @@ namespace Core.Notification
 
             // send mail and inbox message in parallel
             List<UserEngagement> successfullySentEngagementUsers = new List<UserEngagement>();
+
+            log.DebugFormat("Start parallel SendMailInboxEngagement for groupId: {0}, bulkId:{1}, userEngagements.Count:{2}",
+                partnerId, engagementBulkId, userEngagements.Count);
+
             Parallel.For(0, userEngagements.Count, new ParallelOptions() { MaxDegreeOfParallelism = numberOfEngagementThread }, userIndex =>
             {
                 if (SendMailInboxEngagement(partnerId, userEngagements[userIndex], coupons[userIndex].code, partnerSettings.settings, messageTemplate, engagement.EngagementType))
                     successfullySentEngagementUsers.Add(userEngagements[userIndex]);
             });
+
+            log.DebugFormat("End parallel SendMailInboxEngagement for groupId: {0}, bulkId:{1}, userEngagements.Count:{2}",
+              partnerId, engagementBulkId, userEngagements.Count);
 
             // update bulk engagement
             engagementBulkMessage.IsSent = true;
@@ -1242,17 +1249,25 @@ namespace Core.Notification
                 log.ErrorFormat("messageTemplate is empty.GID: {0}, UID: {1}, ", partnerId, userEngagement.UserId);
                 return true;
             }
-            //todo: switch eChurnPlaceHolders
             // build message  
-            MessageData messageData = new MessageData()
+            MessageData messageData = null;
+
+            switch (engagementType)
             {
-                Category = messageTemplate.Action,
-                Sound = messageTemplate.Sound,
-                Url = messageTemplate.URL.Replace("{" + eChurnPlaceHolders.FirstName + "}", dbUserData.m_user.m_oBasicData.m_sFirstName).
-                                            Replace("{" + eChurnPlaceHolders.LastName + "}", dbUserData.m_user.m_oBasicData.m_sLastName),
-                Alert = messageTemplate.Message.Replace("{" + eChurnPlaceHolders.FirstName + "}", dbUserData.m_user.m_oBasicData.m_sFirstName).
-                                            Replace("{" + eChurnPlaceHolders.LastName + "}", dbUserData.m_user.m_oBasicData.m_sLastName)
-            };
+                case eEngagementType.Churn:
+                    messageData = new MessageData()
+                    {
+                        Category = messageTemplate.Action,
+                        Sound = messageTemplate.Sound,
+                        Url = messageTemplate.URL.Replace("{" + eChurnPlaceHolders.FirstName + "}", dbUserData.m_user.m_oBasicData.m_sFirstName).
+                                                    Replace("{" + eChurnPlaceHolders.LastName + "}", dbUserData.m_user.m_oBasicData.m_sLastName),
+                        Alert = messageTemplate.Message.Replace("{" + eChurnPlaceHolders.FirstName + "}", dbUserData.m_user.m_oBasicData.m_sFirstName).
+                                                    Replace("{" + eChurnPlaceHolders.LastName + "}", dbUserData.m_user.m_oBasicData.m_sLastName)
+                    };
+                    break;
+                default:
+                    throw new Exception("Unknown Engagement Type");
+            }
 
             long currentTimeSec = ODBCWrapper.Utils.DateTimeToUnixTimestamp(DateTime.UtcNow);
 
