@@ -1038,6 +1038,8 @@ namespace Core.Notification
                 log.ErrorFormat("Error occurred while trying to send push engagement. GID: {0}, engagementId: {1}, engagementBulkId: {2}", partnerId, engagementId, engagementBulkId);
                 return true;
             }
+            else
+                log.DebugFormat("Engagement bulk push message was finished. Partner ID: {0}, engagementBulkId: {1}", partnerId, engagementBulkId);
 
             return true;
         }
@@ -1210,6 +1212,8 @@ namespace Core.Notification
                 log.ErrorFormat("Could not send engagement - User invalid. partnerId: {0}, userId: {1}", partnerId, userEngagement.UserId);
                 return false;
             }
+            else
+                log.DebugFormat("Engagement mail was successfully sent. partner ID: {0}, user ID: {1}", partnerId, userEngagement.UserId);
 
             // update userEngagement && doc 
             userEngagement.IsEngagementSent = true;
@@ -1259,6 +1263,8 @@ namespace Core.Notification
 
             if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(partnerId)))
                 log.ErrorFormat("Error while setting churn inbox message. GID: {0}, InboxMessage: {1}", partnerId, JsonConvert.SerializeObject(inboxMessage));
+            else
+                log.DebugFormat("Engagement inbox message was successfully sent. partner ID: {0}, user ID: {1}", partnerId, userEngagement.UserId);
 
             return true;
         }
