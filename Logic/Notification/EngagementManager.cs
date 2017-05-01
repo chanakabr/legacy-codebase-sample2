@@ -499,7 +499,7 @@ namespace Core.Notification
                 }
 
                 // create rabbit message
-                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(DateTime.UtcNow), response.Engagement.Id))
+                if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(engagement.SendTime), response.Engagement.Id))
                 {
                     log.ErrorFormat("Error while trying to create engagement rabbit message. Engagement data: {0}", JsonConvert.SerializeObject(engagement));
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, ERROR_INSERTING_ENGAGEMENT);
