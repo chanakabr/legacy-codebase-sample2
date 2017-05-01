@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
@@ -590,16 +591,25 @@ namespace DAL
             return res;
         }
 
-        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, bool shouldOnlyGetActive = false)
+        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, bool shouldOnlyGetActive = false, List<eEngagementType> engagementTypes = null)
         {
             List<Engagement> res = new List<Engagement>();
+            List<int> engagementTypeIds = new List<int>();
+
             try
             {
+                if (engagementTypes != null && engagementTypes.Count > 0)
+                {
+                    engagementTypeIds = engagementTypes.Select(i=>(int)i).ToList();
+                }
+
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddParameter("@shouldGetOnlyActive", shouldOnlyGetActive);
                 sp.AddParameter("@fromDate", fromSendDate);
+                if (engagementTypeIds.Count > 0)
+                    sp.AddXMLParameter<int>("@engagementTypes", engagementTypeIds, "Id");
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
