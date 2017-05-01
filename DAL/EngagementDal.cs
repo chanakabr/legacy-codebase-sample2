@@ -598,7 +598,7 @@ namespace DAL
 
             try
             {
-                if (engagementTypes == null && engagementTypes.Count == 0)
+                if (engagementTypes == null || engagementTypes.Count == 0)
                 {
                     engagementTypes = new List<eEngagementType>();
                     engagementTypes = Enum.GetValues(typeof(eEngagementType)).Cast<eEngagementType>().ToList();
@@ -611,8 +611,7 @@ namespace DAL
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddParameter("@shouldGetOnlyActive", shouldOnlyGetActive);
                 sp.AddParameter("@fromDate", fromSendDate);
-                if (engagementTypeIds.Count > 0)
-                    sp.AddIDListParameter("@engagementTypes", engagementTypeIds, "id");
+                sp.AddIDListParameter("@engagementTypes", engagementTypeIds, "id");
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
