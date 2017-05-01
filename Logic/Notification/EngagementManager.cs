@@ -699,7 +699,7 @@ namespace Core.Notification
             {
                 engagementTypes = new List<eEngagementType>();
                 engagementTypes = Enum.GetValues(typeof(eEngagementType)).Cast<eEngagementType>().ToList();
-            }            
+            }
 
             try
             {
@@ -1216,7 +1216,7 @@ namespace Core.Notification
             // send mail  
             if (!Core.Api.Module.SendMailTemplate(partnerId, mailRequest))
             {
-                log.ErrorFormat("Could not send engagement - User invalid. partnerId: {0}, userId: {1}", partnerId, userEngagement.UserId);
+                log.ErrorFormat("Error while sending mail engagement. partnerId: {0}, mail request: {1}", partnerId, JsonConvert.SerializeObject(mailRequest));
                 return false;
             }
             else
