@@ -1256,7 +1256,7 @@ namespace Core.Notification
                     log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(bulk));
             }
 
-            return SendEngagement(partnerId, engagement.Id, (int)TVinciShared.DateUtils.DateTimeToUnixTimestamp(engagement.SendTime));
+            return true;
         }
     }
 }
