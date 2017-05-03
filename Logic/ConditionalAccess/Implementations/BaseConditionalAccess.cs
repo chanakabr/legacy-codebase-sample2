@@ -13874,7 +13874,7 @@ namespace Core.ConditionalAccess
                                 {
                                     recordingsThatFailedDeletion.Add(pair.Value.Id);
                                 }
-                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key);
+                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}, code: {2}, message: {3}", pair.Value.Id, pair.Key, deleteStatus.Code, deleteStatus.Message);
                             }
                             else
                             {
