@@ -1041,10 +1041,7 @@ namespace Core.Notification
             // update bulk engagement
             engagementBulkMessage.IsSent = true;
             if (EngagementDal.SetEngagementBulkMessage(partnerId, engagementBulkMessage) == null)
-            {
                 log.ErrorFormat("Error occurred while updating bulk engagement message. GID: {0}, engagementId: {1}, engagementBulkId: {2}", partnerId, engagementId, engagementBulkId);
-                return true;
-            }
 
             // 3. send push
             if (!SendPushEngagement(partnerId, successfullySentEngagementUsers, messageTemplate, engagement.EngagementType, engagementId))
