@@ -989,20 +989,20 @@ namespace Core.Notification
             return EngagementManager.GenerateEngagementSharedSecret(groupId, engagementAdapterId);
         }
 
-        public static EngagementAdapterSettingsResponse GetEngagementAdapterSettings(int groupId)
-        {
-            return EngagementManager.GetEngagementAdapterSettings(groupId);
-        }
+        //public static EngagementAdapterSettingsResponse GetEngagementAdapterSettings(int groupId)
+        //{
+        //    return EngagementManager.GetEngagementAdapterSettings(groupId);
+        //}
 
-        public static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
-        {
-            return EngagementManager.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
-        }
+        //public static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
+        //{
+        //    return EngagementManager.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
+        //}
 
-        public static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
-        {
-            return EngagementManager.InsertEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
-        }
+        //public static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
+        //{
+        //    return EngagementManager.InsertEngagementAdapterSettings(groupId, engagementAdapterId, engagementAdapterSettingsList);
+        //}
 
         public static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, List<EngagementAdapterSettings> engagementAdapterSettingsList)
         {
