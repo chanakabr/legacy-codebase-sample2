@@ -1216,7 +1216,7 @@ namespace Core.Notification
             Core.Users.UserResponseObject dbUserData = Core.Users.Module.GetUserData(partnerId, userEngagement.UserId.ToString(), string.Empty);
             if (dbUserData == null || dbUserData.m_RespStatus != ResponseStatus.OK || dbUserData.m_user == null || dbUserData.m_user.m_oBasicData == null)
             {
-                log.ErrorFormat("Could not send churn - User invalid. partnerId: {0}, userId: {1}, userObj: {2}", partnerId, userEngagement.UserId, dbUserData != null ? JsonConvert.SerializeObject(dbUserData) : "null");
+                log.ErrorFormat("Could not send engagement - User invalid. partnerId: {0}, userId: {1}, userObj: {2}", partnerId, userEngagement.UserId, dbUserData != null ? JsonConvert.SerializeObject(dbUserData) : "null");
                 return false;
             }
 
