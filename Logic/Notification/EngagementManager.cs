@@ -1185,7 +1185,7 @@ namespace Core.Notification
 
         private static List<KeyValue> GetUserAttributes(int partnerId, int userId, eEngagementType engagementType)
         {
-            List<KeyValue> userAttributes = null;
+            List<KeyValue> userAttributes = new List<KeyValue>();
 
             Core.Users.UserResponseObject response = Core.Users.Module.GetUserData(partnerId, userId.ToString(), string.Empty);
             if (response == null || response.m_RespStatus != ResponseStatus.OK || response.m_user == null || response.m_user.m_oBasicData == null)
