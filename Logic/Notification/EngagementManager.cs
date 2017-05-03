@@ -792,13 +792,6 @@ namespace Core.Notification
                 return true;
             }
 
-            // if scheduler engagement - create next iteration
-            if (engagementToBeSent.IntervalSeconds > 0)
-            {
-                if (!HandleSchedularEngagement(partnerId, lastHourAndFutureEngagement, engagementToBeSent))
-                    return true;
-            }
-
             // check if user list exist or get them from external adapter
             List<int> userList = new List<int>();
             if (engagementToBeSent.AdapterId > 0)
@@ -834,6 +827,13 @@ namespace Core.Notification
                     // return true - do not retry
                     return true;
                 }
+            }
+
+            // if scheduler engagement - create next iteration
+            if (engagementToBeSent.IntervalSeconds > 0)
+            {
+                if (!HandleSchedularEngagement(partnerId, lastHourAndFutureEngagement, engagementToBeSent))
+                    return true;
             }
 
             // update engagement table with number of users
