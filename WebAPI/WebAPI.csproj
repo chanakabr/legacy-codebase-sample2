@@ -237,7 +237,6 @@
     <Compile Include="Controllers\LanguageController.cs" />
     <Compile Include="Controllers\LastPositionController.cs" />
     <Compile Include="Controllers\EngagementAdapterController.cs" />
-    <Compile Include="Controllers\EngagementAdapterSettingsController.cs" />
     <Compile Include="Controllers\ReminderController.cs" />
     <Compile Include="Controllers\SearchHistoryController.cs" />
     <Compile Include="Controllers\SocialCommentController.cs" />
