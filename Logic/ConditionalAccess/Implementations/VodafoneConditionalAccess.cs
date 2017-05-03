@@ -670,7 +670,7 @@ namespace Core.ConditionalAccess
             resp = Core.Domains.Module.GetDeviceInfo(m_nGroupID, udid, true);
             if (resp != null && resp.m_oDeviceResponseStatus == DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
             {
-                if (string.IsNullOrEmpty(customerType) || customerType.ToUpper().StartsWith(NPVR_TYPE_PREFIX)
+                if (string.IsNullOrEmpty(customerType) || !customerType.ToUpper().StartsWith(NPVR_TYPE_PREFIX)
                     || !GetDeviceStreamTypeAndProfileByCustomerType(m_nGroupID, customerType, ref streamType, ref profile))
                 {
                     streamType = resp.m_oDevice.m_sStreamType;
