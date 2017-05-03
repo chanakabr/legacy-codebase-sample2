@@ -17,6 +17,7 @@ namespace Core.Api.Modules
     public class SearchHistory : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger searchHistoryLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "SearchHistoryLogger");
 
         #region Consts
 
@@ -146,7 +147,33 @@ namespace Core.Api.Modules
             {
                 log.ErrorFormat("Failed inserting Search History object to Couchbase. id = {0}, name = {1}", id, name);
             }
-
+            else
+            {
+                try
+                {
+                    // We write an empty string as the first parameter to split the start of the log from the offlinePpvUsesLog row data
+                    string infoToLog = string.Join(",", new object[] 
+                    { 
+                        " ", 
+                        id,
+                        name,
+                        language,
+                        createdAt,
+                        groupId,
+                        filter.ToString(),
+                        service,
+                        action,
+                        userId,
+                        deviceId
+                    });
+                    searchHistoryLog.Info(infoToLog);
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed inserting Search History object to DB. id = {0}, name = {1}", id, name);
+                }
+            }
+            
             return result;
         }
 
