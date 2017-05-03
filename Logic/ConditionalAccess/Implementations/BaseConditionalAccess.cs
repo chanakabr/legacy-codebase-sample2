@@ -13855,27 +13855,38 @@ namespace Core.ConditionalAccess
 					ContextData contextData = new ContextData();
 					Parallel.ForEach(recordingsForDeletion.Values.AsEnumerable(), options, (pair) =>
 					{
-						contextData.Load();
-						if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
-						{
-							adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
-							groupIdToAdapterIdMap.Add(pair.Key, adapterId);
-						}
+                        try
+                        {
+                            contextData.Load();
+                            if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
+                            {
+                                adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+                                groupIdToAdapterIdMap.Add(pair.Key, adapterId);
+                            }
 
-						ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
-						if (deleteStatus.Code != (int)eResponseStatus.OK)
-						{
-							if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
-							{
-								recordingsThatFailedDeletion.Add(pair.Value.Id);
-							}
-							log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key);
-						}
-						else
-						{
-							deletedRecordingIds.Add(pair.Value.Id);
-							log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
-						}
+                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
+                            if (deleteStatus.Code != (int)eResponseStatus.OK)
+                            {
+                                if (!recordingsThatFailedDeletion.Contains(pair.Value.Id))
+                                {
+                                    recordingsThatFailedDeletion.Add(pair.Value.Id);
+                                }
+                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key);
+                            }
+                            else
+                            {
+                                deletedRecordingIds.Add(pair.Value.Id);
+                                log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
+                            }
+                        }
+                        catch (AggregateException ex)
+                        {
+                            log.Error(string.Format("AggregateException when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("Exception when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
+                        }
 					});
 
 					totalRecordingsDeleted += deletedRecordingIds.Count;
