@@ -1118,7 +1118,8 @@ namespace Core.Notification
                         EndPointArn = pushData.ExternalToken,
                         Category = messageTemplate.Action,
                         Sound = messageTemplate.Sound,
-                        Url = messageTemplate.URL
+                        Url = messageTemplate.URL,
+                        ExtraData = userEngagement.UserId.ToString()
                     };
 
                     usersEndPointDatas.Add(userEndPointData);
@@ -1135,6 +1136,7 @@ namespace Core.Notification
                 Sound = messageTemplate.Sound
             };
 
+
             List<WSEndPointPublishDataResult> pushPublishResults = NotificationAdapter.PublishToEndPoint(partnerId, publishData);
             if (pushPublishResults == null)
             {
@@ -1144,8 +1146,34 @@ namespace Core.Notification
 
             foreach (var pushPublishResult in pushPublishResults)
             {
+                // connect user document to result document
+                UserEngagement userEngagement = engagementUsers.FirstOrDefault(x => x.UserId.ToString() == pushPublishResult.ExtraData);
+                int userID = 0;
+                if (userEngagement != null)
+                    userID = userEngagement.UserId;
+
                 if (string.IsNullOrEmpty(pushPublishResult.ResultMessageId))
-                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, EndPointArn: {1}", partnerId, pushPublishResult.EndPointArn);
+                {
+                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}",
+                        partnerId,
+                        userEngagement != null ? userEngagement.UserId : 0,
+                        pushPublishResult.EndPointArn);
+                }
+                else
+                {
+                    // update user document with result push ID
+                    if (userEngagement != null)
+                    {
+                        userEngagement.ResultPushIds.Add(pushPublishResult.ResultMessageId);
+                        if (!EngagementDal.SetUserEngagement(userEngagement))
+                        {
+                            log.ErrorFormat("Error occurred while updating user engagement data with result push token. GID: {0}, user ID: {1}, EndPointArn: {2}",
+                                partnerId,
+                                userEngagement.UserId,
+                                pushPublishResult.EndPointArn);
+                        }
+                    }
+                }
             }
 
             return true;
@@ -1224,6 +1252,7 @@ namespace Core.Notification
 
             // update userEngagement && doc 
             userEngagement.IsEngagementSent = true;
+            userEngagement.CouponId = couponCode.ToString();
             if (!EngagementDal.SetUserEngagement(userEngagement))
             {
                 log.ErrorFormat("Could not SetUserEngagement. partnerId: {0}, userId: {1}", partnerId, userEngagement.UserId);

@@ -523,6 +523,9 @@ namespace APILogic.AmazonSnsAdapter {
         private string EndPointArnField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ExtraDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ResultMessageIdField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -594,6 +597,19 @@ namespace APILogic.AmazonSnsAdapter {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ExtraData {
+            get {
+                return this.ExtraDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExtraDataField, value) != true)) {
+                    this.ExtraDataField = value;
+                    this.RaisePropertyChanged("ExtraData");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
         public string ResultMessageId {
             get {
                 return this.ResultMessageIdField;
@@ -655,6 +671,9 @@ namespace APILogic.AmazonSnsAdapter {
         private string EndPointArnField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string ExtraDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string ResultMessageIdField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
@@ -676,6 +695,19 @@ namespace APILogic.AmazonSnsAdapter {
                 if ((object.ReferenceEquals(this.EndPointArnField, value) != true)) {
                     this.EndPointArnField = value;
                     this.RaisePropertyChanged("EndPointArn");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string ExtraData {
+            get {
+                return this.ExtraDataField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.ExtraDataField, value) != true)) {
+                    this.ExtraDataField = value;
+                    this.RaisePropertyChanged("ExtraData");
                 }
             }
         }

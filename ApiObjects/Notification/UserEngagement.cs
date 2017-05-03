@@ -13,6 +13,8 @@ namespace ApiObjects.Notification
         public int PartnerId { get; set; }
         public int EngagementId { get; set; }
         public int EngagementBulkId { get; set; }
+        public string CouponId { get; set; }
+        public List<string> ResultPushIds { get; set; }
 
         public bool IsEngagementSent { get; set; }
 
@@ -22,6 +24,7 @@ namespace ApiObjects.Notification
             this.UserId = userId;
             this.EngagementId = engagementId;
             this.EngagementBulkId = engagementBulkId;
+            this.ResultPushIds = new List<string>();
             this.DocType = "UserEngagement";
         }
     }

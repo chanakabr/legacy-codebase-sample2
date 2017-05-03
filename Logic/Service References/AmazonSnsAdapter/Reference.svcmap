@@ -21,15 +21,16 @@
     <ServiceContractMappings />
   </ClientOptions>
   <MetadataSources>
-    <MetadataSource Address="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?wsdl" Protocol="http" SourceId="1" />
+    <MetadataSource Address="http://localhost:90/Service.svc" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="Service.xsd" MetadataType="Schema" ID="c390bee4-382b-405d-b9d7-72f828b35e21" SourceId="1" SourceUrl="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd4" />
-    <MetadataFile FileName="Service1.xsd" MetadataType="Schema" ID="57f52774-e63c-4ed0-a6bd-f1f6f6b7708f" SourceId="1" SourceUrl="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd1" />
-    <MetadataFile FileName="Service.wsdl" MetadataType="Wsdl" ID="988f3473-6eaa-4a64-8c9d-7e5a49487f36" SourceId="1" SourceUrl="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?wsdl" />
-    <MetadataFile FileName="Service2.xsd" MetadataType="Schema" ID="8d5628a2-6db0-4c2c-8b70-80b64021cc27" SourceId="1" SourceUrl="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd0" />
-    <MetadataFile FileName="Service3.xsd" MetadataType="Schema" ID="1f743870-63c6-41de-8e39-d1337a24ea4c" SourceId="1" SourceUrl="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd2" />
-    <MetadataFile FileName="Service4.xsd" MetadataType="Schema" ID="b68222e3-f532-483f-ac0c-3a036b054ee5" SourceId="1" SourceUrl="http://172.31.6.92:90/AmazonSnsAdapter/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service5.xsd" MetadataType="Schema" ID="d92004b3-b892-4e53-a222-a434b54cffa9" SourceId="1" SourceUrl="http://localhost:90/Service.svc?xsd=xsd3" />
+    <MetadataFile FileName="Service51.xsd" MetadataType="Schema" ID="187c97e3-85c5-4732-aa17-49652494192b" SourceId="1" SourceUrl="http://localhost:90/Service.svc?xsd=xsd0" />
+    <MetadataFile FileName="Service.disco" MetadataType="Disco" ID="b86aa4e1-d73b-42b8-b7c5-ea4e5b4cff91" SourceId="1" SourceUrl="http://localhost:90/Service.svc?disco" />
+    <MetadataFile FileName="Service52.xsd" MetadataType="Schema" ID="c0407415-4327-430a-a01d-9d47d4612911" SourceId="1" SourceUrl="http://localhost:90/Service.svc?xsd=xsd1" />
+    <MetadataFile FileName="Service53.xsd" MetadataType="Schema" ID="cf537208-5a65-47c1-aaa8-bd37bbd0895a" SourceId="1" SourceUrl="http://localhost:90/Service.svc?xsd=xsd2" />
+    <MetadataFile FileName="Service1.wsdl" MetadataType="Wsdl" ID="f03d7d5c-fc8d-4ffc-86eb-ca40b0d96399" SourceId="1" SourceUrl="http://localhost:90/Service.svc?wsdl" />
+    <MetadataFile FileName="Service54.xsd" MetadataType="Schema" ID="43bb8fda-d884-4e92-8a91-079803555e88" SourceId="1" SourceUrl="http://localhost:90/Service.svc?xsd=xsd4" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

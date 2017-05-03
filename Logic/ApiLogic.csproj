@@ -857,20 +857,20 @@
     <None Include="Service References\AmazonSnsAdapter\APILogic.AmazonSnsAdapter.WSEndPointPublishDataResult.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\AmazonSnsAdapter\Service.wsdl" />
-    <None Include="Service References\AmazonSnsAdapter\Service.xsd">
+    <None Include="Service References\AmazonSnsAdapter\Service1.wsdl" />
+    <None Include="Service References\AmazonSnsAdapter\Service5.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\AmazonSnsAdapter\Service1.xsd">
+    <None Include="Service References\AmazonSnsAdapter\Service51.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\AmazonSnsAdapter\Service2.xsd">
+    <None Include="Service References\AmazonSnsAdapter\Service52.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\AmazonSnsAdapter\Service3.xsd">
+    <None Include="Service References\AmazonSnsAdapter\Service53.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\AmazonSnsAdapter\Service4.xsd">
+    <None Include="Service References\AmazonSnsAdapter\Service54.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\DmsService\APILogic.DmsService.PushData.datasource">
@@ -1207,6 +1207,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\EngagementAdapterService\Service1.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AmazonSnsAdapter\Service.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
