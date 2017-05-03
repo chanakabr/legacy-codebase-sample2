@@ -141,10 +141,10 @@
         var engagementTypeVal = engagement_type.options[engagement_type.selectedIndex].value;
 
         if (couponGroupVal == -999 || engagementTypeVal == -999) {
-            alert("couponGroupVal or engagementTypeVal choss no value");
+            alert("coupon group or engagement type are mandatory fields");
         }
         else {
-            sURL = "AjaxManinEngagements.aspx?user_id=" + escape(user_id) + "&coupon_group=" + escape(couponGroupVal) + "&engagement_type=" + escape(engagementTypeVal);
+            sURL = "AjaxManipEngagements.aspx?user_id=" + escape(user_id) + "&coupon_group=" + escape(couponGroupVal) + "&engagement_type=" + escape(engagementTypeVal);
             postFile(sURL, callback_ManipEngagements);
         }
     }

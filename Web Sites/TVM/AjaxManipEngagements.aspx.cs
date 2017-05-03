@@ -8,7 +8,7 @@ using System.Web.UI.WebControls;
 using TvinciImporter;
 using TVinciShared;
 
-public partial class AjaxManinEngagements : System.Web.UI.Page
+public partial class AjaxManipEngagements : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -54,12 +54,12 @@ public partial class AjaxManinEngagements : System.Web.UI.Page
             if (engagement != null)
             {
                 ApiObjects.Response.Status result = ImporterImpl.AddEngagement(LoginManager.GetLoginGroupID(), ref engagement);
-                if (result == null)
+                if (result == null || result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
                 {
                     sError = "Error";
                     sRet = "FAIL";
                 }
-                else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                else if (result.Code == (int)ApiObjects.Response.eResponseStatus.OK)
                 {
                     sError = result.Message;
                     sRet = "OK";
