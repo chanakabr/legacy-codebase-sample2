@@ -2253,6 +2253,78 @@ namespace DAL
 
             return result;
         }
+
+        public static DbSeriesReminder GetSeriesReminder(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
+        {
+            DbSeriesReminder result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminder");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@seriesId", seriesId);
+                sp.AddParameter("@seasonNumber", seasonNumber);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    result = CreateSeriesDbReminder(ds.Tables[0].Rows[0]);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesReminder. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        private static DbSeriesReminder CreateSeriesDbReminder(DataRow row)
+        {
+            DbSeriesReminder result = new DbSeriesReminder()
+            {
+                GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
+                QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
+                RouteName = ODBCWrapper.Utils.GetSafeStr(row, "route_name"),
+                Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
+                ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                SeriesId = ODBCWrapper.Utils.GetSafeStr(row, "series_id"),
+                SeasonNumber = ODBCWrapper.Utils.GetLongSafeVal(row, "season_number"),
+                EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "epg_channel_id"),
+            };
+
+            return result;
+        }
+
+        public static int SetSeriesReminder(DbSeriesReminder dbReminder)
+        {
+            int reminderId = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSeriesReminder");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", dbReminder.GroupId);
+                sp.AddParameter("@id", dbReminder.ID);
+                sp.AddParameter("@name", dbReminder.Name);
+                sp.AddParameter("@queueId", dbReminder.QueueId);
+                sp.AddParameter("@routeName", dbReminder.RouteName);
+                sp.AddParameter("@externalId", dbReminder.ExternalPushId);
+                sp.AddParameter("@seriesId", dbReminder.SeriesId);
+                sp.AddParameter("@seasonNumber", dbReminder.SeasonNumber);
+                sp.AddParameter("@epgChannelId", dbReminder.EpgChannelId);
+
+                reminderId = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetSeriesReminder. groupId: {0}, Reminder: {1} . Error {2}", dbReminder.GroupId, JsonConvert.SerializeObject(dbReminder), ex);
+            }
+
+            return reminderId;
+        }
     }
 }
 
