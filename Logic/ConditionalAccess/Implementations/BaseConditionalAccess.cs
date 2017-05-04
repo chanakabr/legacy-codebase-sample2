@@ -13482,7 +13482,7 @@ namespace Core.ConditionalAccess
 									if (action == eAction.On || (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK))
 									{
 										// check if the epg is series by getting the fields mappings for the epg
-										Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series);
+										Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
 										if (epgFieldMappings != null && epgFieldMappings.Count > 0)
 										{
 											long channelId;
@@ -14979,7 +14979,7 @@ namespace Core.ConditionalAccess
 			}
 
 			EPGChannelProgrammeObject epg = epgs.First();
-			Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series);
+			Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
 			if (epgFieldMappings == null || epgFieldMappings.Count == 0)
 			{
 				log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
@@ -15428,7 +15428,7 @@ namespace Core.ConditionalAccess
 			}
 
 			EPGChannelProgrammeObject epg = epgs.First();
-			Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg, RecordingType.Series);
+			Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
 			if (epgFieldMappings == null || epgFieldMappings.Count == 0)
 			{
 				log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
