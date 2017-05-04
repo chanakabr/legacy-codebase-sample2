@@ -293,7 +293,7 @@ namespace ApiObjects.Response
         EngagementRequired = 8031,
         EngagementNotExist = 8032,
         ProviderUrlRequired = 8033,
-        EngagementRecentlySent = 8034,
+        EngagementTimeDifference = 8034,
         EngagementIllegalSendTime = 8035,
         FutureScheduledEngagementDetected = 8036,
         EngagementTemplateNotFound = 8037,

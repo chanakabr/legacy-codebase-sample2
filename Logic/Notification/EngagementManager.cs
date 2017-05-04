@@ -39,7 +39,7 @@ namespace Core.Notification
         private const string FUTURE_SEND_TIME = "Send time must be in the future";
         private const string ILLEGAL_USER_LIST = "Illegal user list";
         private const string ILLEGAL_ENGAGEMENT_INTERVAL = "Illegal interval inserted";
-        private const string ENGAGEMENT_RECENTLY_SENT = "Other engagement was recently sent";
+        private const string ENGAGEMENT_TIME_DIFFERENCE = "The difference send time between identical engagements must be higher that 1 hour";
         private const string ENGAGEMENT_SEND_WINDOW_FRAME = "Send time is not between the allowed time window";
         private const string FUTURE_SCHEDULE_ENGAGEMENT_DETECTED = "Future engagement scheduler detected";
         private const string ENGAGEMENT_TEMPLATE_NOT_DOUND = "Engagement template wasn't found";
@@ -478,15 +478,14 @@ namespace Core.Notification
                                                                                                    x.AdapterId == engagement.AdapterId &&
                                                                                                    x.AdapterDynamicData == engagement.AdapterDynamicData &&
                                                                                                    x.UserList == engagement.UserList &&
-                                                                                                   x.SendTime > engagement.SendTime.AddHours(-1) &&
-                                                                                                   x.SendTime <= engagement.SendTime);
+                                                                                                  Math.Abs((x.SendTime - engagement.SendTime).TotalHours) < 1);
                 if (engagementAlreadySent != null)
                 {
                     log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
                      JsonConvert.SerializeObject(engagementAlreadySent),
                      JsonConvert.SerializeObject(engagement));
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementRecentlySent, ENGAGEMENT_RECENTLY_SENT);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTimeDifference, ENGAGEMENT_TIME_DIFFERENCE);
                     return false;
                 }
             }
