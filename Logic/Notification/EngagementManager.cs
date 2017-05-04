@@ -479,7 +479,7 @@ namespace Core.Notification
                                                                                                    x.AdapterDynamicData == engagement.AdapterDynamicData &&
                                                                                                    x.UserList == engagement.UserList &&
                                                                                                    x.SendTime > engagement.SendTime.AddHours(-1) &&
-                                                                                                   x.SendTime < engagement.SendTime);
+                                                                                                   x.SendTime <= engagement.SendTime);
                 if (engagementAlreadySent != null)
                 {
                     log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
