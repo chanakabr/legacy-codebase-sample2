@@ -56,18 +56,17 @@ public partial class adm_engagement_adapter : System.Web.UI.Page
     {
         Int32 groupID = LoginManager.GetLoginGroupID();
 
-        theTable += "SELECT ID ,name as 'Name',group_id,is_active,status,adapter_url as 'Adapter URL' , provider_url as 'Provider URL' ,shared_secret ";
+        theTable += "SELECT ID ,name as 'Name',group_id,is_active,status,adapter_url as 'Adapter URL' , provider_url as 'Provider URL' ";
         theTable += " FROM engagement_adapter";
         theTable += "where ";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
         theTable += " and ";
-        theTable += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+        theTable += ODBCWrapper.Parameter.NEW_PARAM("status", "<>", 2);
         theTable += " order by id ";
         theTable.SetConnectionKey("notifications_connection");
 
         theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("status");
-        theTable.AddHiddenField("shared_secret");
         theTable.AddHiddenField("group_id");
         theTable.AddActivationField("is_active");        
 
