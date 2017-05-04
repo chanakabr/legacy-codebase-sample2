@@ -35,6 +35,7 @@ namespace Core.Notification
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
         private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
         private const string EMPTY_SOURCE_USER_LIST = "User list and adapter ID are empty";
+        private const string DUPLICATE_SOURCE_USER_LIST = "Duplicate source list";
         private const string FUTURE_SEND_TIME = "Send time must be in the future";
         private const string ILLEGAL_USER_LIST = "Illegal user list";
         private const string ILLEGAL_ENGAGEMENT_INTERVAL = "Illegal interval inserted";
@@ -438,6 +439,14 @@ namespace Core.Notification
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, EMPTY_SOURCE_USER_LIST);
                 log.ErrorFormat("User list and adapter ID are empty. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                return false;
+            }
+
+            // validate user list or adapter ID exists
+            if (!string.IsNullOrEmpty(engagement.UserList) && engagement.AdapterId > 0)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, DUPLICATE_SOURCE_USER_LIST);
+                log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
                 return false;
             }
 
