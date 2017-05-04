@@ -7558,9 +7558,9 @@
             List of inbox message types to search within.
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.SendTimeLessThanOrEqual">
+        <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.SendTimeGreaterThanOrEqual">
             <summary>
-            SendTime LessThanOrEqual 
+            SendTime GreaterThanOrEqual 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">

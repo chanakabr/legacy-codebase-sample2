@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                list = ClientsManager.NotificationClient().GetEngagements(groupId, filter.getTypeIn(), filter.SendTimeLessThanOrEqual);
+                list = ClientsManager.NotificationClient().GetEngagements(groupId, filter.getTypeIn(), filter.SendTimeGreaterThanOrEqual);
             }
             catch (ClientException ex)
             {
