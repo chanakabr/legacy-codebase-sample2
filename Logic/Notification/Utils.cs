@@ -97,5 +97,72 @@ namespace Core.Notification
             byte[] decbuff = HttpServerUtility.UrlTokenDecode(str);
             return Encoding.UTF8.GetString(decbuff);
         }
+
+
+        public static List<Core.Catalog.Response.UnifiedSearchResult> SearchSeriesEpisodes(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
+        {
+            string seriesIdName, seasonNumberName, episodeNumberName;
+            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            {
+                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
+                return null;
+            }
+
+            // build the filter query for the search
+            string ksql = string.Format("(and {0} = '{1}' epg_channel_id = '{2}' {3} start_date > '0')",
+                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
+
+            // get program ids
+            try
+            {
+                Core.Catalog.Request.UnifiedSearchRequest request = new Core.Catalog.Request.UnifiedSearchRequest()
+                {
+                    m_nGroupID = groupId,
+                    m_dServerTime = DateTime.UtcNow,
+                    m_nPageIndex = 0,
+                    m_nPageSize = 0,
+                    assetTypes = new List<int> { 0 },
+                    filterQuery = ksql.ToString(),
+                    order = new ApiObjects.SearchObjects.OrderObj()
+                    {
+                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+                    },
+                    m_oFilter = new Core.Catalog.Filter()
+                    {
+                        m_bOnlyActiveMedia = true
+                    },
+                };
+
+                Core.ConditionalAccess.Utils.FillCatalogSignature(request);
+                string catalogUrl = GetWSURL("WS_Catalog");
+                if (string.IsNullOrEmpty(catalogUrl))
+                {
+                    log.Error("Catalog Url is null or empty");
+                    return null;
+                }
+
+                Core.Catalog.Response.UnifiedSearchResponse response = request.GetResponse(request) as Core.Catalog.Response.UnifiedSearchResponse;
+
+                if (response == null || response.status == null)
+                {
+                    log.ErrorFormat("Got empty response from Catalog 'GetResponse' for 'UnifiedSearchRequest'");
+                    return null;
+                }
+                if (response.status.Code != (int)eResponseStatus.OK)
+                {
+                    log.ErrorFormat("Got error response from catalog 'GetResponse' for 'UnifiedSearchRequest'. response: code = {0}, message = {1}", response.status.Code, response.status.Message);
+                    return null;
+                }
+
+                return response.searchResults;
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("SearchSeriesEpisodes - Failed UnifiedSearchRequest Request To Catalog", ex);
+                return null;
+            }
+        }
     }
 }

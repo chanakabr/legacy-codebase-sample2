@@ -16,6 +16,8 @@ namespace ApiObjects.Notification
 
         public List<Announcement> Reminders { get; set; }
 
+        public List<Announcement> SeriesReminders { get; set; }
+
         public UserNotificationSettings Settings { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

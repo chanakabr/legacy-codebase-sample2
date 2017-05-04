@@ -39,12 +39,12 @@ namespace Core.Notification
         public const double REMINDER_CLEANUP_INTERVAL_SEC = 21600; // 6 hours 
         private const string ROUTING_KEY_REMINDERS_MESSAGES = "PROCESS_MESSAGE_REMINDERS";
 
-        public static RemindersResponse AddUserReminder(int userId, DbReminder clientReminder)
+        public static RemindersResponse AddUserReminder(int userId, DbReminder clientReminder, ProgramObj epgProgram)
         {
             RemindersResponse response = new RemindersResponse();
             int reminderId = 0;
-            string externalTopicId = string.Empty;
             DbReminder dbReminder = null;
+            Status status;
 
             try
             {
@@ -63,13 +63,15 @@ namespace Core.Notification
                     dbReminder = clientReminder;
                 }
 
-                // update reminder name and startDate according to epgAssetId
-                ProgramObj epgProgram = null;
-                var status = GetEpgProgram(dbReminder.GroupId, (int)dbReminder.Reference, out epgProgram);
-                if (status.Code != (int)eResponseStatus.OK)
+                if (epgProgram == null)
                 {
-                    response.Status = status;
-                    return response;
+                    // update reminder name and startDate according to epgAssetId
+                    status = GetEpgProgram(dbReminder.GroupId, (int)dbReminder.Reference, out epgProgram);
+                    if (status.Code != (int)eResponseStatus.OK)
+                    {
+                        response.Status = status;
+                        return response;
+                    }
                 }
 
                 // update reminder with epg program data                
@@ -113,30 +115,12 @@ namespace Core.Notification
                 // Need to save in database in 2 cases:
                 // 1. A new reminder 
                 // 2. An exist reminder that the ExternalPushId is empty, which can happened if the the partner push was disabled in the first time the reminder was inserted 
-                bool setReminderDBNeeded = false;
-
-                // validate partner push is enabled
-                if (!NotificationSettings.IsPartnerPushEnabled(dbReminder.GroupId))
+                bool setReminderDBNeeded;
+                status = TryCreateTopic(dbReminder, out setReminderDBNeeded);
+                if (status.Code != (int)eResponseStatus.OK)
                 {
-                    log.DebugFormat("AddUserReminder - partner push is disabled. groupID = {0}", dbReminder.GroupId);
-                }
-                else
-                {
-                    // push enabled - check if topic creation is needed
-                    if (string.IsNullOrEmpty(dbReminder.ExternalPushId))
-                    {
-                        // Create topic
-                        externalTopicId = NotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
-                        if (string.IsNullOrEmpty(externalTopicId))
-                        {
-                            log.DebugFormat("failed to create topic groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
-                            response.Status = new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
-                            return response;
-                        }
-
-                        dbReminder.ExternalPushId = externalTopicId;
-                        setReminderDBNeeded = true;
-                    }
+                    response.Status = status;
+                    return response;
                 }
 
                 // update db incase of update (ExternalPushId) or insert (new reminder)
@@ -292,6 +276,313 @@ namespace Core.Notification
             return response;
         }
 
+        public static RemindersResponse AddUserSeriesReminder(int userId, DbSeriesReminder clientReminder, ProgramObj epgProgram = null)
+        {
+            RemindersResponse response = new RemindersResponse();
+            int reminderId = 0;
+            string externalTopicId = string.Empty;
+            DbReminder dbReminder = null;
+
+            try
+            {
+                // validate reminder is enabled
+                if (!NotificationSettings.IsPartnerRemindersEnabled(clientReminder.GroupId))
+                {
+                    log.ErrorFormat("AddUserSeriesReminder - partner reminder is disabled. groupID = {0}", clientReminder.GroupId);
+                    response.Status = new Status((int)eResponseStatus.FeatureDisabled, "Feature Disabled");
+                    return response;
+                }
+
+                // get user reminder from DB                
+                dbReminder = NotificationDal.GetSeriesReminder(clientReminder.GroupId, clientReminder.SeriesId, clientReminder.SeasonNumber, clientReminder.EpgChannelId);
+                if (dbReminder == null)
+                {
+                    dbReminder = clientReminder;
+                }
+
+                dbReminder.Name = clientReminder.SeasonNumber != null ? string.Format("{0} season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
+                
+                // Need to save in database in 2 cases:
+                // 1. A new reminder 
+                // 2. An exist reminder that the ExternalPushId is empty, which can happened if the the partner push was disabled in the first time the reminder was inserted 
+                bool setReminderDBNeeded;
+                Status status = TryCreateTopic(dbReminder, out setReminderDBNeeded);
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    response.Status = status;
+                    return response;
+                }
+
+                // update db incase of update (ExternalPushId) or insert (new reminder)
+                if (setReminderDBNeeded || dbReminder.ID == 0)
+                {
+                    log.DebugFormat("Going to set reminder in db for program id: {0}", dbReminder.Reference);
+                    
+                    DbSeriesReminder dbSeriesReminder = dbReminder as DbSeriesReminder;
+                    // insert to DB                    
+                    reminderId = DAL.NotificationDal.SetSeriesReminder(dbSeriesReminder);
+
+                    if (reminderId == 0)
+                    {
+                        log.ErrorFormat("AddUserReminder failed insert reminder to DB groupID = {0}, Reminder = {1}", dbReminder.GroupId, JsonConvert.SerializeObject(dbReminder));
+                        response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+
+                    dbReminder.ID = reminderId;
+
+                    // TODO: TASK
+                    SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId);
+                }
+
+                if (userId > 0)
+                {
+                    // get user notifications
+                    UserNotification userNotificationData = null;
+                    response.Status = GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
+                    if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
+                    {
+                        return response;
+                    }
+
+                    if (userNotificationData.SeriesReminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null)
+                    {
+                        // user already set the reminder
+                        log.DebugFormat("User is already set a reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbReminder.GroupId, userId, dbReminder.ID);
+                        response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
+                        return response;
+                    }
+
+                    // update user notification object
+                    long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
+                    userNotificationData.SeriesReminders.Add(new Announcement()
+                    {
+                        AnnouncementId = dbReminder.ID,
+                        AnnouncementName = dbReminder.Name,
+                        AddedDateSec = addedSecs // TODO: what is this
+                    });
+
+                    // update CB userNotificationData
+                    if (!DAL.NotificationDal.SetUserNotificationData(dbReminder.GroupId, userId, userNotificationData))
+                    {
+                        log.ErrorFormat("error setting user reminder notification data. group: {0}, user id: {1}", dbReminder.GroupId, userId);
+                        response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+
+                    // update user devices
+                    if (userNotificationData.devices != null &&
+                       userNotificationData.devices.Count > 0 &&
+                       NotificationSettings.IsPartnerPushEnabled(dbReminder.GroupId))
+                    {
+                        foreach (UserDevice device in userNotificationData.devices)
+                        {
+                            log.DebugFormat("adding reminder to device group: {0}, user: {1}, UDID: {2}, reminderId: {3}", dbReminder.GroupId, userId, device.Udid, dbReminder.ID);
+
+                            // get device notification data
+                            bool docExists = false;
+                            DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(dbReminder.GroupId, device.Udid, ref docExists);
+                            if (deviceNotificationData == null)
+                            {
+                                log.ErrorFormat("device notification data not found group: {0}, UDID: {1}, reminderId: {2}", dbReminder.GroupId, device.Udid, dbReminder.ID);
+                                continue;
+                            }
+
+                            try
+                            {
+                                // validate device doesn't already have the reminder
+                                var subscribedReminder = deviceNotificationData.SubscribedReminders.FirstOrDefault(x => x.Id == dbReminder.ID);
+                                if (subscribedReminder != null)
+                                {
+                                    log.ErrorFormat("user already set reminder on device. group: {0}, UDID: {1}", dbReminder.GroupId, device.Udid);
+                                    continue;
+                                }
+
+                                // get push data
+                                PushData pushData = PushAnnouncementsHelper.GetPushData(dbReminder.GroupId, device.Udid, string.Empty);
+                                if (pushData == null)
+                                {
+                                    log.ErrorFormat("push data not found. group: {0}, UDID: {1}, reminderId: {2}", dbReminder.GroupId, device.Udid, dbReminder.ID);
+                                    continue;
+                                }
+
+                                // subscribe device to reminder
+                                AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                                {
+                                    EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
+                                    Protocol = EnumseDeliveryProtocol.application,
+                                    TopicArn = dbReminder.ExternalPushId,
+                                    ExternalId = dbReminder.ID
+                                };
+
+                                List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
+                                subs = NotificationAdapter.SubscribeToAnnouncement(dbReminder.GroupId, subs);
+                                if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
+                                {
+                                    log.ErrorFormat("Error registering device to reminder. group: {0}, UDID: {1}, reminderId: {2}", dbReminder.GroupId, device.Udid, dbReminder.ID);
+                                    continue;
+                                }
+
+                                // update device notification object                           
+                                deviceNotificationData.SubscribedSeriesReminders.Add(new NotificationSubscription()
+                                {
+                                    ExternalId = subs.First().SubscriptionArnResult,
+                                    Id = dbReminder.ID,
+                                    SubscribedAtSec = addedSecs
+                                });
+
+                                if (!DAL.NotificationDal.SetDeviceNotificationData(dbReminder.GroupId, device.Udid, deviceNotificationData))
+                                    log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}, reminderId: {3}", dbReminder.GroupId, device.Udid, subData.EndPointArn, dbReminder.ID);
+                                else
+                                {
+                                    log.DebugFormat("Successfully registered device to reminder. group: {0}, UDID: {1}, topic: {2}, reminderId: {3}", dbReminder.GroupId, device.Udid, subData.EndPointArn, dbReminder.ID);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorFormat("Error while adding reminder to device. GID: {0}, UDID: {1}, reminderId: {2}, ex: {3}", dbReminder.GroupId, device.Udid, dbReminder.ID, ex);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while adding series reminder. GID: {0}, reminderId: {1}, ex: {2}", dbReminder.GroupId, dbReminder.ID, ex);
+            }
+            response.Reminders = new List<DbReminder>();
+            response.Reminders.Add(dbReminder);
+            return response;
+        }
+
+        public static void SetRemindersForSerieEpisodes(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
+        {
+            List<UnifiedSearchResult> episodeResults = Utils.SearchSeriesEpisodes(groupId, seriesId, seasonNumber, epgChannelId);
+            if (episodeResults != null && episodeResults.Count > 0)
+            {
+                List<ProgramObj> programs = GetEpgPrograms(groupId, episodeResults.Select(p => int.Parse(p.AssetId)).ToList());
+
+                if (programs != null && programs.Count > 0)
+                {
+                    DbReminder episodeDbReminder;
+                    foreach (var program in programs)
+                    {
+                        episodeDbReminder = new DbReminder()
+                        {
+                            GroupId = groupId,
+                            Reference = long.Parse(program.AssetId),
+                        };
+
+                        AddUserReminder(0, episodeDbReminder, program);
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("failed to get series episodes for setting reminder. seriesId = {0}, seasonNum = {1}, epgChannelId = {2}",
+                        seriesId, seasonNumber, epgChannelId);
+
+                }
+            }
+            else
+            {
+                log.DebugFormat("failed to get series episodes IDs for setting reminder. seriesId = {0}, seasonNum = {1}, epgChannelId = {2}",
+                    seriesId, seasonNumber, epgChannelId);
+            }
+        }
+
+        private static Status TryCreateTopic(DbReminder dbReminder, out bool setReminderDBNeeded)
+        {
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            setReminderDBNeeded = false;
+
+            // validate partner push is enabled
+            if (!NotificationSettings.IsPartnerPushEnabled(dbReminder.GroupId))
+            {
+                log.DebugFormat("AddUserReminder - partner push is disabled. groupID = {0}", dbReminder.GroupId);
+            }
+            else
+            {
+                // push enabled - check if topic creation is needed
+                if (string.IsNullOrEmpty(dbReminder.ExternalPushId))
+                {
+                    // Create topic
+                    string externalTopicId = NotificationAdapter.CreateAnnouncement(dbReminder.GroupId, dbReminder.Name);
+                    if (string.IsNullOrEmpty(externalTopicId))
+                    {
+                        log.DebugFormat("failed to create topic groupID = {0}, reminderName = {1}", dbReminder.GroupId, dbReminder.Name);
+                        response = new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Guest announcement");
+                        return response;
+                    }
+
+                    dbReminder.ExternalPushId = externalTopicId;
+                    setReminderDBNeeded = true;
+                }
+            }
+
+            return response;
+        }
+
+        private static Status GetDbReminder(DbReminder clientReminder, ProgramObj epgProgram, out DbReminder dbReminder)
+        {
+            Status response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            dbReminder = NotificationDal.GetReminderByReferenceId(clientReminder.GroupId, clientReminder.Reference);
+            if (dbReminder == null)
+            {
+                dbReminder = clientReminder;
+            }
+
+            if (epgProgram == null)
+            {
+                // update reminder name and startDate according to epgAssetId
+                var status = GetEpgProgram(dbReminder.GroupId, (int)dbReminder.Reference, out epgProgram);
+                if (status.Code != (int)eResponseStatus.OK)
+                {
+                    response = status;
+                    return response;
+                }
+            }
+
+            // update reminder with epg program data                
+            if (epgProgram != null && epgProgram.AssetType == eAssetTypes.EPG && epgProgram.m_oProgram != null && epgProgram.m_oProgram.EPG_ID > 0)
+            {
+                // update date
+                DateTime newEpgSendDate;
+                if (!DateTime.TryParseExact(epgProgram.m_oProgram.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
+                {
+                    log.ErrorFormat("Failed parsing EPG start date form EPG program setting, epgID: {0}, startDate: {1}", epgProgram.m_oProgram.EPG_ID, epgProgram.m_oProgram.START_DATE);
+                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+                dbReminder.SendTime = DateUtils.DateTimeToUnixTimestamp(newEpgSendDate);
+
+                // update name
+                if (string.IsNullOrEmpty(epgProgram.m_oProgram.NAME))
+                {
+                    log.ErrorFormat("Failed get EPG program name form EPG program setting, epgID: {0}, name: {1}", epgProgram.m_oProgram.EPG_ID, epgProgram.m_oProgram.NAME);
+                    response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    return response;
+                }
+                dbReminder.Name = epgProgram.m_oProgram.NAME;
+            }
+            else
+            {
+                log.ErrorFormat("Failed get EPG program data form EPG program setting, GID: {0}, assetId: {1}", dbReminder.GroupId, dbReminder.Reference);
+                response = new Status((int)eResponseStatus.ProgramDoesntExist, "program does not exists");
+                return response;
+            }
+
+            // validate future asset
+            var utcNow = DateUtils.UnixTimeStampNow();
+            if (dbReminder.SendTime < utcNow)
+            {
+                log.ErrorFormat("Program passed. AssetId: {0}, SendTime: {1}, UtcNow: {2}", dbReminder.Reference, DateUtils.UnixTimeStampToDateTime(dbReminder.SendTime), DateUtils.UnixTimeStampToDateTime(utcNow));
+                response = new Status((int)eResponseStatus.PassedAsset, "Program passed");
+                return response;
+            }
+
+            return response;
+        }
+
         private static Status GetMedia(int partnerId, int assetId, out MediaObj media)
         {
             Status status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
@@ -375,6 +666,42 @@ namespace Core.Notification
             return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
+        private static List<ProgramObj> GetEpgPrograms(int groupId, List<int> assetIds)
+        {
+            List<ProgramObj>  programs = null;
+            EpgProgramResponse epgProgramResponse = null;
+            EpgProgramDetailsRequest epgRequest = new EpgProgramDetailsRequest();
+
+            try
+            {
+                // get EPG information
+                epgRequest = new EpgProgramDetailsRequest()
+                {
+                    m_lProgramsIds = assetIds,
+                    m_nGroupID = groupId,
+                    m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
+                    m_sSignString = CatalogSignString
+                };
+
+                epgProgramResponse = epgRequest.GetProgramsByIDs(epgRequest);
+
+                if (epgProgramResponse != null && epgProgramResponse.m_lObj != null && epgProgramResponse.m_lObj.Count > 0)
+                {
+                    programs = epgProgramResponse.m_lObj.Select(p => p as ProgramObj).ToList();
+                }
+                else
+                {
+                    log.ErrorFormat("Error when getting EPG information. request: {0}", JsonConvert.SerializeObject(epgRequest));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when calling catalog to get EPG information. request: {0}, ex: {1}", JsonConvert.SerializeObject(epgRequest), ex);
+            }
+
+            return programs;
+        }
+
         private static Status GetUserNotificationData(int groupId, int userId, out UserNotification userNotificationData)
         {
             bool docExists = false;
@@ -402,7 +729,7 @@ namespace Core.Notification
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
-        public static Status DeleteUserReminder(int groupId, int userId, long reminderId)
+        public static Status DeleteUserReminder(int groupId, int userId, long reminderId, ReminderType type)
         {
             Status statusResult = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 

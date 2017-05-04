@@ -16,4 +16,17 @@ namespace ApiObjects.Notification
         public string ExternalResult { get; set; }
         public string Message { get; set; }
     }
+
+    public class DbSeriesReminder : DbReminder
+    {
+        public string SeriesId { get; set; }
+        public long? SeasonNumber { get; set; }
+        public long EpgChannelId { get; set; }
+    }
+
+    public enum ReminderType
+    {
+        Single,
+        Series
+    }
 }

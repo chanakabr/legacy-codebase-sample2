@@ -915,7 +915,7 @@ namespace Core.Notification
             RemindersResponse response = null;
             try
             {
-                response = ReminderManager.AddUserReminder(userId, dbReminder);
+                response = ReminderManager.AddUserReminder(userId, dbReminder, null);
             }
             catch (Exception ex)
             {
@@ -925,13 +925,13 @@ namespace Core.Notification
 
         }
 
-        public static ApiObjects.Response.Status DeleteUserReminder(int nGroupID, int userId, long reminderId)
+        public static ApiObjects.Response.Status DeleteUserReminder(int nGroupID, int userId, long reminderId, ReminderType type)
         {
             ApiObjects.Response.Status response = null;
 
             try
             {
-                response = ReminderManager.DeleteUserReminder(nGroupID, userId, reminderId);
+                response = ReminderManager.DeleteUserReminder(nGroupID, userId, reminderId, type);
             }
             catch (Exception ex)
             {

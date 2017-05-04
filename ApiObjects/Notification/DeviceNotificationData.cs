@@ -26,6 +26,8 @@ namespace ApiObjects.Notification
 
         public List<NotificationSubscription> SubscribedReminders { get; set; }
 
+        public List<NotificationSubscription> SubscribedSeriesReminders { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ulong cas { get; set; }
     }
