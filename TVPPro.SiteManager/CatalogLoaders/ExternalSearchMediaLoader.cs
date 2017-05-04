@@ -49,7 +49,8 @@ namespace TVPPro.SiteManager.CatalogLoaders
             m_oRequest = new MediaSearchExternalRequest()
             {
                 m_nMediaTypes = MediaTypes,
-                m_sQuery = Query
+                m_sQuery = Query,
+                m_sDeviceID = m_oFilter.m_sDeviceId
             };
         }
 
