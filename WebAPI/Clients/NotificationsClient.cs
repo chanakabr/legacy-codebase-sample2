@@ -1371,7 +1371,7 @@ namespace WebAPI.Clients
             return kalturaReminder;
         }
 
-        internal bool DeleteReminder(string userID, int groupId, long reminderId)
+        internal bool DeleteReminder(string userID, int groupId, long reminderId, KalturaReminderType type)
         {
             Status response = null;
 
@@ -1381,14 +1381,13 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
             }
 
-            // get group ID
-            
+            ReminderType wsReminderType = NotificationMapping.ConvertReminderType(type);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.DeleteUserReminder(groupId, userId, reminderId);
+                    response = Core.Notification.Module.DeleteUserReminder(groupId, userId, reminderId, wsReminderType);
                 }
             }
             catch (Exception ex)

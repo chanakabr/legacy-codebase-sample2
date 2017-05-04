@@ -150,7 +150,7 @@ namespace WS_Notification
         ApiObjects.Response.Status DeleteOldReminders(string sWSUserName, string sWSPassword);
 
         [OperationContract]
-        ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId, ReminderType reminderType);
 
         [OperationContract]
         bool SendMessageReminder(string sWSUserName, string sWSPassword, long startTime, int reminderId);

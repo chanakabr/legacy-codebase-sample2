@@ -1020,7 +1020,7 @@ namespace WS_Notification
 
         }
 
-        public ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId)
+        public ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId, ReminderType reminderType)
         {
             ApiObjects.Response.Status response = null;
             int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
@@ -1029,7 +1029,7 @@ namespace WS_Notification
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.DeleteUserReminder(groupID, userId, reminderId);
+                    return Core.Notification.Module.DeleteUserReminder(groupID, userId, reminderId, reminderType);
                 }
             }
             catch (Exception ex)

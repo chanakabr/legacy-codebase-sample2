@@ -33,4 +33,10 @@ namespace WebAPI.Models.Notifications
             return Id.HasValue ? (int)Id : 0;
         }
     }
+
+    public enum KalturaReminderType
+    {
+        SINGLE,
+        SIRIES
+    }
 }

@@ -246,7 +246,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
 
             //DbReminder to KalturaAssetReminder
-            Mapper.CreateMap<SeriesDbReminder, KalturaSeriesReminder>()
+            Mapper.CreateMap<DbSeriesReminder, KalturaSeriesReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
@@ -255,7 +255,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             Mapper.CreateMap<DbReminder, KalturaReminder>()
                 .Include<DbReminder, KalturaAssetReminder>()
-                .Include<SeriesDbReminder, KalturaSeriesReminder>();
+                .Include<DbSeriesReminder, KalturaSeriesReminder>();
+
+            Mapper.CreateMap<KalturaSeriesReminder, DbSeriesReminder>()
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
+
+            Mapper.CreateMap<KalturaReminder, DbReminder>()
+                .Include<KalturaAssetReminder, DbReminder>()
+                .Include<KalturaSeriesReminder, DbSeriesReminder>();
 
             #region Engagement Adapter
 
@@ -776,6 +787,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
             }
             return result;
-        }       
+        }
+
+        internal static ReminderType ConvertReminderType(KalturaReminderType reminderType)
+        {
+            ReminderType result = ReminderType.Single;
+
+            switch (reminderType)
+            {
+                case KalturaReminderType.SINGLE:
+                    result = ReminderType.Single;
+                    break;
+                case KalturaReminderType.SIRIES:
+                    result = ReminderType.Series;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown reminder type");
+                    break;
+            }
+
+            return result;
+        }
     }
 }

@@ -71,11 +71,13 @@ namespace WebAPI.Controllers
         /// Delete a reminder. Reminder cannot be delete while being sent.
         /// </summary>
         /// <param name="id">Id of the reminder.</param>
+        /// <param name="type">Reminder type.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(long id)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(long id, KalturaReminderType type)
         {
             bool response = false;
 
@@ -84,7 +86,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.NotificationClient().DeleteReminder(userId, groupId, id);
+                response = ClientsManager.NotificationClient().DeleteReminder(userId, groupId, id, type);
             }
             catch (ClientException ex)
             {

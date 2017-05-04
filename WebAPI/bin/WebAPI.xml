@@ -813,11 +813,12 @@
             <returns></returns>
             <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64)">
+        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64,WebAPI.Models.Notifications.KalturaReminderType)">
             <summary>
             Delete a reminder. Reminder cannot be delete while being sent.
             </summary>
             <param name="id">Id of the reminder.</param>
+            <param name="type">Reminder type.</param>
             <returns></returns>
             <remarks></remarks>
         </member>
@@ -7472,19 +7473,19 @@
             Reminder id
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSeasonReminder.SeriesId">
-            <summary>
-            Series identifier
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Notifications.KalturaSeasonReminder.SeasonId">
-            <summary>
-            Season identifier
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeriesId">
             <summary>
             Series identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeasonNumber">
+            <summary>
+            Season number
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.EpgChannelId">
+            <summary>
+            EPG channel identifier 
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
