@@ -450,6 +450,17 @@ namespace Core.Notification
                 return false;
             }
 
+            // validate adapter ID exists
+            if (engagement.AdapterId > 0)
+            {
+                if (EngagementDal.GetEngagementAdapter(partnerId, engagement.AdapterId) == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+                    log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                    return false;
+                }
+            }
+
             // validate interval is legal
             if (engagement.IntervalSeconds < 0)
             {
