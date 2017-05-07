@@ -925,13 +925,38 @@ namespace Core.Notification
 
         }
 
-        public static ApiObjects.Response.Status DeleteUserReminder(int nGroupID, int userId, long reminderId, ReminderType type)
+        public static ApiObjects.Response.Status DeleteUserReminder(int nGroupID, int userId, long reminderId, ReminderType reminderType)
         {
             ApiObjects.Response.Status response = null;
 
             try
             {
-                response = ReminderManager.DeleteUserReminder(nGroupID, userId, reminderId, type);
+                switch (reminderType)
+                {
+                    case ReminderType.Single:
+                        response = ReminderManager.DeleteUserReminder(nGroupID, userId, reminderId);
+                        break;
+                    case ReminderType.Series:
+                        response = ReminderManager.DeleteUserSeriesReminder(nGroupID, userId, reminderId);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("DeleteUserReminder caught an exception: GroupID: {0}, reminderId: {1}, ex: {2}", nGroupID, reminderId, ex);
+                response = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
+
+        public static ApiObjects.Response.Status DeleteUserSeriesReminder(int nGroupID, int userId, long reminderId)
+        {
+            ApiObjects.Response.Status response = null;
+
+            try
+            {
+                response = ReminderManager.DeleteUserReminder(nGroupID, userId, reminderId);
             }
             catch (Exception ex)
             {
@@ -945,7 +970,6 @@ namespace Core.Notification
         public static RemindersResponse GetUserReminders(int nGroupID, int userId, string filter, int pageSize, int pageIndex, OrderObj orderObj)
         {
             RemindersResponse response = null;
-
 
             try
             {
