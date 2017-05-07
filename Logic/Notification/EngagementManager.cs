@@ -834,7 +834,10 @@ namespace Core.Notification
                 AdapterId = engagementToBeSent.AdapterId,
                 EngagementType = engagementToBeSent.EngagementType,
                 IntervalSeconds = engagementToBeSent.IntervalSeconds,
-                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
+                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds),
+                CouponGroupId = engagementToBeSent.CouponGroupId,
+                IsActive = true,
+                UserList = engagementToBeSent.UserList
             };
 
             // insert to DB
