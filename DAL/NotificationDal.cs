@@ -2325,6 +2325,16 @@ namespace DAL
 
             return reminderId;
         }
+
+        public static List<DbReminder> GetSeriesSeasonsReminders(int groupId, List<long> list, string p, List<long> seasonNumbers, long epgChannelId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static List<DbReminder> GetSeriesReminders(int groupId, List<long> list, List<string> seriesIds, long epgChannelId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
