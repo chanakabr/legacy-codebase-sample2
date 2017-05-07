@@ -675,13 +675,14 @@ namespace Core.Notification
                 return true;
             }
 
+            // TODO:: change this back after QA test finished !!!!
             // validate same engagement was not already sent in the last hour
             Engagement engagementAlreadySent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
                                                                                                x.EngagementType == engagementToBeSent.EngagementType &&
                                                                                                x.AdapterId == engagementToBeSent.AdapterId &&
                                                                                                x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
                                                                                                x.UserList == engagementToBeSent.UserList &&
-                                                                                               x.SendTime > engagementToBeSent.SendTime.AddHours(-1) &&
+                                                                                               x.SendTime > engagementToBeSent.SendTime.AddSeconds(10) &&
                                                                                                x.SendTime < engagementToBeSent.SendTime);
             if (engagementAlreadySent != null)
             {
