@@ -46,6 +46,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_SUCCESSFULLY_INSERTED = "Engagement was successfully inserted";
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
+        private const string SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER = "Scheduler engagement must contain an adapter ID";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
@@ -514,6 +515,14 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("Future scheduled engagement detected. Future Engagement: {0}", JsonConvert.SerializeObject(futureEngagement));
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FutureScheduledEngagementDetected, FUTURE_SCHEDULE_ENGAGEMENT_DETECTED);
+                    return false;
+                }
+
+                // validate adapter exist (must for scheduler)
+                if (engagement.AdapterId == 0)
+                {
+                    log.ErrorFormat("Scheduled engagement cannot be created without an adapter. Engagement: {0}", JsonConvert.SerializeObject(engagement));
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementScheduleWithoutAdapter, SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER);
                     return false;
                 }
             }

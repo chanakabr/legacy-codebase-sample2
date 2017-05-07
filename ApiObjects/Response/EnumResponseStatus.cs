@@ -297,6 +297,7 @@ namespace ApiObjects.Response
         EngagementIllegalSendTime = 8035,
         FutureScheduledEngagementDetected = 8036,
         EngagementTemplateNotFound = 8037,
+        EngagementScheduleWithoutAdapter = 8038,
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,
