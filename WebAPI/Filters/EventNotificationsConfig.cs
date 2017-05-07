@@ -31,17 +31,36 @@ namespace WebAPI.Filters
 
             if (consumerSettings != null && consumerSettings.Consumers != null)
             {
+                string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
                 foreach (var setting in consumerSettings.Consumers)
                 {
                     try
                     {
                         Assembly consumerAssembly = null;
 
-                        if (!string.IsNullOrEmpty(setting.DllLocation) && File.Exists(setting.DllLocation))
+                        // if we have a dll location defined
+                        if (!string.IsNullOrEmpty(setting.DllLocation))
                         {
-                            consumerAssembly = Assembly.LoadFrom(setting.DllLocation);
+                            // First treat it as a full path
+                            if (File.Exists(setting.DllLocation))
+                            {
+                                consumerAssembly = Assembly.LoadFrom(setting.DllLocation);
+                            }
+                            else
+                            {
+                                // Otherwise treat is as a relative path, and combine it with the base directory of the application
+                                string combinedPath = string.Format("{0}{1}", baseDirectory, setting.DllLocation);
+
+                                if (File.Exists(combinedPath))
+                                {
+                                    consumerAssembly = Assembly.LoadFrom(combinedPath);
+                                }
+                            }
                         }
-                        else
+
+                        // If we don't have a valid location, use calling assembly
+                        if (consumerAssembly == null)
                         {
                             consumerAssembly = Assembly.GetCallingAssembly();
                         }
@@ -72,7 +91,7 @@ namespace WebAPI.Filters
             get;
             set;
         }
-        
+
     }
 
     [Serializable]

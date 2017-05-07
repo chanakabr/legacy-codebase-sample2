@@ -52,6 +52,10 @@ namespace WebAPI.Models.Catalog
 
         public bool GetShouldUseChannelDefault()
         {
+            if (DynamicOrderBy != null)
+            {
+                return false;
+            }
             return shouldUseChannelDefault;
         }
 

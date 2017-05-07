@@ -30,12 +30,12 @@ namespace WebAPI.Models.Notification
         public string TypeIn { get; set; }       
 
         /// <summary>
-        /// SendTime LessThanOrEqual 
+        /// SendTime GreaterThanOrEqual 
         /// </summary>
-        [DataMember(Name = "sendTimeLessThanOrEqual")]
-        [JsonProperty(PropertyName = "sendTimeLessThanOrEqual")]
-        [XmlElement(ElementName = "sendTimeLessThanOrEqual", IsNullable = true)]
-        public long? SendTimeLessThanOrEqual { get; set; }
+        [DataMember(Name = "sendTimeGreaterThanOrEqual")]
+        [JsonProperty(PropertyName = "sendTimeGreaterThanOrEqual")]
+        [XmlElement(ElementName = "sendTimeGreaterThanOrEqual", IsNullable = true)]
+        public long? SendTimeGreaterThanOrEqual { get; set; }
 
 
         internal List<KalturaEngagementType> getTypeIn()
