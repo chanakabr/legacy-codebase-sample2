@@ -146,6 +146,7 @@
 
                                 <tr><td><div id="DualListUserTypes"></div></td></tr>
                                 <tr><td><div id="DualListPricePlans"></div></td></tr>
+                                <tr><td><div id="DualListCouponGroup"></div></td></tr>
                                                               
                                 <tr style="padding-top:30px"><td id="confirm_btn" onclick='submitASPFormWithCheck("adm_multi_pricing_plans_new.aspx?submited=1");'><a tabindex="2000" href="#confirm_btn" class="btn"></a></td>
                                 <td id="cancel_btn" onclick='window.document.location.href="adm_multi_pricing_plans.aspx?search_save=1";'><a tabindex="2000" href="#cancel_btn" class="btn"></a></td>
