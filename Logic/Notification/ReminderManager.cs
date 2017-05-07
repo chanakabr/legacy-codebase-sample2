@@ -1267,116 +1267,130 @@ namespace Core.Notification
                 return false;
             }
 
-            List<EPGChannelProgrammeObject> epgs = new List<EPGChannelProgrammeObject>();
+            List<ProgramObj> epgs = new List<ProgramObj>();
             if (response != null && response.m_nTotalItems > 0 && response.m_lObj != null && response.m_lObj.Count > 0)
             {
-                epgs = new List<EPGChannelProgrammeObject>();
+                // validate all programs returned
+                if (response.m_lObj.Count != programIds.Count)
+                {
+                    log.ErrorFormat("EPG reminder event: Not all EPG returned from catalog: asked: {0}, returned: {1}", string.Join(",", programIds.ToArray()), JsonConvert.SerializeObject(epgs));
+                }
+
                 foreach (ProgramObj program in response.m_lObj)
                 {
                     // no need to check epg status since catalog returns only active EPG's
-                    if (program.AssetType == eAssetTypes.EPG && program.m_oProgram != null && program.m_oProgram.EPG_ID > 0)
-                        epgs.Add(program.m_oProgram);
-                }
-            }
-
-            // validate all programs returned
-            if (epgs.Count != programIds.Count)
-                log.ErrorFormat("EPG reminder event: Not all EPG returned from catalog: asked: {0}, returned: {1}", string.Join(",", programIds.ToArray()), JsonConvert.SerializeObject(epgs));
-
-            // get dbReminders
-            var dbReminders = NotificationDal.GetReminderByReferenceId(partnerId, epgs.Select(x => x.EPG_ID).ToList());
-
-            foreach (EPGChannelProgrammeObject program in epgs)
-            {
-                // Parse start date
-                DateTime newEpgSendDate;
-                if (!DateTime.TryParseExact(program.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
-                {
-                    log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.EPG_ID, program.START_DATE);
-                    continue;
-                }
-                newEpgSendDate = newEpgSendDate.AddSeconds((double)partnerSettings.settings.RemindersPrePaddingSec * -1);
-
-                // check if reminder already exists
-                DbReminder dbReminder = null;
-                if (dbReminders != null)
-                    dbReminder = dbReminders.FirstOrDefault(x => x.Reference == program.EPG_ID);
-                if (dbReminder == null)
-                {
-                    // reminder not found
-                    log.DebugFormat("reminder was not found for ingested EPG: group {0}, program ID: {1}", partnerId, program.EPG_ID);
-                    continue;
-                }
-                else
-                {
-                    // reminder found
-                    DateTime oldEpgSendDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(dbReminder.SendTime);
-
-                    // check if should update time
-                    bool shouldUpdateReminder = false;
-                    if (oldEpgSendDate != newEpgSendDate)
-                        shouldUpdateReminder = true;
-
-                    log.DebugFormat("reminder found for ingested EPG: GID: {0}, program ID: {1}, reminder ID: {2}, reminder name: {3}, old send date: {4}, new send date: {5}. should update: {6}",
-                        partnerId,                          // {0}
-                        program.EPG_ID,                     // {1}
-                        dbReminder.ID,                      // {2}
-                        dbReminder.Name,                    // {3}
-                        oldEpgSendDate,                     // {4}
-                        newEpgSendDate,                     // {5}
-                        shouldUpdateReminder.ToString());   // {6}
-
-                    if (shouldUpdateReminder)
+                    if (program != null && program.AssetType == eAssetTypes.EPG && program.m_oProgram != null && program.m_oProgram.EPG_ID > 0)
                     {
-                        // update DB
-                        dbReminder.SendTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(newEpgSendDate);
-                        if (NotificationDal.SetReminder(dbReminder) == 0)
+                        // get dbReminders
+                        var dbReminders = NotificationDal.GetReminderByReferenceId(partnerId, epgs.Select(x => x.m_oProgram.EPG_ID).ToList());
+                        // Parse start date
+                        DateTime newEpgSendDate;
+                        if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
                         {
-                            log.ErrorFormat("Error while trying to update reminder time in table. reminder: {0}", JsonConvert.SerializeObject(dbReminder));
+                            log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
                             continue;
+                        }
+                        newEpgSendDate = newEpgSendDate.AddSeconds((double)partnerSettings.settings.RemindersPrePaddingSec * -1);
+
+                        // check if reminder already exists
+                        DbReminder dbReminder = null;
+                        if (dbReminders != null)
+                        {
+                            dbReminder = dbReminders.FirstOrDefault(x => x.Reference == program.m_oProgram.EPG_ID);
+                        }
+                        if (dbReminder == null)
+                        {
+                            Dictionary<string, string> epgFieldMappings = ConditionalAccess.Utils.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
+                            if (epgFieldMappings != null && epgFieldMappings.Count > 0)
+                            {
+                                long epgChannelId;
+                                if (!long.TryParse(program.m_oProgram.EPG_CHANNEL_ID, out epgChannelId))
+                                {
+                                    log.ErrorFormat("failed parsing EPG_CHANNEL_ID, epgId = {0}, epgChannelId: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.EPG_CHANNEL_ID);
+                                    continue;
+                                }
+
+                                string seriesId = epgFieldMappings[ConditionalAccess.Utils.SERIES_ID];
+                                int seasonNum = epgFieldMappings.ContainsKey(ConditionalAccess.Utils.SEASON_NUMBER) ? int.Parse(epgFieldMappings[ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
+                                if (NotificationDal.IsReminderRequired(partnerId, seriesId, seasonNum, epgChannelId))
+                                {
+                                    dbReminder = new DbReminder() { GroupId = partnerId, Reference = program.m_oProgram.EPG_ID };
+                                    RemindersResponse reminderResponse = AddUserReminder(0, dbReminder, program);                                    
+                                    if (reminderResponse == null || reminderResponse.Status == null || reminderResponse.Status.Code != (int)eResponseStatus.OK)
+                                    {
+                                        log.ErrorFormat("Failed adding reminder for groupId: {0}, epgId: {1}", partnerId, program.m_oProgram.EPG_ID);
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        log.DebugFormat("reminder added for groupId: {0}, epgId: {1}", partnerId, program.m_oProgram.EPG_ID);
+                                    }
+                                }
+                            }
+
+                            log.DebugFormat("reminder was not found for ingested EPG: group {0}, program ID: {1}", partnerId, program.m_oProgram.EPG_ID);
                         }
                         else
                         {
-                            log.DebugFormat("reminder date updated. program ID: {0}, reminder ID: {1}, old date: {2}, new date: {3}",
-                                program.EPG_ID,
-                                dbReminder.ID,
-                                oldEpgSendDate,
-                                newEpgSendDate);
-                        }
+                            // reminder found
+                            DateTime oldEpgSendDate = TVinciShared.DateUtils.UnixTimeStampToDateTime(dbReminder.SendTime);
 
-                        DateTime nowDate = DateTime.UtcNow;
-                        if (newEpgSendDate < nowDate)
-                        {
-                            // new EPG date has passed - not creating a new message
-                            log.DebugFormat("Program have passed - not creating a new message. program ID: {0}, reminder ID: {1}, current date: {2}, new date: {3}",
-                                program.EPG_ID,
-                                dbReminder.ID,
-                                nowDate,
-                                newEpgSendDate);
-                            continue;
-                        }
+                            // check if should update time
+                            bool shouldUpdateReminder = false;
+                            if (oldEpgSendDate != newEpgSendDate)
+                                shouldUpdateReminder = true;
 
-                        // create new message
-                        log.DebugFormat("Sending a new message reminder to queue. Partner: {0}, Reminder ID: {1}, program ID: {2}, Send date: {3}",
-                            partnerId,
-                            dbReminder.ID,
-                            program.EPG_ID,
-                            newEpgSendDate);
+                            log.DebugFormat("reminder found for ingested EPG: GID: {0}, program ID: {1}, reminder ID: {2}, reminder name: {3}, old send date: {4}, new send date: {5}. should update: {6}",
+                                partnerId,                          // {0}
+                                program.m_oProgram.EPG_ID,                     // {1}
+                                dbReminder.ID,                      // {2}
+                                dbReminder.Name,                    // {3}
+                                oldEpgSendDate,                     // {4}
+                                newEpgSendDate,                     // {5}
+                                shouldUpdateReminder.ToString());   // {6}
 
-                        // sending a new rabbit reminder message
-                        if (!AddReminderToQueue(partnerId, dbReminder))
-                        {
-                            log.ErrorFormat("Error while creating reminder message queue. Partner: {0}, Reminder ID: {1}, program ID: {2}, Send date: {3}",
-                            partnerId,
-                            dbReminder.ID,
-                            program.EPG_ID,
-                            newEpgSendDate);
+                            if (shouldUpdateReminder)
+                            {
+                                // update DB
+                                dbReminder.SendTime = TVinciShared.DateUtils.DateTimeToUnixTimestamp(newEpgSendDate);
+                                if (NotificationDal.SetReminder(dbReminder) == 0)
+                                {
+                                    log.ErrorFormat("Error while trying to update reminder time in table. reminder: {0}", JsonConvert.SerializeObject(dbReminder));
+                                    continue;
+                                }
+                                else
+                                {
+                                    log.DebugFormat("reminder date updated. program ID: {0}, reminder ID: {1}, old date: {2}, new date: {3}",
+                                                    program.m_oProgram.EPG_ID, dbReminder.ID, oldEpgSendDate, newEpgSendDate);
+                                }
+
+                                DateTime nowDate = DateTime.UtcNow;
+                                if (newEpgSendDate < nowDate)
+                                {
+                                    // new EPG date has passed - not creating a new message
+                                    log.DebugFormat("Program have passed - not creating a new message. program ID: {0}, reminder ID: {1}, current date: {2}, new date: {3}",
+                                                    program.m_oProgram.EPG_ID, dbReminder.ID, nowDate, newEpgSendDate);
+                                    continue;
+                                }
+
+                                // create new message
+                                log.DebugFormat("Sending a new message reminder to queue. Partner: {0}, Reminder ID: {1}, program ID: {2}, Send date: {3}",
+                                                    partnerId, dbReminder.ID, program.m_oProgram.EPG_ID, newEpgSendDate);
+
+                                // sending a new rabbit reminder message
+                                if (!AddReminderToQueue(partnerId, dbReminder))
+                                {
+                                    log.ErrorFormat("Error while creating reminder message queue. Partner: {0}, Reminder ID: {1}, program ID: {2}, Send date: {3}",
+                                                    partnerId, dbReminder.ID, program.m_oProgram.EPG_ID, newEpgSendDate);
+                                }
+                                else
+                                    log.DebugFormat("successfully created new message reminder in queue. group ID: {0}, message: {1}", partnerId, JsonConvert.SerializeObject(dbReminder));
+                            }
                         }
-                        else
-                            log.DebugFormat("successfully created new message reminder in queue. group ID: {0}, message: {1}", partnerId, JsonConvert.SerializeObject(dbReminder));
                     }
                 }
             }
+                        
             return true;
         }
 
