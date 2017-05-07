@@ -996,22 +996,6 @@ namespace Core.Notification
             // send push messages
             if (NotificationSettings.IsPartnerPushEnabled(partnerId))
             {
-                // send to Amazon
-                if (string.IsNullOrEmpty(reminder.ExternalPushId))
-                {
-
-                    log.ErrorFormat("Error while trying to send publish push reminder. external push ID wasn't found. going to create topic partner ID: {0), reminder ID: {1}", partnerId, reminderId);
-
-                    string externalTopicId = NotificationAdapter.CreateAnnouncement(partnerId, reminder.Name);
-                    if (string.IsNullOrEmpty(externalTopicId))
-                    {
-                        log.DebugFormat("Send Message: failed to create topic groupID = {0}, reminderName = {1}", partnerId, reminder.Name);
-                        return false;
-                    }
-
-                    reminder.ExternalPushId = externalTopicId;
-                }
-
                 // get message templates
                 MessageTemplate reminderTemplate = null;
                 List<MessageTemplate> messageTemplates = NotificationCache.Instance().GetMessageTemplates(partnerId);
@@ -1037,21 +1021,89 @@ namespace Core.Notification
                                                            Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
                                                            Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
                                                            Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
-
                 };
 
                 // update message reminder
                 reminder.Message = JsonConvert.SerializeObject(messageData);
 
-                // publish reminder
-                string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, reminder.ExternalPushId, string.Empty, messageData);
-                if (string.IsNullOrEmpty(resultMsgId))
-                    log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for reminder {0}", reminder.ID);
+                string seriesIdName, seasonNumberName, episodeNumberName;
+                if (Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(partnerId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+                {
+                    string seriesId = program.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value;
+                    string seasonNum = program.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value;
+                    
+                    if (!string.IsNullOrEmpty(seriesId))
+                    {
+                        long seasonNumber = 0;
+                        if (!string.IsNullOrEmpty(seasonNum))
+                        {
+                            long.TryParse(seasonNum, out seasonNumber);
+                        }
+
+                        List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminderBySeries(partnerId, seriesId, long.Parse(seasonNum), program.m_oProgram.EPG_CHANNEL_ID);
+                        if (seriesReminders != null && seriesReminders.Count > 0)
+                        {
+                            foreach (DbSeriesReminder seriesReminder in seriesReminders)
+                            {
+                                if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.ExternalPushId))
+                                {
+                                    // send to Amazon
+                                    string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, string.Empty, messageData);
+                                    if (string.IsNullOrEmpty(resultMsgId))
+                                        log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
+                                    else
+                                    {
+                                        // update last send date
+                                        seriesReminder.LastSendDate = DateTime.UtcNow;
+                                        if (NotificationDal.SetSeriesReminder(seriesReminder) == 0)
+                                        {
+                                            log.ErrorFormat("Failed to set series reminder send date. seriesReminder.ID = {0}", seriesReminder.ID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 else
                 {
-                    // update external push result
-                    reminder.ExternalResult = resultMsgId;
+                    log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", partnerId);
                 }
+
+                // send to Amazon
+                if (!string.IsNullOrEmpty(reminder.ExternalPushId))
+                {
+                    string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, reminder.ExternalPushId, string.Empty, messageData);
+                    if (string.IsNullOrEmpty(resultMsgId))
+                        log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for reminder {0}", reminder.ID);
+                    else
+                    {
+                        
+                        log.DebugFormat("Successfully sent reminder. reminder Id: {0}", reminder.ID);
+                        // update external push result
+                        reminder.ExternalResult = resultMsgId;
+                        reminder.IsSent = true;
+
+                        // update reminder 
+                        if (DAL.NotificationDal.SetReminder(reminder) == 0)
+                        {
+                            log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
+                            return false;
+                        }
+                    }
+                }
+
+                //log.ErrorFormat("Error while trying to send publish push reminder. external push ID wasn't found. going to create topic partner ID: {0), reminder ID: {1}", partnerId, reminderId);
+
+
+                //string externalTopicId = NotificationAdapter.CreateAnnouncement(partnerId, reminder.Name);
+                //if (string.IsNullOrEmpty(externalTopicId))
+                //{
+                //    log.DebugFormat("Send Message: failed to create topic groupID = {0}, reminderName = {1}", partnerId, reminder.Name);
+                //    return false;
+                //}
+
+                //reminder.ExternalPushId = externalTopicId;
 
                 // send to push web - rabbit.                
                 if (reminder.RouteName != null)
@@ -1075,16 +1127,6 @@ namespace Core.Notification
                 }
                 else
                     log.DebugFormat("no queues found for push to web. reminder ID: {0}", reminder.ID);
-            }
-
-            log.DebugFormat("Successfully sent reminder. reminder Id: {0}", reminder.ID);
-            reminder.IsSent = true;
-
-            // update reminder 
-            if (DAL.NotificationDal.SetReminder(reminder) == 0)
-            {
-                log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
-                return false;
             }
 
             return true;
@@ -1492,7 +1534,7 @@ namespace Core.Notification
             return response;
         }
 
-        public static RemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
+        public static RemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
             int pageSize, int pageIndex, OrderObj orderObj)
         {
             RemindersResponse response = new RemindersResponse();
@@ -1518,30 +1560,29 @@ namespace Core.Notification
             }
 
             // get reminder from DB
-            List<DbReminder> dbReminders = null;
-            if (seriesIds.Count == 1)
+            List<DbReminder> dbSeriesReminders = null;
+            if (seriesIds.Count == 1 && seasonNumbers.Count > 0)
             {
-                dbReminders = NotificationDal.GetSeriesSeasonsReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList(), seriesIds[0], seasonNumbers, epgChannelId);
+                dbSeriesReminders = NotificationDal.GetSeriesRemindersBySeasons(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList(), seriesIds[0], seasonNumbers, epgChannelId);
             }
-            else if (seriesIds.Count > 1)
+            else 
             {
-                dbReminders = NotificationDal.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList(), seriesIds, epgChannelId);
+                dbSeriesReminders = NotificationDal.GetSeriesRemindersBySeriesIds(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList(), seriesIds, epgChannelId);
             }
             
-            if (dbReminders == null || dbReminders.Count == 0)
+            
+            if (dbSeriesReminders == null || dbSeriesReminders.Count == 0)
             {
                 log.DebugFormat("user reminders were not found on DB. GID: {0}, user ID: {1}", groupId, userId);
                 response.Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 return response;
             }
 
-            // build final result 
-            List<int> resultProgramsIds = new List<int>();
-            resultProgramsIds.AddRange(unifiedSearchResponse.searchResults.Select((item => int.Parse(item.AssetId))));
-            response.Reminders = dbReminders.Where(reminder => resultProgramsIds.Exists(x => x == reminder.Reference)).ToList();
-            response.TotalCount = unifiedSearchResponse.m_nTotalItems;
+            response.Reminders = dbSeriesReminders.Skip(pageIndex * pageSize).Take(pageSize).ToList();
             response.Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
+
+            // TODO: WHAT? WHY?
             // Clear Announcements
             UserMessageFlow.DeleteOldAnnouncements(groupId, userNotificationData);
 

@@ -1108,5 +1108,22 @@ namespace Core.Notification
                 return false;
             }
         }
+
+        public static RemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
+            int pageSize, int pageIndex, OrderObj orderObj)
+        {
+            RemindersResponse response = null;
+
+            try
+            {
+                response = ReminderManager.GetUserSeriesReminders(groupId, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetUserSeriesReminders caught an exception: GroupID: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
+        }
     }
 }
