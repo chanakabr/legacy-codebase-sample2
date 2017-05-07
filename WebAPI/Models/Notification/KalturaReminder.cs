@@ -28,6 +28,14 @@ namespace WebAPI.Models.Notifications
         [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
+        /// <summary>
+        /// Reminder type
+        /// </summary>
+        [DataMember(Name = "type")]
+        [JsonProperty(PropertyName = "type")]
+        [XmlElement(ElementName = "type")]
+        public KalturaReminderType Type { get; set; }
+
         internal int getId()
         {
             return Id.HasValue ? (int)Id : 0;

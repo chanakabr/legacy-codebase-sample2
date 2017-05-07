@@ -169,5 +169,9 @@ namespace WS_Notification
 
         [OperationContract]
         bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime);
+
+        [OperationContract]
+        RemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
+            int pageSize, int pageIndex, OrderObj orderObj);
     }
 }

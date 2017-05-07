@@ -243,7 +243,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<DbReminder, KalturaAssetReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SINGLE));
 
             //DbReminder to KalturaAssetReminder
             Mapper.CreateMap<DbSeriesReminder, KalturaSeriesReminder>()
@@ -251,7 +252,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                  .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                  .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
-                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
+                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SIRIES));
 
             Mapper.CreateMap<DbReminder, KalturaReminder>()
                 .Include<DbReminder, KalturaAssetReminder>()
