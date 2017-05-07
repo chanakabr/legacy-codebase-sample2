@@ -6011,7 +6011,7 @@ namespace TvinciImporter
 
                 #endregion
 
-                // Update recordings only if we know that the dates have changed
+                // Update reminders only if we know that the dates have changed
                 if (datesUpdates)
                 {
                     UpdateRemindersfEPGs(epgIds, groupId);

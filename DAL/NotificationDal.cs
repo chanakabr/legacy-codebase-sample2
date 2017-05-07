@@ -2335,6 +2335,20 @@ namespace DAL
         {
             throw new NotImplementedException();
         }
+       
+        public static bool IsReminderRequired(int groupId, string seriesId, int seasonNumber, long channelId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsReminderRequired");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@SeriesId", seriesId);
+            sp.AddParameter("@SeasonNumber", seasonNumber);
+            sp.AddParameter("@ChannelId", channelId);
+
+            int rowsFound = sp.ExecuteReturnValue<int>();
+
+            return rowsFound == 0;
+        }
     }
 }
 
