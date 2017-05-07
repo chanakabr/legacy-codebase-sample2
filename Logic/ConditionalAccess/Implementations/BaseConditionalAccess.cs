@@ -13837,7 +13837,7 @@ namespace Core.ConditionalAccess
 
 				// get first batch
 				int totalRecordingsToCleanup = 0, totalRecordingsDeleted = 0;
-				Dictionary<int, int> groupIdToAdapterIdMap = new Dictionary<int, int>();
+                System.Collections.Concurrent.ConcurrentDictionary<int, int> groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
 				Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
 				HashSet<long> recordingsThatFailedDeletion = new HashSet<long>();
 				while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
@@ -13861,7 +13861,10 @@ namespace Core.ConditionalAccess
                             if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
                             {
                                 adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
-                                groupIdToAdapterIdMap.Add(pair.Key, adapterId);
+                                if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
+                                {
+                                    log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
+                                }
                             }
 
                             ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, adapterId);
@@ -13871,7 +13874,7 @@ namespace Core.ConditionalAccess
                                 {
                                     recordingsThatFailedDeletion.Add(pair.Value.Id);
                                 }
-                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key);
+                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}, code: {2}, message: {3}", pair.Value.Id, pair.Key, deleteStatus.Code, deleteStatus.Message);
                             }
                             else
                             {

@@ -35,16 +35,18 @@ namespace Core.Notification
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
         private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
         private const string EMPTY_SOURCE_USER_LIST = "User list and adapter ID are empty";
+        private const string DUPLICATE_SOURCE_USER_LIST = "Duplicate source list";
         private const string FUTURE_SEND_TIME = "Send time must be in the future";
         private const string ILLEGAL_USER_LIST = "Illegal user list";
         private const string ILLEGAL_ENGAGEMENT_INTERVAL = "Illegal interval inserted";
-        private const string ENGAGEMENT_RECENTLY_SENT = "Other engagement was recently sent";
+        private const string ENGAGEMENT_TIME_DIFFERENCE = "The difference send time between identical engagements must be higher that 1 hour";
         private const string ENGAGEMENT_SEND_WINDOW_FRAME = "Send time is not between the allowed time window";
         private const string FUTURE_SCHEDULE_ENGAGEMENT_DETECTED = "Future engagement scheduler detected";
         private const string ENGAGEMENT_TEMPLATE_NOT_DOUND = "Engagement template wasn't found";
         private const string ENGAGEMENT_SUCCESSFULLY_INSERTED = "Engagement was successfully inserted";
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
+        private const string SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER = "Scheduler engagement must contain an adapter ID";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
@@ -283,59 +285,6 @@ namespace Core.Notification
             return response;
         }
 
-        internal static Status DeleteEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> settings)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            try
-            {
-                if (engagementAdapterId == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-                    return response;
-                }
-
-                if (settings == null || settings.Count == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterParamsRequired, NO_PARAMS_TO_DELETE);
-                    return response;
-                }
-
-                //check engagement Adapter exist
-                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                if (engagementAdapter == null || engagementAdapter.ID <= 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return response;
-                }
-
-                int matchingKeyAmount = GetMatchingKeyAmount(engagementAdapter.Settings, settings);
-                if (matchingKeyAmount != settings.Count)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
-                    return response;
-                }
-
-                bool isSet = EngagementDal.DeleteEngagementAdapterSettings(groupId, engagementAdapterId, settings);
-                if (isSet)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Successfully deleted engagement adapter configuration");
-
-                    //Get engagement Adapter updated                        
-                    engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
-                        log.ErrorFormat("DeleteEngagementAdapterSettings - SendConfigurationToAdapter failed: AdapterID = {0}", engagementAdapterId);
-                }
-                else
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to delete engagement adapter configuration");
-            }
-            catch (Exception ex)
-            {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to delete engagement adapter settings. Group ID: {0}, engagement adapter ID: {1}", groupId, engagementAdapterId), ex);
-            }
-            return response;
-        }
-
         internal static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> settings)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -401,80 +350,6 @@ namespace Core.Notification
             }
 
             return matchingKeyAmount;
-        }
-
-        internal static Status InsertEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> settings)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            try
-            {
-                if (engagementAdapterId == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-                    return response;
-                }
-
-                if (settings == null || settings.Count == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterParamsRequired, NO_PARAMS_TO_INSERT);
-                    return response;
-                }
-
-                //check engagement Adapter exist
-                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                if (engagementAdapter == null || engagementAdapter.ID <= 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return response;
-                }
-
-                int matchingKeyAmount = GetMatchingKeyAmount(engagementAdapter.Settings, settings);
-                if (matchingKeyAmount > 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
-                    return response;
-                }
-
-                bool isInsert = EngagementDal.InsertEngagementAdapterSettings(groupId, engagementAdapterId, settings);
-                if (isInsert)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Successfully set engagement adapter configuration");
-
-                    //Get engagement Adapter updated                        
-                    engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
-                        log.ErrorFormat("InsertengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
-                }
-                else
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to insert engagement adapter configuration");
-            }
-            catch (Exception ex)
-            {
-
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to insert engagement adapter settings. Group ID: {0}, engagement adapter ID: {1}", groupId, engagementAdapterId), ex);
-            }
-            return response;
-        }
-
-        internal static EngagementAdapterSettingsResponse GetEngagementAdapterSettings(int groupId)
-        {
-            EngagementAdapterSettingsResponse response = new EngagementAdapterSettingsResponse();
-            try
-            {
-                response.EngagementAdapters = EngagementDal.GetEngagementAdapterSettingsList(groupId, 0);
-                if (response.EngagementAdapters == null || response.EngagementAdapters.Count == 0)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No engagement adapter configurations were found");
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
-            catch (Exception ex)
-            {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to get engagement adapter settings. Group ID: {0} ", groupId), ex);
-            }
-
-            return response;
         }
 
         internal static EngagementResponse AddEngagement(int partnerId, Engagement engagement)
@@ -568,6 +443,25 @@ namespace Core.Notification
                 return false;
             }
 
+            // validate user list or adapter ID exists
+            if (!string.IsNullOrEmpty(engagement.UserList) && engagement.AdapterId > 0)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, DUPLICATE_SOURCE_USER_LIST);
+                log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                return false;
+            }
+
+            // validate adapter ID exists
+            if (engagement.AdapterId > 0)
+            {
+                if (EngagementDal.GetEngagementAdapter(partnerId, engagement.AdapterId) == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+                    log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                    return false;
+                }
+            }
+
             // validate interval is legal
             if (engagement.IntervalSeconds < 0)
             {
@@ -585,15 +479,14 @@ namespace Core.Notification
                                                                                                    x.AdapterId == engagement.AdapterId &&
                                                                                                    x.AdapterDynamicData == engagement.AdapterDynamicData &&
                                                                                                    x.UserList == engagement.UserList &&
-                                                                                                   x.SendTime > engagement.SendTime.AddHours(-1) &&
-                                                                                                   x.SendTime < engagement.SendTime);
+                                                                                                  Math.Abs((x.SendTime - engagement.SendTime).TotalHours) < 1);
                 if (engagementAlreadySent != null)
                 {
                     log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
                      JsonConvert.SerializeObject(engagementAlreadySent),
                      JsonConvert.SerializeObject(engagement));
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementRecentlySent, ENGAGEMENT_RECENTLY_SENT);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTimeDifference, ENGAGEMENT_TIME_DIFFERENCE);
                     return false;
                 }
             }
@@ -622,6 +515,14 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("Future scheduled engagement detected. Future Engagement: {0}", JsonConvert.SerializeObject(futureEngagement));
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FutureScheduledEngagementDetected, FUTURE_SCHEDULE_ENGAGEMENT_DETECTED);
+                    return false;
+                }
+
+                // validate adapter exist (must for scheduler)
+                if (engagement.AdapterId == 0)
+                {
+                    log.ErrorFormat("Scheduled engagement cannot be created without an adapter. Engagement: {0}", JsonConvert.SerializeObject(engagement));
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementScheduleWithoutAdapter, SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER);
                     return false;
                 }
             }
@@ -774,13 +675,14 @@ namespace Core.Notification
                 return true;
             }
 
+            // TODO:: change this back after QA test finished !!!!
             // validate same engagement was not already sent in the last hour
             Engagement engagementAlreadySent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
                                                                                                x.EngagementType == engagementToBeSent.EngagementType &&
                                                                                                x.AdapterId == engagementToBeSent.AdapterId &&
                                                                                                x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
                                                                                                x.UserList == engagementToBeSent.UserList &&
-                                                                                               x.SendTime > engagementToBeSent.SendTime.AddHours(-1) &&
+                                                                                               x.SendTime > engagementToBeSent.SendTime.AddSeconds(10) &&
                                                                                                x.SendTime < engagementToBeSent.SendTime);
             if (engagementAlreadySent != null)
             {
@@ -919,6 +821,13 @@ namespace Core.Notification
                 return false;
             }
 
+            // validate adapter ID exists
+            if (engagementToBeSent.AdapterId == 0)
+            {
+                log.ErrorFormat("Scheduled adapter must use an engagement adapter. engagement entered: {0}", JsonConvert.SerializeObject(engagementToBeSent));
+                return false;
+            }
+
             // create next iteration
             futureEngagement = new Engagement()
             {
@@ -926,15 +835,21 @@ namespace Core.Notification
                 AdapterId = engagementToBeSent.AdapterId,
                 EngagementType = engagementToBeSent.EngagementType,
                 IntervalSeconds = engagementToBeSent.IntervalSeconds,
-                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
+                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds),
+                CouponGroupId = engagementToBeSent.CouponGroupId,
+                IsActive = true,
+                UserList = engagementToBeSent.UserList
             };
 
             // insert to DB
-            if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
+            Engagement tempInsertedFutureEngagement = EngagementDal.InsertEngagement(partnerId, futureEngagement);
+            if (tempInsertedFutureEngagement == null)
             {
                 log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
                 return false;
             }
+
+            futureEngagement = tempInsertedFutureEngagement;
 
             // create engagement Rabbit message
             if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
@@ -1185,7 +1100,7 @@ namespace Core.Notification
 
         private static List<KeyValue> GetUserAttributes(int partnerId, int userId, eEngagementType engagementType)
         {
-            List<KeyValue> userAttributes = null;
+            List<KeyValue> userAttributes = new List<KeyValue>();
 
             Core.Users.UserResponseObject response = Core.Users.Module.GetUserData(partnerId, userId.ToString(), string.Empty);
             if (response == null || response.m_RespStatus != ResponseStatus.OK || response.m_user == null || response.m_user.m_oBasicData == null)
@@ -1383,7 +1298,7 @@ namespace Core.Notification
                     log.ErrorFormat("Error while trying to create bulk engagement rabbit message. engagement data: {0}", JsonConvert.SerializeObject(bulk));
             }
 
-            return SendEngagement(partnerId, engagement.Id, (int)TVinciShared.DateUtils.DateTimeToUnixTimestamp(engagement.SendTime));
+            return true;
         }
     }
 }
