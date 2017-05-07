@@ -811,6 +811,13 @@ namespace Core.Notification
                 return false;
             }
 
+            // validate adapter ID exists
+            if (engagementToBeSent.AdapterId == 0)
+            {
+                log.ErrorFormat("Scheduled adapter must use an engagement adapter. engagement entered: {0}", JsonConvert.SerializeObject(engagementToBeSent));
+                return false;
+            }
+
             // create next iteration
             futureEngagement = new Engagement()
             {
@@ -822,11 +829,14 @@ namespace Core.Notification
             };
 
             // insert to DB
-            if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
+            Engagement tempInsertedFutureEngagement = EngagementDal.InsertEngagement(partnerId, futureEngagement);
+            if (tempInsertedFutureEngagement == null)
             {
                 log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
                 return false;
             }
+
+            futureEngagement = tempInsertedFutureEngagement;
 
             // create engagement Rabbit message
             if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
