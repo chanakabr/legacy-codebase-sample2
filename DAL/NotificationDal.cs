@@ -2269,7 +2269,7 @@ namespace DAL
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-                    result = CreateSeriesDbReminder(ds.Tables[0].Rows[0]);
+                    result = CreateDbSeriesReminder(ds.Tables[0].Rows[0]);
             }
             catch (Exception ex)
             {
@@ -2279,7 +2279,7 @@ namespace DAL
             return result;
         }
 
-        private static DbSeriesReminder CreateSeriesDbReminder(DataRow row)
+        private static DbSeriesReminder CreateDbSeriesReminder(DataRow row)
         {
             DbSeriesReminder result = new DbSeriesReminder()
             {
@@ -2326,28 +2326,112 @@ namespace DAL
             return reminderId;
         }
 
-        public static List<DbReminder> GetSeriesSeasonsReminders(int groupId, List<long> list, string p, List<long> seasonNumbers, long epgChannelId)
+        public static List<DbReminder> GetSeriesRemindersBySeasons(int groupId, List<long> seriesRemindersIds, string seriesId, List<long> seasonNumbers, long? epgChannelId)
         {
-            throw new NotImplementedException();
+            List<DbReminder> reminders = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesRemindersBySeasons");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ids", seriesRemindersIds);
+                sp.AddParameter("@seriesId", seriesId);
+                sp.AddParameter("@seasonNumbers", seasonNumbers);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    reminders = new List<DbReminder>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        reminders.Add(CreateDbSeriesReminder(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesRemindersBySeasons. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return reminders;
         }
 
-        public static List<DbReminder> GetSeriesReminders(int groupId, List<long> list, List<string> seriesIds, long epgChannelId)
+        public static List<DbReminder> GetSeriesRemindersBySeriesIds(int groupId, List<long> seriesRemindersIds, List<string> seriesIds, long? epgChannelId)
         {
-            throw new NotImplementedException();
+            List<DbReminder> reminders = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesRemindersBySeriesIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ids", seriesRemindersIds);
+                sp.AddParameter("@seriesIds", seriesIds);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    reminders = new List<DbReminder>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        reminders.Add(CreateDbSeriesReminder(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesRemindersBySeriesIds. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return reminders;
         }
        
-        public static bool IsReminderRequired(int groupId, string seriesId, int seasonNumber, long channelId)
+        public static bool IsReminderRequired(int groupId, string seriesId, int seasonNumber, long epgChannelId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsReminderRequired");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@SeriesId", seriesId);
             sp.AddParameter("@SeasonNumber", seasonNumber);
-            sp.AddParameter("@ChannelId", channelId);
+            sp.AddParameter("@ChannelId", epgChannelId);
 
             int rowsFound = sp.ExecuteReturnValue<int>();
 
             return rowsFound == 0;
+        }
+
+        public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long seasonNum, string epgChannelId)
+        {
+            List<DbSeriesReminder> reminders = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminderBySeries");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@seriesId", seriesId);
+                sp.AddParameter("@seasonNum", seasonNum);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    reminders = new List<DbSeriesReminder>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        reminders.Add(CreateDbSeriesReminder(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesReminderBySeries. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return reminders;
         }
     }
 }
