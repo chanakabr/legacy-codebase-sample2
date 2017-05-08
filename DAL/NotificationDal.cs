@@ -2262,7 +2262,6 @@ namespace DAL
             return result;
         }
 
-<<<<<<< HEAD
         public static DbSeriesReminder GetSeriesReminder(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
         {
             DbSeriesReminder result = null;
