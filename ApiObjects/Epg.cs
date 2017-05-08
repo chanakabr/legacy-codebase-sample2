@@ -161,19 +161,19 @@ namespace ApiObjects
                     return false;
 
                 #region Tags
-                if (this.Tags != null && obj.Tags != null && this.Tags.Count == obj.Tags.Count)
+                int thisTagsCount = this.Tags == null ? 0 : this.Tags.Count;
+                int objTagsCount = obj.Tags == null ? 0 : obj.Tags.Count;
+
+                if (thisTagsCount != objTagsCount)
+                {
+                    return false;
+                }
+                
+                if (thisTagsCount > 0)
                 {
                     foreach (string objTagKey in obj.Tags.Keys)
                     {
-                        if (!this.Tags.ContainsKey(objTagKey.ToLower()))
-                        {
-                            return false;
-                        }
-
-                        int countObjTagValues = obj.Tags[objTagKey] == null ? 0 : obj.Tags[objTagKey].Count;
-                        int countThisTagValues = this.Tags[objTagKey.ToLower()] == null ? 0 : this.Tags[objTagKey.ToLower()].Count;
-
-                        if (countObjTagValues != countThisTagValues)
+                        if (!this.Tags.ContainsKey(objTagKey) || obj.Tags[objTagKey].Count != this.Tags[objTagKey].Count)
                         {
                             return false;
                         }
@@ -182,7 +182,7 @@ namespace ApiObjects
                             // compare the values between the lists
                             foreach (string sTagValue in obj.Tags[objTagKey])
                             {
-                                if (!this.Tags[objTagKey.ToLower()].Contains(sTagValue))
+                                if (!this.Tags[objTagKey].Contains(sTagValue))
                                 {
                                     return false;
                                 }
@@ -190,22 +190,23 @@ namespace ApiObjects
                         }
                     }
                 }
+             
                 #endregion
 
                 #region Metas
-                if (this.Metas != null && obj.Metas != null && this.Metas.Count == obj.Metas.Count)
+                int thisMetaCount = this.Metas == null ? 0 : this.Metas.Count;
+                int objMetaCount = obj.Metas == null ? 0 : obj.Metas.Count;
+
+                if (thisMetaCount != objMetaCount)
+                {
+                    return false;
+                }
+
+                if (thisMetaCount > 0)
                 {
                     foreach (string objMetaKey in obj.Metas.Keys)
-                    {
-                        if (!this.Metas.ContainsKey(objMetaKey.ToLower()))
-                        {
-                            return false;
-                        }
-
-                        int countObjMetaValues = obj.Metas[objMetaKey] == null ? 0 : obj.Metas[objMetaKey].Count;
-                        int countThisMetaValues = this.Metas[objMetaKey.ToLower()] == null ? 0 : this.Metas[objMetaKey.ToLower()].Count;
-
-                        if (countObjMetaValues != countThisMetaValues)
+                    {                       
+                        if (!this.Metas.ContainsKey(objMetaKey) || obj.Metas[objMetaKey].Count != this.Metas[objMetaKey].Count)
                         {
                             return false;
                         }
@@ -214,7 +215,7 @@ namespace ApiObjects
                             // compare the values between the lists
                             foreach (string sMetaValue in obj.Metas[objMetaKey])
                             {
-                                if (!this.Metas[objMetaKey.ToLower()].Contains(sMetaValue))
+                                if (!this.Metas[objMetaKey].Contains(sMetaValue))
                                 {
                                     return false;
                                 }

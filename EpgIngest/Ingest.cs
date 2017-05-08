@@ -91,6 +91,7 @@ namespace EpgIngest
         public string SaveChannelPrograms()
         {
             bool success = true;
+            DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
             try
             {
                 int kalturaChannelID;
@@ -113,7 +114,7 @@ namespace EpgIngest
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
 
-                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType);
+                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, dPublishDate);
                         if (success)
                         {
                             success = returnSuccess;
@@ -129,7 +130,7 @@ namespace EpgIngest
             }
         }
 
-        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType)
+        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, DateTime dPublishDate)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
@@ -147,9 +148,7 @@ namespace EpgIngest
             Dictionary<string, List<KeyValuePair<string, string>>> dMetas = new Dictionary<string, List<KeyValuePair<string, string>>>(); // metaType, List<language, metaValue>
             Dictionary<string, List<EpgTagTranslate>> dTags = new Dictionary<string, List<EpgTagTranslate>>(); // tagType, List<EpgTagTranslate>
 
-            #region each program  create CB objects
-
-            DateTime dPublishDate = DateTime.UtcNow; // this publish date will insert to each epg that was update / insert 
+            #region each program  create CB objects            
             List<DateTime> deletedDays = new List<DateTime>();
             foreach (programme prog in programs)
             {
@@ -828,7 +827,7 @@ namespace EpgIngest
 
                         if (TagTypeIdWithValue.ContainsKey(nTagTypeID))
                         {
-                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key == sTagValue.ToLower()).ToList();
+                            List<KeyValuePair<string, int>> list = TagTypeIdWithValue[nTagTypeID].Where(x => x.Key.ToLower() == sTagValue.ToLower()).ToList();
                             if (list != null && list.Count > 0)
                             {
                                 //Insert New EPG Tag Value in EPG_Program_Tags, we are assuming this tag value was not assigned to the program because the program is new                                                    
