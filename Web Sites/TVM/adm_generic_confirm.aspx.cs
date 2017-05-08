@@ -412,7 +412,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                     break;
                 case "engagement_adapter_config":
                     // set adapter configuration                    
-                    object adapterIdentifier = ODBCWrapper.Utils.GetTableSingleVal("engagement_adapter_config", "engagement_adapter_id", m_nID);
+                    object adapterIdentifier = ODBCWrapper.Utils.GetTableSingleVal("engagement_adapter_config", "engagement_adapter_id", m_nID, "notifications_connection");
 
                     int adapterId = 0;
                     if (adapterIdentifier != null && adapterIdentifier != DBNull.Value)

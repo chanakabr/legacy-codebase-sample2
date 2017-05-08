@@ -73,7 +73,7 @@ public partial class adm_engagement_adapter_config : System.Web.UI.Page
         theTable.SetConnectionKey("notifications_connection");
         theTable += "select ID, group_id, status, key_Name as 'key', [value] ";
         theTable += " from engagement_adapter_config ";
-        theTable += " where ( status = 1 or status = 4 ) AND " ;
+        theTable += " where ( status <> 2 ) AND " ;
         theTable += ODBCWrapper.Parameter.NEW_PARAM("engagement_adapter_id", "=", int.Parse(Session["engagement_adapter_id"].ToString()));
         theTable += "AND";
         theTable += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
@@ -106,8 +106,8 @@ public partial class adm_engagement_adapter_config : System.Web.UI.Page
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "23");
             linkColumn.AddQueryStringValue("sub_menu", "8");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -120,8 +120,8 @@ public partial class adm_engagement_adapter_config : System.Web.UI.Page
             linkColumn.AddQueryStringValue("confirm", "true");
             linkColumn.AddQueryStringValue("main_menu", "23");
             linkColumn.AddQueryStringValue("sub_menu", "8");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
 
@@ -134,8 +134,8 @@ public partial class adm_engagement_adapter_config : System.Web.UI.Page
             linkColumn.AddQueryStringValue("confirm", "false");
             linkColumn.AddQueryStringValue("main_menu", "23");
             linkColumn.AddQueryStringValue("sub_menu", "8");
-            linkColumn.AddQueryStringValue("rep_field", "NAME");
-            linkColumn.AddQueryStringValue("rep_name", "ùí");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
     }
@@ -150,9 +150,9 @@ public partial class adm_engagement_adapter_config : System.Web.UI.Page
         FillTheTableEditor(ref theTable, sOrderBy);
 
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy, false);
-        Session["ContentPage"] = "adm_engagement_adapter.aspx";
-        Session["LastContentPage"] = "adm_engagement_adapter.aspx?search_save=1";
-        Session["order_by"] = sOldOrderBy;
+        //Session["ContentPage"] = "adm_engagement_adapter.aspx";
+        //Session["LastContentPage"] = "adm_engagement_adapter.aspx?search_save=1";
+        //Session["order_by"] = sOldOrderBy;
         theTable.Finish();
         theTable = null;
         return sTable;
