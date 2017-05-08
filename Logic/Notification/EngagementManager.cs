@@ -421,7 +421,7 @@ namespace Core.Notification
             {
                 try
                 {
-                    List<int> userList = engagement.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                    List<int> userList = engagement.UserList.Split(';', ',', '|').Select(p => Convert.ToInt32(p.Trim())).ToList();
                     if (userList == null || userList.Count() == 0)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
@@ -722,7 +722,7 @@ namespace Core.Notification
             else
             {
                 // get user list from adapter
-                userList = engagementToBeSent.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                userList = engagementToBeSent.UserList.Split(';', ',', '|').Select(p => Convert.ToInt32(p.Trim())).ToList();
                 if (userList == null || userList.Count == 0)
                 {
                     log.ErrorFormat("Error getting user list from engagement. Engagement: {0}", JsonConvert.SerializeObject(engagementToBeSent));
