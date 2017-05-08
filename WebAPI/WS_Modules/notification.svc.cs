@@ -1142,11 +1142,31 @@ namespace WS_Notification
             return response;
         }
 
+        public Status SendUserPush(string sWSUserName, string sWSPassword, int userId, PushMessage pushMessage)
+        {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
+
+            try
+            {
+                if (groupID != 0)
+                {
+                    return Core.Notification.Module.SendUserPush(groupID, userId, pushMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendUserPush caught an exception: GroupID: {0}, ex: {1}", groupID, ex);
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return result;
+        }
+
         public SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
-            int pageSize, int pageIndex, OrderObj orderObj)
+        int pageSize, int pageIndex, OrderObj orderObj)
         {
             SeriesRemindersResponse response = null;
-
             int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
 
             try
