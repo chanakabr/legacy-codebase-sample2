@@ -44,18 +44,18 @@ namespace Core.Notification
                 return result;
             }
 
-            // Get List of announcements to subscribe (VOD)
+            // Get list of announcements to subscribe (VOD)
             List<AnnouncementSubscriptionData> temp = PrepareUserAnnouncementsSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken, out loginAnnouncementId);
             if (temp != null)
                 result.AddRange(temp);
             temp = null;
 
-            // Get List of reminders to subscribe (EGP)
+            // Get list of reminders to subscribe (EGP)
             temp = PrepareUserRemindersSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken);
             result.AddRange(temp);
             temp = null;
 
-            // Get List of series reminders to subscribe (EPG)
+            // Get list of series reminders to subscribe (EPG)
             temp = PrepareUserSeriesRemindersSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken);
             result.AddRange(temp);
             temp = null;
@@ -81,7 +81,7 @@ namespace Core.Notification
                 if (!string.IsNullOrEmpty(deviceData.SubscriptionExternalIdentifier))
                     result.Add(new UnSubscribe() { SubscriptionArn = deviceData.SubscriptionExternalIdentifier });
 
-                // prepare subscription to cancel list
+                // prepare announcement subscription to cancel list
                 if (deviceData.SubscribedAnnouncements != null)
                 {
                     UnSubscribe subscriptionToRemove;
@@ -92,11 +92,22 @@ namespace Core.Notification
                     }
                 }
 
-                // prepare subscription to cancel list
+                // prepare reminder subscription to cancel list
                 if (deviceData.SubscribedReminders != null)
                 {
                     UnSubscribe subscriptionToRemove;
                     foreach (var reminderSubscription in deviceData.SubscribedReminders)
+                    {
+                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
+                        result.Add(subscriptionToRemove);
+                    }
+                }
+
+                // prepare series reminder subscription to cancel list
+                if (deviceData.SubscribedSeriesReminders != null)
+                {
+                    UnSubscribe subscriptionToRemove;
+                    foreach (var reminderSubscription in deviceData.SubscribedSeriesReminders)
                     {
                         subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
                         result.Add(subscriptionToRemove);
