@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using KlogMonitorHelper;
+using Newtonsoft.Json;
 
 namespace Core.Notification
 {
@@ -1081,8 +1082,27 @@ namespace Core.Notification
                     partnerId,
                     engagementId,
                     ex);
-                return false;
+                
             }
+            return false;
+        }
+
+        public static Status SendUserPush(int partnerId, int userId, PushMessage pushMessage)
+        {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+            try
+            {
+                result = EngagementManager.SendPushToUser(partnerId, userId, pushMessage);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to send user push. Partner ID: {0}, user ID: {1}, push message: {2}, Ex: {3}",
+                    partnerId,
+                    userId,
+                    JsonConvert.SerializeObject(pushMessage),
+                    ex);
+            }
+            return result;
         }
     }
 }

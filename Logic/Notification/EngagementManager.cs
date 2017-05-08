@@ -47,10 +47,11 @@ namespace Core.Notification
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
         private const string SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER = "Scheduler engagement must contain an adapter ID";
+        private const string MAX_NUMBER_OF_PUSH_MSG_EXCEEDED = "Maximum number of push messages to user have reached it's limit";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
-        private static int MAX_PUSH_MSG_PER_HOUR = 4;
+        private static int MAX_PUSH_MSG_PER_SECONDS = 3;
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -1099,12 +1100,14 @@ namespace Core.Notification
             return true;
         }
 
-        private static bool SendPushToUser(int partnerId, int userId, PushMessage pushMessage)
+        public static Status SendPushToUser(int partnerId, int userId, PushMessage pushMessage)
         {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+
             // get maximum allowed push 
-            int maxPushMsgPerHour = TCMClient.Settings.Instance.GetValue<int>("max_push_user_msg_per_hour");
-            if (maxPushMsgPerHour == 0)
-                maxPushMsgPerHour = MAX_PUSH_MSG_PER_HOUR;
+            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            if (allowedPushMsg == 0)
+                allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
             // get user push document counter
             int counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId);
@@ -1114,16 +1117,18 @@ namespace Core.Notification
                 if (!NotificationDal.SetUserPushCounter(partnerId, userId))
                 {
                     log.ErrorFormat("Error occurred while updating user push counter. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
-                    return false;
+                    result = new Status() { Code = (int)eResponseStatus.Error };
+                    return result;
                 }
             }
             else
             {
                 // document exists - validate did not reach maximum of allowed user push messages
-                if (counter > MAX_PUSH_MSG_PER_HOUR)
+                if (counter > MAX_PUSH_MSG_PER_SECONDS)
                 {
-                    log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", maxPushMsgPerHour, partnerId, userId);
-                    return false;
+                    log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
+                    result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
+                    return result;
                 }
             }
 
@@ -1133,14 +1138,16 @@ namespace Core.Notification
             if (userNotificationData == null)
             {
                 log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
-                return false;
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
             }
 
             // validate user has devices
             if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
             {
                 log.ErrorFormat("No devices for user. partnerId: {0}, UserId: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
-                return false;
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
             }
 
             List<EndPointData> usersEndPointDatas = new List<EndPointData>();
@@ -1189,7 +1196,8 @@ namespace Core.Notification
             if (pushPublishResults == null)
             {
                 log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
-                return false;
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
             }
 
             // go over push results
@@ -1201,7 +1209,8 @@ namespace Core.Notification
                     log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
             }
 
-            return true;
+            result = new Status() { Code = (int)eResponseStatus.OK };
+            return result;
         }
 
         private static List<KeyValue> GetUserAttributes(int partnerId, int userId, eEngagementType engagementType)
