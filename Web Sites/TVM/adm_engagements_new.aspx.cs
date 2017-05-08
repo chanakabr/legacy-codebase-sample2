@@ -270,7 +270,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
         if (type == 1)
         {
             dropDownField = new DataRecordDropDownField("engagement_adapter", "name", "id", "group_id", groupId, 60, false);
-            dropDownField.Initialize("Source user's list", "adm_table_header_nbg", "FormInput", "ADAPTER_ID", true);
+            dropDownField.Initialize("Engagement Adapter", "adm_table_header_nbg", "FormInput", "ADAPTER_ID", true);
             dropDownField.SetWhereString("status=1 and is_active=1");
             dropDownField.SetEnable(!isViewMode);
             theRecord.AddRecord(dropDownField);

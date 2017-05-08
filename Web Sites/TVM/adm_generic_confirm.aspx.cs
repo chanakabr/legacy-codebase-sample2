@@ -184,7 +184,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
         if (m_sTable == "announcements")
         {
             bool result = RemoveAnnouncement(LoginManager.GetLoginGroupID(), m_nID);
-            
+
             // write log?
 
             if (Session["LastContentPage"].ToString().IndexOf("?") == -1)
@@ -193,7 +193,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                 Response.Write("<script>document.location.href='" + Session["LastContentPage"].ToString() + "&search_save=1&confirmed_id=" + m_nID + "'</script>");
 
             return;
-            
+
         }
         bool bIsPublished = false;
         ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery(m_sTable);
@@ -410,6 +410,39 @@ public partial class adm_generic_confirm : System.Web.UI.Page
                         }
                     }
                     break;
+                case "engagement_adapter_config":
+                    // set adapter configuration                    
+                    object adapterIdentifier = ODBCWrapper.Utils.GetTableSingleVal("engagement_adapter_config", "engagement_adapter_id", m_nID);
+
+                    int adapterId = 0;
+                    if (adapterIdentifier != null && adapterIdentifier != DBNull.Value)
+                    {
+                        adapterId = int.Parse(adapterIdentifier.ToString());
+                        try
+                        {
+                            int groupId = LoginManager.GetLoginGroupID();
+                            ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+                            result = ImporterImpl.SetEngagementAdapterConfiguration(groupId, adapterId);
+
+                            if (result == null)
+                            {
+                                log.ErrorFormat("Error while SetEngagementAdapterConfiguration. Message: {0}", result.Message);
+                            }
+                            else if (result.Code != (int)ApiObjects.Response.eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Error while SetEngagementAdapter adapter id:{0}, status:{1}", adapterId, result.Code);
+                            }
+                            else if (result.Code == (int)ApiObjects.Response.eResponseStatus.OK)
+                            {
+                                log.DebugFormat("SetEngagementAdapter adapter id:{0}, status:{1}", adapterId, result.Code);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorFormat("Exception - Engagement adapter id :{0}, ex:{1}", adapterId, ex);
+                        }
+                    }
+                    break;
 
                 default:
                     break;
@@ -458,7 +491,7 @@ public partial class adm_generic_confirm : System.Web.UI.Page
 
     private bool RemoveAnnouncement(int groupId, int announcementId)
     {
-        return ImporterImpl.DeleteAnnouncement(groupId, announcementId);        
+        return ImporterImpl.DeleteAnnouncement(groupId, announcementId);
     }
 
     private string GetWSURL(string sKey)
