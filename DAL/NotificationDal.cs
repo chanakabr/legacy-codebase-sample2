@@ -33,7 +33,7 @@ namespace DAL
         private const string MESSAGE_BOX_CONNECTION = "MESSAGE_BOX_CONNECTION_STRING";
 
         private const int MAX_NUMBER_OF_PUSH_MESSAGES_PER_USER_IN_AN_HOUR = 4;
-        private const int TTL_USER_PUSH_COUNTER_DOCUMENT_MIN = 60;
+        private const int TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS = 3600;
 
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -2265,9 +2265,14 @@ namespace DAL
         public static bool SetUserPushCounter(int partnerId, int userId)
         {
             bool success = false;
+
+            int docTTL = TCMClient.Settings.Instance.GetValue<int>("push_message.ttl_seconds");
+            if (docTTL == 0)
+                docTTL = TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS;
+
             try
             {
-                success = cbManager.Set(GetUserPushKey(partnerId, userId), null, (uint)TimeSpan.FromMinutes(TTL_USER_PUSH_COUNTER_DOCUMENT_MIN).TotalSeconds);
+                success = cbManager.Set(GetUserPushKey(partnerId, userId), null, (uint)docTTL);
             }
             catch (Exception ex)
             {
