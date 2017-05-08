@@ -688,13 +688,16 @@ namespace ConditionalAccess
                     return response;
                 }
 
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(houseHoldID));
                 ApiObjects.Response.Status status = GrantSubscription(cas, groupId, userId, (long)houseHoldID, int.Parse(newSubscription.m_SubscriptionCode), userIp, deviceName, history, 1, null, oldSubscription.m_dEndDate, GrantContext.Swap);
-               
+                
                 if (status.Code != (int)eResponseStatus.OK)
                 {
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "GrantEntitlements fail");
                     return response;
                 }
+
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGrantEntitlementInvalidationKey(houseHoldID));
             }
             catch (Exception ex)
             {
