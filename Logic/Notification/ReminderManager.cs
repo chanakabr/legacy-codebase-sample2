@@ -1534,10 +1534,10 @@ namespace Core.Notification
             return response;
         }
 
-        public static RemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
+        public static SeriesRemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
             int pageSize, int pageIndex, OrderObj orderObj)
         {
-            RemindersResponse response = new RemindersResponse();
+            SeriesRemindersResponse response = new SeriesRemindersResponse();
 
             // validate reminder is enabled
             if (!NotificationSettings.IsPartnerRemindersEnabled(groupId))
@@ -1560,16 +1560,21 @@ namespace Core.Notification
             }
 
             // get reminder from DB
-            List<DbReminder> dbSeriesReminders = null;
-            if (seriesIds.Count == 1 && seasonNumbers.Count > 0)
+            List<DbSeriesReminder>  dbSeriesReminders = NotificationDal.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
+            // TODO: cache
+
+            if (seriesIds.Count > 0)
             {
-                dbSeriesReminders = NotificationDal.GetSeriesRemindersBySeasons(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList(), seriesIds[0], seasonNumbers, epgChannelId);
+                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId)).ToList();
             }
-            else 
+            if (seasonNumbers.Count > 0)
             {
-                dbSeriesReminders = NotificationDal.GetSeriesRemindersBySeriesIds(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList(), seriesIds, epgChannelId);
+                dbSeriesReminders = dbSeriesReminders.Where(sr => sr.SeasonNumber.HasValue && seasonNumbers.Contains(sr.SeasonNumber.Value)).ToList();
             }
-            
+            if (epgChannelId.HasValue && epgChannelId.Value != 0)
+            {
+                dbSeriesReminders = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId.Value).ToList();
+            }
             
             if (dbSeriesReminders == null || dbSeriesReminders.Count == 0)
             {
@@ -1578,6 +1583,7 @@ namespace Core.Notification
                 return response;
             }
 
+            response.TotalCount = dbSeriesReminders.Count;
             response.Reminders = dbSeriesReminders.Skip(pageIndex * pageSize).Take(pageSize).ToList();
             response.Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 

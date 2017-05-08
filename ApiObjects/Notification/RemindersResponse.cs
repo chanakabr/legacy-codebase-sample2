@@ -10,4 +10,13 @@ namespace ApiObjects.Notification
 
         public int TotalCount { get; set; }
     }
+
+    public class SeriesRemindersResponse
+    {
+        public ApiObjects.Response.Status Status { get; set; }
+
+        public List<DbSeriesReminder> Reminders { get; set; }
+
+        public int TotalCount { get; set; }
+    }
 }
