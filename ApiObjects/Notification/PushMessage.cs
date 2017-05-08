@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace ApiObjects.Notification
 {
+    [DataContract]
     public class PushMessage
     {
         [DataMember]
