@@ -115,11 +115,57 @@ public partial class adm_engagements : System.Web.UI.Page
         linkColumnKeParams.AddQueryStringValue("type", "field=isAdapter");
         theTable.AddLinkColumn(linkColumnKeParams);
 
-        /*
+
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) && LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             theTable.AddActivationField("engagements", "adm_engagements.aspx");
-        */
+        }
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        {
+            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_remove.aspx", "Delete", "STATUS=1;STATUS=3");
+            linkColumn.AddQueryStringValue("id", "field=id");
+            linkColumn.AddQueryStringValue("table", "engagements");
+            linkColumn.AddQueryStringValue("db", "notifications_connection");
+            linkColumn.AddQueryStringValue("confirm", "true");
+            linkColumn.AddQueryStringValue("main_menu", "23");
+            linkColumn.AddQueryStringValue("sub_menu", "1");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
+            theTable.AddLinkColumn(linkColumn);
+        }
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH))
+        {
+            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Confirm", "STATUS=3;STATUS=4");
+            linkColumn.AddQueryStringValue("id", "field=id");
+            linkColumn.AddQueryStringValue("table", "engagements");
+            linkColumn.AddQueryStringValue("db", "notifications_connection");
+            linkColumn.AddQueryStringValue("confirm", "true");
+            linkColumn.AddQueryStringValue("main_menu", "23");
+            linkColumn.AddQueryStringValue("sub_menu", "1");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
+            theTable.AddLinkColumn(linkColumn);
+        }
+
+        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
+        {
+            DataTableLinkColumn linkColumn = new DataTableLinkColumn("adm_generic_confirm.aspx", "Cancel", "STATUS=3;STATUS=4");
+            linkColumn.AddQueryStringValue("id", "field=id");
+            linkColumn.AddQueryStringValue("table", "engagements");
+            linkColumn.AddQueryStringValue("db", "notifications_connection");
+            linkColumn.AddQueryStringValue("confirm", "false");
+            linkColumn.AddQueryStringValue("main_menu", "23");
+            linkColumn.AddQueryStringValue("sub_menu", "1");
+            linkColumn.AddQueryStringValue("rep_field", "username");
+            linkColumn.AddQueryStringValue("rep_name", "Username");
+            theTable.AddLinkColumn(linkColumn);
+        }
+
+
+
+
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
