@@ -275,5 +275,15 @@ namespace WebAPI.Models.Pricing
         public List<KalturaOTTUserType> UserTypes { get; set; }
 
         #endregion
+
+
+        /// <summary>
+        /// List of Subscription Coupons group
+        /// </summary>
+        [DataMember(Name = "subscriptionCouponsGroup")]
+        [JsonProperty("subscriptionCouponsGroup")]
+        [XmlElement(ElementName = "subscriptionCouponsGroup", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaCouponsGroup> SubscriptionCouponsGroup { get; set; }
     }
 }

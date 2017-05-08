@@ -5617,6 +5617,8 @@ namespace WebAPI.Reflection
                             return "renewalsNumber";
                         case "StartDate":
                             return "startDate";
+                        case "SubscriptionCouponsGroup":
+                            return "subscriptionCouponsGroup";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":
