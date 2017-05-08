@@ -1847,7 +1847,7 @@ namespace WebAPI.Clients
         internal KalturaReminderListResponse GetSeriesReminders(int groupId, string userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
             int pageSize, int pageIndex, KalturaReminderOrderBy orderBy)
         {
-            RemindersResponse response = null;
+            SeriesRemindersResponse response = null;
             List<KalturaReminder> result = null;
             KalturaReminderListResponse ret = null;
 

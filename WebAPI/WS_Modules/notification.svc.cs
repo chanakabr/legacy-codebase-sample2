@@ -1142,10 +1142,10 @@ namespace WS_Notification
             return response;
         }
 
-        public RemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
+        public SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
             int pageSize, int pageIndex, OrderObj orderObj)
         {
-            RemindersResponse response = null;
+            SeriesRemindersResponse response = null;
 
             int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
 
