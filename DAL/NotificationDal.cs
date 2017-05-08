@@ -2434,9 +2434,9 @@ namespace DAL
             return reminders;
         }
 
-        public static List<DbReminder> GetSeriesReminders(int groupId, List<long> remindersIds)
+        public static List<DbSeriesReminder> GetSeriesReminders(int groupId, List<long> remindersIds)
         {
-            List<DbReminder> result = null;
+            List<DbSeriesReminder> result = null;
 
             try
             {
@@ -2449,8 +2449,8 @@ namespace DAL
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    result = new List<DbReminder>();
-                    DbReminder dbReminder = null;
+                    result = new List<DbSeriesReminder>();
+                    DbSeriesReminder dbReminder = null;
                     foreach (DataRow row in ds.Tables[0].Rows)
                     {
                         dbReminder = CreateDbSeriesReminder(row);
