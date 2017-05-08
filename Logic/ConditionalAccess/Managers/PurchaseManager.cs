@@ -345,13 +345,11 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency);
 
-                if (coupon != null &&
-                    coupon.m_CouponStatus == CouponsStatus.Valid &&
-                    coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
-                    subscription != null &&
-                    subscription.m_oCouponsGroup != null &&
-                    coupon.m_oCouponGroup != null &&
-                    subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode)
+                if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard  &&
+                    subscription != null && (subscription.m_oCouponsGroup != null || (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0)) &&                    
+                    ( subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode ||
+                    subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode && x.couponGroupType == CouponGroupType.GiftCard).Count() > 0 )                    
+                    ) 
                 {
                     isGiftCard = true;
                     priceResponse = new Price()

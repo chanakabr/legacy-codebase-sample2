@@ -258,7 +258,7 @@ namespace Core.ConditionalAccess
                 }
             }
             return sRet;
-        }
+        }      
 
         internal static Int32 AddCustomData(string sCustomData)
         {
@@ -1126,7 +1126,7 @@ namespace Core.ConditionalAccess
                 if (!isGeoCommerceBlock)
                 {
                     theSub = TVinciShared.ObjectCopier.Clone<Subscription>((Subscription)(subscription));
-                    DiscountModule externalDisount = theSub.m_oExtDisountModule != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule)) : null;                  
+                    DiscountModule externalDisount = theSub.m_oExtDisountModule != null ? TVinciShared.ObjectCopier.Clone<DiscountModule>((DiscountModule)(theSub.m_oExtDisountModule)) : null;
                     if (subscription.m_oSubscriptionPriceCode != null)
                     {
                         bool isValidCurrencyCode = false;
@@ -1143,7 +1143,7 @@ namespace Core.ConditionalAccess
                                 isValidCurrencyCode = true;
                             }
                         }
-                        
+
                         // Get subscription price code according to country and currency (if exists on the request)
                         if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || Utils.GetGroupDefaultCurrency(groupId, ref currencyCode)))
                         {
@@ -1189,8 +1189,13 @@ namespace Core.ConditionalAccess
                         {
                             return price;
                         }
+                        long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
 
-                        CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
+                        // look ig this coupon group id exsits in coupon list 
+                        CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
+                            theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon && x.endDate <= DateTime.UtcNow).Select(x => x).FirstOrDefault()));
+
+                        //       CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup));
                         if (externalDisount != null)
                         {
                             price = GetPriceAfterDiscount(price, externalDisount, 1);
@@ -7428,5 +7433,19 @@ namespace Core.ConditionalAccess
             return result;
         }
 
+        internal static string GetSubscriptiopnPurchaseCoupon(int purchaseId, int groupId, out long couponGroupId)
+        {
+            couponGroupId = 0;
+            string couponCode = GetSubscriptiopnPurchaseCoupon(purchaseId);
+            if (!string.IsNullOrEmpty(couponCode))
+            {
+                couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode);
+                if (couponGroupId == 0)
+                {
+                    log.DebugFormat("GetSubscriptiopnPurchaseCoupon purchaseId={0}, groupId={1}, couponGroupId={2}, couponCode={3}", purchaseId, groupId, couponGroupId, couponCode);
+                }
+            }
+            return couponCode;
+        }     
     }
 }

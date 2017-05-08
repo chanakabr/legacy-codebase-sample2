@@ -143,6 +143,13 @@ namespace Core.Pricing
         public Int32 m_nMaxRecurringUsesCountForCoupon;
         public string alias;
         public CouponGroupType couponGroupType;
+
+        internal bool Initialize(CouponsGroup couponGroup)
+        {
+            return this.Initialize(couponGroup.m_sGroupName, couponGroup.m_sGroupCode, couponGroup.m_oDiscountCode, couponGroup.m_sDescription,
+            couponGroup.m_dStartDate, couponGroup.m_dEndDate, couponGroup.m_nMaxUseCountForCoupon, couponGroup.m_nFinancialEntityID, couponGroup.m_nMaxRecurringUsesCountForCoupon,
+            couponGroup.couponGroupType);            
+        }
     }
 
     [Serializable]

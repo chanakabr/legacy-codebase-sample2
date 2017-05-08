@@ -37,6 +37,8 @@ namespace Core.Pricing
         public ServiceObject[] m_lServices;
         public int m_GracePeriodMinutes;
 
+        public List<SubscriptionCouponGroup> CouponsGroups;
+
         #endregion
 
         #region Ctr
@@ -47,6 +49,7 @@ namespace Core.Pricing
             m_oSubscriptionUsageModule = null;
             m_MultiSubscriptionUsageModule = null;
             m_oPreviewModule = null;
+            CouponsGroups = new List<SubscriptionCouponGroup>();
         }
         #endregion
 
@@ -229,7 +232,8 @@ namespace Core.Pricing
            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, string subPriceCode,
            string sSubUsageModule, string sObjectVirtualName,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
-            long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
+            long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
+             List<SubscriptionCouponGroup> couponsGroup = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -297,6 +301,7 @@ namespace Core.Pricing
             m_lServices = services;
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
+            this.CouponsGroups = couponsGroup;
         }
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)

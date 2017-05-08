@@ -493,6 +493,7 @@
     <Compile Include="Pricing\PricingCacheWrapper.cs" />
     <Compile Include="Pricing\Subscription.cs" />
     <Compile Include="Pricing\SubscriptionCacheWrapper.cs" />
+    <Compile Include="Pricing\SubscriptionCouponGroup.cs" />
     <Compile Include="Pricing\SubscriptionsResponse.cs" />
     <Compile Include="Pricing\TvinciCampaign.cs" />
     <Compile Include="Pricing\TvinciCollection.cs" />

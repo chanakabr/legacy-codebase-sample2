@@ -260,7 +260,9 @@ namespace Core.Pricing
                             }
 
                             tmpSubscription = CreateSubscriptionObject(bShrink, subscriptionRow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, nFileTypes, GetSubscriptionDescription(nSubscriptionCode),
-                                                                       GetSubscriptionsChannels(nSubscriptionCode, m_nGroupID), GetSubscriptionName(nSubscriptionCode), GetSubscriptionServices(nSubscriptionCode), arrUserTypes);
+                                                                       GetSubscriptionsChannels(nSubscriptionCode, m_nGroupID), GetSubscriptionName(nSubscriptionCode), 
+                                                                       GetSubscriptionServices(nSubscriptionCode), arrUserTypes,
+                                                                       GetSubscriptionCouponsGroup(nSubscriptionCode));
 
                             if ((nFileTypes == null || nFileTypes.Length == 0 || Array.IndexOf(nFileTypes, nFileTypeID) > -1 && nFileTypeID != 0) && IsMediasExists(tmpSubscription, mediaID))
                             {
@@ -593,7 +595,8 @@ namespace Core.Pricing
 
         private Subscription CreateSubscriptionObject(bool bShrink, DataRow subscriptionRow, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME,
                                                       int[] nFileTypes, LanguageContainer[] subscriptionDescription, BundleCodeContainer[] subscriptionChannels,
-                                                      LanguageContainer[] subscriptionName, ServiceObject[] services, UserType[] userTypes)
+                                                      LanguageContainer[] subscriptionName, ServiceObject[] services, UserType[] userTypes,
+                                                      List<SubscriptionCouponGroup> couponsGroup)
         {
             Subscription retSubscription = new Subscription();
 
@@ -651,7 +654,8 @@ namespace Core.Pricing
             {
                 retSubscription.Initialize(sPriceCode, string.Empty, string.Empty, string.Empty, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID, gracePeriodMinutes, adsPolicy, adsParam);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
+                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup);
 
 
             }
@@ -659,7 +663,8 @@ namespace Core.Pricing
             {
                 retSubscription.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, subscriptionDescription, m_nGroupID, nSubscriptionCode.ToString(),
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
-                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID, gracePeriodMinutes, adsPolicy, adsParam);
+                                           sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
+                                           gracePeriodMinutes, adsPolicy, adsParam, couponsGroup);
             }
 
 
@@ -691,7 +696,9 @@ namespace Core.Pricing
                             arrUserTypes = dictSubUserTypes[nSubscriptionCode].ToArray();
                         }
                         tmpSubscription = CreateSubscriptionObject(bShrink, subscriptionRow, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, nFileTypes, GetSubscriptionDescription(nSubscriptionCode),
-                                                                   GetSubscriptionsChannels(nSubscriptionCode, m_nGroupID), GetSubscriptionName(nSubscriptionCode), GetSubscriptionServices(nSubscriptionCode), arrUserTypes);
+                                                                   GetSubscriptionsChannels(nSubscriptionCode, m_nGroupID), GetSubscriptionName(nSubscriptionCode), 
+                                                                   GetSubscriptionServices(nSubscriptionCode), arrUserTypes,
+                                                                   GetSubscriptionCouponsGroup(nSubscriptionCode));
                         retList.Add(tmpSubscription);
                     }
 
@@ -731,8 +738,10 @@ namespace Core.Pricing
                             Dictionary<long, List<BundleCodeContainer>> subsChannelsMapping = ExtractSubscriptionsChannels(ds);
                             Dictionary<long, List<LanguageContainer>> subsNamesMapping = ExtractSubscriptionsNames(ds);
                             Dictionary<long, List<ServiceObject>> subsServicesMapping = ExtractSubscriptionsServices(ds);
+                            Dictionary<long, List<SubscriptionCouponGroup>> subsCouponsGroup = ExtractSubscriptionsCouponGroup(ds);
+
                             res = CreateSubscriptions(ds, subsFileTypesMapping, subsDescriptionsMapping, subsChannelsMapping, subsNamesMapping, subsServicesMapping,
-                                sCountryCd, sLanguageCode, sDeviceName).ToArray();
+                                sCountryCd, sLanguageCode, sDeviceName, subsCouponsGroup).ToArray();
                         }
                         else
                         {
@@ -773,6 +782,47 @@ namespace Core.Pricing
 
             }
 
+            return res;
+        }
+
+        private Dictionary<long, List<SubscriptionCouponGroup>> ExtractSubscriptionsCouponGroup(DataSet ds)
+        {
+            Dictionary<long, List<SubscriptionCouponGroup>> res = new Dictionary<long, List<SubscriptionCouponGroup>>();
+            DataTable dt = ds.Tables[7];
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                SubscriptionCouponGroup scg = new SubscriptionCouponGroup();
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "subscription_id");
+                    long couponGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr, "COUPON_GROUP_ID");
+                    DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
+                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+
+                    CouponsGroup couponGroupData = null;
+                    if (couponGroupID > 0)
+                    {
+                        BaseCoupons c = null;
+                        Utils.GetBaseImpl(ref c, m_nGroupID);
+                        if (c != null)
+                        {
+                            couponGroupData = c.GetCouponGroupData(couponGroupID.ToString());
+                        }
+                    }
+                    scg.Initialize(startDate, endDate, couponGroupData);
+
+                    if (res.ContainsKey(subID))
+                    {
+                        res[subID].Add(scg);
+                    }
+                    else
+                    {
+                        List<SubscriptionCouponGroup> sgList = new List<SubscriptionCouponGroup>();
+                        sgList.Add(scg);
+                        res.Add(subID, sgList);
+                    }
+                }
+            }
             return res;
         }
 
@@ -831,7 +881,8 @@ namespace Core.Pricing
 
         private List<Subscription> CreateSubscriptions(DataSet ds, Dictionary<long, List<int>> subsFileTypesMapping,
             Dictionary<long, List<LanguageContainer>> subsDescriptionsMapping, Dictionary<long, List<BundleCodeContainer>> subsChannelsMapping,
-            Dictionary<long, List<LanguageContainer>> subsNamesMapping, Dictionary<long, List<ServiceObject>> subsServicesMapping, string sCountryCd, string sLanguageCode, string sDeviceName)
+            Dictionary<long, List<LanguageContainer>> subsNamesMapping, Dictionary<long, List<ServiceObject>> subsServicesMapping, string sCountryCd, string sLanguageCode, string sDeviceName,
+             Dictionary<long, List<SubscriptionCouponGroup>> subsCouponsGroup)
         {
             List<Subscription> res = null;
             DataTable subsTable = ds.Tables[0];
@@ -886,8 +937,14 @@ namespace Core.Pricing
                         services = subsServicesMapping[lSubCode].ToArray();
                     }
 
+                    List<SubscriptionCouponGroup> couponsGroup = null;
+                    if (subsCouponsGroup.ContainsKey(lSubCode))
+                    {
+                        couponsGroup = subsCouponsGroup[lSubCode].ToList();
+                    }
+
                     res.Add(CreateSubscriptionObject(false, subsTable.Rows[i], sCountryCd, sLanguageCode, sDeviceName, nFileTypes, descs,
-                        bcc, names, services, arrUserTypes));
+                        bcc, names, services, arrUserTypes, couponsGroup));
 
 
                 }
@@ -1029,7 +1086,7 @@ namespace Core.Pricing
 
         private bool IsSubsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count == 7;
+            return ds != null && ds.Tables != null && ds.Tables.Count == 8;
         }
 
     }

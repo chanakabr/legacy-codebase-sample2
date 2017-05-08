@@ -3213,23 +3213,34 @@ namespace Core.ConditionalAccess
 		private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode)
 		{
 			try
-			{
-				if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
-				{
-					if (theSub.m_oCouponsGroup.couponGroupType != CouponGroupType.GiftCard &&
-						IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, theSub.m_oCouponsGroup.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
-					{
-						string sCouponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID);
-						if (!string.IsNullOrEmpty(sCouponCode))
-						{
-							Price priceBeforeCouponDiscount = new Price();
-							priceBeforeCouponDiscount.m_dPrice = dPrice;
-							priceBeforeCouponDiscount.m_oCurrency = oCurrency;
-							Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, theSub.m_oCouponsGroup.m_oDiscountCode, 0);
-							dPrice = priceResult.m_dPrice;
-							retCouponCode = sCouponCode;
-						}
-					}
+			{             
+				if ( (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
+                    || (theSub.CouponsGroups != null && theSub.CouponsGroups.Count > 0 && theSub.CouponsGroups.Where(x=>x.m_oDiscountCode == null).Count() == 0 ))
+				{                   
+                        /*check if 
+                         * coupon related to subscription 
+                         * the type is coupon (not gift)                         
+                         * */
+
+                    long couponGroupId = 0;
+                    string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid 
+
+                    // look ig this coupon group id exsits in coupon list 
+                    CouponsGroup cg = theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
+                        theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
+                    
+                    if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
+                    {
+                        if (IsCouponStillRedeemable(bIsPurchasedWithPreviewModule, cg.m_nMaxRecurringUsesCountForCoupon, nTotalPaymentsNumber))
+                        {
+                            Price priceBeforeCouponDiscount = new Price();
+                            priceBeforeCouponDiscount.m_dPrice = dPrice;
+                            priceBeforeCouponDiscount.m_oCurrency = oCurrency;
+                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, cg.m_oDiscountCode, 0);
+                            dPrice = priceResult.m_dPrice;
+                            retCouponCode = couponCode;
+                        }
+                    }
 				}
 			}
 			catch (Exception ex)
@@ -3237,8 +3248,6 @@ namespace Core.ConditionalAccess
 				log.Error("HandleRecurringCoupon error - , PurchaseID: " + nPurchaseID.ToString() + ",Exception:" + ex.ToString(), ex);
 			}
 		}
-
-
 
 		protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
 		{
