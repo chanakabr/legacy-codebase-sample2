@@ -32,6 +32,9 @@ namespace DAL
         private const string TVINCI_CONNECTION = "MAIN_CONNECTION_STRING";
         private const string MESSAGE_BOX_CONNECTION = "MESSAGE_BOX_CONNECTION_STRING";
 
+        private const int MAX_NUMBER_OF_PUSH_MESSAGES_PER_USER_IN_AN_HOUR = 4;
+        private const int TTL_USER_PUSH_COUNTER_DOCUMENT_MIN = 60;
+
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
@@ -54,6 +57,11 @@ namespace DAL
         private static string GetInboxMessageKey(int groupId, long userId, string messageId)
         {
             return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
+        }
+
+        private static string GetUserPushKey(int groupId, long userId)
+        {
+            return string.Format("user_push:{0}:{1}", groupId, userId);
         }
 
         private static string GetInboxSystemAnnouncementKey(int groupId, string messageId)
@@ -2252,6 +2260,34 @@ namespace DAL
             };
 
             return result;
+        }
+
+        public static bool SetUserPushCounter(int partnerId, int userId)
+        {
+            bool success = false;
+            try
+            {
+                success = cbManager.Set(GetUserPushKey(partnerId, userId), null, (uint)TimeSpan.FromMinutes(TTL_USER_PUSH_COUNTER_DOCUMENT_MIN).TotalSeconds);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to set user push counter. partner ID: {0}, user ID: {1}, EX: {2}", partnerId, userId, ex);
+            }
+            return success;
+        }
+
+        public static ulong IncreasePushCounter(int partnerId, int userId)
+        {
+            ulong counter = 0;
+            try
+            {
+                counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to increase user push counter. partner ID: {0}, user ID: {1}, EX: {2}", partnerId, userId, ex);
+            }
+            return counter;
         }
     }
 }
