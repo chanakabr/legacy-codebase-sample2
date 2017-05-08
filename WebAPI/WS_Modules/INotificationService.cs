@@ -169,5 +169,8 @@ namespace WS_Notification
 
         [OperationContract]
         bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime);
+
+        [OperationContract]
+        Status SendUserPush(string sWSUserName, string sWSPassword, int userId, PushMessage pushMessage);
     }
 }
