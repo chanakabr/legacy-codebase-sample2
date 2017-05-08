@@ -1012,7 +1012,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         selectQuery += " select scg.COUPON_GROUP_ID, cg.CODE, cg.id, scg.START_DATE, scg.END_DATE , cg.group_id ";
         selectQuery += " from coupons_groups cg (nolock)  left join subscriptions_coupons_groups scg(nolock)  on	scg.coupon_group_id = cg.id  and ";
         selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("scg.subscription_id", "=", subID);
-        selectQuery +=  " and	scg.is_active = 1 and scg.status = 1 where ";
+        selectQuery += " and	scg.is_active = 1 and scg.status = 1  where  ";
          selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", nLogedInGroupID);
         DataTable dt = selectQuery.Execute("query", true);      
 
