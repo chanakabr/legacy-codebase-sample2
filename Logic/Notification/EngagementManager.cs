@@ -50,6 +50,7 @@ namespace Core.Notification
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
+        private static int MAX_PUSH_MSG_PER_HOUR = 4;
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -1093,6 +1094,111 @@ namespace Core.Notification
                         }
                     }
                 }
+            }
+
+            return true;
+        }
+
+        private static bool SendPushToUser(int partnerId, int userId, PushMessage pushMessage)
+        {
+            // get maximum allowed push 
+            int maxPushMsgPerHour = TCMClient.Settings.Instance.GetValue<int>("max_push_user_msg_per_hour");
+            if (maxPushMsgPerHour == 0)
+                maxPushMsgPerHour = MAX_PUSH_MSG_PER_HOUR;
+
+            // get user push document counter
+            int counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId);
+            if (counter == 1)
+            {
+                // document did not exist - create it (with TTL)
+                if (!NotificationDal.SetUserPushCounter(partnerId, userId))
+                {
+                    log.ErrorFormat("Error occurred while updating user push counter. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                    return false;
+                }
+            }
+            else
+            {
+                // document exists - validate did not reach maximum of allowed user push messages
+                if (counter > MAX_PUSH_MSG_PER_HOUR)
+                {
+                    log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", maxPushMsgPerHour, partnerId, userId);
+                    return false;
+                }
+            }
+
+            // get user notification data
+            bool docExists = false;
+            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(partnerId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                return false;
+            }
+
+            // validate user has devices
+            if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+            {
+                log.ErrorFormat("No devices for user. partnerId: {0}, UserId: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                return false;
+            }
+
+            List<EndPointData> usersEndPointDatas = new List<EndPointData>();
+            foreach (var device in userNotificationData.devices)
+            {
+                // get device data
+                DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                if (deviceData == null)
+                {
+                    log.DebugFormat("device data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
+                    continue;
+                }
+
+                // get push data
+                var pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                if (pushData == null)
+                {
+                    log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
+                    continue;
+                }
+
+                // prepare push
+                usersEndPointDatas.Add(new EndPointData()
+                {
+                    EndPointArn = pushData.ExternalToken,
+                    Category = pushMessage.Action,
+                    Sound = pushMessage.Sound,
+                    Url = pushMessage.Url,
+                    ExtraData = userId.ToString()
+                });
+            }
+
+            // prepare push 
+            WSEndPointPublishData publishData = new WSEndPointPublishData();
+            publishData.EndPoints = usersEndPointDatas;
+            publishData.Message = new MessageData()
+            {
+                Alert = pushMessage.Message,
+                Url = pushMessage.Url,
+                Category = pushMessage.Action,
+                Sound = pushMessage.Sound
+            };
+
+            // send push
+            List<WSEndPointPublishDataResult> pushPublishResults = NotificationAdapter.PublishToEndPoint(partnerId, publishData);
+            if (pushPublishResults == null)
+            {
+                log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                return false;
+            }
+
+            // go over push results
+            foreach (var pushPublishResult in pushPublishResults)
+            {
+                if (string.IsNullOrEmpty(pushPublishResult.ResultMessageId))
+                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
+                else
+                    log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
             }
 
             return true;
