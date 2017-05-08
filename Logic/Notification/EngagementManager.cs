@@ -47,7 +47,7 @@ namespace Core.Notification
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
         private const string SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER = "Scheduler engagement must contain an adapter ID";
-        private const string MAX_NUMBER_OF_PUSH_MSG_EXCEEDED = "Maximum number of push messages to user have reached it's limit";
+        private const string MAX_NUMBER_OF_PUSH_MSG_EXCEEDED = "Maximum number of push messages to user have reached its limit";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
@@ -677,14 +677,13 @@ namespace Core.Notification
                 return true;
             }
 
-            // TODO:: change this back after QA test finished !!!!
             // validate same engagement was not already sent in the last hour
             Engagement engagementAlreadySent = lastHourAndFutureEngagement.FirstOrDefault(x => x.Id != engagementId &&
                                                                                                x.EngagementType == engagementToBeSent.EngagementType &&
                                                                                                x.AdapterId == engagementToBeSent.AdapterId &&
                                                                                                x.AdapterDynamicData == engagementToBeSent.AdapterDynamicData &&
                                                                                                x.UserList == engagementToBeSent.UserList &&
-                                                                                               x.SendTime > engagementToBeSent.SendTime.AddSeconds(10) &&
+                                                                                               x.SendTime > engagementToBeSent.SendTime.AddHours(-1) &&
                                                                                                x.SendTime < engagementToBeSent.SendTime);
             if (engagementAlreadySent != null)
             {
