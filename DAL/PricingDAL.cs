@@ -1359,7 +1359,25 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@xmlDoc", xmlDoc.InnerXml);
             return sp.Execute();
-        }    
+        }
+
+        public static DataTable Get_SubscriptionsCouponGroup(int groupID, List<long> list)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsCouponGroup");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@Subscriptions", list, "id");
+            return sp.Execute();
+        }
+
+        public static long Get_CouponGroupId(int groupID, string couponCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CouponGroupId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Code", couponCode);
+            return sp.ExecuteReturnValue<long>();
+        }
     }
 }
 
