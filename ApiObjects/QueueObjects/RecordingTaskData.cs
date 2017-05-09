@@ -20,10 +20,11 @@ namespace ApiObjects
         private long programId;
         private long recordingId;
         private DateTime epgStartDate;
+        private long maxDomainSeriesId;
 
         #endregion
 
-        public RecordingTaskData(int groupId, eRecordingTask recordingTask, DateTime epgStartDate, DateTime etaDate, long programId, long recordingId)
+        public RecordingTaskData(int groupId, eRecordingTask recordingTask, DateTime epgStartDate, DateTime etaDate, long programId, long recordingId, long maxDomainSeriesId = 0)
             : base(
                 // id = guid
                 Guid.NewGuid().ToString(),
@@ -38,6 +39,7 @@ namespace ApiObjects
             this.programId = programId;
             this.recordingId = recordingId;
             this.epgStartDate = epgStartDate;
+            this.maxDomainSeriesId = maxDomainSeriesId;
 
             this.args = new List<object>()
             {
@@ -45,7 +47,8 @@ namespace ApiObjects
                 recordingTask,
                 epgStartDate,
                 programId,
-                recordingId,                
+                recordingId,
+                maxDomainSeriesId
             };
         }
     }

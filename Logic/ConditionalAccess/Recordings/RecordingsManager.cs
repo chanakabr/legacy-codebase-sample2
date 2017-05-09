@@ -721,10 +721,10 @@ namespace Core.Recordings
             return response;
         }
 
-        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task)
+        public static void EnqueueMessage(int groupId, long programId, long recordingId, DateTime epgStartDate, DateTime etaTime, eRecordingTask task, long maxDomainSeriesId = 0)
         {
             var queue = new GenericCeleryQueue();
-            var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId);
+            var message = new RecordingTaskData(groupId, task, epgStartDate, etaTime, programId, recordingId, maxDomainSeriesId);
             queue.Enqueue(message, string.Format(SCHEDULED_TASKS_ROUTING_KEY, groupId));
         }
 

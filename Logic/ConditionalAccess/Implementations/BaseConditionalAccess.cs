@@ -15017,6 +15017,7 @@ namespace Core.ConditionalAccess
 			if (domainSeriesIds != null && domainSeriesIds.Count > 0)
 			{
 				followingDomains = RecordingsDAL.GetSeriesFollowingDomainsByIds(string.Join(",", domainSeriesIds));
+                maxDomainSeriesId = domainSeriesIds.Max();
 			}
 			else
 			{
@@ -15060,12 +15061,13 @@ namespace Core.ConditionalAccess
 
 				System.Threading.Thread.Sleep(10);
 
-				// batching is already done on remote tasks so stop here
+                /* if we got the domainSeriesIds from remote tasks then stop now and insert
+                 * a new message for the next batch of 500 domainSeriesIds with distribution time = epgStartDate */
 				if (domainSeriesIds != null)
 				{
 					followingDomains = null;
+                    RecordingsManager.EnqueueMessage(m_nGroupID, epgId, id, epgStartDate, epgStartDate, eRecordingTask.DistributeRecording, maxDomainSeriesId);
 					break;
-
 				}
 				else
 				{
