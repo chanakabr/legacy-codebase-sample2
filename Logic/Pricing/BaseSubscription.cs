@@ -529,35 +529,8 @@ namespace Core.Pricing
 
         protected List<SubscriptionCouponGroup> GetSubscriptionCouponsGroup(Int32 subscriptionId)
         {
-            List<SubscriptionCouponGroup> sgList = new List<SubscriptionCouponGroup>();
-
-            DataTable dt = PricingDAL.Get_SubscriptionsCouponGroup(m_nGroupID, new List<long>(1) { (long)subscriptionId });
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {
-                SubscriptionCouponGroup scg = null;
-                foreach (DataRow dr in dt.Rows)
-                {
-                    scg = new SubscriptionCouponGroup();
-                    long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "subscription_id");
-                    long couponGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr, "COUPON_GROUP_ID");
-                    DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
-                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
-
-                    CouponsGroup couponGroupData = null;
-                    if (couponGroupID > 0)
-                    {
-                        BaseCoupons c = null;
-                        Utils.GetBaseImpl(ref c, m_nGroupID);
-                        if (c != null)
-                        {
-                            couponGroupData = c.GetCouponGroupData(couponGroupID.ToString());
-                        }
-                    }
-                    scg.Initialize(startDate, endDate, couponGroupData);
-                    sgList.Add(scg);
-                }
-            }
-            return sgList; 
+            List<SubscriptionCouponGroup> sgList = Core.Pricing.Utils.GetSubscriptionCouponsGroup((long)subscriptionId, m_nGroupID, true);
+            return sgList;
         }
 
     }
