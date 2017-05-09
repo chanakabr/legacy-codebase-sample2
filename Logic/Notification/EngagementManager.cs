@@ -838,7 +838,6 @@ namespace Core.Notification
                 IntervalSeconds = engagementToBeSent.IntervalSeconds,
                 SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds),
                 CouponGroupId = engagementToBeSent.CouponGroupId,
-                IsActive = true,
                 UserList = engagementToBeSent.UserList
             };
 
@@ -874,13 +873,6 @@ namespace Core.Notification
             {
                 log.ErrorFormat("Engagement was not found in DB. Engagement ID: {0}", engagementId);
                 return false;
-            }
-
-            // validate engagement 
-            if (engagement.IsActive == false)
-            {
-                log.ErrorFormat("Engagement is active false. Engagement ID: {0}", engagementId);
-                return true;
             }
 
             // get relevant engagement bulk message   
