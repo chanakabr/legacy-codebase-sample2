@@ -108,5 +108,45 @@ namespace WebAPI.Controllers
             }
             return response;
         }
+
+
+        /// <summary>
+        /// TBD 
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:       
+        /// </remarks>
+        /// <param name="userId">TBD</param>        
+        /// <param name="pushMessage">TBD</param>     
+        [Route("sendPush"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public bool SendPush(int userId, KalturaPushMessage pushMessage)
+        {
+            bool response = false;
+
+            try
+            {
+                int groupId = KS.GetFromRequest().GroupId;
+                KS.GetFromRequest().ToString();
+
+                if (userId == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
+
+                if (pushMessage == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushMessage");
+
+                if (string.IsNullOrEmpty(pushMessage.Message))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushMessage.message");
+
+                // call client                
+                response = ClientsManager.NotificationClient().SendPush(groupId, userId, pushMessage);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return response;
+        }
     }
 }

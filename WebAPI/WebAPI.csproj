@@ -618,6 +618,7 @@
     <Compile Include="Models\Notification\KalturaEngagementListResponse.cs" />
     <Compile Include="Models\Notification\KalturaEngagementAdapterListResponse.cs" />
     <Compile Include="Models\Notification\KalturaEngagementFilter.cs" />
+    <Compile Include="Models\Notification\KalturaPushMessage.cs" />
     <Compile Include="Models\Notification\KalturaReminderFilter.cs" />
     <Compile Include="Models\Notification\KalturaReminderListResponse.cs" />
     <Compile Include="Models\Notification\KalturaReminder.cs" />
