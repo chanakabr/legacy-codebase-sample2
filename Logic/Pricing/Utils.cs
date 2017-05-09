@@ -496,8 +496,8 @@ namespace Core.Pricing
                     scg = new SubscriptionCouponGroup();
                     long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "subscription_id");
                     long couponGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr, "COUPON_GROUP_ID");
-                    DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
-                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+                    DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE");
+                    DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
 
                     CouponsGroup couponGroupData = null;
                     if (couponGroupID > 0)

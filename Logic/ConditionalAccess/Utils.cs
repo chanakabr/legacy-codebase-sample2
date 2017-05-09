@@ -1193,7 +1193,8 @@ namespace Core.ConditionalAccess
 
                         // look ig this coupon group id exsits in coupon list 
                         CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
-                            theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon && x.endDate >= DateTime.UtcNow).Select(x => x).FirstOrDefault()));
+                            theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon && 
+                                (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault()));
                                                 
                         if (externalDisount != null)
                         {
