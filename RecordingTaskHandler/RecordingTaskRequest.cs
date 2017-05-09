@@ -44,5 +44,12 @@ namespace RecordingTaskHandler
             get;
             set;
         }
+
+        [JsonProperty("max_domain_series_id")]
+        public long MaxDomainSeriesId
+        {
+            get;
+            set;
+        }
     }
 }

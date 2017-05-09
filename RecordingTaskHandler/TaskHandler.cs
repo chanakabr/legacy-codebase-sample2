@@ -127,17 +127,16 @@ namespace RecordingTaskHandler
                             int seasonNumber = 0;
                             if (seriesAndSeasonNumber != null && !string.IsNullOrEmpty(seriesAndSeasonNumber.key) && int.TryParse(seriesAndSeasonNumber.value, out seasonNumber))
                             {
-                                long maxDomainSeriesId = 0;
+                                long maxDomainSeriesId = request.MaxDomainSeriesId;
                                 HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
-                                while (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
+                                if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                                 {                                    
                                     using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                                     {
                                         Core.ConditionalAccess.Module.DistributeRecordingWithDomainIds(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
-                                    }
-
-                                    domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
+                                    }                                    
                                 }
+
                                 success = true;
                             }
                             else
