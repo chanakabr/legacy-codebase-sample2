@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApiObjects.IngestBusinessModules;
 
 namespace ApiObjects
 {
@@ -39,5 +40,7 @@ namespace ApiObjects
         public bool? IsActive { get; set; }
 
         public int? OrderNumber { get; set; }
+
+        public List<SubscriptionCouponGroup> couponGroups { get; set; }
     }
 }
