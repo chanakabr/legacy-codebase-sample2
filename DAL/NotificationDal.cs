@@ -32,6 +32,9 @@ namespace DAL
         private const string TVINCI_CONNECTION = "MAIN_CONNECTION_STRING";
         private const string MESSAGE_BOX_CONNECTION = "MESSAGE_BOX_CONNECTION_STRING";
 
+        private const int MAX_NUMBER_OF_PUSH_MESSAGES_PER_USER_IN_AN_HOUR = 4;
+        private const int TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS = 3600;
+
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
@@ -54,6 +57,11 @@ namespace DAL
         private static string GetInboxMessageKey(int groupId, long userId, string messageId)
         {
             return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
+        }
+
+        private static string GetUserPushKey(int groupId, long userId)
+        {
+            return string.Format("user_push:{0}:{1}", groupId, userId);
         }
 
         private static string GetInboxSystemAnnouncementKey(int groupId, string messageId)
@@ -2252,6 +2260,251 @@ namespace DAL
             };
 
             return result;
+        }
+
+        public static DbSeriesReminder GetSeriesReminder(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
+        {
+            DbSeriesReminder result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminder");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@seriesId", seriesId);
+                sp.AddParameter("@seasonNumber", seasonNumber);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                    result = CreateDbSeriesReminder(ds.Tables[0].Rows[0]);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesReminder. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        private static DbSeriesReminder CreateDbSeriesReminder(DataRow row)
+        {
+            DbSeriesReminder result = new DbSeriesReminder()
+            {
+                GroupId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
+                ID = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
+                Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
+                Phrase = ODBCWrapper.Utils.GetSafeStr(row, "phrase"),
+                QueueId = ODBCWrapper.Utils.GetSafeStr(row, "queue_id"),
+                RouteName = ODBCWrapper.Utils.GetSafeStr(row, "route_name"),
+                Reference = ODBCWrapper.Utils.GetIntSafeVal(row, "reference"),
+                ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                SeriesId = ODBCWrapper.Utils.GetSafeStr(row, "series_id"),
+                SeasonNumber = ODBCWrapper.Utils.GetLongSafeVal(row, "season_number"),
+                EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(row, "epg_channel_id"),
+            };
+
+            return result;
+        }
+
+        public static int SetSeriesReminder(DbSeriesReminder dbReminder)
+        {
+            int reminderId = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("SetSeriesReminder");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", dbReminder.GroupId);
+                sp.AddParameter("@id", dbReminder.ID);
+                sp.AddParameter("@name", dbReminder.Name);
+                sp.AddParameter("@queueId", dbReminder.QueueId);
+                sp.AddParameter("@routeName", dbReminder.RouteName);
+                sp.AddParameter("@externalId", dbReminder.ExternalPushId);
+                sp.AddParameter("@seriesId", dbReminder.SeriesId);
+                sp.AddParameter("@seasonNumber", dbReminder.SeasonNumber);
+                sp.AddParameter("@epgChannelId", dbReminder.EpgChannelId);
+
+                reminderId = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetSeriesReminder. groupId: {0}, Reminder: {1} . Error {2}", dbReminder.GroupId, JsonConvert.SerializeObject(dbReminder), ex);
+            }
+
+            return reminderId;
+        }
+
+        public static List<DbReminder> GetSeriesRemindersBySeasons(int groupId, List<long> seriesRemindersIds, string seriesId, List<long> seasonNumbers, long? epgChannelId)
+        {
+            List<DbReminder> reminders = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesRemindersBySeasons");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ids", seriesRemindersIds);
+                sp.AddParameter("@seriesId", seriesId);
+                sp.AddParameter("@seasonNumbers", seasonNumbers);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    reminders = new List<DbReminder>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        reminders.Add(CreateDbSeriesReminder(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesRemindersBySeasons. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return reminders;
+        }
+
+        public static List<DbReminder> GetSeriesRemindersBySeriesIds(int groupId, List<long> seriesRemindersIds, List<string> seriesIds, long? epgChannelId)
+        {
+            List<DbReminder> reminders = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesRemindersBySeriesIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@ids", seriesRemindersIds);
+                sp.AddParameter("@seriesIds", seriesIds);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    reminders = new List<DbReminder>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        reminders.Add(CreateDbSeriesReminder(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesRemindersBySeriesIds. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return reminders;
+        }
+
+        public static bool IsReminderRequired(int groupId, string seriesId, int seasonNumber, long epgChannelId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsReminderRequired");
+            sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@SeriesId", seriesId);
+            sp.AddParameter("@SeasonNumber", seasonNumber);
+            sp.AddParameter("@ChannelId", epgChannelId);
+
+            int rowsFound = sp.ExecuteReturnValue<int>();
+
+            return rowsFound == 0;
+        }
+
+        public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long seasonNum, string epgChannelId)
+        {
+            List<DbSeriesReminder> reminders = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminderBySeries");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@seriesId", seriesId);
+                sp.AddParameter("@seasonNum", seasonNum);
+                sp.AddParameter("@epgChannelId", epgChannelId);
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    reminders = new List<DbSeriesReminder>();
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        reminders.Add(CreateDbSeriesReminder(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesReminderBySeries. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return reminders;
+        }
+
+        public static List<DbSeriesReminder> GetSeriesReminders(int groupId, List<long> remindersIds)
+        {
+            List<DbSeriesReminder> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesRemindersByIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@remindersIds", remindersIds, "id");
+
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    result = new List<DbSeriesReminder>();
+                    DbSeriesReminder dbReminder = null;
+                    foreach (DataRow row in ds.Tables[0].Rows)
+                    {
+                        dbReminder = CreateDbSeriesReminder(row);
+                        result.Add(dbReminder);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetSeriesReminders. groupId: {0}. Error {1}", groupId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool SetUserPushCounter(int partnerId, int userId)
+        {
+            bool success = false;
+
+            int docTTL = TCMClient.Settings.Instance.GetValue<int>("push_message.ttl_seconds");
+            if (docTTL == 0)
+                docTTL = TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS;
+
+            try
+            {
+                success = cbManager.Set(GetUserPushKey(partnerId, userId), null, (uint)docTTL);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to set user push counter. partner ID: {0}, user ID: {1}, EX: {2}", partnerId, userId, ex);
+            }
+            return success;
+        }
+
+        public static ulong IncreasePushCounter(int partnerId, int userId)
+        {
+            ulong counter = 0;
+            try
+            {
+                counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to increase user push counter. partner ID: {0}, user ID: {1}, EX: {2}", partnerId, userId, ex);
+            }
+            return counter;
         }
     }
 }
