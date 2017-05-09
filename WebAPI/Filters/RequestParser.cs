@@ -441,11 +441,29 @@ namespace WebAPI.Filters
                         {
                             JObject reqParams = JObject.Parse(input.ReadToEnd());
 
-                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]) &&
-                                reqParams["clientTag"] != null)
+                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG])) 
                             {
                                 //For logging
-                                HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
+                                if (reqParams["clientTag"] != null)
+                                {
+                                    HttpContext.Current.Items[Constants.CLIENT_TAG] = reqParams["clientTag"];
+                                }
+                                else if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["clientTag"] != null)
+                                {
+                                    HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.QueryString["clientTag"];
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty((string)HttpContext.Current.Items["playSessionId"]))
+                            {
+                                if (reqParams["playSessionId"] != null)
+                                {
+                                    HttpContext.Current.Items["playSessionId"] = reqParams["playSessionId"];
+                                }
+                                else if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["playSessionId"] != null)
+                                {
+                                    HttpContext.Current.Items["playSessionId"] = HttpContext.Current.Request.QueryString["playSessionId"];
+                                }
                             }
 
                             if (reqParams["apiVersion"] != null)

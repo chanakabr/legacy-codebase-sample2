@@ -130,6 +130,22 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(response))
                 {
+                    if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
+                    {
+                        if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["clientTag"] != null)
+                        {
+                            HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.QueryString["clientTag"];
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty((string)HttpContext.Current.Items["playSessionId"]))
+                    {
+                        if (HttpContext.Current.Request.QueryString.Count > 0 && HttpContext.Current.Request.QueryString["playSessionId"] != null)
+                        {
+                            HttpContext.Current.Items[Constants.CLIENT_TAG] = HttpContext.Current.Request.QueryString["playSessionId"];
+                        }
+                    }
+
                     HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                     HttpContext.Current.Response.Redirect(response);
                 }
