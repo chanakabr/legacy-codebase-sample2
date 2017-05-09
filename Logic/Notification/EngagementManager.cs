@@ -473,7 +473,7 @@ namespace Core.Notification
             }
 
             // Get all engagements from the last hour and forward
-            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1));
             if (lastHourAndFutureEngagement != null)
             {
                 // validate same engagement was not already sent in the last hour
@@ -606,7 +606,7 @@ namespace Core.Notification
 
             try
             {
-                response.Engagements = EngagementDal.GetEngagementList(groupId, sendTimeLessThanOrEqual, false, engagementTypes);
+                response.Engagements = EngagementDal.GetEngagementList(groupId, sendTimeLessThanOrEqual, engagementTypes);
                 if (response.Engagements == null || response.Engagements.Count == 0)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No engagement were found");
                 else
@@ -650,7 +650,7 @@ namespace Core.Notification
             DateTime utcNow = DateTime.UtcNow;
 
             // Get all engagements from the last hour forward
-            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1));
             if (lastHourAndFutureEngagement == null || lastHourAndFutureEngagement.Count == 0)
             {
                 log.ErrorFormat("No Engagements were found in DB. Engagement ID: {0}", engagementId);
