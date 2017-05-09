@@ -493,7 +493,7 @@ namespace DAL
             return res;
         }
 
-        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, bool shouldOnlyGetActive = false, List<eEngagementType> engagementTypes = null)
+        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, List<eEngagementType> engagementTypes = null)
         {
             List<Engagement> res = new List<Engagement>();
             List<int> engagementTypeIds = new List<int>();
@@ -511,7 +511,6 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", partnerId);
-                sp.AddParameter("@shouldGetOnlyActive", shouldOnlyGetActive);
                 sp.AddParameter("@fromDate", fromSendDate);
                 sp.AddIDListParameter("@engagementTypes", engagementTypeIds, "id");
                 DataSet ds = sp.ExecuteDataSet();
