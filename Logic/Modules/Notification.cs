@@ -1145,5 +1145,14 @@ namespace Core.Notification
 
             return response;
         }
+
+        public static RegistryResponse RegisterPushSeriesReminderParameters(int groupId, long seriesReminderId, string hash, string ip)
+        {
+            RegistryResponse response = new RegistryResponse();
+
+            response = ReminderManager.RegisterPushSeriesReminderParameters(groupId, seriesReminderId, hash, ip);
+
+            return response;
+        }
     }
 }
