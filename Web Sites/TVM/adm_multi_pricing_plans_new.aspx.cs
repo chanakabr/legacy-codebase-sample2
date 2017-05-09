@@ -10,6 +10,28 @@ using TvinciImporter;
 using System.Data;
 using KLogMonitor;
 using System.Reflection;
+using Newtonsoft.Json;
+using System.Globalization;
+
+public class CGObj
+{
+    public string id;
+    public string title;
+    public string description;
+    public bool isBelongToSub;
+    public string startDate;
+    public string endDate;
+
+    public CGObj(string id, string title, string desc, bool isBelong, string startDate, string endDate)
+    {
+        this.id = id;
+        this.title = title;
+        this.description = desc;
+        this.isBelongToSub = isBelong;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+}
 
 public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 {
@@ -68,6 +90,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
 
                 UpdateUsageModules(nSuscriptionID, LoginManager.GetLoginGroupID());
                 UpdateUserTypes(nSuscriptionID, LoginManager.GetLoginGroupID(), newSutIDS);
+                UpdateCouponsGroup(nSuscriptionID, LoginManager.GetLoginGroupID());
                 Session["subscription_id"] = nSuscriptionID.ToString();
 
                 Int32 nLangID = int.Parse(Session["lang_id"].ToString());
@@ -308,6 +331,176 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             m_sLangMenu = GetLangMenu(nGroupID);
         }
 
+    }
+
+    private void UpdateCouponsGroup(int subID, int groupID)
+    {
+        if (Session["sub_coupons_group"] != null  && Session["sub_coupons_group"] is List<CGObj>)
+        {
+            List<int> tempIDs = new List<int>();
+            List<CGObj> newCg = Session["sub_coupons_group"] as List<CGObj>;
+            List<int> oldCg = BuildSubscriptionCG(subID, groupID, true);
+                        
+            foreach (CGObj newObj in newCg)
+            {
+                int newID = int.Parse(newObj.id);
+                tempIDs.Add(newID);
+                if (oldCg.Contains(newID))
+                {
+                    if (newObj.isBelongToSub)
+                    {
+                        UpdateCouponsGroupDB(newID, subID, newObj.startDate, newObj.endDate);
+                    }
+                    else
+                    {
+                        RemoveCouponsGroupDB(newID, subID);
+                    }
+                }
+                else
+                {
+                    if (newObj.isBelongToSub)
+                    {
+                        InsertCouponsGroupDB(newID, subID, groupID, newObj.startDate, newObj.endDate);
+                    }
+                }
+
+            }
+            foreach (int oldID in oldCg)
+            {
+                if (!tempIDs.Contains(oldID))
+                {
+                    RemoveCouponsGroupDB(oldID, subID);
+                }
+            }
+        }
+    }
+
+    private void RemoveCouponsGroupDB(int oldID, int subID)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_coupons_groups");
+        updateQuery.SetConnectionKey("pricing_connection");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 0);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 2);
+        updateQuery += " where ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", "=", subID);
+        updateQuery += " and ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", oldID);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+    }
+
+    private void InsertCouponsGroupDB(int newID, int subID, int groupID, string startDate, string endDate)
+    {
+        ODBCWrapper.InsertQuery insertQuery = new ODBCWrapper.InsertQuery("subscriptions_coupons_groups");
+        insertQuery.SetConnectionKey("pricing_connection");
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", subID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", newID);
+        insertQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
+
+
+
+        DateTime? dStartDate = string.IsNullOrEmpty(startDate) ? null : (DateTime?)(DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        DateTime? dEndDate = string.IsNullOrEmpty(endDate) ? null : (DateTime?)(DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        if (dStartDate.HasValue)
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+        }
+        else
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
+        }
+        if (dEndDate.HasValue)
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+        }
+        else
+        {
+            insertQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
+        }
+
+        insertQuery.Execute();
+        insertQuery.Finish();
+        insertQuery = null;
+    }
+
+    private void UpdateCouponsGroupDB(int newID, int subID, string startDate, string endDate)
+    {
+        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_coupons_groups");
+        updateQuery.SetConnectionKey("pricing_connection");
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", 1);
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", 1);
+
+        DateTime? dStartDate = string.IsNullOrEmpty(startDate) ? null : (DateTime?)(DateTime.ParseExact(startDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        DateTime? dEndDate = string.IsNullOrEmpty(endDate) ? null : (DateTime?)(DateTime.ParseExact(endDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+        if (dStartDate.HasValue)
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", dStartDate);
+        }
+        else
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("START_DATE", "=", DBNull.Value);
+        }
+        if (dEndDate.HasValue)
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+        }
+        else
+        {
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", DBNull.Value);
+        }
+        updateQuery += " where ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_id", "=", subID);
+        updateQuery += " and ";
+        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("COUPON_GROUP_ID", "=", newID);
+        updateQuery.Execute();
+        updateQuery.Finish();
+        updateQuery = null;
+    }
+
+    private List<int> BuildSubscriptionCG(int subID, int subscriptionGroupID, bool alsoUnActive)
+    {
+        List<int> retVal = new List<int>();
+        //List<CGObj> cgList = new List<CGObj>();
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("pricing_connection");
+        selectQuery += " select scg.COUPON_GROUP_ID, cg.CODE, cg.id, scg.START_DATE, scg.END_DATE , cg.group_id ";
+        selectQuery += " from coupons_groups cg (nolock)  inner join subscriptions_coupons_groups scg(nolock)  on	scg.coupon_group_id = cg.id  and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("scg.subscription_id", "=", subID);
+        if (!alsoUnActive)
+        {
+            selectQuery += " and scg.is_active = 1 and scg.status = 1  ";
+        }
+        selectQuery += " where ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", subscriptionGroupID);
+        DataTable dt = selectQuery.Execute("query", true);
+
+        selectQuery.Finish();
+        selectQuery = null;
+
+        if (dt != null && dt.Rows != null)
+        {
+            foreach (DataRow dr in dt.Rows)
+            {
+                int couponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID"); // id from subscriptions_coupons_groups table                   
+                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"); // id from subscriptions_coupons_groups table                   
+                //string groupID = ODBCWrapper.Utils.GetSafeStr(dr, "group_ID");
+                //string code = ODBCWrapper.Utils.GetSafeStr(dr, "code");
+                //string description = "";
+                //string startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE").ToString("dd/MM/yyyy");
+                //string endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE").ToString("dd/MM/yyyy");
+
+                //CGObj data = new CGObj(id.ToString(), code, description, couponGroupId == 0 ? false : true, startDate, endDate);
+                //cgList.Add(data);
+                if (couponGroupId != 0)
+                {
+                    retVal.Add(id);
+                }
+            }
+        }
+
+        //Session["sub_coupons_group"] = cgList;
+        return retVal;
     }
 
     protected void UpdateUsageModules(int subID, int groupID)
@@ -554,7 +747,7 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         Session["sub_user_types"] = sutList;
         return sutList;
     }
-
+    
     protected bool IsUsageModuleBelong(Int32 nUsageID)
     {
         try
@@ -595,12 +788,108 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
             changeItemStatusUserTypes(sID);
         }
         // pricePlans dualList changed then call changeItemStatusPricePlans
-        else
+        else if (dualListName.ToUpper() == "DualListPricePlans".ToUpper())
         {
             changeItemStatusPricePlans(sID);
         }
+        else // DualListCouponGroup
+        {
+            changeItemStatusCouponGroup(sID);
+        }
 
         return "";
+    }
+
+    public string changeItemDates(string sID, string sStartDate, string sEndDate)
+    {
+        if (Session["sub_coupons_group"] != null && Session["sub_coupons_group"] is List<CGObj>)
+        {
+            List<CGObj> cgObjList = Session["sub_coupons_group"] as List<CGObj>;
+            CGObj obj = cgObjList.Where(x => x.id == sID).Select(x => x).FirstOrDefault();
+            if (obj != null)
+            {
+                cgObjList.Remove(obj);
+
+                obj.startDate = sStartDate;
+                obj.endDate = sEndDate;
+
+                cgObjList.Add(obj);
+
+            }
+            Session["sub_coupons_group"] = cgObjList;
+        }      
+        
+        return "";
+    }
+    //protected bool UpdateCouponGroupIDDates(string nID, string sStartDate, string sEndDate)
+    //{
+    //    bool res = false;
+    //    try
+    //    {
+    //        DateTime? dStartDate = string.IsNullOrEmpty(sStartDate) ? null : (DateTime?)(DateTime.ParseExact(sStartDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+    //        DateTime? dEndDate = string.IsNullOrEmpty(sEndDate) ? null : (DateTime?)(DateTime.ParseExact(sEndDate, "dd/MM/yyyy", CultureInfo.InvariantCulture));
+    //        ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_coupons_groups");
+    //        updateQuery.SetConnectionKey("pricing_connection");
+    //        if (dStartDate.HasValue)
+    //        {
+    //            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("start_date", "=", (DateTime)dStartDate);
+    //        }
+    //        else
+    //        {
+    //            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("start_date", "=", DBNull.Value);
+    //        }
+
+    //        if (dEndDate.HasValue)
+    //        {
+    //            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", (DateTime)dEndDate);
+    //        }
+    //        else
+    //        {
+    //            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", DBNull.Value);
+    //        }
+
+    //        updateQuery += "where ";
+    //        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nID);
+    //        res = updateQuery.Execute();
+    //        updateQuery.Finish();
+    //        updateQuery = null;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        log.Error("Error occurred while trying to execute UpdatePPVModulesMediaFilesIDDates", ex);
+    //    }
+
+    //    return res;
+    //}
+
+    private void changeItemStatusCouponGroup(string sID)
+    {
+        if (Session["sub_coupons_group"] != null && Session["sub_coupons_group"] is List<CGObj>)
+        {
+            List<CGObj> cgObjList = Session["sub_coupons_group"] as List<CGObj>;
+            CGObj data = null;
+            bool addToList = false;
+
+            for (int i = 0; i < cgObjList.Count; i++)
+            {
+                CGObj obj = cgObjList[i];
+                if (obj.id.Equals(sID))
+                {
+                    addToList = true;
+                    data = cgObjList[i];                    
+                    cgObjList.Remove(cgObjList[i]);
+                    break;
+                }
+            }
+
+            if (addToList && data != null)
+            {
+                data.isBelongToSub = !data.isBelongToSub;
+                cgObjList.Add(data);
+            }
+
+            Session["sub_coupons_group"] = cgObjList;
+        }
     }
 
     public void changeItemStatusPricePlans(string sID)
@@ -670,6 +959,8 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         Dictionary<string, object> userTypes = new Dictionary<string, object>();
         Dictionary<string, object> pricingPlans = new Dictionary<string, object>();
 
+        Dictionary<string, object> couponGroups = new Dictionary<string, object>();
+
         userTypes.Add("name", "DualListUserTypes");
         userTypes.Add("FirstListTitle", "User Types");
         userTypes.Add("SecondListTitle", "Available User Types");
@@ -688,11 +979,75 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
         initPricingPlans(ref pricePlansData);
         pricingPlans.Add("Data", pricePlansData);
 
+        couponGroups.Add("name", "DualListCouponGroup");
+        couponGroups.Add("FirstListTitle", "Coupon Groups");
+        couponGroups.Add("SecondListTitle", "Available Coupon Groups");
+        couponGroups.Add("pageName", "adm_multi_pricing_plans_new.aspx");
+        couponGroups.Add("withCalendar", true);
+        object[] couponGroupsData = null;
+        initCouponsGroup(ref couponGroupsData);
+        couponGroups.Add("Data", couponGroupsData);
+
+
         dualLists.Add("0", userTypes);
         dualLists.Add("1", pricingPlans);
+        dualLists.Add("2", couponGroups);
         dualLists.Add("size", dualLists.Count);
 
         return dualLists.ToJSON();
+    }
+
+    private void initCouponsGroup(ref object[] couponGroupsData)
+    {
+        List<object> couponsGroup = new List<object>();
+        List<CGObj> cgList = new List<CGObj>();
+        Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+        int subID = 0;
+        if (Session["subscription_id"] != null)
+        {
+            subID = int.Parse(Session["subscription_id"].ToString());
+        }
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("pricing_connection");
+        selectQuery += " select scg.COUPON_GROUP_ID, cg.CODE, cg.id, scg.START_DATE, scg.END_DATE , cg.group_id ";
+        selectQuery += " from coupons_groups cg (nolock)  left join subscriptions_coupons_groups scg(nolock)  on	scg.coupon_group_id = cg.id  and ";
+        selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("scg.subscription_id", "=", subID);
+        selectQuery += " and	scg.is_active = 1 and scg.status = 1  where  ";
+         selectQuery +=  ODBCWrapper.Parameter.NEW_PARAM("cg.group_id", "=", nLogedInGroupID);
+        DataTable dt = selectQuery.Execute("query", true);      
+
+        if (dt != null && dt.Rows != null)
+        {
+            foreach (DataRow dr in dt.Rows)
+            {
+                int couponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID"); // id from subscriptions_coupons_groups table                   
+                int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"); // id from subscriptions_coupons_groups table                   
+                string groupID = ODBCWrapper.Utils.GetSafeStr(dr, "group_ID");
+                string code = ODBCWrapper.Utils.GetSafeStr(dr, "code");
+                string description = "";
+                string startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE").ToString("dd/MM/yyyy");
+                string endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE").ToString("dd/MM/yyyy");
+                var data = new
+                {
+                    ID = id.ToString(),
+                    Title = code,
+                    Description = description,
+                    InList = couponGroupId == 0 ? false : true,
+                    StartDate = startDate,
+                    EndDate = endDate
+                };
+
+                CGObj cgObj = new CGObj(id.ToString(),  code, description, couponGroupId == 0 ? false : true, startDate, endDate);
+                cgList.Add(cgObj);
+                couponsGroup.Add(data);
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+
+        couponGroupsData = new object[couponsGroup.Count];
+        couponGroupsData = couponsGroup.ToArray();
+        Session["sub_coupons_group"] = cgList;
     }
 
     public void initPricingPlans(ref object[] resultData)
@@ -1209,3 +1564,5 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
     }
     
 }
+
+
