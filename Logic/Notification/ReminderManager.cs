@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
 using TVinciShared;
+using System.Threading.Tasks;
 
 namespace Core.Notification
 {
@@ -298,7 +299,7 @@ namespace Core.Notification
             int reminderId = 0;
             string externalTopicId = string.Empty;
             DbSeriesReminder dbSeriesReminder = null;
-
+            List<Task> tasks = null;
             try
             {
                 // validate reminder is enabled
@@ -347,7 +348,8 @@ namespace Core.Notification
                     dbSeriesReminder.ID = reminderId;
 
                     // TODO: TASK
-                    SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId);
+                    tasks = new List<Task>();
+                    tasks.Add(Task.Factory.StartNew(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));                    
                 }
 
 
@@ -356,6 +358,7 @@ namespace Core.Notification
                 response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
+                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -364,6 +367,7 @@ namespace Core.Notification
                     // user already set the reminder
                     log.DebugFormat("User is already set a series reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbSeriesReminder.GroupId, userId, dbSeriesReminder.ID);
                     response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
+                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -381,6 +385,7 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("error setting user reminder notification data. group: {0}, user id: {1}", dbSeriesReminder.GroupId, userId);
                     response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -466,6 +471,7 @@ namespace Core.Notification
             }
             response.Reminders = new List<DbReminder>();
             response.Reminders.Add(dbSeriesReminder);
+            Utils.WaitForAllTasksToFinish(tasks);
             return response;
         }
 

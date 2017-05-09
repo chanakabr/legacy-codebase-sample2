@@ -13,6 +13,7 @@ using System.Data;
 using System.Web;
 using System.Net;
 using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace Core.Notification
 {
@@ -162,6 +163,21 @@ namespace Core.Notification
             {
                 log.Error("SearchSeriesEpisodes - Failed UnifiedSearchRequest Request To Catalog", ex);
                 return null;
+            }
+        }
+
+        internal static void WaitForAllTasksToFinish(List<Task> tasks)
+        {
+            try
+            {
+                if (tasks != null && tasks.Count > 0)
+                {
+                    Task.WaitAll(tasks.ToArray());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed waiting for all tasks to finish", ex);
             }
         }
     }
