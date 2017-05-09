@@ -1378,6 +1378,15 @@ namespace DAL
             sp.AddParameter("@Code", couponCode);
             return sp.ExecuteReturnValue<long>();
         }
+
+        public static DataTable Get_SubscriptionsCouponGroupWithExpiry(int groupID, List<long> list)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsCouponGroupWithExpiry");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@Subscriptions", list, "id");
+            return sp.Execute();
+        }
     }
 }
 
