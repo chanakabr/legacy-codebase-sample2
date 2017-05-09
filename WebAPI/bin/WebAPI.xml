@@ -2603,6 +2603,16 @@
             <param name="identifier">In case type is "announcement", identifier should be the announcement ID. In case type is "system", identifier should be "login" (the login topic)</param>        
             <param name="type">"announcement" - TV-Series topic, "system" - login topic</param>     
         </member>
+        <member name="M:WebAPI.Controllers.NotificationController.SendPush(System.Int32,WebAPI.Models.Notification.KalturaPushMessage)">
+            <summary>
+            TBD 
+            </summary>
+            <remarks>
+            Possible status codes:       
+            </remarks>
+            <param name="userId">TBD</param>        
+            <param name="pushMessage">TBD</param>     
+        </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
             <summary>
             Retrieve the partner notification settings.       
@@ -7561,6 +7571,31 @@
         <member name="P:WebAPI.Models.Notification.KalturaEngagementFilter.SendTimeGreaterThanOrEqual">
             <summary>
             SendTime GreaterThanOrEqual 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaPushMessage">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Message">
+            <summary>
+            Push text
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Sound">
+            <summary>
+            Push sound 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Action">
+            <summary>
+            Push action 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaPushMessage.Url">
+            <summary>
+            Push URL 
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">

@@ -17,6 +17,7 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using Newtonsoft.Json;
 
 namespace WebAPI.Clients
 {
@@ -70,7 +71,7 @@ namespace WebAPI.Clients
         internal KalturaNotificationSettings Get(int groupId, string userId)
         {
 
-            
+
             NotificationSettingsResponse response = null;
             KalturaNotificationSettings settings = null;
 
@@ -118,7 +119,7 @@ namespace WebAPI.Clients
 
                 NotificationPartnerSettings settingsObj = null;
                 settingsObj = AutoMapper.Mapper.Map<NotificationPartnerSettings>(settings);
-                
+
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -156,7 +157,7 @@ namespace WebAPI.Clients
             {
                 UserNotificationSettings settingsObj = null;
                 settingsObj = AutoMapper.Mapper.Map<UserNotificationSettings>(settings);
-                
+
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Notification.Module.UpdateNotificationSettings(groupId, userId, settingsObj);
@@ -187,7 +188,7 @@ namespace WebAPI.Clients
         internal KalturaAnnouncement AddAnnouncement(int groupId, Models.Notifications.KalturaAnnouncement announcement)
         {
             AddMessageAnnouncementResponse response = null;
-            
+
 
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
             switch (announcement.Recipients)
@@ -261,7 +262,7 @@ namespace WebAPI.Clients
         internal KalturaAnnouncement UpdateAnnouncement(int groupId, int announcementId, Models.Notifications.KalturaAnnouncement announcement)
         {
             MessageAnnouncementResponse response = null;
-            
+
 
             eAnnouncementRecipientsType recipients = eAnnouncementRecipientsType.Other;
             switch (announcement.Recipients)
@@ -335,7 +336,7 @@ namespace WebAPI.Clients
         internal bool UpdateAnnouncementStatus(int groupId, long id, bool status)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -362,7 +363,7 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncement(int groupId, long id)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -389,7 +390,7 @@ namespace WebAPI.Clients
         internal bool CreateSystemAnnouncement(int groupId)
         {
             Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -418,7 +419,7 @@ namespace WebAPI.Clients
             GetAllMessageAnnouncementsResponse response = null;
             KalturaAnnouncementListResponse ret;
 
-            
+
 
             try
             {
@@ -451,7 +452,7 @@ namespace WebAPI.Clients
             GetAllMessageAnnouncementsResponse response = null;
             KalturaMessageAnnouncementListResponse ret;
 
-            
+
 
             try
             {
@@ -479,7 +480,7 @@ namespace WebAPI.Clients
 
         internal bool SetPush(int groupId, string userId, string udid, string pushToken)
         {
-            
+
 
             try
             {
@@ -503,7 +504,7 @@ namespace WebAPI.Clients
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
 
-            
+
 
             try
             {
@@ -539,7 +540,7 @@ namespace WebAPI.Clients
             if (orderBy == KalturaFollowTvSeriesOrderBy.START_DATE_ASC)
                 order = OrderDir.ASC;
 
-            
+
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -582,7 +583,7 @@ namespace WebAPI.Clients
             if (orderBy != null && orderBy.Value == KalturaOrder.oldest_first)
                 order = OrderDir.ASC;
 
-            
+
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -617,7 +618,7 @@ namespace WebAPI.Clients
         {
             Status response = null;
 
-            
+
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -667,7 +668,7 @@ namespace WebAPI.Clients
             KalturaFollowDataTvSeries followData = new KalturaFollowDataTvSeries();
             followData.AssetId = asset_id;
 
-            
+
             int userId = 0;
             if (!int.TryParse(userID, out userId))
             {
@@ -743,7 +744,7 @@ namespace WebAPI.Clients
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
 
-            
+
 
             try
             {
@@ -782,7 +783,7 @@ namespace WebAPI.Clients
             List<KalturaPersonalFeed> result = null;
             KalturaPersonalFeedListResponse ret = null;
 
-            
+
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -832,7 +833,7 @@ namespace WebAPI.Clients
             List<KalturaPersonalFollowFeed> result = null;
             KalturaPersonalFollowFeedResponse ret = null;
 
-            
+
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -948,7 +949,7 @@ namespace WebAPI.Clients
                 typeIn = Enum.GetValues(typeof(KalturaInboxMessageType)).Cast<KalturaInboxMessageType>().ToList();
             }
 
-            List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();            
+            List<eMessageCategory> convertedtypeIn = typeIn.Select(x => NotificationMapping.ConvertInboxMessageType(x)).ToList();
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -991,7 +992,7 @@ namespace WebAPI.Clients
         internal bool UpdateInboxMessage(int groupId, string userID, string messageId, KalturaInboxMessageStatus status)
         {
             Status response = null;
-            
+
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1026,7 +1027,7 @@ namespace WebAPI.Clients
             InboxMessageResponse response = null;
             KalturaInboxMessage result = null;
 
-            
+
 
             int userId = 0;
             if (!int.TryParse(userID, out userId))
@@ -1068,7 +1069,7 @@ namespace WebAPI.Clients
         internal bool UpdateTopic(int groupId, int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -1095,7 +1096,7 @@ namespace WebAPI.Clients
         internal bool DeleteTopic(int groupId, int id)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -1125,7 +1126,7 @@ namespace WebAPI.Clients
             AnnouncementsResponse response = null;
             KalturaTopic result = null;
 
-            
+
 
             try
             {
@@ -1164,7 +1165,7 @@ namespace WebAPI.Clients
             List<KalturaTopic> result = null;
             KalturaTopicListResponse ret = null;
 
-            
+
 
             try
             {
@@ -1205,7 +1206,7 @@ namespace WebAPI.Clients
             List<KalturaTopic> result = null;
             KalturaTopicResponse ret = null;
 
-            
+
 
             try
             {
@@ -1242,7 +1243,7 @@ namespace WebAPI.Clients
         internal bool DeleteAnnouncementsOlderThan()
         {
             Status response = null;
-            
+
 
             try
             {
@@ -1270,8 +1271,6 @@ namespace WebAPI.Clients
         {
             RegistryResponse response = null;
             KalturaRegistryResponse ret = null;
-
-            
 
             try
             {
@@ -1320,6 +1319,39 @@ namespace WebAPI.Clients
             return ret;
         }
 
+        internal bool SendPush(int groupId, int userId, KalturaPushMessage kalturaPushMessage)
+        {
+            Status response = new Status();
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    PushMessage pushMessage = new PushMessage()
+                    {
+                        Message = kalturaPushMessage.Message,
+                        Action = kalturaPushMessage.Action,
+                        Sound = kalturaPushMessage.Sound,
+                        Url = kalturaPushMessage.Url
+                    };
+
+                    response = Core.Notification.Module.SendUserPush(groupId, userId, pushMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while sending push to user.  groupID: {0}, userId: {1}, pushMessage: {2}, exception: {3}", groupId, userId, JsonConvert.SerializeObject(kalturaPushMessage), ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+
+            if (response.Code != (int)StatusCode.OK)
+                throw new ClientException((int)response.Code, response.Message);
+
+            return true;
+        }
+
         internal KalturaReminder AddAssetReminder(int groupId, string userID, KalturaAssetReminder reminder)
         {
             RemindersResponse response = null;
@@ -1333,7 +1365,7 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            
+
 
             try
             {
@@ -1382,7 +1414,7 @@ namespace WebAPI.Clients
             }
 
             // get group ID
-            
+
 
             try
             {
@@ -1408,7 +1440,7 @@ namespace WebAPI.Clients
         internal bool RemoveUsersNotificationData(int groupId, List<string> userIds)
         {
             Status response = null;
-            
+
 
             try
             {
@@ -1708,7 +1740,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)        
+        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)
         {
             List<KalturaEngagement> list = null;
             EngagementResponseList response = null;
