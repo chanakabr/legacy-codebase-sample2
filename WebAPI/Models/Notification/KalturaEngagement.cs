@@ -79,14 +79,6 @@ namespace WebAPI.Models.Notification
         public long SendTimeInSeconds { get; set; }
 
         /// <summary>
-        /// Engagement active status
-        /// </summary>
-        [DataMember(Name = "isActive")]
-        [JsonProperty("isActive")]
-        [XmlElement(ElementName = "isActive")]
-        public bool? IsActive { get; set; }
-
-        /// <summary>
         /// Coupon GroupId 
         /// </summary>
         [DataMember(Name = "couponGroupId")]

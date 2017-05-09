@@ -287,6 +287,30 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
+                case "KalturaReminderFilter":
+                    switch (propertyName)
+                    {
+                        case "KSql":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaSeasonsReminderFilter":
+                    switch (propertyName)
+                    {
+                        case "KSql":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaSeriesReminderFilter":
+                    switch (propertyName)
+                    {
+                        case "KSql":
+                            return true;
+                    };
+                    break;
+                    
                 case "KalturaSubscriptionEntitlement":
                     switch (propertyName)
                     {
@@ -3055,8 +3079,6 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IntervalSeconds":
                             return "intervalSeconds";
-                        case "IsActive":
-                            return "isActive";
                         case "SendTimeInSeconds":
                             return "sendTimeInSeconds";
                         case "TotalNumberOfRecipients":
@@ -5167,6 +5189,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     
@@ -5292,6 +5316,18 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSeasonsReminderFilter":
+                    switch(property.Name)
+                    {
+                        case "EpgChannelIdEqual":
+                            return "epgChannelIdEqual";
+                        case "SeasonNumberIn":
+                            return "seasonNumberIn";
+                        case "SeriesIdEqual":
+                            return "seriesIdEqual";
+                    }
+                    break;
+                    
                 case "KalturaSeriesRecording":
                     switch(property.Name)
                     {
@@ -5321,6 +5357,36 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSeriesReminder":
+                    switch(property.Name)
+                    {
+                        case "EpgChannelId":
+                            return "epgChannelId";
+                        case "SeasonNumber":
+                            return "seasonNumber";
+                        case "SeriesId":
+                            return "seriesId";
+                    }
+                    break;
+                    
+                case "KalturaSeriesReminderFilter":
+                    switch(property.Name)
+                    {
+                        case "EpgChannelIdEqual":
+                            return "epgChannelIdEqual";
+                        case "SeriesIdIn":
+                            return "seriesIdIn";
+                    }
+                    break;
+                    
+                case "KalturaSingleReminderFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
                     }
                     break;
                     
@@ -5617,6 +5683,8 @@ namespace WebAPI.Reflection
                             return "renewalsNumber";
                         case "StartDate":
                             return "startDate";
+                        case "SubscriptionCouponsGroup":
+                            return "subscriptionCouponsGroup";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":

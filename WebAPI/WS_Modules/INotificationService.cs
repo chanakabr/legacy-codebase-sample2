@@ -150,7 +150,7 @@ namespace WS_Notification
         ApiObjects.Response.Status DeleteOldReminders(string sWSUserName, string sWSPassword);
 
         [OperationContract]
-        ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId);
+        ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId, ReminderType reminderType);
 
         [OperationContract]
         bool SendMessageReminder(string sWSUserName, string sWSPassword, long startTime, int reminderId);
@@ -171,6 +171,10 @@ namespace WS_Notification
         bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime);
 
         [OperationContract]
+        SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
+            int pageSize, int pageIndex, OrderObj orderObj);
+        
+        [OperationContract]        
         Status SendUserPush(string sWSUserName, string sWSPassword, int userId, PushMessage pushMessage);
     }
 }

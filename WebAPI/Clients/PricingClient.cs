@@ -41,8 +41,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId,
-                        subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy);
+                    response = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionsIds, string.Empty, languageCode, udid, wsOrderBy);
                 }
             }
             catch (Exception ex)

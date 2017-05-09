@@ -232,7 +232,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //DbReminder to KalturaReminder
             Mapper.CreateMap<DbReminder, KalturaReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
-                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src is KalturaSeriesReminder ? KalturaReminderType.SIRIES : KalturaReminderType.SINGLE));
 
             // KalturaReminder to DbReminder
             Mapper.CreateMap<KalturaReminder, DbReminder>()
@@ -243,7 +244,34 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<DbReminder, KalturaAssetReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference));
+                 .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.Reference))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SINGLE))
+                 ;
+
+            //DbReminder to KalturaAssetReminder
+            Mapper.CreateMap<DbSeriesReminder, KalturaSeriesReminder>()
+                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
+                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                 .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
+                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SIRIES))
+                 ;
+
+            Mapper.CreateMap<DbReminder, KalturaReminder>()
+                .Include<DbReminder, KalturaAssetReminder>()
+                .Include<DbSeriesReminder, KalturaSeriesReminder>();
+
+            Mapper.CreateMap<KalturaSeriesReminder, DbSeriesReminder>()
+                .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
+                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
+                .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
+
+            Mapper.CreateMap<KalturaReminder, DbReminder>()
+                .Include<KalturaAssetReminder, DbReminder>()
+                .Include<KalturaSeriesReminder, DbSeriesReminder>();
 
             #region Engagement Adapter
 
@@ -292,7 +320,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SendTime, opt => opt.MapFrom(src => ConvertSendTime(src.SendTimeInSeconds)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
                ;
 
@@ -305,7 +332,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SendTimeInSeconds, opt => opt.MapFrom(src => ConvertSendTime(src.SendTime)))
                .ForMember(dest => dest.TotalNumberOfRecipients, opt => opt.MapFrom(src => src.TotalNumberOfRecipients))
                .ForMember(dest => dest.UserList, opt => opt.MapFrom(src => src.UserList))
-               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.CouponGroupId, opt => opt.MapFrom(src => src.CouponGroupId))
                ;
             
@@ -764,6 +790,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
             }
             return result;
-        }       
+        }
+
+        internal static ReminderType ConvertReminderType(KalturaReminderType reminderType)
+        {
+            ReminderType result = ReminderType.Single;
+
+            switch (reminderType)
+            {
+                case KalturaReminderType.SINGLE:
+                    result = ReminderType.Single;
+                    break;
+                case KalturaReminderType.SIRIES:
+                    result = ReminderType.Series;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown reminder type");
+                    break;
+            }
+
+            return result;
+        }
     }
 }

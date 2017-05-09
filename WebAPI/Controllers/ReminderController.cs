@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using KLogMonitor;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
@@ -71,11 +72,13 @@ namespace WebAPI.Controllers
         /// Delete a reminder. Reminder cannot be delete while being sent.
         /// </summary>
         /// <param name="id">Id of the reminder.</param>
+        /// <param name="type">Reminder type.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         [Route("delete"), HttpPost]
         [ApiAuthorize]
-        public bool Delete(long id)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public bool Delete(long id, KalturaReminderType type)
         {
             bool response = false;
 
@@ -84,7 +87,7 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
 
-                response = ClientsManager.NotificationClient().DeleteReminder(userId, groupId, id);
+                response = ClientsManager.NotificationClient().DeleteReminder(userId, groupId, id, type);
             }
             catch (ClientException ex)
             {
@@ -116,8 +119,22 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 string userId = KS.GetFromRequest().UserId;
-
-                response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                if (filter is KalturaSeasonsReminderFilter)
+                {
+                    KalturaSeasonsReminderFilter seasonsReminderFilter = filter as KalturaSeasonsReminderFilter;
+                    response = ClientsManager.NotificationClient().GetSeriesReminders(groupId, userId, new List<string>() { seasonsReminderFilter.SeriesIdEqual },
+                        seasonsReminderFilter.GetSeasonNumberIn(), seasonsReminderFilter.EpgChannelIdEqual, pager.getPageSize(), pager.getPageIndex(), KalturaReminderOrderBy.NONE);
+                }
+                else if (filter is KalturaSeriesReminderFilter)
+                {
+                    KalturaSeriesReminderFilter seriesReminderFilter = filter as KalturaSeriesReminderFilter;
+                    response = ClientsManager.NotificationClient().GetSeriesReminders(groupId, userId, seriesReminderFilter.GetSeriesIdIn(), null, seriesReminderFilter.EpgChannelIdEqual,
+                        pager.getPageSize(), pager.getPageIndex(), KalturaReminderOrderBy.NONE);
+                }
+                else if (filter is KalturaSeriesReminderFilter || filter is KalturaReminderFilter)
+                {
+                    response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                }
             }
 
             catch (ClientException ex)

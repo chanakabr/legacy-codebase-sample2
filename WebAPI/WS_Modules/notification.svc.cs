@@ -1020,7 +1020,7 @@ namespace WS_Notification
 
         }
 
-        public ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId)
+        public ApiObjects.Response.Status DeleteUserReminder(string sWSUserName, string sWSPassword, int userId, long reminderId, ReminderType reminderType)
         {
             ApiObjects.Response.Status response = null;
             int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
@@ -1029,7 +1029,7 @@ namespace WS_Notification
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.DeleteUserReminder(groupID, userId, reminderId);
+                    return Core.Notification.Module.DeleteUserReminder(groupID, userId, reminderId, reminderType);
                 }
             }
             catch (Exception ex)
@@ -1151,7 +1151,7 @@ namespace WS_Notification
             {
                 if (groupID != 0)
                 {
-                    return Core.Notification.Module.SendUserPush(groupID,userId, pushMessage);
+                    return Core.Notification.Module.SendUserPush(groupID, userId, pushMessage);
                 }
             }
             catch (Exception ex)
@@ -1161,6 +1161,26 @@ namespace WS_Notification
             }
 
             return result;
+        }
+
+        public SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
+        int pageSize, int pageIndex, OrderObj orderObj)
+        {
+            SeriesRemindersResponse response = null;
+            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", sWSUserName, sWSPassword);
+
+            try
+            {
+                if (groupID != 0)
+                    return Core.Notification.Module.GetUserSeriesReminders(groupID, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetUserSeriesReminders caught an exception: GroupID: {0}, ex: {1}", groupID, ex);
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
         }
     }
 }
