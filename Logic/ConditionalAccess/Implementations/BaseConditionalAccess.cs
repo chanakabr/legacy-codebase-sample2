@@ -3221,13 +3221,16 @@ namespace Core.ConditionalAccess
                          * coupon related to subscription 
                          * the type is coupon (not gift)                         
                          * */
+                    // get all SubscriptionsCouponGroup (with expiry date !!!!)
+                    List<SubscriptionCouponGroup> allCoupons = Core.Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
+                        
 
                     long couponGroupId = 0;
                     string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid 
 
                     // look ig this coupon group id exsits in coupon list 
                     CouponsGroup cg = theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
-                        theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
+                        allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
                     
                     if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
                     {

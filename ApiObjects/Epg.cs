@@ -129,6 +129,23 @@ namespace ApiObjects
 
         public EpgCB(EpgCB epgCb)
         {
+            Initialize(epgCb);   
+        }
+
+        public EpgCB(EpgCB epgCb, title t)
+        {
+            Initialize(epgCb);           
+            this.Name = t.Value;
+        }
+
+        public EpgCB(EpgCB epgCb, desc d)
+        {
+            Initialize(epgCb);
+            this.Description = d.Value;
+        }
+
+        private void Initialize(EpgCB epgCb)
+        {
             this.EpgID = epgCb.EpgID;
             this.EpgIdentifier = epgCb.EpgIdentifier;
             this.isActive = epgCb.isActive;
@@ -150,8 +167,8 @@ namespace ApiObjects
             this.BasicData = epgCb.BasicData;
             this.Statistics = epgCb.Statistics;
             this.ExtraData = epgCb.ExtraData;
-            this.Metas = new Dictionary<string,List<string>>(epgCb.Metas);
-            this.Tags = new Dictionary<string,List<string>>(epgCb.Tags);
+            this.Metas = new Dictionary<string, List<string>>(epgCb.Metas);
+            this.Tags = new Dictionary<string, List<string>>(epgCb.Tags);
             this.Language = epgCb.Language;
             this.pictures = epgCb.pictures;
             this.EnableCDVR = epgCb.EnableCDVR;
@@ -160,7 +177,6 @@ namespace ApiObjects
             this.EnableTrickPlay = epgCb.EnableTrickPlay;
             this.Crid = epgCb.Crid;
         }
-
 
         public bool Equals(EpgCB obj, List<FieldTypeEntity> fieldEntityMapping)
         {
@@ -198,19 +214,19 @@ namespace ApiObjects
                     return false;
 
                 #region Tags
-                if (this.Tags != null && obj.Tags != null && this.Tags.Count == obj.Tags.Count)
-                {  
+                int thisTagsCount = this.Tags == null ? 0 : this.Tags.Count;
+                int objTagsCount = obj.Tags == null ? 0 : obj.Tags.Count;
+
+                if (thisTagsCount != objTagsCount)
+                {
+                    return false;
+                }
+
+                if (thisTagsCount > 0)
+                {
                     foreach (string objTagKey in obj.Tags.Keys)
                     {
-                        if (!this.Tags.ContainsKey(objTagKey))
-                        {
-                            return false;
-                        }
-
-                        int countObjTagValues = obj.Tags[objTagKey] == null ? 0 : obj.Tags[objTagKey].Count;
-                        int countThisTagValues = this.Tags[objTagKey] == null ? 0 : this.Tags[objTagKey].Count;
-
-                        if (countObjTagValues != countThisTagValues)
+                        if (!this.Tags.ContainsKey(objTagKey) || obj.Tags[objTagKey].Count != this.Tags[objTagKey].Count)
                         {
                             return false;
                         }
@@ -230,19 +246,18 @@ namespace ApiObjects
                 #endregion
 
                 #region Metas
-                if (this.Metas != null && obj.Metas != null && this.Metas.Count == obj.Metas.Count)
+                int thisMetaCount = this.Metas == null ? 0 : this.Metas.Count;
+                int objMetaCount = obj.Metas == null ? 0 : obj.Metas.Count;
+
+                if (thisMetaCount != objMetaCount)
+                {
+                    return false;
+                }
+                if (thisMetaCount > 0)
                 {
                     foreach (string objMetaKey in obj.Metas.Keys)
                     {
-                        if (!this.Metas.ContainsKey(objMetaKey))
-                        {
-                            return false;
-                        }
-
-                        int countObjMetaValues = obj.Metas[objMetaKey] == null ? 0 : obj.Metas[objMetaKey].Count;
-                        int countThisMetaValues = this.Metas[objMetaKey] == null ? 0 : this.Metas[objMetaKey].Count;
-
-                        if (countObjMetaValues != countThisMetaValues)
+                        if (!this.Metas.ContainsKey(objMetaKey) || obj.Metas[objMetaKey].Count != this.Metas[objMetaKey].Count)
                         {
                             return false;
                         }
@@ -250,13 +265,7 @@ namespace ApiObjects
                         {
                             // compare the values between the lists
                             foreach (string sMetaValue in obj.Metas[objMetaKey])
-                            {                                
-                                bool? isMetaProtected = fieldEntityMapping.Where(x => x.Name.ToLower() == objMetaKey).Select(x => x.isProtectFromUpdates).FirstOrDefault();
-                                if (isMetaProtected.HasValue && isMetaProtected.Value) // no need to check meta value for protected meta !!!!! 
-                                {
-                                    continue;
-                                }
-
+                            {
                                 if (!this.Metas[objMetaKey].Contains(sMetaValue))
                                 {
                                     return false;
@@ -290,7 +299,34 @@ namespace ApiObjects
             }
             return true;
         }
-               
+
+
+        public void Initialize(int kalturaChannelID, int groupId, int parentGroupId, string externalId, DateTime startDate, DateTime endDate, 
+            int enablecatchup, int enablecdvr, int enablestartover, int enabletrickplay, string crid)
+        {
+            this.ChannelID = kalturaChannelID;
+            this.GroupID = groupId;
+            this.ParentGroupID = parentGroupId;
+            this.EpgIdentifier = externalId;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
+            this.UpdateDate = DateTime.UtcNow;
+            this.CreateDate = DateTime.UtcNow;
+            this.isActive = true;
+            this.Status = 1;
+            this.EnableCatchUp = enablecatchup;
+            this.EnableCDVR = enablecdvr;
+            this.EnableStartOver = enablestartover;
+            this.EnableTrickPlay = enabletrickplay;
+            this.Crid = crid;
+        }
+
+        public EpgCB DeepCopy(string language)
+        {
+            EpgCB cloneEpg = (EpgCB)this.MemberwiseClone();
+            cloneEpg.Language = String.Copy(language);
+            return cloneEpg;
+        }
     }
 
     [Serializable]

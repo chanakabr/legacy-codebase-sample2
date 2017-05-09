@@ -9,6 +9,7 @@ using System.Reflection;
 using ApiObjects.Pricing;
 using System.Data;
 using System.Xml;
+using DAL;
 
 namespace Core.Pricing
 {
@@ -472,6 +473,47 @@ namespace Core.Pricing
                 result = deafultVal;
             }
             return result;
+        }
+
+        public static List<SubscriptionCouponGroup> GetSubscriptionCouponsGroup(long subscriptionId, int groupId, bool withExpiry = true)
+        {
+            List<SubscriptionCouponGroup> sgList = new List<SubscriptionCouponGroup>();
+            DataTable dt;
+            if (withExpiry)
+            {
+                dt = PricingDAL.Get_SubscriptionsCouponGroup(groupId, new List<long>(1) { subscriptionId });
+            }
+            else
+            {
+                dt = PricingDAL.Get_SubscriptionsCouponGroupWithExpiry(groupId, new List<long>(1) { subscriptionId });
+            }
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                SubscriptionCouponGroup scg = null;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    scg = new SubscriptionCouponGroup();
+                    long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "subscription_id");
+                    long couponGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr, "COUPON_GROUP_ID");
+                    DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
+                    DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE");
+
+                    CouponsGroup couponGroupData = null;
+                    if (couponGroupID > 0)
+                    {
+                        BaseCoupons c = null;
+                        GetBaseImpl(ref c, groupId);
+                        if (c != null)
+                        {
+                            couponGroupData = c.GetCouponGroupData(couponGroupID.ToString());
+                        }
+                    }
+                    scg.Initialize(startDate, endDate, couponGroupData);
+                    sgList.Add(scg);
+                }
+            }
+            return sgList;
         }
     }
 }
