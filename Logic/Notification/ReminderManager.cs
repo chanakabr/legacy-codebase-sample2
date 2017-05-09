@@ -1598,8 +1598,7 @@ namespace Core.Notification
             }
 
             // get reminder from DB
-            List<DbSeriesReminder>  dbSeriesReminders = NotificationDal.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
-            // TODO: cache
+            List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
 
             if (seriesIds.Count > 0)
             {

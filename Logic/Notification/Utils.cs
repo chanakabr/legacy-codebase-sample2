@@ -14,6 +14,8 @@ using System.Web;
 using System.Net;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using DAL;
+using CachingProvider.LayeredCache;
 
 namespace Core.Notification
 {
@@ -179,6 +181,82 @@ namespace Core.Notification
             {
                 log.Error("Failed waiting for all tasks to finish", ex);
             }
+        }
+
+        internal static List<DbSeriesReminder> GetSeriesReminders(int groupId, List<long> seriesReminderIds)
+        {
+            List<DbSeriesReminder> res = null;
+            if (seriesReminderIds == null || seriesReminderIds.Count == 0)
+            {
+                return res;
+            }
+            
+            try
+            {
+                Dictionary<string, DbSeriesReminder> seriesReminderMap = null;
+                List<string> keys = new List<string>();
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetSeriesRemindersInvalidationKeysMap(groupId, seriesReminderIds);
+                if (invalidationKeysMap != null && invalidationKeysMap.Count > 0)
+                {
+                    keys = invalidationKeysMap.Keys.ToList();
+                }
+
+                if (!LayeredCache.Instance.GetValues<DbSeriesReminder>(keys, ref seriesReminderMap, GetSeriesReminder, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                        { "seriesReminderIds", seriesReminderIds } }, groupId, LayeredCacheConfigNames.GET_SERIES_REMINDERS_CACHE_CONFIG_NAME,
+                                                                        invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting seriesReminders from LayeredCache, groupId: {0}, seriesReminderIds", groupId, string.Join(",", seriesReminderIds));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSeriesReminders for groupId: {0}, seriesReminderIds: {1}", groupId, string.Join(",", seriesReminderIds)), ex);
+            }
+
+            return res;
+        }
+
+        internal static Tuple<Dictionary<string, DbSeriesReminder>, bool> GetSeriesReminder(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, DbSeriesReminder> result = new Dictionary<string, DbSeriesReminder>();
+            try
+            {
+                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("seriesReminderIds"))
+                {                                        
+                    int? groupId = funcParams["groupId"] as int?;
+                    List<long> seriesReminderIds = funcParams["seriesReminderIds"] != null ? funcParams["seriesReminderIds"] as List<long> : null;
+
+                    if (seriesReminderIds != null && seriesReminderIds.Count > 0 && groupId.HasValue)
+                    {
+                        Dictionary<long, DbSeriesReminder> tempResult = new Dictionary<long, DbSeriesReminder>();
+                        List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminders(groupId.Value, seriesReminderIds);
+                        if (seriesReminders != null && seriesReminders.Count > 0)
+                        {
+                            tempResult = seriesReminders.ToDictionary(x => long.Parse(x.ID.ToString()), x => x);                            
+                        }
+
+                        List<long> missingIds = seriesReminderIds.Where(x => !tempResult.ContainsKey(x)).ToList();                        
+                        if (missingIds != null)
+                        {
+                            foreach (long missingId in missingIds)
+                            {
+                                tempResult.Add(missingId, new DbSeriesReminder());
+                            }
+                        }
+
+                        result = tempResult.ToDictionary(x => LayeredCacheKeys.GetSeriesRemindersKey(groupId.Value, x.Key), x => x.Value);
+                    }
+
+                    res = result.Keys.Count() == seriesReminderIds.Count();                    
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetSeriesReminder failed with params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, DbSeriesReminder>, bool>(result, res);
         }
     }
 }
