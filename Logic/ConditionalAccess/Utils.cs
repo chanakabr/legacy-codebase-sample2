@@ -5108,7 +5108,7 @@ namespace Core.ConditionalAccess
                 }
             }
             
-            Dictionary<string, string> epgFieldMappings = GetEpgFieldTypeEntitys(groupId, epg, recordingType);
+            Dictionary<string, string> epgFieldMappings = GetEpgFieldTypeEntitys(groupId, epg, recordingType==RecordingType.Season);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}, recordingType: {2}", groupId, epg.EPG_ID, recordingType.ToString());
@@ -5163,7 +5163,7 @@ namespace Core.ConditionalAccess
             return seriesRecording;
         }
 
-        internal static Dictionary<string, string> GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, RecordingType recordingType)
+        internal static Dictionary<string, string> GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, bool isSeasonRequired = false)
         {
             Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>();
             try
@@ -5207,7 +5207,7 @@ namespace Core.ConditionalAccess
                 }
 
                 field = metaTagsMappings.Where(m => m.Alias.ToLower() == SEASON_ALIAS).FirstOrDefault();
-                if (recordingType == RecordingType.Season && field == null)
+                if (isSeasonRequired && field == null)
                 {
                     log.DebugFormat("alias for season_number was not found. group_id = {0}", groupId);
                     return epgFieldMappings;
@@ -5801,7 +5801,7 @@ namespace Core.ConditionalAccess
         internal static ApiObjects.Response.Status IsFollowingEpgAsSeriesOrSeason(int groupId, EPGChannelProgrammeObject epg, long domainId, RecordingType recordingType)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(groupId, epg, RecordingType.Single);
+            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(groupId, epg);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.DebugFormat("no epgFieldMappings found, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);

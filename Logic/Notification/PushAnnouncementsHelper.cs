@@ -34,7 +34,7 @@ namespace Core.Notification
         /// <returns></returns>
         public static List<AnnouncementSubscriptionData> InitAllAnnouncementToSubscribeForAdapter(int groupId, UserNotification userNotificationData, DeviceNotificationData deviceData, string pushExternalToken, out long loginAnnouncementId)
         {
-            List<AnnouncementSubscriptionData> result = null;
+            List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
             loginAnnouncementId = 0;
 
             // validate user enabled push notifications
@@ -44,154 +44,21 @@ namespace Core.Notification
                 return result;
             }
 
-            // get notification list from user object
-            List<long> notificationIds = new List<long>();
-            if (userNotificationData != null && userNotificationData.Announcements != null)
-                notificationIds = userNotificationData.Announcements.Select(x => x.AnnouncementId).ToList();
-            else
-                log.DebugFormat("User doesn't follow anything. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+            // Get list of announcements to subscribe (VOD)
+            List<AnnouncementSubscriptionData> temp = PrepareUserAnnouncementsSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken, out loginAnnouncementId);
+            if (temp != null)
+                result.AddRange(temp);
+            temp = null;
 
-            // get announcements
-            result = new List<AnnouncementSubscriptionData>();
-            var announcements = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || notificationIds.Contains(x.ID)).ToList();
+            // Get list of reminders to subscribe (EGP)
+            temp = PrepareUserRemindersSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken);
+            result.AddRange(temp);
+            temp = null;
 
-            // build announcements adapter object
-            if (announcements == null || announcements.Count == 0)
-                log.ErrorFormat("Error while trying to fetch announcements from DB. login announcement + announcements ID: {0}", JsonConvert.SerializeObject(notificationIds));
-            else
-            {
-                AnnouncementSubscriptionData announcement;
-                foreach (var ann in announcements)
-                {
-                    // validate external announcement ID
-                    string topicArn = ann.ExternalId;
-                    if (string.IsNullOrEmpty(topicArn))
-                    {
-                        log.ErrorFormat("announcement doesn't have external token ID. rowAnnouncement: {0}", JsonConvert.SerializeObject(ann));
-                        continue;
-                    }
-
-                    // find logged in announcement
-                    eAnnouncementRecipientsType announcementType = ann.RecipientsType;
-
-                    // update logged in announcement ID
-                    if (announcementType == eAnnouncementRecipientsType.LoggedIn)
-                        loginAnnouncementId = ann.ID;
-
-                    // create subscription announcement
-                    announcement = new AnnouncementSubscriptionData()
-                    {
-                        Protocol = EnumseDeliveryProtocol.application,
-                        TopicArn = topicArn,
-                        EndPointArn = pushExternalToken,
-                        ExternalId = ann.ID
-                    };
-
-                    // validate user enabled follow push notifications
-                    if (!NotificationSettings.IsUserFollowPushEnabled(userNotificationData.Settings) &&
-                        announcementType != eAnnouncementRecipientsType.LoggedIn)
-                    {
-                        log.ErrorFormat("User follow push notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
-                        continue;
-                    }
-
-                    // validate device doesn't already has the follow push
-                    if (deviceData != null &&
-                        deviceData.SubscribedAnnouncements != null &&
-                        deviceData.SubscribedAnnouncements.FirstOrDefault(x => x.Id == ann.ID) != null)
-                    {
-                        log.DebugFormat("Device already has the follow announcement. PID: {0}, UID: {1}, UDID: {2}, announcement ID: {3}",
-                            groupId,
-                            userNotificationData.UserId,
-                            deviceData.Udid,
-                            ann.ID);
-                        continue;
-                    }
-
-                    result.Add(announcement);
-                }
-
-                // validate login announcement was fetched 
-                if (loginAnnouncementId == 0)
-                {
-                    log.Error("Error getting the login announcement ID");
-                    result = null;
-                }
-            }
-
-
-            // get notification list from user object
-            List<long> remindersIds = new List<long>();
-            if (userNotificationData != null && userNotificationData.Reminders != null)
-                remindersIds = userNotificationData.Reminders.Select(x => x.AnnouncementId).ToList();
-            else
-                log.DebugFormat("User doesn't have any reminders. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
-
-
-            // get reminders from DB
-            var reminders = NotificationDal.GetReminders(groupId, remindersIds);
-
-            AnnouncementSubscriptionData reminderAnnouncement;
-            foreach (var reminderId in remindersIds)
-            {
-                if (reminders == null || reminders.Count() == 0)
-                {
-                    log.ErrorFormat("device reminder wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, reminder ID: {3}",
-                        groupId, userNotificationData.UserId,
-                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
-                        reminderId);
-                    continue;
-                }
-
-                var reminder = reminders.FirstOrDefault(x => x.ID == reminderId);
-                if (reminder == null)
-                {
-                    log.ErrorFormat("device reminder wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, reminder ID: {3}",
-                        groupId, userNotificationData.UserId,
-                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
-                        reminderId);
-                    continue;
-                }
-
-                // validate external announcement ID
-                string topicArn = reminder.ExternalPushId;
-                if (string.IsNullOrEmpty(topicArn))
-                {
-                    log.ErrorFormat("reminder doesn't have external push ID. reminder: {0}", JsonConvert.SerializeObject(reminder));
-                    continue;
-                }
-
-                // create subscription announcement
-                reminderAnnouncement = new AnnouncementSubscriptionData()
-                {
-                    Protocol = EnumseDeliveryProtocol.application,
-                    TopicArn = topicArn,
-                    EndPointArn = pushExternalToken,
-                    ExternalId = reminder.ID
-                };
-
-                // validate partner enabled push notifications
-                if (!NotificationSettings.IsPartnerPushEnabled(groupId))
-                {
-                    log.ErrorFormat("Partner push notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
-                    break;
-                }
-
-                // validate device doesn't already has the follow push
-                if (deviceData != null &&
-                    deviceData.SubscribedReminders != null &&
-                    deviceData.SubscribedReminders.FirstOrDefault(x => x.Id == reminder.ID) != null)
-                {
-                    log.DebugFormat("Device already has the reminder. PID: {0}, UID: {1}, UDID: {2}, reminder ID: {3}",
-                        groupId,
-                        userNotificationData.UserId,
-                        deviceData.Udid,
-                        reminder.ID);
-                    continue;
-                }
-
-                result.Add(reminderAnnouncement);
-            }
+            // Get list of series reminders to subscribe (EPG)
+            temp = PrepareUserSeriesRemindersSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken);
+            result.AddRange(temp);
+            temp = null;
 
             return result;
         }
@@ -214,7 +81,7 @@ namespace Core.Notification
                 if (!string.IsNullOrEmpty(deviceData.SubscriptionExternalIdentifier))
                     result.Add(new UnSubscribe() { SubscriptionArn = deviceData.SubscriptionExternalIdentifier });
 
-                // prepare subscription to cancel list
+                // prepare announcement subscription to cancel list
                 if (deviceData.SubscribedAnnouncements != null)
                 {
                     UnSubscribe subscriptionToRemove;
@@ -225,11 +92,22 @@ namespace Core.Notification
                     }
                 }
 
-                // prepare subscription to cancel list
+                // prepare reminder subscription to cancel list
                 if (deviceData.SubscribedReminders != null)
                 {
                     UnSubscribe subscriptionToRemove;
                     foreach (var reminderSubscription in deviceData.SubscribedReminders)
+                    {
+                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
+                        result.Add(subscriptionToRemove);
+                    }
+                }
+
+                // prepare series reminder subscription to cancel list
+                if (deviceData.SubscribedSeriesReminders != null)
+                {
+                    UnSubscribe subscriptionToRemove;
+                    foreach (var reminderSubscription in deviceData.SubscribedSeriesReminders)
                     {
                         subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
                         result.Add(subscriptionToRemove);
@@ -331,6 +209,249 @@ namespace Core.Notification
                 }
             }
             return pushData;
+        }
+
+        public static List<AnnouncementSubscriptionData> PrepareUserAnnouncementsSubscriptions(int groupId, UserNotification userNotificationData, DeviceNotificationData deviceData, string pushExternalToken, out long loginAnnouncementId)
+        {
+            List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
+            loginAnnouncementId = 0;
+
+            // get notification list from user object
+            List<long> notificationIds = new List<long>();
+            if (userNotificationData != null && userNotificationData.Announcements != null)
+                notificationIds = userNotificationData.Announcements.Select(x => x.AnnouncementId).ToList();
+            else
+                log.DebugFormat("User doesn't follow anything. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+
+            // get announcements
+            result = new List<AnnouncementSubscriptionData>();
+            var announcements = NotificationCache.Instance().GetAnnouncements(groupId).Where(x => x.RecipientsType == eAnnouncementRecipientsType.LoggedIn || notificationIds.Contains(x.ID)).ToList();
+
+            // build announcements adapter object
+            if (announcements == null || announcements.Count == 0)
+                log.ErrorFormat("Error while trying to fetch announcements from DB. login announcement + announcements ID: {0}", JsonConvert.SerializeObject(notificationIds));
+            else
+            {
+                AnnouncementSubscriptionData announcement;
+                foreach (var ann in announcements)
+                {
+                    // validate external announcement ID
+                    string topicArn = ann.ExternalId;
+                    if (string.IsNullOrEmpty(topicArn))
+                    {
+                        log.ErrorFormat("announcement doesn't have external token ID. rowAnnouncement: {0}", JsonConvert.SerializeObject(ann));
+                        continue;
+                    }
+
+                    // find logged in announcement
+                    eAnnouncementRecipientsType announcementType = ann.RecipientsType;
+
+                    // update logged in announcement ID
+                    if (announcementType == eAnnouncementRecipientsType.LoggedIn)
+                        loginAnnouncementId = ann.ID;
+
+                    // create subscription announcement
+                    announcement = new AnnouncementSubscriptionData()
+                    {
+                        Protocol = EnumseDeliveryProtocol.application,
+                        TopicArn = topicArn,
+                        EndPointArn = pushExternalToken,
+                        ExternalId = ann.ID
+                    };
+
+                    // validate user enabled follow push notifications
+                    if (!NotificationSettings.IsUserFollowPushEnabled(userNotificationData.Settings) &&
+                        announcementType != eAnnouncementRecipientsType.LoggedIn)
+                    {
+                        log.ErrorFormat("User follow push notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+                        continue;
+                    }
+
+                    // validate device doesn't already has the follow push
+                    if (deviceData != null &&
+                        deviceData.SubscribedAnnouncements != null &&
+                        deviceData.SubscribedAnnouncements.FirstOrDefault(x => x.Id == ann.ID) != null)
+                    {
+                        log.DebugFormat("Device already has the follow announcement. PID: {0}, UID: {1}, UDID: {2}, announcement ID: {3}",
+                            groupId,
+                            userNotificationData.UserId,
+                            deviceData.Udid,
+                            ann.ID);
+                        continue;
+                    }
+
+                    result.Add(announcement);
+                }
+
+                // validate login announcement was fetched 
+                if (loginAnnouncementId == 0)
+                {
+                    log.Error("Error getting the login announcement ID");
+                    result = null;
+                }
+            }
+
+            return result;
+        }
+
+        public static List<AnnouncementSubscriptionData> PrepareUserRemindersSubscriptions(int groupId, UserNotification userNotificationData, DeviceNotificationData deviceData, string pushExternalToken)
+        {
+            List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
+
+            // get notification list from user object
+            List<long> remindersIds = new List<long>();
+            if (userNotificationData != null && userNotificationData.Reminders != null)
+                remindersIds = userNotificationData.Reminders.Select(x => x.AnnouncementId).ToList();
+            else
+                log.DebugFormat("User doesn't have any reminders. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+
+
+            // get reminders from DB
+            var reminders = NotificationDal.GetReminders(groupId, remindersIds);
+
+            AnnouncementSubscriptionData reminderAnnouncement;
+            foreach (var reminderId in remindersIds)
+            {
+                if (reminders == null || reminders.Count() == 0)
+                {
+                    log.ErrorFormat("device reminder wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, reminder ID: {3}",
+                        groupId, userNotificationData.UserId,
+                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
+                        reminderId);
+                    continue;
+                }
+
+                var reminder = reminders.FirstOrDefault(x => x.ID == reminderId);
+                if (reminder == null)
+                {
+                    log.ErrorFormat("device reminder wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, reminder ID: {3}",
+                        groupId, userNotificationData.UserId,
+                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
+                        reminderId);
+                    continue;
+                }
+
+                // validate external announcement ID
+                string topicArn = reminder.ExternalPushId;
+                if (string.IsNullOrEmpty(topicArn))
+                {
+                    log.ErrorFormat("reminder doesn't have external push ID. reminder: {0}", JsonConvert.SerializeObject(reminder));
+                    continue;
+                }
+
+                // create subscription announcement
+                reminderAnnouncement = new AnnouncementSubscriptionData()
+                {
+                    Protocol = EnumseDeliveryProtocol.application,
+                    TopicArn = topicArn,
+                    EndPointArn = pushExternalToken,
+                    ExternalId = reminder.ID
+                };
+
+                // validate partner enabled push notifications
+                if (!NotificationSettings.IsPartnerPushEnabled(groupId))
+                {
+                    log.ErrorFormat("Partner push notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+                    break;
+                }
+
+                // validate device doesn't already has the follow push
+                if (deviceData != null &&
+                    deviceData.SubscribedReminders != null &&
+                    deviceData.SubscribedReminders.FirstOrDefault(x => x.Id == reminder.ID) != null)
+                {
+                    log.DebugFormat("Device already has the reminder. PID: {0}, UID: {1}, UDID: {2}, reminder ID: {3}",
+                        groupId,
+                        userNotificationData.UserId,
+                        deviceData.Udid,
+                        reminder.ID);
+                    continue;
+                }
+
+                result.Add(reminderAnnouncement);
+            }
+
+            return result;
+        }
+
+        public static List<AnnouncementSubscriptionData> PrepareUserSeriesRemindersSubscriptions(int groupId, UserNotification userNotificationData, DeviceNotificationData deviceData, string pushExternalToken)
+        {
+            List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
+
+            // get notification list from user object
+            List<long> remindersIds = new List<long>();
+            if (userNotificationData != null && userNotificationData.SeriesReminders != null)
+                remindersIds = userNotificationData.SeriesReminders.Select(x => x.AnnouncementId).ToList();
+            else
+                log.DebugFormat("User doesn't have any series reminders. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+
+
+            // get reminders from DB
+            var reminders = NotificationDal.GetSeriesReminders(groupId, remindersIds);
+
+            AnnouncementSubscriptionData reminderAnnouncement;
+            foreach (var reminderId in remindersIds)
+            {
+                if (reminders == null || reminders.Count() == 0)
+                {
+                    log.ErrorFormat("device reminder wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, reminder ID: {3}",
+                        groupId, userNotificationData.UserId,
+                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
+                        reminderId);
+                    continue;
+                }
+
+                var reminder = reminders.FirstOrDefault(x => x.ID == reminderId);
+                if (reminder == null)
+                {
+                    log.ErrorFormat("device reminder wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, reminder ID: {3}",
+                        groupId, userNotificationData.UserId,
+                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
+                        reminderId);
+                    continue;
+                }
+
+                // validate external announcement ID
+                string topicArn = reminder.ExternalPushId;
+                if (string.IsNullOrEmpty(topicArn))
+                {
+                    log.ErrorFormat("reminder doesn't have external push ID. reminder: {0}", JsonConvert.SerializeObject(reminder));
+                    continue;
+                }
+
+                // create subscription announcement
+                reminderAnnouncement = new AnnouncementSubscriptionData()
+                {
+                    Protocol = EnumseDeliveryProtocol.application,
+                    TopicArn = topicArn,
+                    EndPointArn = pushExternalToken,
+                    ExternalId = reminder.ID
+                };
+
+                // validate partner enabled push notifications
+                if (!NotificationSettings.IsPartnerPushEnabled(groupId))
+                {
+                    log.ErrorFormat("Partner push notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+                    break;
+                }
+
+                // validate device doesn't already has the follow push
+                if (deviceData != null &&
+                    deviceData.SubscribedReminders != null &&
+                    deviceData.SubscribedReminders.FirstOrDefault(x => x.Id == reminder.ID) != null)
+                {
+                    log.DebugFormat("Device already has the reminder. PID: {0}, UID: {1}, UDID: {2}, reminder ID: {3}",
+                        groupId,
+                        userNotificationData.UserId,
+                        deviceData.Udid,
+                        reminder.ID);
+                    continue;
+                }
+
+                result.Add(reminderAnnouncement);
+            }
+
+            return result;
         }
     }
 }

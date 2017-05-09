@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using KlogMonitorHelper;
+using Newtonsoft.Json;
 
 namespace Core.Notification
 {
@@ -915,7 +916,7 @@ namespace Core.Notification
             RemindersResponse response = null;
             try
             {
-                response = ReminderManager.AddUserReminder(userId, dbReminder);
+                response = ReminderManager.AddUserReminder(userId, dbReminder, null);
             }
             catch (Exception ex)
             {
@@ -925,7 +926,32 @@ namespace Core.Notification
 
         }
 
-        public static ApiObjects.Response.Status DeleteUserReminder(int nGroupID, int userId, long reminderId)
+        public static ApiObjects.Response.Status DeleteUserReminder(int nGroupID, int userId, long reminderId, ReminderType reminderType)
+        {
+            ApiObjects.Response.Status response = null;
+
+            try
+            {
+                switch (reminderType)
+                {
+                    case ReminderType.Single:
+                        response = ReminderManager.DeleteUserReminder(nGroupID, userId, reminderId);
+                        break;
+                    case ReminderType.Series:
+                        response = ReminderManager.DeleteUserSeriesReminder(nGroupID, userId, reminderId);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("DeleteUserReminder caught an exception: GroupID: {0}, reminderId: {1}, ex: {2}", nGroupID, reminderId, ex);
+                response = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
+            }
+
+            return response;
+        }
+
+        public static ApiObjects.Response.Status DeleteUserSeriesReminder(int nGroupID, int userId, long reminderId)
         {
             ApiObjects.Response.Status response = null;
 
@@ -945,7 +971,6 @@ namespace Core.Notification
         public static RemindersResponse GetUserReminders(int nGroupID, int userId, string filter, int pageSize, int pageIndex, OrderObj orderObj)
         {
             RemindersResponse response = null;
-
 
             try
             {
@@ -1081,8 +1106,44 @@ namespace Core.Notification
                     partnerId,
                     engagementId,
                     ex);
-                return false;
+                
             }
+            return false;
+        }
+
+        public static Status SendUserPush(int partnerId, int userId, PushMessage pushMessage)
+        {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+            try
+            {
+                result = EngagementManager.SendPushToUser(partnerId, userId, pushMessage);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while trying to send user push. Partner ID: {0}, user ID: {1}, push message: {2}, Ex: {3}",
+                    partnerId,
+                    userId,
+                    JsonConvert.SerializeObject(pushMessage),
+                    ex);
+            }
+            return result;
+        }
+
+        public static SeriesRemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
+            int pageSize, int pageIndex, OrderObj orderObj)
+        {
+            SeriesRemindersResponse response = null;
+
+            try
+            {
+                response = ReminderManager.GetUserSeriesReminders(groupId, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetUserSeriesReminders caught an exception: GroupID: {0}, ex: {1}", groupId, ex);
+            }
+
+            return response;
         }
     }
 }

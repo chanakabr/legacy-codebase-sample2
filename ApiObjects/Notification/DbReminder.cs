@@ -1,4 +1,5 @@
 ﻿
+using System;
 namespace ApiObjects.Notification
 {
     public class DbReminder
@@ -15,5 +16,19 @@ namespace ApiObjects.Notification
         public string ExternalPushId { get; set; }
         public string ExternalResult { get; set; }
         public string Message { get; set; }
+    }
+
+    public class DbSeriesReminder : DbReminder
+    {
+        public string SeriesId { get; set; }
+        public long? SeasonNumber { get; set; }
+        public long EpgChannelId { get; set; }
+        public DateTime LastSendDate { get; set; }
+    }
+
+    public enum ReminderType
+    {
+        Single,
+        Series
     }
 }

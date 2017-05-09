@@ -35,19 +35,23 @@ namespace Core.Notification
         private const string NO_ENGAGEMENT_TO_INSERT = "No Engagement to insert";
         private const string ENGAGEMENT_NOT_EXIST = "Engagement not exist";
         private const string EMPTY_SOURCE_USER_LIST = "User list and adapter ID are empty";
+        private const string DUPLICATE_SOURCE_USER_LIST = "Duplicate source list";
         private const string FUTURE_SEND_TIME = "Send time must be in the future";
         private const string ILLEGAL_USER_LIST = "Illegal user list";
         private const string ILLEGAL_ENGAGEMENT_INTERVAL = "Illegal interval inserted";
-        private const string ENGAGEMENT_RECENTLY_SENT = "Other engagement was recently sent";
+        private const string ENGAGEMENT_TIME_DIFFERENCE = "The difference send time between identical engagements must be higher that 1 hour";
         private const string ENGAGEMENT_SEND_WINDOW_FRAME = "Send time is not between the allowed time window";
         private const string FUTURE_SCHEDULE_ENGAGEMENT_DETECTED = "Future engagement scheduler detected";
         private const string ENGAGEMENT_TEMPLATE_NOT_DOUND = "Engagement template wasn't found";
         private const string ENGAGEMENT_SUCCESSFULLY_INSERTED = "Engagement was successfully inserted";
         private const string ERROR_INSERTING_ENGAGEMENT = "Error occurred while inserting engagement";
         private const string COUPON_GROUP_NOT_FOUND = "Coupon group ID wasn't found";
+        private const string SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER = "Scheduler engagement must contain an adapter ID";
+        private const string MAX_NUMBER_OF_PUSH_MSG_EXCEEDED = "Maximum number of push messages to user have reached its limit";
 
         private static int NUM_OF_BULK_MESSAGE_ENGAGEMENTS = 500;
         private static int NUM_OF_ENGAGEMENT_THREADS = 10;
+        private static int MAX_PUSH_MSG_PER_SECONDS = 3;
 
         private const string ROUTING_KEY_ENGAGEMENTS = "PROCESS_ENGAGEMENTS";
 
@@ -417,7 +421,7 @@ namespace Core.Notification
             {
                 try
                 {
-                    List<int> userList = engagement.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                    List<int> userList = engagement.UserList.Split(';', ',', '|').Select(p => Convert.ToInt32(p.Trim())).ToList();
                     if (userList == null || userList.Count() == 0)
                     {
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, ILLEGAL_USER_LIST);
@@ -441,6 +445,25 @@ namespace Core.Notification
                 return false;
             }
 
+            // validate user list or adapter ID exists
+            if (!string.IsNullOrEmpty(engagement.UserList) && engagement.AdapterId > 0)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.IllegalPostData, DUPLICATE_SOURCE_USER_LIST);
+                log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                return false;
+            }
+
+            // validate adapter ID exists
+            if (engagement.AdapterId > 0)
+            {
+                if (EngagementDal.GetEngagementAdapter(partnerId, engagement.AdapterId) == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+                    log.ErrorFormat("Duplicate source list. User list and adapter ID are both with values. Partner ID: {0}, Engagement: {1}", partnerId, JsonConvert.SerializeObject(engagement));
+                    return false;
+                }
+            }
+
             // validate interval is legal
             if (engagement.IntervalSeconds < 0)
             {
@@ -458,15 +481,14 @@ namespace Core.Notification
                                                                                                    x.AdapterId == engagement.AdapterId &&
                                                                                                    x.AdapterDynamicData == engagement.AdapterDynamicData &&
                                                                                                    x.UserList == engagement.UserList &&
-                                                                                                   x.SendTime > engagement.SendTime.AddHours(-1) &&
-                                                                                                   x.SendTime < engagement.SendTime);
+                                                                                                  Math.Abs((x.SendTime - engagement.SendTime).TotalHours) < 1);
                 if (engagementAlreadySent != null)
                 {
                     log.ErrorFormat("Engagement was already sent in the last hour. Sent engagement: {0}, my (canceled) engagement: {1}",
                      JsonConvert.SerializeObject(engagementAlreadySent),
                      JsonConvert.SerializeObject(engagement));
 
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementRecentlySent, ENGAGEMENT_RECENTLY_SENT);
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementTimeDifference, ENGAGEMENT_TIME_DIFFERENCE);
                     return false;
                 }
             }
@@ -495,6 +517,14 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("Future scheduled engagement detected. Future Engagement: {0}", JsonConvert.SerializeObject(futureEngagement));
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.FutureScheduledEngagementDetected, FUTURE_SCHEDULE_ENGAGEMENT_DETECTED);
+                    return false;
+                }
+
+                // validate adapter exist (must for scheduler)
+                if (engagement.AdapterId == 0)
+                {
+                    log.ErrorFormat("Scheduled engagement cannot be created without an adapter. Engagement: {0}", JsonConvert.SerializeObject(engagement));
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.EngagementScheduleWithoutAdapter, SCHEDULE_ENGAGEMENT_WITHOUT_ADAPTER);
                     return false;
                 }
             }
@@ -692,7 +722,7 @@ namespace Core.Notification
             else
             {
                 // get user list from adapter
-                userList = engagementToBeSent.UserList.Split(';').Select(p => Convert.ToInt32(p.Trim())).ToList();
+                userList = engagementToBeSent.UserList.Split(';', ',', '|').Select(p => Convert.ToInt32(p.Trim())).ToList();
                 if (userList == null || userList.Count == 0)
                 {
                     log.ErrorFormat("Error getting user list from engagement. Engagement: {0}", JsonConvert.SerializeObject(engagementToBeSent));
@@ -792,6 +822,13 @@ namespace Core.Notification
                 return false;
             }
 
+            // validate adapter ID exists
+            if (engagementToBeSent.AdapterId == 0)
+            {
+                log.ErrorFormat("Scheduled adapter must use an engagement adapter. engagement entered: {0}", JsonConvert.SerializeObject(engagementToBeSent));
+                return false;
+            }
+
             // create next iteration
             futureEngagement = new Engagement()
             {
@@ -799,15 +836,21 @@ namespace Core.Notification
                 AdapterId = engagementToBeSent.AdapterId,
                 EngagementType = engagementToBeSent.EngagementType,
                 IntervalSeconds = engagementToBeSent.IntervalSeconds,
-                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds)
+                SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds),
+                CouponGroupId = engagementToBeSent.CouponGroupId,
+                IsActive = true,
+                UserList = engagementToBeSent.UserList
             };
 
             // insert to DB
-            if (EngagementDal.InsertEngagement(partnerId, futureEngagement) == null)
+            Engagement tempInsertedFutureEngagement = EngagementDal.InsertEngagement(partnerId, futureEngagement);
+            if (tempInsertedFutureEngagement == null)
             {
                 log.ErrorFormat("Error while trying to create next engagement iteration in DB. engagement data: {0}", JsonConvert.SerializeObject(futureEngagement));
                 return false;
             }
+
+            futureEngagement = tempInsertedFutureEngagement;
 
             // create engagement Rabbit message
             if (!AddEngagementToQueue(partnerId, DateUtils.DateTimeToUnixTimestamp(futureEngagement.SendTime), futureEngagement.Id))
@@ -1054,6 +1097,119 @@ namespace Core.Notification
             }
 
             return true;
+        }
+
+        public static Status SendPushToUser(int partnerId, int userId, PushMessage pushMessage)
+        {
+            Status result = new Status() { Code = (int)eResponseStatus.Error };
+
+            // get maximum allowed push 
+            int allowedPushMsg = TCMClient.Settings.Instance.GetValue<int>("push_message.num_of_msg_per_seconds");
+            if (allowedPushMsg == 0)
+                allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
+
+            // get user push document counter
+            int counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId);
+            if (counter == 1)
+            {
+                // document did not exist - create it (with TTL)
+                if (!NotificationDal.SetUserPushCounter(partnerId, userId))
+                {
+                    log.ErrorFormat("Error occurred while updating user push counter. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                    result = new Status() { Code = (int)eResponseStatus.Error };
+                    return result;
+                }
+            }
+            else
+            {
+                // document exists - validate did not reach maximum of allowed user push messages
+                if (counter > MAX_PUSH_MSG_PER_SECONDS)
+                {
+                    log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
+                    result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
+                    return result;
+                }
+            }
+
+            // get user notification data
+            bool docExists = false;
+            UserNotification userNotificationData = DAL.NotificationDal.GetUserNotificationData(partnerId, userId, ref docExists);
+            if (userNotificationData == null)
+            {
+                log.ErrorFormat("Error retrieving User notification data. partnerId: {0}, UserId: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
+            }
+
+            // validate user has devices
+            if (userNotificationData.devices == null || userNotificationData.devices.Count == 0)
+            {
+                log.ErrorFormat("No devices for user. partnerId: {0}, UserId: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
+            }
+
+            List<EndPointData> usersEndPointDatas = new List<EndPointData>();
+            foreach (var device in userNotificationData.devices)
+            {
+                // get device data
+                DeviceNotificationData deviceData = NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                if (deviceData == null)
+                {
+                    log.DebugFormat("device data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
+                    continue;
+                }
+
+                // get push data
+                var pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                if (pushData == null)
+                {
+                    log.ErrorFormat("push data wasn't found. GID: {0}, UDID: {1}, userId: {2}", partnerId, device.Udid, userId);
+                    continue;
+                }
+
+                // prepare push
+                usersEndPointDatas.Add(new EndPointData()
+                {
+                    EndPointArn = pushData.ExternalToken,
+                    Category = pushMessage.Action,
+                    Sound = pushMessage.Sound,
+                    Url = pushMessage.Url,
+                    ExtraData = userId.ToString()
+                });
+            }
+
+            // prepare push 
+            WSEndPointPublishData publishData = new WSEndPointPublishData();
+            publishData.EndPoints = usersEndPointDatas;
+            publishData.Message = new MessageData()
+            {
+                Alert = pushMessage.Message,
+                Url = pushMessage.Url,
+                Category = pushMessage.Action,
+                Sound = pushMessage.Sound
+            };
+
+            // send push
+            List<WSEndPointPublishDataResult> pushPublishResults = NotificationAdapter.PublishToEndPoint(partnerId, publishData);
+            if (pushPublishResults == null)
+            {
+                log.ErrorFormat("Error at PublishToEndPoint. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
+                result = new Status() { Code = (int)eResponseStatus.Error };
+                return result;
+            }
+
+            // go over push results
+            foreach (var pushPublishResult in pushPublishResults)
+            {
+                if (string.IsNullOrEmpty(pushPublishResult.ResultMessageId))
+                    log.ErrorFormat("Error occur at PublishToEndPoint. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
+                else
+                    log.DebugFormat("Successfully sent push message. GID: {0}, user ID: {1}, EndPointArn: {2}, message: {3}", partnerId, userId, pushPublishResult.EndPointArn, JsonConvert.SerializeObject(pushMessage));
+            }
+
+            result = new Status() { Code = (int)eResponseStatus.OK };
+            return result;
         }
 
         private static List<KeyValue> GetUserAttributes(int partnerId, int userId, eEngagementType engagementType)
