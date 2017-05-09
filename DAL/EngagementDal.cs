@@ -175,6 +175,8 @@ namespace DAL
 
                 DataTable dt = CreateDataTable(groupId, engagementAdapter.Settings);
                 sp.AddDataTableParameter("@KeyValueList", dt);
+                if (engagementAdapter.Settings != null)
+                    sp.AddParameter("@countKeys", engagementAdapter.Settings.Count);
 
                 DataSet ds = sp.ExecuteDataSet();
 
