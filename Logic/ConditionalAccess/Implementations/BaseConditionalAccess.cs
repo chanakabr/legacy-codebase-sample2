@@ -3213,17 +3213,17 @@ namespace Core.ConditionalAccess
 		private void HandleRecurringCoupon(int nPurchaseID, Subscription theSub, int nTotalPaymentsNumber, Currency oCurrency, bool bIsPurchasedWithPreviewModule, ref double dPrice, ref string retCouponCode)
 		{
 			try
-			{             
+			{               
+                // get all SubscriptionsCouponGroup (with expiry date !!!!)
+                List<SubscriptionCouponGroup> allCoupons = Core.Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
+
 				if ( (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_oDiscountCode != null)
-                    || (theSub.CouponsGroups != null && theSub.CouponsGroups.Count > 0 && theSub.CouponsGroups.Where(x=>x.m_oDiscountCode == null).Count() == 0 ))
+                    || (allCoupons != null && allCoupons.Count > 0 && allCoupons.Where(x => x.m_oDiscountCode == null).Count() == 0))
 				{                   
                         /*check if 
                          * coupon related to subscription 
                          * the type is coupon (not gift)                         
                          * */
-                    // get all SubscriptionsCouponGroup (with expiry date !!!!)
-                    List<SubscriptionCouponGroup> allCoupons = Core.Pricing.Utils.GetSubscriptionCouponsGroup(long.Parse(theSub.m_SubscriptionCode), m_nGroupID, false);
-                        
 
                     long couponGroupId = 0;
                     string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid 
