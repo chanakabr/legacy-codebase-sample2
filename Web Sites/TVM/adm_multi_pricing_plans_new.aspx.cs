@@ -1025,8 +1025,10 @@ public partial class adm_multi_pricing_plans_new : System.Web.UI.Page
                 string groupID = ODBCWrapper.Utils.GetSafeStr(dr, "group_ID");
                 string code = ODBCWrapper.Utils.GetSafeStr(dr, "code");
                 string description = "";
-                string startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE").ToString("dd/MM/yyyy");
-                string endDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "END_DATE").ToString("dd/MM/yyyy");
+                DateTime? date = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "START_DATE");
+                string startDate = date.HasValue ? date.Value.ToString("dd/MM/yyyy") : string.Empty;
+                date = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "END_DATE");
+                string endDate = date.HasValue ? date.Value.ToString("dd/MM/yyyy") : string.Empty;
                 var data = new
                 {
                     ID = id.ToString(),
