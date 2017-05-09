@@ -9,6 +9,7 @@ namespace WebAPI.Models.Notification
     {
         announcement,
         system,
-        Reminder
+        Reminder,
+        series_reminder
     }
 }

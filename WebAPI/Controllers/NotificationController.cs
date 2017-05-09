@@ -90,6 +90,11 @@ namespace WebAPI.Controllers
                         if (!long.TryParse(identifier, out reminderId))
                             throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
                         break;
+                    case KalturaNotificationType.series_reminder:
+                        long seriesReminderId = 0;
+                        if (!long.TryParse(identifier, out seriesReminderId))
+                            throw new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "identifier");
+                        break;
                     default:
                         break;
                 }

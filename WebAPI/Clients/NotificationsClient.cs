@@ -1271,8 +1271,6 @@ namespace WebAPI.Clients
             RegistryResponse response = null;
             KalturaRegistryResponse ret = null;
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1290,6 +1288,9 @@ namespace WebAPI.Clients
                             break;
                         case KalturaNotificationType.Reminder:
                             response = Core.Notification.Module.RegisterPushReminderParameters(groupId, long.Parse(id), hash, ip);
+                            break;
+                        case KalturaNotificationType.series_reminder:
+                            response = Core.Notification.Module.RegisterPushSeriesReminderParameters(groupId, long.Parse(id), hash, ip);
                             break;
                         default:
                             break;
