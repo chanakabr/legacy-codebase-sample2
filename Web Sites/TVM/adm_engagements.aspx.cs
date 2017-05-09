@@ -85,7 +85,7 @@ public partial class adm_engagements : System.Web.UI.Page
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("notifications_connection");
-        theTable += "SELECT ID ,group_id ,status, is_active, case engagement_type when 1 then 'Churn' else '' end as 'Type',";
+        theTable += "SELECT ID ,group_id ,status, case engagement_type when 1 then 'Churn' else '' end as 'Type',";
         theTable += "case when adapter_id > 0 then 'External' else 'Manual' end as 'Source',";
         theTable += "case when adapter_id > 0 then 1 else 2 end as 'isAdapter',";
         theTable += "send_time as 'SendTime', total_number_of_recipients as '# Recipients',";
@@ -105,7 +105,6 @@ public partial class adm_engagements : System.Web.UI.Page
 
         theTable.AddHiddenField("group_id");
         theTable.AddHiddenField("status");
-        theTable.AddHiddenField("is_active");
         theTable.AddHiddenField("isAdapter");
         theTable.AddOrderByColumn("SendTime", "SendTime");
         theTable.AddOrderByColumn("ID", "ID");
@@ -114,12 +113,6 @@ public partial class adm_engagements : System.Web.UI.Page
         linkColumnKeParams.AddQueryStringValue("engagement_id", "field=id");
         linkColumnKeParams.AddQueryStringValue("type", "field=isAdapter");
         theTable.AddLinkColumn(linkColumnKeParams);
-
-
-        if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.PUBLISH) && LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
-        {
-            theTable.AddActivationField("engagements", "adm_engagements.aspx");
-        }
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.REMOVE))
         {
@@ -162,10 +155,6 @@ public partial class adm_engagements : System.Web.UI.Page
             linkColumn.AddQueryStringValue("rep_name", "Username");
             theTable.AddLinkColumn(linkColumn);
         }
-
-
-
-
     }
 
     public string GetPageContent(string sOrderBy, string sPageNum)
@@ -195,10 +184,5 @@ public partial class adm_engagements : System.Web.UI.Page
     public void GetHeader()
     {
         Response.Write(PageUtils.GetPreHeader() + ": Engagements");
-    }
-
-    public void UpdateOnOffStatus(string theTableName, string sID, string sStatus)
-    {
-
-    }
+    }    
 }

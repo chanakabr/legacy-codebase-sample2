@@ -101,9 +101,7 @@ public partial class adm_engagements_new : System.Web.UI.Page
     {
         NameValueCollection nvc = Request.Form;
 
-        Engagement engagement = new Engagement();
-
-        engagement.IsActive = true;
+        Engagement engagement = new Engagement();        
 
         if (!string.IsNullOrEmpty(nvc["0_val"]))
         {
