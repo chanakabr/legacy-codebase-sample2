@@ -450,7 +450,6 @@ namespace DAL
                 sp.AddParameter("@intervalSeconds", engagement.IntervalSeconds);
                 sp.AddParameter("@userList", engagement.UserList);
                 sp.AddParameter("@couponGroupId", engagement.CouponGroupId);
-                sp.AddParameter("@isActive", engagement.IsActive);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -551,7 +550,6 @@ namespace DAL
                     SendTime = ODBCWrapper.Utils.GetDateSafeVal(dr, "SEND_TIME"),
                     TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOTAL_NUMBER_OF_RECIPIENTS"),
                     UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST"),
-                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1 ? true : false,
                     CouponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID")
                 };
             }
