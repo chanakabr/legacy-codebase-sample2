@@ -764,11 +764,12 @@
             <returns></returns>
             <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64)">
+        <member name="M:WebAPI.Controllers.ReminderController.Delete(System.Int64,WebAPI.Models.Notifications.KalturaReminderType)">
             <summary>
             Delete a reminder. Reminder cannot be delete while being sent.
             </summary>
             <param name="id">Id of the reminder.</param>
+            <param name="type">Reminder type.</param>
             <returns></returns>
             <remarks></remarks>
         </member>
@@ -7413,11 +7414,6 @@
             Current Bitrate
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
-            <summary>
-            Engagement type: Churn=1
-            </summary>
-        </member>
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Name">
             <summary>
             Reminder name
@@ -7426,6 +7422,31 @@
         <member name="P:WebAPI.Models.Notifications.KalturaReminder.Id">
             <summary>
             Reminder id
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaReminder.Type">
+            <summary>
+            Reminder type
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeriesId">
+            <summary>
+            Series identifier
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.SeasonNumber">
+            <summary>
+            Season number
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notifications.KalturaSeriesReminder.EpgChannelId">
+            <summary>
+            EPG channel identifier 
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Notification.KalturaEngagementType">
+            <summary>
+            Engagement type: Churn=1
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notifications.KalturaAssetReminder.AssetId">
@@ -7576,6 +7597,46 @@
             Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
             Search values are limited to 20 characters each.
             (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSingleReminderFilter.KSql">
+            <summary>
+            <![CDATA[
+            Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
+            Possible keys: any Tag or Meta defined in the system and the following reserved keys: start_date, end_date. 
+            epg_id, media_id - for specific asset IDs.
+            geo_block - only valid value is "true": When enabled, only assets that are not restriced to the user by geo-block rules will return.
+            parental_rules - only valid value is "true": When enabled, only assets that the user doesn't need to provide PIN code will return.
+            epg_channel_id – the channel identifier of the EPG program.
+            entitled_assets - valid values: "free", "entitled", "both". free - gets only free to watch assets. entitled - only those that the user is implicitly entitled to watch.
+            Comparison operators: for numerical fields =, >, >=, <, <=, : (in). For alpha-numerical fields =, != (not), ~ (like), !~, ^ (starts with). Logical conjunction: and, or. 
+            Search values are limited to 20 characters each. 
+            (maximum length of entire filter is 2048 characters)]]>
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminderFilter.SeriesIdIn">
+            <summary>
+            Comma separated series IDs
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeriesReminderFilter.EpgChannelIdEqual">
+            <summary>
+            EPG channel ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.SeriesIdEqual">
+            <summary>
+            Series ID
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.SeasonNumberIn">
+            <summary>
+            Comma separated season numbers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Notification.KalturaSeasonsReminderFilter.EpgChannelIdEqual">
+            <summary>
+            EPG channel ID
             </summary>
         </member>
         <member name="T:WebAPI.Models.Notification.KalturaReminderListResponse">

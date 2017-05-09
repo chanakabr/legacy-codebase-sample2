@@ -609,6 +609,7 @@
     <Compile Include="Models\API\KalturaUserRole.cs" />
     <Compile Include="Models\General\KalturaValue.cs" />
     <Compile Include="Models\KalturaPlayerAssetData.cs" />
+    <Compile Include="Models\Notification\KalturaSeriesReminder.cs" />
     <Compile Include="Models\Notification\KalturaEngagementType.cs" />
     <Compile Include="Models\Notification\KalturaAssetReminder.cs" />
     <Compile Include="Models\Notification\KalturaEngagement.cs" />

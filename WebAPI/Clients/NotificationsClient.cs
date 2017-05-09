@@ -1371,7 +1371,7 @@ namespace WebAPI.Clients
             return kalturaReminder;
         }
 
-        internal bool DeleteReminder(string userID, int groupId, long reminderId)
+        internal bool DeleteReminder(string userID, int groupId, long reminderId, KalturaReminderType type)
         {
             Status response = null;
 
@@ -1381,14 +1381,13 @@ namespace WebAPI.Clients
                 throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
             }
 
-            // get group ID
-            
+            ReminderType wsReminderType = NotificationMapping.ConvertReminderType(type);
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.DeleteUserReminder(groupId, userId, reminderId);
+                    response = Core.Notification.Module.DeleteUserReminder(groupId, userId, reminderId, wsReminderType);
                 }
             }
             catch (Exception ex)
@@ -1843,6 +1842,51 @@ namespace WebAPI.Clients
 
             kalturaEngagement = Mapper.Map<KalturaEngagement>(response.Engagement);
             return kalturaEngagement;
+        }
+
+        internal KalturaReminderListResponse GetSeriesReminders(int groupId, string userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
+            int pageSize, int pageIndex, KalturaReminderOrderBy orderBy)
+        {
+            SeriesRemindersResponse response = null;
+            List<KalturaReminder> result = null;
+            KalturaReminderListResponse ret = null;
+
+            int userIdInt = 0;
+            if (!int.TryParse(userId, out userIdInt))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid user ID");
+            }
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Notification.Module.GetUserSeriesReminders(groupId, userIdInt, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetSeriesReminders. groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Reminders != null && response.Reminders.Count > 0)
+            {
+                result = Mapper.Map<List<KalturaReminder>>(response.Reminders);
+            }
+            ret = new KalturaReminderListResponse() { Reminders = result, TotalCount = response.TotalCount };
+
+            return ret;
         }
     }
 }
