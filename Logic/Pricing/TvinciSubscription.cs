@@ -791,9 +791,10 @@ namespace Core.Pricing
             DataTable dt = ds.Tables[7];
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                SubscriptionCouponGroup scg = new SubscriptionCouponGroup();
+                SubscriptionCouponGroup scg = null;
                 foreach (DataRow dr in dt.Rows)
                 {
+                    scg = new SubscriptionCouponGroup();
                     long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "subscription_id");
                     long couponGroupID = ODBCWrapper.Utils.GetLongSafeVal(dr, "COUPON_GROUP_ID");
                     DateTime startDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "START_DATE");
