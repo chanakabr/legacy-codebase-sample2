@@ -7851,7 +7851,7 @@
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.MessageType">
             <summary>
-            Template type. Possible values: Series, Reminder,Churn
+            Template type. Possible values: Series, Reminder,Churn, SeriesReminder
             </summary>
         </member>
         <member name="P:WebAPI.Models.Notification.KalturaMessageTemplate.Sound">

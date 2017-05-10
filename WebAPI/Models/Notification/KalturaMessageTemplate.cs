@@ -31,7 +31,7 @@ namespace WebAPI.Models.Notification
         public string DateFormat { get; set; }
 
         /// <summary>
-        /// Template type. Possible values: Series, Reminder,Churn
+        /// Template type. Possible values: Series, Reminder,Churn, SeriesReminder
         /// </summary>
         [DataMember(Name = "messageType")]
         [JsonProperty(PropertyName = "messageType")]
