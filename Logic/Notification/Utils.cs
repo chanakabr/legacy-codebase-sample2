@@ -222,7 +222,7 @@ namespace Core.Notification
             Dictionary<string, DbSeriesReminder> result = new Dictionary<string, DbSeriesReminder>();
             try
             {
-                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("seriesReminderIds"))
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("seriesReminderIds"))
                 {                                        
                     int? groupId = funcParams["groupId"] as int?;
                     List<long> seriesReminderIds = funcParams["seriesReminderIds"] != null ? funcParams["seriesReminderIds"] as List<long> : null;
