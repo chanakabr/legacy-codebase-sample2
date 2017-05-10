@@ -938,7 +938,7 @@ namespace Core.Pricing
                         services = subsServicesMapping[lSubCode].ToArray();
                     }
 
-                    List<SubscriptionCouponGroup> couponsGroup = null;
+                    List<SubscriptionCouponGroup> couponsGroup = new List<SubscriptionCouponGroup>();
                     if (subsCouponsGroup.ContainsKey(lSubCode))
                     {
                         couponsGroup = subsCouponsGroup[lSubCode].ToList();
