@@ -22,6 +22,7 @@ using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
 using TVinciShared;
 using System.Threading.Tasks;
+using CachingProvider.LayeredCache;
 
 namespace Core.Notification
 {
@@ -377,6 +378,7 @@ namespace Core.Notification
                         return response;
                     }
 
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSeriesRemindersInvalidationKey(dbSeriesReminder.GroupId, reminderId));
                     dbSeriesReminder.ID = reminderId;
 
                     // TODO: TASK
