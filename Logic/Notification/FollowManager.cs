@@ -161,6 +161,9 @@ namespace Core.Notification
                 case ApiObjects.MessageTemplateType.Churn:
                     validationStatus = ValidatePlaceholders<eChurnPlaceHolders>(ref message);
                     break;
+                case ApiObjects.MessageTemplateType.SeriesReminder:
+                    validationStatus = ValidatePlaceholders<eSeriesReminderPlaceHolders>(ref message);
+                    break;
                 default:
                     break;
             }
@@ -187,6 +190,9 @@ namespace Core.Notification
                     break;
                 case ApiObjects.MessageTemplateType.Churn:
                     validationStatus = ValidatePlaceholders<eChurnPlaceHolders>(ref url);
+                    break;
+                case ApiObjects.MessageTemplateType.SeriesReminder:
+                    validationStatus = ValidatePlaceholders<eSeriesReminderPlaceHolders>(ref url);
                     break;
                 default:
                     break;
