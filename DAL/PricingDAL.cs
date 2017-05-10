@@ -989,7 +989,7 @@ namespace DAL
         }
 
         public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
-            string previewModule, XmlDocument xmlDoc)
+            string previewModule, List<string> couponGroups)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
             sp.SetConnectionKey("pricing_connection");
@@ -1000,8 +1000,7 @@ namespace DAL
             sp.AddIDListParameter<string>("@PricePlansCodes", pricePlansCodes, "STR");
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
-
-            sp.AddParameter("@CouponGroups", xmlDoc.InnerXml);
+            sp.AddIDListParameter<string>("@CouponGroups", couponGroups, "STR");
 
             return sp.Execute();
         }
