@@ -963,31 +963,6 @@ namespace DAL
             return false;
         }
 
-
-        internal static void BuildCouponsGroupXML(XmlNode rootNode, XmlDocument xmlDoc, CouponsGroups couponGroup)
-        {
-            XmlNode rowNode;
-            XmlNode codeNode;
-            XmlNode startDateNode;
-            XmlNode endDateNode;
-
-            rowNode = xmlDoc.CreateElement("row");
-
-            codeNode = xmlDoc.CreateElement("code");
-            codeNode.InnerText = couponGroup.Code;
-            rowNode.AppendChild(codeNode);
-
-            startDateNode = xmlDoc.CreateElement("start_date");
-            startDateNode.InnerText = couponGroup.StartDate.HasValue ? couponGroup.StartDate.Value.ToString() : null;
-            rowNode.AppendChild(startDateNode);
-
-            endDateNode = xmlDoc.CreateElement("end_date");
-            endDateNode.InnerText = couponGroup.EndDate.HasValue ? couponGroup.EndDate.Value.ToString() : null;
-            rowNode.AppendChild(endDateNode);
-
-            rootNode.AppendChild(rowNode);
-        }
-
         public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
             string previewModule, List<string> couponGroups)
         {
@@ -1006,7 +981,7 @@ namespace DAL
         }
 
         public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
-            int previewModuleID, int internalDiscountID)
+            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups)
         {
             try
             {
@@ -1036,6 +1011,7 @@ namespace DAL
                 sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 sp.AddParameter("@OrderNum", mpp.OrderNumber);
+                sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);               
                 
                 return sp.ExecuteReturnValue<int>();
             }
@@ -1063,8 +1039,8 @@ namespace DAL
             return 0;
         }
 
-        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes, 
-            int previewModuleID, int internalDiscountID)
+        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
+            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups)
         {
             StoredProcedure sp = new StoredProcedure("Update_MPP");
             sp.SetConnectionKey("pricing_connection");
@@ -1093,7 +1069,10 @@ namespace DAL
             sp.AddIDListParameter<long>("@Channels", channels, "Id");
             sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
-            sp.AddParameter("@OrderNum", mpp.OrderNumber);            
+            sp.AddParameter("@OrderNum", mpp.OrderNumber);
+
+            sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);
+            sp.AddParameter("@xmlDocRowCount", (couponsGroups.ChildNodes != null && couponsGroups.ChildNodes.Count > 0) ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>(); ;
         }
