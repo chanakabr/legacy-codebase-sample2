@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using AutoMapper;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,6 @@ using WebAPI.Models.Notification;
 using WebAPI.Models.Notifications;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using Newtonsoft.Json;
 
 namespace WebAPI.Clients
 {
@@ -1711,39 +1711,8 @@ namespace WebAPI.Clients
             engagementAdapter = Mapper.Map<KalturaEngagementAdapter>(response);
             return engagementAdapter;
         }
-
-        internal bool SetEngagementAdapterSettings(int groupId, int engagementAdapterId, SerializableDictionary<string, KalturaStringValue> settings)
-        {
-            Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    List<EngagementAdapterSettings> configs = NotificationMapping.ConvertEngagementAdapterSettings(settings);
-                    response = Core.Notification.Module.SetEngagementAdapterSettings(groupId, engagementAdapterId, configs);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SetEngagementAdapterSettings. groupID: {0}, engagementAdapterId: {1}, exception: {2}", groupId, engagementAdapterId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Code, response.Message);
-            }
-
-            return true;
-        }
-
-        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)
+       
+        internal List<KalturaEngagement> GetEngagements(int groupId, List<KalturaEngagementType> typeIn, long? sendTimeLessThanOrEqual)        
         {
             List<KalturaEngagement> list = null;
             EngagementResponseList response = null;
