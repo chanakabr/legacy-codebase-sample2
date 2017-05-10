@@ -4968,6 +4968,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPushMessage":
+                    switch(property.Name)
+                    {
+                        case "Action":
+                            return "action";
+                        case "Message":
+                            return "message";
+                        case "Sound":
+                            return "sound";
+                        case "Url":
+                            return "url";
+                    }
+                    break;
+                    
                 case "KalturaPushParams":
                     switch(property.Name)
                     {
