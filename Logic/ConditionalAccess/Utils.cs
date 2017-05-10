@@ -1192,9 +1192,16 @@ namespace Core.ConditionalAccess
                         long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
 
                         // look ig this coupon group id exsits in coupon list 
-                        CouponsGroup couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)(theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
-                            theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon && 
-                                (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault()));
+                        CouponsGroup couponGroups = null;
+                        if (theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon)
+                        {
+                            couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)theSub.m_oCouponsGroup);
+                        }
+                        else if (subscription.CouponsGroups != null)
+                        {
+                            couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>(theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon && 
+                                (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
+                        }
                                                 
                         if (externalDisount != null)
                         {
