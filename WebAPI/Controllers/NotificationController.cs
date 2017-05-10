@@ -111,13 +111,13 @@ namespace WebAPI.Controllers
 
 
         /// <summary>
-        /// TBD 
+        /// Sends push notification to user devices  
         /// </summary>
         /// <remarks>
         /// Possible status codes:       
         /// </remarks>
-        /// <param name="userId">TBD</param>        
-        /// <param name="pushMessage">TBD</param>     
+        /// <param name="userId">User identifications</param>        
+        /// <param name="pushMessage">Message push data</param>     
         [Route("sendPush"), HttpPost]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -138,6 +138,9 @@ namespace WebAPI.Controllers
 
                 if (string.IsNullOrEmpty(pushMessage.Message))
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "pushMessage.message");
+
+                if (System.Text.ASCIIEncoding.Unicode.GetByteCount(pushMessage.Message) > 2000)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_MAX_LENGTH_CROSSED, "pushMessage.message", 2000);
 
                 // call client                
                 response = ClientsManager.NotificationClient().SendPush(groupId, userId, pushMessage);
