@@ -7,8 +7,9 @@ namespace WebAPI.Models.General
     [KalturaIntEnum]
     public enum KalturaMessageTemplateType
     {
-        Series= 0,
+        Series = 0,
         Reminder = 1,
-        Churn = 2
+        Churn = 2,
+        SeriesReminder = 3
     }
 }

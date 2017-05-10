@@ -575,6 +575,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case MessageTemplateType.Churn:
                     result = KalturaMessageTemplateType.Churn;
                     break;
+                case MessageTemplateType.SeriesReminder:
+                    result = KalturaMessageTemplateType.SeriesReminder;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown message Type");
             }
@@ -596,6 +599,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaMessageTemplateType.Churn:
                     result = MessageTemplateType.Churn;
+                    break;
+                case KalturaMessageTemplateType.SeriesReminder:
+                    result = MessageTemplateType.SeriesReminder;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown message Type");
