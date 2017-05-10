@@ -27,6 +27,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter doesn't exist";
         private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "Engagement adapter wasn't found";
         private const string NAME_REQUIRED = "Name must have a value";
+        private const string ADAPTER_URL_REQUIRED = "ADAPTER URL must have a value";
         private const string PROVIDER_URL_REQUIRED = "Provider URL must have a value";
         private const string NO_ENGAGEMENT_ADAPTER_TO_UPDATE = "No Engagement adapter to update";
         private const string NO_PARAMS_TO_INSERT = "No parameters to insert";
@@ -149,6 +150,12 @@ namespace Core.Notification
 
                 if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
@@ -200,6 +207,12 @@ namespace Core.Notification
 
                 if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
@@ -217,27 +230,29 @@ namespace Core.Notification
                     return response;
                 }
 
-                response.EngagementAdapter = EngagementDal.SetEngagementAdapter(groupId, engagementAdapter);
+                if (engagementAdapter.SkipSettings)
+                {
+                    // update EngagementAdapter
+                    response.EngagementAdapter = EngagementDal.SetEngagementAdapter(groupId, engagementAdapter);
+                    if (response.EngagementAdapter == null)
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes");
+                }
+                else
+                {
+                    // update EngagementAdapter & EngagementAdapterSettings
+                    response.EngagementAdapter = EngagementDal.SetEngagementAdapterWithSettings(groupId, engagementAdapter);
+                    if (response.EngagementAdapter != null && response.EngagementAdapter.Settings == null)
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes, check your params");
+                }
 
                 if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter was successfully set");
 
-                    if (!engagementAdapter.SkipSettings)
-                    {
-                        bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapter.ID, engagementAdapter.Settings);
-                        if (isSet)
-                            response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
-                        else
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes, check your params");
-                    }
-
                     bool isSendSucceeded = EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter);
                     if (!isSendSucceeded)
                         log.DebugFormat("SetEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapter.ID);
                 }
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes");
             }
             catch (Exception ex)
             {
