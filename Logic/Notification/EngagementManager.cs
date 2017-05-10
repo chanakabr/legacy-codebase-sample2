@@ -473,7 +473,7 @@ namespace Core.Notification
             }
 
             // Get all engagements from the last hour and forward
-            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1));
             if (lastHourAndFutureEngagement != null)
             {
                 // validate same engagement was not already sent in the last hour
@@ -606,7 +606,7 @@ namespace Core.Notification
 
             try
             {
-                response.Engagements = EngagementDal.GetEngagementList(groupId, sendTimeLessThanOrEqual, false, engagementTypes);
+                response.Engagements = EngagementDal.GetEngagementList(groupId, sendTimeLessThanOrEqual, engagementTypes);
                 if (response.Engagements == null || response.Engagements.Count == 0)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "No engagement were found");
                 else
@@ -650,7 +650,7 @@ namespace Core.Notification
             DateTime utcNow = DateTime.UtcNow;
 
             // Get all engagements from the last hour forward
-            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1), true);
+            List<Engagement> lastHourAndFutureEngagement = EngagementDal.GetEngagementList(partnerId, utcNow.AddHours(-1));
             if (lastHourAndFutureEngagement == null || lastHourAndFutureEngagement.Count == 0)
             {
                 log.ErrorFormat("No Engagements were found in DB. Engagement ID: {0}", engagementId);
@@ -838,7 +838,6 @@ namespace Core.Notification
                 IntervalSeconds = engagementToBeSent.IntervalSeconds,
                 SendTime = engagementToBeSent.SendTime.AddSeconds(engagementToBeSent.IntervalSeconds),
                 CouponGroupId = engagementToBeSent.CouponGroupId,
-                IsActive = true,
                 UserList = engagementToBeSent.UserList
             };
 
@@ -874,13 +873,6 @@ namespace Core.Notification
             {
                 log.ErrorFormat("Engagement was not found in DB. Engagement ID: {0}", engagementId);
                 return false;
-            }
-
-            // validate engagement 
-            if (engagement.IsActive == false)
-            {
-                log.ErrorFormat("Engagement is active false. Engagement ID: {0}", engagementId);
-                return true;
             }
 
             // get relevant engagement bulk message   

@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
 using ScheduledTasks;
 using TVinciShared;
+using System.Threading.Tasks;
 
 namespace Core.Notification
 {
@@ -183,7 +184,8 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (userNotificationData.Reminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null)
+                if (userNotificationData.Reminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null || 
+                    IsAlreadyFollowedAsSeries(dbReminder.GroupId, epgProgram, userNotificationData.SeriesReminders))
                 {
                     // user already set the reminder
                     log.DebugFormat("User is already set a reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbReminder.GroupId, userId, dbReminder.ID);
@@ -292,13 +294,44 @@ namespace Core.Notification
             return response;
         }
 
+        private static bool IsAlreadyFollowedAsSeries(int groupId, ProgramObj epgProgram, List<Announcement> userSeriesReminders)
+        {
+            string seriesIdName, seasonNumberName, episodeNumberName;
+            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            {
+                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
+                return false;
+            }
+
+            string seriesId = epgProgram.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value;
+            string seasonNum = epgProgram.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value;
+            long seasonNumber;
+
+            if (!string.IsNullOrEmpty(seasonNum) && long.TryParse(seasonNum, out seasonNumber))
+            {
+                DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
+                if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
+                {
+                    return true;
+                }
+            }
+
+            DbSeriesReminder seriesReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, null, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
+            if (seriesReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesReminder.ID).FirstOrDefault() != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static RemindersResponse AddUserSeriesReminder(int userId, DbSeriesReminder clientReminder)
         {
             RemindersResponse response = new RemindersResponse();
             int reminderId = 0;
             string externalTopicId = string.Empty;
             DbSeriesReminder dbSeriesReminder = null;
-
+            List<Task> tasks = null;
             try
             {
                 // validate reminder is enabled
@@ -347,7 +380,8 @@ namespace Core.Notification
                     dbSeriesReminder.ID = reminderId;
 
                     // TODO: TASK
-                    SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId);
+                    tasks = new List<Task>();
+                    tasks.Add(Task.Factory.StartNew(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));                    
                 }
 
 
@@ -356,6 +390,7 @@ namespace Core.Notification
                 response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
+                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -364,6 +399,7 @@ namespace Core.Notification
                     // user already set the reminder
                     log.DebugFormat("User is already set a series reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbSeriesReminder.GroupId, userId, dbSeriesReminder.ID);
                     response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
+                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -381,6 +417,7 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("error setting user reminder notification data. group: {0}, user id: {1}", dbSeriesReminder.GroupId, userId);
                     response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -466,6 +503,7 @@ namespace Core.Notification
             }
             response.Reminders = new List<DbReminder>();
             response.Reminders.Add(dbSeriesReminder);
+            Utils.WaitForAllTasksToFinish(tasks);
             return response;
         }
 
@@ -1560,8 +1598,7 @@ namespace Core.Notification
             }
 
             // get reminder from DB
-            List<DbSeriesReminder>  dbSeriesReminders = NotificationDal.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
-            // TODO: cache
+            List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
 
             if (seriesIds.Count > 0)
             {
@@ -1592,6 +1629,71 @@ namespace Core.Notification
             // Clear Announcements
             UserMessageFlow.DeleteOldAnnouncements(groupId, userNotificationData);
 
+            return response;
+        }
+
+        internal static RegistryResponse RegisterPushSeriesReminderParameters(int groupId, long seriesReminderId, string hash, string ip)
+        {
+            RegistryResponse response = new RegistryResponse() { Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()) };
+
+            // get all reminders
+            var reminders = NotificationDal.GetSeriesReminders(groupId, new List<long> { seriesReminderId });
+            if (reminders == null || reminders.Count == 0)
+            {
+                log.Error("GetPushWebParams: series reminders were not found.");
+                response.Status = new Status((int)eResponseStatus.ReminderNotFound, "reminders were not found");
+                return response;
+            }
+
+            // build queue name
+            string queueName = string.Format(REMINDER_QUEUE_NAME_FORMAT, groupId, seriesReminderId);
+
+            // get relevant reminder
+            var reminder = reminders.Where(x => x.ID == seriesReminderId).FirstOrDefault();
+            if (reminder == null)
+            {
+                log.ErrorFormat("GetPushWebParams: reminder not found. id: {0}.", seriesReminderId);
+                response.Status = new Status((int)eResponseStatus.ItemNotFound, eResponseStatus.ItemNotFound.ToString());
+            }
+            else
+            {
+                // update web push queue name on DB (if necessary)
+                if (string.IsNullOrEmpty(reminder.RouteName))
+                {
+                    reminder.RouteName = queueName;
+
+                    if (DAL.NotificationDal.SetSeriesReminder(reminder) == 0)
+                    {
+                        log.ErrorFormat("Error while trying to update reminder with web push queue name. GID: {0}, reminder ID: {1}, queue name: {2}",
+                            groupId,
+                            reminder.ID,
+                            queueName);
+                    }
+                    else
+                    {
+                        log.DebugFormat("Successfully update reminder with web push queue name. GID: {0}, reminder ID: {1}, queue name: {2}",
+                            groupId,
+                            reminder.ID,
+                            queueName);
+                    }
+                }
+
+                // create key
+                string keyToEncrypt = string.Format("{0}:{1}", queueName, hash);
+                string encryptedKey = EncryptUtils.EncryptRJ128(outerPushServerSecret, outerPushServerIV, keyToEncrypt);
+
+                // create URL
+                Random rand = new Random();
+                string tokenPart = string.Format("{0}:{1}:{2}:{3}", outerPushServerSecret, ip, hash, rand.Next());
+                string encryptedtokenPart = EncryptUtils.EncryptRJ128(outerPushServerSecret, outerPushServerIV, tokenPart);
+                string token = HttpUtility.UrlEncode(Convert.ToBase64String(Encoding.UTF8.GetBytes(groupId + ":" + encryptedtokenPart)));
+                string url = string.Format(@"http://{0}/?p={1}&x={2}", outerPushDomainName, groupId, token);
+
+                log.DebugFormat("GetPushWebParams: Create URL and key for queue: {0}. URL: {1}, KEY: {2}", queueName, url, encryptedKey);
+                response.Url = url;
+                response.Key = encryptedKey;
+                response.NotificationId = seriesReminderId;
+            }
             return response;
         }
     }

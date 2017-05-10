@@ -9,17 +9,17 @@ namespace Core.Pricing
     [Serializable]
     public class SubscriptionCouponGroup : CouponsGroup
     {
-        public DateTime startDate;
-        public DateTime endDate;
+        public DateTime? startDate;
+        public DateTime? endDate;
 
         public SubscriptionCouponGroup()
             : base()
         {
-            startDate = new DateTime(2000, 1, 1);
-            endDate = new DateTime(2020, 1, 1);
+            startDate = null;
+            endDate = null;
         }
 
-        public void Initialize(DateTime startDate, DateTime endDate, CouponsGroup couponGroupData)
+        public void Initialize(DateTime? startDate, DateTime? endDate, CouponsGroup couponGroupData)
         {
             this.startDate = startDate;
             this.endDate = endDate;
