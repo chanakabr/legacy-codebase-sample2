@@ -225,13 +225,6 @@ namespace Core.Notification
 
                     if (!engagementAdapter.SkipSettings)
                     {
-                        int matchingKeyAmount = GetMatchingKeyAmount(response.EngagementAdapter.Settings, engagementAdapter.Settings);
-                        if (matchingKeyAmount != engagementAdapter.Settings.Count)
-                        {
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
-                            return response;
-                        }
-
                         bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapter.ID, engagementAdapter.Settings);
                         if (isSet)
                             response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
