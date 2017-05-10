@@ -450,7 +450,6 @@ namespace DAL
                 sp.AddParameter("@intervalSeconds", engagement.IntervalSeconds);
                 sp.AddParameter("@userList", engagement.UserList);
                 sp.AddParameter("@couponGroupId", engagement.CouponGroupId);
-                sp.AddParameter("@isActive", engagement.IsActive);
 
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -494,7 +493,7 @@ namespace DAL
             return res;
         }
 
-        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, bool shouldOnlyGetActive = false, List<eEngagementType> engagementTypes = null)
+        public static List<Engagement> GetEngagementList(int partnerId, DateTime? fromSendDate = null, List<eEngagementType> engagementTypes = null)
         {
             List<Engagement> res = new List<Engagement>();
             List<int> engagementTypeIds = new List<int>();
@@ -512,7 +511,6 @@ namespace DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_EngagementList");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", partnerId);
-                sp.AddParameter("@shouldGetOnlyActive", shouldOnlyGetActive);
                 sp.AddParameter("@fromDate", fromSendDate);
                 sp.AddIDListParameter("@engagementTypes", engagementTypeIds, "id");
                 DataSet ds = sp.ExecuteDataSet();
@@ -551,7 +549,6 @@ namespace DAL
                     SendTime = ODBCWrapper.Utils.GetDateSafeVal(dr, "SEND_TIME"),
                     TotalNumberOfRecipients = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOTAL_NUMBER_OF_RECIPIENTS"),
                     UserList = ODBCWrapper.Utils.GetSafeStr(dr, "USER_LIST"),
-                    IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1 ? true : false,
                     CouponGroupId = ODBCWrapper.Utils.GetIntSafeVal(dr, "COUPON_GROUP_ID")
                 };
             }

@@ -220,5 +220,30 @@ namespace CachingProvider.LayeredCache
             return string.Format("proxyIp_{0}", ip);
         }
 
+        public static string GetSeriesRemindersKey(int groupId, long seriesReminderId)
+        {
+            return string.Format("SeriesReminder_groupId_{0}_id_{1}", groupId, seriesReminderId);
+        }
+
+        public static string GetSeriesRemindersInvalidationKey(int groupId, long seriesReminderId)
+        {
+            return string.Format("SeriesReminderInvalidationKey_g_{0}_id_{1}", groupId, seriesReminderId);            
+        }        
+
+        public static Dictionary<string, List<string>> GetSeriesRemindersInvalidationKeysMap(int groupId, List<long> seriesReminderIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (seriesReminderIds != null && seriesReminderIds.Count > 0)
+            {
+                seriesReminderIds = seriesReminderIds.Distinct().ToList();
+                foreach (long id in seriesReminderIds)
+                {
+                    result.Add(GetSeriesRemindersKey(groupId, id), new List<string>() { GetSeriesRemindersInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;            
+        }
+
     }
 }
