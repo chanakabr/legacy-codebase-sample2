@@ -1221,5 +1221,15 @@ namespace DAL
             return  sp.ExecuteReturnValue<int>() > 0;
         }
 
+
+        public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId)
+        {
+            StoredProcedure sp = new StoredProcedure("GetAvailableSubscriptionsBySetId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SetId", setId);
+
+            return sp.Execute();
+        }
     }    
 }
