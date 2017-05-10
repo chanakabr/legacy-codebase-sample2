@@ -1785,8 +1785,8 @@ namespace NPVR
             {
                 string key = LayeredCacheKeys.GetEpgChannelExternalIdKey(groupID, epgChannelId);
                 // try to get from cache            
-                bool cacheResult = LayeredCache.Instance.Get<string>(key, ref cdvrId, GetExternalIdByEpgChannelId, new Dictionary<string, object>() { { "groupId", groupID },
-                                                                    { "epgChannelId", epgChannelId } }, groupID, LayeredCacheConfigNames.GET_EPG_CHANNEL_CDVR_ID);
+                bool cacheResult = LayeredCache.Instance.Get<string>(key, ref cdvrId, GetExternalIdByEpgChannelId, new Dictionary<string, object>() {{ "epgChannelId", epgChannelId } }, 
+                    groupID, LayeredCacheConfigNames.GET_EPG_CHANNEL_CDVR_ID);
             }
             catch (Exception ex)
             {
