@@ -857,15 +857,28 @@ namespace Core.Pricing
                 List<KeyValuePair<long, int>> pricePlansCodes = new List<KeyValuePair<long, int>>();
                 List<long> channels = new List<long>();
                 List<long> fileTypes = new List<long>();
+                Dictionary<long, string> groupCoupon = new Dictionary<long, string>();
                 int previewModuleID = 0;
                 int internalDiscountID = 0;
                 string Message = string.Empty;
-
-                Status status = ValidateMPP(mpp, eIngestAction.Insert, ref pricePlansCodes, ref channels, ref fileTypes, ref previewModuleID, ref internalDiscountID);
+                
+                Status status = ValidateMPP(mpp, eIngestAction.Insert, ref pricePlansCodes, ref channels, ref fileTypes, ref previewModuleID, ref internalDiscountID, ref groupCoupon);
                 int Id = 0;
                 if ((int)status.Code == (int)eResponseStatus.OK)
                 {
-                    Id = DAL.PricingDAL.InsertMPP(m_nGroupID, mpp, pricePlansCodes, channels, fileTypes, previewModuleID, internalDiscountID);
+                    // build xml with group coupons + dates 
+                    XmlDocument xmlDoc = new XmlDocument();
+                    if (mpp.couponGroups != null && mpp.couponGroups.Count > 0)
+                    {
+                        XmlNode rootNode = xmlDoc.CreateElement("root");
+                        xmlDoc.AppendChild(rootNode);
+                        // insert it to XML   
+                        foreach (CouponsGroups cg in mpp.couponGroups)
+                        {
+                            Utils.BuildCouponGroupsXML(rootNode, xmlDoc, groupCoupon, cg);
+                        }
+                    }
+                    Id = DAL.PricingDAL.InsertMPP(m_nGroupID, mpp, pricePlansCodes, channels, fileTypes, previewModuleID, internalDiscountID, xmlDoc);
                     if (Id == 0)
                     {
                         status = new Status((int)eResponseStatus.Error, string.Format(INGEST_FAILED_ERROR_FORMAT, "insert"));
@@ -894,15 +907,30 @@ namespace Core.Pricing
                 List<KeyValuePair<long, int>> pricePlansCodes = new List<KeyValuePair<long, int>>();
                 List<long> channels = new List<long>();
                 List<long> fileTypes = new List<long>();
+                Dictionary<long, string> groupCoupon = new Dictionary<long, string>();
                 int previewModuleID = -1;
                 int internalDiscountID = -1;
                 int Id = 0;
                 string Message = string.Empty;
 
-                Status status = ValidateMPP(mpp, eIngestAction.Update, ref pricePlansCodes, ref channels, ref fileTypes, ref previewModuleID, ref internalDiscountID);
+                Status status = ValidateMPP(mpp, eIngestAction.Update, ref pricePlansCodes, ref channels, ref fileTypes, ref previewModuleID, ref internalDiscountID, ref groupCoupon);
                 if ((int)status.Code == (int)eResponseStatus.OK)
                 {
-                    Id = DAL.PricingDAL.UpdateMPP(m_nGroupID, mpp, pricePlansCodes, channels, fileTypes, previewModuleID, internalDiscountID);
+
+                     // build xml with group coupons + dates 
+                    XmlDocument xmlDoc = new XmlDocument();
+                    if (mpp.couponGroups != null && mpp.couponGroups.Count > 0)
+                    {
+                        XmlNode rootNode = xmlDoc.CreateElement("root");
+                        xmlDoc.AppendChild(rootNode);
+                        // insert it to XML   
+                        foreach (CouponsGroups cg in mpp.couponGroups)
+                        {
+                            Utils.BuildCouponGroupsXML(rootNode, xmlDoc, groupCoupon, cg);
+                        }
+                    }
+
+                    Id = DAL.PricingDAL.UpdateMPP(m_nGroupID, mpp, pricePlansCodes, channels, fileTypes, previewModuleID, internalDiscountID, xmlDoc);
                     if (Id == 0)
                     {
                         status = new Status((int)eResponseStatus.Error, string.Format(INGEST_FAILED_ERROR_FORMAT, "update"));
@@ -1246,7 +1274,7 @@ namespace Core.Pricing
 
 
         private Status ValidateMPP(IngestMultiPricePlan mpp, eIngestAction action, ref List<KeyValuePair<long, int>> pricePlansCodes, ref List<long> channels, ref List<long> fileTypes,
-           ref int previewModuleID, ref int internalDiscountID)
+           ref int previewModuleID, ref int internalDiscountID, ref Dictionary<long, string> groupCoupon)
         {
             Status status = new Status((int)eResponseStatus.Error, "unexpected error");
             try
@@ -1370,6 +1398,19 @@ namespace Core.Pricing
                     fileTypes = result.AsEnumerable()
                        .Where<DataRow>(r => r.Field<string>("tableName") == "FileTypes")
                         .Select(r => r.Field<long>("id")).ToList();
+
+
+
+                    List<string> missingCouponGroups = result.AsEnumerable()
+                       .Where<DataRow>(r => r.Field<string>("tableName") == "CouponGroups" && r.Field<long>("id") == 0)
+                        .Select(r => r.Field<string>("code")).ToList<string>();
+                    if (missingCouponGroups.Count() > 0)
+                    {
+                        errorMessage = string.Format(INGEST_ERROR_NOT_EXIST_FORMAT, "coupon_groups", string.Join("', '", missingCouponGroups));
+                        return new Status((int)eResponseStatus.InvalidFileTypes, errorMessage);
+                    }
+                    groupCoupon = result.AsEnumerable()
+                       .Where<DataRow>(r => r.Field<string>("tableName") == "CouponGroups").ToDictionary(x=> x.Field<long>("id"), x=>x.Field<string>("code"));
                 }
             }
             catch (Exception ex)
