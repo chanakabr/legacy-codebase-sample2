@@ -514,6 +514,6 @@ namespace Core.Pricing
                 }
             }
             return sgList;
-        }
+        }      
     }
 }

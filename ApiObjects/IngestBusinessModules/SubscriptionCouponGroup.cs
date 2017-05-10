@@ -5,12 +5,12 @@ using System.Text;
 
 namespace ApiObjects.IngestBusinessModules
 {
-    public class SubscriptionCouponGroup
+    public class CouponsGroups
     {
         public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
 
-        public string CouponGroup { get; set; }
+        public string Code { get; set; }
     }
 }

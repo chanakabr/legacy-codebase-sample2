@@ -10,6 +10,8 @@ using ApiObjects.Response;
 using ApiObjects;
 using System.Data;
 using ApiObjects.Pricing;
+using System.Xml;
+using ApiObjects.IngestBusinessModules;
 
 namespace Core.Pricing
 {
@@ -1242,6 +1244,7 @@ namespace Core.Pricing
             return status;
         }
 
+
         private Status ValidateMPP(IngestMultiPricePlan mpp, eIngestAction action, ref List<KeyValuePair<long, int>> pricePlansCodes, ref List<long> channels, ref List<long> fileTypes,
            ref int previewModuleID, ref int internalDiscountID)
         {
@@ -1256,9 +1259,15 @@ namespace Core.Pricing
 
                 status = new Status((int)eResponseStatus.Error, "unexpected error");
 
-                // validate by action                
+                // validate by action
+                List<string> couponGroupCodes = new List<string>();
+                if (mpp.couponGroups != null && mpp.couponGroups.Count > 0)
+                {
+                    couponGroupCodes = mpp.couponGroups.Select(x => x.Code).ToList();
+                }
 
-                DataTable result = DAL.PricingDAL.ValidateMPP(m_nGroupID, mpp.Code, mpp.InternalDiscount, mpp.PricePlansCodes, mpp.Channels, mpp.FileTypes, mpp.PreviewModule);
+                DataTable result = DAL.PricingDAL.ValidateMPP(m_nGroupID, mpp.Code, mpp.InternalDiscount, mpp.PricePlansCodes, mpp.Channels, mpp.FileTypes, mpp.PreviewModule, couponGroupCodes);
+                
                 if (result != null && result.Rows != null)
                 {
                     status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

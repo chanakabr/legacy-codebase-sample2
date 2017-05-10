@@ -41,6 +41,6 @@ namespace ApiObjects
 
         public int? OrderNumber { get; set; }
 
-        public List<SubscriptionCouponGroup> couponGroups { get; set; }
+        public List<CouponsGroups> couponGroups { get; set; }
     }
 }
