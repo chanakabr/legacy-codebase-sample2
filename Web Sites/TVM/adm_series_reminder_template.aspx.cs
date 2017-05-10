@@ -137,7 +137,7 @@ public partial class adm_series_reminder_template : System.Web.UI.Page
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery.SetConnectionKey("notifications_connection");
-            selectQuery += "select ID, Message, date_format from message_templates where status=1 and asset_type=1 and";
+            selectQuery += string.Format("select ID, Message, date_format from message_templates where status=1 and asset_type={0} and", (int)MessageTemplateType.SeriesReminder);
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", groupID);
             if (selectQuery.Execute("query", true) != null)
             {
