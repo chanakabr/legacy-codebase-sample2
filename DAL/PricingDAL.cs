@@ -7,6 +7,10 @@ using ODBCWrapper;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.IngestBusinessModules;
+using System.Xml.Serialization;
+using System.IO;
+using System.Xml;
 
 namespace DAL
 {
@@ -959,8 +963,33 @@ namespace DAL
             return false;
         }
 
+
+        internal static void BuildCouponsGroupXML(XmlNode rootNode, XmlDocument xmlDoc, CouponsGroups couponGroup)
+        {
+            XmlNode rowNode;
+            XmlNode codeNode;
+            XmlNode startDateNode;
+            XmlNode endDateNode;
+
+            rowNode = xmlDoc.CreateElement("row");
+
+            codeNode = xmlDoc.CreateElement("code");
+            codeNode.InnerText = couponGroup.Code;
+            rowNode.AppendChild(codeNode);
+
+            startDateNode = xmlDoc.CreateElement("start_date");
+            startDateNode.InnerText = couponGroup.StartDate.HasValue ? couponGroup.StartDate.Value.ToString() : null;
+            rowNode.AppendChild(startDateNode);
+
+            endDateNode = xmlDoc.CreateElement("end_date");
+            endDateNode.InnerText = couponGroup.EndDate.HasValue ? couponGroup.EndDate.Value.ToString() : null;
+            rowNode.AppendChild(endDateNode);
+
+            rootNode.AppendChild(rowNode);
+        }
+
         public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
-            string previewModule)
+            string previewModule, XmlDocument xmlDoc)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
             sp.SetConnectionKey("pricing_connection");
@@ -971,6 +1000,8 @@ namespace DAL
             sp.AddIDListParameter<string>("@PricePlansCodes", pricePlansCodes, "STR");
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
+
+            sp.AddParameter("@CouponGroups", xmlDoc.InnerXml);
 
             return sp.Execute();
         }
