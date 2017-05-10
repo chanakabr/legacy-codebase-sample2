@@ -266,7 +266,8 @@ namespace ApiObjects
         None = 0,
         Series = 1,
         Reminder = 2,
-        Churn = 3
+        Churn = 3,
+        SeriesReminder = 4
     }
 
     public enum eOTTAssetTypes
@@ -556,7 +557,7 @@ namespace ApiObjects
         Error = 1,
         SignatureMismatch = 2,
         NoConfigurationFound = 3
-    }
+    }   
 
     public enum eFollowSeriesPlaceHolders
     {
@@ -579,6 +580,14 @@ namespace ApiObjects
         ChannelName = 1,
         StartDate = 2,
         ProgramId = 3
+    }
+
+    public enum eSeriesReminderPlaceHolders
+    {
+        ChannelName = 0,
+        StartDate = 1 ,
+        SeriesName = 2,
+        SeasonNumber = 3
     }
 
     public enum TstvRecordingStatus

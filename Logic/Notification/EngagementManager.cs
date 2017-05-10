@@ -1122,7 +1122,7 @@ namespace Core.Notification
             else
             {
                 // document exists - validate did not reach maximum of allowed user push messages
-                if (counter > MAX_PUSH_MSG_PER_SECONDS)
+                if (counter > allowedPushMsg)
                 {
                     log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
                     result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
