@@ -225,6 +225,13 @@ namespace Core.Notification
 
                     if (!engagementAdapter.SkipSettings)
                     {
+                        int matchingKeyAmount = GetMatchingKeyAmount(response.EngagementAdapter.Settings, engagementAdapter.Settings);
+                        if (matchingKeyAmount != engagementAdapter.Settings.Count)
+                        {
+                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
+                            return response;
+                        }
+
                         bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapter.ID, engagementAdapter.Settings);
                         if (isSet)
                             response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
@@ -287,58 +294,58 @@ namespace Core.Notification
             return response;
         }
 
-        internal static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> settings)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+        //internal static Status SetEngagementAdapterSettings(int groupId, int engagementAdapterId, System.Collections.Generic.List<EngagementAdapterSettings> settings)
+        //{
+        //    ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-            try
-            {
-                if (engagementAdapterId == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
-                    return response;
-                }
+        //    try
+        //    {
+        //        if (engagementAdapterId == 0)
+        //        {
+        //            response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterIdentifierRequired, ENGAGEMENT_ADAPTER_ID_REQUIRED);
+        //            return response;
+        //        }
 
-                if (settings == null || settings.Count == 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterParamsRequired, NO_PARAMS_TO_INSERT);
-                    return response;
-                }
+        //        if (settings == null || settings.Count == 0)
+        //        {
+        //            response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterParamsRequired, NO_PARAMS_TO_INSERT);
+        //            return response;
+        //        }
 
-                //check engagement Adapter exist
-                EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                if (engagementAdapter == null || engagementAdapter.ID <= 0)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
-                    return response;
-                }
+        //        //check engagement Adapter exist
+        //        EngagementAdapter engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
+        //        if (engagementAdapter == null || engagementAdapter.ID <= 0)
+        //        {
+        //            response = new ApiObjects.Response.Status((int)eResponseStatus.EngagementAdapterNotExist, ENGAGEMENT_ADAPTER_NOT_EXIST);
+        //            return response;
+        //        }
 
-                int matchingKeyAmount = GetMatchingKeyAmount(engagementAdapter.Settings, settings);
-                if (matchingKeyAmount != settings.Count)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
-                    return response;
-                }
+        //        int matchingKeyAmount = GetMatchingKeyAmount(engagementAdapter.Settings, settings);
+        //        if (matchingKeyAmount != settings.Count)
+        //        {
+        //            response = new ApiObjects.Response.Status((int)eResponseStatus.ConflictedParams, CONFLICTED_PARAMS);
+        //            return response;
+        //        }
 
-                bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapterId, settings);
-                if (isSet)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "successfully set engagement adapter changes");
-                    //Get engagement Adapter updated                        
-                    engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
-                    if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
-                        log.ErrorFormat("SetengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
-                }
-                else
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to set engagement adapter settings, please check your input parameters");
-            }
-            catch (Exception ex)
-            {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed to set engagement adapter settings. Group ID: {0}, engagement adapter ID: {1}", groupId, engagementAdapterId), ex);
-            }
-            return response;
-        }
+        //        bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapterId, settings);
+        //        if (isSet)
+        //        {
+        //            response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "successfully set engagement adapter changes");
+        //            //Get engagement Adapter updated                        
+        //            engagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapterId);
+        //            if (!EngagementAdapterClient.SendConfigurationToAdapter(groupId, engagementAdapter))
+        //                log.ErrorFormat("SetengagementAdapterSettings - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapterId);
+        //        }
+        //        else
+        //            response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to set engagement adapter settings, please check your input parameters");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+        //        log.Error(string.Format("Failed to set engagement adapter settings. Group ID: {0}, engagement adapter ID: {1}", groupId, engagementAdapterId), ex);
+        //    }
+        //    return response;
+        //}
 
         private static int GetMatchingKeyAmount(System.Collections.Generic.List<EngagementAdapterSettings> originalList, System.Collections.Generic.List<EngagementAdapterSettings> settings)
         {
