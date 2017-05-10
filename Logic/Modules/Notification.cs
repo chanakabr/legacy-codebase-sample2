@@ -514,17 +514,21 @@ namespace Core.Notification
             return response;
         }
 
-        private delegate bool InitiateNotificationActionCaller(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken);
+        private delegate bool InitiateNotificationActionCaller(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null);
 
         public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
         {
+            ContextData cd = new ContextData();
             InitiateNotificationActionCaller caller = InitiateNotificationAction;
-            return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken));
+            return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
         }
 
-        public static bool InitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        public static bool InitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null)
         {
             bool result = false;
+
+            if (cd != null)
+                cd.Load();
 
             try
             {
@@ -1012,7 +1016,7 @@ namespace Core.Notification
         public static EngagementAdapterResponse GenerateEngagementSharedSecret(int groupId, int engagementAdapterId)
         {
             return EngagementManager.GenerateEngagementSharedSecret(groupId, engagementAdapterId);
-        }        
+        }
 
         public static EngagementResponse AddEngagement(int groupId, Engagement engagement)
         {
@@ -1086,7 +1090,7 @@ namespace Core.Notification
                     partnerId,
                     engagementId,
                     ex);
-                
+
             }
             return false;
         }
