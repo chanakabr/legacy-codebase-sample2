@@ -27,6 +27,7 @@ namespace Core.Notification
         private const string ENGAGEMENT_ADAPTER_NOT_EXIST = "Engagement adapter doesn't exist";
         private const string NO_ENGAGEMENT_ADAPTER_TO_INSERT = "Engagement adapter wasn't found";
         private const string NAME_REQUIRED = "Name must have a value";
+        private const string ADAPTER_URL_REQUIRED = "ADAPTER URL must have a value";
         private const string PROVIDER_URL_REQUIRED = "Provider URL must have a value";
         private const string NO_ENGAGEMENT_ADAPTER_TO_UPDATE = "No Engagement adapter to update";
         private const string NO_PARAMS_TO_INSERT = "No parameters to insert";
@@ -149,6 +150,12 @@ namespace Core.Notification
 
                 if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
@@ -200,6 +207,12 @@ namespace Core.Notification
 
                 if (string.IsNullOrEmpty(engagementAdapter.AdapterUrl))
                 {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.AdapterUrlRequired, ADAPTER_URL_REQUIRED);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(engagementAdapter.ProviderUrl))
+                {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.ProviderUrlRequired, PROVIDER_URL_REQUIRED);
                     return response;
                 }
@@ -217,27 +230,29 @@ namespace Core.Notification
                     return response;
                 }
 
-                response.EngagementAdapter = EngagementDal.SetEngagementAdapter(groupId, engagementAdapter);
+                if (engagementAdapter.SkipSettings)
+                {
+                    // update EngagementAdapter
+                    response.EngagementAdapter = EngagementDal.SetEngagementAdapter(groupId, engagementAdapter);
+                    if (response.EngagementAdapter == null)
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes");
+                }
+                else
+                {
+                    // update EngagementAdapter & EngagementAdapterSettings
+                    response.EngagementAdapter = EngagementDal.SetEngagementAdapterWithSettings(groupId, engagementAdapter);
+                    if (response.EngagementAdapter != null && response.EngagementAdapter.Settings == null)
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes, check your params");
+                }
 
                 if (response.EngagementAdapter != null && response.EngagementAdapter.ID > 0)
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Engagement adapter was successfully set");
 
-                    if (!engagementAdapter.SkipSettings)
-                    {
-                        bool isSet = EngagementDal.SetEngagementAdapterSettings(groupId, engagementAdapter.ID, engagementAdapter.Settings);
-                        if (isSet)
-                            response.EngagementAdapter = EngagementDal.GetEngagementAdapter(groupId, engagementAdapter.ID);
-                        else
-                            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes, check your params");
-                    }
-
                     bool isSendSucceeded = EngagementAdapterClient.SendConfigurationToAdapter(groupId, response.EngagementAdapter);
                     if (!isSendSucceeded)
                         log.DebugFormat("SetEngagementAdapter - SendConfigurationToAdapter failed : AdapterID = {0}", engagementAdapter.ID);
                 }
-                else
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Engagement adapter failed set changes");
             }
             catch (Exception ex)
             {
@@ -1100,27 +1115,20 @@ namespace Core.Notification
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
-            // get user push document counter
-            int counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId);
-            if (counter == 1)
-            {
-                // document did not exist - create it (with TTL)
-                if (!NotificationDal.SetUserPushCounter(partnerId, userId))
-                {
-                    log.ErrorFormat("Error occurred while updating user push counter. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
-                    result = new Status() { Code = (int)eResponseStatus.Error };
-                    return result;
-                }
-            }
+            int counter = 0;
+
+            // check if user document exists
+            if (NotificationDal.IsUserPushDocExists(partnerId, userId))
+                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, false);
             else
+                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, true);
+
+            // validate did not reach maximum of allowed user push messages
+            if (counter > allowedPushMsg)
             {
-                // document exists - validate did not reach maximum of allowed user push messages
-                if (counter > allowedPushMsg)
-                {
-                    log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
-                    result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
-                    return result;
-                }
+                log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
+                result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
+                return result;
             }
 
             // get user notification data

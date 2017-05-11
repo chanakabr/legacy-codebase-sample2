@@ -515,5 +515,34 @@ namespace Core.Pricing
             }
             return sgList;
         }
+
+        internal static void BuildCouponGroupsXML(XmlNode rootNode, XmlDocument xmlDoc, Dictionary<long, string> groupCoupon, ApiObjects.IngestBusinessModules.CouponsGroups couponGroup)
+        {
+            XmlNode rowNode;
+            XmlNode couponGroupIddNode;
+            XmlNode startDateNode;
+            XmlNode endtDateNode;
+
+            long id = groupCoupon.ContainsValue(couponGroup.Code) ? groupCoupon.Where(x=>x.Value == couponGroup.Code).Select(x=>x.Key).FirstOrDefault() : 0;
+
+            if (id > 0)
+            {
+                rowNode = xmlDoc.CreateElement("row");
+
+                couponGroupIddNode = xmlDoc.CreateElement("coupon_group_id");
+                couponGroupIddNode.InnerText = id.ToString();
+                rowNode.AppendChild(couponGroupIddNode);
+
+                startDateNode = xmlDoc.CreateElement("start_date");
+                startDateNode.InnerText = couponGroup.StartDate.HasValue ? couponGroup.StartDate.Value.ToString() : null;
+                rowNode.AppendChild(startDateNode);
+
+                endtDateNode = xmlDoc.CreateElement("end_date");
+                endtDateNode.InnerText = couponGroup.EndDate.HasValue ? couponGroup.EndDate.Value.ToString() : null;
+                rowNode.AppendChild(endtDateNode);
+
+                rootNode.AppendChild(rowNode);
+            }
+        }
     }
 }
