@@ -394,7 +394,7 @@ namespace WebAPI.Managers
             // we currently not support app token without user
             if (string.IsNullOrEmpty(appToken.SessionUserId))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaAppToken.SessionUserId");
+                appToken.SessionUserId = KS.GetFromRequest().UserId;
             }
 
             // 1. generate id for the appToken
