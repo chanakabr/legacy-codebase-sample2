@@ -575,12 +575,7 @@ namespace Ingest.Importers
                         // file types
                         multiPricePlan.FileTypes= GetNodeStringList(node, "file_types/file_type");
 
-                        // coupon group - not supported
-                        nodeList = node.SelectNodes("coupon_group");
-                        if (nodeList != null && nodeList.Count > 0)
-                            multiPricePlan.CouponGroup = nodeList[0].InnerText;
-                        else
-                            multiPricePlan.CouponGroup = null;
+                      
 
                         // product code
                         nodeList = node.SelectNodes("product_code");
@@ -602,7 +597,17 @@ namespace Ingest.Importers
                             multiPricePlan.DomainLimitationModule = nodeList[0].InnerText;
                         else
                             multiPricePlan.DomainLimitationModule = null;
+                        
+                        // coupon group - not supported
+                        nodeList = node.SelectNodes("coupon_group");
+                        if (nodeList != null && nodeList.Count > 0)
+                            multiPricePlan.CouponGroup = nodeList[0].InnerText;
+                        else
+                            multiPricePlan.CouponGroup = null;
 
+                        // subscription_coupon_group
+                        multiPricePlan.couponGroups = GetNodeCouponGroupsList(node, "subscription_coupon_group/coupon_group_id", multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower());
+                        
                         // add multi price plan to response list
                         multiPricePlans.Add(multiPricePlan);
                     }
@@ -733,6 +738,8 @@ namespace Ingest.Importers
 
                         // file types
                         ppv.FileTypes = GetNodeStringList(node, "file_types/file_type");
+
+
 
                         // add ppv to response list
                         ppvs.Add(ppv);
@@ -1113,5 +1120,41 @@ namespace Ingest.Importers
             }
             return true;
         }
+
+        private static List<CouponsGroups> GetNodeCouponGroupsList(XmlNode node, string nodeName, string moduleCode, ref StringBuilder report, string reportId, string action)
+        {
+            List<CouponsGroups> response = null;
+
+            var nodeList = node.SelectNodes(nodeName);
+            if (nodeList != null)
+            {
+                response = new List<CouponsGroups>();
+                CouponsGroups cg = null;
+                for (int i = 0; i < nodeList.Count; i++)
+                {
+                    cg = new CouponsGroups();
+                    DateTime? dateVal;
+                    string strVal = string.Empty;
+
+                    if (GetNodeStrValue(nodeList[i], "code", PRICE_PLAN, moduleCode, ref report, reportId, action, out strVal))
+                    {
+                        cg.Code = strVal;
+
+                        if (GetNodeDateTimeValue(nodeList[i], "start_date", MULTI_PRICE_PLAN, moduleCode, DateTime.UtcNow, ref report, reportId, action, out dateVal))
+                            cg.StartDate = dateVal;
+
+                        if (GetNodeDateTimeValue(nodeList[i], "end_date", MULTI_PRICE_PLAN, moduleCode, DEFAULT_END_DATE, ref report, reportId, action, out dateVal))
+                            cg.EndDate = dateVal;
+
+                        response.Add(cg);
+                    }
+                }
+
+                response = response.Where(r => r != null).ToList();
+            }
+
+            return response;
+        }
+
     }
 }
