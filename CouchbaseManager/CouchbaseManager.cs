@@ -1788,12 +1788,18 @@ namespace CouchbaseManager
             if (incrementResult != null)
             {
                 if (incrementResult.Exception != null)
+                {
                     throw incrementResult.Exception;
+                }
 
                 if (incrementResult.Status == Couchbase.IO.ResponseStatus.Success)
+                {
                     result = incrementResult.Value;
+                }
                 else
+                {
                     HandleStatusCode(incrementResult, key);
+                }
             }
 
             return result;
