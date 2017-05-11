@@ -111,12 +111,9 @@ namespace DAL
             return prodDict;
         }
 
-
         private static void HandleException(Exception ex)
         {
         }
-
-
 
         public static List<string> GetSubscriptionOperatorCoGuids(int nGroupID, string sSubscriptionID)
         {
@@ -268,7 +265,6 @@ namespace DAL
             return dPackage;
         }
 
-
         public static List<KeyValuePair<string,string>> GetMediaDescription(List<string> lEpgIdentifier)
         {
             List<KeyValuePair<string, string>> lMediaDescription = new  List<KeyValuePair<string,string>>(); 
@@ -308,8 +304,7 @@ namespace DAL
             return Insert_DeviceFamilyToGroup(nGroupID, nDeviceFamilyID, nLimitationModuleID, string.Empty);
         }
 
-        public static bool Update_DeviceFamilyStatus(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, bool bIsDelete,
-            string sConnKey)
+        public static bool Update_DeviceFamilyStatus(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, bool bIsDelete, string sConnKey)
         {
             StoredProcedure sp = new StoredProcedure("Update_DeviceFamilyStatus");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -343,8 +338,7 @@ namespace DAL
             return Insert_DeviceFamilyToLimitationModule(nGroupID, nDeviceFamilyID, nLimitationModuleID, string.Empty);
         }
 
-        public static bool Update_DeviceFamilyToLimitationID(int nGroupID, int nLimitationID, int nDeviceFamilyID, bool bIsDelete,
-            string sConnKey)
+        public static bool Update_DeviceFamilyToLimitationID(int nGroupID, int nLimitationID, int nDeviceFamilyID, bool bIsDelete, string sConnKey)
         {
             StoredProcedure sp = new StoredProcedure("Update_DeviceFamilyToLimitationID");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CONNECTION_STRING");
@@ -389,7 +383,6 @@ namespace DAL
             return mediaID;
         }
 
-
         public static DataTable GetTagsWithDefaultValues(int nChannelID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTagsWithDefaultValues");
@@ -425,7 +418,6 @@ namespace DAL
             return dtGroups;
         }
 
-
         public static DataSet Get_ChannelMediaTypes(int groupID, int channelID)
         {
             StoredProcedure sp = new StoredProcedure("Get_ChannelMediaTypes");
@@ -460,7 +452,6 @@ namespace DAL
                 return ds.Tables[0];
             return null;
         }
-
 
         public static bool UpdateChannelMediaType(int channelMediaTypeID, int status, int groupID, int channelID)
         {
@@ -509,7 +500,6 @@ namespace DAL
 
             return sp.ExecuteReturnValue<bool>();
         }
-
 
         public static bool insertValueToLookupTable(DataTable dt)
         {
@@ -1221,7 +1211,6 @@ namespace DAL
             return  sp.ExecuteReturnValue<int>() > 0;
         }
 
-
         public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId)
         {
             StoredProcedure sp = new StoredProcedure("GetAvailableSubscriptionsBySetId");
@@ -1231,5 +1220,18 @@ namespace DAL
 
             return sp.Execute();
         }
+
+        public static bool UpdateSubscriptionsInSet(int groupId, long setId, List<KeyValuePair<long, int>> subscriptionsToUpdate, int updaterId)
+        {
+            StoredProcedure sp = new StoredProcedure("UpdateSubscriptionsInSet");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SetId", setId);
+            sp.AddKeyValueListParameter<long, int>(@"SubscriptionsToUpdate", subscriptionsToUpdate, "key", "value");
+            sp.AddParameter("@UpdaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
     }    
 }
