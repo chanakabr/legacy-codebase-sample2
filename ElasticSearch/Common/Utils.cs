@@ -108,7 +108,7 @@ namespace ElasticSearch.Common
             }
 
             string result = stringBuilder.ToString();
-            
+
             if (toLower)
             {
                 result = result.ToLower();
