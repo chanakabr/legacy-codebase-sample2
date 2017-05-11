@@ -1792,6 +1792,7 @@ namespace NPVR
             {
                 log.ErrorFormat("fail in ConvertEpgChannelIdToExternalID epgChannelId={0}, ex={1}", epgChannelId, ex);
             }
+
             return string.IsNullOrEmpty(cdvrId) ? epgChannelId : cdvrId;
         }
 
@@ -1820,25 +1821,19 @@ namespace NPVR
 
             try
             {
-                if (funcParams != null && funcParams.Count == 1)
+                int epgChannelId;
+                if (funcParams != null && funcParams.ContainsKey("epgChannelId") && !string.IsNullOrEmpty(funcParams["epgChannelId"].ToString())
+                    && int.TryParse(funcParams["epgChannelId"].ToString(), out epgChannelId) && epgChannelId > 0)
                 {
-                    if (funcParams.ContainsKey("epgChannelId") && !string.IsNullOrEmpty(funcParams.ContainsKey("epgChannelId").ToString()))
-                    {
-                        int? epgChannelId;
-                        epgChannelId = funcParams["epgChannelId"] as int?;
-
-                        if (epgChannelId.HasValue)
-                        {
-                            response = DAL.ConditionalAccessDAL.GetExternalIdByEpgChannel(epgChannelId.Value);
-                            res = true;
-                        }
-                    }
+                    response = DAL.ConditionalAccessDAL.GetExternalIdByEpgChannel(epgChannelId);
+                    res = true;
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("GetExternalIdByEpgChannelId failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
+
             return new Tuple<string, bool>(response, res);
         }
 
