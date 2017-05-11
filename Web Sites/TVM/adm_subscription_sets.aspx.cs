@@ -73,9 +73,9 @@ public partial class adm_subscription_sets : System.Web.UI.Page
         }
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
+        theTable.AddHiddenField("is_active");
         theTable.AddOrderByColumn("Name", "Name");
-        theTable.AddActivationField("sets");
-        theTable.AddHiddenField("is_active");      
+        theTable.AddActivationField("sets");              
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {

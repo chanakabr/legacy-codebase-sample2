@@ -1,8 +1,10 @@
 ﻿using DAL;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -10,9 +12,11 @@ using TVinciShared;
 
 public partial class adm_subscription_sets_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+    private static int maxOrderNum = 0;
+
     protected string m_sMenu;
-    protected string m_sSubMenu;
-    public static int maxOrderNum = 0;
+    protected string m_sSubMenu;    
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -24,11 +28,24 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         if (!IsPostBack)
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
-            {
-                int updaterId = LoginManager.GetLoginID();
-                DBManipulator.DoTheWork("pricing_connection");
+            {                
+                long setId = DBManipulator.DoTheWork("pricing_connection");
+                if (setId > 0 && UpdateSubscriptionsInSet(setId))
+                {
+                    Session["set_id"] = 0;
+                    Session["subscriptionsInSetMap"] = null;
+                    Session["availableSubscriptionsMap"] = null;
+                    EndOfAction();
+                }
+                else
+                {
+                    log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}", setId);
+                    HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new set";
+                }
+
                 return;
             }
+
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
             if (Request.QueryString["set_id"] != null && Request.QueryString["set_id"].ToString() != "")
@@ -43,7 +60,11 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                 }
             }
             else
+            {
                 Session["set_id"] = 0;
+                Session["subscriptionsInSetMap"] = null;
+                Session["availableSubscriptionsMap"] = null;
+            }
         }
 
     }
@@ -84,7 +105,12 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
 
         DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", true, 60, 128);
         dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "Name", true);
-        theRecord.AddRecord(dr_name);     
+        theRecord.AddRecord(dr_name);
+
+        DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+        dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+        dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+        theRecord.AddRecord(dr_groups);
 
         string sTable = theRecord.GetTableHTML("adm_subscription_sets_new.aspx?submited=1");
 
@@ -94,6 +120,11 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
     public string initDualObj()
     {
         long setId = 0;
+        if (Session["set_id"] != null)
+        {
+            long.TryParse(Session["set_id"].ToString(), out setId);
+        }
+
         Dictionary<string, object> dualList = new Dictionary<string, object>();
         dualList.Add("FirstListTitle", "Subscriptions Included In Set");
         dualList.Add("FirstListWithOrderByButtons", true);
@@ -105,10 +136,10 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         DataTable subscriptions = TvmDAL.GetAvailableSubscriptionsBySetId(nLogedInGroupID, setId);
         if (subscriptions != null && subscriptions.Rows != null)
         {
-            Dictionary<long, SubscriptionSet> subscriptionsInSetMap = new Dictionary<long, SubscriptionSet>();
+            Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = new Dictionary<long, SubscriptionSetWithOrder>();
             if (Session["subscriptionsInSetMap"] != null)
             {
-                subscriptionsInSetMap = (Dictionary<long, SubscriptionSet>)Session["subscriptionsInSetMap"];
+                subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
                 subscriptionSetsData.AddRange(subscriptionsInSetMap.Values);
             }
 
@@ -125,8 +156,9 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                     SubscriptionSet subscriptionSet = new SubscriptionSet() { ID = subscriptionId, Title = name, Description = !string.IsNullOrEmpty(description) ? description : name};
                     if (isPartOfSet && priority > 0)
                     {
-                        subscriptionSet.InList = true;
-                        subscriptionSet.OrderNum = priority;
+                        SubscriptionSetWithOrder subscriptionSetWithOrder = new SubscriptionSetWithOrder(subscriptionSet);
+                        subscriptionSetWithOrder.InList = true;
+                        subscriptionSetWithOrder.OrderNum = priority;
                         if (priority > maxOrderNum)
                         {
                             maxOrderNum = priority;
@@ -134,16 +166,17 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
 
                         if (!subscriptionsInSetMap.ContainsKey(subscriptionId))
                         {
-                            subscriptionsInSetMap.Add(subscriptionId, subscriptionSet);
+                            subscriptionsInSetMap.Add(subscriptionId, subscriptionSetWithOrder);
                         }
+
+                        subscriptionSetsData.Add(subscriptionSetWithOrder);
                     }
                     else
                     {
-                        availableSubscriptionsMap.Add(subscriptionId, subscriptionSet);                        
-                    }
-
-                    subscriptionSetsData.Add(subscriptionSet);
-                }                
+                        availableSubscriptionsMap.Add(subscriptionId, subscriptionSet);
+                        subscriptionSetsData.Add(subscriptionSet);
+                    }                    
+                }
             }
 
             Session["subscriptionsInSetMap"] = subscriptionsInSetMap;
@@ -161,13 +194,12 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
     }
 
     public string changeItemStatus(string id, string sAction)
-    {
-        long setId = 0;
-        Dictionary<long, SubscriptionSet> subscriptionsInSetMap = new Dictionary<long, SubscriptionSet>();
+    {        
+        Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = new Dictionary<long, SubscriptionSetWithOrder>();
         Dictionary<long, SubscriptionSet> availableSubscriptionsMap = new Dictionary<long, SubscriptionSet>();
         if (Session["subscriptionsInSetMap"] != null && Session["availableSubscriptionsMap"] != null)
         {
-            subscriptionsInSetMap = (Dictionary<long, SubscriptionSet>)Session["subscriptionsInSetMap"];
+            subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
             availableSubscriptionsMap = (Dictionary<long, SubscriptionSet>)Session["availableSubscriptionsMap"];
         }
 
@@ -176,18 +208,17 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         {
             if (subscriptionsInSetMap.ContainsKey(subscriptionId))
             {
-                SubscriptionSet temp = new SubscriptionSet(subscriptionsInSetMap[subscriptionId]);
-                temp.OrderNum = 0;
+                SubscriptionSet temp = new SubscriptionSet(subscriptionsInSetMap[subscriptionId]);                
                 temp.InList = false;
                 availableSubscriptionsMap.Add(subscriptionId, temp);
                 subscriptionsInSetMap.Remove(subscriptionId);
             }
             else
             {
-                SubscriptionSet temp = new SubscriptionSet(availableSubscriptionsMap[subscriptionId]);
+                SubscriptionSetWithOrder temp = new SubscriptionSetWithOrder(availableSubscriptionsMap[subscriptionId]);
                 temp.OrderNum = maxOrderNum + 1;
                 temp.InList = true;
-                subscriptionsInSetMap.Add(subscriptionId, availableSubscriptionsMap[subscriptionId]);
+                subscriptionsInSetMap.Add(subscriptionId, temp);
                 availableSubscriptionsMap.Remove(subscriptionId);                
             }
 
@@ -202,11 +233,9 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
     {
         long subscriptionId = 0;
         int orderNum = 0;
-        if (long.TryParse(id, out subscriptionId) && subscriptionId > 0 &&
-            int.TryParse(updatedOrderNum, out orderNum) && orderNum > 0 &&
-            Session["subscriptionsInSetMap"] != null)
+        if (long.TryParse(id, out subscriptionId) && subscriptionId > 0 && int.TryParse(updatedOrderNum, out orderNum) && orderNum > 0 && Session["subscriptionsInSetMap"] != null)
         {
-            Dictionary<long, SubscriptionSet> subscriptionsInSetMap = (Dictionary<long, SubscriptionSet>)Session["subscriptionsInSetMap"];
+            Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
             if (subscriptionsInSetMap.ContainsKey(subscriptionId))
             {
                 subscriptionsInSetMap[subscriptionId].OrderNum = orderNum;
@@ -218,28 +247,40 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         return "";
     }
 
-    public class SubscriptionSet
+    private bool UpdateSubscriptionsInSet(long setId)
     {
-        public long ID { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public bool InList { get; set; }
-        public int OrderNum { get; set; }
-
-        public SubscriptionSet() 
+        bool res = false;
+        if (setId <= 0 || Session["subscriptionsInSetMap"] == null)
         {
-            this.InList = false;
-            this.OrderNum = 0;
+            return res;
         }
 
-        public SubscriptionSet(SubscriptionSet set) 
+        try
         {
-            this.ID = set.ID;
-            this.Title = set.Title;
-            this.Description = set.Description;
-            this.InList = set.InList;
-            this.OrderNum = set.OrderNum;
+            Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
+            List<KeyValuePair<long, int>> subscriptionsToUpdate = new List<KeyValuePair<long, int>>();
+            foreach (KeyValuePair<long, SubscriptionSetWithOrder> pair in subscriptionsInSetMap)
+            {
+                subscriptionsToUpdate.Add(new KeyValuePair<long, int>(pair.Key, pair.Value.OrderNum));
+            }
+
+            res = TvmDAL.UpdateSubscriptionsInSet(LoginManager.GetLoginGroupID(), setId, subscriptionsToUpdate, LoginManager.GetLoginID());
+        }
+        catch (Exception ex)
+        {
+            log.Error(string.Format("Failed UpdateSubscriptionsInSet, setId: {0}", setId), ex);
         }
 
+        return res;
     }
+
+    private void EndOfAction()
+    {
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (coll["success_back_page"] != null)
+            HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+        else
+            HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+    }
+
 }
