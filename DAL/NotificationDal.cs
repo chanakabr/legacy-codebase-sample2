@@ -2474,37 +2474,43 @@ namespace DAL
             return result;
         }
 
-        public static bool SetUserPushCounter(int partnerId, int userId)
-        {
-            bool success = false;
-
-            int docTTL = TCMClient.Settings.Instance.GetValue<int>("push_message.ttl_seconds");
-            if (docTTL == 0)
-                docTTL = TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS;
-
-            try
-            {
-                success = cbManager.Set(GetUserPushKey(partnerId, userId), string.Empty, (uint)docTTL);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception while trying to set user push counter. partner ID: {0}, user ID: {1}, EX: {2}", partnerId, userId, ex);
-            }
-            return success;
-        }
-
-        public static ulong IncreasePushCounter(int partnerId, int userId)
+        public static ulong IncreasePushCounter(int partnerId, int userId, bool withTTL)
         {
             ulong counter = 0;
             try
             {
-                counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1);
+                if (!withTTL)
+                    counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1);
+                else
+                {
+                    ulong docTTL = TCMClient.Settings.Instance.GetValue<ulong>("push_message.ttl_seconds");
+                    if (docTTL == 0)
+                        docTTL = TTL_USER_PUSH_COUNTER_DOCUMENT_SECONDS;
+
+                    counter = cbManager.Increment(GetUserPushKey(partnerId, userId), 1, docTTL);
+                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Exception while trying to increase user push counter. partner ID: {0}, user ID: {1}, EX: {2}", partnerId, userId, ex);
             }
             return counter;
+        }
+
+        public static bool IsUserPushDocExists(int partnerId, int userId)
+        {
+            bool exists = false;
+            try
+            {
+                if (cbManager.Get<string>(GetUserPushKey(partnerId, userId)) != null)
+                    exists = true;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying check if user push document . key: {0}, ex: {1}", GetUserPushKey(partnerId, userId), ex);
+            }
+
+            return exists;
         }
     }
 }
