@@ -2512,6 +2512,29 @@ namespace DAL
 
             return exists;
         }
+
+        public static int AddSeriesReminderExternalResult(int groupId, long seriesReminderId, long reminderId, string externalResult)
+        {
+            int id = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("AddSeriesReminderExternalResult");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@seriesReminderId", seriesReminderId);
+                sp.AddParameter("@reminderId", reminderId);
+                sp.AddParameter("@externalResult", externalResult);
+
+                reminderId = sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at SetSeriesReminderExternalResult. groupId: {0}, seriesReminderId: {1}, reminderId: {2}, externalResult: {3}. Error {4}",
+                    groupId, seriesReminderId, reminderId, externalResult, ex);
+            }
+
+            return id;
+        }
     }
 }
 
