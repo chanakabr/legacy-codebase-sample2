@@ -80,7 +80,7 @@ public partial class adm_subscription_sets : System.Web.UI.Page
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
             DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_subscription_sets_new.aspx", "Edit", "");
-            linkColumn1.AddQueryStringValue("id", "field=id");
+            linkColumn1.AddQueryStringValue("set_id", "field=id");
             theTable.AddLinkColumn(linkColumn1);
         }
 
