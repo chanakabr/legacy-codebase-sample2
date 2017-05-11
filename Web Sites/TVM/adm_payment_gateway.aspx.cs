@@ -157,6 +157,6 @@ public partial class adm_payment_gateway : System.Web.UI.Page
 
     public void GetHeader()
     {
-        Response.Write(PageUtils.GetPreHeader() + ": " + "Payment GateWay");
+        Response.Write(PageUtils.GetPreHeader() + ": " + "Payment Gateway");
     }
 }

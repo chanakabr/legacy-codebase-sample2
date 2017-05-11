@@ -58,7 +58,7 @@ public partial class adm_payment_gateway_payment_method_new : System.Web.UI.Page
     public void GetHeader()
     {
         if (Session["payment_gateway_payment_method_id"] != null && Session["payment_gateway_payment_method_id"].ToString() != "" && int.Parse(Session["payment_gateway_payment_method_id"].ToString()) != 0)
-            Response.Write(PageUtils.GetPreHeader() + ":Payment GateWay Payment Method - Edit");
+            Response.Write(PageUtils.GetPreHeader() + ":Payment Gateway Payment Method - Edit");
         else
             Response.Write(PageUtils.GetPreHeader() + ":PaymentGateWay Payment Method- New");
     }
