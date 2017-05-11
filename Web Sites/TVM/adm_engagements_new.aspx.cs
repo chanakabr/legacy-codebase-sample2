@@ -66,7 +66,11 @@ public partial class adm_engagements_new : System.Web.UI.Page
                 {
                     Session["error_msg"] = result.Message;
                     Session["error_msg_s"] = result.Message;
-                }                
+                }
+                else
+                {
+                    EndOfAction();
+                }
             }
          
             if (Request.QueryString["engagement_id"] != null && Request.QueryString["engagement_id"].ToString() != "")
@@ -333,9 +337,30 @@ public partial class adm_engagements_new : System.Web.UI.Page
     private void EndOfAction()
     {
         System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
-        if (coll["success_back_page"] != null)
-            HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+        if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+        {
+            // string sFailure = coll["failure_back_page"].ToString();
+            if (coll["failure_back_page"] != null)
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
+            else
+                HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        }
         else
-            HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        {
+            if (HttpContext.Current.Request.QueryString["back_n_next"] != null)
+            {
+                HttpContext.Current.Session["last_page_html"] = null;
+                string s = HttpContext.Current.Session["back_n_next"].ToString();
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + s.ToString() + "';</script>");
+                HttpContext.Current.Session["back_n_next"] = null;
+            }
+            else
+            {
+                if (coll["success_back_page"] != null)
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+                else
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+            }
+        }
     }
 }
