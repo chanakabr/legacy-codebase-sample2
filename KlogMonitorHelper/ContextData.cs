@@ -20,21 +20,7 @@ namespace KlogMonitorHelper
         {
             try
             {
-                switch (KMonitor.AppType)
-                {
-                    case KLogEnums.AppType.WCF:
-
-                        if (OperationContext.Current != null)
-                            SaveThreadParameters(OperationContext.Current);
-                        break;
-
-                    case KLogEnums.AppType.WS:
-                    default:
-
-                        if (HttpContext.Current != null)
-                            SaveThreadParameters(HttpContext.Current);
-                        break;
-                }
+                SaveThreadParameters();
             }
             catch (Exception ex)
             {
@@ -51,15 +37,11 @@ namespace KlogMonitorHelper
             {
                 switch (KMonitor.AppType)
                 {
-
                     case KLogEnums.AppType.WCF:
 
                         // set log configuration files
                         KLogger.Configure(log4netConfigFile, KLogEnums.AppType.WCF);
                         KMonitor.Configure(log4netConfigFile, KLogEnums.AppType.WCF);
-
-                        if (threadParameters != null)
-                            LoadThreadParameters(OperationContext.Current);
                         break;
 
                     case KLogEnums.AppType.WS:
@@ -68,12 +50,11 @@ namespace KlogMonitorHelper
                         // set log configuration files
                         KLogger.Configure(log4netConfigFile, KLogEnums.AppType.WS);
                         KMonitor.Configure(log4netConfigFile, KLogEnums.AppType.WS);
-
-                        if (threadParameters != null)
-                            LoadThreadParameters(HttpContext.Current);
-
                         break;
                 }
+
+                if (threadParameters != null)
+                    LoadThreadParameters();
             }
             catch (Exception ex)
             {
@@ -81,109 +62,135 @@ namespace KlogMonitorHelper
             }
         }
 
-        private void SaveThreadParameters(HttpContext context)
+        private void SaveThreadParameters()
         {
-            if (context == null)
-                context = new HttpContext(new HttpRequest("", "http://tempuri.org", ""), new HttpResponse(new StringWriter()));
+            switch (KMonitor.AppType)
+            {
+                case KLogEnums.AppType.WCF:
 
-            if (context.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
-                threadParameters[KLogMonitor.Constants.REQUEST_ID_KEY] = context.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString();
+                    object temp = null;
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out temp))
+                        threadParameters[KLogMonitor.Constants.REQUEST_ID_KEY] = temp.ToString();
 
-            if (context.Items[KLogMonitor.Constants.ACTION] != null)
-                threadParameters[KLogMonitor.Constants.ACTION] = context.Items[KLogMonitor.Constants.ACTION].ToString();
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.ACTION, out temp))
+                        threadParameters[KLogMonitor.Constants.ACTION] = temp.ToString();
 
-            if (context.Items[KLogMonitor.Constants.CLIENT_TAG] != null)
-                threadParameters[KLogMonitor.Constants.CLIENT_TAG] = context.Items[KLogMonitor.Constants.CLIENT_TAG].ToString();
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.CLIENT_TAG, out temp))
+                        threadParameters[KLogMonitor.Constants.CLIENT_TAG] = temp.ToString();
 
-            if (context.Items[KLogMonitor.Constants.GROUP_ID] != null)
-                threadParameters[KLogMonitor.Constants.GROUP_ID] = context.Items[KLogMonitor.Constants.GROUP_ID].ToString();
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.GROUP_ID, out temp))
+                        threadParameters[KLogMonitor.Constants.GROUP_ID] = temp.ToString();
 
-            if (context.Items[KLogMonitor.Constants.HOST_IP] != null)
-                threadParameters[KLogMonitor.Constants.HOST_IP] = context.Items[KLogMonitor.Constants.HOST_IP].ToString();
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.HOST_IP, out temp))
+                        threadParameters[KLogMonitor.Constants.HOST_IP] = temp.ToString();
 
-            if (context.Items[KLogMonitor.Constants.TOPIC] != null)
-                threadParameters[KLogMonitor.Constants.TOPIC] = context.Items[KLogMonitor.Constants.TOPIC].ToString();
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.TOPIC, out temp))
+                        threadParameters[KLogMonitor.Constants.TOPIC] = temp.ToString();
 
-            if (context.Items[KLogMonitor.Constants.USER_ID] != null)
-                threadParameters[KLogMonitor.Constants.USER_ID] = context.Items[KLogMonitor.Constants.USER_ID].ToString();
+                    if (OperationContext.Current.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.USER_ID, out temp))
+                        threadParameters[KLogMonitor.Constants.USER_ID] = temp.ToString();
+                    break;
+
+                case KLogEnums.AppType.WS:
+                default:
+
+                    if (HttpContext.Current == null)
+                        HttpContext.Current = new HttpContext(new HttpRequest("", "http://tempuri.org", ""), new HttpResponse(new StringWriter()));
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] != null)
+                        threadParameters[KLogMonitor.Constants.REQUEST_ID_KEY] = HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY].ToString();
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.ACTION] != null)
+                        threadParameters[KLogMonitor.Constants.ACTION] = HttpContext.Current.Items[KLogMonitor.Constants.ACTION].ToString();
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.CLIENT_TAG] != null)
+                        threadParameters[KLogMonitor.Constants.CLIENT_TAG] = HttpContext.Current.Items[KLogMonitor.Constants.CLIENT_TAG].ToString();
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.GROUP_ID] != null)
+                        threadParameters[KLogMonitor.Constants.GROUP_ID] = HttpContext.Current.Items[KLogMonitor.Constants.GROUP_ID].ToString();
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.HOST_IP] != null)
+                        threadParameters[KLogMonitor.Constants.HOST_IP] = HttpContext.Current.Items[KLogMonitor.Constants.HOST_IP].ToString();
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.TOPIC] != null)
+                        threadParameters[KLogMonitor.Constants.TOPIC] = HttpContext.Current.Items[KLogMonitor.Constants.TOPIC].ToString();
+
+                    if (HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] != null)
+                        threadParameters[KLogMonitor.Constants.USER_ID] = HttpContext.Current.Items[KLogMonitor.Constants.USER_ID].ToString();
+                    break;
+            }
         }
 
-        private void SaveThreadParameters(OperationContext context)
-        {
-            object temp = null;
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out temp))
-                threadParameters[KLogMonitor.Constants.REQUEST_ID_KEY] = temp.ToString();
-
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.ACTION, out temp))
-                threadParameters[KLogMonitor.Constants.ACTION] = temp.ToString();
-
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.CLIENT_TAG, out temp))
-                threadParameters[KLogMonitor.Constants.CLIENT_TAG] = temp.ToString();
-
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.GROUP_ID, out temp))
-                threadParameters[KLogMonitor.Constants.GROUP_ID] = temp.ToString();
-
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.HOST_IP, out temp))
-                threadParameters[KLogMonitor.Constants.HOST_IP] = temp.ToString();
-
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.TOPIC, out temp))
-                threadParameters[KLogMonitor.Constants.TOPIC] = temp.ToString();
-
-            if (context.IncomingMessageProperties.TryGetValue(KLogMonitor.Constants.USER_ID, out temp))
-                threadParameters[KLogMonitor.Constants.USER_ID] = temp.ToString();
-        }
-
-        private void LoadThreadParameters(HttpContext context)
-        {
-            if (context == null)
-                context = new HttpContext(new HttpRequest("", "http://tempuri.org", ""), new HttpResponse(new StringWriter()));
-
-            string temp = string.Empty;
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out temp))
-                context.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = temp;
-
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.ACTION, out temp))
-                context.Items[KLogMonitor.Constants.ACTION] = temp;
-
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.CLIENT_TAG, out temp))
-                context.Items[KLogMonitor.Constants.CLIENT_TAG] = temp;
-
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.GROUP_ID, out temp))
-                context.Items[KLogMonitor.Constants.GROUP_ID] = temp;
-
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.HOST_IP, out temp))
-                context.Items[KLogMonitor.Constants.HOST_IP] = temp;
-
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.TOPIC, out temp))
-                context.Items[KLogMonitor.Constants.TOPIC] = temp;
-
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.USER_ID, out temp))
-                context.Items[KLogMonitor.Constants.USER_ID] = temp;
-        }
-
-        private void LoadThreadParameters(OperationContext context)
+        private void LoadThreadParameters()
         {
             string temp = string.Empty;
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = temp;
+            switch (KMonitor.AppType)
+            {
+                case KLogEnums.AppType.WCF:
 
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.ACTION, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.ACTION] = temp;
+                    // TODO: no solution yet for OperationContext.Current == null) 
+                    if (OperationContext.Current == null)
+                        return;
 
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.CLIENT_TAG, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.CLIENT_TAG] = temp;
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.REQUEST_ID_KEY] = temp;
 
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.GROUP_ID, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.GROUP_ID] = temp;
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.ACTION, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.ACTION] = temp;
 
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.HOST_IP, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.HOST_IP] = temp;
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.CLIENT_TAG, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.CLIENT_TAG] = temp;
 
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.TOPIC, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.TOPIC] = temp;
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.GROUP_ID, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.GROUP_ID] = temp;
 
-            if (threadParameters.TryGetValue(KLogMonitor.Constants.USER_ID, out temp))
-                context.IncomingMessageProperties[KLogMonitor.Constants.USER_ID] = temp;
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.HOST_IP, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.HOST_IP] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.TOPIC, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.TOPIC] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.USER_ID, out temp))
+                        OperationContext.Current.IncomingMessageProperties[KLogMonitor.Constants.USER_ID] = temp;
+
+                    break;
+
+                case KLogEnums.AppType.WS:
+                default:
+
+                    if (HttpContext.Current == null)
+                        HttpContext.Current = new HttpContext(new HttpRequest("", "http://tempuri.org", ""), new HttpResponse(new StringWriter()));
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.REQUEST_ID_KEY, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.REQUEST_ID_KEY] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.ACTION, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.ACTION] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.CLIENT_TAG, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.CLIENT_TAG] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.GROUP_ID, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.GROUP_ID] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.HOST_IP, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.HOST_IP] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.TOPIC, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.TOPIC] = temp;
+
+                    if (threadParameters.TryGetValue(KLogMonitor.Constants.USER_ID, out temp))
+                        HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = temp;
+
+                    break;
+            }
         }
+    }
+
+    [ServiceContract()]
+    interface Itest
+    {
+        [OperationContract()]
+        double Add(double A, double B);
     }
 }
