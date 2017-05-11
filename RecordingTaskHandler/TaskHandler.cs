@@ -127,7 +127,7 @@ namespace RecordingTaskHandler
                             int seasonNumber = 0;
                             if (seriesAndSeasonNumber != null && !string.IsNullOrEmpty(seriesAndSeasonNumber.key) && int.TryParse(seriesAndSeasonNumber.value, out seasonNumber))
                             {
-                                long maxDomainSeriesId = request.MaxDomainSeriesId;
+                                long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
                                 HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, seriesAndSeasonNumber.key, seasonNumber, ref maxDomainSeriesId);
                                 if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
                                 {                                    

@@ -46,7 +46,7 @@ namespace RecordingTaskHandler
         }
 
         [JsonProperty("max_domain_series_id")]
-        public long MaxDomainSeriesId
+        public long? MaxDomainSeriesId
         {
             get;
             set;
