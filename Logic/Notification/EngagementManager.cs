@@ -1115,27 +1115,20 @@ namespace Core.Notification
             if (allowedPushMsg == 0)
                 allowedPushMsg = MAX_PUSH_MSG_PER_SECONDS;
 
-            // get user push document counter
-            int counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId);
-            if (counter == 1)
-            {
-                // document did not exist - create it (with TTL)
-                if (!NotificationDal.SetUserPushCounter(partnerId, userId))
-                {
-                    log.ErrorFormat("Error occurred while updating user push counter. GID: {0}, user ID: {1}, message: {2}", partnerId, userId, JsonConvert.SerializeObject(pushMessage));
-                    result = new Status() { Code = (int)eResponseStatus.Error };
-                    return result;
-                }
-            }
+            int counter = 0;
+
+            // check if user document exists
+            if (NotificationDal.IsUserPushDocExists(partnerId, userId))
+                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, false);
             else
+                counter = (int)NotificationDal.IncreasePushCounter(partnerId, userId, true);
+
+            // validate did not reach maximum of allowed user push messages
+            if (counter > allowedPushMsg)
             {
-                // document exists - validate did not reach maximum of allowed user push messages
-                if (counter > allowedPushMsg)
-                {
-                    log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
-                    result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
-                    return result;
-                }
+                log.ErrorFormat("Cannot send user push notification. maximum number of push allowed per hour: {0}, partner ID: {1}, user ID: {2}", allowedPushMsg, partnerId, userId);
+                result = new Status() { Code = (int)eResponseStatus.Error, Message = MAX_NUMBER_OF_PUSH_MSG_EXCEEDED };
+                return result;
             }
 
             // get user notification data
