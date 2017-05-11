@@ -2484,7 +2484,7 @@ namespace DAL
 
             try
             {
-                success = cbManager.Set(GetUserPushKey(partnerId, userId), null, (uint)docTTL);
+                success = cbManager.Set(GetUserPushKey(partnerId, userId), string.Empty, (uint)docTTL);
             }
             catch (Exception ex)
             {
