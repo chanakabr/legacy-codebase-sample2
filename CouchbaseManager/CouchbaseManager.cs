@@ -1755,7 +1755,7 @@ namespace CouchbaseManager
             try
             {
                 var bucket = ClusterHelper.GetBucket(bucketName);
-                
+
                 if (definitions != null)
                 {
                     definitions.reduce = true;
@@ -1772,7 +1772,7 @@ namespace CouchbaseManager
         }
         #endregion
 
-        public ulong Increment(string key, ulong delta)
+        public ulong Increment(string key, ulong delta, uint? ttl = null)
         {
             ulong result = 0;
 
@@ -1782,22 +1782,32 @@ namespace CouchbaseManager
             string action = string.Format("Action: Increment; bucket: {0}; key: {1}", bucketName, key);
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, action))
             {
-                incrementResult = bucket.Increment(key, delta);
+                if (ttl == null)
+                    incrementResult = bucket.Increment(key, delta);
+                else
+                    incrementResult = bucket.Increment(key, delta, 1, (uint)ttl);
             }
 
             if (incrementResult != null)
             {
                 if (incrementResult.Exception != null)
+                {
                     throw incrementResult.Exception;
+                }
 
                 if (incrementResult.Status == Couchbase.IO.ResponseStatus.Success)
+                {
                     result = incrementResult.Value;
+                }
                 else
+                {
                     HandleStatusCode(incrementResult, key);
+                }
             }
 
             return result;
         }
+
 
         #endregion
 
