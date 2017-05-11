@@ -178,6 +178,7 @@ namespace Core.Notification
             // take reminders 
             List<DbAnnouncement> dbFollowSeries = NotificationCache.Instance().GetAnnouncements(groupId);
             List<DbReminder> dbReminders = new List<DbReminder>();
+            List<DbSeriesReminder> dbSeriesReminders = new List<DbSeriesReminder>();
             int numOfFollowSeriesToRemove = 0;
             int numOfRemindersToRemove = 0;
 
@@ -202,6 +203,30 @@ namespace Core.Notification
                 {
                     // some did not come back from DB - partial removal
                     numOfRemindersToRemove = userNotificationData.Reminders.RemoveAll(x => !dbReminders.Exists(y => y.ID == x.AnnouncementId));
+                }
+            }
+
+            // remove old series reminders
+            if (userNotificationData != null &&
+                userNotificationData.SeriesReminders != null &&
+                userNotificationData.SeriesReminders.Count > 0)
+            {
+                // get series reminders from DB
+                dbSeriesReminders = NotificationDal.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(x => x.AnnouncementId).ToList());
+
+                // remove reminders that did not came back from DB
+                if (dbSeriesReminders == null || dbSeriesReminders.Count == 0)
+                {
+                    // nothing came back from DB - remove all reminders
+                    log.DebugFormat("no series reminders in DB - removing all user reminders. partner ID: {0}, user ID: {1}", groupId, userNotificationData.UserId);
+
+                    numOfRemindersToRemove = userNotificationData.SeriesReminders.Count;
+                    userNotificationData.SeriesReminders.Clear();
+                }
+                else
+                {
+                    // some did not come back from DB - partial removal
+                    numOfRemindersToRemove = userNotificationData.SeriesReminders.RemoveAll(x => !dbSeriesReminders.Exists(y => y.ID == x.AnnouncementId));
                 }
             }
 
