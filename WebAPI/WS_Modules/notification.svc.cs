@@ -1126,7 +1126,7 @@ namespace WS_Notification
         public bool SendEngagement(string wsUserName, string wsSPassword, int engagementId, int startTime)
         {
             bool response = false;
-            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", wsUserName, wsSPassword); 
+            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", wsUserName, wsSPassword);
 
             try
             {
@@ -1136,6 +1136,25 @@ namespace WS_Notification
             catch (Exception ex)
             {
                 log.ErrorFormat("SendEngagement caught an exception: GroupID: {0}, engagementAdapterId: {1}, ex: {2}", groupID, engagementId, ex);
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
+
+        public bool SendBulkEngagement(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime)
+        {
+            bool response = false;
+            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", wsUserName, wsSPassword);
+
+            try
+            {
+                if (groupID != 0)
+                    return Core.Notification.Module.SendEngagementBulk(groupID, engagementId, engagementBulkId, startTime);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendBulkEngagement caught an exception: GroupID: {0}, engagementAdapterId: {1}, ex: {2}", groupID, engagementId, ex);
                 HttpContext.Current.Response.StatusCode = 404;
             }
 

@@ -173,8 +173,11 @@ namespace WS_Notification
         [OperationContract]
         SeriesRemindersResponse GetUserSeriesReminders(string sWSUserName, string sWSPassword, int userId, List<string> seriesIds, List<long> seasonNumbers, long epgChannelId,
             int pageSize, int pageIndex, OrderObj orderObj);
-        
-        [OperationContract]        
+
+        [OperationContract]
         Status SendUserPush(string sWSUserName, string sWSPassword, int userId, PushMessage pushMessage);
+
+        [OperationContract]
+        bool SendBulkEngagement(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime);
     }
 }
