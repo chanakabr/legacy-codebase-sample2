@@ -1157,7 +1157,7 @@ namespace Core.Notification
                     seriesReminderTemplate = messageTemplates.FirstOrDefault(x => x.TemplateType == MessageTemplateType.SeriesReminder);
                     if (seriesReminderTemplate != null)
                     {
-                        SendSeriesMessageReminder(partnerId, program, dbReminderSendDate, seriesReminderTemplate);
+                        SendSeriesMessageReminder(partnerId, program, dbReminderSendDate, seriesReminderTemplate, reminderId);
                     }
                     else
                     {
@@ -1220,7 +1220,7 @@ namespace Core.Notification
             PushToWeb(partnerId, reminder, messageData);
         }
 
-        private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate)
+        private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId)
         {
             string seriesIdName, seasonNumberName, episodeNumberName;
             if (Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(partnerId, out seriesIdName, out seasonNumberName, out episodeNumberName))
@@ -1279,6 +1279,12 @@ namespace Core.Notification
                                         if (NotificationDal.SetSeriesReminder(seriesReminder) == 0)
                                         {
                                             log.ErrorFormat("Failed to set series reminder send date. seriesReminder.ID = {0}", seriesReminder.ID);
+                                        }
+                                        // update series reminder external result
+                                        if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, resultMsgId) == 0)
+                                        {
+                                            log.ErrorFormat("Failed toupdate series reminder external result. seriesReminder.ID = {0}, reminderId = {1}, resultMsgId = {2}",
+                                                seriesReminder.ID, reminderId, resultMsgId);
                                         }
                                     }
                                 }
