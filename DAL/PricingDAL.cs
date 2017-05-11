@@ -1072,7 +1072,7 @@ namespace DAL
             sp.AddParameter("@OrderNum", mpp.OrderNumber);
 
             sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);
-            sp.AddParameter("@xmlDocRowCount", (couponsGroups.ChildNodes != null && couponsGroups.ChildNodes.Count > 0) ? 1 : 0);
+            sp.AddParameter("@xmlDocRowCount", (couponsGroups.ChildNodes != null && couponsGroups.FirstChild != null && couponsGroups.FirstChild.ChildNodes != null && couponsGroups.FirstChild.ChildNodes.Count > 0) ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>(); ;
         }
