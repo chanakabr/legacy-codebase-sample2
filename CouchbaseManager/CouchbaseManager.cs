@@ -1772,7 +1772,7 @@ namespace CouchbaseManager
         }
         #endregion
 
-        public ulong Increment(string key, ulong delta, ulong? ttl = null)
+        public ulong Increment(string key, ulong delta, uint? ttl = null)
         {
             ulong result = 0;
 
@@ -1785,7 +1785,7 @@ namespace CouchbaseManager
                 if (ttl == null)
                     incrementResult = bucket.Increment(key, delta);
                 else
-                    incrementResult = bucket.Increment(key, delta, (ulong)ttl);
+                    incrementResult = bucket.Increment(key, delta, 1, (uint)ttl);
             }
 
             if (incrementResult != null)
