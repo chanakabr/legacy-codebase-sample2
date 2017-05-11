@@ -516,12 +516,12 @@ namespace Core.Notification
 
         private delegate bool InitiateNotificationActionCaller(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null);
 
-        public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
-        {
-            ContextData cd = new ContextData();
-            InitiateNotificationActionCaller caller = InitiateNotificationAction;
-            return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
-        }
+        //public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        //{
+        //    ContextData cd = new ContextData();
+        //    InitiateNotificationActionCaller caller = InitiateNotificationAction;
+        //    return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
+        //}
 
         public static bool InitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null)
         {
