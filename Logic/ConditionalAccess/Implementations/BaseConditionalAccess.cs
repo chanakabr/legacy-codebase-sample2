@@ -14973,6 +14973,7 @@ namespace Core.ConditionalAccess
 		public bool DistributeRecording(long epgId, long id, DateTime epgStartDate, List<long> domainSeriesIds = null)
 		{
 			bool result = true;
+            bool hasDomainSeriesIds = domainSeriesIds != null;
 			Recording recording = Utils.GetRecordingById(id);
 			if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
 			{
@@ -15014,7 +15015,7 @@ namespace Core.ConditionalAccess
 			long maxDomainSeriesId = 0;
 			DataTable followingDomains = null;
 			// batching is done by remote tasks so get followingDomains by domainIds 
-			if (domainSeriesIds != null && domainSeriesIds.Count > 0)
+            if (hasDomainSeriesIds && domainSeriesIds.Count > 0)
 			{
 				followingDomains = RecordingsDAL.GetSeriesFollowingDomainsByIds(string.Join(",", domainSeriesIds));
                 maxDomainSeriesId = domainSeriesIds.Max();
@@ -15026,6 +15027,13 @@ namespace Core.ConditionalAccess
 
 			while (followingDomains != null && followingDomains.Rows != null && followingDomains.Rows.Count > 0 && maxDomainSeriesId > -1)
 			{
+                /* if we got the domainSeriesIds from remote tasks then stop now and insert
+                 * a new message for the next batch of 500 domainSeriesIds with distribution time = epgStartDate */
+                if (hasDomainSeriesIds)
+                {
+                    RecordingsManager.EnqueueMessage(m_nGroupID, epgId, id, epgStartDate, epgStartDate, eRecordingTask.DistributeRecording, maxDomainSeriesId);
+                }
+
 				// set max amount of concurrent tasks
 				int maxDegreeOfParallelism = TVinciShared.WS_Utils.GetTcmIntValue("MaxDegreeOfParallelism");
 				if (maxDegreeOfParallelism == 0)
@@ -15061,12 +15069,8 @@ namespace Core.ConditionalAccess
 
 				System.Threading.Thread.Sleep(10);
 
-                /* if we got the domainSeriesIds from remote tasks then stop now and insert
-                 * a new message for the next batch of 500 domainSeriesIds with distribution time = epgStartDate */
-				if (domainSeriesIds != null)
-				{
-					followingDomains = null;
-                    RecordingsManager.EnqueueMessage(m_nGroupID, epgId, id, epgStartDate, epgStartDate, eRecordingTask.DistributeRecording, maxDomainSeriesId);
+                if (hasDomainSeriesIds)
+				{					
 					break;
 				}
 				else
