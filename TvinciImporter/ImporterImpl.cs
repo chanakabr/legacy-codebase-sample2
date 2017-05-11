@@ -5640,8 +5640,7 @@ namespace TvinciImporter
                     SendTime = engagement.SendTime,
                     TotalNumberOfRecipients = engagement.TotalNumberOfRecipients,
                     UserList = engagement.UserList,
-                    CouponGroupId = engagement.CouponGroupId,
-                    IsActive = engagement.IsActive
+                    CouponGroupId = engagement.CouponGroupId                    
                 };
 
                 response = service.AddEngagement(sWSUserName, sWSPass, wcfEngagement);

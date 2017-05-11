@@ -7,6 +7,10 @@ using ODBCWrapper;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.AssetLifeCycleRules;
+using ApiObjects.IngestBusinessModules;
+using System.Xml.Serialization;
+using System.IO;
+using System.Xml;
 
 namespace DAL
 {
@@ -960,7 +964,7 @@ namespace DAL
         }
 
         public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
-            string previewModule)
+            string previewModule, List<string> couponGroups)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
             sp.SetConnectionKey("pricing_connection");
@@ -971,12 +975,13 @@ namespace DAL
             sp.AddIDListParameter<string>("@PricePlansCodes", pricePlansCodes, "STR");
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
+            sp.AddIDListParameter<string>("@CouponGroups", couponGroups, "STR");
 
             return sp.Execute();
         }
 
         public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
-            int previewModuleID, int internalDiscountID)
+            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups)
         {
             try
             {
@@ -1006,6 +1011,7 @@ namespace DAL
                 sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 sp.AddParameter("@OrderNum", mpp.OrderNumber);
+                sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);               
                 
                 return sp.ExecuteReturnValue<int>();
             }
@@ -1033,8 +1039,8 @@ namespace DAL
             return 0;
         }
 
-        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes, 
-            int previewModuleID, int internalDiscountID)
+        public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
+            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups)
         {
             StoredProcedure sp = new StoredProcedure("Update_MPP");
             sp.SetConnectionKey("pricing_connection");
@@ -1063,7 +1069,10 @@ namespace DAL
             sp.AddIDListParameter<long>("@Channels", channels, "Id");
             sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
-            sp.AddParameter("@OrderNum", mpp.OrderNumber);            
+            sp.AddParameter("@OrderNum", mpp.OrderNumber);
+
+            sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);
+            sp.AddParameter("@xmlDocRowCount", (couponsGroups.ChildNodes != null && couponsGroups.FirstChild != null && couponsGroups.FirstChild.ChildNodes != null && couponsGroups.FirstChild.ChildNodes.Count > 0) ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>(); ;
         }
@@ -1359,7 +1368,34 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@xmlDoc", xmlDoc.InnerXml);
             return sp.Execute();
-        }    
+        }
+
+        public static DataTable Get_SubscriptionsCouponGroup(int groupID, List<long> list)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsCouponGroup");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@Subscriptions", list, "id");
+            return sp.Execute();
+        }
+
+        public static long Get_CouponGroupId(int groupID, string couponCode)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CouponGroupId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Code", couponCode);
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public static DataTable Get_SubscriptionsCouponGroupWithExpiry(int groupID, List<long> list)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsCouponGroupWithExpiry");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddIDListParameter("@Subscriptions", list, "id");
+            return sp.Execute();
+        }
     }
 }
 

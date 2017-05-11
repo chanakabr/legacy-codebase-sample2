@@ -157,7 +157,7 @@ namespace EpgIngest
                         channelID = channel.Key;
                         epgChannelType = epgChannelObj.ChannelType;
 
-                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ref ingestResponse, dPublishDate);
+                        bool returnSuccess = SaveChannelPrograms(programs, kalturaChannelID, channelID, epgChannelType, ingestResponse, dPublishDate);
                         if (success)
                         {
                             success = returnSuccess;
@@ -179,7 +179,7 @@ namespace EpgIngest
             return success.ToString();
         }
 
-        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, ref IngestResponse ingestResponse, DateTime dPublishDate)
+        private bool SaveChannelPrograms(List<programme> programs, int kalturaChannelID, string channelID, EpgChannelType epgChannelType, IngestResponse ingestResponse, DateTime dPublishDate)
         {
             // EpgObject m_ChannelsFaild = null; // save all program that got exceptions TODO ????????            
             bool success = false;
@@ -201,12 +201,10 @@ namespace EpgIngest
             MonitorLogsHelper.SetContext(Constants.TOPIC, string.Format("save channel programs for kalturaChannelID:{0}", kalturaChannelID));
 
             var languages = GroupsCacheManager.GroupsCache.Instance().GetGroup(m_Channels.groupid).GetLangauges();
-
-            #region each program  create CB objects
-
             List<DateTime> deletedDays = new List<DateTime>();
             IngestAssetStatus ingestAssetStatus = null;
 
+            #region each program  create CB objects
             foreach (programme prog in programs)
             {
                 ingestAssetStatus = new IngestAssetStatus()
@@ -382,7 +380,7 @@ namespace EpgIngest
                             var cloneEpg = new EpgCB(mainLanguageEpgCB);
                             var clonePair = new KeyValuePair<string, EpgCB>(currentLanguage.Code, cloneEpg);
                             cloneEpg.Language = currentLanguage.Code;
-                            dEpgCbTranslate.Add(currentLanguage.Code, cloneEpg);                            
+                            dEpgCbTranslate.Add(currentLanguage.Code, cloneEpg);
 
                             if (dEpg.ContainsKey(mainLanguageEpgCB.EpgIdentifier))
                             {
@@ -500,6 +498,8 @@ namespace EpgIngest
             success = true;
             return success;
         }
+
+       
 
         private void GetProtectedEpgMetas(ref Dictionary<string, List<KeyValuePair<string, EpgCB>>> dEpg, List<EpgCB> lResCB, List<string> protectedMetaName)
         {
