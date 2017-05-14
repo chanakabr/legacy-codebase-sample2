@@ -105,7 +105,7 @@ namespace WebAPI.Clients
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
-            
+
 
             try
             {
@@ -144,7 +144,7 @@ namespace WebAPI.Clients
         public bool SendNewPassword(int groupId, string userName)
         {
             ApiObjects.Response.Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -174,7 +174,7 @@ namespace WebAPI.Clients
         public bool RenewPassword(int groupId, string userName, string password)
         {
             ApiObjects.Response.Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -204,7 +204,7 @@ namespace WebAPI.Clients
         public bool ChangeUserPassword(int groupId, string userName, string oldPassword, string newPassword)
         {
             ApiObjects.Response.Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -215,6 +215,36 @@ namespace WebAPI.Clients
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while ChangeUserPassword. Username: {0}, oldPassword : {1}, newPassword: {2}, exception : {3}", userName, oldPassword, newPassword, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        public bool SwitchUsers(int groupId, string oldUserId, string newUserId, string udid)
+        {
+            ApiObjects.Response.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.ChangeUsers(groupId, oldUserId, newUserId, udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SwitchUsets. groupId: {0}, oldUserId : {1}, newUserId: {2}, UDID: {3}, exception : {4}", groupId, oldUserId, newUserId, udid, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -258,7 +288,7 @@ namespace WebAPI.Clients
         public KalturaUserLoginPin GenerateLoginPin(int groupId, string userId, string secret)
         {
             KalturaUserLoginPin pinCode = null;
-            
+
 
             PinCodeResponse response = null;
             try
@@ -292,7 +322,7 @@ namespace WebAPI.Clients
         public WebAPI.Models.Users.KalturaOTTUser LoginWithPin(int groupId, string deviceId, string pin, string secret)
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
-            
+
 
             UserResponse response = null;
             try
@@ -327,7 +357,7 @@ namespace WebAPI.Clients
         public Models.Users.KalturaOTTUser CheckPasswordToken(int groupId, string token)
         {
             UserResponse response = null;
-            
+
             WebAPI.Models.Users.KalturaOTTUser user = null;
             try
             {
@@ -360,7 +390,7 @@ namespace WebAPI.Clients
         public KalturaUserLoginPin SetLoginPin(int groupId, string userId, string pin, string secret)
         {
             KalturaUserLoginPin pinCode = null;
-            
+
 
             PinCodeResponse response = null;
             try
@@ -393,7 +423,7 @@ namespace WebAPI.Clients
 
         public bool ClearLoginPIN(int groupId, string userId, string pinCode)
         {
-            
+
 
             ApiObjects.Response.Status response = null;
             try
@@ -426,7 +456,7 @@ namespace WebAPI.Clients
         {
             List<WebAPI.Models.Users.KalturaOTTUser> users = null;
             UsersResponse response = null;
-            
+
 
             try
             {
@@ -463,7 +493,7 @@ namespace WebAPI.Clients
 
             WebAPI.Models.Users.KalturaOTTUser responseUser = null;
             UserResponse response = null;
-            
+
 
             try
             {
@@ -496,7 +526,7 @@ namespace WebAPI.Clients
         public bool AddUserFavorite(int groupId, string userId, int domainID, string deviceUDID, string mediaType, string mediaId, string extraData)
         {
             bool res = false;
-            
+
 
             ApiObjects.Response.Status response = null;
             try
@@ -529,7 +559,7 @@ namespace WebAPI.Clients
 
         public bool RemoveUserFavorite(int groupId, string userId, int domainID, int[] mediaIDs)
         {
-            
+
 
             ApiObjects.Response.Status response = null;
             try
@@ -562,7 +592,7 @@ namespace WebAPI.Clients
         {
             List<WebAPI.Models.Users.KalturaFavorite> favorites = null;
 
-            
+
             FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             FavoriteResponse response = null;
@@ -599,7 +629,7 @@ namespace WebAPI.Clients
         {
             List<KalturaUserAssetsList> userAssetsList = null;
 
-            
+
 
             UsersItemsListsResponse response = null;
             ListType wsListType = UsersMappings.ConvertUserAssetsListType(listType);
@@ -637,7 +667,7 @@ namespace WebAPI.Clients
         {
             FavoriteResponse response = null;
 
-            
+
             FavoriteOrderBy wsOrderBy = UsersMappings.ConvertFavoriteOrderBy(orderBy);
 
             try
@@ -671,7 +701,7 @@ namespace WebAPI.Clients
             List<long> roleIds = null;
             LongIdsResponse response = null;
 
-            
+
 
             try
             {
@@ -708,7 +738,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
@@ -740,7 +770,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
@@ -799,7 +829,7 @@ namespace WebAPI.Clients
             WebAPI.Models.Users.KalturaOTTUser user = null;
             UserResponse response = null;
 
-            
+
 
             try
             {
@@ -838,7 +868,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
@@ -872,7 +902,7 @@ namespace WebAPI.Clients
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
 
-            
+
 
             try
             {
@@ -913,7 +943,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
@@ -954,7 +984,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            
+
 
             try
             {
@@ -989,11 +1019,12 @@ namespace WebAPI.Clients
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
 
-            
+
 
             try
             {
-                Item item = new Item() { 
+                Item item = new Item()
+                {
                     ItemType = UsersMappings.ConvertUserAssetsListItemType(itemType),
                     ItemId = int.Parse(assetId),
                     UserId = userId,
@@ -1037,7 +1068,7 @@ namespace WebAPI.Clients
             KalturaUserAssetsListItem listItem = null;
             UsersListItemResponse response = null;
 
-            
+
 
             try
             {
@@ -1079,7 +1110,7 @@ namespace WebAPI.Clients
             KalturaOTTUserListResponse listUser = null;
             UserResponse response = null;
 
-            
+
 
             try
             {
@@ -1125,7 +1156,7 @@ namespace WebAPI.Clients
             KalturaOTTUserListResponse listUser = null;
             UserResponse response = null;
 
-            
+
 
             try
             {
@@ -1160,7 +1191,7 @@ namespace WebAPI.Clients
             listUser = new KalturaOTTUserListResponse()
             {
                 Users = new List<KalturaOTTUser>() { User },
-                TotalCount = 1,                
+                TotalCount = 1,
             };
 
             return listUser;
@@ -1169,7 +1200,7 @@ namespace WebAPI.Clients
         internal void UpdateUserPassword(int groupId, int userId, string password)
         {
             ApiObjects.Response.Status response = null;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -1191,7 +1222,7 @@ namespace WebAPI.Clients
             if (response.Code != (int)StatusCode.OK)
             {
                 throw new ClientException((int)response.Code, response.Message);
-            }            
+            }
         }
 
         internal bool IsUserActivated(int groupId, string userId)

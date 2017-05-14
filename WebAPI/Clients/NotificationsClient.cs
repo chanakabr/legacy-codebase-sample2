@@ -480,14 +480,12 @@ namespace WebAPI.Clients
 
         internal bool SetPush(int groupId, string userId, string udid, string pushToken)
         {
-
-
             try
             {
                 eUserMessageAction action = string.IsNullOrEmpty(userId) || userId == "0" ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    Core.Notification.Module.InitiateNotificationActionAsync(groupId, action, int.Parse(userId), udid, pushToken);
+                    Core.Notification.Module.AddInitiateNotificationActionToQueue(groupId, action, int.Parse(userId), udid, pushToken);
                 }
             }
             catch (Exception ex)
