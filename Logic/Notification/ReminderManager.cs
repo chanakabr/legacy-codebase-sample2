@@ -1280,6 +1280,7 @@ namespace Core.Notification
                                         {
                                             log.ErrorFormat("Failed to set series reminder send date. seriesReminder.ID = {0}", seriesReminder.ID);
                                         }
+
                                         // update series reminder external result
                                         if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, resultMsgId) == 0)
                                         {

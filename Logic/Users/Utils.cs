@@ -1046,47 +1046,47 @@ namespace Core.Users
             return isAllowed;
         }
 
-        //public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
-        //{
-        //    InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
-        //    ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
-
-        //    bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
-
-        //    if (res)
-        //        log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-        //    else
-        //        log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
-
-        //    return res;
-        //}
-
-        public static void AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
-            string response = string.Empty;
-            string wsUsername = string.Empty;
-            string wsPassword = string.Empty;
-            GetWSCredentials(groupId, eWSModules.NOTIFICATIONS, ref wsUsername, ref wsPassword);
-            string Address = Utils.GetTcmConfigValue("NotificationService");
-            string SoapAction = "http://tempuri.org/INotificationService/InitiateNotificationAction";
-            if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
-            {
-                log.DebugFormat("address or wsUsername or wsPassword is empty. Address: {0} , wsUsername: {1}, wsPassword: {2}", Address, wsUsername, wsPassword);
-                return;
-            }
-            try
-            {
-                string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);
-                string ErrorMsg = string.Empty;
-                Task.Factory.StartNew(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
-            }
+            InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
+            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
 
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while inserting to notification. groupId: {0}, userAction: {1}, userId: {2}, udid: {3}, pushToken: {4}, Exception: {5}",
-                                    groupId, userAction, userId, udid, pushToken, ex.Message);
-            }
+            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+
+            if (res)
+                log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+            else
+                log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+
+            return res;
         }
+
+        //public static void AddInitiateNotificationAction(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
+        //{
+        //    string response = string.Empty;
+        //    string wsUsername = string.Empty;
+        //    string wsPassword = string.Empty;
+        //    GetWSCredentials(groupId, eWSModules.NOTIFICATIONS, ref wsUsername, ref wsPassword);
+        //    string Address = Utils.GetTcmConfigValue("NotificationService");
+        //    string SoapAction = "http://tempuri.org/INotificationService/InitiateNotificationAction";
+        //    if (string.IsNullOrEmpty(Address) || string.IsNullOrEmpty(wsUsername) || string.IsNullOrEmpty(wsPassword))
+        //    {
+        //        log.DebugFormat("address or wsUsername or wsPassword is empty. Address: {0} , wsUsername: {1}, wsPassword: {2}", Address, wsUsername, wsPassword);
+        //        return;
+        //    }
+        //    try
+        //    {
+        //        string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);
+        //        string ErrorMsg = string.Empty;
+        //        Task.Factory.StartNew(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        log.ErrorFormat("Error while inserting to notification. groupId: {0}, userAction: {1}, userId: {2}, udid: {3}, pushToken: {4}, Exception: {5}",
+        //                            groupId, userAction, userId, udid, pushToken, ex.Message);
+        //    }
+        //}
 
         private static string CreateInitiazeNotificationACtionSoapRequest(string wsUserName, string wsPassword, eUserMessageAction action, int userId, string udid, string pushToken)
         {
@@ -1249,10 +1249,6 @@ namespace Core.Users
            
             return response;
         }
- 
- 
-
-      
 
         internal static bool HandleDeviceDrmIdUpdate(int m_nGroupID, string deviceId, string drmId, int domainId, string udid)
         {
