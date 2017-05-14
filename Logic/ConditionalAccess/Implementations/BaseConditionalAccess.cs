@@ -11031,6 +11031,7 @@ namespace Core.ConditionalAccess
 
 							if (handleBillingPassed)
 							{
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
 								WriteToUserLog(siteguid, string.Format("PPV Purchase, ProductID:{0}, ContentID:{1}, PurchaseID:{2}, BillingTransactionID:{3}",
 									productId, contentId, purchaseId, response.TransactionID));
 
@@ -11166,6 +11167,7 @@ namespace Core.ConditionalAccess
 
 								if (handleBillingPassed && subscriptionEndDate.HasValue)
 								{
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
 									// entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
 									if (subscription.m_nDomainLimitationModule != 0)
 									{

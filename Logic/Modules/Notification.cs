@@ -22,7 +22,10 @@ namespace Core.Notification
     public class Module
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
+
+        protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";        
+
+
         /// <summary>
         /// Add notification request to the db, using NotificationManager object.
         /// </summary>
@@ -522,6 +525,12 @@ namespace Core.Notification
         //    ContextData cd = new ContextData();
         //    InitiateNotificationActionCaller caller = InitiateNotificationAction;
         //    return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
+        //}
+
+        //public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        //{
+        //    InitiateNotificationActionCaller caller = InitiateNotificationAction;
+        //    return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken));
         //}
 
         public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
