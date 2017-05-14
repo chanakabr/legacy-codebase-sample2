@@ -24,7 +24,6 @@ namespace ElasticSearchHandler.IndexBuilders
         
         private static readonly string MEDIA = "media";
         protected const string VERSION = "2";
-
         #endregion
 
         #region Ctor
@@ -318,15 +317,15 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Private Methods
 
-        private void GetAnalyzers(List<ApiObjects.LanguageObj> lLanguages, out List<string> lAnalyzers, out List<string> lFilters, out List<string> tokenizers)
+        private void GetAnalyzers(List<ApiObjects.LanguageObj> languages, out List<string> analyzers, out List<string> filters, out List<string> tokenizers)
         {
-            lAnalyzers = new List<string>();
-            lFilters = new List<string>();
+            analyzers = new List<string>();
+            filters = new List<string>();
             tokenizers = new List<string>();
 
-            if (lLanguages != null)
+            if (languages != null)
             {
-                foreach (ApiObjects.LanguageObj language in lLanguages)
+                foreach (ApiObjects.LanguageObj language in languages)
                 {
                     string analyzer = ElasticSearchApi.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, VERSION));
                     string filter = ElasticSearchApi.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, VERSION));
@@ -338,12 +337,12 @@ namespace ElasticSearchHandler.IndexBuilders
                     }
                     else
                     {
-                        lAnalyzers.Add(analyzer);
+                        analyzers.Add(analyzer);
                     }
 
                     if (!string.IsNullOrEmpty(filter))
                     {
-                        lFilters.Add(filter);
+                        filters.Add(filter);
                     }
 
                     if (!string.IsNullOrEmpty(tokenizer))
@@ -351,6 +350,9 @@ namespace ElasticSearchHandler.IndexBuilders
                         tokenizers.Add(tokenizer);
                     }
                 }
+
+                // we always want a lowercase analyzer
+                analyzers.Add(LOWERCASE_ANALYZER);
             }
         }
 

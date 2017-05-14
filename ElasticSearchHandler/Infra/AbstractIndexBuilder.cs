@@ -19,6 +19,9 @@ namespace ElasticSearchHandler.IndexBuilders
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        public const string LOWERCASE_ANALYZER =
+            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
+
         #region Data Members
         
         protected int groupId;
