@@ -175,7 +175,9 @@ namespace ElasticSearch.Common
             {
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
-                index = eMappingIndex.not_analyzed,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
                 null_value = ""
             };
             nameProperty.fields.Add(new BasicMappingPropertyV2()
@@ -183,7 +185,9 @@ namespace ElasticSearch.Common
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
-                index = eMappingIndex.not_analyzed
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -236,7 +240,9 @@ namespace ElasticSearch.Common
             {
                 name = AddSuffix("description", suffix),
                 type = eESFieldType.STRING,
-                index = eMappingIndex.not_analyzed,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
                 null_value = ""
             };
 
@@ -245,7 +251,9 @@ namespace ElasticSearch.Common
                 name = AddSuffix("description", suffix),
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
-                index = eMappingIndex.not_analyzed
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
             });
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
@@ -316,7 +324,9 @@ namespace ElasticSearch.Common
                         {
                             name = AddSuffix(sTagName, suffix),
                             type = eESFieldType.STRING,
-                            index = eMappingIndex.not_analyzed,
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = LOWERCASE_ANALYZER,
+                            analyzer = LOWERCASE_ANALYZER,
                             null_value = ""
                         };
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
@@ -324,7 +334,9 @@ namespace ElasticSearch.Common
                             name = AddSuffix(sTagName, suffix),
                             type = ElasticSearch.Common.eESFieldType.STRING,
                             null_value = string.Empty,
-                            index = eMappingIndex.not_analyzed
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = LOWERCASE_ANALYZER,
+                            analyzer = LOWERCASE_ANALYZER,
                         });
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
@@ -406,20 +418,49 @@ namespace ElasticSearch.Common
 
                                 if (eMetaType != eESFieldType.DATE)
                                 {
-                                    FieldsMappingPropertyV2 multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                                    FieldsMappingPropertyV2 multiField = null;
+
+                                    if (eMetaType == eESFieldType.STRING)
                                     {
-                                        name = AddSuffix(sMetaName, suffix),
-                                        type = eMetaType,
-                                        index = eMappingIndex.not_analyzed,
-                                        null_value = sNullValue
-                                    };
-                                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                                        multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                                        {
+                                            name = AddSuffix(sMetaName, suffix),
+                                            type = eMetaType,
+                                            index = eMappingIndex.analyzed,
+                                            search_analyzer = LOWERCASE_ANALYZER,
+                                            analyzer = LOWERCASE_ANALYZER,
+                                            null_value = sNullValue
+                                        };
+
+                                        multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                                        {
+                                            name = AddSuffix(sMetaName, suffix),
+                                            type = eMetaType,
+                                            null_value = sNullValue,
+                                            index = eMappingIndex.analyzed,
+                                            search_analyzer = LOWERCASE_ANALYZER,
+                                            analyzer = LOWERCASE_ANALYZER,
+                                        });
+                                    }
+                                    else
                                     {
-                                        name = AddSuffix(sMetaName, suffix),
-                                        type = eMetaType,
-                                        null_value = sNullValue,
-                                        index = eMappingIndex.not_analyzed
-                                    });
+                                        multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                                        {
+                                            name = AddSuffix(sMetaName, suffix),
+                                            type = eMetaType,
+                                            index = eMappingIndex.not_analyzed,
+                                            null_value = sNullValue
+                                        };
+
+                                        multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                                        {
+                                            name = AddSuffix(sMetaName, suffix),
+                                            type = eMetaType,
+                                            null_value = sNullValue,
+                                            index = eMappingIndex.not_analyzed,
+                                        });
+                                    }
+
                                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                                     {
                                         name = "analyzed",
@@ -581,7 +622,9 @@ namespace ElasticSearch.Common
             {
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
-                index = eMappingIndex.not_analyzed,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
                 null_value = ""
             };
             nameProperty.fields.Add(new BasicMappingPropertyV2()
@@ -589,7 +632,9 @@ namespace ElasticSearch.Common
                 name = AddSuffix("name", suffix),
                 type = eESFieldType.STRING,
                 null_value = string.Empty,
-                index = eMappingIndex.not_analyzed
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
             });
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
@@ -642,7 +687,9 @@ namespace ElasticSearch.Common
             {
                 name = AddSuffix("description", suffix),
                 type = eESFieldType.STRING,
-                index = eMappingIndex.not_analyzed,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
                 null_value = ""
             };
 
@@ -651,7 +698,9 @@ namespace ElasticSearch.Common
                 name = AddSuffix("description", suffix),
                 type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
-                index = eMappingIndex.not_analyzed
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
             });
             descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
@@ -736,7 +785,9 @@ namespace ElasticSearch.Common
                     {
                         name = AddSuffix(sTagName, suffix),
                         type = eESFieldType.STRING,
-                        index = eMappingIndex.not_analyzed,
+                        index = eMappingIndex.analyzed,
+                        search_analyzer = LOWERCASE_ANALYZER,
+                        analyzer = LOWERCASE_ANALYZER,
                         null_value = ""
                     };
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
@@ -744,7 +795,9 @@ namespace ElasticSearch.Common
                         name = AddSuffix(sTagName, suffix),
                         type = ElasticSearch.Common.eESFieldType.STRING,
                         null_value = string.Empty,
-                        index = eMappingIndex.not_analyzed
+                        index = eMappingIndex.analyzed,
+                        search_analyzer = LOWERCASE_ANALYZER,
+                        analyzer = LOWERCASE_ANALYZER,
                     });
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                     {
@@ -810,20 +863,50 @@ namespace ElasticSearch.Common
                     string sNullValue;
                     eESFieldType eMetaType;
                     GetMetaType(metaName, out eMetaType, out sNullValue);
-                    FieldsMappingPropertyV2 multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+
+                    FieldsMappingPropertyV2 multiField = null;
+
+                    if (eMetaType == eESFieldType.STRING)
                     {
-                        name = AddSuffix(sMetaName, suffix),
-                        type = eMetaType,
-                        index = eMappingIndex.not_analyzed,
-                        null_value = sNullValue
-                    };
-                    multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                        multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                        {
+                            name = AddSuffix(sMetaName, suffix),
+                            type = eMetaType,
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = LOWERCASE_ANALYZER,
+                            analyzer = LOWERCASE_ANALYZER,
+                            null_value = sNullValue
+                        };
+
+                        multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                        {
+                            name = AddSuffix(sMetaName, suffix),
+                            type = eMetaType,
+                            null_value = sNullValue,
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = LOWERCASE_ANALYZER,
+                            analyzer = LOWERCASE_ANALYZER,
+                        });
+                    }
+                    else
                     {
-                        name = AddSuffix(sMetaName, suffix),
-                        type = eMetaType,
-                        null_value = sNullValue,
-                        index = eMappingIndex.not_analyzed
-                    });
+                        multiField = new ElasticSearch.Common.FieldsMappingPropertyV2()
+                        {
+                            name = AddSuffix(sMetaName, suffix),
+                            type = eMetaType,
+                            index = eMappingIndex.not_analyzed,
+                            null_value = sNullValue
+                        };
+
+                        multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
+                        {
+                            name = AddSuffix(sMetaName, suffix),
+                            type = eMetaType,
+                            null_value = sNullValue,
+                            index = eMappingIndex.not_analyzed,
+                        });
+                    }
+
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                     {
                         name = "analyzed",
