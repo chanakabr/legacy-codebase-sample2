@@ -485,7 +485,7 @@ namespace WebAPI.Clients
                 eUserMessageAction action = string.IsNullOrEmpty(userId) || userId == "0" ? eUserMessageAction.AnonymousPushRegistration : eUserMessageAction.IdentifyPushRegistration;
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    Core.Notification.Module.InitiateNotificationAction(groupId, action, int.Parse(userId), udid, pushToken);
+                    Core.Notification.Module.AddInitiateNotificationActionToQueue(groupId, action, int.Parse(userId), udid, pushToken);
                 }
             }
             catch (Exception ex)
