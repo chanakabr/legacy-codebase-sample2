@@ -2512,6 +2512,11 @@ namespace DAL
 
             return exists;
         }
+
+        public static int AddSeriesReminderExternalResult(int partnerId, int p, long reminderId, string resultMsgId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
