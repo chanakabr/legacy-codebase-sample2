@@ -15,12 +15,16 @@ using System.Threading.Tasks;
 using System.Web;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
+using QueueWrapper.Queues.QueueObjects;
 
 namespace Core.Notification
 {
     public class Module
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        protected const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";        
+
 
         /// <summary>
         /// Add notification request to the db, using NotificationManager object.
@@ -516,11 +520,32 @@ namespace Core.Notification
 
         private delegate bool InitiateNotificationActionCaller(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null);
 
-        public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        //public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        //{
+        //    ContextData cd = new ContextData();
+        //    InitiateNotificationActionCaller caller = InitiateNotificationAction;
+        //    return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
+        //}
+
+        //public static async Task<bool> InitiateNotificationActionAsync(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken)
+        //{
+        //    InitiateNotificationActionCaller caller = InitiateNotificationAction;
+        //    return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken));
+        //}
+
+        public static bool AddInitiateNotificationActionToQueue(int groupId, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
-            ContextData cd = new ContextData();
-            InitiateNotificationActionCaller caller = InitiateNotificationAction;
-            return await Task.Run(() => InitiateNotificationAction(nGroupID, userAction, userId, udid, pushToken, cd));
+            InitiateNotificationActionQueue que = new InitiateNotificationActionQueue();
+            ApiObjects.QueueObjects.UserNotificationData messageAnnouncementData = new ApiObjects.QueueObjects.UserNotificationData(groupId, (int)userAction, userId, udid, pushToken);
+
+            bool res = que.Enqueue(messageAnnouncementData, ROUTING_KEY_INITIATE_NOTIFICATION_ACTION);
+
+            if (res)
+                log.DebugFormat("Successfully inserted a message to notification action queue. user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+            else
+                log.ErrorFormat("Error while inserting to notification action queue.  user id: {0}, device id: {1}, push token: {2}, group id: {3}, user action: {4}", userId, udid, pushToken, groupId, userAction);
+
+            return res;
         }
 
         public static bool InitiateNotificationAction(int nGroupID, eUserMessageAction userAction, int userId, string udid, string pushToken, ContextData cd = null)

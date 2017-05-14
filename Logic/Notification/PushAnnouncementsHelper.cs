@@ -23,8 +23,6 @@ namespace Core.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string ROUTING_KEY_INITIATE_NOTIFICATION_ACTION = "PROCESS_INITIATE_NOTIFICATION_ACTION";
-
         /// <summary>
         /// initialize subscription of user announcements + login announcement for notification adapter
         /// </summary>
