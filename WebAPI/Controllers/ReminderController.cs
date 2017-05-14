@@ -59,6 +59,11 @@ namespace WebAPI.Controllers
                     // call client
                     return ClientsManager.NotificationClient().AddAssetReminder(groupId, userId, kalturaAssetReminder);
                 }
+                else if (reminder.GetType() == typeof(KalturaSeriesReminder))
+                {
+                    // call client
+                    return ClientsManager.NotificationClient().AddSeriesReminder(groupId, userId, reminder as KalturaSeriesReminder);
+                }
             }
             catch (ClientException ex)
             {

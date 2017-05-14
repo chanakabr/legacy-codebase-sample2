@@ -1891,5 +1891,55 @@ namespace WebAPI.Clients
 
             return ret;
         }
+
+        internal KalturaReminder AddSeriesReminder(int groupId, string userId, KalturaSeriesReminder reminder)
+        {
+            RemindersResponse response = null;
+            KalturaReminder kalturaReminder = null;
+            DbSeriesReminder dbSeriesReminder = null;
+
+            int userID = 0;
+            if (!int.TryParse(userId, out userID))
+            {
+                throw new ClientException((int)StatusCode.UserIDInvalid, "Invalid Username");
+            }
+
+            // get group ID
+
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    dbSeriesReminder = Mapper.Map<DbSeriesReminder>(reminder);
+                    dbSeriesReminder.GroupId = groupId;
+                    response = Core.Notification.Module.AddUserSeriesReminder(groupId, userID, dbSeriesReminder);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.Reminders != null && response.Reminders.Count > 0)
+            {
+                kalturaReminder = Mapper.Map<KalturaAssetReminder>(response.Reminders[0]);
+            }
+
+            return kalturaReminder;
+        }
     }
 }
