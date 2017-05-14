@@ -283,7 +283,7 @@ namespace WS_Users
                 KalturaBaseUsers kUser = null;
 
                 // get group ID + user type
-                Utils.GetGroupID(sWSUserName, sWSPassword);
+                Utils.GetGroupID(sWSUserName, sWSPassword, "SignIn", ref kUser);
                 if (nGroupID != 0 && kUser != null)
                     return FlowManager.SignOut(kUser, nSiteGuid, nGroupID, sessionID, sIP, deviceID, keyValueList);
                 else
@@ -690,7 +690,7 @@ namespace WS_Users
                 KalturaBaseUsers kUser = null;
 
                 // get group ID + user type
-                Utils.GetGroupID(sWSUserName, sWSPassword);
+                Utils.GetGroupID(sWSUserName, sWSPassword, "SignIn", ref kUser);
                 if (nGroupID != 0 && kUser != null)
                 {
                     return FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, new List<KeyValuePair>());
@@ -724,7 +724,7 @@ namespace WS_Users
                     operatorId = Convert.ToInt32(keyValueOperatorId.value);
             }
             // get group ID + user type
-            Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
+            int nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword, "SignIn", ref kUser);
             if (nGroupID != 0 && kUser != null)
             {
                 return FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, keyValueList);
