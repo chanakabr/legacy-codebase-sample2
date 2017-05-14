@@ -231,6 +231,36 @@ namespace WebAPI.Clients
             return true;
         }
 
+        public bool SwitchUsers(int groupId, string oldUserId, string newUserId, string udid)
+        {
+            ApiObjects.Response.Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.ChangeUsers(groupId, oldUserId, newUserId, udid);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while SwitchUsets. groupId: {0}, oldUserId : {1}, newUserId: {2}, UDID: {3}, exception : {4}", groupId, oldUserId, newUserId, udid, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Code, response.Message);
+            }
+
+            return true;
+        }
+
         //public WebAPI.Models.Users.ClientUser SignIn(int groupId, string userName, string password)
         //{
         //    WebAPI.Models.Users.ClientUser user = null;

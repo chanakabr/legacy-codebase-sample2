@@ -9,6 +9,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using WebAPI.ClientManagers.Client;
 
 namespace WebAPI.Controllers
 {
@@ -116,7 +117,9 @@ namespace WebAPI.Controllers
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "OTT-User", userIdToSwitch);
             }
 
+            // switch notification user
             string udid = KSUtils.ExtractKSPayload().UDID;
+            ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, udid);
 
             loginSession = AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
             AuthorizationManager.LogOut(ks);
