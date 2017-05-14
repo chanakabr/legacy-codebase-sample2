@@ -46,6 +46,7 @@ namespace ElasticSearch.Common
          */
 
         protected readonly string DATE_FORMAT = "yyyyMMddHHmmss";
+        protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
 
         public ESSerializerV2()
         {
@@ -193,6 +194,15 @@ namespace ElasticSearch.Common
                 search_analyzer = normalSearchAnalyzer,
                 analyzer = normalIndexAnalyzer
             });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -245,6 +255,15 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
                 analyzer = normalIndexAnalyzer
+            });
+            descProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -315,6 +334,15 @@ namespace ElasticSearch.Common
                             index = eMappingIndex.analyzed,
                             search_analyzer = normalSearchAnalyzer,
                             analyzer = normalIndexAnalyzer
+                        });
+                        multiField.fields.Add(new BasicMappingPropertyV2()
+                        {
+                            name = "lowercase",
+                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            null_value = "",
+                            index = eMappingIndex.analyzed,
+                            search_analyzer = LOWERCASE_ANALYZER,
+                            analyzer = LOWERCASE_ANALYZER
                         });
 
                         if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -400,6 +428,15 @@ namespace ElasticSearch.Common
                                         index = eMappingIndex.analyzed,
                                         search_analyzer = normalSearchAnalyzer,
                                         analyzer = normalIndexAnalyzer
+                                    });
+                                    multiField.fields.Add(new BasicMappingPropertyV2()
+                                    {
+                                        name = "lowercase",
+                                        type = ElasticSearch.Common.eESFieldType.STRING,
+                                        null_value = "",
+                                        index = eMappingIndex.analyzed,
+                                        search_analyzer = LOWERCASE_ANALYZER,
+                                        analyzer = LOWERCASE_ANALYZER
                                     });
 
                                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -563,6 +600,15 @@ namespace ElasticSearch.Common
                 search_analyzer = searchAnalyzer,
                 analyzer = indexAnalyzer
             });
+            nameProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
             {
@@ -615,6 +661,15 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.analyzed,
                 search_analyzer = searchAnalyzer,
                 analyzer = indexAnalyzer
+            });
+            descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
             });
 
             if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
@@ -700,6 +755,15 @@ namespace ElasticSearch.Common
                         search_analyzer = searchAnalyzer,
                         analyzer = indexAnalyzer
                     });
+                    multiField.fields.Add(new BasicMappingPropertyV2()
+                    {
+                        name = "lowercase",
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        index = eMappingIndex.analyzed,
+                        search_analyzer = LOWERCASE_ANALYZER,
+                        analyzer = LOWERCASE_ANALYZER
+                    });
 
                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
                     {
@@ -768,6 +832,15 @@ namespace ElasticSearch.Common
                         index = eMappingIndex.analyzed,
                         search_analyzer = searchAnalyzer,
                         analyzer = indexAnalyzer
+                    });
+                    multiField.fields.Add(new BasicMappingPropertyV2()
+                    {
+                        name = "lowercase",
+                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        null_value = "",
+                        index = eMappingIndex.analyzed,
+                        search_analyzer = LOWERCASE_ANALYZER,
+                        analyzer = LOWERCASE_ANALYZER
                     });
 
                     if (!string.IsNullOrEmpty(autocompleteIndexAnalyzer) && !string.IsNullOrEmpty(autocompleteSearchAnalyzer))
