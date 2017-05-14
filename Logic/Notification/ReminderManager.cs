@@ -298,6 +298,7 @@ namespace Core.Notification
         public static RemindersResponse AddUserSeriesReminder(int userId, DbSeriesReminder clientReminder)
         {
             RemindersResponse response = new RemindersResponse();
+           
             int reminderId = 0;
             string externalTopicId = string.Empty;
             DbSeriesReminder dbSeriesReminder = null;
@@ -363,6 +364,11 @@ namespace Core.Notification
                     return response;
                 }
 
+                if (userNotificationData.SeriesReminders == null)
+                {
+                    userNotificationData.SeriesReminders = new List<Announcement>();
+                }
+
                 if (userNotificationData.SeriesReminders.FirstOrDefault(x => x.AnnouncementId == dbSeriesReminder.ID) != null || IsSeriesAlreadyFollowed(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId, userNotificationData))
                 {
                     // user already set the reminder
@@ -371,9 +377,6 @@ namespace Core.Notification
                     Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
-
-                List<long> remindersToRemove = null;
-                List<long> seriesRemindersToRemove = null;
 
                 // update user notification object
                 long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
@@ -393,6 +396,8 @@ namespace Core.Notification
                     return response;
                 }
 
+                List<long> remindersToRemove = null;
+                List<long> seriesRemindersToRemove = null;
                 FilterRedundendReminders(clientReminder.GroupId, clientReminder.SeriesId, clientReminder.SeasonNumber, clientReminder.EpgChannelId, ref userNotificationData, out remindersToRemove, out seriesRemindersToRemove);
 
                 // update user devices
@@ -478,6 +483,7 @@ namespace Core.Notification
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while adding series reminder. GID: {0}, reminderId: {1}, ex: {2}", dbSeriesReminder.GroupId, dbSeriesReminder.ID, ex);
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             response.Reminders = new List<DbReminder>();
             response.Reminders.Add(dbSeriesReminder);
@@ -488,7 +494,8 @@ namespace Core.Notification
         private static bool IsSeriesAlreadyFollowed(int groupId, string seriesId, long? seasonNumber, long epgChannelId, UserNotification userNotificationData)
         {
             List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
-            return dbSeriesReminders.Where(sr => sr.SeriesId == seriesId && (!sr.SeasonNumber.HasValue || sr.SeasonNumber.Value == 0) && sr.EpgChannelId == epgChannelId).FirstOrDefault() != null;
+            return dbSeriesReminders != null && 
+                dbSeriesReminders.Where(sr => sr.SeriesId == seriesId && (!sr.SeasonNumber.HasValue || sr.SeasonNumber.Value == 0) && sr.EpgChannelId == epgChannelId).FirstOrDefault() != null;
         }
 
         private static void FilterRedundendReminders(int groupId, string seriesId, long? seasonNumber, long epgChannelId, ref UserNotification userNotificationData, out List<long> remindersToRemove, out List<long> seriesRemindersToRemove)

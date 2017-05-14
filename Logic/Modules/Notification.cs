@@ -1138,5 +1138,20 @@ namespace Core.Notification
 
             return response;
         }
+
+        public static RemindersResponse AddUserSeriesReminder(int nGroupID, int userId, DbSeriesReminder dbReminder)
+        {
+            RemindersResponse response = null;
+            try
+            {
+                response = ReminderManager.AddUserSeriesReminder(userId, dbReminder);
+            }
+            catch (Exception ex)
+            {
+                log.Error("AddUserReminder failed", ex);
+            }
+            return response;
+
+        }
     }
 }
