@@ -140,7 +140,6 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
             if (Session["subscriptionsInSetMap"] != null)
             {
                 subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
-                subscriptionSetsData.AddRange(subscriptionsInSetMap.Values);
             }
 
             Dictionary<long, SubscriptionSet> availableSubscriptionsMap = new Dictionary<long, SubscriptionSet>();
@@ -166,10 +165,8 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
 
                         if (!subscriptionsInSetMap.ContainsKey(subscriptionId))
                         {
-                            subscriptionsInSetMap.Add(subscriptionId, subscriptionSetWithOrder);
-                        }
-
-                        subscriptionSetsData.Add(subscriptionSetWithOrder);
+                            subscriptionsInSetMap.Add(subscriptionId, subscriptionSetWithOrder);                            
+                        }                        
                     }
                     else
                     {
@@ -177,6 +174,12 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                         subscriptionSetsData.Add(subscriptionSet);
                     }                    
                 }
+            }
+
+            if (subscriptionsInSetMap.Count > 0)
+            {
+                subscriptionsInSetMap = subscriptionsInSetMap.OrderBy(x => x.Value.OrderNum).ToDictionary(x => x.Key, x => x.Value);
+                subscriptionSetsData.AddRange(subscriptionsInSetMap.Values);
             }
 
             Session["subscriptionsInSetMap"] = subscriptionsInSetMap;
@@ -208,15 +211,23 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         {
             if (subscriptionsInSetMap.ContainsKey(subscriptionId))
             {
-                SubscriptionSet temp = new SubscriptionSet(subscriptionsInSetMap[subscriptionId]);                
-                temp.InList = false;
+                SubscriptionSet temp = new SubscriptionSet(subscriptionsInSetMap[subscriptionId]);
+                temp.InList = false;                
                 availableSubscriptionsMap.Add(subscriptionId, temp);
+                // if current item orderNum equals current maxOrderNum we may need to update, depends on other items
+                if (subscriptionsInSetMap[subscriptionId].OrderNum == maxOrderNum)
+                {
+                    maxOrderNum = subscriptionsInSetMap.Select(x => x.Value.OrderNum).Max();
+                }
+
                 subscriptionsInSetMap.Remove(subscriptionId);
             }
             else
             {
                 SubscriptionSetWithOrder temp = new SubscriptionSetWithOrder(availableSubscriptionsMap[subscriptionId]);
-                temp.OrderNum = maxOrderNum + 1;
+                // update current maxOrderNum value
+                maxOrderNum++;
+                temp.OrderNum = maxOrderNum;
                 temp.InList = true;
                 subscriptionsInSetMap.Add(subscriptionId, temp);
                 availableSubscriptionsMap.Remove(subscriptionId);                
@@ -238,6 +249,17 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
             Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
             if (subscriptionsInSetMap.ContainsKey(subscriptionId))
             {
+                // if new orderNum is bigger than current maxOrderNum, just update current maxOrderNum value
+                if (orderNum > maxOrderNum)
+                {
+                    maxOrderNum = orderNum;
+                }
+                // if current item orderNum equals current maxOrderNum we may need to update, depends on other items                
+                else if (subscriptionsInSetMap[subscriptionId].OrderNum == maxOrderNum)
+                {
+                    maxOrderNum = subscriptionsInSetMap.Select(x => x.Value.OrderNum).Max();
+                }
+
                 subscriptionsInSetMap[subscriptionId].OrderNum = orderNum;
             }
 

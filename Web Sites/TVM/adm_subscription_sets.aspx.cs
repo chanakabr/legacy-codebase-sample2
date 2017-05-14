@@ -25,9 +25,16 @@ public partial class adm_subscription_sets : System.Web.UI.Page
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, false);
             if (Request.QueryString["search_save"] != null)
+            {
                 Session["search_save"] = "1";
+                Session["set_id"] = 0;
+                Session["subscriptionsInSetMap"] = null;
+                Session["availableSubscriptionsMap"] = null;
+            }
             else
+            {
                 Session["search_save"] = null;
+            }
         }
     }
 

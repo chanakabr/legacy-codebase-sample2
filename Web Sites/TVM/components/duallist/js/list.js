@@ -226,7 +226,9 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     }
                     var previousItem = liItems[j - 2];
                     var updatedOrderNum = previousItem.getAttribute("data-orderNum");
-                    updatedOrderNum--;
+                    if (updatedOrderNum > 1) {
+                        updatedOrderNum--;
+                    }
                     if (swapItems(liItems, updatedOrderNum, j, liItemsLength, "up")) {
                         var itemId = liItem.getAttribute("data-id");
                         changeItemOrder(itemId, pageName, updatedOrderNum);
@@ -264,6 +266,8 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
     };
 
     var swapItems = function (itemsList, currentItemUpdatedOrderNum, itemIndex, listLength, direction) {
+        var didItemMove = false;
+        var originalItemIndex = itemIndex;
         var currentItem = itemsList[itemIndex];
         var currentItemOrderNum = currentItem.getAttribute("data-orderNum");
         currentItem.setAttribute("data-orderNum", currentItemUpdatedOrderNum);
@@ -273,13 +277,14 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
             while (canBeMoved(direction, itemIndex, listLength)) {
                 var nextItem = itemsList[itemIndex - 2];
                 var nextItemOrderNum = nextItem.getAttribute("data-orderNum");
-                if (nextItemOrderNum > currentItemUpdatedOrderNum) {
+                if (nextItemOrderNum > currentItemUpdatedOrderNum || (currentItemUpdatedOrderNum == 1 && originalItemIndex == 2)) {
                     var ItemsDiv = currentItem.nextSibling;
                     $(ItemsDiv).remove();
                     $(currentItem).remove();
                     $(nextItem).before(currentItem);
                     $(currentItem).after(ItemsDiv);
                     itemIndex = itemIndex - 2;
+                    didItemMove = true;
                 }
                 else {
                     return true;
@@ -297,6 +302,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     $(nextItem.nextSibling).after(currentItem);
                     $(currentItem).after(ItemsDiv);
                     itemIndex = itemIndex + 2;
+                    didItemMove = true;
                 }
                 else {
                     return true;
@@ -304,7 +310,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
             }
         }
 
-        return false;
+        return didItemMove;
     };
 
     var canBeMoved = function (direction, index, listLength) {        
