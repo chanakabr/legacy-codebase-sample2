@@ -2606,13 +2606,13 @@
         </member>
         <member name="M:WebAPI.Controllers.NotificationController.SendPush(System.Int32,WebAPI.Models.Notification.KalturaPushMessage)">
             <summary>
-            TBD 
+            Sends push notification to user devices  
             </summary>
             <remarks>
             Possible status codes:       
             </remarks>
-            <param name="userId">TBD</param>        
-            <param name="pushMessage">TBD</param>     
+            <param name="userId">User identifications</param>        
+            <param name="pushMessage">Message push data</param>     
         </member>
         <member name="M:WebAPI.Controllers.NotificationsPartnerSettingsController.Get">
             <summary>
