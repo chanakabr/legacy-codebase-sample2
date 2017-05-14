@@ -101,6 +101,11 @@ public partial class adm_pricing_settings : System.Web.UI.Page
             dr_adsParam.Initialize("Ads Param", "adm_table_header_nbg", "FormInput", "ADS_PARAM", false);
             theRecord.AddRecord(dr_adsParam);
 
+            DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+            dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+            dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+            theRecord.AddRecord(dr_groups);
+
             sTable = theRecord.GetTableHTML("adm_pricing_settings.aspx?submited=1");
         }
         return sTable;
