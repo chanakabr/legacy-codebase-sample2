@@ -1690,7 +1690,7 @@ namespace WS_Users
 
                     if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
                     {
-                        Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.Login, userID, deviceID);
+                        Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, userID, deviceID);
                     }
                     else
                         log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, nGroupID, response.resp.Code);
@@ -1934,7 +1934,7 @@ namespace WS_Users
 
             if (response.Code == (int)eResponseStatus.OK)
             {
-                Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.DeleteUser, userId, string.Empty);
+                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.DeleteUser, userId, string.Empty);
             }
             else
                 log.ErrorFormat("DeleteUser: error while deleting user: user: {0}, group: {1}, error: {2}", userId, nGroupID, response.Code);
@@ -1968,7 +1968,7 @@ namespace WS_Users
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.AnonymousPushRegistration, userId, udid, pushToken);
+                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.AnonymousPushRegistration, userId, udid, pushToken);
             }
             else
             {
