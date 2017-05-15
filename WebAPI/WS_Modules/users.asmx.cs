@@ -42,7 +42,7 @@ namespace WS_Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
 
-                
+
                 Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
@@ -194,7 +194,7 @@ namespace WS_Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserName != null ? sUserName : "null";
 
-                
+
                 Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
@@ -309,7 +309,7 @@ namespace WS_Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
-                
+
                 Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
@@ -335,7 +335,7 @@ namespace WS_Users
                 // add siteguid to logs/monitor
                 HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
-                
+
                 Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                     return Core.Users.Module.AddChannelMediaToFavorites(nGroupID, sUserGUID, domainID, sDeviceUDID, sItemType, sChannelID, sExtraData);
@@ -405,7 +405,7 @@ namespace WS_Users
             HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -442,7 +442,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -462,7 +462,7 @@ namespace WS_Users
             HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -481,7 +481,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sUserGUID != null ? sUserGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -508,7 +508,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject GetUserByFacebookID(string sWSUserName, string sWSPassword, string sFacebookID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -531,7 +531,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject GetUserByUsername(string sWSUserName, string sWSPassword, string sUsername)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -555,7 +555,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject GetUserDataByCoGuid(string sWSUserName, string sWSPassword, string sCoGuid, int operatorID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -571,7 +571,7 @@ namespace WS_Users
             }
         }
 
-       
+
 
         [WebMethod]
         [System.Xml.Serialization.XmlInclude(typeof(User))]
@@ -626,7 +626,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(BaseUsers))]
         public virtual List<UserBasicData> SearchUsers_MT(string sWSUserName, string sWSPassword, string sTerms, string sFields, bool bIsExact)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -644,7 +644,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(BaseUsers))]
         public virtual List<UserBasicData> SearchUsers(string sWSUserName, string sWSPassword, string[] sTerms, string[] sFields, bool bIsExact)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -672,7 +672,7 @@ namespace WS_Users
             if (Utils.IsGroupIDContainedInConfig(nGroupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
             {
                 // old Core to PS flow
-                
+
                 Utils.GetGroupID(sWSUserName, sWSPassword);
                 if (nGroupID != 0)
                 {
@@ -724,7 +724,7 @@ namespace WS_Users
                     operatorId = Convert.ToInt32(keyValueOperatorId.value);
             }
             // get group ID + user type
-            Utils.GetGroupID(sWSUserName, sWSPassword, "SignIn", ref kUser);
+            int nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword, "SignIn", ref kUser);
             if (nGroupID != 0 && kUser != null)
             {
                 return FlowManager.AddNewUser(kUser, oBasicData, sDynamicData, sPassword, keyValueList);
@@ -774,7 +774,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -792,7 +792,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -809,7 +809,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -855,7 +855,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject ChangeUserPassword(string sWSUserName, string sWSPassword, string sUN, string sOldPass, string sPass)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -871,7 +871,7 @@ namespace WS_Users
         [WebMethod]
         public virtual ApiObjects.Response.Status UpdateUserPassword(string sWSUserName, string sWSPassword, int userId, string password)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -894,7 +894,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject ForgotPassword(string sWSUserName, string sWSPassword, string sUN)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -917,7 +917,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject ChangePassword(string sWSUserName, string sWSPassword, string sUN)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -942,7 +942,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -965,7 +965,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserResponseObject))]
         public virtual UserResponseObject CheckTemporaryToken(string sWSUserName, string sWSPassword, string sToken)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -991,7 +991,7 @@ namespace WS_Users
         public virtual UserResponseObject RenewUserPassword(string sWSUserName, string sWSPassword, string sUserName,
             string sNewPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1015,7 +1015,7 @@ namespace WS_Users
         public virtual bool ResendWelcomeMail(string sWSUserName, string sWSPassword, string sUserName,
             string sNewPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1041,7 +1041,7 @@ namespace WS_Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1068,7 +1068,7 @@ namespace WS_Users
         {
             UserResponse response = new UserResponse();
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1092,7 +1092,7 @@ namespace WS_Users
         public virtual UserResponseObject ActivateAccountByDomainMaster(string sWSUserName, string sWSPassword, string sMasterUsername,
             string sUserName, string sToken)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1108,7 +1108,7 @@ namespace WS_Users
         [WebMethod]
         public virtual bool SendPasswordMail(string sWSUserName, string sWSPassword, string sUserName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1134,7 +1134,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1150,7 +1150,7 @@ namespace WS_Users
         [WebMethod]
         public virtual bool DoesUserNameExists(string sWSUserName, string sWSPassword, string sUserName)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1168,7 +1168,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(State))]
         public virtual Core.Users.Country[] GetCountryList(string sWSUserName, string sWSPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1186,7 +1186,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(State))]
         public virtual State[] GetStateList(string sWSUserName, string sWSPassword, Int32 nCountryID)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1203,7 +1203,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(Core.Users.Country))]
         public virtual Core.Users.Country GetIPToCountry(string sWSUserName, string sWSPassword, string sUserIP)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1227,7 +1227,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = nUserGuid.ToString();
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1242,13 +1242,12 @@ namespace WS_Users
 
         [WebMethod]
         public virtual ApiObjects.Response.Status IsUserActivated(string sWSUserName, string sWSPassword, Int32 userId)
-
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = userId.ToString();
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
                 response = Core.Users.Module.IsUserActivated(nGroupID, userId);
@@ -1266,7 +1265,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1301,7 +1300,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1319,7 +1318,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1337,7 +1336,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1356,7 +1355,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1375,7 +1374,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(UserGroupRuleResponseStatus))]
         public virtual UserGroupRuleResponse CheckParentalPINToken(string sWSUserName, string sWSPassword, string sToken)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
@@ -1398,7 +1397,7 @@ namespace WS_Users
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
             UserGroupRuleResponse response = null;
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
@@ -1420,7 +1419,7 @@ namespace WS_Users
         [WebMethod]
         public virtual bool AddItemToList(string sWSUserName, string sWSPassword, UserItemList userItemList)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             bool result = false;
             if (nGroupID != 0)
@@ -1438,7 +1437,7 @@ namespace WS_Users
         [WebMethod]
         public virtual bool RemoveItemFromList(string sWSUserName, string sWSPassword, UserItemList userItemList)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             bool result = false;
             if (nGroupID != 0)
@@ -1456,7 +1455,7 @@ namespace WS_Users
         [WebMethod]
         public virtual bool UpdateItemInList(string sWSUserName, string sWSPassword, UserItemList userItemList)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             bool result = false;
             if (nGroupID != 0)
@@ -1477,7 +1476,7 @@ namespace WS_Users
         public virtual UserItemListsResponse GetItemFromList(string sWSUserName, string sWSPassword, UserItemList userItemList)
         {
             UserItemListsResponse response = new UserItemListsResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
@@ -1500,7 +1499,7 @@ namespace WS_Users
         public virtual UsersItemsListsResponse GetItemsFromUsersLists(string sWSUserName, string sWSPassword, List<string> userIds, ListType listType, ListItemType itemType)
         {
             UsersItemsListsResponse response = new UsersItemsListsResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
@@ -1521,7 +1520,7 @@ namespace WS_Users
 
         public virtual List<ApiObjects.KeyValuePair> IsItemExistsInList(string sWSUserName, string sWSPassword, UserItemList userItemList)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
 
             if (nGroupID != 0)
@@ -1542,7 +1541,7 @@ namespace WS_Users
         [System.Xml.Serialization.XmlInclude(typeof(State))]
         public virtual UserType[] GetGroupUserTypes(string sWSUserName, string sWSPassword)
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1564,7 +1563,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1583,7 +1582,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGuid != null ? sSiteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1602,7 +1601,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1640,7 +1639,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1659,7 +1658,7 @@ namespace WS_Users
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1677,7 +1676,7 @@ namespace WS_Users
             List<ApiObjects.KeyValuePair> keyValueList)
         {
             UserResponse response = new UserResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1746,7 +1745,7 @@ namespace WS_Users
         public virtual ApiObjects.Response.Status SendRenewalPasswordMail(string sWSUserName, string sWSPassword, string userName)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1763,7 +1762,7 @@ namespace WS_Users
         public virtual ApiObjects.Response.Status RenewPassword(string sWSUserName, string sWSPassword, string userName, string newPassword)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1780,7 +1779,7 @@ namespace WS_Users
         public virtual ApiObjects.Response.Status ReplacePassword(string sWSUserName, string sWSPassword, string userName, string oldPassword, string newPassword)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1798,7 +1797,7 @@ namespace WS_Users
         public virtual UserResponse CheckPasswordToken(string sWSUserName, string sWSPassword, string token)
         {
             UserResponse response = new UserResponse();
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1861,7 +1860,7 @@ namespace WS_Users
             FavoriteResponse response = new FavoriteResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1883,7 +1882,7 @@ namespace WS_Users
             LongIdsResponse response = new LongIdsResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1905,7 +1904,7 @@ namespace WS_Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
             response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1923,7 +1922,7 @@ namespace WS_Users
         public virtual ApiObjects.Response.Status DeleteUser(string sWSUserName, string sWSPassword, int userId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
                 response = Core.Users.Module.DeleteUser(nGroupID, userId);
@@ -1947,7 +1946,7 @@ namespace WS_Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1964,7 +1963,7 @@ namespace WS_Users
         [WebMethod]
         public void AddInitiateNotificationAction(string sWSUserName, string sWSPassword, eUserMessageAction userAction, int userId, string udid, string pushToken = "")
         {
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -1988,7 +1987,7 @@ namespace WS_Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -2007,7 +2006,7 @@ namespace WS_Users
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -2029,7 +2028,7 @@ namespace WS_Users
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -2051,7 +2050,7 @@ namespace WS_Users
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -2073,7 +2072,7 @@ namespace WS_Users
                 resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
@@ -2081,7 +2080,7 @@ namespace WS_Users
             }
             else
             {
-                HttpContext.Current.Response.StatusCode = 404;               
+                HttpContext.Current.Response.StatusCode = 404;
             }
             return response;
         }
@@ -2093,7 +2092,7 @@ namespace WS_Users
                 resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
             };
 
-            
+
             Int32 nGroupID = Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
