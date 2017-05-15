@@ -874,10 +874,13 @@ namespace WebAPI.Controllers
                     KalturaDrmPlaybackPluginData drmData;
                     List<KalturaDrmSchemeName> schemes;
                     Group group = GroupsManager.GetGroup(ks.GroupId);
-                    
+
                     string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
-                    string baseUrl = string.Format("{0}://{1}{2}", !string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https" ?
-                        xForwardedProtoHeader : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
+                    string xKProxyProto = HttpContext.Current.Request.Headers["X-KProxy-Proto"];
+
+                    string baseUrl = string.Format("{0}://{1}{2}", (!string.IsNullOrEmpty(xForwardedProtoHeader) && xForwardedProtoHeader == "https") ||
+                        (!string.IsNullOrEmpty(xKProxyProto) && xKProxyProto == "https") ?
+                        "https" : HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host, HttpContext.Current.Request.ApplicationPath.TrimEnd('/'));
 
                     string caSystemUrl = string.Format("{0}/api_v3/service/assetFile/action/getContext?ks={1}&contextType={2}", baseUrl, ks.ToString(),
                         assetType == KalturaAssetType.recording ? WebAPI.Models.ConditionalAccess.KalturaAssetFileContext.KalturaContextType.recording : 
