@@ -1936,7 +1936,7 @@ namespace WebAPI.Clients
 
             if (response.Reminders != null && response.Reminders.Count > 0)
             {
-                kalturaReminder = Mapper.Map<KalturaAssetReminder>(response.Reminders[0]);
+                kalturaReminder = Mapper.Map<KalturaSeriesReminder>(response.Reminders[0]);
             }
 
             return kalturaReminder;
