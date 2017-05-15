@@ -69,11 +69,11 @@ public partial class adm_pricing_settings : System.Web.UI.Page
             return Session["last_page_html"].ToString();
         }
 
-        object groupId = LoginManager.GetLoginGroupID();
+        int groupId = LoginManager.GetLoginGroupID();
 
         // check ig groupid is parent , if so show page with all filed else (not parent show a message)
-        int tableID = GetPricingSettingsID(ODBCWrapper.Utils.GetIntSafeVal(groupId));
-        bool isParentGroup = IsParentGroup(ODBCWrapper.Utils.GetIntSafeVal(groupId));
+        int tableID = GetPricingSettingsID(groupId);
+        bool isParentGroup = IsParentGroup(groupId);
 
         string sTable = string.Empty;
         if (!isParentGroup)
@@ -86,6 +86,7 @@ public partial class adm_pricing_settings : System.Web.UI.Page
             {
                 t = tableID;
             }
+
             string sBack = "adm_pricing_settings.aspx?search_save=1";
             DBRecordWebEditor theRecord = new DBRecordWebEditor("groups_parameters", "adm_table_pager", sBack, "", "ID", t, sBack, "");
             theRecord.SetConnectionKey("pricing_connection");
@@ -103,12 +104,25 @@ public partial class adm_pricing_settings : System.Web.UI.Page
 
             DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
             dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
-            dr_groups.SetValue(LoginManager.GetLoginGroupID().ToString());
+            dr_groups.SetValue(groupId.ToString());
             theRecord.AddRecord(dr_groups);
+
+            DataRecordShortIntField dr_fictivic_group = new DataRecordShortIntField(false, 9, 9);
+            dr_fictivic_group.Initialize("Fictivic Group ID", "adm_table_header_nbg", "FormInput", "FICTIVIC_GROUP_ID", false);
+            dr_fictivic_group.SetValue(GetFictivicGroupId(groupId));
+            theRecord.AddRecord(dr_fictivic_group);
 
             sTable = theRecord.GetTableHTML("adm_pricing_settings.aspx?submited=1");
         }
         return sTable;
+    }
+
+    private string GetFictivicGroupId(int groupId)
+    {
+        object fictivicGroupId = ODBCWrapper.Utils.GetTableSingleVal("groups", "FICTIVIC_GROUP_ID", groupId, "MAIN_CONNECTION_STRING");
+        if (fictivicGroupId == null)
+            return "0";
+        else return fictivicGroupId.ToString();
     }
 
     private System.Data.DataTable GetAdsPolicyDT()
