@@ -1765,11 +1765,18 @@ namespace Core.Notification
             // get reminder from DB
             List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
 
-            if (seriesIds.Count > 0)
+            if (dbSeriesReminders == null || dbSeriesReminders.Count == 0)
+            {
+                log.DebugFormat("user reminders were not found on DB. GID: {0}, user ID: {1}", groupId, userId);
+                response.Status = new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                return response;
+            }
+
+            if (seriesIds != null && seriesIds.Count > 0)
             {
                 dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId)).ToList();
             }
-            if (seasonNumbers.Count > 0)
+            if (seasonNumbers != null && seasonNumbers.Count > 0)
             {
                 dbSeriesReminders = dbSeriesReminders.Where(sr => sr.SeasonNumber.HasValue && seasonNumbers.Contains(sr.SeasonNumber.Value)).ToList();
             }

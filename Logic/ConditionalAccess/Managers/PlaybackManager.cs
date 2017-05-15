@@ -165,8 +165,11 @@ namespace Core.ConditionalAccess
                         foreach (MediaFile file in response.Files)
                         {
                             var assetFileAds = assetFileIdsAds[file.Id];
-                            file.AdsParam = assetFileAds.AdsParam;
-                            file.AdsPolicy = assetFileAds.AdsPolicy;
+                            if (assetFileAds != null)
+                            {
+                                file.AdsParam = assetFileAds.AdsParam;
+                                file.AdsPolicy = assetFileAds.AdsPolicy;
+                            }
                         }
                     }
                     else if (assetType == eAssetTypes.NPVR)
