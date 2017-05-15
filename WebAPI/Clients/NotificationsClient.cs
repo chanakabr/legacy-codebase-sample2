@@ -1885,7 +1885,11 @@ namespace WebAPI.Clients
 
             if (response.Reminders != null && response.Reminders.Count > 0)
             {
-                result = Mapper.Map<List<KalturaReminder>>(response.Reminders);
+                result = new List<KalturaReminder>();
+                foreach (DbSeriesReminder reminder in response.Reminders)
+                {
+                    result.Add(Mapper.Map<KalturaSeriesReminder>(reminder));                    
+                }
             }
             ret = new KalturaReminderListResponse() { Reminders = result, TotalCount = response.TotalCount };
 

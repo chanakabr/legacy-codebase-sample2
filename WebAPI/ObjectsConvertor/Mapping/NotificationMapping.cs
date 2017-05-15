@@ -259,8 +259,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  ;
 
             Mapper.CreateMap<DbReminder, KalturaReminder>()
-                .Include<DbReminder, KalturaAssetReminder>()
                 .Include<DbSeriesReminder, KalturaSeriesReminder>();
+
+            Mapper.CreateMap<KalturaReminder, DbReminder>()
+                .Include<KalturaSeriesReminder, DbSeriesReminder>();
 
             Mapper.CreateMap<KalturaSeriesReminder, DbSeriesReminder>()
                 .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
@@ -268,10 +270,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                 .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                 .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId));
-
-            Mapper.CreateMap<KalturaReminder, DbReminder>()
-                .Include<KalturaAssetReminder, DbReminder>()
-                .Include<KalturaSeriesReminder, DbSeriesReminder>();
 
             #region Engagement Adapter
 
