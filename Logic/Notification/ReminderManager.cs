@@ -320,7 +320,7 @@ namespace Core.Notification
                     dbSeriesReminder = clientReminder;
                 }
 
-                dbSeriesReminder.Name = clientReminder.SeasonNumber != null ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
+                dbSeriesReminder.Name = clientReminder.SeasonNumber.HasValue && clientReminder.SeasonNumber.Value != 0 ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
 
                 // Need to save in database in 2 cases:
                 // 1. A new reminder 
