@@ -544,5 +544,25 @@ namespace Core.Pricing
                 rootNode.AppendChild(rowNode);
             }
         }
+
+        internal static SubscriptionSetDetails GetSubscriptionSetDetails(int groupId, long subscriptionId)
+        {
+            SubscriptionSetDetails subscriptionSetDetails = new SubscriptionSetDetails();
+            DataTable dt = PricingDAL.GetSetsBySucriptionId(groupId, new List<long>() { subscriptionId });
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            { 
+                foreach (DataRow dr in dt.Rows)
+                {                    
+                    long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
+                    int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
+                    if (setId > 0 && priority > 0)
+                    {
+                        subscriptionSetDetails.SetsToPrioritiesMap[setId] = priority;
+                    }
+                }
+            }
+
+            return subscriptionSetDetails;
+        }
     }
 }
