@@ -276,7 +276,6 @@ namespace WebAPI.Models.Pricing
 
         #endregion
 
-
         /// <summary>
         /// List of Subscription Coupons group
         /// </summary>
@@ -285,5 +284,22 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "subscriptionCouponsGroup", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaCouponsGroup> SubscriptionCouponsGroup { get; set; }
+
+        /// <summary>
+        /// The Identifier of the set to which the subscription belongs
+        /// </summary>
+        [DataMember(Name = "setId")]
+        [JsonProperty("setId")]
+        [XmlElement(ElementName = "setId")]
+        public long? SetId { get; set; }
+
+        /// <summary>
+        /// Subscription priority in the set
+        /// </summary>
+        [DataMember(Name = "priorityInSet")]
+        [JsonProperty("priorityInSet")]
+        [XmlElement(ElementName = "priorityInSet")]        
+        public int? PriorityInSet { get; set; }
+
     }
 }
