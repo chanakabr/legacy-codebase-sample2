@@ -16,7 +16,7 @@ public partial class adm_discounts_locales_new : System.Web.UI.Page
     {
         if (LoginManager.CheckLogin() == false)
             LoginManager.LogoutFromSite("login.html");
-        else if (LoginManager.IsPagePermitted("adm_discounts_locales.aspx") == false)
+        else if (LoginManager.IsPagePermitted("adm_discounts.aspx") == false)
             LoginManager.LogoutFromSite("login.html");
 
         if (AMS.Web.RemoteScripting.InvokeMethod(this))
