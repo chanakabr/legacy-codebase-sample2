@@ -20,6 +20,9 @@ namespace ElasticSearch.Searcher
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
 
         public const string ENTITLED_ASSETS_FIELD = "entitled_assets";
+        public const string GEO_BLOCK_FIELD = "geo_block";
+        public const string PARENTAL_RULES_FIELD = "parental_rules";
+        public const string USER_INTERESTS_FIELD = "user_interests";
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -1565,6 +1568,10 @@ namespace ElasticSearch.Searcher
                 {
                     term = BuildEntitledAssetsQuery();
                 }
+                else if (leaf.field == PARENTAL_RULES_FIELD)
+                {
+                    term = BuildUserInterestsQuery();
+                }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
@@ -1798,6 +1805,27 @@ namespace ElasticSearch.Searcher
             return (term);
         }
 
+        private IESTerm BuildUserInterestsQuery()
+        {
+            BoolQuery result = new BoolQuery();
+
+            var userPreferences = this.SearchDefinitions.userPreferences;
+
+            foreach (var tag in userPreferences)
+            {
+                ESTerms terms = new ESTerms(false)
+                {
+                    Key = string.Format("tags.{0}", tag.Key)
+                };
+
+                terms.Value.AddRange(tag.Value);
+
+                result.AddChild(terms, CutWith.AND);
+            }
+
+            return result;
+        }
+
         private IESTerm BuildEntitledAssetsQuery()
         {
             BoolQuery result = new BoolQuery();
@@ -1950,7 +1978,6 @@ namespace ElasticSearch.Searcher
                 }
                 else
                 {
-
                     // Connect all the channels in the entitled user's subscriptions
                     result.AddChild(this.SubscriptionsQuery, CutWith.OR);
                     result.AddChild(specificAssetsTerm, CutWith.OR);
