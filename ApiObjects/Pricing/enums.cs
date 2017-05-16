@@ -92,4 +92,12 @@ namespace ApiObjects.Pricing
         StartDateAsc = 0,
         StartDateDesc = 1
     }
+
+    [Serializable]
+    public enum VerificationPaymentGateway
+    {
+        Google = 1,
+        Apple = 2,
+        Roku = 3
+    }
 }

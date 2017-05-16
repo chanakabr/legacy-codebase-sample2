@@ -544,5 +544,30 @@ namespace Core.Pricing
                 rootNode.AppendChild(rowNode);
             }
         }
+
+        internal static List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(long subscriptionId, int groupId)
+        {
+            List<KeyValuePair<VerificationPaymentGateway, string>> pcList = new List<KeyValuePair<VerificationPaymentGateway, string>>();
+            DataTable dt;
+
+            dt = PricingDAL.Get_SubscriptionsExternalProductCodes(groupId, new List<long>(1) { subscriptionId });
+            
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {                
+                foreach (DataRow dr in dt.Rows)
+                {                    
+                    long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID");
+                    string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE");
+                    int paymentGW = ODBCWrapper.Utils.GetIntSafeVal(dr, "verification_payment_gateway_id");
+
+                    if (Enum.IsDefined(typeof(VerificationPaymentGateway), paymentGW))
+                    {
+                        VerificationPaymentGateway pg = (VerificationPaymentGateway)paymentGW;
+                        pcList.Add(new KeyValuePair<VerificationPaymentGateway, string>(pg, productCode));
+                    }
+                }
+            }
+            return pcList;
+        }
     }
 }

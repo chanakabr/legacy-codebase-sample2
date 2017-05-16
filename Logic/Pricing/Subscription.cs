@@ -38,6 +38,7 @@ namespace Core.Pricing
         public int m_GracePeriodMinutes;
 
         public List<SubscriptionCouponGroup> CouponsGroups;
+        public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
 
         #endregion
 
@@ -50,6 +51,7 @@ namespace Core.Pricing
             m_MultiSubscriptionUsageModule = null;
             m_oPreviewModule = null;
             CouponsGroups = new List<SubscriptionCouponGroup>();
+            ExternalProductCodes = new List<KeyValuePair<VerificationPaymentGateway, string>>();
         }
         #endregion
 
@@ -233,7 +235,7 @@ namespace Core.Pricing
            string sSubUsageModule, string sObjectVirtualName,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
             long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
-             List<SubscriptionCouponGroup> couponsGroup = null)
+             List<SubscriptionCouponGroup> couponsGroup = null, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -302,6 +304,10 @@ namespace Core.Pricing
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
             this.CouponsGroups = couponsGroup;
+            if (externalProductCodes != null)
+            {
+                this.ExternalProductCodes = externalProductCodes;
+            }
         }
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)
