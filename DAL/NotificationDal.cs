@@ -2411,7 +2411,7 @@ namespace DAL
             return rowsFound == 0;
         }
 
-        public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long seasonNum, string epgChannelId)
+        public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long? seasonNum, string epgChannelId)
         {
             List<DbSeriesReminder> reminders = null;
 
@@ -2525,7 +2525,7 @@ namespace DAL
                 sp.AddParameter("@reminderId", reminderId);
                 sp.AddParameter("@externalResult", externalResult);
 
-                reminderId = sp.ExecuteReturnValue<int>();
+                id = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {
