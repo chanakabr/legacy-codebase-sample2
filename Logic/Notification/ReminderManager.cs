@@ -503,10 +503,10 @@ namespace Core.Notification
             remindersToRemove = null;
             seriesRemindersToRemove = null;
 
-            string seriesIdName, seasonNumberName, episodeNumberName;
-            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            Tuple<string, FieldTypes> seriesIdNameType, seasonNumberNameType, episodeNumberNameType;
+            if (!Utils.GetSeriesMetaTagsFieldsNamesAndTypes(groupId, out seriesIdNameType, out seasonNumberNameType, out episodeNumberNameType))
             {
-                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
+                log.ErrorFormat("failed to 'GetSeriesMetaTagsFieldsNamesAndTypes' for groupId = {0} ", groupId);
                 return;
             }
 
@@ -517,8 +517,19 @@ namespace Core.Notification
             {
                 List<ProgramObj> programs = GetEpgPrograms(groupId, userNotificationData.Reminders.Select(r => (int)r.AnnouncementId).ToList());
 
-                List<ProgramObj> episodesToRemove = programs.Where(p => p.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdName).FirstOrDefault().Value == seriesId &&
-                    (seasonNumber.HasValue && seasonNumber.Value != 0 ? p.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberName).FirstOrDefault().Value == seasonNumber.ToString() : true)).ToList();
+                List<ProgramObj> episodesToRemove = new List<ProgramObj>();
+                foreach (ProgramObj program in programs)
+                {
+                    if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
+                        (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
+                        (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ? 
+                        ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
+                        (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString())) 
+                        : true))
+                    {
+                        episodesToRemove.Add(program);
+                    }
+                }
 
                 if (episodesToRemove != null && episodesToRemove.Count > 0)
                 {
@@ -589,24 +600,20 @@ namespace Core.Notification
 
         private static bool IsAlreadyFollowedAsSeries(int groupId, ProgramObj epgProgram, List<Announcement> userSeriesReminders)
         {
-            string seriesIdName, seasonNumberName, episodeNumberName;
-            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.GetEpgFieldTypeEntitys(groupId, epgProgram.m_oProgram);
+            if (aliases == null || aliases.Count == 0)
             {
-                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
+                log.ErrorFormat("failed to alias mappings for groupId = {0}, programId = {1} ", groupId, epgProgram.AssetId);
                 return false;
             }
 
-            string seriesId = epgProgram.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value;
-            string seasonNum = epgProgram.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value;
-            long seasonNumber;
-
-            if (!string.IsNullOrEmpty(seasonNum) && long.TryParse(seasonNum, out seasonNumber))
+            string seriesId = aliases[Core.ConditionalAccess.Utils.SERIES_ID];
+            long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
+            
+            DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
+            if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
             {
-                DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
-                if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
-                {
-                    return true;
-                }
+                return true;
             }
 
             DbSeriesReminder seriesReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, null, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
@@ -614,7 +621,6 @@ namespace Core.Notification
             {
                 return true;
             }
-
             return false;
         }
 
@@ -1246,8 +1252,9 @@ namespace Core.Notification
                 string seriesId = aliases[Core.ConditionalAccess.Utils.SERIES_ID];
                 long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
 
-                List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminderBySeries(partnerId, seriesId, seasonNumber, program.m_oProgram.EPG_CHANNEL_ID);
-                seriesReminders = seriesReminders.Where(sr => sr.SeasonNumber == seasonNumber || seasonNumber == 0).ToList();
+                List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminderBySeries(partnerId, seriesId, null, program.m_oProgram.EPG_CHANNEL_ID);
+
+                seriesReminders = seriesReminders != null && seriesReminders.Count > 0 ? seriesReminders.Where(sr => sr.SeasonNumber == seasonNumber || seasonNumber == 0).ToList() : null;
 
                 if (seriesReminders == null || seriesReminders.Count == 0)
                 {
