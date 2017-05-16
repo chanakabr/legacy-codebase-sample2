@@ -9139,6 +9139,11 @@
             List of Subscription Coupons group
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.SubscriptionProductCodes">
+            <summary>
+            List of Subscription product codes
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.AssetIdEqual">
             <summary>
             Asset ID to filter by

@@ -285,5 +285,14 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "subscriptionCouponsGroup", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaCouponsGroup> SubscriptionCouponsGroup { get; set; }
+
+         /// <summary>
+        /// List of Subscription product codes
+        /// </summary>
+        [DataMember(Name = "subscriptionProductCodes")]
+        [JsonProperty("subscriptionProductCodes")]
+        [XmlElement(ElementName = "subscriptionProductCodes", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public List<KalturaKeyValue> SubscriptionProductCodes { get; set; }
     }
 }
