@@ -6717,7 +6717,7 @@ namespace Core.Catalog
                     {
                         GetLeafDate(ref leaf, request.m_dServerTime);
                     }
-                    else if (searchKeyLowered == "geo_block")
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.GEO_BLOCK_FIELD)
                     {
                         // geo_block is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
@@ -6748,7 +6748,7 @@ namespace Core.Catalog
                             throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
                         }
                     }
-                    else if (searchKeyLowered == "parental_rules")
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
@@ -6870,6 +6870,20 @@ namespace Core.Catalog
 
                         // I mock a "contains" operator so that the query builder will know it is a not-exact search
                         leaf.operand = ComparisonOperator.Contains;
+                    }
+                    else if (searchKeyLowered == ESUnifiedQueryBuilder.USER_INTERESTS_FIELD)
+                    {
+                        // Same as geo_block: it is a personal filter that currently will work only with "true".
+                        if (leaf.operand != ComparisonOperator.Equals && leaf.value.ToString().ToLower() != "true")
+                        {
+                            throw new KalturaException("Invalid search value or operator was sent for user_interests", (int)eResponseStatus.BadSearchRequest);
+                        }
+                        else
+                        {
+                            // I mock a "contains" operator so that the query builder will know it is a not-exact search
+                            leaf.operand = ComparisonOperator.Contains;
+                            definitions.shouldGetUserPreferences = true;
+                        }
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
@@ -7082,7 +7096,6 @@ namespace Core.Catalog
                     }
                 }
 
-
                 if (searcherOrderObj.m_eOrderBy == OrderBy.META && 
                     !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, searcherOrderObj.m_sOrderValue.ToLower()))
                 {
@@ -7090,6 +7103,7 @@ namespace Core.Catalog
                     log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue);
                     throw new Exception(string.Format("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue));
                 }
+
                 #endregion
             }
             else
@@ -7985,6 +7999,11 @@ namespace Core.Catalog
                 log.Error(string.Format("Error in WriteNewWatcherMediaActionLog, nWatcherID: {0}, mediaID: {1}, mediaFileID: {2}, groupID: {3}, actionID: {4}, userId: {5}",
                                          nMediaID, nMediaFileID, nGroupID, nActionID, sSiteGUID), ex);
             }
+        }
+
+        internal static Dictionary<string, List<string>> GetUserPreferences()
+        {
+            throw new NotImplementedException();
         }
     }
 }
