@@ -259,7 +259,6 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public EntitlementSearchDefinitions entitlementSearchDefinitions;
 
-
         /// <summary>
         /// Is Time Shiffted TV Settings For Group
         /// </summary>
@@ -342,6 +341,21 @@ namespace ApiObjects.SearchObjects
             set;
         }
 
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldGetUserPreferences
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// User preferences - key is tag name, value is list of tag values
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public Dictionary<string, List<string>> userPreferences;
+
         #endregion
 
         #region Ctor
@@ -384,6 +398,7 @@ namespace ApiObjects.SearchObjects
 
 
         #endregion
+
     }
 
     /// <summary>
