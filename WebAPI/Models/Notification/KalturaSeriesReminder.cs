@@ -2,6 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Models.Notifications
 {
@@ -14,6 +15,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "seriesId")]
         [JsonProperty(PropertyName = "seriesId")]
         [XmlElement(ElementName = "seriesId")]
+        [SchemeProperty(MinLength = 1)]
         public string SeriesId { get; set; }
 
         /// <summary>
@@ -30,6 +32,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "epgChannelId")]
         [JsonProperty(PropertyName = "epgChannelId")]
         [XmlElement(ElementName = "epgChannelId")]
+        [SchemeProperty(MinLong = 1)]
         public long EpgChannelId { get; set; }
     }    
 }

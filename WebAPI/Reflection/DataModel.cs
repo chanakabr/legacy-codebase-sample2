@@ -5689,16 +5689,22 @@ namespace WebAPI.Reflection
                             return "price";
                         case "PricePlans":
                             return "pricePlans";
+                        case "PriorityInSet":
+                            return "priorityInSet";
                         case "ProductCode":
                             return "productCode";
                         case "ProrityInOrder":
                             return "prorityInOrder";
                         case "RenewalsNumber":
                             return "renewalsNumber";
+                        case "SetId":
+                            return "setId";
                         case "StartDate":
                             return "startDate";
                         case "SubscriptionCouponsGroup":
                             return "subscriptionCouponsGroup";
+                        case "SubscriptionProductCodes":
+                            return "subscriptionProductCodes";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":
@@ -5751,6 +5757,18 @@ namespace WebAPI.Reflection
                             return "price";
                         case "PurchaseStatus":
                             return "purchaseStatus";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionSet":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "Subscriptions":
+                            return "subscriptions";
                     }
                     break;
                     
