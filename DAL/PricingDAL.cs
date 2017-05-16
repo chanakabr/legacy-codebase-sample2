@@ -1415,6 +1415,17 @@ namespace DAL
             return sp.Execute();
         }
 
+
+        public static bool Update_SubscriptionsProductCodes(int groupId, int subscriptionId, string xml)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionsProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SubscriptionId", subscriptionId);
+            sp.AddParameter("@xmlDoc", xmlDoc);
+            
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
 
