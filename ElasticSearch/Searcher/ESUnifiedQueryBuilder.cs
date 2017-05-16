@@ -870,7 +870,9 @@ namespace ElasticSearch.Searcher
 
                     // If it is contains - it is not exact and thus belongs to query
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains || leaf.operand == ApiObjects.ComparisonOperator.NotContains ||
-                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
+                        leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith || leaf.operand == ApiObjects.ComparisonOperator.Phonetic ||
+                        ((leaf.operand == ApiObjects.ComparisonOperator.Equals || leaf.operand == ApiObjects.ComparisonOperator.NotEquals) && 
+                        leaf.value.GetType() == typeof(string)))
                     {
                         queryNode = leaf;
                     }
@@ -910,7 +912,10 @@ namespace ElasticSearch.Searcher
                                 if ((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Contains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotContains ||
                                     (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.WordStartsWith ||
-                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic)
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Phonetic ||
+                                    (((current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.Equals ||
+                                    (current as BooleanLeaf).operand == ApiObjects.ComparisonOperator.NotEquals) && 
+                                    (current as BooleanLeaf).value.GetType() == typeof(string)))
                                 {
                                     queryRoots.Add(node);
 
@@ -1587,6 +1592,7 @@ namespace ElasticSearch.Searcher
 
                     // "Match" when search is not exact (contains)
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
+                        leaf.operand == ApiObjects.ComparisonOperator.Equals ||
                         leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith ||
                         leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                     {
@@ -1605,6 +1611,11 @@ namespace ElasticSearch.Searcher
                             field = string.Format("{0}.phonetic", leaf.field);
                         }
 
+                        else if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
+                        {
+                            field = string.Format("{0}.lowercase", leaf.field);
+                        }
+
                         term = new ESMatchQuery(null)
                         {
                             Field = field,
@@ -1616,6 +1627,21 @@ namespace ElasticSearch.Searcher
                     else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                     {
                         string field = string.Format("{0}.analyzed", leaf.field);
+
+                        term = new BoolQuery();
+
+                        (term as BoolQuery).AddNot(
+                            new ESMatchQuery(null)
+                            {
+                                Field = field,
+                                eOperator = CutWith.AND,
+                                Query = value
+                            });
+                    }
+                    // "bool" with "must_not" when no equals
+                    else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
+                    {
+                        string field = string.Format("{0}.lowercase", leaf.field);
 
                         term = new BoolQuery();
 

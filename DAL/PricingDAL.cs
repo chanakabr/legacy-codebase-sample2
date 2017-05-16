@@ -1397,6 +1397,15 @@ namespace DAL
             return sp.Execute();
         }
 
+        public static DataTable GetSetsBySucriptionId(int groupId, List<long> subscriptionIds)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSetsBySucriptionId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");     
+            return sp.Execute();
+        }
+
         public static DataTable Get_SubscriptionsExternalProductCodes(int groupId, List<long> list)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsExternalProductCodes");
@@ -1405,6 +1414,7 @@ namespace DAL
             sp.AddIDListParameter("@Subscriptions", list, "id");
             return sp.Execute();
         }
+
     }
 }
 
