@@ -2417,11 +2417,11 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminderBySeries");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminder");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@seriesId", seriesId);
-                sp.AddParameter("@seasonNum", seasonNum);
+                sp.AddParameter("@seasonNumber", seasonNum);
                 sp.AddParameter("@epgChannelId", epgChannelId);
                 DataSet ds = sp.ExecuteDataSet();
 
