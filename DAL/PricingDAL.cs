@@ -1396,6 +1396,15 @@ namespace DAL
             sp.AddIDListParameter("@Subscriptions", list, "id");
             return sp.Execute();
         }
+
+        public static DataTable Get_SubscriptionsExternalProductCodes(int groupId, List<long> list)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsExternalProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddIDListParameter("@Subscriptions", list, "id");
+            return sp.Execute();
+        }
     }
 }
 
