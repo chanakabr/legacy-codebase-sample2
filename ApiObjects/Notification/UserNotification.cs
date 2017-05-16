@@ -29,6 +29,7 @@ namespace ApiObjects.Notification
             this.devices = new List<UserDevice>();
             this.Announcements = new List<Announcement>();
             this.Reminders = new List<Announcement>();
+            this.SeriesReminders = new List<Announcement>();
             this.Settings = new UserNotificationSettings();
         }
     }

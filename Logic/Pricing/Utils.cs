@@ -545,17 +545,18 @@ namespace Core.Pricing
             }
         }
 
+
         internal static List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(long subscriptionId, int groupId)
         {
             List<KeyValuePair<VerificationPaymentGateway, string>> pcList = new List<KeyValuePair<VerificationPaymentGateway, string>>();
             DataTable dt;
 
             dt = PricingDAL.Get_SubscriptionsExternalProductCodes(groupId, new List<long>(1) { subscriptionId });
-            
+
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-            {                
+            {
                 foreach (DataRow dr in dt.Rows)
-                {                    
+                {
                     long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID");
                     string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE");
                     int paymentGW = ODBCWrapper.Utils.GetIntSafeVal(dr, "verification_payment_gateway_id");
@@ -568,6 +569,26 @@ namespace Core.Pricing
                 }
             }
             return pcList;
+        }
+
+        internal static SubscriptionSetDetails GetSubscriptionSetDetails(int groupId, long subscriptionId)
+        {
+            SubscriptionSetDetails subscriptionSetDetails = new SubscriptionSetDetails();
+            DataTable dt = PricingDAL.GetSetsBySucriptionId(groupId, new List<long>() { subscriptionId });
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            { 
+                foreach (DataRow dr in dt.Rows)
+                {                    
+                    long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
+                    int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
+                    if (setId > 0 && priority > 0)
+                    {
+                        subscriptionSetDetails.SetsToPrioritiesMap[setId] = priority;
+                    }
+                }
+            }
+
+            return subscriptionSetDetails;
         }
     }
 }

@@ -207,6 +207,10 @@ namespace Core.Notification
                 {
                     log.ErrorFormat("Failed getting seriesReminders from LayeredCache, groupId: {0}, seriesReminderIds", groupId, string.Join(",", seriesReminderIds));
                 }
+                else if (seriesReminderMap != null)
+                {
+                    res = seriesReminderMap.Values.ToList();
+                }
             }
             catch (Exception ex)
             {

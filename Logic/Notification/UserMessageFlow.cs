@@ -133,9 +133,14 @@ namespace Core.Notification
                         break;
 
                     case eUserMessageAction.ChangeUsers:
-                        result = LogoutPushNotification(groupId, deviceData.UserId, true, pushData, userNotificationData, deviceData);
-                        if (result)
-                            result = LoginPushNotification(groupId, userId, true, pushData, userNotificationData, deviceData);
+
+                        UserNotification originalUserNotificationData = NotificationDal.GetUserNotificationData(groupId, deviceData.UserId, ref docExists);
+                        if (originalUserNotificationData != null)
+                        {
+                            result = LogoutPushNotification(groupId, originalUserNotificationData.UserId, true, pushData, originalUserNotificationData, deviceData);
+                            if (result)
+                                result = LoginPushNotification(groupId, userId, true, pushData, userNotificationData, deviceData);
+                        }
 
                         if (result)
                             log.Debug("Successfully performed Change Users");

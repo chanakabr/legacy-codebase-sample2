@@ -533,11 +533,17 @@ namespace Core.Pricing
             return sgList;
         }
 
+
         protected List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(Int32 subscriptionId)
         {
             List<KeyValuePair<VerificationPaymentGateway, string>> pcList = Core.Pricing.Utils.GetSubscriptionExternalProductCodes((long)subscriptionId, m_nGroupID);
             return pcList;
         }
 
+        protected SubscriptionSetDetails GetSubscriptionSetDetails(int subscriptionId)
+        {
+            return Core.Pricing.Utils.GetSubscriptionSetDetails(m_nGroupID, (long)subscriptionId);
+
+        }
     }
 }
