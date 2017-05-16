@@ -15,14 +15,6 @@ namespace WebAPI.Reflection
         {
             switch (type.Name)
             {
-                case "KalturaLoginSession":
-                    switch (propertyName)
-                    {
-                        case "RefreshToken":
-                            return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
-                    };
-                    break;
-                    
                 case "KalturaSubscription":
                     switch (propertyName)
                     {
@@ -218,6 +210,14 @@ namespace WebAPI.Reflection
                         case "AllowMultiInstance":
                         case "Name":
                         case "Selected":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaLoginSession":
+                    switch (propertyName)
+                    {
+                        case "RefreshToken":
                             return true;
                     };
                     break;
