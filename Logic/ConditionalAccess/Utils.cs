@@ -1193,7 +1193,7 @@ namespace Core.ConditionalAccess
 
                         // look ig this coupon group id exsits in coupon list 
                         CouponsGroup couponGroups = null;
-                        if (theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
+                        if (theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString())
                         {
                             couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>((CouponsGroup)theSub.m_oCouponsGroup);
                         }
