@@ -1247,6 +1247,8 @@ namespace Core.Notification
                 long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
 
                 List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminderBySeries(partnerId, seriesId, seasonNumber, program.m_oProgram.EPG_CHANNEL_ID);
+                seriesReminders = seriesReminders.Where(sr => sr.SeasonNumber == seasonNumber || seasonNumber == 0).ToList();
+
                 if (seriesReminders == null || seriesReminders.Count == 0)
                 {
                     log.ErrorFormat("failed to get series reminders for programId = {0}, seriesId = {1}, seasonNumber = {2}, epgChannelId = {3}",
@@ -1300,7 +1302,7 @@ namespace Core.Notification
                                     // update series reminder external result
                                     if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, resultMsgId) == 0)
                                     {
-                                        log.ErrorFormat("Failed toupdate series reminder external result. seriesReminder.ID = {0}, reminderId = {1}, resultMsgId = {2}",
+                                        log.ErrorFormat("Failed to update series reminder external result. seriesReminder.ID = {0}, reminderId = {1}, resultMsgId = {2}",
                                             seriesReminder.ID, reminderId, resultMsgId);
                                     }
                                 }
