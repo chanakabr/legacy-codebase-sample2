@@ -309,8 +309,8 @@ namespace Core.ConditionalAccess
 
             if (coupon != null)
             {
-                couponCode = coupon.id;
-            }
+                couponCode = coupon.id;               
+            }        
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, " +
@@ -345,11 +345,10 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency);
 
-                if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard  &&
-                    subscription != null && (subscription.m_oCouponsGroup != null || (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0)) &&                    
-                    ( subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode ||
-                    subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode && x.couponGroupType == CouponGroupType.GiftCard).Count() > 0 )                    
-                    ) 
+                if (subscription != null && coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
+                    ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
+                     (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 && subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode && 
+                         x.couponGroupType == CouponGroupType.GiftCard).Count() > 0 )))
                 {
                     isGiftCard = true;
                     priceResponse = new Price()

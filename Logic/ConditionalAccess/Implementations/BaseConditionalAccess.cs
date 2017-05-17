@@ -6138,19 +6138,20 @@ namespace Core.ConditionalAccess
 				if (subscriptions != null && subscriptions.Length > 0)
 				{
 					List<SubscriptionsPricesContainer> resp = new List<SubscriptionsPricesContainer>();
-					for (int i = 0; i < subscriptions.Length; i++)
-					{
-						string subscriptionCode = subscriptions[i];
-						PriceReason theReason = PriceReason.UnKnown;
-						Subscription s = null;
-						Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currencyCode);
-						if (price != null)
-						{
-							SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
-							cont.Initialize(subscriptionCode, price, theReason);
-							resp.Add(cont);
-						}
-					}
+                    for (int i = 0; i < subscriptions.Length; i++)
+                    {
+                        string subscriptionCode = subscriptions[i];
+                        PriceReason theReason = PriceReason.UnKnown;
+
+                        Subscription s = null;
+                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, couponCode, ref theReason, ref s, string.Empty, languageCode, udid, ip, currencyCode);
+                        if (price != null)
+                        {
+                            SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
+                            cont.Initialize(subscriptionCode, price, theReason);
+                            resp.Add(cont);
+                        }
+                    }
 
 					ret = resp.ToArray();
 				}

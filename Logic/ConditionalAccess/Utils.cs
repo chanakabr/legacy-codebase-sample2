@@ -1189,6 +1189,7 @@ namespace Core.ConditionalAccess
                         {
                             return price;
                         }
+
                         long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
 
                         // look ig this coupon group id exsits in coupon list 
@@ -1201,8 +1202,8 @@ namespace Core.ConditionalAccess
                         {
                             couponGroups = TVinciShared.ObjectCopier.Clone<CouponsGroup>(theSub.CouponsGroups.Where(x => x.m_sGroupCode == couponGroupId.ToString() && 
                                 (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)).Select(x => x).FirstOrDefault());
-                        }
-                                                
+                        }                       
+
                         if (externalDisount != null)
                         {
                             price = GetPriceAfterDiscount(price, externalDisount, 1);
@@ -7454,5 +7455,7 @@ namespace Core.ConditionalAccess
             }
             return couponCode;
         }
+
+        
     }
 }
