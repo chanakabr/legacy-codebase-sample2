@@ -479,23 +479,26 @@ namespace Core.ConditionalAccess
             {
                 // get domain subscriptions ordered by priority
                 List<string> subscriptionIds = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => x.Value.sBundleCode).ToList();
-                Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(subscriptionIds, groupId);
-                if (subs != null && subs.Length > 0)
+                if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
-                    subs = subs.OrderBy(s => s.m_Priority).ToArray();
-                    foreach (var sub in subs)
+                    Subscription[] subs = Utils.GetSubscriptionsDataWithCaching(subscriptionIds, groupId);
+                    if (subs != null && subs.Length > 0)
                     {
-                        // find one with policy
-                        if (sub.m_lServices != null && sub.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null &&
-                            sub.AdsPolicy != null)
+                        subs = subs.OrderBy(s => s.m_Priority).ToArray();
+                        foreach (var sub in subs)
                         {
-                            adsData = new AdsControlData()
+                            // find one with policy
+                            if (sub.m_lServices != null && sub.m_lServices.Where(s => s.ID == (int)eService.AdsControl).FirstOrDefault() != null &&
+                                sub.AdsPolicy != null)
                             {
-                                AdsParam = sub.AdsParam,
-                                AdsPolicy = sub.AdsPolicy
-                            };
+                                adsData = new AdsControlData()
+                                {
+                                    AdsParam = sub.AdsParam,
+                                    AdsPolicy = sub.AdsPolicy
+                                };
 
-                            break;
+                                break;
+                            }
                         }
                     }
                 }

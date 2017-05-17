@@ -133,7 +133,6 @@ namespace Core.Notification
                         break;
 
                     case eUserMessageAction.ChangeUsers:
-
                         UserNotification originalUserNotificationData = NotificationDal.GetUserNotificationData(groupId, deviceData.UserId, ref docExists);
                         if (originalUserNotificationData != null)
                         {
@@ -497,12 +496,12 @@ namespace Core.Notification
             // update user notification data
             if (!UpdateUserDataAccordingToAdapterResult(groupId, userId, pushData, userNotificationData, false, oldUserIdToRemove))
             {
-                log.ErrorFormat("Error while trying to updated user notification data. data: {0}",
+                log.ErrorFormat("Error while trying to updated user notification data. Logout flow. data: {0}",
                     userNotificationData != null ? JsonConvert.SerializeObject(userNotificationData) : string.Empty);
             }
             else
             {
-                log.DebugFormat("Successfully updated user notification data. data: {0}",
+                log.DebugFormat("Successfully updated user notification data. Logout flow. data: {0}",
                     userNotificationData != null ? JsonConvert.SerializeObject(userNotificationData) : string.Empty);
             }
 

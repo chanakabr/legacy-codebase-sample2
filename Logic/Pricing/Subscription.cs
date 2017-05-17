@@ -39,6 +39,7 @@ namespace Core.Pricing
         public List<long> SubscriptionSetIds;        
 
         public List<SubscriptionCouponGroup> CouponsGroups;
+        public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
 
         #endregion
 
@@ -51,6 +52,7 @@ namespace Core.Pricing
             m_MultiSubscriptionUsageModule = null;
             m_oPreviewModule = null;
             CouponsGroups = new List<SubscriptionCouponGroup>();
+            ExternalProductCodes = new List<KeyValuePair<VerificationPaymentGateway, string>>();
         }
         #endregion
 
@@ -234,12 +236,11 @@ namespace Core.Pricing
            string sSubUsageModule, string sObjectVirtualName,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
             long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
-             List<SubscriptionCouponGroup> couponsGroup = null, List<long> subscriptionSetIds = null)
+             List<SubscriptionCouponGroup> couponsGroup = null, List<long> subscriptionSetIds = null, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
                 sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, null, false, sProductCode);
-
             if (sSubUsageModule.Length > 0)
             {
                 BaseUsageModule um = null;
@@ -304,6 +305,11 @@ namespace Core.Pricing
             AdsParam = adsParam;
             this.CouponsGroups = couponsGroup;
             SubscriptionSetIds = subscriptionSetIds;
+
+            if (externalProductCodes != null)
+            {
+                this.ExternalProductCodes = externalProductCodes;
+            }
         }
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)

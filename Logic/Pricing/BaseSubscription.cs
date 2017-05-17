@@ -538,5 +538,11 @@ namespace Core.Pricing
             return Core.Pricing.Utils.GetSetsContainingSubscription(m_nGroupID, (long)subscriptionId);
         }
 
+        protected List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(Int32 subscriptionId)
+        {
+            List<KeyValuePair<VerificationPaymentGateway, string>> pcList = Core.Pricing.Utils.GetSubscriptionExternalProductCodes((long)subscriptionId, m_nGroupID);
+            return pcList;
+        }
+
     }
 }

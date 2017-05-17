@@ -544,6 +544,31 @@ namespace Core.Pricing
 
                 rootNode.AppendChild(rowNode);
             }
+        }        
+
+        internal static List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(long subscriptionId, int groupId)
+        {
+            List<KeyValuePair<VerificationPaymentGateway, string>> pcList = new List<KeyValuePair<VerificationPaymentGateway, string>>();
+            DataTable dt;
+
+            dt = PricingDAL.Get_SubscriptionsExternalProductCodes(groupId, new List<long>(1) { subscriptionId });
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long subID = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID");
+                    string productCode = ODBCWrapper.Utils.GetSafeStr(dr, "PRODUCT_CODE");
+                    int paymentGW = ODBCWrapper.Utils.GetIntSafeVal(dr, "verification_payment_gateway_id");
+
+                    if (Enum.IsDefined(typeof(VerificationPaymentGateway), paymentGW))
+                    {
+                        VerificationPaymentGateway pg = (VerificationPaymentGateway)paymentGW;
+                        pcList.Add(new KeyValuePair<VerificationPaymentGateway, string>(pg, productCode));
+                    }
+                }
+            }
+            return pcList;
         }
 
         internal static List<long> GetSetsContainingSubscription(int groupId, long subscriptionId)
@@ -602,7 +627,7 @@ namespace Core.Pricing
         internal static List<SubscriptionSet> GetSubscriptionSets(int groupdId, List<long> ids)
         {
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
-            DataSet ds = PricingDAL.GetSubscriptionSetsByIds(groupdId, ids);
+            DataSet ds = PricingDAL(groupdId, ids);
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
