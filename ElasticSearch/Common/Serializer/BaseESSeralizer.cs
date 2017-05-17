@@ -877,7 +877,7 @@ namespace ElasticSearch.Common
 
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
                 " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
-                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\",",
+                "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\",",
                 oEpg.EpgID, oEpg.GroupID, oEpg.ChannelID, (oEpg.isActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"), oEpg.EndDate.ToString("yyyyMMddHHmmss"),
                 Common.Utils.ReplaceDocumentReservedCharacters(ref name, false), Common.Utils.ReplaceDocumentReservedCharacters(ref description, false),
                 /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"), 
@@ -888,7 +888,9 @@ namespace ElasticSearch.Common
                 // {13}
                 AddSuffix("name", suffix),
                 // {14}
-                AddSuffix("description", suffix)
+                AddSuffix("description", suffix),
+                // {15}
+                oEpg.EpgIdentifier
                 );
 
             if (withRouting)
