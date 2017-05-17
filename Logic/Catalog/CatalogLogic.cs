@@ -79,8 +79,6 @@ namespace Core.Catalog
 			            "name",
 			            "description",
 			            "epg_channel_id",
-                        "media_id",
-                        "epg_id",
                         "crid",
                         "...."
 		            };
@@ -91,7 +89,9 @@ namespace Core.Catalog
 			            "views",
 			            "rating",
 			            "votes",
-                        "epg_channel_id"
+                        "epg_channel_id",
+                        "media_id",
+                        "epg_id",
 		            };
 
         private static int maxNGram = -1;
@@ -6884,6 +6884,15 @@ namespace Core.Catalog
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.valueType = typeof(long);
+
+                        try
+                        {
+                            leaf.value = Convert.ToInt64(leaf.value);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                        }
                     }
                     else if (reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
                     {
