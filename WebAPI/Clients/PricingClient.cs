@@ -171,5 +171,95 @@ namespace WebAPI.Clients
 
             return result;
         }
+              
+        internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        {
+            CouponDataResponse response = null;
+            KalturaCoupon coupon = new KalturaCoupon();
+                       
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.ValidateCouponForSubscription(groupId, subscriptionId, couponCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
+
+            return coupon;
+        }
+
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSets(int groupId, List<long> ids, KalturaSubscriptionSetOrderBy? orderBy)
+        {
+            KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
+            SubscriptionSetsResponse response = null;            
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, ids);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count > 0)
+            {
+                result.TotalCount = response.SubscriptionSets.Count;
+                result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
+            }
+
+            if (orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaSubscriptionSetOrderBy.NAME_ASC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaSubscriptionSetOrderBy.NAME_DESC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

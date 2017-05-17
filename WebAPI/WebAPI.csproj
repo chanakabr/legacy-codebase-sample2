@@ -232,6 +232,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Controllers\ConfigurationsController.cs" />
+    <Compile Include="Controllers\SubscriptionSetController.cs" />
     <Compile Include="Controllers\CurrencyController.cs" />
     <Compile Include="Controllers\EngagementController.cs" />
     <Compile Include="Controllers\LanguageController.cs" />
@@ -659,6 +660,8 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaSubscriptionSetFilter.cs" />
+    <Compile Include="Models\Pricing\KalturaSubscriptionSetListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSet.cs" />
     <Compile Include="Models\Pricing\KalturaCouponGroupType.cs" />
     <Compile Include="Models\Pricing\KalturaPpvPrice.cs" />

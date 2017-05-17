@@ -5649,6 +5649,8 @@ namespace WebAPI.Reflection
                     {
                         case "Channels":
                             return "channels";
+                        case "CouponGroups":
+                            return "couponsGroups";
                         case "CouponsGroup":
                             return "couponsGroup";
                         case "Description":
@@ -5689,20 +5691,14 @@ namespace WebAPI.Reflection
                             return "price";
                         case "PricePlans":
                             return "pricePlans";
-                        case "PriorityInSet":
-                            return "priorityInSet";
                         case "ProductCode":
                             return "productCode";
                         case "ProrityInOrder":
                             return "prorityInOrder";
                         case "RenewalsNumber":
                             return "renewalsNumber";
-                        case "SetId":
-                            return "setId";
                         case "StartDate":
                             return "startDate";
-                        case "SubscriptionCouponsGroup":
-                            return "subscriptionCouponsGroup";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":
@@ -5765,8 +5761,26 @@ namespace WebAPI.Reflection
                             return "id";
                         case "Name":
                             return "name";
-                        case "Subscriptions":
+                        case "SubscriptionIds":
                             return "subscriptions";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionSetFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                        case "SubscriptionIdContains":
+                            return "subscriptionIdContains";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionSetListResponse":
+                    switch(property.Name)
+                    {
+                        case "SubscriptionSets":
+                            return "objects";
                     }
                     break;
                     

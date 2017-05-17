@@ -642,6 +642,13 @@
             <returns></returns>
             <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>        
         </member>
+        <member name="M:WebAPI.Controllers.SubscriptionSetController.List(WebAPI.Models.Pricing.KalturaSubscriptionSetFilter)">
+            <summary>
+            Returns a list of subscriptionSets requested by ids or subscription ids
+            </summary>
+            <param name="filter">SubscriptionSet filter</param>
+            <remarks></remarks>
+        </member>
         <member name="M:WebAPI.Controllers.CurrencyController.List(WebAPI.Models.API.KalturaCurrencyFilter)">
             <summary>
             Get the list of currencies for the partner with option to filter by currency codes
@@ -3645,6 +3652,15 @@
             </summary>
             <param name="filter">Filter request</param>
             <remarks>Possible status codes:      
+              </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.SubscriptionController.ValidateCoupon(System.Int32,System.String)">
+            <summary>
+            Returns information about a coupon for subscription
+            </summary>
+            <param name="id">subscription id </param>
+            <param name="code">coupon code </param>
+            <remarks>Possible status codes: Coupon not valid = 3020,  Coupon promotion date expired = 3057, Coupon promotion date not started = 3058
               </remarks>
         </member>
         <member name="M:WebAPI.Controllers.OttCategoryController.Get(System.Int32)">
@@ -8124,6 +8140,26 @@
             Partner configuration type
             </summary>
         </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
+            <summary>
+            Comma separated subscription identifiers
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse">
+            <summary>
+            SubscriptionSets list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse.SubscriptionSets">
+            <summary>
+            A list of subscriptionSets
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSet">
             <summary>
             Subscription details
@@ -8139,7 +8175,7 @@
             SubscriptionSet name
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.Subscriptions">
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.SubscriptionIds">
             <summary>
             A list of subscriptions associated with this set 
             </summary>
@@ -9154,19 +9190,9 @@
             List of permitted user types for the subscription
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.SubscriptionCouponsGroup">
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponGroups">
             <summary>
-            List of Subscription Coupons group
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.SetId">
-            <summary>
-            The Identifier of the set to which the subscription belongs
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.PriorityInSet">
-            <summary>
-            Subscription priority in the set
+            List of Coupons group
             </summary>
         </member>
         <member name="P:WebAPI.Models.Social.KalturaSocialCommentFilter.AssetIdEqual">

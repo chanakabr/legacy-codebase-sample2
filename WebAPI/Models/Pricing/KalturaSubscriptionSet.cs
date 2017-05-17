@@ -41,7 +41,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("subscriptions")]
         [XmlArray(ElementName = "subscriptions", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<long> SubscriptionIds { get; set; }
+        public List<KalturaLongValue> SubscriptionIds { get; set; }
 
     }
 }
