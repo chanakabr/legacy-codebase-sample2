@@ -1422,7 +1422,7 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@SubscriptionId", subscriptionId);
-            sp.AddParameter("@xmlDoc", xmlDoc);
+            sp.AddParameter("@xmlDoc", xml);
             
             return sp.ExecuteReturnValue<int>() > 0;
         }
