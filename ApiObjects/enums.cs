@@ -585,7 +585,7 @@ namespace ApiObjects
     public enum eSeriesReminderPlaceHolders
     {
         ChannelName = 0,
-        StartDate = 1 ,
+        StartDate = 1,
         SeriesName = 2,
         SeasonNumber = 3
     }
