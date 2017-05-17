@@ -132,7 +132,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">subscription id </param>
         /// <param name="code">coupon code </param>
-        /// <remarks>Possible status codes:      
+        /// <remarks>Possible status codes: Coupon not valid = 3020,  Coupon promotion date expired = 3057, Coupon promotion date not started = 3058
         ///   </remarks>
         [Route("validateCoupon"), HttpPost]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
