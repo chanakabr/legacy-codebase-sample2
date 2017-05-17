@@ -533,9 +533,9 @@ namespace Core.Pricing
             return sgList;
         }
 
-        protected SubscriptionSetDetails GetSubscriptionSetDetails(int subscriptionId)
+        protected List<long> GetSetsContainingSubscription(int subscriptionId)
         {
-            return Core.Pricing.Utils.GetSubscriptionSetDetails(m_nGroupID, (long)subscriptionId);
+            return Core.Pricing.Utils.GetSetsContainingSubscription(m_nGroupID, (long)subscriptionId);
         }
 
     }

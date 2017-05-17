@@ -20,7 +20,6 @@ namespace Core.Pricing
             t.InitializeByCode3(sCurrencyCode3);
             return t;
         }
-
         
         public static Subscription[] GetSubscriptionsList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -35,7 +34,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Subscription[] GetSubscriptionsContainingUserTypes(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName, int nIsActive, int[] userTypesIDs)
         {
@@ -50,8 +48,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
         
         public static Subscription[] GetSubscriptionsContainingMedia(int nGroupID, Int32 nMediaID, Int32 nFileTypeID)
         {
@@ -66,7 +62,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static string GetSubscriptionsContainingMediaSTR(int nGroupID, Int32 nMediaID, Int32 nFileTypeID)
         {
@@ -81,7 +76,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Subscription[] GetIndexedSubscriptionsContainingMedia(int nGroupID, Int32 nMediaID, Int32 nFileTypeID, int count)
         {
@@ -96,7 +90,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Subscription[] GetSubscriptionsContainingMediaShrinked(int nGroupID, Int32 nMediaID, Int32 nFileTypeID)
         {
@@ -111,7 +104,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Subscription[] GetSubscriptionsContainingMediaFile(int nGroupID, Int32 nMediaID, Int32 nMediaFileID)
         {
@@ -126,8 +118,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
         
         public static ApiObjects.Response.IdsResponse GetSubscriptionIDsContainingMediaFile(int nGroupID, Int32 nMediaID, Int32 nMediaFileID)
         {
@@ -142,7 +132,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Subscription[] GetSubscriptionsShrinkList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -157,7 +146,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Campaign[] GetMediaCampaigns(int nGroupID, int nMediaID
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
@@ -174,7 +162,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Campaign[] GetCampaignsByType(int nGroupID, CampaignTrigger triggerType
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
@@ -191,7 +178,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Campaign GetCampaignsByHash(int nGroupID, string hashCode)
         {
@@ -207,7 +193,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Campaign GetCampaignData(int nGroupID, long nCampaignID)
         {
@@ -222,8 +207,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
         
         public static Subscription GetSubscriptionData(int nGroupID, string sSubscriptionCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
@@ -239,7 +222,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Collection GetCollectionData(int nGroupID, string sCollectionCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
@@ -255,8 +237,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
         
         public static Subscription GetSubscriptionDataByProductCode(int nGroupID, string sProductCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
@@ -272,7 +252,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static int[] GetSubscriptionMediaList(int nGroupID, string sSubscriptionCode,
             Int32 nFileTypeID, string sDevice)
@@ -288,7 +267,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static List<int> GetSubscriptionMediaList2(int nGroupID, string sSubscriptionCode,
             Int32 nFileTypeID, string sDevice)
@@ -311,7 +289,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static bool DoesMediaBelongToSubscription(int nGroupID, string sSubscriptionCode, Int32 nMediaID)
         {
@@ -326,7 +303,6 @@ namespace Core.Pricing
                 return false;
             }
         }
-
         
         public static PPVModule[] GetPPVModuleList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -341,7 +317,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PPVModuleContainer[] GetPPVModuleListForAdmin(int nGroupID, Int32 nMediaFileID,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -357,7 +332,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static DiscountModule[] GetDiscountsModuleListForAdmin(int nGroupID)
         {
@@ -372,7 +346,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static MediaFilePPVModule[] GetPPVModuleListForMediaFiles(int nGroupID, Int32[] nMediaFileIDs,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -388,7 +361,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static MediaFilePPVModule[] GetPPVModuleListForMediaFilesST(int nGroupID,
             string sMediaFileIDsCommaSeperated, string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -412,7 +384,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static MediaFilePPVContainer[] GetPPVModuleListForMediaFilesWithExpiry(int nGroupID, Int32[] nMediaFileIDs,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -428,7 +399,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PPVModule[] GetPPVModuleShrinkList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -443,7 +413,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PPVModule GetPPVModuleData(int nGroupID, string sPPVCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -459,7 +428,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PrePaidModule GetPrePaidModuleData(int nGroupID, int nPrePaidCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName)
@@ -475,8 +443,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
         
         public static PriceCode[] GetPriceCodeList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -491,10 +457,8 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
-        public static PriceCode GetPriceCodeData(int nGroupID, string sPriceCode
-            , string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static PriceCode GetPriceCodeData(int nGroupID, string sPriceCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BasePricing t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -507,7 +471,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static DiscountModule GetDiscountCodeData(int nGroupID, string sDiscountCode)
         {
@@ -522,7 +485,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static UsageModule GetUsageModuleData(int nGroupID, string sUsageModuleCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -537,8 +499,7 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-        
+      
         public static UsageModule[] GetUsageModuleList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BaseUsageModule t = null;
@@ -552,7 +513,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static UsageModule GetOfflineUsageModule(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -567,7 +527,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static CouponsGroup GetCouponGroupData(int nGroupID, string sCouponGroupID)
         {
@@ -582,7 +541,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static CouponsGroup[] GetCouponGroupListForAdmin(int nGroupID)
         {
@@ -597,7 +555,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static CouponsGroup[] GetVoucherGroupList(int nGroupID)
         {
@@ -612,7 +569,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static CouponDataResponse GetCouponStatus(int nGroupID, string sCouponCode)
         {
@@ -643,7 +599,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static CouponsStatus SetCouponUsed(int nGroupID, string sCouponCode, string sSiteGUID)
         {
@@ -661,7 +616,6 @@ namespace Core.Pricing
                 return CouponsStatus.NotExists;
             }
         }
-
         
         public static CouponsStatus SetCouponUses(int nGroupID, string sCouponCode, string sSiteGUID, Int32 nMediaFileID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode)
         {
@@ -679,7 +633,6 @@ namespace Core.Pricing
                 return CouponsStatus.NotExists;
             }
         }
-
         
         public static PreviewModule GetPreviewModuleByID(int nGroupID, long lPreviewModuleID)
         {
@@ -694,7 +647,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PreviewModule[] GetPreviewModulesArrayByGroupIDForAdmin(int nGroupID)
         {
@@ -709,8 +661,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
         
         public static UsageModule GetUsageModule(int nGroupID, string sAssetCode, eTransactionType transactionType)
         {
@@ -725,14 +675,12 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static SubscriptionsResponse GetSubscriptionsData(int nGroupID, string[] oSubCodes,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             return GetSubscriptions(nGroupID, oSubCodes, sCountryCd2, sLanguageCode3, sDeviceName, SubscriptionOrderBy.StartDateAsc);
         }
-
         
         public static SubscriptionsResponse GetSubscriptions(int nGroupID, string[] oSubCodes,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc)
@@ -758,10 +706,8 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
-        public static Collection[] GetCollectionsData(int nGroupID, string[] oCollCodes,
-            string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static Collection[] GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BaseCollection t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -774,8 +720,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
-
 
         public static PPVModule ValidatePPVModuleForMediaFile(int groupID, Int32 mediaFileID, long ppvModuleCode)
         {
@@ -792,7 +736,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static Subscription[] GetSubscriptionsByProductCodes(int nGroupID, string[] productCodes)
         {
@@ -807,7 +750,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PPVModule[] GetPPVModulesByProductCodes(int nGroupID, string[] productCodes)
         {
@@ -822,7 +764,6 @@ namespace Core.Pricing
                 return null;
             }
         }
-
         
         public static PPVModuleResponse GetPPVModulesData(int nGroupID, string[] sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -909,7 +850,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan multiPricePlan)
         {
@@ -931,7 +871,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan multiPricePlan)
         {
@@ -953,7 +892,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse DeleteMPP(int groupID, string multiPricePlan)
         {
@@ -975,7 +913,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse InsertPricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan)
         {
@@ -997,7 +934,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse UpdatePricePlan(int groupID, ApiObjects.IngestPricePlan pricePlan)
         {
@@ -1019,7 +955,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse DeletePricePlan(int groupID, string pricePlan)
         {
@@ -1040,7 +975,6 @@ namespace Core.Pricing
             }
             return response;
         }
-
         
         public static ApiObjects.BusinessModuleResponse test(int nGroupID, string name)
         {
@@ -1078,10 +1012,8 @@ namespace Core.Pricing
 
             return new ApiObjects.BusinessModuleResponse();
         }
-
         
-        public static PPVModuleDataResponse GetPPVModuleResponse(int nGroupID, string sPPVCode
-            , string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static PPVModuleDataResponse GetPPVModuleResponse(int nGroupID, string sPPVCode, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BasePPVModule t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -1150,5 +1082,21 @@ namespace Core.Pricing
                 return null;
             }
         }
+
+        public static SubscriptionSetsResponse GetSubscriptionSets(int groupdId, List<long> ids)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response.SubscriptionSets = Utils.GetSubscriptionSets(groupdId, ids);
+                response.Status = new Status((int)eResponseStatus.OK, "OK");
+            }
+            catch (Exception)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+            }            
+            return response;
+        }
+
     }
 }

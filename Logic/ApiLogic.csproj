@@ -469,6 +469,7 @@
     <Compile Include="Pricing\Campaign.cs" />
     <Compile Include="Pricing\Collection.cs" />
     <Compile Include="Pricing\CollectionCacheWrapper.cs" />
+    <Compile Include="Pricing\SubscriptionSetsResponse.cs" />
     <Compile Include="Pricing\Coupon.cs" />
     <Compile Include="Pricing\CouponData.cs" />
     <Compile Include="Pricing\CouponDataResponse.cs" />
@@ -494,7 +495,7 @@
     <Compile Include="Pricing\Subscription.cs" />
     <Compile Include="Pricing\SubscriptionCacheWrapper.cs" />
     <Compile Include="Pricing\SubscriptionCouponGroup.cs" />
-    <Compile Include="Pricing\SubscriptionSetDetails.cs" />
+    <Compile Include="Pricing\SubscriptionSet.cs" />
     <Compile Include="Pricing\SubscriptionsResponse.cs" />
     <Compile Include="Pricing\TvinciCampaign.cs" />
     <Compile Include="Pricing\TvinciCollection.cs" />

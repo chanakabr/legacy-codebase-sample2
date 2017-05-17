@@ -36,8 +36,7 @@ namespace Core.Pricing
         public int m_nDomainLimitationModule;
         public ServiceObject[] m_lServices;
         public int m_GracePeriodMinutes;
-        public long m_SetId;
-        public int m_PriorityInSet;
+        public List<long> SubscriptionSetIds;        
 
         public List<SubscriptionCouponGroup> CouponsGroups;
 
@@ -235,7 +234,7 @@ namespace Core.Pricing
            string sSubUsageModule, string sObjectVirtualName,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
             long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
-             List<SubscriptionCouponGroup> couponsGroup = null, SubscriptionSetDetails subscriptionSetDetails = null)
+             List<SubscriptionCouponGroup> couponsGroup = null, List<long> subscriptionSetIds = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -304,13 +303,7 @@ namespace Core.Pricing
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
             this.CouponsGroups = couponsGroup;
-
-            if (subscriptionSetDetails != null && subscriptionSetDetails.SetsToPrioritiesMap != null && subscriptionSetDetails.SetsToPrioritiesMap.Count == 1)
-            {
-                KeyValuePair<long, int> pair = subscriptionSetDetails.SetsToPrioritiesMap.First();
-                m_SetId = pair.Key;
-                m_PriorityInSet = pair.Value;
-            }
+            SubscriptionSetIds = subscriptionSetIds;
         }
 
         private void InitializeMultiUsageModule(int nGroupID, string sSubscriptionCode)
