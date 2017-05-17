@@ -2102,7 +2102,7 @@ namespace Core.Users
                     {
                         if (family.DeviceInstances.Where(d => d.m_deviceUDID == udid).FirstOrDefault() != null)
                         {
-                            Utils.AddInitiateNotificationAction(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
+                            Utils.AddInitiateNotificationActionToQueue(groupId, eUserMessageAction.ChangeUsers, int.Parse(userIdToChange), udid);
                             return response;
                         }
                     }

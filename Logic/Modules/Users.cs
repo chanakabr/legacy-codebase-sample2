@@ -64,7 +64,7 @@ namespace Core.Users
                     // get group ID + user type
                     Utils.GetBaseImpl(ref kUser, nGroupID);
                     if (kUser != null)
-                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, KeyValuePairs.ToList());
+                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, KeyValuePairs.ToList(), sUserName, sPassword);
                 }
             }
             catch (Exception ex)
@@ -180,7 +180,7 @@ namespace Core.Users
                         // add the provider ID to the key-value list
                         List<KeyValuePair> keyValuePair = new List<KeyValuePair>();
                         keyValuePair.Add(new KeyValuePair() { key = "operator", value = nSSOProviderID.ToString() });
-                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValuePair);
+                        return FlowManager.SignIn(0, kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValuePair, sUserName, sPassword);
                     }
                 }
             }
@@ -1395,7 +1395,7 @@ namespace Core.Users
                     if (kUser != null)
                     {
                         // execute Sign in
-                        response.user = FlowManager.SignIn(int.Parse(response.user.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList);
+                        response.user = FlowManager.SignIn(int.Parse(response.user.m_user.m_sSiteGUID), kUser, nMaxFailCount, nLockMinutes, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins, keyValueList, response.user.m_user.m_oBasicData.m_sUserName, string.Empty);
                         if (response.user != null)
                         {
                             // convert response status
@@ -1472,7 +1472,7 @@ namespace Core.Users
 
                     if (response.resp.Code == (int)ApiObjects.Response.eResponseStatus.OK && int.TryParse(response.user.m_user.m_sSiteGUID, out userID) && userID > 0)
                     {
-                        Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.Login, userID, deviceID);
+                        Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.Login, userID, deviceID);
                     }
                     else
                         log.ErrorFormat("LogIn: error while signing in out: user: {0}, group: {1}, error: {2}", userName, nGroupID, response.resp.Code);
@@ -1720,7 +1720,7 @@ namespace Core.Users
 
             if (response.Code == (int)eResponseStatus.OK)
             {
-                Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.DeleteUser, userId, string.Empty);
+                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.DeleteUser, userId, string.Empty);
             }
             else
                 log.ErrorFormat("DeleteUser: error while deleting user: user: {0}, group: {1}, error: {2}", userId, nGroupID, response.Code);
@@ -1750,7 +1750,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                Utils.AddInitiateNotificationAction(nGroupID, eUserMessageAction.AnonymousPushRegistration, userId, udid, pushToken);
+                Utils.AddInitiateNotificationActionToQueue(nGroupID, eUserMessageAction.AnonymousPushRegistration, userId, udid, pushToken);
             }
         }
 

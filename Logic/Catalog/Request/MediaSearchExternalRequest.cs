@@ -72,6 +72,7 @@ namespace Core.Catalog.Request
                 if (this.m_oFilter != null)
                 {
                     this.m_sDeviceID = this.m_oFilter.m_sDeviceId;
+                    mediaSearchRequest.m_sDeviceID = this.m_oFilter.m_sDeviceId;
                 }
 
                 CheckSignature(mediaSearchRequest);
