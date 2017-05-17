@@ -309,8 +309,8 @@ namespace Core.ConditionalAccess
 
             if (coupon != null)
             {
-                couponCode = coupon.id;
-            }
+                couponCode = coupon.id;               
+            }        
 
             // log request
             string logString = string.Format("Purchase request: siteguid {0}, household {1}, price {2}, currency {3}, productId {4}, coupon {5}, " +
