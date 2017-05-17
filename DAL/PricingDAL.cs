@@ -1435,5 +1435,16 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
+        public static DataSet InsertSubscriptionSet(int groupdId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionSet");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupdId);
+            sp.AddParameter("@Name", name);
+            sp.AddKeyValueListParameter<long, int>("@SubscriptionsIdsToPriority", subscriptionIdsToPriority, "key", "value");
+            sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);   
+            return sp.ExecuteDataSet();
+        }
+
     }
 }
