@@ -17,6 +17,9 @@ namespace SetupTaskHandler
         
         protected BaseESSeralizer serializer;
         protected ElasticSearchApi api;
+        
+        public const string LOWERCASE_ANALYZER =
+            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
 
         public IPToCountryIndexBuilder()
         {
@@ -70,8 +73,26 @@ namespace SetupTaskHandler
 
                 if (!indexExists)
                 {
-                    indexExists = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, new List<string>(), new List<string>());
+                    List<string> analyzers = new List<string>()
+                    {
+                        LOWERCASE_ANALYZER
+                    };
+
+                    indexExists = api.BuildIndex(newIndexName, numOfShards, numOfReplicas, analyzers, new List<string>());
                 }
+
+                // Insert mapping for name field - default mapping isn't good for us
+                ESMappingObj indexMapping = new ESMappingObj(type);
+
+                indexMapping.AddProperty(new BasicMappingPropertyV2()
+                {
+                    name = "name",
+                    type = eESFieldType.STRING,
+                    index = eMappingIndex.analyzed,
+                    analyzer = "lowercase_analyzer"
+                });
+
+                api.InsertMapping(newIndexName, type, indexMapping.ToString());
 
                 DataTable mappingTable = DAL.ApiDAL.Get_IPToCountryTable();
 
