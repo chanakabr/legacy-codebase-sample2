@@ -352,7 +352,7 @@ namespace Core.Notification
                     dbSeriesReminder.ID = reminderId;
 
                     tasks = new List<Task>();
-                    tasks.Add(Task.Factory.StartNew(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));
+                    tasks.Add(Task.Run(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));
                 }
 
                 // get user notifications

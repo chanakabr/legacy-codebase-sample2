@@ -46,7 +46,7 @@ namespace Core.Notification
         /// <returns></returns>
         public Task Start(ContextData contextData)
         {
-            Task task = Task.Factory.StartNew(() =>
+            Task task = Task.Run(() =>
             {
                 // load monitor and logs context data
                 contextData.Load();

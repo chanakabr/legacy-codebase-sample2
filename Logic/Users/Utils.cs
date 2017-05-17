@@ -1078,7 +1078,7 @@ namespace Core.Users
         //    {
         //        string RequestData = CreateInitiazeNotificationACtionSoapRequest(wsUsername, wsPassword, userAction, userId, udid, pushToken);
         //        string ErrorMsg = string.Empty;
-        //        Task.Factory.StartNew(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
+        //        Task.Run(() => TVinciShared.WS_Utils.SendXMLHttpReqWithHeaders(Address, RequestData, new Dictionary<string, string>() { { "SOAPAction", SoapAction } }));
         //    }
 
         //    catch (Exception ex)

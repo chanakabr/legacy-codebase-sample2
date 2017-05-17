@@ -79,8 +79,6 @@ namespace Core.Catalog
 			            "name",
 			            "description",
 			            "epg_channel_id",
-                        "media_id",
-                        "epg_id",
                         "crid",
                         "...."
 		            };
@@ -91,7 +89,9 @@ namespace Core.Catalog
 			            "views",
 			            "rating",
 			            "votes",
-                        "epg_channel_id"
+                        "epg_channel_id",
+                        "media_id",
+                        "epg_id",
 		            };
 
         private static int maxNGram = -1;
@@ -199,29 +199,27 @@ namespace Core.Catalog
             {
                 int nMedia = mediaIds[i];
 
-                tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
+                tasks[i - nStartIndex] = Task.Run(() =>
                 {
                     // load monitor and logs context data
                     contextData.Load();
 
                     try
                     {
-                        int taskMediaID = (int)obj;
-
-                        var currentMedia = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup, managementData);
-                        dMediaObj[taskMediaID] = currentMedia;
+                        var currentMedia = GetMediaDetails(nMedia, groupId, filter, siteGuid, bIsMainLang, lSubGroup, managementData);
+                        dMediaObj[nMedia] = currentMedia;
 
                         // If couldn't get media details for this media - probably it doesn't exist, and it shouldn't appear in ES index
                         if (currentMedia == null)
                         {
-                            nonExistingMediaIDs.Add(taskMediaID);
+                            nonExistingMediaIDs.Add(nMedia);
                         }
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed in GetMediaDetails. Group ID = {0}, media id = {1}.", groupId, obj, ex);
+                        log.ErrorFormat("Failed in GetMediaDetails. Group ID = {0}, media id = {1}.", groupId, nMedia, ex);
                     }
-                }, nMedia);
+                });
             }
 
             Task.WaitAll(tasks);
@@ -3791,14 +3789,13 @@ namespace Core.Catalog
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                tasks[i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
                                 {
                                     // load monitor and logs context data
                                     contextData.Load();
 
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
+                                    return GetSocialAssetStats(nGroupID, lAssetIDs[i], eType, dStartDate, dEndDate);
+                                });
                             }
                             Task.WaitAll(tasks);
                             for (int i = 0; i < tasks.Length; i++)
@@ -3873,14 +3870,13 @@ namespace Core.Catalog
                                 Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                                 for (int i = 0; i < lAssetIDs.Count; i++)
                                 {
-                                    tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                    tasks[i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
                                     {
                                         // load monitor and logs context data
                                         contextData.Load();
 
-                                        return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                    }
-                                        , lAssetIDs[i]);
+                                        return GetSocialAssetStats(nGroupID, lAssetIDs[i], eType, dStartDate, dEndDate);
+                                    });
                                 }
                                 Task.WaitAll(tasks);
                                 for (int i = 0; i < tasks.Length; i++)
@@ -6640,7 +6636,18 @@ namespace Core.Catalog
                         // add language suffix (if the language is not the default)
                         string languageSpecificSearchKey = string.Format("{0}{1}", searchKey, suffix);
 
-                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, leaf.value, leaf.valueType, leaf.operand));
+                        object value = leaf.value;
+
+                        if (metaType == typeof(double))
+                        {
+                            value = Convert.ToDouble(value);
+                        }
+                        else if (metaType == typeof(int) || metaType == typeof(long))
+                        {
+                            value = Convert.ToInt64(value);
+                        }
+
+                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, value, value.GetType(), leaf.operand));
                     }
 
                     eCutType cutType = eCutType.Or;
@@ -6680,6 +6687,16 @@ namespace Core.Catalog
                     {
                         leaf.valueType = typeof(long);
                         GetLeafDate(ref leaf, request.m_dServerTime);
+                    }
+                    else if (metaType == typeof(double))
+                    {
+                        leaf.value = Convert.ToDouble(leaf.value);
+                        leaf.valueType = typeof(double);
+                    }
+                    else if (metaType == typeof(int) || metaType == typeof(long))
+                    {
+                        leaf.value = Convert.ToInt64(leaf.value);
+                        leaf.valueType = typeof(long);
                     }
                 }
                 else
@@ -6888,6 +6905,15 @@ namespace Core.Catalog
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
                         leaf.valueType = typeof(long);
+
+                        try
+                        {
+                            leaf.value = Convert.ToInt64(leaf.value);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                        }
                     }
                     else if (reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
                     {

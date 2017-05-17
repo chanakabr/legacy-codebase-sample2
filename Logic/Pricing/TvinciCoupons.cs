@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Pricing;
+using ApiObjects.Response;
 using KLogMonitor;
 using KlogMonitorHelper;
 using System;
@@ -189,6 +190,31 @@ namespace Core.Pricing
             }
 
             return result;
+        }
+
+        public override CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        {
+            CouponDataResponse response = new CouponDataResponse();
+            try
+            {               
+                ApiObjects.Response.Status validateCoupon = Utils.ValidateCouponForSubscription((long)subscriptionId, groupId, couponCode);
+                response.Status = validateCoupon;
+
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {                   
+                    return response;
+                }
+                else
+                {                    
+                    response.Coupon = GetCouponStatus(couponCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("fail to Validate Coupon For Subscription groupId={0}, subscriptionId={1},couponCode={2}, ex={3} ", m_nGroupID, subscriptionId, couponCode, ex);               
+            }
+
+            return response;
         }
     }
 }

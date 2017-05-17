@@ -1136,5 +1136,19 @@ namespace Core.Pricing
                 return null;
             }
         }
+
+        public static CouponDataResponse ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        {
+            Pricing.BaseCoupons t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                return t.ValidateCouponForSubscription(groupId, subscriptionId, couponCode);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

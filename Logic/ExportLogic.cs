@@ -323,7 +323,7 @@ namespace APILogic
             for (int i = 0; i < numberOfTasks; i++)
             {
                 int index = i;
-                tasks[i] = Task.Factory.StartNew(() =>
+                tasks[i] = Task.Run(() =>
                     doTaskJob(groupId, taskId, mediaIds, exportFullPath, mainLang, firstTaskIndex, numberOfTasks, index));
 
             }

@@ -744,15 +744,14 @@ namespace Core.Catalog
 
                 for (int i = 0; i < lDateAliases.Count; i++)
                 {
-                    tAliasRequests[i] = Task.Factory.StartNew<string>(
-                         (index) =>
+                    tAliasRequests[i] = Task.Run<string>(() =>
                          {
                              // load monitor and logs context data
                              contextData.Load();
 
-                             string sIndex = lDateAliases[(int)index];
+                             string sIndex = lDateAliases[i];
                              return (m_oESApi.IndexExists(sIndex)) ? sIndex : string.Empty;
-                         }, i);
+                         });
                 }
                 Task.WaitAll(tAliasRequests);
 
@@ -1985,7 +1984,7 @@ namespace Core.Catalog
                 {
                     ContextData contextData = new ContextData();
                     // Create a task for the search and merge of partial aggregations
-                    Task task = Task.Factory.StartNew((obj) =>
+                    Task task = Task.Run(() =>
                         {
                             contextData.Load();
                             // Get aggregations results
@@ -2029,8 +2028,7 @@ namespace Core.Catalog
                                     }
                                 }
                             }
-                        },
-                        new Object());
+                        });
 
                     tasks.Add(task);
 
@@ -2512,7 +2510,7 @@ namespace Core.Catalog
 
                         if (lBulkObj.Count >= sizeOfBulk)
                         {
-                            Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(lBulkObj));
+                            Task<List<KeyValuePair<string, string>>> t = Task<List<KeyValuePair<string, string>>>.Run(() => api.CreateBulkRequest(lBulkObj));
                             t.Wait();
                             
                             lBulkObj = new List<ESBulkRequestObj<string>>();
@@ -2521,7 +2519,7 @@ namespace Core.Catalog
 
                 if (lBulkObj.Count > 0)
                 {
-                    Task<object> t = Task<object>.Factory.StartNew(() => api.CreateBulkRequest(lBulkObj));
+                    Task<List<KeyValuePair<string, string>>> t = Task<List<KeyValuePair<string, string>>>.Run(() => api.CreateBulkRequest(lBulkObj));
                     t.Wait();
                 }
 

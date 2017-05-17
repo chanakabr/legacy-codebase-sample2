@@ -1809,7 +1809,7 @@ namespace Core.Billing
 
         public static void WriteUserLogAsync(int groupID, string siteGuid, string msg)
         {
-            Task.Factory.StartNew(() => TryWriteToUserLog(groupID, siteGuid, msg));
+            Task.Run(() => TryWriteToUserLog(groupID, siteGuid, msg));
         }
 
         public static bool TryWriteToUserLog(int nGroupID, string sSiteGUID, string sMessage)
