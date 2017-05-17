@@ -157,9 +157,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.GracePeriodMinutes, opt => opt.MapFrom(src => src.m_GracePeriodMinutes))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes))
-               .ForMember(dest => dest.SubscriptionCouponsGroup, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
-               .ForMember(dest => dest.SetId, opt => opt.MapFrom(src => src.m_SetId))
-               .ForMember(dest => dest.PriorityInSet, opt => opt.MapFrom(src => src.m_PriorityInSet));
+               .ForMember(dest => dest.SubscriptionCouponsGroup, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)));
 
             // KalturaPricePlan
             Mapper.CreateMap<UsageModule, KalturaPricePlan>()
