@@ -5695,6 +5695,8 @@ namespace WebAPI.Reflection
                             return "priorityInSet";
                         case "ProductCode":
                             return "productCode";
+                        case "ProductCodes":
+                            return "productCodes";
                         case "ProrityInOrder":
                             return "prorityInOrder";
                         case "RenewalsNumber":
