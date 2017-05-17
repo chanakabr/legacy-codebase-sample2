@@ -3647,6 +3647,15 @@
             <remarks>Possible status codes:      
               </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.SubscriptionController.ValidateCoupon(System.Int32,System.String)">
+            <summary>
+            Returns information about a coupon for subscription
+            </summary>
+            <param name="id">subscription id </param>
+            <param name="code">coupon code </param>
+            <remarks>Possible status codes:      
+              </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.OttCategoryController.Get(System.Int32)">
             <summary>
             Retrieve the list of categories (hierarchical) and their associated channels
@@ -9154,9 +9163,9 @@
             List of permitted user types for the subscription
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.SubscriptionCouponsGroup">
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscription.CouponGroups">
             <summary>
-            List of Subscription Coupons group
+            List of Coupons group
             </summary>
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscription.SetId">

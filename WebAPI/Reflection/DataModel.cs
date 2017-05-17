@@ -5649,6 +5649,8 @@ namespace WebAPI.Reflection
                     {
                         case "Channels":
                             return "channels";
+                        case "CouponGroups":
+                            return "couponsGroups";
                         case "CouponsGroup":
                             return "couponsGroup";
                         case "Description":
@@ -5701,8 +5703,6 @@ namespace WebAPI.Reflection
                             return "setId";
                         case "StartDate":
                             return "startDate";
-                        case "SubscriptionCouponsGroup":
-                            return "subscriptionCouponsGroup";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":

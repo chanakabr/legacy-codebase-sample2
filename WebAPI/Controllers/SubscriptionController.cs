@@ -125,5 +125,37 @@ namespace WebAPI.Controllers
 
             return subscruptions;
         }
+
+
+        /// <summary>
+        /// Returns information about a coupon for subscription
+        /// </summary>
+        /// <param name="id">subscription id </param>
+        /// <param name="code">coupon code </param>
+        /// <remarks>Possible status codes:      
+        ///   </remarks>
+        [Route("validateCoupon"), HttpPost]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        public KalturaCoupon ValidateCoupon(int id, string code)
+        {
+            //filter.Validate();
+            KalturaCoupon response = new KalturaCoupon();
+
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.PricingClient().ValidateCouponForSubscription(groupId, id, code);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
 }
