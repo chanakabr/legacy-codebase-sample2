@@ -58,8 +58,6 @@ namespace Core.Catalog.Request
                 }
 
                 BooleanPhrase phrase = new BooleanPhrase(nodes, eCutType.Or);
-                //var specificAssets = new Dictionary<eAssetTypes, List<string>>();
-                //specificAssets.Add(eAssetTypes.EPG, request.pids.ToList());
 
                 UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions()
                 {
