@@ -749,6 +749,38 @@ namespace ElasticSearch.Common
 
             mappingObj.AddProperty(descrpitionMapping);
 
+            ElasticSearch.Common.FieldsMappingPropertyV2 epgIdentifierProperty = new FieldsMappingPropertyV2()
+            {
+                name = "epg_identifier",
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+
+            epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "epg_identifier",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            mappingObj.AddProperty(epgIdentifierProperty);
+
             mappingObj.AddProperty(new BasicMappingPropertyV2()
             {
                 name = "cache_date",
