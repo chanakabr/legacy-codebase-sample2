@@ -9,11 +9,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using ApiObjects.Pricing;
+using System.Reflection;
 
 namespace Core.Pricing
 {
     public class Module
     {
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static Currency GetCurrencyValues(int nGroupID, string sCurrencyCode3)
         {
             Currency t = new Currency();
@@ -1083,18 +1087,72 @@ namespace Core.Pricing
             }
         }
 
-        public static SubscriptionSetsResponse GetSubscriptionSets(int groupdId, List<long> ids)
+        public static SubscriptionSetsResponse GetSubscriptionSets(int groupId, List<long> ids)
         {
             SubscriptionSetsResponse response = new SubscriptionSetsResponse();
             try
             {
-                response.SubscriptionSets = Utils.GetSubscriptionSets(groupdId, ids);
-                response.Status = new Status((int)eResponseStatus.OK, "OK");
+                response.SubscriptionSets = Utils.GetSubscriptionSets(groupId, ids);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
-            catch (Exception)
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed GetSubscriptionSets, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response.SubscriptionSets = Utils.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds);
+                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.Error(string.Format("Failed GetSubscriptionSetsBySubscriptionIds, groupId: {0}, subscriptionIds: {1}", groupId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse AddSubscriptionSet(int groupId, string name, List<long> subscriptionIds)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                if (subscriptionIds != null && subscriptionIds.Count > 0)
+                {
+                    Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = Utils.GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
+                    if (subscriptionIdToSetIdsMap != null && subscriptionIdToSetIdsMap.Count > 0)
+                    {
+                        List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Distinct().ToList();
+                        if (setIds != null && setIds.Count >= 0)
+                        {
+                            response.Status = new Status((int)eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString());
+                            return response;
+                        }
+                    }
+                }
+
+                SubscriptionSet subscriptionSet = Utils.InsertSubscriptionSet(groupId, name, subscriptionIds);
+                if (subscriptionSet != null && subscriptionSet.Id > 0)
+                {
+                    response.SubscriptionSets.Add(subscriptionSet);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
             {
                 response.Status = new Status((int)eResponseStatus.Error, "Error");
-            }            
+                log.Error(string.Format("Failed AddSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
             return response;
         }
 

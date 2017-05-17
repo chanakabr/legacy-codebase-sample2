@@ -131,6 +131,7 @@ namespace ApiObjects.Response
         CompensationNotFound = 3056,
         CouponPromotionDateExpired = 3057,
         CouponPromotionDateNotStarted = 3058,
+        SubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3059,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,
