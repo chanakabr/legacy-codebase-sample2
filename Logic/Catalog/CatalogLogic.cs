@@ -199,29 +199,27 @@ namespace Core.Catalog
             {
                 int nMedia = mediaIds[i];
 
-                tasks[i - nStartIndex] = Task.Factory.StartNew((obj) =>
+                tasks[i - nStartIndex] = Task.Run(() =>
                 {
                     // load monitor and logs context data
                     contextData.Load();
 
                     try
                     {
-                        int taskMediaID = (int)obj;
-
-                        var currentMedia = GetMediaDetails(taskMediaID, groupId, filter, siteGuid, bIsMainLang, lSubGroup, managementData);
-                        dMediaObj[taskMediaID] = currentMedia;
+                        var currentMedia = GetMediaDetails(nMedia, groupId, filter, siteGuid, bIsMainLang, lSubGroup, managementData);
+                        dMediaObj[nMedia] = currentMedia;
 
                         // If couldn't get media details for this media - probably it doesn't exist, and it shouldn't appear in ES index
                         if (currentMedia == null)
                         {
-                            nonExistingMediaIDs.Add(taskMediaID);
+                            nonExistingMediaIDs.Add(nMedia);
                         }
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorFormat("Failed in GetMediaDetails. Group ID = {0}, media id = {1}.", groupId, obj, ex);
+                        log.ErrorFormat("Failed in GetMediaDetails. Group ID = {0}, media id = {1}.", groupId, nMedia, ex);
                     }
-                }, nMedia);
+                });
             }
 
             Task.WaitAll(tasks);
@@ -3791,14 +3789,13 @@ namespace Core.Catalog
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
-                                tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                tasks[i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
                                 {
                                     // load monitor and logs context data
                                     contextData.Load();
 
-                                    return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                }
-                                    , lAssetIDs[i]);
+                                    return GetSocialAssetStats(nGroupID, lAssetIDs[i], eType, dStartDate, dEndDate);
+                                });
                             }
                             Task.WaitAll(tasks);
                             for (int i = 0; i < tasks.Length; i++)
@@ -3873,14 +3870,13 @@ namespace Core.Catalog
                                 Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                                 for (int i = 0; i < lAssetIDs.Count; i++)
                                 {
-                                    tasks[i] = Task.Factory.StartNew<AssetStatsResult.SocialPartialAssetStatsResult>((item) =>
+                                    tasks[i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
                                     {
                                         // load monitor and logs context data
                                         contextData.Load();
 
-                                        return GetSocialAssetStats(nGroupID, (int)item, eType, dStartDate, dEndDate);
-                                    }
-                                        , lAssetIDs[i]);
+                                        return GetSocialAssetStats(nGroupID, lAssetIDs[i], eType, dStartDate, dEndDate);
+                                    });
                                 }
                                 Task.WaitAll(tasks);
                                 for (int i = 0; i < tasks.Length; i++)

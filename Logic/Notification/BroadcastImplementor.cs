@@ -64,7 +64,7 @@ namespace Core.Notification
                     //SendMessagesBroadCastByThreads(messagesList);
                 }
                 if (bIsInsertBulkOfMessagesToDB)
-                    Task.Factory.StartNew(() => { InsertMessagesBulkCopy(messagesList); });
+                    Task.Run(() => { InsertMessagesBulkCopy(messagesList); });
             }
         }
 

@@ -834,12 +834,11 @@ namespace Core.Recordings
                 ContextData cd = new ContextData();
 
                 // Async - call adapter. Main flow is done                
-                System.Threading.Tasks.Task async = Task.Factory.StartNew((taskRecording) =>
+                System.Threading.Tasks.Task async = Task.Run(() =>
                 {
                     cd.Load();
-                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, (Recording)taskRecording);
-                },
-                copyRecording);
+                    CallAdapterRecord(groupId, epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording);
+                });
             }
 
             parameters["recording"] = recording;

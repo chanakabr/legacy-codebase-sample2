@@ -61,7 +61,7 @@ namespace Core.Notification
             {
                 try
                 {
-                    Task.Factory.StartNew(() => { InsertMessagesBulkCopy(messagesList); });
+                    Task.Run(() => { InsertMessagesBulkCopy(messagesList); });
                 }
                 catch (Exception ex)
                 {

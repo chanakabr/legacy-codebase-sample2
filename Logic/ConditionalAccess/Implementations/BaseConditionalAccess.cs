@@ -12859,14 +12859,14 @@ namespace Core.ConditionalAccess
 					if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
 					{
 						ContextData contextData = new ContextData();
-						System.Threading.Tasks.Task async = Task.Factory.StartNew((taskDomainId) =>
+						System.Threading.Tasks.Task async = Task.Run(() =>
 						{
 							contextData.Load();
-							if (!CompleteDomainSeriesRecordings((long)taskDomainId))
+							if (!CompleteDomainSeriesRecordings(domainId))
 							{
 								log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
 							}
-						}, domainId);
+						});
 					}
 					recording.RecordingStatus = tstvRecordingStatus;
 					recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

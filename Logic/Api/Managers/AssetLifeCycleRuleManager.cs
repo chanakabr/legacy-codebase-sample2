@@ -90,14 +90,13 @@ namespace Core.Api.Managers
 
                     for (int i = 0; i < rules.Count; i++)
                     {
-                        tasks[i] = Task.Factory.StartNew<int>(
-                            (index) =>
+                        tasks[i] = Task.Run<int>(() =>
                             {
                                 long ruleId = -1;
 
                                 try
                                 {
-                                    var rule = rules[(int)index];
+                                    var rule = rules[i];
                                     ruleId = rule.Id;
 
                                     #region UnifiedSearchRequest
@@ -207,7 +206,7 @@ namespace Core.Api.Managers
                                     log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
                                     return result;
                                 }
-                            }, i);
+                            });
                     }
 
                     #region Finish tasks
