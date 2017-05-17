@@ -533,6 +533,14 @@ namespace APILogic
                 }
                 xml.Append("</booleans>");
 
+                // dates
+                xml.Append("<dates>");
+                foreach (var meta in media.m_lMetas.Where(m => m.m_oTagMeta.m_sType == typeof(DateTime).ToString()))
+                {
+                    xml.Append(GetDateMetaSection(meta));
+                }
+                xml.Append("</dates>");
+
 
                 // tags
                 xml.Append("<metas>");
@@ -793,6 +801,14 @@ namespace APILogic
             return string.Format("<meta name=\"{0}\" ml_handling=\"unique\">{1}</meta>",
                 TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_oTagMeta.m_sName, true),   // {0} - meta name      
                 TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_sValue, true)              // {2} - meta value     
+            );
+        }
+
+        private static string GetDateMetaSection(Metas meta)
+        {
+            return string.Format("<meta name=\"{0}\" ml_handling=\"unique\">{1}</meta>",
+                TVinciShared.ProtocolsFuncs.XMLEncode(meta.m_oTagMeta.m_sName, true),   // {0} - meta name      
+                TVinciShared.ProtocolsFuncs.XMLEncode(!string.IsNullOrEmpty(meta.m_sValue) ? (DateTime.Parse(meta.m_sValue)).ToString("dd/MM/yyyy hh:mm:ss") : string.Empty, true)              // {2} - meta value     
             );
         }
 
