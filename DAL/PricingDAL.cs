@@ -1431,6 +1431,7 @@ namespace DAL
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupdId);
             sp.AddIDListParameter("@Ids", ids, "id");
+            sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
             return sp.ExecuteDataSet();
         }
 
