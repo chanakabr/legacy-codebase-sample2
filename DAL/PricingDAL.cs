@@ -1343,7 +1343,6 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-
         public static DataTable GetGroupAdsControlParams(int groupID)
         {
             StoredProcedure sp = new StoredProcedure("GetGroupAdsControlParams");
@@ -1406,10 +1405,34 @@ namespace DAL
             return sp.Execute();
         }
 
+        public static DataTable Get_SubscriptionsExternalProductCodes(int groupId, List<long> list)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubscriptionsExternalProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddIDListParameter("@Subscriptions", list, "id");
+            return sp.Execute();
+        }
+
+        public static bool Update_SubscriptionsProductCodes(int groupId, int subscriptionId, string xml)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_SubscriptionsProductCodes");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SubscriptionId", subscriptionId);
+            sp.AddParameter("@xmlDoc", xml);
+            
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         public static DataSet GetSubscriptionSetsByIds(int groupdId, List<long> ids)
         {
-            throw new NotImplementedException();
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionSetsByIds");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupdId);
+            sp.AddIDListParameter("@Ids", ids, "id");
+            return sp.ExecuteDataSet();
         }
+
     }
 }
-
