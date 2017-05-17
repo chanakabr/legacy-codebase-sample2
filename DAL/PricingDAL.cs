@@ -1397,13 +1397,18 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable GetSetsBySucriptionId(int groupId, List<long> subscriptionIds)
+        public static DataTable GetSetsContainingSubscriptionIds(int groupId, List<long> subscriptionIds)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSetsBySucriptionId");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSetsContainingSubscriptionIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@SubscriptionIds", subscriptionIds, "id");     
             return sp.Execute();
+        }
+
+        public static DataSet GetSubscriptionSetsByIds(int groupdId, List<long> ids)
+        {
+            throw new NotImplementedException();
         }
     }
 }
