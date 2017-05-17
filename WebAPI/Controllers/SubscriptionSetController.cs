@@ -16,6 +16,7 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
+using ApiObjects.Response;
 
 namespace WebAPI.Controllers
 {
@@ -65,7 +66,39 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }       
+        }
+
+        /// <summary>
+        /// Add a new subscriptionSet
+        /// </summary>
+        /// <param name="subscriptionSet">SubscriptionSet Object</param>
+        /// <returns></returns>
+        [Route("add"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]        
+        public KalturaSubscriptionSet Add(KalturaSubscriptionSet subscriptionSet)
+        {
+            KalturaSubscriptionSet response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            if (string.IsNullOrEmpty(subscriptionSet.Name))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            }
+
+            try
+            {
+                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.SubscriptionIds.Select(x => x.value).Distinct().ToList() : new List<long>();
+                // call client
+                response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
 
     }
 }

@@ -649,6 +649,13 @@
             <param name="filter">SubscriptionSet filter</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.SubscriptionSetController.Add(WebAPI.Models.Pricing.KalturaSubscriptionSet)">
+            <summary>
+            Add a new subscriptionSet
+            </summary>
+            <param name="subscriptionSet">SubscriptionSet Object</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.CurrencyController.List(WebAPI.Models.API.KalturaCurrencyFilter)">
             <summary>
             Get the list of currencies for the partner with option to filter by currency codes

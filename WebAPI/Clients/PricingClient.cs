@@ -259,7 +259,94 @@ namespace WebAPI.Clients
 
         internal KalturaSubscriptionSetListResponse GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds, KalturaSubscriptionSetOrderBy? orderBy)
         {
-            throw new NotImplementedException();
+            KalturaSubscriptionSetListResponse result = new KalturaSubscriptionSetListResponse() { TotalCount = 0 };
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetSubscriptionSetsBySubscriptionIds(groupId, subscriptionIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count > 0)
+            {
+                result.TotalCount = response.SubscriptionSets.Count;
+                result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
+            }
+
+            if (orderBy.HasValue)
+            {
+                switch (orderBy.Value)
+                {
+                    case KalturaSubscriptionSetOrderBy.NAME_ASC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderBy(x => x.Name).ToList();
+                        break;
+                    case KalturaSubscriptionSetOrderBy.NAME_DESC:
+                        result.SubscriptionSets = result.SubscriptionSets.OrderByDescending(x => x.Name).ToList();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
+        }
+
+        internal KalturaSubscriptionSet AddSubscriptionSet(int groupId, string name, List<long> subscriptionIds)
+        {
+            KalturaSubscriptionSet subscriptionSet = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.AddSubscriptionSet(groupId, name, subscriptionIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {
+                // convert response
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionSet>(response.SubscriptionSets.First());
+            }
+
+            return subscriptionSet;
         }
     }
 }

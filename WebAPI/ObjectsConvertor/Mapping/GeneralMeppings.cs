@@ -26,6 +26,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaIntegerValue
             Mapper.CreateMap<int, KalturaIntegerValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
+
+            // KalturaLongValue
+            Mapper.CreateMap<long, KalturaLongValue>()
+                .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
         }
     }
 }

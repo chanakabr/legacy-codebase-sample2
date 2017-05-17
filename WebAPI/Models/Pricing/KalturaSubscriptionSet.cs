@@ -24,6 +24,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>
@@ -32,7 +33,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
         [XmlElement(ElementName = "name")]
-        public KalturaMultilingualString Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// A list of subscriptions associated with this set 
