@@ -91,7 +91,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                             if (bulkList.Count >= sizeOfBulk)
                             {
-                                Task t = Task.Factory.StartNew(() =>
+                                Task t = Task.Run(() =>
                                 {
                                     cd.Load();
                                     var invalidResults = api.CreateBulkRequest(bulkList);
@@ -113,7 +113,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     if (bulkList.Count > 0)
                     {
-                        Task t = Task.Factory.StartNew(() =>
+                        Task t = Task.Run(() =>
                         {
                             cd.Load();
                             var invalidResults = api.CreateBulkRequest(bulkList);

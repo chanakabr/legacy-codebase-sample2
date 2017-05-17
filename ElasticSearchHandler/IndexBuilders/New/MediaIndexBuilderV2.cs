@@ -217,7 +217,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         if (bulkList.Count >= sizeOfBulk)
                         {
                             // Send request to elastic search in a different thread
-                            Task t = Task.Factory.StartNew(() => 
+                            Task t = Task.Run(() => 
                                 {
                                     cd.Load();
 
@@ -244,7 +244,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 if (bulkList.Count > 0)
                 {
                     // Send request to elastic search in a different thread
-                    Task t = Task.Factory.StartNew(() =>
+                    Task t = Task.Run(() =>
                     {
                         cd.Load();
                         var invalidResults = api.CreateBulkRequest(bulkList);
@@ -296,7 +296,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (this.DeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
                 {
-                    Task t = Task.Factory.StartNew(() =>
+                    Task t = Task.Run(() =>
                     {
                         cd.Load();
                         api.DeleteIndices(oldIndices);

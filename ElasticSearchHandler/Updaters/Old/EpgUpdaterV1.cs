@@ -155,12 +155,11 @@ namespace ElasticSearchHandler.Updaters
                     //bulk insert
                     for (int i = 0; i < epgIds.Count; i++)
                     {
-                        programsTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
-                            (epgId) =>
+                        programsTasks[i] = Task.Run<List<EpgCB>>(() =>
                             {
                                 cd.Load();
-                                return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, (int)epgId, languageCodes);
-                            }, epgIds[i]);
+                                return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, epgIds[i], languageCodes);
+                            });
                     }
 
                     Task.WaitAll(programsTasks);

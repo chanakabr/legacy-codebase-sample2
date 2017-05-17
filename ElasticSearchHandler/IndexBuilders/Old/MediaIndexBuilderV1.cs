@@ -296,7 +296,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (this.DeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
                 {
-                    Task t = Task.Factory.StartNew(() => api.DeleteIndices(oldIndices));
+                    Task t = Task.Run(() => api.DeleteIndices(oldIndices));
                     t.Wait();
                 }
             }

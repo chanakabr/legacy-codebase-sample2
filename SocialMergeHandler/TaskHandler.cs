@@ -69,8 +69,8 @@ namespace SocialMergeHandler
 
             try
             {
-                Task[] tasks = new Task[2]{Task.Factory.StartNew(() => DeleteActivitiesFromFriendsFeed(Convert.ToInt32(request.sSiteGuid),request.GroupId)),
-                                           Task.Factory.StartNew(() => DeleteUserFeed(Convert.ToInt32(request.sSiteGuid),request.GroupId))};
+                Task[] tasks = new Task[2]{Task.Run(() => DeleteActivitiesFromFriendsFeed(Convert.ToInt32(request.sSiteGuid),request.GroupId)),
+                                           Task.Run(() => DeleteUserFeed(Convert.ToInt32(request.sSiteGuid),request.GroupId))};
 
                 Task.WaitAll(tasks);
             }
