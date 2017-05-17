@@ -793,7 +793,7 @@ namespace Core.Pricing
         private Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> ExtractSubscriptionsProductCodes(DataSet ds)
         {
             Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>> res = new Dictionary<long, List<KeyValuePair<VerificationPaymentGateway, string>>>();
-            DataTable dt = ds.Tables[8];
+            DataTable dt = ds.Tables[9];
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
@@ -1157,7 +1157,7 @@ namespace Core.Pricing
 
         private bool IsSubsDataSetValid(DataSet ds)
         {
-            return ds != null && ds.Tables != null && ds.Tables.Count == 9;
+            return ds != null && ds.Tables != null && ds.Tables.Count == 10;
         }
 
     }

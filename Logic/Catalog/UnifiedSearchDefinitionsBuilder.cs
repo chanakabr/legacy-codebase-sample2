@@ -387,6 +387,17 @@ namespace Core.Catalog
 
                 #endregion
 
+                #region User Preferences
+
+                if (definitions.shouldGetUserPreferences)
+                {
+                    definitions.userPreferences = new Dictionary<string, List<string>>();
+
+                    definitions.userPreferences = CatalogLogic.GetUserPreferences();
+                }
+
+                #endregion
+
             }
             catch (Exception ex)
             {

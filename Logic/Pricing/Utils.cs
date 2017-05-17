@@ -10,6 +10,7 @@ using ApiObjects.Pricing;
 using System.Data;
 using System.Xml;
 using DAL;
+using ApiObjects.Response;
 
 namespace Core.Pricing
 {
@@ -589,6 +590,37 @@ namespace Core.Pricing
             }
 
             return subscriptionSetDetails;
+        }
+
+        internal static ApiObjects.Response.Status ValidateCouponForSubscription(long productId, int groupId, string couponCode)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            // check if subscription coupons valid 
+            List<SubscriptionCouponGroup> sgList = GetSubscriptionCouponsGroup(productId, groupId, false);
+            if (sgList == null)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.CouponNotValid, "Coupon Not Valid");
+            }
+
+            long couponGroupId = PricingDAL.Get_CouponGroupId(groupId, couponCode); // return only if valid 
+
+            // look ig this coupon group id exsits in coupon list 
+            SubscriptionCouponGroup couponGroups = null;
+            couponGroups = TVinciShared.ObjectCopier.Clone<SubscriptionCouponGroup>(sgList.Where(x => x.m_sGroupCode == couponGroupId.ToString()).FirstOrDefault());
+            if (couponGroups == null)
+            {
+                //eResponseStatus.InvalidCouponGroup
+                status = new ApiObjects.Response.Status((int)eResponseStatus.CouponNotValid, "Coupon Not Valid");
+            }
+            else if (couponGroups.endDate.HasValue && couponGroups.endDate.Value <= DateTime.UtcNow)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.CouponPromotionDateExpired, "Coupon promotion date expired");
+            }
+            else if (couponGroups.startDate.HasValue && couponGroups.startDate.Value >= DateTime.UtcNow)
+            {
+                status = new ApiObjects.Response.Status((int)eResponseStatus.CouponPromotionDateNotStarted, "Coupon promotion date not started");
+            }
+            return status;
         }
     }
 }

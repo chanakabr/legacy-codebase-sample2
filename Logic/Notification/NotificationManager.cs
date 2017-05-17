@@ -78,7 +78,7 @@ namespace Core.Notification
                     for (int i = 0; i < requestsList.Count; i++)
                     {
                         int j = i;
-                        tasks[j] = Task.Factory.StartNew(() =>
+                        tasks[j] = Task.Run(() =>
                             {
                                 // load monitor and logs context data
                                 contextData.Load();

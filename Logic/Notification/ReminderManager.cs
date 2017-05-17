@@ -352,7 +352,7 @@ namespace Core.Notification
                     dbSeriesReminder.ID = reminderId;
 
                     tasks = new List<Task>();
-                    tasks.Add(Task.Factory.StartNew(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));
+                    tasks.Add(Task.Run(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));
                 }
 
                 // get user notifications
@@ -503,10 +503,10 @@ namespace Core.Notification
             remindersToRemove = null;
             seriesRemindersToRemove = null;
 
-            string seriesIdName, seasonNumberName, episodeNumberName;
-            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            Tuple<string, FieldTypes> seriesIdNameType, seasonNumberNameType, episodeNumberNameType;
+            if (!Utils.GetSeriesMetaTagsFieldsNamesAndTypes(groupId, out seriesIdNameType, out seasonNumberNameType, out episodeNumberNameType))
             {
-                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
+                log.ErrorFormat("failed to 'GetSeriesMetaTagsFieldsNamesAndTypes' for groupId = {0} ", groupId);
                 return;
             }
 
@@ -517,8 +517,19 @@ namespace Core.Notification
             {
                 List<ProgramObj> programs = GetEpgPrograms(groupId, userNotificationData.Reminders.Select(r => (int)r.AnnouncementId).ToList());
 
-                List<ProgramObj> episodesToRemove = programs.Where(p => p.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdName).FirstOrDefault().Value == seriesId &&
-                    (seasonNumber.HasValue && seasonNumber.Value != 0 ? p.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberName).FirstOrDefault().Value == seasonNumber.ToString() : true)).ToList();
+                List<ProgramObj> episodesToRemove = new List<ProgramObj>();
+                foreach (ProgramObj program in programs)
+                {
+                    if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
+                        (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
+                        (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ? 
+                        ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
+                        (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString())) 
+                        : true))
+                    {
+                        episodesToRemove.Add(program);
+                    }
+                }
 
                 if (episodesToRemove != null && episodesToRemove.Count > 0)
                 {
@@ -589,24 +600,20 @@ namespace Core.Notification
 
         private static bool IsAlreadyFollowedAsSeries(int groupId, ProgramObj epgProgram, List<Announcement> userSeriesReminders)
         {
-            string seriesIdName, seasonNumberName, episodeNumberName;
-            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.GetEpgFieldTypeEntitys(groupId, epgProgram.m_oProgram);
+            if (aliases == null || aliases.Count == 0)
             {
-                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
+                log.ErrorFormat("failed to alias mappings for groupId = {0}, programId = {1} ", groupId, epgProgram.AssetId);
                 return false;
             }
 
-            string seriesId = epgProgram.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value;
-            string seasonNum = epgProgram.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value;
-            long seasonNumber;
-
-            if (!string.IsNullOrEmpty(seasonNum) && long.TryParse(seasonNum, out seasonNumber))
+            string seriesId = aliases[Core.ConditionalAccess.Utils.SERIES_ID];
+            long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
+            
+            DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
+            if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
             {
-                DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
-                if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
-                {
-                    return true;
-                }
+                return true;
             }
 
             DbSeriesReminder seriesReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, null, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
@@ -614,7 +621,6 @@ namespace Core.Notification
             {
                 return true;
             }
-
             return false;
         }
 
@@ -1104,6 +1110,7 @@ namespace Core.Notification
             var status = GetEpgProgram(partnerId, (int)reminder.Reference, out program);
             if (status.Code != (int)eResponseStatus.OK)
             {
+                log.ErrorFormat("program was not found. partner ID: {0}, start time: {1}, reminder ID: {2}, programId = ", partnerId, startTime, reminderId, reminder.Reference);
                 return false;
             }
 
@@ -1112,6 +1119,7 @@ namespace Core.Notification
             status = GetMedia(partnerId, (int)program.m_oProgram.LINEAR_MEDIA_ID, out mediaChannel);
             if (status.Code != (int)eResponseStatus.OK)
             {
+                log.ErrorFormat("linear media for channel was not found. partner ID: {0}, start time: {1}, reminder ID: {2}, linear media Id= ", partnerId, startTime, reminderId, program.m_oProgram.LINEAR_MEDIA_ID);
                 return false;
             }
 
@@ -1155,6 +1163,7 @@ namespace Core.Notification
                     if (reminderTemplate != null)
                     {
                         SendSingleMessageReminder(partnerId, reminder, program, mediaChannel, dbReminderSendDate, reminderTemplate);
+                        log.DebugFormat("sent single reminder, reminderId = {0}", reminder.ID);
                     }
                     else
                     {
@@ -1165,6 +1174,7 @@ namespace Core.Notification
                     if (seriesReminderTemplate != null)
                     {
                         SendSeriesMessageReminder(partnerId, program, dbReminderSendDate, seriesReminderTemplate, reminderId);
+                        log.DebugFormat("sent series reminder, reminderId = {0}", reminder.ID);
                     }
                     else
                     {
@@ -1221,92 +1231,96 @@ namespace Core.Notification
                         log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
                     }
                 }
-            }
 
-            // send to push web - rabbit.                
-            PushToWeb(partnerId, reminder, messageData);
+                // send to push web - rabbit.                
+                PushToWeb(partnerId, reminder, messageData);
+            }
         }
 
         private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId)
         {
-            string seriesIdName, seasonNumberName, episodeNumberName;
-            if (Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(partnerId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            log.DebugFormat("SendSeriesMessageReminder started");
+
+            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
+            if (aliases == null || aliases.Count == 0)
             {
-                string seriesId = program.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value;
-                string seasonNum = program.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value;
+                log.ErrorFormat("failed to alias mappings for groupId = {0}, programId = {1} ", partnerId, program.AssetId);
+                return;
+            }
+            else
+            {
+                string seriesId = aliases[Core.ConditionalAccess.Utils.SERIES_ID];
+                long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
 
-                if (!string.IsNullOrEmpty(seriesId))
+                List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminderBySeries(partnerId, seriesId, null, program.m_oProgram.EPG_CHANNEL_ID);
+
+                seriesReminders = seriesReminders != null && seriesReminders.Count > 0 ? seriesReminders.Where(sr => sr.SeasonNumber == seasonNumber || seasonNumber == 0).ToList() : null;
+
+                if (seriesReminders == null || seriesReminders.Count == 0)
                 {
-                    long seasonNumber = 0;
-                    if (!string.IsNullOrEmpty(seasonNum))
+                    log.ErrorFormat("failed to get series reminders for programId = {0}, seriesId = {1}, seasonNumber = {2}, epgChannelId = {3}",
+                        program.AssetId, seriesId, seasonNumber, program.m_oProgram.EPG_CHANNEL_ID);
+                }
+                else
+                {
+                    log.DebugFormat("found series reminders for the program");
+                    if (seriesReminderTemplate == null)
                     {
-                        long.TryParse(seasonNum, out seasonNumber);
+                        log.ErrorFormat("series reminder message template was not found. group: {0}", partnerId);
                     }
-
-                    List<DbSeriesReminder> seriesReminders = NotificationDal.GetSeriesReminderBySeries(partnerId, seriesId, long.Parse(seasonNum), program.m_oProgram.EPG_CHANNEL_ID);
-                    if (seriesReminders != null && seriesReminders.Count > 0)
+                    else
                     {
-                        if (seriesReminderTemplate == null)
+                        MessageData seriesMessageData = new MessageData()
                         {
-                            log.ErrorFormat("series reminder message template was not found. group: {0}", partnerId);
-                        }
-                        else
+                            Category = seriesReminderTemplate.Action,
+                            Sound = seriesReminderTemplate.Sound,
+                            Url = seriesReminderTemplate.URL.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeasonNumber + "}", seasonNumber.ToString()),
+                            Alert = seriesReminderTemplate.Message.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeasonNumber + "}", seasonNumber.ToString())
+                        };
+
+                        string serializedMessage = JsonConvert.SerializeObject(seriesMessageData);
+
+                        foreach (DbSeriesReminder seriesReminder in seriesReminders)
                         {
-                            MessageData seriesMessageData = new MessageData()
+                            if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.ExternalPushId))
                             {
-                                Category = seriesReminderTemplate.Action,
-                                Sound = seriesReminderTemplate.Sound,
-                                Url = seriesReminderTemplate.URL.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
-                                                                     Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", program.m_oProgram.EPG_ID.ToString()).
-                                                                     Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", program.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value).
-                                                                     Replace("{" + eSeriesReminderPlaceHolders.SeasonNumber + "}", program.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value),
-                                Alert = seriesReminderTemplate.Message.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
-                                                                     Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", program.m_oProgram.EPG_ID.ToString()).
-                                                                     Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", program.m_oProgram.EPG_Meta.Where(m => m.Key == seriesIdName).FirstOrDefault().Value).
-                                                                     Replace("{" + eSeriesReminderPlaceHolders.SeasonNumber + "}", program.m_oProgram.EPG_Meta.Where(m => m.Key == seasonNumberName).FirstOrDefault().Value)
-                            };
+                                // update message reminder
+                                seriesReminder.Message = serializedMessage;
 
-                            string serializedMessage = JsonConvert.SerializeObject(seriesMessageData);
-
-                            foreach (DbSeriesReminder seriesReminder in seriesReminders)
-                            {
-                                if (seriesReminder != null && !string.IsNullOrEmpty(seriesReminder.ExternalPushId))
+                                // send to Amazon
+                                string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, string.Empty, seriesMessageData);
+                                if (string.IsNullOrEmpty(resultMsgId))
+                                    log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
+                                else
                                 {
-                                    // update message reminder
-                                    seriesReminder.Message = serializedMessage;
-
-                                    // send to Amazon
-                                    string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, seriesReminder.ExternalPushId, string.Empty, seriesMessageData);
-                                    if (string.IsNullOrEmpty(resultMsgId))
-                                        log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for series reminder {0}", seriesReminder.ID);
-                                    else
+                                    // update last send date
+                                    seriesReminder.LastSendDate = DateTime.UtcNow;
+                                    if (NotificationDal.SetSeriesReminder(seriesReminder) == 0)
                                     {
-                                        // update last send date
-                                        seriesReminder.LastSendDate = DateTime.UtcNow;
-                                        if (NotificationDal.SetSeriesReminder(seriesReminder) == 0)
-                                        {
-                                            log.ErrorFormat("Failed to set series reminder send date. seriesReminder.ID = {0}", seriesReminder.ID);
-                                        }
+                                        log.ErrorFormat("Failed to set series reminder send date. seriesReminder.ID = {0}", seriesReminder.ID);
+                                    }
 
-                                        // update series reminder external result
-                                        if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, resultMsgId) == 0)
-                                        {
-                                            log.ErrorFormat("Failed toupdate series reminder external result. seriesReminder.ID = {0}, reminderId = {1}, resultMsgId = {2}",
-                                                seriesReminder.ID, reminderId, resultMsgId);
-                                        }
+                                    // update series reminder external result
+                                    if (NotificationDal.AddSeriesReminderExternalResult(partnerId, seriesReminder.ID, reminderId, resultMsgId) == 0)
+                                    {
+                                        log.ErrorFormat("Failed to update series reminder external result. seriesReminder.ID = {0}, reminderId = {1}, resultMsgId = {2}",
+                                            seriesReminder.ID, reminderId, resultMsgId);
                                     }
                                 }
 
                                 // send to push web - rabbit.                
                                 PushToWeb(partnerId, seriesReminder, seriesMessageData);
                             }
+
                         }
                     }
                 }
-            }
-            else
-            {
-                log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", partnerId);
             }
         }
 

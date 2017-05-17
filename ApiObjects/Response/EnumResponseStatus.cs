@@ -129,6 +129,8 @@ namespace ApiObjects.Response
         NoFilesFound = 3054,
         CompensationAlreadyExists = 3055,
         CompensationNotFound = 3056,
+        CouponPromotionDateExpired = 3057,
+        CouponPromotionDateNotStarted = 3058,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

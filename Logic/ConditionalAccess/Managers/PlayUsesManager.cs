@@ -95,7 +95,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    tasks.Add(Task.Factory.StartNew(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode,
+                    tasks.Add(Task.Run(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode,
                                                                                     languageCode, udid, nRelPP, releventCollectionID, contextData)));
                 }
             }
@@ -154,7 +154,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        tasks.Add(Task.Factory.StartNew(() => Utils.InsertOfflineSubscriptionUse(groupId, mediaFileId, itemPriceContainer.m_relevantSub.m_sObjectCode, userId,
+                        tasks.Add(Task.Run(() => Utils.InsertOfflineSubscriptionUse(groupId, mediaFileId, itemPriceContainer.m_relevantSub.m_sObjectCode, userId,
                                                                                                 countryCode, languageCode, udid, nRelPP, contextData)));
                     }
 
@@ -198,7 +198,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        tasks.Add(Task.Factory.StartNew(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID, contextData)));
+                        tasks.Add(Task.Run(() => Utils.InsertOfflinePpvUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID, contextData)));
                     }
 
                     if (setPurchaseInvalidationKey && !LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(domainId)))

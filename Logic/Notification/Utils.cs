@@ -262,5 +262,41 @@ namespace Core.Notification
 
             return new Tuple<Dictionary<string, DbSeriesReminder>, bool>(result, res);
         }
+
+        internal static bool GetSeriesMetaTagsFieldsNamesAndTypes(int groupId, out Tuple<string, FieldTypes> seriesIdName,
+            out Tuple<string, FieldTypes> seasonNumberName, out Tuple<string, FieldTypes> episodeNumberName)
+        {
+            seriesIdName = seasonNumberName = episodeNumberName = null;
+
+            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+            if (metaTagsMappings == null || metaTagsMappings.Count == 0)
+            {
+                log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
+                return false;
+            }
+
+            var feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "series_id").FirstOrDefault();
+            if (feild == null)
+            {
+                log.ErrorFormat("alias for series_id was not found. group_id = {0}", groupId);
+                return false;
+            }
+
+            seriesIdName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
+
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "season_number").FirstOrDefault();
+            if (feild != null)
+            {
+                seasonNumberName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
+            }
+
+            feild = metaTagsMappings.Where(m => m.Alias.ToLower() == "episode_number").FirstOrDefault();
+            if (feild != null)
+            {
+                episodeNumberName = new Tuple<string, FieldTypes>(feild.Name, feild.FieldType);
+            }
+
+            return true;
+        }
     }
 }
