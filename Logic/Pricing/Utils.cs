@@ -627,7 +627,7 @@ namespace Core.Pricing
         internal static List<SubscriptionSet> GetSubscriptionSets(int groupdId, List<long> ids)
         {
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
-            DataSet ds = PricingDAL(groupdId, ids);
+            DataSet ds = PricingDAL.GetSubscriptionSetsByIds(groupdId, ids);
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
