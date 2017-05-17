@@ -8,6 +8,8 @@ using ApiObjects;
 using Core.Catalog.Response;
 using EpgBL;
 using KLogMonitor;
+using ApiObjects.SearchObjects;
+using GroupsCacheManager;
 
 namespace Core.Catalog.Request
 {
@@ -32,36 +34,82 @@ namespace Core.Catalog.Request
         }
 
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
-         {
-             try
-             {
-                 EPGProgramsByProgramsIdentefierRequest request = oBaseRequest as EPGProgramsByProgramsIdentefierRequest;
+        {
+            try
+            {
+                EPGProgramsByProgramsIdentefierRequest request = oBaseRequest as EPGProgramsByProgramsIdentefierRequest;
 
-                 if (request == null)
-                     throw new ArgumentException("request object is null or Required variables is null");
+                if (request == null)
+                    throw new ArgumentException("request object is null or Required variables is null");
 
-                 CheckSignature(request);
+                CheckSignature(request);
 
-                 EpgProgramsResponse response = new EpgProgramsResponse();
-                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
+                ElasticsearchWrapper elasticSearchWrapper = new ElasticsearchWrapper();
 
-                 List<EPGChannelProgrammeObject> retList = epgBL.GetEPGPrograms(request.m_nGroupID, request.pids, request.eLang, request.duration);
-                 if (retList != null && retList.Count > 0)
-                 {
-                     // get all linear settings about channel + group
-                     CatalogLogic.GetLinearChannelSettings(request.m_nGroupID, retList);
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(request.m_nGroupID);
+                var defaultLanguage = group.GetGroupDefaultLanguage();
 
-                     response.lEpgList = FilterResult(retList, request.m_nPageIndex, request.m_nPageSize);
-                     response.m_nTotalItems = retList.Count;
-                 }
-                 return response;
-             }
-             catch (Exception ex)
-             {
-                 log.Error("", ex);
-                 return new BaseResponse();
-             }
-         }
+                List<BooleanPhraseNode> nodes = new List<BooleanPhraseNode>();
+
+                foreach (var item in request.pids)
+                {
+                    nodes.Add(new BooleanLeaf("epg_identifier", item, typeof(string), ComparisonOperator.Equals));
+                }
+
+                BooleanPhrase phrase = new BooleanPhrase(nodes, eCutType.Or);
+                //var specificAssets = new Dictionary<eAssetTypes, List<string>>();
+                //specificAssets.Add(eAssetTypes.EPG, request.pids.ToList());
+
+                UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions()
+                {
+                    groupId = request.m_nGroupID,
+                    langauge = defaultLanguage,
+                    filterPhrase = phrase,
+                    shouldSearchEpg = true,
+                    pageIndex = 0,
+                    pageSize = request.pids.Count(),
+                    shouldAddActive = true,
+                    shouldUseStartDate = false,
+                    shouldUseFinalEndDate = false,
+                    shouldUseSearchEndDate = false,
+                    epgDaysOffest = 365
+                };
+
+                int totalItems = 0;
+                int to = 0;
+                var initialSearchResult = elasticSearchWrapper.UnifiedSearch(definitions, ref totalItems, ref to);
+
+                EpgProgramsResponse response = new EpgProgramsResponse();
+                BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
+
+                List<EPGChannelProgrammeObject> retList = null;
+
+                if (initialSearchResult != null && initialSearchResult.Count > 0)
+                {
+                    retList = epgBL.GetEpgs(initialSearchResult.Select(item => Convert.ToInt32(item.AssetId)).ToList());
+                }
+                else
+                {
+                    retList = epgBL.GetEPGPrograms(request.m_nGroupID, request.pids, request.eLang, request.duration);
+                }
+
+                if (retList != null && retList.Count > 0)
+                {
+                    // get all linear settings about channel + group
+                    CatalogLogic.GetLinearChannelSettings(request.m_nGroupID, retList);
+
+                    response.lEpgList = FilterResult(retList, request.m_nPageIndex, request.m_nPageSize);
+                    response.m_nTotalItems = retList.Count;
+                }
+                return response;
+            }
+            catch (Exception ex)
+            {
+                log.Error("", ex);
+                return new BaseResponse();
+            }
+        }
 
          private List<EPGChannelProgrammeObject> FilterResult(List<EPGChannelProgrammeObject> epgsToFilter, int pageIndex, int pageSize)
          {
