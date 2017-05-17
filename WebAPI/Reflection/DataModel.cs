@@ -15,14 +15,6 @@ namespace WebAPI.Reflection
         {
             switch (type.Name)
             {
-                case "KalturaLoginSession":
-                    switch (propertyName)
-                    {
-                        case "RefreshToken":
-                            return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
-                    };
-                    break;
-                    
                 case "KalturaSubscription":
                     switch (propertyName)
                     {
@@ -218,6 +210,14 @@ namespace WebAPI.Reflection
                         case "AllowMultiInstance":
                         case "Name":
                         case "Selected":
+                            return true;
+                    };
+                    break;
+                    
+                case "KalturaLoginSession":
+                    switch (propertyName)
+                    {
+                        case "RefreshToken":
                             return true;
                     };
                     break;
@@ -5649,6 +5649,8 @@ namespace WebAPI.Reflection
                     {
                         case "Channels":
                             return "channels";
+                        case "CouponGroups":
+                            return "couponsGroups";
                         case "CouponsGroup":
                             return "couponsGroup";
                         case "Description":
@@ -5701,10 +5703,6 @@ namespace WebAPI.Reflection
                             return "setId";
                         case "StartDate":
                             return "startDate";
-                        case "SubscriptionCouponsGroup":
-                            return "subscriptionCouponsGroup";
-                        case "SubscriptionProductCodes":
-                            return "subscriptionProductCodes";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":

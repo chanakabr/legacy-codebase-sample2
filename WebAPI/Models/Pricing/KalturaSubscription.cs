@@ -277,22 +277,22 @@ namespace WebAPI.Models.Pricing
         #endregion
 
         /// <summary>
-        /// List of Subscription Coupons group
+        /// List of Coupons group
         /// </summary>
-        [DataMember(Name = "subscriptionCouponsGroup")]
-        [JsonProperty("subscriptionCouponsGroup")]
-        [XmlElement(ElementName = "subscriptionCouponsGroup", IsNullable = true)]
+        [DataMember(Name = "couponsGroups")]
+        [JsonProperty("couponsGroups")]
+        [XmlElement(ElementName = "couponsGroups", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaCouponsGroup> SubscriptionCouponsGroup { get; set; }
+        public List<KalturaCouponsGroup> CouponGroups { get; set; }
 
          /// <summary>
         /// List of Subscription product codes
         /// </summary>
-        [DataMember(Name = "subscriptionProductCodes")]
-        [JsonProperty("subscriptionProductCodes")]
-        [XmlElement(ElementName = "subscriptionProductCodes", IsNullable = true)]
+        [DataMember(Name = "productCodes")]
+        [JsonProperty("productCodes")]
+        [XmlElement(ElementName = "productCodes", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaKeyValue> SubscriptionProductCodes { get; set; }
+        public List<KalturaKeyValue> ProductCodes { get; set; }
 
         /// <summary>
         /// The Identifier of the set to which the subscription belongs

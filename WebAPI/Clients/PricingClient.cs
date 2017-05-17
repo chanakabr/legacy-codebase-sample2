@@ -171,5 +171,38 @@ namespace WebAPI.Clients
 
             return result;
         }
+              
+        internal KalturaCoupon ValidateCouponForSubscription(int groupId, int subscriptionId, string couponCode)
+        {
+            CouponDataResponse response = null;
+            KalturaCoupon coupon = new KalturaCoupon();
+                       
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.ValidateCouponForSubscription(groupId, subscriptionId, couponCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            coupon = AutoMapper.Mapper.Map<KalturaCoupon>(response.Coupon);
+
+            return coupon;
+        }
     }
 }
