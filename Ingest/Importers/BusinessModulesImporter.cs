@@ -103,7 +103,7 @@ namespace Ingest.Importers
                 for (int i = 0; i < multiPricePlans.Count; i++)
                 {
                     int index = i;
-                    tasks[i] = Task.Factory.StartNew(() =>
+                    tasks[i] = Task.Run(() =>
                         {
                             ctx.Load();
                             InsertModule<IngestMultiPricePlan>(groupId, multiPricePlans[index], CallPricingMultiPricePlanIngest<IngestMultiPricePlan>, reportId);
@@ -130,7 +130,7 @@ namespace Ingest.Importers
                 for (int i = 0; i < pricePlans.Count; i++)
                 {
                     int index = i;
-                    tasks[i] = Task.Factory.StartNew(() =>
+                    tasks[i] = Task.Run(() =>
                         {
                             ctx.Load();
                             InsertModule<IngestPricePlan>(groupId, pricePlans[index], CallPricingPricePlanIngest<IngestPricePlan>, reportId);
@@ -157,7 +157,7 @@ namespace Ingest.Importers
                 for (int i = 0; i < ppvs.Count; i++)
                 {
                     int index = i;
-                    tasks[i] = Task.Factory.StartNew(() =>
+                    tasks[i] = Task.Run(() =>
                     {
                         ctx.Load();
                         InsertModule<IngestPPV>(groupId, ppvs[index], CallPricingPPVIngest<IngestPPV>, reportId);
