@@ -175,6 +175,13 @@ public partial class adm_multi_pricing_plans : System.Web.UI.Page
             linkColumn1.AddQueryStringValue("mpp", "1");
             theTable.AddLinkColumn(linkColumn1);
         }
+        {
+            DataTableLinkColumn linkColumn1 = new DataTableLinkColumn("adm_subscription_product_codes.aspx", "Product Codes", "");
+            linkColumn1.AddQueryStringValue("subscription_id", "field=id");
+            linkColumn1.AddQueryCounterValue("select count(*) as val from Pricing.dbo.subscriptions_product_codes where status=1 and is_active=1 and SUBSCRIPTION_ID=", "field=id");
+            linkColumn1.AddQueryStringValue("mpp", "1");
+            theTable.AddLinkColumn(linkColumn1);
+        }
 
         if (LoginManager.IsActionPermittedOnPage(LoginManager.PAGE_PERMISION_TYPE.EDIT))
         {
