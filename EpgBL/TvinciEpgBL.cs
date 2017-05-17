@@ -540,14 +540,13 @@ namespace EpgBL
                 Task<List<EpgCB>>[] tChannelTasks = new Task<List<EpgCB>>[lChannelIDs.Count];
                 for (int i = 0; i < lChannelIDs.Count; i++)
                 {
-                    tChannelTasks[i] = Task.Factory.StartNew<List<EpgCB>>(
-                        (index) =>
+                    tChannelTasks[i] = Task.Run<List<EpgCB>>(() =>
                         {
                             // load monitor and logs context data
                             contextData.Load();
 
-                            return GetChannelPrograms(nPageSize, nStartIndex, lChannelIDs[(int)index], fromUTCDay, toUTCDay);
-                        }, i);
+                            return GetChannelPrograms(nPageSize, nStartIndex, lChannelIDs[i], fromUTCDay, toUTCDay);
+                        });
                 }
 
                 Task.WaitAll(tChannelTasks);
@@ -628,27 +627,23 @@ namespace EpgBL
                 {
                     int nChannel = lChannelIDs[i];
 
-                    tasks[i] = Task.Factory.StartNew(
-                         (obj) =>
+                    tasks[i] = Task.Run(() =>
                          {
                              // load monitor and logs context data
-                             contextData.Load();
-
-                             int taskChannelID = 0;
+                             contextData.Load();                             
                              try
-                             {
-                                 taskChannelID = (int)obj;
-                                 if (dChannelEpgList.ContainsKey(taskChannelID))
+                             {                                 
+                                 if (dChannelEpgList.ContainsKey(nChannel))
                                  {
                                      List<EpgCB> lRes = new List<EpgCB>();
                                      //((fromDate - 1 Day) <= start_date <toDate)
-                                     lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nPageSize, nStartIndex, taskChannelID, fromDate.AddDays(-1), toDate, false);
+                                     lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nPageSize, nStartIndex, nChannel, fromDate.AddDays(-1), toDate, false);
 
                                      if (lRes != null && lRes.Count > 0)
                                      {
                                          lRes.RemoveAll(x => x.EndDate < fromDate); //remove Epgs that ended before fromUTCDay
                                          List<EPGChannelProgrammeObject> lProg = ConvertEpgCBtoEpgProgramm(lRes);
-                                         dChannelEpgList[taskChannelID].AddRange(lProg);
+                                         dChannelEpgList[nChannel].AddRange(lProg);
                                      }
                                  }
                              }
@@ -656,7 +651,7 @@ namespace EpgBL
                              {
                                  log.Error("Exception - " + string.Format("Exception at GetMultiChannelProgramsDic task. C ID: {0} , Msg: {1} , ST: {2}", nChannel, ex.Message, ex.StackTrace), ex);
                              }
-                         }, nChannel);
+                         });
                 }
 
                 //Wait for all parallels tasks to finish:
@@ -692,22 +687,18 @@ namespace EpgBL
                 {
                     int nChannel = lChannelIDs[i];
 
-                    tasks[i] = Task.Factory.StartNew(
-                         (obj) =>
+                    tasks[i] = Task.Run(() =>
                          {
                              // load monitor and logs context data
-                             contextData.Load();
-
-                             int taskChannelID = 0;
+                             contextData.Load();                             
                              try
                              {
-                                 taskChannelID = (int)obj;
-                                 if (dChannelEpgList.ContainsKey(taskChannelID))
+                                 if (dChannelEpgList.ContainsKey(nChannel))
                                  {
                                      List<EpgCB> lTotal = new List<EpgCB>();
 
                                      //Next includes: (now <= start date < (now + 7 Days))
-                                     List<EpgCB> lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nNextTop, 0, taskChannelID, now, now.AddDays(DAYSBUFFER), false);
+                                     List<EpgCB> lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nNextTop, 0, nChannel, now, now.AddDays(DAYSBUFFER), false);
                                      if (lRes != null && lRes.Count > 0)
                                      {
                                          lTotal.AddRange(lRes);
@@ -715,7 +706,7 @@ namespace EpgBL
 
                                      //Current: ((now-1 Day) <= start_date < now)
                                      //assuming that the current programs are not more than 24h long
-                                     lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(0, 0, taskChannelID, now.AddDays(nGoBack), now, false);
+                                     lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(0, 0, nChannel, now.AddDays(nGoBack), now, false);
                                      if (lRes != null && lRes.Count > 0)
                                      {
                                          lRes.RemoveAll(x => x.EndDate < now); //remove Epgs that ended before now
@@ -724,7 +715,7 @@ namespace EpgBL
 
                                      //Prev includes: (now-7 Days) <= start_date < now
                                      //the results might include one extra EPG that has not ended yet ==> we take the nPrevTop + 1 results after sorting them in Descending order
-                                     lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nPrevTop + 1, 0, taskChannelID, now.AddDays(-DAYSBUFFER), now, true);
+                                     lRes = m_oEpgCouchbase.GetChannelProgramsByStartDate(nPrevTop + 1, 0, nChannel, now.AddDays(-DAYSBUFFER), now, true);
                                      if (lRes != null && lRes.Count > 0)
                                      {
                                          lRes.RemoveAll(x => x.EndDate > now); //remove Epgs that ended before now
@@ -742,14 +733,14 @@ namespace EpgBL
                                      var query = lTotal.OrderBy(s => s.StartDate).Select(s => s);
                                      lTotal = query.ToList();
 
-                                     dChannelEpgList[taskChannelID] = ConvertEpgCBtoEpgProgramm(lTotal);
+                                     dChannelEpgList[nChannel] = ConvertEpgCBtoEpgProgramm(lTotal);
                                  }
                              }
                              catch (Exception ex)
                              {
-                                 log.Error("Exception - " + string.Format("Exception at GetMultiChannelProgramsDicCurrent. C ID: {0} , Msg: {1} ST: {2}", taskChannelID, ex.Message, ex.StackTrace), ex);
+                                 log.Error("Exception - " + string.Format("Exception at GetMultiChannelProgramsDicCurrent. C ID: {0} , Msg: {1} ST: {2}", nChannel, ex.Message, ex.StackTrace), ex);
                              }
-                         }, nChannel);
+                         });
                 }
 
                 //Wait for all parallels tasks to finish:

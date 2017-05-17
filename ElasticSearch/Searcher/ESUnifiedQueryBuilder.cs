@@ -1809,19 +1809,19 @@ namespace ElasticSearch.Searcher
         {
             BoolQuery result = new BoolQuery();
 
-            var userPreferences = this.SearchDefinitions.userPreferences;
+            //var userPreferences = this.SearchDefinitions.userPreferences;
 
-            foreach (var tag in userPreferences)
-            {
-                ESTerms terms = new ESTerms(false)
-                {
-                    Key = string.Format("tags.{0}", tag.Key)
-                };
+            //foreach (var tag in userPreferences)
+            //{
+            //    ESTerms terms = new ESTerms(false)
+            //    {
+            //        Key = string.Format("tags.{0}", tag.Key)
+            //    };
 
-                terms.Value.AddRange(tag.Value);
+            //    terms.Value.AddRange(tag.Value);
 
-                result.AddChild(terms, CutWith.AND);
-            }
+            //    result.AddChild(terms, CutWith.AND);
+            //}
 
             return result;
         }
