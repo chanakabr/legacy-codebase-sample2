@@ -6636,7 +6636,18 @@ namespace Core.Catalog
                         // add language suffix (if the language is not the default)
                         string languageSpecificSearchKey = string.Format("{0}{1}", searchKey, suffix);
 
-                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, leaf.value, leaf.valueType, leaf.operand));
+                        object value = leaf.value;
+
+                        if (metaType == typeof(double))
+                        {
+                            value = Convert.ToDouble(value);
+                        }
+                        else if (metaType == typeof(int) || metaType == typeof(long))
+                        {
+                            value = Convert.ToInt64(value);
+                        }
+
+                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, value, value.GetType(), leaf.operand));
                     }
 
                     eCutType cutType = eCutType.Or;
@@ -6676,6 +6687,16 @@ namespace Core.Catalog
                     {
                         leaf.valueType = typeof(long);
                         GetLeafDate(ref leaf, request.m_dServerTime);
+                    }
+                    else if (metaType == typeof(double))
+                    {
+                        leaf.value = Convert.ToDouble(leaf.value);
+                        leaf.valueType = typeof(double);
+                    }
+                    else if (metaType == typeof(int) || metaType == typeof(long))
+                    {
+                        leaf.value = Convert.ToInt64(leaf.value);
+                        leaf.valueType = typeof(long);
                     }
                 }
                 else
