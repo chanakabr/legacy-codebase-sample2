@@ -5693,6 +5693,8 @@ namespace WebAPI.Reflection
                             return "pricePlans";
                         case "ProductCode":
                             return "productCode";
+                        case "ProductCodes":
+                            return "productCodes";
                         case "ProrityInOrder":
                             return "prorityInOrder";
                         case "RenewalsNumber":

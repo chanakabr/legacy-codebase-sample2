@@ -157,7 +157,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.GracePeriodMinutes, opt => opt.MapFrom(src => src.m_GracePeriodMinutes))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
                .ForMember(dest => dest.UserTypes, opt => opt.MapFrom(src => src.m_UserTypes))
-               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)));
+               .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => ConvertProductCodes(src.ExternalProductCodes)))
+               .ForMember(dest => dest.CouponGroups, opt => opt.MapFrom(src => ConvertCouponsGroup(src.CouponsGroups)))
 
             // KalturaPricePlan
             Mapper.CreateMap<UsageModule, KalturaPricePlan>()
@@ -248,6 +249,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds));
+        }
+
+        private static List<KalturaKeyValue> ConvertProductCodes(List<KeyValuePair<VerificationPaymentGateway, string>> list)
+        {
+            List<KalturaKeyValue> res = new List<KalturaKeyValue>();
+            if (list != null && list.Count > 0)
+            {
+                KalturaKeyValue kvp = null;
+                foreach (KeyValuePair<VerificationPaymentGateway, string> item in list)
+                {
+                     kvp = new KalturaKeyValue();
+                    switch (item.Key)  
+                    {
+                        case VerificationPaymentGateway.Apple:
+                            kvp.key = VerificationPaymentGateway.Apple.ToString();                            
+                            break;
+                        case VerificationPaymentGateway.Google:
+                            kvp.key = VerificationPaymentGateway.Google.ToString();
+                            break;
+                        case VerificationPaymentGateway.Roku:
+                            kvp.key = VerificationPaymentGateway.Roku.ToString();
+                            break;
+                        default:
+                            throw new ClientException((int)StatusCode.Error, "Unknown verification payment gateway");
+                    }
+                    kvp.value = item.Value;
+                    res.Add(kvp);
+                }
+            }
+            return res;
         }
 
         private static List<KalturaCouponsGroup> ConvertCouponsGroup(List<SubscriptionCouponGroup> list)
