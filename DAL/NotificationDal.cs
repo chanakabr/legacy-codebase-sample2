@@ -2411,17 +2411,17 @@ namespace DAL
             return rowsFound == 0;
         }
 
-        public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long seasonNum, string epgChannelId)
+        public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long? seasonNum, string epgChannelId)
         {
             List<DbSeriesReminder> reminders = null;
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminderBySeries");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSeriesReminder");
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@seriesId", seriesId);
-                sp.AddParameter("@seasonNum", seasonNum);
+                sp.AddParameter("@seasonNumber", seasonNum);
                 sp.AddParameter("@epgChannelId", epgChannelId);
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -2525,7 +2525,7 @@ namespace DAL
                 sp.AddParameter("@reminderId", reminderId);
                 sp.AddParameter("@externalResult", externalResult);
 
-                reminderId = sp.ExecuteReturnValue<int>();
+                id = sp.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
             {

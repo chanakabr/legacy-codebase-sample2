@@ -523,7 +523,7 @@ namespace AdapterControllers
                 }).ToArray();
 
             // Call share filtered response - asynchronously
-            Task task = Task.Factory.StartNew(() => adapterClient.ShareFilteredResponse(engine.ID, resultsArray));
+            Task task = Task.Run(() => adapterClient.ShareFilteredResponse(engine.ID, resultsArray));
         }
 
         #endregion
