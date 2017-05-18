@@ -40,7 +40,8 @@ namespace ApiObjects.QueueObjects
                 channelId,
                 seriesId,
                 seasonNumber,
-                seriesRecordingTaskType
+                seriesRecordingTaskType,
+                base.RequestId
             };
         }
     }

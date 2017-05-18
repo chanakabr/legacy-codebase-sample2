@@ -40,7 +40,8 @@ namespace ApiObjects.QueueObjects
                 groupId,
                 userTaskType,
                 userId, 
-                domainId
+                domainId,
+                base.RequestId
             };
         }
     }

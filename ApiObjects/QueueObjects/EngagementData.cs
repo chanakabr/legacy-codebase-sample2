@@ -40,7 +40,8 @@ namespace ApiObjects.QueueObjects
                 groupId,
                 startTime,
                 engagementId,
-                engagementBulkId
+                engagementBulkId,
+                base.RequestId
             };
         }
     }

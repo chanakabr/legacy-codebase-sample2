@@ -34,7 +34,8 @@ namespace ApiObjects.QueueObjects
                 id,
                 recordingId,
                 recordingExpirationEpoch,
-                oldRecordingDuration
+                oldRecordingDuration,
+                base.RequestId
             };
         }
     }

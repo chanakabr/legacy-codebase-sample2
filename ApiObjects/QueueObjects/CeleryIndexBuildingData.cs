@@ -69,6 +69,7 @@ namespace ApiObjects
 
             this.args.Add(startDateString);
             this.args.Add(endDateString);
+            this.args.Add(base.RequestId);
         }
     }
 }

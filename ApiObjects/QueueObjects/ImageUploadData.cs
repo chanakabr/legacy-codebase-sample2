@@ -41,7 +41,8 @@ namespace ApiObjects
                 sourcePath,
                 rowId,
                 imageServerUrl,
-                (int)mediaType
+                (int)mediaType,
+                base.RequestId
             };
         }
 
