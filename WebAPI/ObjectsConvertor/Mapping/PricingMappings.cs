@@ -259,11 +259,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 KalturaKeyValue kvp = null;
                 foreach (KeyValuePair<VerificationPaymentGateway, string> item in list)
                 {
-                     kvp = new KalturaKeyValue();
-                    switch (item.Key)  
+                    kvp = new KalturaKeyValue();
+                    switch (item.Key)
                     {
                         case VerificationPaymentGateway.Apple:
-                            kvp.key = VerificationPaymentGateway.Apple.ToString();                            
+                            kvp.key = VerificationPaymentGateway.Apple.ToString();
                             break;
                         case VerificationPaymentGateway.Google:
                             kvp.key = VerificationPaymentGateway.Google.ToString();
@@ -274,8 +274,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         default:
                             throw new ClientException((int)StatusCode.Error, "Unknown verification payment gateway");
                     }
-                    kvp.value = item.Value;
-                    res.Add(kvp);
+
+                    if (!string.IsNullOrEmpty(item.Value))
+                    {
+                        kvp.value = item.Value;
+                        res.Add(kvp);
+                    }
                 }
             }
             return res;
