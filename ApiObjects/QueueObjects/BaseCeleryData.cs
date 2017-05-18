@@ -19,6 +19,18 @@ namespace ApiObjects
         public string eta;
         public string expires;
 
+        public string RequestId
+        {
+            get
+            {
+                string reqId = KlogMonitorHelper.MonitorLogsHelper.GetHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY);
+                if (reqId != null)
+                    return reqId;
+                else
+                    return string.Empty;
+            }
+        }
+
         // recovery ID is by default the message ID. (could be overridden in descendants)
         private string _recoveryMessageId = string.Empty;
 
