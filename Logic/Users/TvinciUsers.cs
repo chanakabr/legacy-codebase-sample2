@@ -1144,7 +1144,7 @@ namespace Core.Users
                 }
 
                 int userID = GetUserIDByUserName(oBasicData.m_sUserName);
-                if (userID > 0)
+                if (userID > 0 &&  && userID != nUserID)
                 {
                     resp.Initialize(ResponseStatus.UserExists, u);
                     return resp;
