@@ -100,5 +100,95 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Update the subscriptionSet
+        /// </summary>
+        /// <param name="id">SubscriptionSet Identifier</param>
+        /// <param name="subscriptionSet">SubscriptionSet Object</param>
+        /// <returns></returns>
+        [Route("update"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet)]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [SchemeArgument("id", MinLong=1)]
+        public KalturaSubscriptionSet Update(long id, KalturaSubscriptionSet subscriptionSet)
+        {
+            KalturaSubscriptionSet response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                bool shouldUpdateSubscriptionIds = subscriptionSet.SubscriptionIds != null;
+                List<long> subscriptionIds = new List<long>();
+                if (shouldUpdateSubscriptionIds)
+                {
+                    subscriptionIds = subscriptionSet.SubscriptionIds.Select(x => x.value).Distinct().ToList();
+                }
+                
+                // call client
+                response = ClientsManager.PricingClient().UpdateSubscriptionSet(groupId, id, subscriptionSet.Name, subscriptionIds, shouldUpdateSubscriptionIds);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete a subscriptionSet
+        /// </summary>
+        /// <param name="id">SubscriptionSet Identifier</param>
+        /// <returns></returns>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public bool Delete(long id)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {                
+                // call client
+                result = ClientsManager.PricingClient().DeleteSubscriptionSet(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get the subscriptionSet according to the Identifier
+        /// </summary>
+        /// <param name="id">SubscriptionSet Identifier</param>
+        /// <returns></returns>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaSubscriptionSet Get(long id)
+        {
+            KalturaSubscriptionSet response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.PricingClient().GetSubscriptionSet(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
     }
 }

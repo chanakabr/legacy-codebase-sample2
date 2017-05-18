@@ -348,5 +348,115 @@ namespace WebAPI.Clients
 
             return subscriptionSet;
         }
+
+        internal KalturaSubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        {
+            KalturaSubscriptionSet subscriptionSet = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.UpdateSubscriptionSet(groupId, setId, name, subscriptionIds, shouldUpdateSubscriptionIds);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {
+                // convert response
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionSet>(response.SubscriptionSets.First());
+            }
+
+            return subscriptionSet;
+        }
+
+        internal bool DeleteSubscriptionSet(int groupId, long setId)
+        {            
+            Status response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    response = Core.Pricing.Module.DeleteSubscriptionSet(groupId, setId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return true;
+        }
+
+        internal KalturaSubscriptionSet GetSubscriptionSet(int groupId, long setId)
+        {
+            KalturaSubscriptionSet result = null;
+            SubscriptionSetsResponse response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, new List<long>() { setId });
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling pricing service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status.Code, response.Status.Message);
+            }
+
+            if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
+            {                
+                result = AutoMapper.Mapper.Map<KalturaSubscriptionSet>(response.SubscriptionSets[0]);
+            }
+
+            return result;
+        }
+
     }
 }

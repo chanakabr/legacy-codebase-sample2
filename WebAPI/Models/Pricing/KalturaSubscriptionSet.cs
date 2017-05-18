@@ -25,14 +25,14 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
         [SchemeProperty(ReadOnly = true)]
-        public string Id { get; set; }
+        public long Id { get; set; }
 
         /// <summary>
         /// SubscriptionSet name
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty(PropertyName = "name")]
-        [XmlElement(ElementName = "name")]
+        [XmlElement(ElementName = "name", IsNullable = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -42,6 +42,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("subscriptions")]
         [XmlArray(ElementName = "subscriptions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(DynamicMinInt = 1)]
         public List<KalturaLongValue> SubscriptionIds { get; set; }
 
     }
