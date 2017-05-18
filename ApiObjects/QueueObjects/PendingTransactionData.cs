@@ -50,7 +50,8 @@ namespace ApiObjects
                 paymentGatewayTransactionId,
                 siteGuid,
                 productId,
-                productType
+                productType,
+                base.RequestId
             };
         }
     }

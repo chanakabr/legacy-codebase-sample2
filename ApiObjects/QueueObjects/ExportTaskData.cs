@@ -31,6 +31,7 @@ namespace ApiObjects.QueueObjects
                 groupId,
                 taskId,
                 version,
+                base.RequestId
             };
         }
     }

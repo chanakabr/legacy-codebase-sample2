@@ -48,7 +48,8 @@ namespace ApiObjects
                 epgStartDate,
                 programId,
                 recordingId,
-                maxDomainSeriesId
+                maxDomainSeriesId,
+                base.RequestId
             };
         }
     }

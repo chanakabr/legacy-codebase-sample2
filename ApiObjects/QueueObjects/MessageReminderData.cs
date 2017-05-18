@@ -37,7 +37,8 @@ namespace ApiObjects.QueueObjects
             {
                 groupId,
                 startTime,
-                messageReminderId
+                messageReminderId,
+                base.RequestId
             };
         }
     }

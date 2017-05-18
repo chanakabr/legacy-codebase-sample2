@@ -43,7 +43,8 @@ namespace ApiObjects.QueueObjects
                 userAction,
                 userId,
                 udid,
-                pushToken
+                pushToken,
+                base.RequestId
             };
         }
     }

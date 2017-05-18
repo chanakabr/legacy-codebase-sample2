@@ -40,7 +40,8 @@ namespace ApiObjects
                 siteGuid,
                 purchaseId,
                 endDate,
-                type
+                type,
+                base.RequestId
             };
         }
     }

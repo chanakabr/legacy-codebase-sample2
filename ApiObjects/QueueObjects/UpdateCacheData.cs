@@ -36,7 +36,8 @@ namespace ApiObjects
             {
                 groupId,
                 bucket,
-                keys
+                keys,
+                base.RequestId
             };
         }
     }
