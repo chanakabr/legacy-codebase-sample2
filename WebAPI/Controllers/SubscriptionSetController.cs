@@ -163,32 +163,32 @@ namespace WebAPI.Controllers
             return result;
         }
 
-        ///// <summary>
-        ///// Get the subscriptionSet according to the Identifier
-        ///// </summary>
-        ///// <param name="id">SubscriptionSet Identifier</param>
-        ///// <returns></returns>
-        //[Route("get"), HttpPost]
-        //[ApiAuthorize]
-        //[Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
-        //[SchemeArgument("id", MinLong = 1)]
-        //public KalturaSubscriptionSet Get(long id)
-        //{
-        //    KalturaSubscriptionSet response = null;
-        //    int groupId = KS.GetFromRequest().GroupId;
+        /// <summary>
+        /// Get the subscriptionSet according to the Identifier
+        /// </summary>
+        /// <param name="id">SubscriptionSet Identifier</param>
+        /// <returns></returns>
+        [Route("get"), HttpPost]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        public KalturaSubscriptionSet Get(long id)
+        {
+            KalturaSubscriptionSet response = null;
+            int groupId = KS.GetFromRequest().GroupId;
 
-        //    try
-        //    {
-        //        // call client
-        //        response = ClientsManager.PricingClient().GetSubscriptionSet(groupId, id);
-        //    }
-        //    catch (ClientException ex)
-        //    {
-        //        ErrorUtils.HandleClientException(ex);
-        //    }
+            try
+            {
+                // call client
+                response = ClientsManager.PricingClient().GetSubscriptionSet(groupId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
-        //    return response;
-        //}
+            return response;
+        }
 
     }
 }
