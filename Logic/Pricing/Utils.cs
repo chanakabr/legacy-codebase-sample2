@@ -776,5 +776,37 @@ namespace Core.Pricing
 
             return subscriptionSet;
         }
+
+        internal static SubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds)
+        {
+            SubscriptionSet subscriptionSet = null;
+            try
+            {
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = null;
+                if (subscriptionIds != null && subscriptionIds.Count > 0)
+                {
+                    int priority = 1;
+                    foreach (long subscriptionId in subscriptionIds)
+                    {
+                        subscriptionIdsToPriority.Add(new KeyValuePair<long, int>(subscriptionId, priority));
+                        priority++;
+                    }
+                }
+
+                DataSet ds = PricingDAL.UpdateSubscriptionSet(groupId, setId, name, subscriptionIdsToPriority);
+                List<SubscriptionSet> updateResult = CreateSubscriptionSetsFromDataSet(ds);
+                if (updateResult != null && updateResult.Count == 1 && updateResult[0].Id > 0)
+                {
+                    subscriptionSet = updateResult[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed UpdateSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return subscriptionSet;
+        }
+
     }
 }

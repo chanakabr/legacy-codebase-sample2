@@ -1156,5 +1156,89 @@ namespace Core.Pricing
             return response;
         }
 
+        public static SubscriptionSetsResponse UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response = GetSubscriptionSets(groupId, new List<long>() { setId });
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+                else if (response.SubscriptionSets.Count != 1)
+                {
+                    response.Status = new Status((int)eResponseStatus.SubscriptionSetDoesNotExist, eResponseStatus.SubscriptionSetDoesNotExist.ToString());
+                    return response;
+                }
+
+                SubscriptionSet subscriptionSet = response.SubscriptionSets[0];
+                subscriptionSet.Name = !string.IsNullOrEmpty(name) ? name : subscriptionSet.Name;
+                if (shouldUpdateSubscriptionIds)
+                {
+                    Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = Utils.GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
+                    if (subscriptionIdToSetIdsMap != null && subscriptionIdToSetIdsMap.Count > 0)
+                    {
+                        List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Where(x => x != setId).Distinct().ToList();
+                        if (setIds != null && setIds.Count >= 0)
+                        {
+                            response.Status = new Status((int)eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString());
+                            return response;
+                        }
+                    }
+
+                    subscriptionSet.SubscriptionIds = new List<long>(subscriptionIds);
+                }
+
+                SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, subscriptionSet.SubscriptionIds);
+                if (subscriptionSet != null && subscriptionSet.Id > 0)
+                {
+                    response.SubscriptionSets.Add(subscriptionSet);
+                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed UpdateSubscriptionSet, groupId: {0}, name: {1}, setId: {2} subscriptionIds: {3}",
+                                        groupId, name, setId, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);
+            }
+
+            return response;
+        }
+
+        public static Status DeleteSubscriptionSet(int groupId, long setId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                SubscriptionSetsResponse subscriptionSetsResponse = new SubscriptionSetsResponse();
+                subscriptionSetsResponse = GetSubscriptionSets(groupId, new List<long>() { setId });
+                if (subscriptionSetsResponse.Status.Code != (int)eResponseStatus.OK)
+                {
+                    response.Code = subscriptionSetsResponse.Status.Code;
+                    response.Message = subscriptionSetsResponse.Status.Message;
+                    return response;
+                }
+                else if (subscriptionSetsResponse.SubscriptionSets.Count != 1)
+                {
+                    response= new Status((int)eResponseStatus.SubscriptionSetDoesNotExist, eResponseStatus.SubscriptionSetDoesNotExist.ToString());
+                    return response;
+                }
+
+                if (DAL.PricingDAL.DeleteSubscriptionSet(groupId, setId))
+                {
+                    response = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed DeleteSubscriptionSet, groupId: {0}, setId: {1}", groupId, setId), ex);
+            }
+
+            return response;
+        }
+
     }
 }
