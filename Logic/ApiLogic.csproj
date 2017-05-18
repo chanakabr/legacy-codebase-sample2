@@ -73,10 +73,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Couchbase.NetClient.dll</HintPath>
     </Reference>
-    <Reference Include="CouchbaseManager, Version=3.4.118.16077, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\TVinciCommon\External\4.5\CouchbaseManager.dll</HintPath>
-    </Reference>
     <Reference Include="Enyim.Caching">
       <HintPath>..\..\tvincicommon\External\Couchbase-Net-Client-2.2.6\Enyim.Caching.dll</HintPath>
     </Reference>
@@ -715,6 +711,10 @@
     <ProjectReference Include="..\..\tvmcore\CachingProvider\CachingProvider.csproj">
       <Project>{4191d9e7-8502-4b00-a488-771240e2cf40}</Project>
       <Name>CachingProvider</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\CouchbaseManager\CouchbaseManager.csproj">
+      <Project>{b44dc37d-5658-4b85-8cc4-0ec72838cafc}</Project>
+      <Name>CouchbaseManager</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\tvmcore\DalCB\DalCB.csproj">
       <Project>{cc97d8e8-cfcb-4a33-a8ae-34ebdb0812c3}</Project>
