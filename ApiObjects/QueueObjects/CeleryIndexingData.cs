@@ -51,6 +51,7 @@ namespace ApiObjects
             this.assetType = assetType;
             this.action = action;
             this.date = date;
+            this.args.Add(base.RequestId);
         }
     }
 }
