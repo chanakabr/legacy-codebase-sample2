@@ -1425,26 +1425,48 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetSubscriptionSetsByIds(int groupdId, List<long> ids)
+        public static DataSet GetSubscriptionSetsByIds(int groupId, List<long> ids)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionSetsByIds");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@GroupId", groupdId);
+            sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter("@Ids", ids, "id");
             sp.AddParameter("@IdsExist", ids != null && ids.Count > 0);
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertSubscriptionSet(int groupdId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority)
+        public static DataSet InsertSubscriptionSet(int groupId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionSet");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@GroupId", groupdId);
+            sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@Name", name);
             sp.AddKeyValueListParameter<long, int>("@SubscriptionsIdsToPriority", subscriptionIdsToPriority, "key", "value");
-            sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);   
+            sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);
             return sp.ExecuteDataSet();
         }
 
+
+        public static DataSet UpdateSubscriptionSet(int groupId, long setId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionSet");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SetId", setId);
+            sp.AddParameter("@Name", string.IsNullOrEmpty(name) ? null : name);
+            sp.AddKeyValueListParameter<long, int>("@SubscriptionsIdsToPriority", subscriptionIdsToPriority, "key", "value");
+            sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);
+            return sp.ExecuteDataSet();
+        }
+
+        public static bool DeleteSubscriptionSet(int groupId, long setId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteSubscriptionSet");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@SetId", setId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }
