@@ -8027,7 +8027,7 @@ namespace Core.Catalog
             }
         }
 
-        internal static Dictionary<string, List<string>> GetUserPreferences()
+        internal static Dictionary<string, List<string>> GetUserPreferences(string siteGuid, int groupId)
         {
             throw new NotImplementedException();
         }

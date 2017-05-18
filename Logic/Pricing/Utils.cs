@@ -571,26 +571,44 @@ namespace Core.Pricing
             return pcList;
         }
 
-        internal static List<long> GetSetsContainingSubscription(int groupId, long subscriptionId)
+        internal static Dictionary<long, HashSet<long>> GetSubscriptionIdToSetIdsMap(int groupId, List<long> subscriptionIds)
         {
-            List<long> subscriptionSetIds = new List<long>();            
-            DataTable dt = PricingDAL.GetSetsContainingSubscriptionIds(groupId, new List<long>() { subscriptionId });
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = new Dictionary<long, HashSet<long>>();
+            if (subscriptionIds == null || subscriptionIds.Count == 0)
             {
-                HashSet<long> ids = new HashSet<long>();
-                foreach (DataRow dr in dt.Rows)
-                {                    
-                    long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
-                    if (setId > 0 && !ids.Contains(setId))
-                    {
-                        ids.Add(setId);
-                    }
-                }
-
-                subscriptionSetIds = ids.ToList();
+                return subscriptionIdToSetIdsMap;
             }
 
-            return subscriptionSetIds;
+            try
+            {
+                DataTable dt = PricingDAL.GetSetsContainingSubscriptionIds(groupId, subscriptionIds);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID", 0);
+                        long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
+                        if (subscriptionId > 0 && setId > 0)
+                        {
+                            if (!subscriptionIdToSetIdsMap.ContainsKey(subscriptionId))
+                            {
+                                subscriptionIdToSetIdsMap.Add(subscriptionId, new HashSet<long>() { setId });
+                            }
+                            else if (!subscriptionIdToSetIdsMap[subscriptionId].Contains(setId))
+                            {
+                                subscriptionIdToSetIdsMap[subscriptionId].Add(setId);
+                            }
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSubscriptionIdToSetIdsMap, groupId: {0}, subscriptionIds: {1}", groupId, string.Join(",", subscriptionIds)), ex);
+            }
+
+            return subscriptionIdToSetIdsMap;
         }
 
         internal static ApiObjects.Response.Status ValidateCouponForSubscription(long productId, int groupId, string couponCode)
@@ -624,16 +642,32 @@ namespace Core.Pricing
             return status;
         }
 
-        internal static List<SubscriptionSet> GetSubscriptionSets(int groupdId, List<long> ids)
+        internal static List<SubscriptionSet> GetSubscriptionSets(int groupId, List<long> ids)
         {
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
-            DataSet ds = PricingDAL.GetSubscriptionSetsByIds(groupdId, ids);
+            try
+            {
+                DataSet ds = PricingDAL.GetSubscriptionSetsByIds(groupId, ids);
+                subscriptionSets = CreateSubscriptionSetsFromDataSet(ds);
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSubscriptionSets, groupId: {0}, subscriptionIds: {1}", groupId, ids != null ? string.Join(",", ids) : ""), ex);
+            }
+
+            return subscriptionSets;
+        }
+
+        private static List<SubscriptionSet> CreateSubscriptionSetsFromDataSet(DataSet ds)
+        {
+            List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    Dictionary<long, SubscriptionSet> subscriptionSetsMap = new Dictionary<long, SubscriptionSet>();                    
+                    Dictionary<long, SubscriptionSet> subscriptionSetsMap = new Dictionary<long, SubscriptionSet>();
                     foreach (DataRow dr in dt.Rows)
                     {
                         long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
@@ -657,8 +691,15 @@ namespace Core.Pricing
                                 int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
                                 if (setId > 0 && subscriptionSetsMap.ContainsKey(setId) && subscriptionId > 0 && priority > 0)
                                 {
-                                    SubscriptionSetToSubscriptionsMap[setId][subscriptionId] = priority;
-                                }                                
+                                    if (!SubscriptionSetToSubscriptionsMap.ContainsKey(setId))
+                                    {
+                                        SubscriptionSetToSubscriptionsMap.Add(setId, new Dictionary<long, int>() { { subscriptionId, priority } });
+                                    }
+                                    else
+                                    {
+                                        SubscriptionSetToSubscriptionsMap[setId][subscriptionId] = priority;
+                                    }
+                                }
                             }
 
                             foreach (KeyValuePair<long, Dictionary<long, int>> pair in SubscriptionSetToSubscriptionsMap)
@@ -675,8 +716,65 @@ namespace Core.Pricing
                 }
             }
 
-            return subscriptionSets;            
+            return subscriptionSets;
         }
 
+        internal static List<SubscriptionSet> GetSubscriptionSetsBySubscriptionIds(int groupId, List<long> subscriptionIds)
+        {
+            List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
+            try
+            {
+                Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
+                if (subscriptionIdToSetIdsMap == null || subscriptionIdToSetIdsMap.Count == 0)
+                {
+                    return subscriptionSets;
+                }
+
+                List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Distinct().ToList();
+                if (setIds == null && setIds.Count == 0)
+                {
+                    return subscriptionSets;
+                }
+
+                subscriptionSets = GetSubscriptionSets(groupId, setIds);                
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSubscriptionSetsBySubscriptionIds, groupId: {0}, subscriptionIds: {1}", groupId, string.Join(",", subscriptionIds)), ex);
+            }
+
+            return subscriptionSets;
+        }
+
+        internal static SubscriptionSet InsertSubscriptionSet(int groupId, string name, List<long> subscriptionIds)
+        {
+            SubscriptionSet subscriptionSet = null;
+            try
+            {
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = null;
+                if (subscriptionIds != null && subscriptionIds.Count > 0)
+                {
+                    int priority = 1;
+                    foreach (long subscriptionId in subscriptionIds)
+                    {
+                        subscriptionIdsToPriority.Add(new KeyValuePair<long, int>(subscriptionId, priority));
+                        priority++;
+                    }
+                }
+                DataSet ds = PricingDAL.InsertSubscriptionSet(groupId, name, subscriptionIdsToPriority);
+                List<SubscriptionSet> insertResult = CreateSubscriptionSetsFromDataSet(ds);
+                if (insertResult != null && insertResult.Count == 1 && insertResult[0].Id > 0)
+                {
+                    subscriptionSet = insertResult[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed InsertSubscriptionSet, groupId: {0}, name: {1}, subscriptionIds: {2}", groupId, name, subscriptionIds != null ? string.Join(",", subscriptionIds) : ""), ex);                
+            }
+
+            return subscriptionSet;
+        }
     }
 }
