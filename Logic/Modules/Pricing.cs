@@ -1085,7 +1085,7 @@ namespace Core.Pricing
             {
                 return null;
             }
-        }
+        }        
 
         public static SubscriptionSetsResponse GetSubscriptionSets(int groupId, List<long> ids)
         {
@@ -1235,6 +1235,31 @@ namespace Core.Pricing
             {
                 response = new Status((int)eResponseStatus.Error, "Error");
                 log.Error(string.Format("Failed DeleteSubscriptionSet, groupId: {0}, setId: {1}", groupId, setId), ex);
+            }
+
+            return response;
+        }
+
+        public static SubscriptionSetsResponse GetSubscriptionSet(int groupId, long setId)
+        {
+            SubscriptionSetsResponse response = new SubscriptionSetsResponse();
+            try
+            {
+                response = GetSubscriptionSets(groupId, new List<long>() { setId });
+                if (response.Status.Code != (int)eResponseStatus.OK)
+                {
+                    return response;
+                }
+                else if (response.SubscriptionSets == null || response.SubscriptionSets.Count == 0 || response.SubscriptionSets[0].Id != setId)                
+                {
+                    response.Status = new Status((int)eResponseStatus.SubscriptionSetDoesNotExist, eResponseStatus.SubscriptionSetDoesNotExist.ToString());
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed GetSubscriptionSet, groupId: {0}, setId: {1}", groupId, setId), ex);
             }
 
             return response;
