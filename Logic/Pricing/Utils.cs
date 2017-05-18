@@ -808,5 +808,29 @@ namespace Core.Pricing
             return subscriptionSet;
         }
 
+        internal static void BuildProductCodesXML(XmlNode rootNode, XmlDocument xmlDoc, Dictionary<long, string> productCodeVerificationPGW, KeyValuePair<string, string> pc)
+        {
+            XmlNode rowNode;
+            XmlNode productCodeIddNode;
+            XmlNode verificationPGWId;
+
+            long id = productCodeVerificationPGW.ContainsValue(pc.Key) ? productCodeVerificationPGW.Where(x => x.Value == pc.Key).Select(x => x.Key).FirstOrDefault() : 0;
+
+            if (id > 0)
+            {
+                rowNode = xmlDoc.CreateElement("row");
+
+                verificationPGWId = xmlDoc.CreateElement("verification_payment_gateway_id");
+                verificationPGWId.InnerText = id.ToString();
+                rowNode.AppendChild(verificationPGWId);
+
+                productCodeIddNode = xmlDoc.CreateElement("product_code");
+                productCodeIddNode.InnerText = pc.Value;
+                rowNode.AppendChild(productCodeIddNode);
+
+               rootNode.AppendChild(rowNode);
+            }
+        }
+
     }
 }

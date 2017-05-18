@@ -42,5 +42,7 @@ namespace ApiObjects
         public int? OrderNumber { get; set; }
 
         public List<CouponsGroups> couponGroups { get; set; }
+
+        public List<KeyValuePair<string, string>> productCodes {get;set;}
     }
 }
