@@ -265,5 +265,65 @@ namespace KlogMonitorHelper
                 OperationContext.Current.IncomingMessageProperties[key] = value;
             }
         }
+
+        public static string GetHeaderData(string key)
+        {
+            try
+            {
+                switch (KMonitor.AppType)
+                {
+                    case KLogEnums.AppType.WCF:
+
+                        if (OperationContext.Current != null)
+                            return OperationContext.Current.IncomingMessageProperties[key].ToString();
+                        break;
+
+                    case KLogEnums.AppType.WS:
+                    default:
+
+                        if (HttpContext.Current != null)
+                            return HttpContext.Current.Items[key].ToString();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get header key. app type: {0}, key: {1}, ex: {2}", KMonitor.AppType.ToString(), key, ex);
+            }
+            return null;
+        }
+
+        public static bool UpdateHeaderData(string key, string value)
+        {
+            try
+            {
+                switch (KMonitor.AppType)
+                {
+                    case KLogEnums.AppType.WCF:
+
+                        if (OperationContext.Current != null)
+                        {
+                            OperationContext.Current.IncomingMessageProperties[key] = value;
+                            return true;
+                        }
+                        break;
+
+                    case KLogEnums.AppType.WS:
+                    default:
+
+                        if (HttpContext.Current != null)
+                        {
+                            HttpContext.Current.Items[key] = value;
+                            return true;
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to update header key. app type: {0}, key: {1}, value: {2}, ex: {3}", KMonitor.AppType.ToString(), key, value, ex);
+            }
+            return false;
+        }
     }
 }
