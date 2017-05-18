@@ -8730,7 +8730,7 @@ namespace Core.Api
         public static CDNPartnerSettingsResponse UpdateCDNPartnerSettings(int groupId, CDNPartnerSettings settings)
         {
             CDNPartnerSettingsResponse response = new CDNPartnerSettingsResponse();
-
+            
             try
             {
                 List<int> adaptersIds = new List<int>();
