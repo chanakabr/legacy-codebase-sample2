@@ -964,7 +964,7 @@ namespace DAL
         }
 
         public static DataTable ValidateMPP(int groupID, string code, string internalDiscount, List<string> pricePlansCodes, List<string> channels, List<string> fileTypes,
-            string previewModule, List<string> couponGroups)
+            string previewModule, List<string> couponGroups, List<string> verificationPGW)
         {
             StoredProcedure sp = new StoredProcedure("ValidateMPP");
             sp.SetConnectionKey("pricing_connection");
@@ -976,12 +976,13 @@ namespace DAL
             sp.AddIDListParameter<string>("@Channels", channels, "STR");
             sp.AddIDListParameter<string>("@FileTypes", fileTypes, "STR");
             sp.AddIDListParameter<string>("@CouponGroups", couponGroups, "STR");
+             sp.AddIDListParameter<string>("@VerificationPGW", verificationPGW, "STR");
 
             return sp.Execute();
         }
 
         public static int InsertMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
-            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups)
+            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups, XmlDocument productCodes)
         {
             try
             {
@@ -1011,7 +1012,8 @@ namespace DAL
                 sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
                 sp.AddParameter("@Date", DateTime.UtcNow);
                 sp.AddParameter("@OrderNum", mpp.OrderNumber);
-                sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);               
+                sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);
+                sp.AddParameter("@productCodes", productCodes.InnerXml);
                 
                 return sp.ExecuteReturnValue<int>();
             }
@@ -1040,7 +1042,7 @@ namespace DAL
         }
 
         public static int UpdateMPP(int groupID, ApiObjects.IngestMultiPricePlan mpp, List<KeyValuePair<long, int>> pricePlansCodes, List<long> channels, List<long> fileTypes,
-            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups)
+            int previewModuleID, int internalDiscountID, XmlDocument couponsGroups, XmlDocument productCodes)
         {
             StoredProcedure sp = new StoredProcedure("Update_MPP");
             sp.SetConnectionKey("pricing_connection");
@@ -1073,6 +1075,9 @@ namespace DAL
 
             sp.AddParameter("@couponsGroups", couponsGroups.InnerXml);
             sp.AddParameter("@xmlDocRowCount", (couponsGroups.ChildNodes != null && couponsGroups.FirstChild != null && couponsGroups.FirstChild.ChildNodes != null && couponsGroups.FirstChild.ChildNodes.Count > 0) ? 1 : 0);
+
+            sp.AddParameter("@productCodes", productCodes.InnerXml);
+            sp.AddParameter("@xmlDocRowCountProductCodes", (productCodes.ChildNodes != null && productCodes.FirstChild != null && productCodes.FirstChild.ChildNodes != null && productCodes.FirstChild.ChildNodes.Count > 0) ? 1 : 0);
 
             return sp.ExecuteReturnValue<int>(); ;
         }
