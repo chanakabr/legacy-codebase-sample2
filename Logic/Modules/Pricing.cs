@@ -1134,7 +1134,8 @@ namespace Core.Pricing
                         List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Distinct().ToList();
                         if (setIds != null && setIds.Count >= 0)
                         {
-                            response.Status = new Status((int)eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString());
+                            string msg = string.Format("{0} for the following subbscriptionIds: {1}", eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), string.Join(",", setIds));
+                            response.Status = new Status((int)eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
                             return response;
                         }
                     }
@@ -1182,7 +1183,8 @@ namespace Core.Pricing
                         List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Where(x => x != setId).Distinct().ToList();
                         if (setIds != null && setIds.Count >= 0)
                         {
-                            response.Status = new Status((int)eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString());
+                            string msg = string.Format("{0} for the following subbscriptionIds: {1}", eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet.ToString(), string.Join(",", setIds));
+                            response.Status = new Status((int)eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, msg);
                             return response;
                         }
                     }
