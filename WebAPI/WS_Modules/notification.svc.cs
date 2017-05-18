@@ -1191,7 +1191,7 @@ namespace WS_Notification
             try
             {
                 if (groupID != 0)
-                    return Core.Notification.Module.GetUserSeriesReminders(groupID, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+                    return Core.Notification.Module.GetUserSeriesReminders(groupID, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex);
             }
             catch (Exception ex)
             {

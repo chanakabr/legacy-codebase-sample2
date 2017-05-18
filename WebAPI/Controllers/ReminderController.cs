@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using KLogMonitor;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Web.Http;
@@ -113,7 +114,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.FeatureDisabled)]
-        public KalturaReminderListResponse List(KalturaReminderFilter filter, KalturaFilterPager pager = null)
+        public KalturaReminderListResponse List<T>(KalturaReminderFilter<T> filter, KalturaFilterPager pager = null) where T : struct, IComparable, IFormattable, IConvertible
         {
             KalturaReminderListResponse response = null;
 
@@ -128,17 +129,18 @@ namespace WebAPI.Controllers
                 {
                     KalturaSeasonsReminderFilter seasonsReminderFilter = filter as KalturaSeasonsReminderFilter;
                     response = ClientsManager.NotificationClient().GetSeriesReminders(groupId, userId, new List<string>() { seasonsReminderFilter.SeriesIdEqual },
-                        seasonsReminderFilter.GetSeasonNumberIn(), seasonsReminderFilter.EpgChannelIdEqual, pager.getPageSize(), pager.getPageIndex(), KalturaReminderOrderBy.NONE);
+                        seasonsReminderFilter.GetSeasonNumberIn(), seasonsReminderFilter.EpgChannelIdEqual, pager.getPageSize(), pager.getPageIndex());
                 }
                 else if (filter is KalturaSeriesReminderFilter)
                 {
                     KalturaSeriesReminderFilter seriesReminderFilter = filter as KalturaSeriesReminderFilter;
                     response = ClientsManager.NotificationClient().GetSeriesReminders(groupId, userId, seriesReminderFilter.GetSeriesIdIn(), null, seriesReminderFilter.EpgChannelIdEqual,
-                        pager.getPageSize(), pager.getPageIndex(), KalturaReminderOrderBy.NONE);
+                        pager.getPageSize(), pager.getPageIndex());
                 }
-                else if (filter is KalturaSeriesReminderFilter || filter is KalturaReminderFilter)
+                else if (filter is KalturaAssetReminderFilter || filter is KalturaReminderFilter<KalturaAssetReminderOrderBy>)
                 {
-                    response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), filter.OrderBy);
+                    KalturaAssetReminderFilter assetReminderFilter = filter as KalturaAssetReminderFilter;
+                    response = ClientsManager.NotificationClient().GetReminders(groupId, userId, filter.KSql, pager.getPageSize(), pager.getPageIndex(), assetReminderFilter.OrderBy);
                 }
             }
 

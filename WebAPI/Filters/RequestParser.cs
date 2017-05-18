@@ -958,7 +958,7 @@ namespace WebAPI.Filters
                 }
                 if (possibleType.Name.ToLower() != type.Name.ToLower()) // reflect only if type is different
                 {
-                    if (possibleType.IsSubclassOf(type)) // we know that the objectType that came from the user is right, and we can use it to initiate the object\
+                    if (IsSubclassOfRawGeneric(type, possibleType)) // we know that the objectType that came from the user is right, and we can use it to initiate the object\
                     {
                         type = possibleType;
                     }
@@ -1209,6 +1209,20 @@ namespace WebAPI.Filters
         private static bool IsKsFormat(string ksVal)
         {
             return ksVal.Length > accessTokenLength;
+        }
+
+        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+        {
+            while (toCheck != null && toCheck != typeof(object))
+            {
+                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                if (generic.Name.Equals(cur.Name))
+                {
+                    return true;
+                }
+                toCheck = toCheck.BaseType;
+            }
+            return false;
         }
     }
 }

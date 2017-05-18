@@ -287,7 +287,7 @@ namespace WebAPI.Reflection
                     };
                     break;
                     
-                case "KalturaReminderFilter":
+                case "KalturaReminderFilter`1":
                     switch (propertyName)
                     {
                         case "KSql":
@@ -2303,6 +2303,14 @@ namespace WebAPI.Reflection
                     {
                         case "AssetId":
                             return "assetId";
+                    }
+                    break;
+                    
+                case "KalturaAssetReminderFilter":
+                    switch(property.Name)
+                    {
+                        case "KSql":
+                            return "kSql";
                     }
                     break;
                     
@@ -5208,7 +5216,7 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaReminderFilter":
+                case "KalturaReminderFilter`1":
                     switch(property.Name)
                     {
                         case "KSql":
@@ -5393,14 +5401,6 @@ namespace WebAPI.Reflection
                             return "epgChannelIdEqual";
                         case "SeriesIdIn":
                             return "seriesIdIn";
-                    }
-                    break;
-                    
-                case "KalturaSingleReminderFilter":
-                    switch(property.Name)
-                    {
-                        case "KSql":
-                            return "kSql";
                     }
                     break;
                     

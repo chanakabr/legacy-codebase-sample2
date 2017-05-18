@@ -102,6 +102,18 @@ namespace WebAPI.Controllers
             try
             {                
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestParser.REQUEST_METHOD_PARAMETERS];
+                
+                // generic methods handling
+                if (methodInfo.IsGenericMethod)
+                {
+                    List<object> genericParams = new List<object>();
+                    Type genericType = GetGenericParam(methodParams);
+                    if (genericType != null)
+                    {
+                        methodInfo = methodInfo.MakeGenericMethod(genericType.GetGenericArguments());
+                    }
+                }
+
                 response = methodInfo.Invoke(classInstance, methodParams.ToArray());
             }
             catch (ApiException ex)
@@ -125,6 +137,23 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        private Type GetGenericParam(List<object> methodParams)
+        {
+            foreach (var param in methodParams)
+            {
+                var type = param.GetType();
+                while (type != typeof(object))
+                {
+                    if (type.IsGenericType)
+                        return type;
+
+                    type = type.BaseType;
+                }
+            }
+
+            return null;
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]

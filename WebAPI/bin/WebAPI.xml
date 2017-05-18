@@ -809,7 +809,7 @@
             <returns></returns>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.ReminderController.List(WebAPI.Models.Notification.KalturaReminderFilter,WebAPI.Models.General.KalturaFilterPager)">
+        <member name="M:WebAPI.Controllers.ReminderController.List``1(WebAPI.Models.Notification.KalturaReminderFilter{``0},WebAPI.Models.General.KalturaFilterPager)">
             <summary>        
             Return a list of reminders with optional filter by KSQL.
             </summary>
@@ -7659,7 +7659,7 @@
             Push URL 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaReminderFilter.KSql">
+        <member name="P:WebAPI.Models.Notification.KalturaReminderFilter`1.KSql">
             <summary>
             <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.
@@ -7674,7 +7674,7 @@
             (maximum length of entire filter is 2048 characters)]]>
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Notification.KalturaSingleReminderFilter.KSql">
+        <member name="P:WebAPI.Models.Notification.KalturaAssetReminderFilter.KSql">
             <summary>
             <![CDATA[
             Search assets using dynamic criteria. Provided collection of nested expressions with key, comparison operators, value, and logical conjunction.

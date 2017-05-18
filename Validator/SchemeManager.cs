@@ -436,11 +436,11 @@ namespace Validator.Managers.Scheme
                     valid = false;
                 }
             }
-            else if (attribute.IsGenericType && attribute.GetGenericTypeDefinition() != typeof(Nullable<>))
-            {
-                logError("Error", declaringClass, string.Format("{0} unexpected type", description));
-                valid = false;
-            }
+            //else if (attribute.IsGenericType && attribute.GetGenericTypeDefinition() != typeof(Nullable<>))
+            //{
+            //    logError("Error", declaringClass, string.Format("{0} unexpected type", description));
+            //    valid = false;
+            //}
             else if (attribute.IsClass && attribute != typeof(string) && !attribute.IsSubclassOf(typeof(KalturaOTTObject)))
             {
                 logError("Error", declaringClass, string.Format("{0} object must inherit from KalturaOTTObject (or something that extends it)", description));
@@ -611,7 +611,8 @@ namespace Validator.Managers.Scheme
                         string expectedFilterType = string.Format("Kaltura{0}Filter", FirstCharacterToUpper(serviceId));
 
                         var filterParam = parameters[0];
-                        if (filterParam.ParameterType.Name.ToLower() != expectedFilterType.ToLower())
+                        string filterName = filterParam.ParameterType.Name.ToLower();
+                        if (filterName != expectedFilterType.ToLower() && (!filterName.StartsWith(expectedFilterType.ToLower()) || !filterName.EndsWith("`1")))
                         {
                             logError("Error", controller, string.Format("Action {0}.{1} ({2}) first argument type is {3}, expected {4}", serviceId, actionId, controller.Name, filterParam.ParameterType.Name, expectedFilterType));
                             valid = false;

@@ -233,7 +233,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<DbReminder, KalturaReminder>()
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ID))
                  .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src is KalturaSeriesReminder ? KalturaReminderType.SERIES : KalturaReminderType.SINGLE));
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src is KalturaSeriesReminder ? KalturaReminderType.ASSET : KalturaReminderType.SINGLE));
 
             // KalturaReminder to DbReminder
             Mapper.CreateMap<KalturaReminder, DbReminder>()
@@ -255,7 +255,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                  .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                  .ForMember(dest => dest.EpgChannelId, opt => opt.MapFrom(src => src.EpgChannelId))
-                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.SERIES))
+                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaReminderType.ASSET))
                  ;
 
             Mapper.CreateMap<DbReminder, KalturaReminder>()
@@ -751,7 +751,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         internal static OrderObj ConvertOrderToOrderObj(KalturaAssetOrderBy orderBy)
         {
-
             OrderObj result = new OrderObj();
 
             switch (orderBy)
@@ -796,6 +795,52 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
+        internal static OrderObj ConvertOrderToOrderObj(KalturaAssetReminderOrderBy orderBy)
+        {
+            OrderObj result = new OrderObj();
+
+            switch (orderBy)
+            {
+                case KalturaAssetReminderOrderBy.NAME_ASC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetReminderOrderBy.NAME_DESC:
+                    result.m_eOrderBy = OrderBy.NAME;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetReminderOrderBy.VIEWS_DESC:
+                    result.m_eOrderBy = OrderBy.VIEWS;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetReminderOrderBy.RATINGS_DESC:
+                    result.m_eOrderBy = OrderBy.RATING;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetReminderOrderBy.VOTES_DESC:
+                    result.m_eOrderBy = OrderBy.VOTES_COUNT;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetReminderOrderBy.START_DATE_DESC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetReminderOrderBy.RELEVANCY_DESC:
+                    result.m_eOrderBy = OrderBy.RELATED;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+                case KalturaAssetReminderOrderBy.START_DATE_ASC:
+                    result.m_eOrderBy = OrderBy.START_DATE;
+                    result.m_eOrderDir = OrderDir.ASC;
+                    break;
+                case KalturaAssetReminderOrderBy.LIKES_DESC:
+                    result.m_eOrderBy = OrderBy.LIKE_COUNTER;
+                    result.m_eOrderDir = OrderDir.DESC;
+                    break;
+            }
+            return result;
+        }
+
         internal static ReminderType ConvertReminderType(KalturaReminderType reminderType)
         {
             ReminderType result = ReminderType.Single;
@@ -805,7 +850,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaReminderType.SINGLE:
                     result = ReminderType.Single;
                     break;
-                case KalturaReminderType.SERIES:
+                case KalturaReminderType.ASSET:
                     result = ReminderType.Series;
                     break;
                 default:

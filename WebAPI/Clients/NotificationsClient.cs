@@ -1469,7 +1469,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaReminderListResponse GetReminders(int groupId, string userID, string filter, int pageSize, int pageIndex, KalturaAssetOrderBy orderBy)
+        internal KalturaReminderListResponse GetReminders(int groupId, string userID, string filter, int pageSize, int pageIndex, KalturaAssetReminderOrderBy orderBy)
         {
             RemindersResponse response = null;
             List<KalturaReminder> result = null;
@@ -1848,7 +1848,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaReminderListResponse GetSeriesReminders(int groupId, string userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
-            int pageSize, int pageIndex, KalturaReminderOrderBy orderBy)
+            int pageSize, int pageIndex)
         {
             SeriesRemindersResponse response = null;
             List<KalturaReminder> result = null;
@@ -1864,7 +1864,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.GetUserSeriesReminders(groupId, userIdInt, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, null);
+                    response = Core.Notification.Module.GetUserSeriesReminders(groupId, userIdInt, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex);
                 }
             }
             catch (Exception ex)

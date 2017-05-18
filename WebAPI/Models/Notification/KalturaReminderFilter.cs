@@ -6,16 +6,38 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
 
 
 namespace WebAPI.Models.Notification
 {
-    public enum KalturaReminderOrderBy
+    public enum KalturaSeriesReminderOrderBy
     {
         NONE
     }
 
-    public class KalturaReminderFilter : KalturaAssetFilter
+    public enum KalturaAssetReminderOrderBy
+    {
+        RELEVANCY_DESC,
+
+        NAME_ASC,
+
+        NAME_DESC,
+
+        VIEWS_DESC,
+
+        RATINGS_DESC,
+
+        VOTES_DESC,
+
+        START_DATE_DESC,
+
+        START_DATE_ASC,
+
+        LIKES_DESC
+    }
+
+    public abstract class KalturaReminderFilter<T> : KalturaFilter<T> where T : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>
         /// <![CDATA[
@@ -38,7 +60,7 @@ namespace WebAPI.Models.Notification
         public string KSql { get; set; }       
     }
 
-    public class KalturaSingleReminderFilter : KalturaReminderFilter
+    public class KalturaAssetReminderFilter : KalturaReminderFilter<KalturaAssetReminderOrderBy>
     {
         /// <summary>
         /// <![CDATA[
@@ -58,9 +80,14 @@ namespace WebAPI.Models.Notification
         [XmlElement(ElementName = "kSql", IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string KSql { get; set; }
+
+        public override KalturaAssetReminderOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaAssetReminderOrderBy.RELEVANCY_DESC;
+        }
     }
 
-    public class KalturaSeriesReminderFilter : KalturaReminderFilter
+    public class KalturaSeriesReminderFilter : KalturaReminderFilter<KalturaSeriesReminderOrderBy>
     {
         /// <summary>
         /// Comma separated series IDs
@@ -92,9 +119,14 @@ namespace WebAPI.Models.Notification
 
             return list;
         }
+
+        public override KalturaSeriesReminderOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaSeriesReminderOrderBy.NONE;
+        }
     }
 
-    public class KalturaSeasonsReminderFilter : KalturaReminderFilter
+    public class KalturaSeasonsReminderFilter : KalturaReminderFilter<KalturaSeriesReminderOrderBy>
     {
         /// <summary>
         /// Series ID
@@ -141,6 +173,11 @@ namespace WebAPI.Models.Notification
             }
 
             return list;
+        }
+
+        public override KalturaSeriesReminderOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaSeriesReminderOrderBy.NONE;
         }
     }
 }

@@ -693,14 +693,20 @@ namespace Validator.Managers.Scheme
 
         internal string getDescription(MethodInfo method)
         {
+            string description = string.Empty;
             if (method.GetParameters().Length > 0)
             {
-                return getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}(')]", method.ReflectedType.FullName, method.Name));
+                description = getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}(')]", method.ReflectedType.FullName, method.Name));
+                if (string.IsNullOrEmpty(description))
+                {
+                    description = getDescription(string.Format("//member[starts-with(@name,'M:{0}.{1}``1(')]", method.ReflectedType.FullName, method.Name));
+                }
             }
             else
             {
-                return getDescription(string.Format("//member[@name='M:{0}.{1}']", method.ReflectedType.FullName, method.Name));
+                description = getDescription(string.Format("//member[@name='M:{0}.{1}']", method.ReflectedType.FullName, method.Name));
             }
+            return description;
         }
 
         internal string getDescription(MethodInfo method, ParameterInfo param)
