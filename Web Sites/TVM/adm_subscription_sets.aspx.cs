@@ -21,6 +21,12 @@ public partial class adm_subscription_sets : System.Web.UI.Page
             return;
         if (!IsPostBack)
         {
+            if (IsTvinciImpl() == false)
+            {
+                Server.Transfer("adm_module_not_implemented.aspx");
+                return;
+            }
+
             Int32 nMenuID = 0;
             m_sMenu = TVinciShared.Menu.GetMainMenu(14, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 2, false);
@@ -36,6 +42,30 @@ public partial class adm_subscription_sets : System.Web.UI.Page
                 Session["search_save"] = null;
             }
         }
+    }
+
+    static public bool IsTvinciImpl()
+    {
+        Int32 nImplID = 0;
+        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+        selectQuery.SetConnectionKey("pricing_connection");
+        selectQuery += "select * from groups_modules_implementations where is_active=1 and status=1 and ";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", LoginManager.GetLoginGroupID());
+        selectQuery += "and";
+        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("MODULE_ID", "=", 5);
+        if (selectQuery.Execute("query", true) != null)
+        {
+            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+            if (nCount > 0)
+            {
+                nImplID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["IMPLEMENTATION_ID"].ToString());
+            }
+        }
+        selectQuery.Finish();
+        selectQuery = null;
+        if (nImplID == 1)
+            return true;
+        return false;
     }
 
     public void GetHeader()
