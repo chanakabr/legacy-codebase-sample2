@@ -24,9 +24,6 @@ namespace QueueWrapper
             bool bIsEnqueueSucceeded = false;
             string sMessage = string.Empty;
 
-            // add request ID to to rabbit message arguments 
-            ((BaseCeleryData)record).args.Add(((BaseCeleryData)record).RequestId);
-
             if (record != null)
             {
                 sMessage = record.ToString();
