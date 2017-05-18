@@ -608,6 +608,9 @@ namespace Ingest.Importers
                         // subscription_coupon_group
                         multiPricePlan.couponGroups = GetNodeCouponGroupsList(node, "subscription_coupon_group/coupon_group_id", multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower());
                         
+                        //subscription product codes
+                        multiPricePlan.productCodes = GetNodeProductCodesList(node, "product_codes/product_code", multiPricePlan.Code, ref reportBuilder, reportId, multiPricePlan.Action.ToString().ToLower());
+
                         // add multi price plan to response list
                         multiPricePlans.Add(multiPricePlan);
                     }
@@ -623,6 +626,33 @@ namespace Ingest.Importers
             WriteReportLogToFile(reportBuilder.ToString(), reportId, groupId);
 
             return multiPricePlans;
+        }
+
+        private static List<KeyValuePair<string, string>> GetNodeProductCodesList(XmlNode node, string nodeName, string moduleCode, ref StringBuilder report, string reportId, string action)
+        {
+            List<KeyValuePair<string, string>> response = null;
+
+            var nodeList = node.SelectNodes(nodeName);
+            if (nodeList != null)
+            {
+                response = new List<KeyValuePair<string, string>>();
+
+                for (int i = 0; i < nodeList.Count; i++)
+                {
+                    string codeVal = string.Empty;
+                    string paymentGatewayVal = string.Empty;
+
+                    if (GetNodeStrValue(nodeList[i], "code", PRICE_PLAN, moduleCode, ref report, reportId, action, out codeVal))
+                    {
+                        if (GetNodeStrValue(nodeList[i], "verification_payment_gateway", PRICE_PLAN, moduleCode, ref report, reportId, action, out paymentGatewayVal))
+                        {
+                            response.Add(new KeyValuePair<string, string>(paymentGatewayVal, codeVal));
+                        }
+                    }
+                }
+            }
+
+            return response;
         }
 
         private static List<IngestPPV> ParsePPVsXml(XmlDocument doc, string reportId, int groupId)
