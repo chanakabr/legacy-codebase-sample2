@@ -35,7 +35,8 @@ namespace RemoteTasksService
                 {
                     string requestId = string.Empty;
                     if (ExtractRequestID(request.data, ref requestId))
-                        KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId);
+                        if (!KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId))
+                            log.ErrorFormat("Error while trying to update request ID. request: {0}, req_id: {1}", JsonConvert.SerializeObject(request), requestId);
                 }
 
                 string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
