@@ -28,8 +28,6 @@ namespace RemoteTasksService
 
             try
             {
-                log.Debug("Info - " + string.Concat("Add Task Request Started: ", request.task));
-
                 // update request ID
                 if (request != null)
                 {
@@ -38,6 +36,8 @@ namespace RemoteTasksService
                         if (!KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId))
                             log.ErrorFormat("Error while trying to update request ID. request: {0}, req_id: {1}", JsonConvert.SerializeObject(request), requestId);
                 }
+
+                log.DebugFormat("Info - Add Task Request Started: {0}, data: {1}", request.task, request.data);
 
                 string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
 
@@ -63,15 +63,22 @@ namespace RemoteTasksService
 
         private bool ExtractRequestID(string messageData, ref string requestId)
         {
-            requestId = string.Empty;
-            if (messageData != null)
+            try
             {
-                var reqIdContainer = JsonConvert.DeserializeObject<RequestID>(messageData);
-                if (reqIdContainer != null && !string.IsNullOrEmpty(reqIdContainer.RequestId))
+                requestId = string.Empty;
+                if (messageData != null)
                 {
-                    requestId = reqIdContainer.RequestId;
-                    return true;
+                    var reqIdContainer = JsonConvert.DeserializeObject<RequestID>(messageData);
+                    if (reqIdContainer != null && !string.IsNullOrEmpty(reqIdContainer.RequestId))
+                    {
+                        requestId = reqIdContainer.RequestId;
+                        return true;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error extracting request ID. messageData: {0}, ex: {1}", messageData, ex);
             }
             return false;
         }
