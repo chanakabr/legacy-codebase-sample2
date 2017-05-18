@@ -12,6 +12,7 @@ using System.Configuration;
 using RemoteTasksCommon;
 using KLogMonitor;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace RemoteTasksService
 {
@@ -28,6 +29,14 @@ namespace RemoteTasksService
             try
             {
                 log.Debug("Info - " + string.Concat("Add Task Request Started: ", request.task));
+
+                // update request ID
+                if (request != null)
+                {
+                    string requestId = string.Empty;
+                    if (ExtractRequestID(request.data, ref requestId))
+                        KlogMonitorHelper.MonitorLogsHelper.UpdateHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY, requestId);
+                }
 
                 string taskHandlerName = TCMClient.Settings.Instance.GetValue<string>(string.Format("CELERY_ROUTING.{0}", request.task));
 
@@ -50,5 +59,21 @@ namespace RemoteTasksService
 
             return response;
         }
+
+        private bool ExtractRequestID(string messageData, ref string requestId)
+        {
+            requestId = string.Empty;
+            if (messageData != null)
+            {
+                var reqIdContainer = JsonConvert.DeserializeObject<RequestID>(messageData);
+                if (reqIdContainer != null && !string.IsNullOrEmpty(reqIdContainer.RequestId))
+                {
+                    requestId = reqIdContainer.RequestId;
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }
