@@ -942,7 +942,7 @@ namespace Core.Notification
             }
 
             // remove reminder from user notification object
-            userNotificationData.SeriesReminders.Remove(userNotificationData.Reminders.Where(x => x.AnnouncementId == reminderId).First());
+            userNotificationData.SeriesReminders.Remove(userNotificationData.SeriesReminders.Where(x => x.AnnouncementId == reminderId).First());
 
             // update CB userNotificationData
             if (!DAL.NotificationDal.SetUserNotificationData(groupId, userId, userNotificationData))
