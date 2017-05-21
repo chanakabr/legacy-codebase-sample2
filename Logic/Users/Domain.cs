@@ -213,6 +213,9 @@ namespace Core.Users
             m_sCoGuid = sCoGuid;
             m_nMasterGuID = nMasterGuID;
 
+            // Pending - until proved otherwise
+            m_DomainStatus = DomainStatus.Pending;
+
             this.Insert();
 
             return this;
