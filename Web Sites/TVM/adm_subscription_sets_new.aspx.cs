@@ -36,7 +36,8 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {                
                 long setId = DBManipulator.DoTheWork("pricing_connection");
-                if (setId > 0 && UpdateSubscriptionsInSet(setId))
+                string errorMessage = string.Empty;
+                if (setId > 0 && UpdateSubscriptionsInSet(setId, ref errorMessage))
                 {
                     Session["set_id"] = 0;
                     Session["subscriptionsInSetMap"] = null;
@@ -45,8 +46,16 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                 }
                 else
                 {
-                    log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}", setId);
-                    HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new set";
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}, {1}", setId, errorMessage);
+                        HttpContext.Current.Session["error_msg"] = string.Format("incorrect values while updating / failed inserting new set, {0}", errorMessage);
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}", setId);
+                        HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new set";
+                    }
                 }
 
                 return;
@@ -299,7 +308,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         return "";
     }
 
-    private bool UpdateSubscriptionsInSet(long setId)
+    private bool UpdateSubscriptionsInSet(long setId, ref string errorMessage)
     {
         bool res = false;
         if (setId <= 0 || Session["subscriptionsInSetMap"] == null)
@@ -310,11 +319,17 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         try
         {
             Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
+            if (subscriptionsInSetMap.Count != subscriptionsInSetMap.Select(x => x.Value.OrderNum).Distinct().Count())
+            {
+                errorMessage = "subscriptions cannot have the same value of priority";
+                return false;
+            }
+
             List<KeyValuePair<long, int>> subscriptionsToUpdate = new List<KeyValuePair<long, int>>();
             foreach (KeyValuePair<long, SubscriptionSetWithOrder> pair in subscriptionsInSetMap)
             {
                 subscriptionsToUpdate.Add(new KeyValuePair<long, int>(pair.Key, pair.Value.OrderNum));
-            }
+            }                        
 
             res = TvmDAL.UpdateSubscriptionsInSet(LoginManager.GetLoginGroupID(), setId, subscriptionsToUpdate, LoginManager.GetLoginID());
         }
