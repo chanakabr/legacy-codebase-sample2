@@ -7039,6 +7039,10 @@ namespace Core.Catalog
                     definitions.shouldSearchMedia = true;
                 }
 
+                // if for some reason we are left with "0" in the list of media types (for example: "0, 424, 425"), let's ignore this 0.
+                // this 0 probably came when TVM/CRUD decided this channel is for all types, but forgot to delete it when the others join in (424, 425 etc.).
+                definitions.mediaTypes.Remove(0);
+
                 if (definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE))
                 {
                     definitions.shouldSearchEpg = true;
