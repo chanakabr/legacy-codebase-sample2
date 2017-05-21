@@ -345,6 +345,34 @@ namespace Core.ConditionalAccess
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency);
 
+                if (subscription == null)
+                {
+                    return null;
+                    // handle this
+                }
+
+                //if subscription is part of a set then get all subscriptions in the set by using domain entitlements
+                // FULL PRICE IS NOT RELEVANT, CHECK PRIORITY TO DECIDE IF UPGRADE OR DOWNGRADE
+                //check if we are in upgrade or downgrade
+                /*  if downgrade - entitlement switch, stop of renewal of existing subscription and initial payment for the new subscription should be scheduled to the end of the
+                                   old subscription billing period. the new subscription billing cycle should start at the same day in the month as the old one.
+                 * 
+                 * end date of the new subscription should be like the old subscription end date
+                 * should renew according to subscription definitions. (renew X time before and so on)
+                 * 
+                 * if upgrade, need to know how much I paid for previos subscription, how many days left for renew,
+                 * how much does the new subscription cost for me, what is the new subcription full life cycle (old cost 10 usd, new 20 usd, 15 days left)
+                 * 
+                 * 
+                 * ((60 * (10/60) - 15 (10/30)) = 5
+                 * ((x * (z/t2) - y (z/t1))
+                 * 
+                 * ((new subscription price * (days left for renew of old subscrpition / new subscription full life cycle )) - old subscription price * (days left for renew of old subscrpition / old subscription full life cycle ))
+                 * should charge only if ^^^^ > 0
+                 * 
+                 * 
+                 */
+
                 if (subscription != null && coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null && coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
                      (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 && subscription.CouponsGroups.Where(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode && 
