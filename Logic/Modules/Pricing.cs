@@ -1128,10 +1128,11 @@ namespace Core.Pricing
             {
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
-                    Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = Utils.GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
+                    Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = Utils.GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
                     if (subscriptionIdToSetIdsMap != null && subscriptionIdToSetIdsMap.Count > 0)
                     {
-                        List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Distinct().ToList();
+                        List<KeyValuePair<long, int>> setToPriorities = subscriptionIdToSetIdsMap.Where(x => x.Value != null).SelectMany(x => x.Value).ToList();
+                        List<long> setIds = setToPriorities.Select(x => x.Key).Distinct().ToList();
                         if (setIds != null && setIds.Count >= 0)
                         {
                             List<long> usedSubscriptionIds = subscriptionIdToSetIdsMap.Where(x => x.Value != null & x.Value.Count > 0).Select(x => x.Key).ToList();
@@ -1178,10 +1179,12 @@ namespace Core.Pricing
                 subscriptionSet.Name = !string.IsNullOrEmpty(name) ? name : subscriptionSet.Name;
                 if (shouldUpdateSubscriptionIds)
                 {
-                    Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = Utils.GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
+                    Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = Utils.GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
                     if (subscriptionIdToSetIdsMap != null && subscriptionIdToSetIdsMap.Count > 0)
                     {
-                        List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Where(x => x != setId).Distinct().ToList();
+
+                        List<KeyValuePair<long, int>> setToPriorities = subscriptionIdToSetIdsMap.Where(x => x.Value != null).SelectMany(x => x.Value).ToList();
+                        List<long> setIds = setToPriorities.Where(x => x.Key != setId).Distinct().Select(x => x.Key).ToList();
                         if (setIds != null && setIds.Count >= 0)
                         {
                             List<long> usedSubscriptionIds = subscriptionIdToSetIdsMap.Where(x => x.Value != null & x.Value.Count > 0).Select(x => x.Key).ToList();
