@@ -34,10 +34,16 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
             }
 
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
-            {                
+            {
+                if (!ValidateSubscriptionsInSet())
+                {
+                    log.ErrorFormat("Failed ValidateSubscriptionsInSet, subscriptions cannot have the same value of priority");
+                    HttpContext.Current.Session["error_msg"] = string.Format("subscriptions cannot have the same value of priority");
+                }
+
                 long setId = DBManipulator.DoTheWork("pricing_connection");
                 string errorMessage = string.Empty;
-                if (setId > 0 && UpdateSubscriptionsInSet(setId, ref errorMessage))
+                if (setId > 0 && UpdateSubscriptionsInSet(setId))
                 {
                     Session["set_id"] = 0;
                     Session["subscriptionsInSetMap"] = null;
@@ -46,16 +52,8 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                 }
                 else
                 {
-                    if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}, {1}", setId, errorMessage);
-                        HttpContext.Current.Session["error_msg"] = string.Format("incorrect values while updating / failed inserting new set, {0}", errorMessage);
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}", setId);
-                        HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new set";
-                    }
+                    log.ErrorFormat("Failed Inserting or Updating Set, setId: {0}", setId);
+                    HttpContext.Current.Session["error_msg"] = "incorrect values while updating / failed inserting new set";
                 }
 
                 return;
@@ -308,7 +306,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         return "";
     }
 
-    private bool UpdateSubscriptionsInSet(long setId, ref string errorMessage)
+    private bool UpdateSubscriptionsInSet(long setId)
     {
         bool res = false;
         if (setId <= 0 || Session["subscriptionsInSetMap"] == null)
@@ -319,12 +317,6 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         try
         {
             Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
-            if (subscriptionsInSetMap.Count != subscriptionsInSetMap.Select(x => x.Value.OrderNum).Distinct().Count())
-            {
-                errorMessage = "subscriptions cannot have the same value of priority";
-                return false;
-            }
-
             List<KeyValuePair<long, int>> subscriptionsToUpdate = new List<KeyValuePair<long, int>>();
             foreach (KeyValuePair<long, SubscriptionSetWithOrder> pair in subscriptionsInSetMap)
             {
@@ -336,6 +328,33 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
         catch (Exception ex)
         {
             log.Error(string.Format("Failed UpdateSubscriptionsInSet, setId: {0}", setId), ex);
+        }
+
+        return res;
+    }
+
+    private bool ValidateSubscriptionsInSet()
+    {
+        bool res = false;
+        if (Session["subscriptionsInSetMap"] == null)
+        {
+            return res;
+        }
+
+        try
+        {
+            Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
+            if (subscriptionsInSetMap.Count != subscriptionsInSetMap.Select(x => x.Value.OrderNum).Distinct().Count())
+            {
+                Session["error_msg"] = "subscriptions cannot have the same value of priority";
+                return false;
+            }
+
+            res = true;
+        }
+        catch (Exception ex)
+        {
+            log.Error("Failed ValidateSubscriptionsInSet", ex);
         }
 
         return res;
