@@ -14,6 +14,7 @@ namespace ApiObjects.Notification
         {
             this.SubscribedAnnouncements = new List<NotificationSubscription>();
             this.SubscribedReminders = new List<NotificationSubscription>();
+            this.SubscribedSeriesReminders = new List<NotificationSubscription>();
         }
 
         public int UserId { get; set; }
