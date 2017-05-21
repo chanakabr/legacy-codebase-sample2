@@ -127,6 +127,23 @@ namespace WebAPI
                 }
             }
 
+            // Check action statuses
+            bool atLeastOneActive = false;
+
+            foreach (var action in actions.Values)
+            {
+                if (action.Status == 1)
+                {
+                    atLeastOneActive = true;
+                    break;
+                }
+            }
+
+            if (!atLeastOneActive)
+            {
+                shouldConsume = false;
+            }
+
             if (!shouldConsume)
             {
                 return eEventConsumptionResult.None;

@@ -128,6 +128,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 case DomainStatus.NoUsersInDomain:
                     result = KalturaHouseholdState.no_users_in_household;
                     break;
+                case DomainStatus.Pending:
+                    result = KalturaHouseholdState.pending;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown domain state");
             }
