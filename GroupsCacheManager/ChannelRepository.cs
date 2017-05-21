@@ -403,9 +403,11 @@ namespace GroupsCacheManager
 
                 channel.m_OrderObject = new ApiObjects.SearchObjects.OrderObj();
                 int orderBy = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_type"]);
+                // get order by value 
+                string orderByValue = ODBCWrapper.Utils.GetSafeStr(rowData, "ORDER_BY_VALUE");
 
                 // initiate orderBy object 
-                UpdateOrderByObjec(orderBy, ref channel, group);
+                UpdateOrderByObjec(orderBy, ref channel, group, orderByValue);
 
                 int orderDirection = ODBCWrapper.Utils.GetIntSafeVal(rowData["order_by_dir"]) - 1;
                 channel.m_OrderObject.m_eOrderDir =
@@ -554,9 +556,14 @@ namespace GroupsCacheManager
         #endregion
 
         #region Private Methods
-        private static void UpdateOrderByObjec(int nOrderBy, ref Channel oChannel, Group group)
+        private static void UpdateOrderByObjec(int nOrderBy, ref Channel oChannel, Group group, string orderByValue)
         {
-            if (nOrderBy >= 1 && nOrderBy <= 30)// all META_STR/META_DOUBLE values
+            if (!string.IsNullOrEmpty(orderByValue))
+            {
+                oChannel.m_OrderObject.m_sOrderValue = orderByValue;
+                oChannel.m_OrderObject.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.META;
+            }
+            else if (nOrderBy >= 1 && nOrderBy <= 30)// all META_STR/META_DOUBLE values
             {
                 int nMetaEnum = (nOrderBy);
                 string enumName = Enum.GetName(typeof(MetasEnum), nMetaEnum);
