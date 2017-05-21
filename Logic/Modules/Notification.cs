@@ -1139,13 +1139,13 @@ namespace Core.Notification
         }
 
         public static SeriesRemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
-            int pageSize, int pageIndex, OrderObj orderObj)
+            int pageSize, int pageIndex)
         {
             SeriesRemindersResponse response = null;
 
             try
             {
-                response = ReminderManager.GetUserSeriesReminders(groupId, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex, orderObj);
+                response = ReminderManager.GetUserSeriesReminders(groupId, userId, seriesIds, seasonNumbers, epgChannelId, pageSize, pageIndex);
             }
             catch (Exception ex)
             {

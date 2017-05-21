@@ -71,6 +71,23 @@ namespace Core.Notification
                     return response;
                 }
 
+                // get user notifications
+                UserNotification userNotificationData = null;
+                response.Status = GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
+                if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
+                {
+                    return response;
+                }
+
+                if (userNotificationData.Reminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null ||
+                    IsAlreadyFollowedAsSeries(dbReminder.GroupId, epgProgram, userNotificationData.SeriesReminders))
+                {
+                    // user already set the reminder
+                    log.DebugFormat("User is already set a reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbReminder.GroupId, userId, dbReminder.ID);
+                    response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
+                    return response;
+                }
+
                 if (epgProgram == null)
                 {
                     // update reminder name and startDate according to epgAssetId
@@ -174,23 +191,6 @@ namespace Core.Notification
                 {
                     response.Reminders = new List<DbReminder>();
                     response.Reminders.Add(dbReminder);
-                    return response;
-                }
-
-                // get user notifications
-                UserNotification userNotificationData = null;
-                response.Status = GetUserNotificationData(dbReminder.GroupId, userId, out userNotificationData);
-                if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
-                {
-                    return response;
-                }
-
-                if (userNotificationData.Reminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null ||
-                    IsAlreadyFollowedAsSeries(dbReminder.GroupId, epgProgram, userNotificationData.SeriesReminders))
-                {
-                    // user already set the reminder
-                    log.DebugFormat("User is already set a reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbReminder.GroupId, userId, dbReminder.ID);
-                    response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
                     return response;
                 }
 
@@ -320,6 +320,30 @@ namespace Core.Notification
                     dbSeriesReminder = clientReminder;
                 }
 
+                // get user notifications
+                UserNotification userNotificationData = null;
+                response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
+                if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
+                {
+                    Utils.WaitForAllTasksToFinish(tasks);
+                    return response;
+                }
+
+                if (userNotificationData.SeriesReminders == null)
+                {
+                    userNotificationData.SeriesReminders = new List<Announcement>();
+                }
+
+                if (userNotificationData.SeriesReminders.FirstOrDefault(x => x.AnnouncementId == dbSeriesReminder.ID) != null || IsSeriesAlreadyFollowed(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId, userNotificationData))
+                {
+                    // user already set the reminder
+                    log.DebugFormat("User is already set a series reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbSeriesReminder.GroupId, userId, dbSeriesReminder.ID);
+                    response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
+                    Utils.WaitForAllTasksToFinish(tasks);
+                    return response;
+                }
+
+
                 dbSeriesReminder.Name = clientReminder.SeasonNumber.HasValue && clientReminder.SeasonNumber.Value != 0 ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
 
                 // Need to save in database in 2 cases:
@@ -353,29 +377,6 @@ namespace Core.Notification
 
                     tasks = new List<Task>();
                     tasks.Add(Task.Run(() => SetRemindersForSerieEpisodes(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId)));
-                }
-
-                // get user notifications
-                UserNotification userNotificationData = null;
-                response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
-                if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
-                {
-                    Utils.WaitForAllTasksToFinish(tasks);
-                    return response;
-                }
-
-                if (userNotificationData.SeriesReminders == null)
-                {
-                    userNotificationData.SeriesReminders = new List<Announcement>();
-                }
-
-                if (userNotificationData.SeriesReminders.FirstOrDefault(x => x.AnnouncementId == dbSeriesReminder.ID) != null || IsSeriesAlreadyFollowed(dbSeriesReminder.GroupId, dbSeriesReminder.SeriesId, dbSeriesReminder.SeasonNumber, dbSeriesReminder.EpgChannelId, userNotificationData))
-                {
-                    // user already set the reminder
-                    log.DebugFormat("User is already set a series reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbSeriesReminder.GroupId, userId, dbSeriesReminder.ID);
-                    response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
-                    Utils.WaitForAllTasksToFinish(tasks);
-                    return response;
                 }
 
                 // update user notification object
@@ -1752,7 +1753,7 @@ namespace Core.Notification
         }
 
         public static SeriesRemindersResponse GetUserSeriesReminders(int groupId, int userId, List<string> seriesIds, List<long> seasonNumbers, long? epgChannelId,
-            int pageSize, int pageIndex, OrderObj orderObj)
+            int pageSize, int pageIndex)
         {
             SeriesRemindersResponse response = new SeriesRemindersResponse();
 

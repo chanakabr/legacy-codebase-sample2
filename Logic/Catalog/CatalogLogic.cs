@@ -6904,15 +6904,18 @@ namespace Core.Catalog
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
-                        leaf.valueType = typeof(long);
+                        if (leaf.operand != ComparisonOperator.In)
+                        {
+                            leaf.valueType = typeof(long);
 
-                        try
-                        {
-                            leaf.value = Convert.ToInt64(leaf.value);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                            try
+                            {
+                                leaf.value = Convert.ToInt64(leaf.value);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
+                            }
                         }
                     }
                     else if (reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
