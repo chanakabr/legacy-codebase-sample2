@@ -12,8 +12,7 @@ using TVinciShared;
 
 public partial class adm_subscription_sets_new : System.Web.UI.Page
 {
-    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-    private static int maxOrderNum = 0;
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());    
 
     protected string m_sMenu;
     protected string m_sSubMenu;    
@@ -39,6 +38,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
                 {
                     log.ErrorFormat("Failed ValidateSubscriptionsInSet, subscriptions cannot have the same value of priority");
                     HttpContext.Current.Session["error_msg"] = string.Format("subscriptions cannot have the same value of priority");
+                    return;
                 }
 
                 long setId = DBManipulator.DoTheWork("pricing_connection");
@@ -75,6 +75,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
             else
             {
                 Session["set_id"] = 0;
+                Session["max_order_num"] = 0;
                 Session["subscriptionsInSetMap"] = null;
                 Session["availableSubscriptionsMap"] = null;
             }
@@ -157,9 +158,15 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
     public string initDualObj()
     {
         long setId = 0;
+        int maxOrderNum = 0;
         if (Session["set_id"] != null)
         {
             long.TryParse(Session["set_id"].ToString(), out setId);
+        }
+
+        if (Session["max_order_num"] != null)
+        {
+            int.TryParse(Session["max_order_num"].ToString(), out maxOrderNum);
         }
 
         Dictionary<string, object> dualList = new Dictionary<string, object>();
@@ -221,6 +228,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
 
             Session["subscriptionsInSetMap"] = subscriptionsInSetMap;
             Session["availableSubscriptionsMap"] = availableSubscriptionsMap;
+            Session["max_order_num"] = maxOrderNum;
         }
 
         resultData = new object[subscriptionSetsData.Count];
@@ -237,10 +245,11 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
     {        
         Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = new Dictionary<long, SubscriptionSetWithOrder>();
         Dictionary<long, SubscriptionSet> availableSubscriptionsMap = new Dictionary<long, SubscriptionSet>();
-        if (Session["subscriptionsInSetMap"] != null && Session["availableSubscriptionsMap"] != null)
+        int maxOrderNum = 0;
+        if (Session["subscriptionsInSetMap"] != null && Session["availableSubscriptionsMap"] != null && Session["max_order_num"] != null && int.TryParse(Session["max_order_num"].ToString(), out maxOrderNum))
         {
             subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
-            availableSubscriptionsMap = (Dictionary<long, SubscriptionSet>)Session["availableSubscriptionsMap"];
+            availableSubscriptionsMap = (Dictionary<long, SubscriptionSet>)Session["availableSubscriptionsMap"];            
         }
 
         long subscriptionId = 0;
@@ -272,6 +281,7 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
 
             Session["subscriptionsInSetMap"] = subscriptionsInSetMap;
             Session["availableSubscriptionsMap"] = availableSubscriptionsMap;
+            Session["max_order_num"] = maxOrderNum;
         }
 
         return "";
@@ -280,10 +290,11 @@ public partial class adm_subscription_sets_new : System.Web.UI.Page
     public string changeItemOrder(string id, string updatedOrderNum)
     {
         long subscriptionId = 0;
-        int orderNum = 0;
-        if (long.TryParse(id, out subscriptionId) && subscriptionId > 0 && int.TryParse(updatedOrderNum, out orderNum) && orderNum > 0 && Session["subscriptionsInSetMap"] != null)
+        int orderNum = 0, maxOrderNum = 0;
+        if (long.TryParse(id, out subscriptionId) && subscriptionId > 0 && int.TryParse(updatedOrderNum, out orderNum) && orderNum > 0
+            && Session["subscriptionsInSetMap"] != null && Session["max_order_num"] != null && int.TryParse(Session["max_order_num"].ToString(), out maxOrderNum))
         {
-            Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];
+            Dictionary<long, SubscriptionSetWithOrder> subscriptionsInSetMap = (Dictionary<long, SubscriptionSetWithOrder>)Session["subscriptionsInSetMap"];            
             if (subscriptionsInSetMap.ContainsKey(subscriptionId))
             {
                 // if new orderNum is bigger than current maxOrderNum, just update current maxOrderNum value
