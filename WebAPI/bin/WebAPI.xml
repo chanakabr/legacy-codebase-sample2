@@ -8206,7 +8206,7 @@
         </member>
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.SubscriptionIds">
             <summary>
-            A list of subscriptions associated with this set 
+            A list of comma separated subscription ids associated with this set ordered by priority ascending
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">

@@ -248,7 +248,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             Mapper.CreateMap<SubscriptionSet, KalturaSubscriptionSet>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds));
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty));
         }
 
         private static List<KalturaKeyValue> ConvertProductCodes(List<KeyValuePair<VerificationPaymentGateway, string>> list)

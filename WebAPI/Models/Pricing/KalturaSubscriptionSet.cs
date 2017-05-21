@@ -37,7 +37,7 @@ namespace WebAPI.Models.Pricing
         public string Name { get; set; }
 
         /// <summary>
-        /// A list of subscriptions associated with this set 
+        /// A list of comma separated subscription ids associated with this set ordered by priority ascending
         /// </summary>
         [DataMember(Name = "subscriptions")]
         [JsonProperty("subscriptions")]
