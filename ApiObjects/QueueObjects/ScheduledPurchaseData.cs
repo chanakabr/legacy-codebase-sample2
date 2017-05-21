@@ -9,7 +9,7 @@ namespace ApiObjects
 {
     public class ScheduledPurchaseData : BaseCeleryData
     {
-        public const string TASK = "distributed_tasks.process_schedule_purchase";
+        public const string TASK = "distributed_tasks.process_scheduled_purchase";
 
         private string siteguid;
         private long household;
