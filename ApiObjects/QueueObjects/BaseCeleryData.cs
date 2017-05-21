@@ -4,6 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using KLogMonitor;
+using System.ServiceModel;
+using System.Web;
+using System.Reflection;
 
 namespace ApiObjects
 {
@@ -11,6 +15,7 @@ namespace ApiObjects
     public class BaseCeleryData : QueueObject
     {
         public const string CELERY_DATE_FORMAT = "yyyy-MM-ddTHH:mm:ss.ffffffZ";
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public string id;
         public string task;
@@ -119,7 +124,7 @@ namespace ApiObjects
         {
             try
             {
-                switch (KMonitor.AppType)
+                switch (KLogMonitor.KMonitor.AppType)
                 {
                     case KLogEnums.AppType.WCF:
 
