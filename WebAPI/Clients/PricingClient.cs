@@ -239,7 +239,7 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
             }
 
-            if (orderBy.HasValue)
+            if (result.TotalCount > 0 && orderBy.HasValue)
             {
                 switch (orderBy.Value)
                 {
@@ -291,7 +291,7 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
             }
 
-            if (orderBy.HasValue)
+            if (result.TotalCount > 0 && orderBy.HasValue)
             {
                 switch (orderBy.Value)
                 {
