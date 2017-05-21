@@ -274,6 +274,7 @@
     <Compile Include="Pricing\enums.cs" />
     <Compile Include="LanguageContainer.cs" />
     <Compile Include="Pricing\ServiceObject.cs" />
+    <Compile Include="QueueObjects\ScheduledPurchaseData.cs" />
     <Compile Include="QueueObjects\EngagementData.cs" />
     <Compile Include="QueueObjects\MessageReminderData.cs" />
     <Compile Include="QueueObjects\RecordingModificationData.cs" />
