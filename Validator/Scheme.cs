@@ -20,6 +20,7 @@ using WebAPI.Filters;
 using WebAPI.Exceptions;
 using WebAPI.Models.Renderers;
 using WebAPI.Controllers;
+using System.Text.RegularExpressions;
 
 namespace Validator.Managers.Scheme
 {
@@ -906,7 +907,9 @@ namespace Validator.Managers.Scheme
             if (typeof(KalturaRenderer).IsAssignableFrom(type))
                 return "file";
 
-            return type.Name;
+            Regex regex = new Regex("^[^`]+");
+            Match match = regex.Match(type.Name);
+            return match.Value;
         }
 
         private void appendType(Type type)
@@ -940,28 +943,18 @@ namespace Validator.Managers.Scheme
             {
 
                 //if List
-                if (type.GetGenericArguments().Count() == 1)
+                if (type.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     writer.WriteAttributeString("type", "array");
                     writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[0]));
                     return;
                 }
-
-                //if Dictionary
-                Type dictType = typeof(SerializableDictionary<,>);
-                if (type.GetGenericArguments().Count() == 2 &&
-                    dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
-                    dictType.MakeGenericType(type.GetGenericArguments()) == type)
+                else if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
                 {
                     writer.WriteAttributeString("type", "map");
                     writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[1]));
                     return;
                 }
-
-                if (type.GetGenericArguments().Count() == 2)
-                    throw new Exception("Dont know how to handle");
-
-                throw new Exception("Generic type unknown");
             }
 
             writer.WriteAttributeString("type", getTypeName(type));

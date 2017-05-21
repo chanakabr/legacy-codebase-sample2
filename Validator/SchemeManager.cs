@@ -15,6 +15,7 @@ using WebAPI.Managers.Scheme;
 using System.Runtime.CompilerServices;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using System.Text.RegularExpressions;
 
 namespace Validator.Managers.Scheme
 {
@@ -611,8 +612,9 @@ namespace Validator.Managers.Scheme
                         string expectedFilterType = string.Format("Kaltura{0}Filter", FirstCharacterToUpper(serviceId));
 
                         var filterParam = parameters[0];
-                        string filterName = filterParam.ParameterType.Name.ToLower();
-                        if (filterName != expectedFilterType.ToLower() && (!filterName.StartsWith(expectedFilterType.ToLower()) || !filterName.EndsWith("`1")))
+                        string filterName = filterParam.ParameterType.Name;
+                        Regex regex = new Regex(string.Format("^{0}(`1)?$", expectedFilterType), RegexOptions.IgnoreCase);
+                        if (!regex.IsMatch(filterName))
                         {
                             logError("Error", controller, string.Format("Action {0}.{1} ({2}) first argument type is {3}, expected {4}", serviceId, actionId, controller.Name, filterParam.ParameterType.Name, expectedFilterType));
                             valid = false;
