@@ -239,7 +239,7 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
             }
 
-            if (orderBy.HasValue)
+            if (result.TotalCount > 0 && orderBy.HasValue)
             {
                 switch (orderBy.Value)
                 {
@@ -291,7 +291,7 @@ namespace WebAPI.Clients
                 result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
             }
 
-            if (orderBy.HasValue)
+            if (result.TotalCount > 0 && orderBy.HasValue)
             {
                 switch (orderBy.Value)
                 {
@@ -431,7 +431,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptionSets(groupId, new List<long>() { setId });
+                    response = Core.Pricing.Module.GetSubscriptionSet(groupId, setId);
                 }
             }
             catch (Exception ex)

@@ -20,6 +20,7 @@ using WebAPI.Filters;
 using WebAPI.Exceptions;
 using WebAPI.Models.Renderers;
 using WebAPI.Controllers;
+using System.Text.RegularExpressions;
 
 namespace Validator.Managers.Scheme
 {
@@ -234,6 +235,20 @@ namespace Validator.Managers.Scheme
             }
         }
 
+        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+        {
+            while (toCheck != null && toCheck != typeof(object))
+            {
+                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                if (generic.Name.Equals(cur.Name))
+                {
+                    return true;
+                }
+                toCheck = toCheck.BaseType;
+            }
+            return false;
+        }
+
         private void LoadType(Type type)
         {
             if (type.IsEnum && !enums.Contains(type))
@@ -245,11 +260,6 @@ namespace Validator.Managers.Scheme
             {
                 return;
             }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                LoadType(type.GetGenericArguments()[0]);
-                return;
-            }
 
             if (type == typeof(KalturaOTTObject))
             {
@@ -257,16 +267,13 @@ namespace Validator.Managers.Scheme
                 return;
             }
 
-            string typeName = type.Name;
-            if (type.IsGenericType && typeName.StartsWith("KalturaFilter"))
-                typeName = "KalturaFilter";
-
+            string typeName = getTypeName(type);
             if (type.IsSubclassOf(typeof(KalturaOTTObject)) && !Field.loadedTypes.ContainsKey(typeName))
             {
                 Field.loadedTypes.Add(typeName, new Field(type));
                 LoadType(type.BaseType);
 
-                var subClasses = assembly.GetTypes().Where(myType => myType.IsSubclassOf(type));
+                var subClasses = assembly.GetTypes().Where(myType => IsSubclassOfRawGeneric(type, myType));
                 foreach (Type subClass in subClasses)
                     LoadType(subClass);
 
@@ -278,13 +285,12 @@ namespace Validator.Managers.Scheme
             {
                 LoadType(type.GetElementType());
             }
-            else if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>)))
+            else if (type.IsGenericType)
             {
-                LoadType(type.GetGenericArguments()[1]);
-            }
-            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                LoadType(type.GetGenericArguments()[0]);
+                foreach (Type GenericArgument in type.GetGenericArguments())
+                {
+                    LoadType(GenericArgument);
+                }
             }
         }
 
@@ -677,7 +683,8 @@ namespace Validator.Managers.Scheme
         {
             if (property.ReflectedType.IsGenericType)
             {
-                string name = property.ReflectedType.FullName.Substring(0, property.ReflectedType.FullName.IndexOf('['));
+                Regex regex = new Regex(@"^[^\[]+");
+                string name = regex.Match(property.ReflectedType.FullName).Value;
                 return getDescription(string.Format("//member[@name='P:{0}.{1}']", name, property.Name));
             }
             else
@@ -820,9 +827,7 @@ namespace Validator.Managers.Scheme
 
         private void writeType(Type type)
         {
-            string typeName = type.Name;
-            if (type.IsGenericType && typeName.StartsWith("KalturaFilter"))
-                typeName = "KalturaFilter";
+            string typeName = getTypeName(type);
 
             writer.WriteStartElement("class");
             writer.WriteAttributeString("name", typeName);
@@ -830,11 +835,7 @@ namespace Validator.Managers.Scheme
 
             if (type.BaseType != null && type.BaseType != typeof(KalturaOTTObject))
             {
-                string baseType = type.BaseType.Name;
-                if (type.BaseType.IsGenericType && baseType.StartsWith("KalturaFilter"))
-                    baseType = "KalturaFilter";
-
-                writer.WriteAttributeString("base", baseType);
+                writer.WriteAttributeString("base", getTypeName(type.BaseType));
             }
 
             if (type.IsInterface || type.IsAbstract)
@@ -906,7 +907,9 @@ namespace Validator.Managers.Scheme
             if (typeof(KalturaRenderer).IsAssignableFrom(type))
                 return "file";
 
-            return type.Name;
+            Regex regex = new Regex("^[^`]+");
+            Match match = regex.Match(type.Name);
+            return match.Value;
         }
 
         private void appendType(Type type)
@@ -940,28 +943,18 @@ namespace Validator.Managers.Scheme
             {
 
                 //if List
-                if (type.GetGenericArguments().Count() == 1)
+                if (type.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     writer.WriteAttributeString("type", "array");
                     writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[0]));
                     return;
                 }
-
-                //if Dictionary
-                Type dictType = typeof(SerializableDictionary<,>);
-                if (type.GetGenericArguments().Count() == 2 &&
-                    dictType.GetGenericArguments().Length == type.GetGenericArguments().Length &&
-                    dictType.MakeGenericType(type.GetGenericArguments()) == type)
+                else if (type.GetGenericTypeDefinition() == typeof(Dictionary<,>) || type.GetGenericTypeDefinition() == typeof(SerializableDictionary<,>))
                 {
                     writer.WriteAttributeString("type", "map");
                     writer.WriteAttributeString("arrayType", getTypeName(type.GetGenericArguments()[1]));
                     return;
                 }
-
-                if (type.GetGenericArguments().Count() == 2)
-                    throw new Exception("Dont know how to handle");
-
-                throw new Exception("Generic type unknown");
             }
 
             writer.WriteAttributeString("type", getTypeName(type));

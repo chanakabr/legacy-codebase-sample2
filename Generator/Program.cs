@@ -14,6 +14,8 @@ namespace Generator
         {
             Stream stream = new FileStream("KalturaClient.xml", FileMode.Create, FileAccess.Write);
             SchemeManager.Generate(stream);
+
+            Console.ReadLine();
         }
     }
 }
