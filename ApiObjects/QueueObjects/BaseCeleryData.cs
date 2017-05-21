@@ -23,7 +23,7 @@ namespace ApiObjects
         {
             get
             {
-                string reqId = KlogMonitorHelper.MonitorLogsHelper.GetHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY);
+                string reqId = GetHeaderData(KLogMonitor.Constants.REQUEST_ID_KEY);
                 if (reqId != null)
                     return reqId;
                 else
@@ -113,6 +113,33 @@ namespace ApiObjects
             this.id = id;
             this.args = new List<object>();
             this.args.AddRange(args);
+        }
+
+        public static string GetHeaderData(string key)
+        {
+            try
+            {
+                switch (KMonitor.AppType)
+                {
+                    case KLogEnums.AppType.WCF:
+
+                        if (OperationContext.Current != null)
+                            return OperationContext.Current.IncomingMessageProperties[key].ToString();
+                        break;
+
+                    case KLogEnums.AppType.WS:
+                    default:
+
+                        if (HttpContext.Current != null)
+                            return HttpContext.Current.Items[key].ToString();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get header key. app type: {0}, key: {1}, ex: {2}", KMonitor.AppType.ToString(), key, ex);
+            }
+            return null;
         }
     }
 }
