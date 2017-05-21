@@ -198,7 +198,10 @@ public partial class adm_billing_settings : System.Web.UI.Page
             shortTextField.Initialize("Gift card reminder mail subject", "adm_table_header_nbg", "FormInput", "GIFT_CARD_REMINDER_MAIL_SUBJECT", false);
             theRecord.AddRecord(shortTextField);
 
-
+            DataRecordShortIntField dr_groups = new DataRecordShortIntField(false, 9, 9);
+            dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", false);
+            dr_groups.SetValue(groupId.ToString());
+            theRecord.AddRecord(dr_groups);
 
             sTable = theRecord.GetTableHTML("adm_billing_settings.aspx?submited=1");
         }
