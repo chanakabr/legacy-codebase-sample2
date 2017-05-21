@@ -428,6 +428,9 @@ public partial class adm_ksql_channel_new : System.Web.UI.Page
         dr_channels_order_by_types.SetDefault(0);
         theRecord.AddRecord(dr_channels_order_by_types);
 
+        DataRecordShortTextField dr_order_by_value = new DataRecordShortTextField("ltr", true, 60, 128);
+        dr_order_by_value.Initialize("Order by Value", "adm_table_header_nbg", "FormInput", "ORDER_BY_VALUE", false);
+        theRecord.AddRecord(dr_order_by_value);
     }
 
     static protected void SafeMerge(string sMetaVal, string sMetaName, Int32 nID, ref DataTable d)
