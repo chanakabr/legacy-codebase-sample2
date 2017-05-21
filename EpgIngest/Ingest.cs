@@ -355,7 +355,11 @@ namespace EpgIngest
                         language = epg.Key.ToLower();
                         epg.Value.Metas = GetEpgProgramMetas(prog, language);
                         epg.Value.Tags = GetEpgProgramTags(prog, language);
+                        epg.Value.PicID = newEpgItem.PicID;
+                        epg.Value.PicUrl = newEpgItem.PicUrl;
+
                         epg.Value.Language = language;
+
                         if (dEpg.ContainsKey(epg.Value.EpgIdentifier))
                         {
                             dEpg[epg.Value.EpgIdentifier].Add(epg);
