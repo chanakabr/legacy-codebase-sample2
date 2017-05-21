@@ -97,6 +97,10 @@
       <Project>{e4f95ccc-2127-4a5c-90bb-d60a446bec3b}</Project>
       <Name>QueueWrapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\tvmcore\ScheduledTasks\ScheduledTasks.csproj">
+      <Project>{4eb719ed-06b1-4c05-a7ca-269d802105ea}</Project>
+      <Name>ScheduledTasks</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\TvmCore\TVinciShared\TVinciShared.csproj">
       <Project>{bf33e5bd-0536-4bf8-9d26-86b6a2daca5f}</Project>
       <Name>TVinciShared</Name>
