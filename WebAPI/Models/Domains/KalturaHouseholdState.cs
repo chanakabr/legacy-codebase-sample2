@@ -10,6 +10,7 @@ namespace WebAPI.Models.Domains
         ok,
         created_without_npvr_account,
         suspended,
-        no_users_in_household
+        no_users_in_household,
+        pending,
     }
 }
