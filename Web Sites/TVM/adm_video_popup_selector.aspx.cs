@@ -230,7 +230,7 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 apiWS.API client = new apiWS.API();
                 client.Url = sWSURL;
 
-                UnifiedSearchResult[] assets = client.SearchAssets(sWSUserName, sWSPass, Query, 0, 50, false, 0, false, string.Empty, sIP, string.Empty, 0, LoginManager.GetLoginGroupID(), true);
+                UnifiedSearchResult[] assets = client.SearchAssets(sWSUserName, sWSPass, Query, 0, 50, false, 0, false, string.Empty, sIP, string.Empty, 0, 0, true);
                 if (assets != null && assets.Length > 0)
                 {
                     foreach (UnifiedSearchResult item in assets)
