@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.SubscriptionIds.Select(x => x.value).Distinct().ToList() : new List<long>();
+                List<long> subscriptionIds = !string.IsNullOrEmpty(subscriptionSet.SubscriptionIds) ? subscriptionSet.GetSubscriptionIds() : new List<long>();
                 // call client
                 response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
             }
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
                 List<long> subscriptionIds = new List<long>();
                 if (shouldUpdateSubscriptionIds)
                 {
-                    subscriptionIds = subscriptionSet.SubscriptionIds.Select(x => x.value).Distinct().ToList();
+                    subscriptionIds = subscriptionSet.GetSubscriptionIds();
                 }
                 
                 // call client
