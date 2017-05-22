@@ -17,7 +17,9 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription details
     /// </summary>
-    public class KalturaSubscriptionSet : KalturaOTTObject
+    [Serializable]
+    [XmlInclude(typeof(KalturaSubscriptionSetModify))]
+    public abstract class KalturaSubscriptionSet : KalturaOTTObject
     {
         /// <summary>
         /// SubscriptionSet identifier

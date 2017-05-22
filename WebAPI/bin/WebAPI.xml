@@ -8169,24 +8169,9 @@
             Partner configuration type
             </summary>
         </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetModify">
             <summary>
-            Comma separated identifiers
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
-            <summary>
-            Comma separated subscription identifiers
-            </summary>
-        </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse">
-            <summary>
-            SubscriptionSets list
-            </summary>
-        </member>
-        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse.SubscriptionSets">
-            <summary>
-            A list of subscriptionSets
+            Subscription details
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSet">
@@ -8207,6 +8192,26 @@
         <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSet.SubscriptionIds">
             <summary>
             A list of comma separated subscription ids associated with this set ordered by priority ascending
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.IdIn">
+            <summary>
+            Comma separated identifiers
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetFilter.SubscriptionIdContains">
+            <summary>
+            Comma separated subscription identifiers
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse">
+            <summary>
+            SubscriptionSets list
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaSubscriptionSetListResponse.SubscriptionSets">
+            <summary>
+            A list of subscriptionSets
             </summary>
         </member>
         <member name="T:WebAPI.Models.Pricing.KalturaPpvPrice">

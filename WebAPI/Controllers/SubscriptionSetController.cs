@@ -120,7 +120,7 @@ namespace WebAPI.Controllers
             {
                 bool shouldUpdateSubscriptionIds = subscriptionSet.SubscriptionIds != null;
                 List<long> subscriptionIds = new List<long>();
-                if (shouldUpdateSubscriptionIds)
+                if (shouldUpdateSubscriptionIds && !string.IsNullOrEmpty(subscriptionSet.SubscriptionIds))
                 {
                     subscriptionIds = subscriptionSet.GetSubscriptionIds();
                 }

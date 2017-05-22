@@ -236,7 +236,11 @@ namespace WebAPI.Clients
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count > 0)
             {
                 result.TotalCount = response.SubscriptionSets.Count;
-                result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
+                result.SubscriptionSets = new List<KalturaSubscriptionSet>();
+                foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
+                {
+                    result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSetModify>(subscriptionSet));
+                }
             }
 
             if (result.TotalCount > 0 && orderBy.HasValue)
@@ -288,7 +292,11 @@ namespace WebAPI.Clients
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count > 0)
             {
                 result.TotalCount = response.SubscriptionSets.Count;
-                result.SubscriptionSets = AutoMapper.Mapper.Map<List<KalturaSubscriptionSet>>(response.SubscriptionSets);
+                result.SubscriptionSets = new List<KalturaSubscriptionSet>();
+                foreach (SubscriptionSet subscriptionSet in response.SubscriptionSets)
+                {
+                    result.SubscriptionSets.Add(AutoMapper.Mapper.Map<KalturaSubscriptionSetModify>(subscriptionSet));
+                }
             }
 
             if (result.TotalCount > 0 && orderBy.HasValue)
@@ -343,7 +351,7 @@ namespace WebAPI.Clients
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
             {
                 // convert response
-                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionSet>(response.SubscriptionSets.First());
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionSetModify>(response.SubscriptionSets.First());
             }
 
             return subscriptionSet;
@@ -383,7 +391,7 @@ namespace WebAPI.Clients
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
             {
                 // convert response
-                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionSet>(response.SubscriptionSets.First());
+                subscriptionSet = AutoMapper.Mapper.Map<KalturaSubscriptionSetModify>(response.SubscriptionSets.First());
             }
 
             return subscriptionSet;
@@ -452,7 +460,7 @@ namespace WebAPI.Clients
 
             if (response.SubscriptionSets != null && response.SubscriptionSets.Count == 1)
             {                
-                result = AutoMapper.Mapper.Map<KalturaSubscriptionSet>(response.SubscriptionSets[0]);
+                result = AutoMapper.Mapper.Map<KalturaSubscriptionSetModify>(response.SubscriptionSets[0]);
             }
 
             return result;

@@ -661,6 +661,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaSubscriptionSetModify.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetListResponse.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSet.cs" />
