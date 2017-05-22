@@ -511,9 +511,6 @@ public partial class adm_channels_media : System.Web.UI.Page
 
         try
         {
-            int[] assetIds;
-
-
             string sIP = "1.1.1.1";
             string sWSUserName = "";
             string sWSPass = "";
