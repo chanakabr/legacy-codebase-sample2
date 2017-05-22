@@ -1446,7 +1446,7 @@ namespace Core.Catalog
             HashSet<string> searchKeys = new HashSet<string>();
 
             // get alias + regex expression 
-            List<FieldTypeEntity> FieldEpgAliasMapping = CatalogDAL.GetAliasMappingFields(group.m_nParentGroupID);
+            List<FieldTypeEntity> FieldEpgAliasMapping = ConditionalAccess.Utils.GetAliasMappingFields(group.m_nParentGroupID);
 
             if (originalKey.StartsWith("tags."))
             {

@@ -5177,7 +5177,7 @@ namespace Core.ConditionalAccess
             Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>();
             try
             {
-                List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+                List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = GetAliasMappingFields(groupId); 
                 if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
                     log.DebugFormat("No alias mapping returned from 'GetAliasMappingFields'. groupId = {0} ", groupId);
@@ -5365,8 +5365,7 @@ namespace Core.ConditionalAccess
         {
             seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
 
-            // TODO: Add this alias stuff to cache!!!!
-            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+            var metaTagsMappings = GetAliasMappingFields(groupId);
             if (metaTagsMappings == null || metaTagsMappings.Count == 0)
             {
                 log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
@@ -5402,7 +5401,7 @@ namespace Core.ConditionalAccess
             List<EpgCB> epgMatch = new List<EpgCB>();
             try
             {   
-                List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+                List<ApiObjects.Epg.FieldTypeEntity> metaTagsMappings = GetAliasMappingFields(groupId);
                 if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
                     log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);
@@ -7456,6 +7455,53 @@ namespace Core.ConditionalAccess
             return couponCode;
         }
 
-        
+
+        internal static List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId)
+        {
+            List<ApiObjects.Epg.FieldTypeEntity> res = null;
+
+            try
+            {
+                if (!LayeredCache.Instance.Get<List<ApiObjects.Epg.FieldTypeEntity>>(LayeredCacheKeys.GetAliasMappingFields(groupId), ref res, GetAliasMappingFields, new Dictionary<string, object>() { { "groupId", groupId } },
+                    groupId, LayeredCacheConfigNames.GET_ALIAS_MAPPING_FIELDS_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetAliasMappingFieldsInvalidationKey(groupId) }))
+                {
+                    log.ErrorFormat("Failed getting alias mapping fields from LayeredCache, groupId: {0}", groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAliasMappingFields for groupId: {0}", groupId), ex);
+            }
+
+            return res;
+        }
+
+        internal static Tuple<List<ApiObjects.Epg.FieldTypeEntity>, bool> GetAliasMappingFields(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            List<ApiObjects.Epg.FieldTypeEntity> result = new List<ApiObjects.Epg.FieldTypeEntity>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+
+                    if (groupId.HasValue)
+                    {
+                        result = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId.Value);
+                        if (result != null)
+                        {
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetAliasMappingFields failed with params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<List<ApiObjects.Epg.FieldTypeEntity>, bool>(result, res);
+        }
     }
 }
