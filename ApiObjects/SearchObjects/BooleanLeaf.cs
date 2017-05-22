@@ -48,6 +48,10 @@ namespace ApiObjects.SearchObjects
         [DataMember]
         public List<eObjectType> assetTypes;
 
+        [DataMember]
+        [JsonProperty()]
+        public bool shouldLowercase;
+
         #endregion
 
         #region Properties
@@ -73,12 +77,13 @@ namespace ApiObjects.SearchObjects
         /// <param name="type"></param>
         /// <param name="operand"></param>
         [JsonConstructor]
-        public BooleanLeaf(string field = "", object value = null, Type type = null, ComparisonOperator operand = ComparisonOperator.Equals)
+        public BooleanLeaf(string field = "", object value = null, Type type = null, ComparisonOperator operand = ComparisonOperator.Equals, bool shouldLowercase = false)
         {
             this.field = field;
             this.value = value;
             this.valueType = type;
             this.operand = operand;
+            this.shouldLowercase = shouldLowercase;
         }
 
         #endregion
