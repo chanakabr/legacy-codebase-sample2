@@ -867,7 +867,8 @@ namespace Core.ConditionalAccess
                         endDate = subscriptionEndDate,
                         entitlementDate = entitlementDate,
                         houseHoldId = houseHoldId,
-                        billingGuid = billingGuid
+                        billingGuid = billingGuid,
+                        couponCode = coupon
                     };
                 subscriptionPurchase.Insert();
                 purchaseId = subscriptionPurchase.purchaseId;
