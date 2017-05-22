@@ -298,7 +298,7 @@ namespace Core.Notification
         public static RemindersResponse AddUserSeriesReminder(int userId, DbSeriesReminder clientReminder)
         {
             RemindersResponse response = new RemindersResponse();
-           
+
             int reminderId = 0;
             string externalTopicId = string.Empty;
             DbSeriesReminder dbSeriesReminder = null;
@@ -495,7 +495,7 @@ namespace Core.Notification
         private static bool IsSeriesAlreadyFollowed(int groupId, string seriesId, long? seasonNumber, long epgChannelId, UserNotification userNotificationData)
         {
             List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
-            return dbSeriesReminders != null && 
+            return dbSeriesReminders != null &&
                 dbSeriesReminders.Where(sr => sr.SeriesId == seriesId && (!sr.SeasonNumber.HasValue || sr.SeasonNumber.Value == 0) && sr.EpgChannelId == epgChannelId).FirstOrDefault() != null;
         }
 
@@ -523,9 +523,9 @@ namespace Core.Notification
                 {
                     if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
                         (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
-                        (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ? 
+                        (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ?
                         ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
-                        (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString())) 
+                        (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()))
                         : true))
                     {
                         episodesToRemove.Add(program);
@@ -610,7 +610,7 @@ namespace Core.Notification
 
             string seriesId = aliases[Core.ConditionalAccess.Utils.SERIES_ID];
             long seasonNumber = aliases.ContainsKey(Core.ConditionalAccess.Utils.SEASON_NUMBER) ? long.Parse(aliases[Core.ConditionalAccess.Utils.SEASON_NUMBER]) : 0;
-            
+
             DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
             if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
             {
@@ -1491,8 +1491,34 @@ namespace Core.Notification
 
         public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
         {
-            EpgProgramResponse response = null;
+            try
+            {
+                SendReminders(partnerId, programIds);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while sending reminders. Partner ID: {0}, program IDs: {1}, ex: {2}", partnerId, string.Join(",", programIds), ex);
+            }
 
+            try
+            {
+                //SendUserInterests(partnerId, programIds);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception while sending user interests. Partner ID: {0}, program IDs: {1}, ex: {2}", partnerId, string.Join(",", programIds), ex);
+            }
+
+            return true;
+        }
+
+        private static void SendUserInterests(int partnerId, List<ulong> programIds)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool SendReminders(int partnerId, List<ulong> programIds)
+        {
             // validate reminder is enabled
             if (!NotificationSettings.IsPartnerRemindersEnabled(partnerId))
             {
@@ -1517,6 +1543,7 @@ namespace Core.Notification
                 m_sSignString = CatalogSignString
             };
 
+            EpgProgramResponse response = null;
             try
             {
                 response = epgRequest.GetProgramsByIDs(epgRequest);
@@ -1543,6 +1570,7 @@ namespace Core.Notification
                     {
                         // get dbReminders
                         var dbReminders = NotificationDal.GetReminderByReferenceId(partnerId, epgs.Select(x => x.m_oProgram.EPG_ID).ToList());
+
                         // Parse start date
                         DateTime newEpgSendDate;
                         if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
