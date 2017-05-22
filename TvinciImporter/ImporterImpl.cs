@@ -5874,7 +5874,9 @@ namespace TvinciImporter
                                             nParentGroupID, actionCatalog);
 
                                         string sInfo = isUpdateChannelIndexSucceeded == true ? "succeeded" : "not succeeded";
-                                        log.DebugFormat("Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress);
+
+                                        string channelIds = string.Join(",", arrChannelIds);
+                                        log.DebugFormat("Channels: {2} Update channel index {0} in catalog '{1}'", sInfo, sEndPointAddress, channelIds);
 
                                         wsCatalog.Close();
                                     }
