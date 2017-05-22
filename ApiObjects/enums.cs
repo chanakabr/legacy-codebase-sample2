@@ -587,7 +587,7 @@ namespace ApiObjects
         ChannelName = 0,
         StartDate = 1,
         SeriesName = 2,
-        SeasonNumber = 3
+        EpisodeName = 3,
     }
 
     public enum TstvRecordingStatus
