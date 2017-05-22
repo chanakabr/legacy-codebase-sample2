@@ -1,4 +1,7 @@
-﻿using System;
+﻿using CachingProvider.LayeredCache;
+using KLogMonitor;
+using RabbitMQ.Client.Impl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,6 +11,7 @@ using TVinciShared;
 
 public partial class adm_alias_mapping_new : System.Web.UI.Page
 {
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected void Page_Load(object sender, EventArgs e)
@@ -27,35 +31,40 @@ public partial class adm_alias_mapping_new : System.Web.UI.Page
                     id = int.Parse(Session["alias_mapping_id"].ToString());
                 }
                 int aliasId = 0;
-                    int filedId = 0;
-                        int type = 0;
-                        int groupId = LoginManager.GetLoginGroupID();
+                int filedId = 0;
+                int type = 0;
+                int groupId = LoginManager.GetLoginGroupID();
 
-                        PageFiled(ref aliasId, ref type, ref filedId);
+                PageFiled(ref aliasId, ref type, ref filedId);
 
-                        if (type == 0 || filedId == 0 || aliasId == 0)
-                        {
-                            Session["error_msg_s"] = "Error-empty fields";
-                            Session["error_msg"] = "Error-empty fields";
-                        }
-                        else
-                        {
-                            if (id == 0)
-                            {
-                                //insert new
-                                InsertAlias(aliasId, type, filedId, groupId, ref id);
-                                Session["alias_mapping_id"] = id;
-                            }
-                            else
-                            {
-                                //update
-                                UpdateAlias(aliasId, type, filedId, id);
-                            }
-                        }
-                        EndOfAction();
+                if (type == 0 || filedId == 0 || aliasId == 0)
+                {
+                    Session["error_msg_s"] = "Error-empty fields";
+                    Session["error_msg"] = "Error-empty fields";
+                }
+                else
+                {
+                    if (id == 0)
+                    {
+                        //insert new
+                        InsertAlias(aliasId, type, filedId, groupId, ref id);
+                        Session["alias_mapping_id"] = id;
+                    }
+                    else
+                    {
+                        //update
+                        UpdateAlias(aliasId, type, filedId, id);
+                    }
 
-                        return;
-             
+                    string invalidationKey = LayeredCacheKeys.GetAliasMappingFieldsInvalidationKey(groupId);
+                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on User.Save key = {0}", invalidationKey);
+                    }
+                }
+                EndOfAction();
+
+                return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);
             m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 1, true);
