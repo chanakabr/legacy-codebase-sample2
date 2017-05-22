@@ -43,7 +43,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.m_sCurrencyCD2))
                 .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.m_bIsDefault))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.m_sCurrencyName))
-                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));                
+                .ForMember(dest => dest.Sign, opt => opt.MapFrom(src => src.m_sCurrencySign));
 
             //AssetType to Catalog.StatsType
             Mapper.CreateMap<AssetType, StatsType>().ConstructUsing((AssetType type) =>
@@ -351,7 +351,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.NonExistingChannelPlaybackEnabled, opt => opt.MapFrom(src => src.IsRecordingPlaybackNonExistingChannelEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
                 .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod/( 24*60*60)));// convert to days 
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod / (24 * 60 * 60)));// convert to days 
 
             //KalturaTimeShiftedTvPartnerSettings to TimeShiftedTvPartnerSettings
             Mapper.CreateMap<WebAPI.Models.API.KalturaTimeShiftedTvPartnerSettings, TimeShiftedTvPartnerSettings>()
@@ -375,7 +375,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsRecordingPlaybackNonExistingChannelEnabled, opt => opt.MapFrom(src => src.NonExistingChannelPlaybackEnabled))
                 .ForMember(dest => dest.QuotaOveragePolicy, opt => opt.MapFrom(src => ConvertQuotaOveragePolicy(src.QuotaOveragePolicy)))
                 .ForMember(dest => dest.ProtectionPolicy, opt => opt.MapFrom(src => ConvertProtectionPolicy(src.ProtectionPolicy)))
-                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod *24*60*60));// convert days to seconds
+                .ForMember(dest => dest.RecoveryGracePeriod, opt => opt.MapFrom(src => src.RecoveryGracePeriod * 24 * 60 * 60));// convert days to seconds
 
             #endregion
 
@@ -472,6 +472,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertFieldName(src.FieldName)))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
+              .ForMember(dest => dest.DefaultValues, opt => opt.MapFrom(src => ConvertDefaultValues(src.DefaultValues)))
               ;
 
             Mapper.CreateMap<KalturaMeta, Meta>()
@@ -479,6 +481,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
+             .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
+             .ForMember(dest => dest.DefaultValues, opt => opt.MapFrom(src => ConvertDefaultValues(src.DefaultValues)))
              ;
 
             #endregion
@@ -499,6 +503,90 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
+        private static List<string> ConvertDefaultValues(List<KalturaStringValue> kalturaList)
+        {
+            List<string> list = null;
+            if (kalturaList != null)
+            {
+                list = new List<string>();
+                foreach (var stringValue in kalturaList)
+                {
+                    list.Add(stringValue.value);
+                }
+            }
+            return list;
+        }
+
+        private static List<KalturaStringValue> ConvertDefaultValues(List<string> list)
+        {
+            List<KalturaStringValue> kalturaList = null;
+            if (list != null)
+            {
+                kalturaList = new List<KalturaStringValue>();
+                foreach (var stringValue in list)
+                {
+                    kalturaList.Add(new KalturaStringValue() { value = stringValue });
+                }
+            }
+            return kalturaList;
+        }
+
+        private static List<MetaFeatureType> ConvertFeatures(string metaFeatureType)
+        {
+            List<MetaFeatureType> featureList = new List<MetaFeatureType>();
+
+            if (!string.IsNullOrEmpty(metaFeatureType))
+            {
+                string[] metaFeatures = metaFeatureType.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string feature in metaFeatures)
+                {
+                    KalturaMetaFeatureType kalturaMetaFeatureType;
+                    if (Enum.TryParse<KalturaMetaFeatureType>(feature.ToUpper(), out kalturaMetaFeatureType))
+                    {
+                        featureList.Add(ConvertMetaFeatureType(kalturaMetaFeatureType));
+                    }
+                }
+            }
+
+            return featureList;
+        }
+
+        private static string ConvertFeatures(List<MetaFeatureType> list)
+        {
+            string metaFeatureType = string.Empty;
+            if (list != null)
+            {
+                foreach (MetaFeatureType featureType in list)
+                {
+                    metaFeatureType = string.Join(",", ConvertMetaFeatureType(featureType).ToString());
+                }
+            }
+
+            return metaFeatureType;
+        }
+
+        private static MetaFeatureType ConvertMetaFeatureType(KalturaMetaFeatureType kalturaMetaFeatureType)
+        {
+            switch (kalturaMetaFeatureType)
+            {
+                case KalturaMetaFeatureType.USER_INTEREST:
+                    return MetaFeatureType.USER_INTEREST;
+                default:
+                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown metaFeatureType value : {0}", kalturaMetaFeatureType.ToString()));
+            }
+        }
+
+        private static KalturaMetaFeatureType ConvertMetaFeatureType(MetaFeatureType featureType)
+        {
+            switch (featureType)
+            {
+                case MetaFeatureType.USER_INTEREST:
+                    return KalturaMetaFeatureType.USER_INTEREST;
+                default:
+                    throw new ClientException((int)StatusCode.Error, string.Format("Unknown metaFeatureType value : {0}", featureType.ToString()));
+            }
+        }
+
         private static ProtectionPolicy? ConvertProtectionPolicy(KalturaProtectionPolicy? protectionPolicy)
         {
             ProtectionPolicy? result = null;
@@ -517,7 +605,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         throw new ClientException((int)StatusCode.Error, "Unknown protection policy value");
                 }
             }
-            return result;    
+            return result;
         }
 
         private static KalturaProtectionPolicy? ConvertProtectionPolicy(ProtectionPolicy? protectionPolicy)
@@ -538,7 +626,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         throw new ClientException((int)StatusCode.Error, "Unknown protection policy value");
                 }
             }
-            return result;    
+            return result;
         }
 
         private static KalturaQuotaOveragePolicy? ConvertQuotaOveragePolicy(QuotaOveragePolicy? quotaOveragePolicy)
@@ -559,7 +647,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         throw new ClientException((int)StatusCode.Error, "Unknown quota overage policy value");
                 }
             }
-            return result;    
+            return result;
         }
 
         private static QuotaOveragePolicy? ConvertQuotaOveragePolicy(KalturaQuotaOveragePolicy? kalturaQuotaOveragePolicy)
@@ -580,7 +668,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         throw new ClientException((int)StatusCode.Error, "Unknown quota overage policy value");
                 }
             }
-            return result;           
+            return result;
         }
 
         private static KalturaApiParameterPermissionItemAction ConvertApiParameterPermissionItemAction(string action)
@@ -1549,7 +1637,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
             return response;
         }
-        
+
         internal static MetaFieldName ConvertMetaFieldName(KalturaMetaFieldName? metaFieldName)
         {
             MetaFieldName response;

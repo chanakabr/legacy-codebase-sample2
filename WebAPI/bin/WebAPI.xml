@@ -893,6 +893,16 @@
             <param name="filter">Meta filter</param>
             <remarks></remarks>
         </member>
+        <member name="M:WebAPI.Controllers.MetaController.Update(WebAPI.Models.API.KalturaMeta)">
+            <summary>
+            Update meta's user interest
+            </summary>
+            <param name="meta">Meta</param>           
+            <returns></returns>
+            <remarks>
+            Possible status codes: 
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.DeviceBrandController.List">
             <summary>
             Return a list of the available device brands.
@@ -1097,6 +1107,16 @@
             Asset type this meta is related to 
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.Features">
+            <summary>
+            List of supported features 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.DefaultValues">
+            <summary>
+            User interest default values 
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
             <summary>
             Device brands
@@ -1190,6 +1210,36 @@
         <member name="P:WebAPI.Models.API.KalturaSearchHistory.DeviceId">
             <summary>
             Unique Device ID
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KlalturaUserInterest">
+            <summary>
+            Asset meta
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KlalturaUserInterest.UserId">
+            <summary>
+            Meta name for the partner
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KlalturaUserInterestTag">
+            <summary>
+            Asset meta
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KlalturaUserInterestTag.Name">
+            <summary>
+            Meta name for the partner
+            </summary>
+        </member>
+        <member name="T:WebAPI.Models.API.KlalturaUserInterestMeta">
+            <summary>
+            Asset meta
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KlalturaUserInterestMeta.Name">
+            <summary>
+            Meta name for the partner
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">

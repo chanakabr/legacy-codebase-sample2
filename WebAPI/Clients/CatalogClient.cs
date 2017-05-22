@@ -18,6 +18,7 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
 using WebAPI.Managers.Models;
+using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
@@ -2266,6 +2267,45 @@ namespace WebAPI.Clients
 
             return new KalturaLastPositionListResponse() { LastPositions = result, TotalCount = response.m_nTotalItems };
 
+        }
+
+        internal KalturaMeta UpdateGroupMeta(int groupId, KalturaMeta meta)
+        {
+            MetaResponse response = null;
+            KalturaMeta result = null;
+
+            try
+            {
+                Meta apiMeta = null;
+                apiMeta = AutoMapper.Mapper.Map<Meta>(meta);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Catalog.Module.UpdateGroupMeta(groupId, apiMeta);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while UpdateGroupMeta.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            if (response.MetaList != null && response.MetaList.Count > 0)
+            {
+                result = AutoMapper.Mapper.Map<KalturaMeta>(response.MetaList[0]);
+            }
+
+            return result;
         }
     }
 }

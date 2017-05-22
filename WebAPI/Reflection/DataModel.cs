@@ -4101,6 +4101,10 @@ namespace WebAPI.Reflection
                     {
                         case "AssetType":
                             return "assetType";
+                        case "DefaultValues":
+                            return "defaultValues";
+                        case "Features":
+                            return "features";
                         case "FieldName":
                             return "fieldName";
                         case "Name":
@@ -6121,6 +6125,30 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KlalturaUserInterest":
+                    switch(property.Name)
+                    {
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
+                case "KlalturaUserInterestMeta":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KlalturaUserInterestTag":
+                    switch(property.Name)
+                    {
+                        case "Name":
+                            return "name";
                     }
                     break;
                     

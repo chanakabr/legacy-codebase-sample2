@@ -50,5 +50,45 @@ namespace WebAPI.Controllers
 
              return response;
          }
+
+         /// <summary>
+         /// Update meta's user interest
+         /// </summary>
+         /// <param name="meta">Meta</param>           
+         /// <returns></returns>
+         /// <remarks>
+         /// Possible status codes: 
+         /// </remarks>
+         [Route("update"), HttpPost]
+         [ApiAuthorize]
+         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+         public KalturaMeta Update(KalturaMeta meta)
+         {
+             KalturaMeta response = null;
+
+             int groupId = KS.GetFromRequest().GroupId;
+
+             try
+             {
+                 if (string.IsNullOrEmpty(meta.Name))
+                 {
+                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaMeta.Name");
+                 }
+
+                 // call client
+                 response = ClientsManager.CatalogClient().UpdateGroupMeta(groupId, meta);
+             }
+             catch (ClientException ex)
+             {
+                 ErrorUtils.HandleClientException(ex);
+             }
+
+             return response;
+         }
+
+
+
+
+
     }
 }
