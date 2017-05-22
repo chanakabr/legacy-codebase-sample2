@@ -15609,5 +15609,14 @@ namespace Core.ConditionalAccess
 		{
 			return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
 		}
-	}
+
+        public virtual TransactionResponse SubscriptionSetModifySubscription(string siteguid, long housholdId, double price, string currency, int contentId, int productId,
+                                                                             eTransactionType transactionType, string coupon, string userIp, string udid, int paymentGatewayId,
+                                                                             int paymentMethodId, string adapterData, SubscriptionSetModifyPurchaseType purchaseType)
+        {
+            return PurchaseManager.SubscriptionSetModifySubscription(this, this.m_nGroupID, siteguid, housholdId, price, currency, contentId, productId, transactionType, coupon,
+                                                                    userIp, udid, paymentGatewayId, paymentMethodId, adapterData, purchaseType);
+        }
+
+    }
 }
