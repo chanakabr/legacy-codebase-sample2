@@ -245,5 +245,15 @@ namespace CachingProvider.LayeredCache
             return result;            
         }
 
+
+        public static string GetAliasMappingFieldsInvalidationKey(int groupId)
+        {
+            return string.Format("AliasMappingFieldsInvalidationKey_{0}", groupId);
+        }
+
+        public static string GetAliasMappingFields(int groupId)
+        {
+            return string.Format("AliasMappingFields_{0}", groupId);
+        }
     }
 }

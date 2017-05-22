@@ -40,6 +40,7 @@ namespace CachingProvider.LayeredCache
         public const string MEDIA_FILES_BY_MEDIA_ID_LAYERED_CACHE_CONFIG_NAME = "GetMediaFilesByMediaId";
         public const string IS_PROXY_BLOCKED_FOR_IP_LAYERED_CACHE_CONFIG_NAME = "IsProxyAllowed";
         public const string GET_SERIES_REMINDERS_CACHE_CONFIG_NAME = "GetSeriesReminders";
+        public const string GET_ALIAS_MAPPING_FIELDS_CACHE_CONFIG_NAME = "GetAliasMappingFields";
 
         #endregion
 
