@@ -309,7 +309,11 @@ namespace Core.Pricing
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
             this.CouponsGroups = couponsGroup;
-            SubscriptionSetIdsToPriority = subscriptionSetIdsToPriority.Select(x => new KeyValuePair(x.Key.ToString(), x.Value.ToString())).ToList();
+            SubscriptionSetIdsToPriority = new List<KeyValuePair>();
+            if (subscriptionSetIdsToPriority != null && subscriptionSetIdsToPriority.Count > 0)
+            {
+                subscriptionSetIdsToPriority.Select(x => new KeyValuePair(x.Key.ToString(), x.Value.ToString())).ToList();
+            }
 
             if (externalProductCodes != null)
             {
