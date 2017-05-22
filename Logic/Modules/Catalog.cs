@@ -337,5 +337,10 @@ namespace Core.Catalog
         }
 
         #endregion
+
+        public static MetaResponse UpdateGroupMeta(int groupId, Meta apiMeta)
+        {
+            return CatalogLogic.UpdateGroupMeta(groupId, apiMeta);
+        }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using ApiObjects.Response;
-using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects
 {
@@ -26,5 +23,12 @@ namespace ApiObjects
         public MetaFieldName FieldName { get; set; }
         public MetaType Type { get; set; }
         public eAssetTypes AssetType { get; set; }
+        public List<MetaFeatureType> Features { get; set; }
+        public List<string> DefaultValues { get; set; }
+    }
+
+    public enum MetaFeatureType
+    {
+        USER_INTEREST
     }
 }

@@ -20,6 +20,7 @@ using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
@@ -73,6 +74,10 @@ namespace Core.Catalog
         protected static readonly string META_DATE_PREFIX = "date";
 
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+
+        private const string NO_META_TO_UPDATE = "No meta update";
+        private const string NAME_REQUIRED = "Name must have a value";
+        private const string META_NOT_EXIST = "Meta not exist";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -1265,7 +1270,7 @@ namespace Core.Catalog
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, out aggregationResult);
 
                 if (searchResults != null)
-                {                   
+                {
                     searchResultsList = searchResults;
                 }
             }
@@ -7163,7 +7168,7 @@ namespace Core.Catalog
                     }
                 }
 
-                if (searcherOrderObj.m_eOrderBy == OrderBy.META && 
+                if (searcherOrderObj.m_eOrderBy == OrderBy.META &&
                     !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, searcherOrderObj.m_sOrderValue.ToLower()))
                 {
                     //return error - meta not erxsits
@@ -8078,6 +8083,57 @@ namespace Core.Catalog
         internal static Dictionary<string, List<string>> GetUserPreferences(string siteGuid, int groupId)
         {
             throw new NotImplementedException();
+        }
+
+        internal static MetaResponse UpdateGroupMeta(int groupId, ApiObjects.Meta meta)
+        {
+            MetaResponse response = new MetaResponse();
+
+            try
+            {
+                if (meta == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoMetaToUpdate, NO_META_TO_UPDATE);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(meta.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+                
+                // update topicOptions if needed  
+                if( meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                {
+                    response = SetGroupTopicOptions(groupId, meta);
+                }              
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed groupID={0}, meta={1}, error: {2}", groupId, JsonConvert.SerializeObject( meta), ex);
+            }
+            return response;
+        }
+
+        private static MetaResponse SetGroupTopicOptions(int groupId, ApiObjects.Meta meta)
+        {
+            MetaResponse response = new MetaResponse();
+            
+            ApiObjects.Meta updatedMeta = CatalogDAL.SetGroupTopicOptions(groupId, meta);
+            
+            if (updatedMeta != null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Meta set changes");
+                response.MetaList = new List<ApiObjects.Meta>();
+                response.MetaList.Add(updatedMeta);
+            }
+            else
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Meta failed set changes");
+            }
+            return response;
         }
     }
 }

@@ -188,6 +188,8 @@ namespace ApiObjects.Response
         TimeShiftedTvPartnerSettingsNotSent = 5023,
         TimeShiftedTvPartnerSettingsNegativeBufferSent = 5024,
         CDNPartnerSettingsNotFound = 5025,
+        NoMetaToUpdate = 5026,
+        MetaNotExist = 5027,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
