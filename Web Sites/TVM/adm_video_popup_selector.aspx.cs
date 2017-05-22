@@ -218,8 +218,9 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 string sWSUserName = "";
                 string sWSPass = "";
 
-                int nParentGroupID = DAL.UtilsDal.GetParentGroupID(LoginManager.GetLoginGroupID());
-                TVinciShared.WS_Utils.GetWSUNPass(nParentGroupID, "SearchAssets", "api", sIP, ref sWSUserName, ref sWSPass);
+                int exactGroupId = LoginManager.GetLoginGroupID();
+                int parentGroupID = DAL.UtilsDal.GetParentGroupID(exactGroupId);
+                TVinciShared.WS_Utils.GetWSUNPass(parentGroupID, "SearchAssets", "api", sIP, ref sWSUserName, ref sWSPass);
                 string sWSURL = TVinciShared.WS_Utils.GetTcmConfigValue("api_ws");
                 if (string.IsNullOrEmpty(sWSURL) || string.IsNullOrEmpty(sWSUserName) || string.IsNullOrEmpty(sWSPass))
                 {
@@ -230,7 +231,14 @@ public partial class adm_video_popup_selector : System.Web.UI.Page
                 apiWS.API client = new apiWS.API();
                 client.Url = sWSURL;
 
-                UnifiedSearchResult[] assets = client.SearchAssets(sWSUserName, sWSPass, Query, 0, 50, false, 0, false, string.Empty, sIP, string.Empty, 0, 0, true);
+                // If we are browsing on parent group, don't use exact group id so that Search assets will work properly, on all child groups.
+                // If we are on child group, we want to search only on it
+                if (exactGroupId == parentGroupID)
+                {
+                    exactGroupId = 0;
+                }
+
+                UnifiedSearchResult[] assets = client.SearchAssets(sWSUserName, sWSPass, Query, 0, 50, false, 0, false, string.Empty, sIP, string.Empty, 0, exactGroupId, true);
                 if (assets != null && assets.Length > 0)
                 {
                     foreach (UnifiedSearchResult item in assets)
