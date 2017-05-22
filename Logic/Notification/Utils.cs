@@ -263,12 +263,13 @@ namespace Core.Notification
             return new Tuple<Dictionary<string, DbSeriesReminder>, bool>(result, res);
         }
 
+
         internal static bool GetSeriesMetaTagsFieldsNamesAndTypes(int groupId, out Tuple<string, FieldTypes> seriesIdName,
             out Tuple<string, FieldTypes> seasonNumberName, out Tuple<string, FieldTypes> episodeNumberName)
         {
             seriesIdName = seasonNumberName = episodeNumberName = null;
 
-            var metaTagsMappings = Tvinci.Core.DAL.CatalogDAL.GetAliasMappingFields(groupId);
+            var metaTagsMappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
             if (metaTagsMappings == null || metaTagsMappings.Count == 0)
             {
                 log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);

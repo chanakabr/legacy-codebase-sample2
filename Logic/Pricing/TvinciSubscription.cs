@@ -1009,7 +1009,7 @@ namespace Core.Pricing
                         productCodes = subsProductCodes[lSubCode].ToList();
                     }
 
-                    Dictionary<long, int> subscriptionSetIdsToPriority = null;
+                    Dictionary<long, int> subscriptionSetIdsToPriority = new Dictionary<long,int>();
                     if (subscriptionIdsToSetsMap.ContainsKey(lSubCode))
                     {
                         subscriptionSetIdsToPriority = subscriptionIdsToSetsMap[lSubCode];

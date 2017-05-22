@@ -1446,7 +1446,7 @@ namespace Core.Catalog
             HashSet<string> searchKeys = new HashSet<string>();
 
             // get alias + regex expression 
-            List<FieldTypeEntity> FieldEpgAliasMapping = CatalogDAL.GetAliasMappingFields(group.m_nParentGroupID);
+            List<FieldTypeEntity> FieldEpgAliasMapping = ConditionalAccess.Utils.GetAliasMappingFields(group.m_nParentGroupID);
 
             if (originalKey.StartsWith("tags."))
             {
@@ -6471,7 +6471,7 @@ namespace Core.Catalog
                         string value = keyValue.m_sValue;
 
                         BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals, true);
                         nodes.Add(leaf);
                     }
                 }
@@ -6486,8 +6486,19 @@ namespace Core.Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
+                        bool dummyBoolean;
+                        Type type;
+                        GetUnifiedSearchKey(key, group, out dummyBoolean, out type);
+
+                        bool shouldLowercase = false;
+
+                        if (type == typeof(int) || type == typeof(long) || type == typeof(double))
+                        {
+                            shouldLowercase = true;
+                        }
+
                         BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), type, ComparisonOperator.Equals, shouldLowercase);
                         nodes.Add(leaf);
                     }
                 }
@@ -6818,7 +6829,8 @@ namespace Core.Catalog
                                     string.Concat("tags.", tagValues.Key.ToLower()),
                                     tagValues.Value,
                                     typeof(List<string>),
-                                    ComparisonOperator.NotIn);
+                                    ComparisonOperator.NotIn,
+                                    true);
 
                                 newMediaNodes.Add(newLeaf);
                             }
@@ -6841,7 +6853,8 @@ namespace Core.Catalog
                                     string.Concat("tags.", tagValues.Key.ToLower()),
                                     tagValues.Value,
                                     typeof(List<string>),
-                                    ComparisonOperator.NotIn);
+                                    ComparisonOperator.NotIn,
+                                    true);
 
                                 newEpgNodes.Add(newLeaf);
                             }

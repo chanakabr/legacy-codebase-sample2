@@ -79,15 +79,6 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (userNotificationData.Reminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null || (epgProgram != null &&
-                    IsAlreadyFollowedAsSeries(dbReminder.GroupId, epgProgram, userNotificationData.SeriesReminders)))
-                {
-                    // user already set the reminder
-                    log.DebugFormat("User is already set a reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbReminder.GroupId, userId, dbReminder.ID);
-                    response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
-                    return response;
-                }
-
                 if (epgProgram == null)
                 {
                     // update reminder name and startDate according to epgAssetId
@@ -97,6 +88,15 @@ namespace Core.Notification
                         response.Status = status;
                         return response;
                     }
+                }
+
+                if (userNotificationData.Reminders.FirstOrDefault(x => x.AnnouncementId == dbReminder.ID) != null ||
+                    IsAlreadyFollowedAsSeries(dbReminder.GroupId, epgProgram, userNotificationData.SeriesReminders))
+                {
+                    // user already set the reminder
+                    log.DebugFormat("User is already set a reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbReminder.GroupId, userId, dbReminder.ID);
+                    response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
+                    return response;
                 }
 
                 // update reminder with epg program data                
@@ -613,15 +613,12 @@ namespace Core.Notification
 
             DbSeriesReminder seriesSeasonReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, seasonNumber, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
             if (seriesSeasonReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesSeasonReminder.ID).FirstOrDefault() != null)
-            {
                 return true;
-            }
 
             DbSeriesReminder seriesReminder = NotificationDal.GetSeriesReminder(groupId, seriesId, null, int.Parse(epgProgram.m_oProgram.EPG_CHANNEL_ID));
             if (seriesReminder != null && userSeriesReminders.Where(usr => usr.AnnouncementId == seriesReminder.ID).FirstOrDefault() != null)
-            {
                 return true;
-            }
+
             return false;
         }
 

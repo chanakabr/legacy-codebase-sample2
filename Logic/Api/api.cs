@@ -9176,7 +9176,7 @@ namespace Core.Api
                 {
                     Dictionary<string, Meta> metaDict = new Dictionary<string, Meta>();
 
-                    var mappings = CatalogDAL.GetAliasMappingFields(groupId);
+                    var mappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
 
                     // just the mapping
                     if (mappings != null && mappings.Count > 0)
