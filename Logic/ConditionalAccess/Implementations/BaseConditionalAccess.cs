@@ -3229,7 +3229,7 @@ namespace Core.ConditionalAccess
                     string couponCode = Utils.GetSubscriptiopnPurchaseCoupon(nPurchaseID, m_nGroupID, out couponGroupId); // return only if valid 
 
                     // look ig this coupon group id exsits in coupon list 
-                    CouponsGroup cg = theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
+                    CouponsGroup cg = theSub.m_oCouponsGroup != null && theSub.m_oCouponsGroup.m_sGroupCode == couponGroupId.ToString() && theSub.m_oCouponsGroup.couponGroupType == CouponGroupType.Coupon ? theSub.m_oCouponsGroup :
                         allCoupons.Where(x => x.m_sGroupCode == couponGroupId.ToString() && x.couponGroupType == CouponGroupType.Coupon).Select(x => x).FirstOrDefault();
                     
                     if (cg != null && !string.IsNullOrEmpty(cg.m_sGroupCode))
