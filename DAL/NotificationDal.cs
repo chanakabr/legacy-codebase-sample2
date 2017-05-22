@@ -2323,6 +2323,7 @@ namespace DAL
                 sp.AddParameter("@seriesId", dbReminder.SeriesId);
                 sp.AddParameter("@seasonNumber", dbReminder.SeasonNumber);
                 sp.AddParameter("@epgChannelId", dbReminder.EpgChannelId);
+                sp.AddParameter("@lastSendDate", dbReminder.LastSendDate);
 
                 reminderId = sp.ExecuteReturnValue<int>();
             }
