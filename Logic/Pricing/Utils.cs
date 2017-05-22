@@ -571,9 +571,9 @@ namespace Core.Pricing
             return pcList;
         }
 
-        internal static Dictionary<long, HashSet<long>> GetSubscriptionIdToSetIdsMap(int groupId, List<long> subscriptionIds)
+        internal static Dictionary<long, Dictionary<long, int>> GetSubscriptionIdToSetIdsMap(int groupId, List<long> subscriptionIds)
         {
-            Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = new Dictionary<long, HashSet<long>>();
+            Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = new Dictionary<long, Dictionary<long, int>>();
             if (subscriptionIds == null || subscriptionIds.Count == 0)
             {
                 return subscriptionIdToSetIdsMap;
@@ -588,15 +588,16 @@ namespace Core.Pricing
                     {
                         long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SUBSCRIPTION_ID", 0);
                         long setId = ODBCWrapper.Utils.GetLongSafeVal(dr, "SET_ID", 0);
-                        if (subscriptionId > 0 && setId > 0)
+                        int priority = ODBCWrapper.Utils.GetIntSafeVal(dr, "PRIORITY", 0);
+                        if (subscriptionId > 0 && setId > 0 && priority > 0)
                         {
-                            if (!subscriptionIdToSetIdsMap.ContainsKey(subscriptionId))
+                            if (subscriptionIdToSetIdsMap.ContainsKey(subscriptionId))
                             {
-                                subscriptionIdToSetIdsMap.Add(subscriptionId, new HashSet<long>() { setId });
+                                subscriptionIdToSetIdsMap[subscriptionId][setId] = priority;
                             }
-                            else if (!subscriptionIdToSetIdsMap[subscriptionId].Contains(setId))
+                            else
                             {
-                                subscriptionIdToSetIdsMap[subscriptionId].Add(setId);
+                                subscriptionIdToSetIdsMap.Add(subscriptionId, new Dictionary<long, int>() { { setId, priority } });
                             }
                         }
                     }
@@ -724,13 +725,13 @@ namespace Core.Pricing
             List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
             try
             {
-                Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
+                Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = GetSubscriptionIdToSetIdsMap(groupId, subscriptionIds);
                 if (subscriptionIdToSetIdsMap == null || subscriptionIdToSetIdsMap.Count == 0)
                 {
                     return subscriptionSets;
                 }
 
-                List<long> setIds = subscriptionIdToSetIdsMap.SelectMany(x => x.Value).Distinct().ToList();
+                List<long> setIds = subscriptionIdToSetIdsMap.Where(x => x.Value != null).SelectMany(x => x.Value.Keys).Distinct().ToList();
                 if (setIds == null && setIds.Count == 0)
                 {
                     return subscriptionSets;

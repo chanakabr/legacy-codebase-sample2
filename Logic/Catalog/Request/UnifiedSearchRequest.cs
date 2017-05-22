@@ -192,8 +192,8 @@ namespace Core.Catalog.Request
                     List<BooleanPhraseNode> nameAndDescriptionNodes = new List<BooleanPhraseNode>();
 
                     // "name = q OR description = q"
-                    nameAndDescriptionNodes.Add(new BooleanLeaf("name", request.nameAndDescription, null, ComparisonOperator.Contains));
-                    nameAndDescriptionNodes.Add(new BooleanLeaf("description", request.nameAndDescription, null, ComparisonOperator.Contains));
+                    nameAndDescriptionNodes.Add(new BooleanLeaf("name", request.nameAndDescription, null, ComparisonOperator.Contains, true));
+                    nameAndDescriptionNodes.Add(new BooleanLeaf("description", request.nameAndDescription, null, ComparisonOperator.Contains, true));
 
                     BooleanPhrase nameAndDescriptionPhrase = new BooleanPhrase(nameAndDescriptionNodes, eCutType.Or);
 

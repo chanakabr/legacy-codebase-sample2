@@ -33,6 +33,8 @@ namespace Core.ConditionalAccess.Modules
 
         public abstract eTransactionType type { get; }
 
+        public string couponCode { get; set; }
+
         #endregion
 
         public Purchase(int groupId)

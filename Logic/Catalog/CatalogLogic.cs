@@ -6471,7 +6471,7 @@ namespace Core.Catalog
                         string value = keyValue.m_sValue;
 
                         BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                            string.Format("tags.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals, true);
                         nodes.Add(leaf);
                     }
                 }
@@ -6486,8 +6486,19 @@ namespace Core.Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
+                        bool dummyBoolean;
+                        Type type;
+                        GetUnifiedSearchKey(key, group, out dummyBoolean, out type);
+
+                        bool shouldLowercase = false;
+
+                        if (type == typeof(int) || type == typeof(long) || type == typeof(double))
+                        {
+                            shouldLowercase = true;
+                        }
+
                         BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), typeof(string), ComparisonOperator.Equals);
+                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), type, ComparisonOperator.Equals, shouldLowercase);
                         nodes.Add(leaf);
                     }
                 }
@@ -6638,16 +6649,20 @@ namespace Core.Catalog
 
                         object value = leaf.value;
 
+                        bool shouldLowercase = true;
+
                         if (metaType == typeof(double))
                         {
                             value = Convert.ToDouble(value);
+                            shouldLowercase = false;
                         }
                         else if (metaType == typeof(int) || metaType == typeof(long))
                         {
                             value = Convert.ToInt64(value);
+                            shouldLowercase = false;
                         }
 
-                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, value, value.GetType(), leaf.operand));
+                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, value, value.GetType(), leaf.operand, shouldLowercase));
                     }
 
                     eCutType cutType = eCutType.Or;
@@ -6687,16 +6702,23 @@ namespace Core.Catalog
                     {
                         leaf.valueType = typeof(long);
                         GetLeafDate(ref leaf, request.m_dServerTime);
+                        leaf.shouldLowercase = false;
                     }
                     else if (metaType == typeof(double))
                     {
                         leaf.value = Convert.ToDouble(leaf.value);
                         leaf.valueType = typeof(double);
+                        leaf.shouldLowercase = false;
                     }
                     else if (metaType == typeof(int) || metaType == typeof(long))
                     {
                         leaf.value = Convert.ToInt64(leaf.value);
                         leaf.valueType = typeof(long);
+                        leaf.shouldLowercase = false;
+                    }
+                    else
+                    {
+                        leaf.shouldLowercase = true;
                     }
                 }
                 else
@@ -6715,6 +6737,8 @@ namespace Core.Catalog
                                 eObjectType.Recording
                             };
                         }
+
+                        leaf.shouldLowercase = false;
                     }
                     else if (searchKeyLowered == "end_date")
                     {
@@ -6729,10 +6753,14 @@ namespace Core.Catalog
                                 eObjectType.Recording
                             };
                         }
+
+                        leaf.shouldLowercase = false;
                     }
                     else if (searchKeyLowered == "update_date")
                     {
                         GetLeafDate(ref leaf, request.m_dServerTime);
+
+                        leaf.shouldLowercase = false;
                     }
                     else if (searchKeyLowered == ESUnifiedQueryBuilder.GEO_BLOCK_FIELD)
                     {
@@ -6801,7 +6829,8 @@ namespace Core.Catalog
                                     string.Concat("tags.", tagValues.Key.ToLower()),
                                     tagValues.Value,
                                     typeof(List<string>),
-                                    ComparisonOperator.NotIn);
+                                    ComparisonOperator.NotIn,
+                                    true);
 
                                 newMediaNodes.Add(newLeaf);
                             }
@@ -6824,7 +6853,8 @@ namespace Core.Catalog
                                     string.Concat("tags.", tagValues.Key.ToLower()),
                                     tagValues.Value,
                                     typeof(List<string>),
-                                    ComparisonOperator.NotIn);
+                                    ComparisonOperator.NotIn,
+                                    true);
 
                                 newEpgNodes.Add(newLeaf);
                             }
@@ -6904,6 +6934,8 @@ namespace Core.Catalog
                     }
                     else if (reservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
+                        leaf.shouldLowercase = false;
+
                         if (leaf.operand != ComparisonOperator.In)
                         {
                             leaf.valueType = typeof(long);
@@ -6920,6 +6952,8 @@ namespace Core.Catalog
                     }
                     else if (reservedUnifiedSearchStringFields.Contains(searchKeyLowered))
                     {
+                        leaf.shouldLowercase = true;
+
                         if (searchKeyLowered == "name" || searchKeyLowered == "description")
                         {
                             // add language suffix (if the language is not the default)
@@ -7200,10 +7234,17 @@ namespace Core.Catalog
                                 key = string.Format("{0}.{1}", searchValue.m_sKeyPrefix, key);
                             }
 
+                            bool shouldLowercase = true;
+
+                            if (reservedUnifiedSearchNumericFields.Contains(searchValue.m_sKey))
+                            {
+                                shouldLowercase = false;
+                            }
+
                             // If only 1 value, use it as a single node (there's no need to create a phrase with 1 node...)
                             if (searchValue.m_lValue.Count == 1)
                             {
-                                newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string), ComparisonOperator.Equals);
+                                newNode = new BooleanLeaf(key, searchValue.m_lValue[0], typeof(string), ComparisonOperator.Equals, shouldLowercase);
                             }
                             else
                             {
@@ -7212,7 +7253,7 @@ namespace Core.Catalog
 
                                 foreach (var item in searchValue.m_lValue)
                                 {
-                                    BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals);
+                                    BooleanLeaf leaf = new BooleanLeaf(key, item, typeof(string), ComparisonOperator.Equals, shouldLowercase);
                                     innerNodes.Add(leaf);
                                 }
 

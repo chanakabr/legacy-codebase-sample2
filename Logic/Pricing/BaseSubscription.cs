@@ -533,16 +533,16 @@ namespace Core.Pricing
             return sgList;
         }
 
-        protected List<long> GetSetsContainingSubscription(int subscriptionId)
+        protected Dictionary<long, int> GetSetsContainingSubscription(int subscriptionId)
         {
-            List<long> setIds = new List<long>();
-            Dictionary<long, HashSet<long>> subscriptionIdToSetIdsMap = Core.Pricing.Utils.GetSubscriptionIdToSetIdsMap(m_nGroupID, new List<long>() { (long)subscriptionId });
+            Dictionary<long, int> setIdsToPriorityMapping = new Dictionary<long, int>();
+            Dictionary<long, Dictionary<long, int>> subscriptionIdToSetIdsMap = Core.Pricing.Utils.GetSubscriptionIdToSetIdsMap(m_nGroupID, new List<long>() { (long)subscriptionId });
             if (subscriptionIdToSetIdsMap != null && subscriptionIdToSetIdsMap.ContainsKey(subscriptionId) && subscriptionIdToSetIdsMap[subscriptionId] != null)
             {
-                setIds = subscriptionIdToSetIdsMap[subscriptionId].ToList();
+                setIdsToPriorityMapping = subscriptionIdToSetIdsMap[subscriptionId];
             }
 
-            return setIds;
+            return setIdsToPriorityMapping;
         }
 
         protected List<KeyValuePair<VerificationPaymentGateway, string>> GetSubscriptionExternalProductCodes(Int32 subscriptionId)

@@ -6,12 +6,17 @@ using ApiObjects;
 using System.Data;
 using DAL;
 using ApiObjects.Pricing;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Core.Pricing
 {
     [Serializable]
     public class Subscription : PPVModule
     {
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Member
         //The codes which identify which medias are relevant to the subscription (int Tvinci it is the channels)
         public BundleCodeContainer[] m_sCodes;
@@ -36,7 +41,7 @@ namespace Core.Pricing
         public int m_nDomainLimitationModule;
         public ServiceObject[] m_lServices;
         public int m_GracePeriodMinutes;
-        public List<long> SubscriptionSetIds;        
+        public List<KeyValuePair> SubscriptionSetIdsToPriority;        
 
         public List<SubscriptionCouponGroup> CouponsGroups;
         public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
@@ -236,7 +241,7 @@ namespace Core.Pricing
            string sSubUsageModule, string sObjectVirtualName,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string priority, string sProductCode, string sExtDiscount, UserType[] userTypes, ServiceObject[] services,
             long lPreviewModuleID, int nGeoCommerceID = 0, int dlmID = 0, int gracePeriodMinutes = 0, AdsPolicy? adsPolicy = null, string adsParam = null,
-             List<SubscriptionCouponGroup> couponsGroup = null, List<long> subscriptionSetIds = null, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null)
+             List<SubscriptionCouponGroup> couponsGroup = null, Dictionary<long, int> subscriptionSetIdsToPriority = null, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes = null)
         {
             base.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode,
                 sDescriptions, nGroupID, sSubscriptionCode, false, sObjectVirtualName,
@@ -304,7 +309,11 @@ namespace Core.Pricing
             AdsPolicy = adsPolicy;
             AdsParam = adsParam;
             this.CouponsGroups = couponsGroup;
-            SubscriptionSetIds = subscriptionSetIds;
+            SubscriptionSetIdsToPriority = new List<KeyValuePair>();
+            if (subscriptionSetIdsToPriority != null && subscriptionSetIdsToPriority.Count > 0)
+            {
+                subscriptionSetIdsToPriority.Select(x => new KeyValuePair(x.Key.ToString(), x.Value.ToString())).ToList();
+            }
 
             if (externalProductCodes != null)
             {
@@ -388,6 +397,30 @@ namespace Core.Pricing
             sb.Append(String.Concat("PPV Obj Code: ", m_sObjectCode != null ? m_sObjectCode : "null"));
             sb.Append(String.Concat(" Sub Code: ", m_SubscriptionCode != null ? m_SubscriptionCode : "null"));
             return sb.ToString();
+        }
+
+        public Dictionary<long, int> GetSubscriptionSetIdsToPriority()
+        {
+            Dictionary<long, int> result = new Dictionary<long, int>();
+            try
+            {
+                foreach (KeyValuePair keyValuePair in this.SubscriptionSetIdsToPriority)
+                {
+                    long setId = 0;
+                    int priority = 0;
+                    if (long.TryParse(keyValuePair.key, out setId) && setId > 0 && int.TryParse(keyValuePair.value, out priority) && priority > 0)
+                    {
+                        result[setId] = priority;
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSubscriptionSetIdsToPriority for subscription with id: {0}", this.m_ProductCode), ex);
+            }
+
+            return result;
         }
 
     }

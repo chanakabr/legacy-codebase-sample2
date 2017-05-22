@@ -41,7 +41,6 @@ namespace Core.ConditionalAccess.Modules
             }
         }
 
-
         #endregion
 
         public SubscriptionPurchase(int groupId)
@@ -76,7 +75,7 @@ namespace Core.ConditionalAccess.Modules
                 {
                     this.purchaseId = ConditionalAccessDAL.Insert_NewMPPPurchase(this.GroupId, this.productId, this.siteGuid, this.isEntitledToPreviewModule ? 0.0 : this.price, this.currency, this.customData, this.country,
                            this.deviceName, this.usageModuleExists ? this.maxNumberOfViews : 0, this.usageModuleExists ? this.viewLifeCycle : 0, this.isRecurring, this.billingTransactionId,
-                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid);
+                           this.previewModuleId, this.startDate.Value, this.endDate.Value, this.entitlementDate.Value, this.houseHoldId, this.billingGuid, 0, this.couponCode);
                 }
                 else
                 {
