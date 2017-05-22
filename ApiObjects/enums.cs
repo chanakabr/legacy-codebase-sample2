@@ -887,4 +887,11 @@ namespace ApiObjects
         ExtendingRecordingLifetime = 0,
         LimitedByRecordingLifetime = 1
     }
+
+    public enum SubscriptionSetModifyPurchaseType
+    {
+        Upgrade,
+        Downgrade
+    }
+
 }
