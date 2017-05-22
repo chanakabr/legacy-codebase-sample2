@@ -4335,6 +4335,20 @@
             <param name="configuration">The social action settings</param>
             <returns></returns>
         </member>
+        <member name="M:WebAPI.Controllers.TransactionController.Upgrade(WebAPI.Models.ConditionalAccess.KalturaPurchase)">
+            <summary>
+            upgrade specific subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
+            </summary>
+            <param name="purchase">Purchase properties</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.TransactionController.Downgrade(WebAPI.Models.ConditionalAccess.KalturaPurchase)">
+            <summary>
+            downgrade specific subscription for a household. entitlements will be updated on the existing subscription end date. 
+            </summary>
+            <param name="purchase">Purchase properties</param>
+            <returns></returns>
+        </member>
         <member name="M:WebAPI.Controllers.TransactionController.Purchase(WebAPI.Models.ConditionalAccess.KalturaPurchase)">
             <summary>
             Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 

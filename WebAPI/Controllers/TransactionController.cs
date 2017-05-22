@@ -17,6 +17,70 @@ namespace WebAPI.Controllers
     public class TransactionController : ApiController
     {
         /// <summary>
+        /// upgrade specific subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
+        /// </summary>
+        /// <param name="purchase">Purchase properties</param>
+        /// <returns></returns>
+        [Route("upgrade"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaTransaction Upgrade(KalturaPurchase purchase)
+        {
+            KalturaTransaction response = new KalturaTransaction();
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            purchase.Validate();
+
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency,
+                                                                                        purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
+                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData, WebAPI.Models.Pricing.KalturaSubscriptionSetModifyPurchaseType.upgrade);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// downgrade specific subscription for a household. entitlements will be updated on the existing subscription end date. 
+        /// </summary>
+        /// <param name="purchase">Purchase properties</param>
+        /// <returns></returns>
+        [Route("downgrade"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public KalturaTransaction Downgrade(KalturaPurchase purchase)
+        {
+            KalturaTransaction response = new KalturaTransaction();
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string udid = KSUtils.ExtractKSPayload().UDID;
+
+            purchase.Validate();
+
+            try
+            {
+                // call client
+                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency,
+                                                                                        purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
+                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData, WebAPI.Models.Pricing.KalturaSubscriptionSetModifyPurchaseType.downgrade);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+        
+        /// <summary>
         /// Purchase specific product or subscription for a household. Upon successful charge entitlements to use the requested product or subscription are granted. 
         /// </summary>
         /// <param name="purchase">Purchase properties</param>

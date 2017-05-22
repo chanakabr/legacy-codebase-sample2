@@ -178,4 +178,5 @@ namespace WebAPI.Models.ConditionalAccess
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaExternalReceipt.paymentGatewayName");
         }
     }
+
 }

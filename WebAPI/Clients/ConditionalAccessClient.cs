@@ -1846,7 +1846,6 @@ namespace WebAPI.Clients
             return kalturaResponse;
         }
 
-
         internal bool RemoveHouseholdEntitlements(int groupId, int householdId)
         {
             Status status = null;
@@ -2158,6 +2157,49 @@ namespace WebAPI.Clients
 
             return Mapper.Map<WebAPI.Models.ConditionalAccess.KalturaCompensation>(response.Compensation);
         }
-        
+
+        internal KalturaTransaction SubscriptionSetModifySubscription(int groupId, string siteguid, long houshold, double price, string currency, int contentId, int productId, KalturaTransactionType clientTransactionType,
+                                                        string coupon, string udid, int paymentGatewayId, int paymentMethodId, string adapterData, KalturaSubscriptionSetModifyPurchaseType subscriptinSetModifyPurchaseType)
+        {
+            KalturaTransaction clientResponse = null;
+            TransactionResponse wsResponse = new TransactionResponse();
+
+            try
+            {
+                // convert local enumerator, to web service enumerator
+                eTransactionType transactionType = ConditionalAccessMappings.ConvertTransactionType(clientTransactionType);
+                SubscriptionSetModifyPurchaseType purchaseType = ConditionalAccessMappings.ConvertSubscriptionSetModifyPurchaseType(subscriptinSetModifyPurchaseType);
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // fire request
+                    wsResponse = Core.ConditionalAccess.Module.SubscriptionSetModifySubscription(groupId, siteguid, houshold, price, currency, contentId, productId, transactionType, coupon,
+                                                                                                Utils.Utils.GetClientIP(), udid, paymentGatewayId, paymentMethodId, adapterData, purchaseType);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling service. exception: {1}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (wsResponse == null)
+            {
+                // general exception
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (wsResponse.Status.Code != (int)StatusCode.OK)
+            {
+                // internal web service exception
+                throw new ClientException(wsResponse.Status.Code, wsResponse.Status.Message);
+            }
+
+            // convert response
+            clientResponse = AutoMapper.Mapper.Map<KalturaTransaction>(wsResponse);
+
+            return clientResponse;
+        }
+
     }
 }

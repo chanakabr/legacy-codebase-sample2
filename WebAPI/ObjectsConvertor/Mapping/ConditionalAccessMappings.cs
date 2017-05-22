@@ -904,5 +904,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return result;
         }
+
+        internal static SubscriptionSetModifyPurchaseType ConvertSubscriptionSetModifyPurchaseType(KalturaSubscriptionSetModifyPurchaseType subscriptinSetModifyPurchaseType)
+        {
+            SubscriptionSetModifyPurchaseType result;
+            switch (subscriptinSetModifyPurchaseType)
+            {
+                case KalturaSubscriptionSetModifyPurchaseType.upgrade:
+                    result = SubscriptionSetModifyPurchaseType.Upgrade;
+                    break;
+                case KalturaSubscriptionSetModifyPurchaseType.downgrade:
+                    result = SubscriptionSetModifyPurchaseType.Downgrade;
+                    break;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Unknown KalturaSubscriptionSetModifyPurchaseType type");
+                    break;
+            }
+
+            return result;
+        }
+
     }
 }
