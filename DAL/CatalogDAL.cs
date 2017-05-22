@@ -25,6 +25,9 @@ namespace Tvinci.Core.DAL
         private static readonly string CB_EPG_DOCUMENT_EXPIRY_DAYS = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
         private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
 
+        private static readonly string TOPIC_NAME_FIELD = "TOPIC_NAME";
+        private static readonly string DEFAULT_OPTIONS_FIELD = "DEFAULT_OPTIONS";
+
         /// <summary>
         /// 5
         /// </summary>
@@ -4562,6 +4565,80 @@ namespace Tvinci.Core.DAL
             spMetas.AddIDListParameter<int>("@SubGroupTree", subGroupTree, "Id");
 
             return spMetas.Execute();
+        }
+
+        public static Dictionary<string, List<string>> GetGroupTopicOptions(int partnerId, List<string> topicNames)
+        {
+            Dictionary<string, List<string>> topicOptions = null;
+            try
+            {
+
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupTopicOptions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", partnerId);
+                sp.AddIDListParameter<string>("@topicNames", topicNames, "STR");
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    topicOptions = new Dictionary<string, List<string>>();
+                    List<string> options = null;
+                    string topicName;
+                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    {
+                        topicName = ODBCWrapper.Utils.GetSafeStr(dr, TOPIC_NAME_FIELD);
+                        if (!topicOptions.ContainsKey(topicName))
+                        {
+                            var tablesRows = ds.Tables[0].Select(string.Format("{0} = '{1}'", TOPIC_NAME_FIELD, topicName));
+                            if (tablesRows != null)
+                            {
+                                options = CreateTopicOptionsList(tablesRows);
+                                topicOptions.Add(topicName, options);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetGroupTopicOptions. groupId: {0}. Error {1}", partnerId, ex);
+            }
+            return topicOptions;
+        }
+
+        public static ApiObjects.Meta SetGroupTopicOptions(int partnerId, ApiObjects.Meta groupTopicOptions)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_GroupTopicOptions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", partnerId);
+                sp.AddParameter("@topicName", groupTopicOptions.Name);
+                sp.AddIDListParameter("@defaultOptions", groupTopicOptions.DefaultValues, "STR");
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    groupTopicOptions.DefaultValues = CreateTopicOptionsList(ds.Tables[0].Select());
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetGroupTopicOptions. groupId: {0}. Error {1}", partnerId, ex);
+            }
+            return groupTopicOptions;
+        }
+
+        private static List<string> CreateTopicOptionsList(DataRow[] dataRows)
+        {
+            List<string> topicOptionsList = new List<string>();
+            string defaultOption;
+            foreach (var row in dataRows)
+            {
+                defaultOption = ODBCWrapper.Utils.GetSafeStr(row, DEFAULT_OPTIONS_FIELD);
+                if (!string.IsNullOrEmpty(defaultOption))
+                    topicOptionsList.Add(defaultOption);
+            }
+
+            return topicOptionsList;
         }
     }
 }
