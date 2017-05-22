@@ -292,6 +292,7 @@
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaSearchHistory.cs" />
     <Compile Include="Models\API\KalturaSearchHistoryFilter.cs" />
+    <Compile Include="Models\API\KlalturaUserInterest.cs" />
     <Compile Include="Models\Catalog\KalturaAssetCount.cs" />
     <Compile Include="Models\Catalog\KalturaAssetGroupBy.cs" />
     <Compile Include="Models\Catalog\KalturaDynamicOrderBy.cs" />
