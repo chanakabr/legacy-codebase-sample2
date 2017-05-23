@@ -11137,7 +11137,8 @@ namespace Core.ConditionalAccess
 
 						// purchase
                         // get the right productCode by paymentGwName
-                        string productCode = subscription != null ? subscription.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Select(x => x.Value).FirstOrDefault() :
+                        string productCode = subscription != null && subscription.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Count() > 0 ?
+                            subscription.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Select(x => x.Value).FirstOrDefault() :
                             subscription.m_ProductCode;
 
 						response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
