@@ -6820,7 +6820,7 @@ namespace Core.Catalog
                                     CatalogLogic.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid, out mediaParentalRulesTags, out epgParentalRulesTags);
                                 }
                             }
-
+                            
                             List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
                             List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
 
@@ -6832,7 +6832,7 @@ namespace Core.Catalog
                                 // Create a Not-in leaf for each of the tags
                                 BooleanLeaf newLeaf = new BooleanLeaf(
                                     string.Concat("tags.", tagValues.Key.ToLower()),
-                                    tagValues.Value,
+                                    tagValues.Value.Select(value => value.ToLower()).ToList(),
                                     typeof(List<string>),
                                     ComparisonOperator.NotIn,
                                     true);
@@ -6856,7 +6856,7 @@ namespace Core.Catalog
                                 // Create a Not-in leaf for each of the tags
                                 BooleanLeaf newLeaf = new BooleanLeaf(
                                     string.Concat("tags.", tagValues.Key.ToLower()),
-                                    tagValues.Value,
+                                    tagValues.Value.Select(value => value.ToLower()).ToList(),
                                     typeof(List<string>),
                                     ComparisonOperator.NotIn,
                                     true);
