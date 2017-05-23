@@ -68,7 +68,8 @@ namespace Core.Users
         DomainCreatedWithoutNPVRAccount = 12,
         DomainSuspended = 13,
         NoUsersInDomain = 14,
-        UserExistsInOtherDomains = 15
+        UserExistsInOtherDomains = 15,
+        Pending = 16,
     }
 
     [Serializable]
