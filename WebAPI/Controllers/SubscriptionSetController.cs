@@ -88,8 +88,9 @@ namespace WebAPI.Controllers
 
             try
             {                
+                List<long> subscriptionIds = subscriptionSet.SubscriptionIds != null ? subscriptionSet.GetSubscriptionIds() : new List<long>();                
                 // call client
-                response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionSet.GetSubscriptionIds());
+                response = ClientsManager.PricingClient().AddSubscriptionSet(groupId, subscriptionSet.Name, subscriptionIds);
             }
             catch (ClientException ex)
             {
