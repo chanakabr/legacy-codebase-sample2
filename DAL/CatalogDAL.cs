@@ -26,7 +26,9 @@ namespace Tvinci.Core.DAL
         private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
 
         private static readonly string TOPIC_NAME_FIELD = "TOPIC_NAME";
-        private static readonly string DEFAULT_OPTIONS_FIELD = "DEFAULT_OPTIONS";
+        private static readonly string TOPIC_INTEREST_ID_FIELD = "TOPIC_INTEREST_ID";
+        private static readonly string DEFAULT_OPTION_FIELD = "DEFAULT_OPTION";
+        private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
 
         /// <summary>
         /// 5
@@ -4567,42 +4569,55 @@ namespace Tvinci.Core.DAL
             return spMetas.Execute();
         }
 
-        public static Dictionary<string, List<string>> GetGroupTopicOptions(int partnerId, List<string> topicNames)
+        public static List<ApiObjects.Meta> GetTopicInterestList(int partnerId, List<string> topicNames)
         {
-            Dictionary<string, List<string>> topicOptions = null;
+            List<ApiObjects.Meta> topicInterestList = null;
+            ApiObjects.Meta meta = null;
+
             try
             {
 
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupTopicOptions");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TopicInterestList");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddIDListParameter<string>("@topicNames", topicNames, "STR");
                 DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    topicOptions = new Dictionary<string, List<string>>();
-                    List<string> options = null;
-                    string topicName;
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    topicInterestList = new List<ApiObjects.Meta>();
+
+                    for (int rowIndex = 0; rowIndex < ds.Tables[0].Rows.Count; rowIndex++)
                     {
-                        topicName = ODBCWrapper.Utils.GetSafeStr(dr, TOPIC_NAME_FIELD);
-                        if (!topicOptions.ContainsKey(topicName))
+                        meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[rowIndex], TOPIC_NAME_FIELD) };
+
+                        meta.Features = new List<MetaFeatureType>();
+                        meta.Features.Add(MetaFeatureType.USER_INTEREST);
+                        if(ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[rowIndex], ENABLE_NOTIFICATION_FIELD) == 1 ? true : false)
                         {
-                            var tablesRows = ds.Tables[0].Select(string.Format("{0} = '{1}'", TOPIC_NAME_FIELD, topicName));
+                           meta.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
+                        }
+
+                        int topicInterestId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[rowIndex], "ID"); 
+
+                        if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                        {
+                            var tablesRows = ds.Tables[1].Select(string.Format("{0} = '{1}'", TOPIC_INTEREST_ID_FIELD, topicInterestId));
                             if (tablesRows != null)
                             {
-                                options = CreateTopicOptionsList(tablesRows);
-                                topicOptions.Add(topicName, options);
+                                meta.DefaultValues = CreateTopicOptionsList(tablesRows);
                             }
                         }
+
+                        topicInterestList.Add(meta);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error at GetGroupTopicOptions. groupId: {0}. Error {1}", partnerId, ex);
+                log.ErrorFormat("Error at GetTopicInterestList. groupId: {0}. Error {1}", partnerId, ex);
             }
-            return topicOptions;
+
+            return topicInterestList;
         }
 
         public static ApiObjects.Meta SetGroupTopicOptions(int partnerId, ApiObjects.Meta groupTopicOptions)
@@ -4633,7 +4648,7 @@ namespace Tvinci.Core.DAL
             string defaultOption;
             foreach (var row in dataRows)
             {
-                defaultOption = ODBCWrapper.Utils.GetSafeStr(row, DEFAULT_OPTIONS_FIELD);
+                defaultOption = ODBCWrapper.Utils.GetSafeStr(row, DEFAULT_OPTION_FIELD);
                 if (!string.IsNullOrEmpty(defaultOption))
                     topicOptionsList.Add(defaultOption);
             }
