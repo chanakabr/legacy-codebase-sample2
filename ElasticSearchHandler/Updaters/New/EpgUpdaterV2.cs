@@ -75,8 +75,6 @@ namespace ElasticSearchHandler.Updaters
 
         public virtual bool Start()
         {
-            System.Threading.Thread.Sleep(10000);
-
             bool result = false;
             log.Debug("Info - Start EPG update");
             if (IDs == null || IDs.Count == 0)
