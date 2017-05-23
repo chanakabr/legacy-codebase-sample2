@@ -92,7 +92,8 @@ namespace WebAPI.Models.API
     [Serializable]
     public enum KalturaMetaFeatureType
     {
-        USER_INTEREST
+        USER_INTEREST,
+        ENABLED_NOTIFICATION
     } 
 
 }
