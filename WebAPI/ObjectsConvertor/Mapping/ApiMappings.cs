@@ -554,12 +554,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
         private static string ConvertFeatures(List<MetaFeatureType> list)
         {
             string metaFeatureType = string.Empty;
+            List<KalturaMetaFeatureType> KalturaMetaFeatureTypeList;
             if (list != null)
             {
+                KalturaMetaFeatureTypeList = new List<KalturaMetaFeatureType>();
                 foreach (MetaFeatureType featureType in list)
                 {
-                    metaFeatureType = string.Join(",", ConvertMetaFeatureType(featureType).ToString());
+                    KalturaMetaFeatureTypeList.Add(ConvertMetaFeatureType(featureType));                                        
                 }
+
+                metaFeatureType = string.Join(",", KalturaMetaFeatureTypeList.ToArray());
             }
 
             return metaFeatureType;
@@ -571,6 +575,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case KalturaMetaFeatureType.USER_INTEREST:
                     return MetaFeatureType.USER_INTEREST;
+                case KalturaMetaFeatureType.ENABLED_NOTIFICATION:
+                    return MetaFeatureType.ENABLED_NOTIFICATION;
                 default:
                     throw new ClientException((int)StatusCode.Error, string.Format("Unknown metaFeatureType value : {0}", kalturaMetaFeatureType.ToString()));
             }
@@ -582,6 +588,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             {
                 case MetaFeatureType.USER_INTEREST:
                     return KalturaMetaFeatureType.USER_INTEREST;
+                case MetaFeatureType.ENABLED_NOTIFICATION:
+                    return KalturaMetaFeatureType.ENABLED_NOTIFICATION;
                 default:
                     throw new ClientException((int)StatusCode.Error, string.Format("Unknown metaFeatureType value : {0}", featureType.ToString()));
             }
