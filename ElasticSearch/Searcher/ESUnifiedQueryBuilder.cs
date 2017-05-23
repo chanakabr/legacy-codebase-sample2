@@ -1565,7 +1565,7 @@ namespace ElasticSearch.Searcher
                 {
                     term = BuildEntitledAssetsQuery();
                 }
-                else if (leaf.field == PARENTAL_RULES_FIELD)
+                else if (leaf.field == USER_INTERESTS_FIELD)
                 {
                     term = BuildUserInterestsQuery();
                 }
