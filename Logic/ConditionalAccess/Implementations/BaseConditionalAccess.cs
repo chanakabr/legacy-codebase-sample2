@@ -2319,7 +2319,7 @@ namespace Core.ConditionalAccess
 									foreach (var lastReceipt in receipt.latest_receipt_info)
 									{
 										// If the product code matches
-										if (lastReceipt.product_id == theSub.m_ProductCode)
+										if (lastReceipt.product_id == theSub.m_ProductCode) // liat to do ?? 
 										{
 											// Find the maximum start date
 											double currentEndMS = double.Parse(lastReceipt.expires_date_ms);
@@ -11136,8 +11136,12 @@ namespace Core.ConditionalAccess
 						string billingGuid = Guid.NewGuid().ToString();
 
 						// purchase
+                        // get the right productCode by paymentGwName
+                        string productCode = subscription != null ? subscription.ExternalProductCodes.Where(x => x.Key.ToString() == paymentGwName).Select(x => x.Value).FirstOrDefault() :
+                            subscription.m_ProductCode;
+
 						response = VerifyPurchase(siteguid, householdId, priceResponse.m_dPrice, priceResponse.m_oCurrency.m_sCurrencyCD3, userIp, customData,
-												  productId, subscription.m_ProductCode, eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken);
+                                                  productId, productCode, eTransactionType.Subscription, billingGuid, paymentGwName, 0, purchaseToken);
 						if (response != null &&
 							response.Status != null)
 						{
