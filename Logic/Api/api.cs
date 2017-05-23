@@ -9342,20 +9342,15 @@ namespace Core.Api
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
                     List<string> metasName = response.MetaList.Select(x => x.Name).ToList();
-                    Dictionary<string, List<string>> topicOptions = CatalogDAL.GetGroupTopicOptions(groupId, metasName);
-                    if (topicOptions != null)
+                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(groupId, metasName);
+                    if (topicInterestList != null)
                     {
                         Meta meta;
-                        foreach (string metaName in topicOptions.Keys)
+                        foreach (Meta topicInterest in topicInterestList)
                         {
-                            meta = response.MetaList.Where(x => x.Name == metaName).First();
-                            meta.DefaultValues = topicOptions[metaName];
-
-                            if (meta.Features == null)                            
-                                meta.Features = new List<MetaFeatureType>();
-                            
-                            if (!meta.Features.Contains(MetaFeatureType.USER_INTEREST))
-                                meta.Features.Add(MetaFeatureType.USER_INTEREST);                            
+                            meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
+                            meta.DefaultValues = topicInterest.DefaultValues;
+                            meta.Features = topicInterest.Features;   
                         }
                     }
                 }

@@ -29,6 +29,7 @@ namespace ApiObjects
 
     public enum MetaFeatureType
     {
-        USER_INTEREST
+        USER_INTEREST,
+        ENABLED_NOTIFICATION
     }
 }
