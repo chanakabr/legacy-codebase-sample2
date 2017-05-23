@@ -45,7 +45,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("subscriptions")]
         [XmlArray(ElementName = "subscriptions", IsNullable = true)]
         [XmlArrayItem("item")]
-        [SchemeProperty(DynamicMinInt = 1)]
         public string SubscriptionIds { get; set; }
 
         public List<long> GetSubscriptionIds()
@@ -57,15 +56,19 @@ namespace WebAPI.Models.Pricing
                 foreach (string stringValue in stringValues)
                 {
                     long value;
-                    if (long.TryParse(stringValue, out value))
+                    if (!long.TryParse(stringValue, out value) || value < 1)
                     {
-                        list.Add(value);
+                        throw new BadRequestException(BadRequestException.ARGUMENT_STRING_CONTAINED_MIN_VALUE_CROSSED, "KalturaSubscriptionSet.subscriptions", 1);
                     }
                     else
                     {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaSubscriptionSet.SubscriptionIds");
+                        list.Add(value);
                     }
                 }
+            }
+            else
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "KalturaSubscriptionSet.subscriptions");
             }
 
             return list;
