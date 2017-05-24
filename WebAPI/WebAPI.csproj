@@ -270,6 +270,7 @@
     <Compile Include="Managers\Models\UserSessions.cs" />
     <Compile Include="Managers\Scheme\Deprecated.cs" />
     <Compile Include="Managers\Scheme\FailureHttpCode.cs" />
+    <Compile Include="Managers\Scheme\NewObjectType.cs" />
     <Compile Include="Managers\Scheme\SchemeServe.cs" />
     <Compile Include="Models\API\KalturaCurrencyListResponse.cs" />
     <Compile Include="Models\API\KalturaCurrency.cs" />

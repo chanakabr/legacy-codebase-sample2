@@ -11,6 +11,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Controllers;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
+using WebAPI.Models.Renderers;
 
 namespace Reflector
 {
@@ -104,6 +106,58 @@ namespace Reflector
             wrtieValidateAuthorization();
             wrtieServeActionContentType();
             wrtieIsNewStandardOnly();
+            wrtieGetNewObjectType();
+        }
+
+        static private string GetTypeName(Type type)
+        {
+            if (type == typeof(String))
+                return "string";
+            if (type == typeof(DateTime))
+                return "int";
+            if (type == typeof(long) || type == typeof(Int64))
+                return "bigint";
+            if (type == typeof(Int32))
+                return "int";
+            if (type == typeof(double) || type == typeof(float))
+                return "float";
+            if (type == typeof(bool))
+                return "bool";
+            if (type.IsEnum)
+                return type.Name;
+
+            if (typeof(KalturaRenderer).IsAssignableFrom(type))
+                return "file";
+
+            Regex regex = new Regex("^[^`]+");
+            Match match = regex.Match(type.Name);
+            return match.Value;
+        }
+
+        static void wrtieGetNewObjectType()
+        {
+            file.WriteLine("        public static Type getNewObjectType(Type oldType)");
+            file.WriteLine("        {");
+            file.WriteLine("            switch (oldType.Name)");
+            file.WriteLine("            {");
+
+            foreach (Type type in types)
+            {
+                NewObjectTypeAttribute newObjectTypeAttribue = type.GetCustomAttribute<NewObjectTypeAttribute>(false);
+                if (newObjectTypeAttribue != null)
+                {
+                    file.WriteLine("                case \"" + GetTypeName(type) + "\":");
+                    file.WriteLine("                    return typeof(" + newObjectTypeAttribue.type.FullName + ");");
+                    file.WriteLine("                    ");
+                }
+            }
+
+            file.WriteLine("            }");
+            file.WriteLine("            ");
+            file.WriteLine("            return oldType;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
+
         }
 
         static void wrtieServeActionContentType()

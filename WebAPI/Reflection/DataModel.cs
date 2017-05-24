@@ -6319,5 +6319,17 @@ namespace WebAPI.Reflection
             return false;
         }
         
+        public static Type getNewObjectType(Type oldType)
+        {
+            switch (oldType.Name)
+            {
+                case "KalturaReminderFilter":
+                    return typeof(WebAPI.Models.Notification.KalturaAssetReminderFilter);
+                    
+            }
+            
+            return oldType;
+        }
+        
     }
 }

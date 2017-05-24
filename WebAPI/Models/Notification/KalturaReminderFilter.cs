@@ -37,6 +37,7 @@ namespace WebAPI.Models.Notification
         LIKES_DESC
     }
 
+    [NewObjectType(typeof(KalturaAssetReminderFilter))]
     public abstract class KalturaReminderFilter<T> : KalturaFilter<T> where T : struct, IComparable, IFormattable, IConvertible
     {
         /// <summary>

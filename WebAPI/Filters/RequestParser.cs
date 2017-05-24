@@ -956,11 +956,12 @@ namespace WebAPI.Filters
                     var possibleTypes = assembly.GetTypes().Where(myType => myType.Name == possibleTypeName);
                     possibleType = possibleTypes.First();
                 }
+
                 if (possibleType.Name.ToLower() != type.Name.ToLower()) // reflect only if type is different
                 {
                     if (IsSubclassOfRawGeneric(type, possibleType)) // we know that the objectType that came from the user is right, and we can use it to initiate the object\
                     {
-                        type = possibleType;
+                        type = DataModel.getNewObjectType(possibleType);
                     }
                 }
             }
