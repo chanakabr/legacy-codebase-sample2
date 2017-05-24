@@ -542,13 +542,16 @@ namespace TVPPro.SiteManager.Services
         {
             try
             {
-                return PlatUserService.IsUserActivated(wsUserName, wsPassword, int.Parse(GetUserID()));
+                var status = PlatUserService.IsUserActivated(wsUserName, wsPassword, int.Parse(GetUserID()));
+                if (status != null && status.Code == 0)
+                    return true;
             }
             catch (Exception ex)
             {
                 logger.ErrorFormat("Error checking user exist Protocol IsUserActivated, Error Message: {0} Parameters :siteGuid : {1} ", ex.Message, GetUserID());
                 return false;
             }
+            return false;
         }
 
         public bool ActivateAccount(string UserName, string UserToken, bool AutoLogIn)
@@ -1098,7 +1101,7 @@ namespace TVPPro.SiteManager.Services
             FavoritObject[] UserFavorites = null;
             try
             {
-                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType);
+                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType, FavoriteOrderBy.CreateDateDesc);
                 UserFavorites = res.Favorites;
             }
             catch (Exception ex)
