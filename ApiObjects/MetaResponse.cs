@@ -25,6 +25,14 @@ namespace ApiObjects
         public eAssetTypes AssetType { get; set; }
         public List<MetaFeatureType> Features { get; set; }
         public List<string> DefaultValues { get; set; }
+        public string ParentMetaId { get; set; }
+        public string MetaId {
+            get
+            {
+                return this.Name;
+            }
+        }
+
     }
 
     public enum MetaFeatureType
