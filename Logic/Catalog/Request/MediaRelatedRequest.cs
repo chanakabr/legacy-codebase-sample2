@@ -72,7 +72,12 @@ namespace Core.Catalog.Request
                     throw new ArgumentException("request object is null or Required variables is null");
 
                 CheckSignature(request);
-                
+
+                if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)
+                {
+                    request.m_dServerTime = DateTime.UtcNow;
+                }
+
                 searchResponse.status = CatalogLogic.GetRelatedAssets(request, out searchResponse.m_nTotalItems, out searchResponse.searchResults);
                 return searchResponse;               
             }

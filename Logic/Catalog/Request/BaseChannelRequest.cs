@@ -84,6 +84,11 @@ namespace Core.Catalog.Request
 
                 CheckSignature(baseRequest);
 
+                if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)
+                {
+                    request.m_dServerTime = DateTime.UtcNow;
+                }
+
                 int totalItems;
                 List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
 

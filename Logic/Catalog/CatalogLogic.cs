@@ -6929,9 +6929,18 @@ namespace Core.Catalog
 
             // if the epoch time is greater then 1980 - it's a date, otherwise it's relative (to now) time in seconds
             if (epoch > UNIX_TIME_1980)
+            {
                 leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+            }
             else
+            {
+                if (serverTime == default(DateTime) || serverTime == DateTime.MinValue)
+                {
+                    serverTime = DateTime.UtcNow;
+                }
+
                 leaf.value = serverTime.AddSeconds(epoch);
+            }
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)

@@ -211,6 +211,11 @@ namespace Core.Catalog.Request
 
                 CheckSignature(baseRequest);
 
+                if (request.m_dServerTime == default(DateTime) || request.m_dServerTime == DateTime.MinValue)
+                {
+                    request.m_dServerTime = DateTime.UtcNow;
+                }
+
                 // If this is a new request - generate a request ID based on the filter query
                 if (string.IsNullOrEmpty(request.requestId))
                 {
