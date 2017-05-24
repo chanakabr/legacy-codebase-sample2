@@ -9309,7 +9309,8 @@ namespace Core.Api
                                         AssetType = eAssetTypes.MEDIA,
                                         FieldName = MetaFieldName.None,
                                         Name = metaVal.Value,
-                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key)
+                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
+                                        PartnerId = group.m_oMetasValuesByGroupId.Keys.First()
                                     };
 
                                     if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
@@ -9349,12 +9350,11 @@ namespace Core.Api
                         foreach (Meta topicInterest in topicInterestList)
                         {
                             meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
-                            meta.DefaultValues = topicInterest.DefaultValues;
-                            meta.Features = topicInterest.Features;   
+                            meta.Features = topicInterest.Features;
+                            meta.ParentMetaId = topicInterest.ParentMetaId;                            
                         }
                     }
                 }
-
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

@@ -8112,20 +8112,7 @@ namespace Core.Catalog
                     return response;
                 }
 
-                // update only DefaultValues 
-                if (meta.Features == null && meta.DefaultValues != null)
-                {
-                    // Get topicInterestList
-                    var metaName = new List<string>();
-                    metaName.Add(meta.Name);
-                    List<ApiObjects.Meta> topicInterest = CatalogDAL.GetTopicInterestList(groupId, metaName);
-                    if (topicInterest != null && topicInterest.Count == 1)
-                    {
-                        meta.Features = topicInterest[0].Features;
-                        response = SetTopicInterest(groupId, meta);
-                    }
-                }
-                else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+               if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
                     // update 
                     response = SetTopicInterest(groupId, meta);                    
