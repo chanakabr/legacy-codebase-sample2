@@ -543,8 +543,15 @@ namespace TVPPro.SiteManager.Services
             try
             {
                 var status = PlatUserService.IsUserActivated(wsUserName, wsPassword, int.Parse(GetUserID()));
-                if (status != null && status.Code == 0)
+
+                if (status.Code == (int)ResponseStatus.OK)
+                {
                     return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception ex)
             {
@@ -1101,7 +1108,7 @@ namespace TVPPro.SiteManager.Services
             FavoritObject[] UserFavorites = null;
             try
             {
-                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType, FavoriteOrderBy.CreateDateDesc);
+                var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType, FavoriteOrderBy.CreateDateAsc);
                 UserFavorites = res.Favorites;
             }
             catch (Exception ex)
