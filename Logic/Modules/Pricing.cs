@@ -1175,6 +1175,7 @@ namespace Core.Pricing
                     return response;
                 }
 
+                response.SubscriptionSets.Clear();
                 SubscriptionSet subscriptionSet = response.SubscriptionSets[0];
                 subscriptionSet.Name = !string.IsNullOrEmpty(name) ? name : subscriptionSet.Name;
                 if (shouldUpdateSubscriptionIds)
