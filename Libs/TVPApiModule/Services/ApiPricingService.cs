@@ -13,7 +13,7 @@ namespace TVPApiModule.Services
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule m_Module;
+        private TVPPro.SiteManager.TvinciPlatform.Pricing.module m_Module;
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
         private int m_groupID;
@@ -21,7 +21,7 @@ namespace TVPApiModule.Services
 
         public ApiPricingService(int groupID, PlatformType platform)
         {
-            m_Module = new TVPPro.SiteManager.TvinciPlatform.Pricing.mdoule();
+            m_Module = new TVPPro.SiteManager.TvinciPlatform.Pricing.module();
             m_Module.Url = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.URL;
             m_wsUserName = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultUser;
             m_wsPassword = ConfigManager.GetInstance().GetConfig(groupID, platform).PlatformServicesConfiguration.Data.PricingService.DefaultPassword;

@@ -422,7 +422,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Adds Item To List")]
         [PrivateMethod]
-        public bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool AddItemToList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -449,7 +449,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Removes Item From List")]
         [PrivateMethod]
-        public bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool RemoveItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -476,7 +476,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Updates Item In List")]
         [PrivateMethod]
-        public bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public bool UpdateItemInList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             bool response = false;
 
@@ -502,7 +502,7 @@ namespace TVPApiServices
         }
 
         [WebMethod(EnableSession = true, Description = "Gets Item From List")]
-        public UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public UserItemList[] GetItemFromList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             UserItemList[] response = null;
 
@@ -529,7 +529,7 @@ namespace TVPApiServices
 
         [WebMethod(EnableSession = true, Description = "Is Item Exists In List")]
         [PrivateMethod]
-        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ItemType itemType, ListType listType)
+        public KeyValuePair[] IsItemExistsInList(InitializationObject initObj, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
         {
             KeyValuePair[] response = null;
 

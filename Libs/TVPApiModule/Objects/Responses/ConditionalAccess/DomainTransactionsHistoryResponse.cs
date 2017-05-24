@@ -154,43 +154,43 @@ namespace TVPApiModule.Objects.Responses.ConditionalAccess
             EndDate = source.m_dtEndDate;
             switch (source.m_ePaymentMethod)
 	        {
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.CreditCard:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.CreditCard:
                     PaymentMethod = Objects.PaymentMethod.CreditCard;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.SMS:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.SMS:
                     PaymentMethod = Objects.PaymentMethod.SMS;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.PayPal:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.PayPal:
                     PaymentMethod = Objects.PaymentMethod.PayPal;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.DebitCard:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.DebitCard:
                     PaymentMethod = Objects.PaymentMethod.DebitCard;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.Ideal:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Ideal:
                     PaymentMethod = Objects.PaymentMethod.Ideal;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.Incaso:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Incaso:
                     PaymentMethod = Objects.PaymentMethod.Incaso;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.Gift:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Gift:
                     PaymentMethod = Objects.PaymentMethod.Gift;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.Visa:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Visa:
                     PaymentMethod = Objects.PaymentMethod.Visa;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.MasterCard:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.MasterCard:
                     PaymentMethod = Objects.PaymentMethod.MasterCard;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.InApp:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.InApp:
                     PaymentMethod = Objects.PaymentMethod.InApp;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.M1:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.M1:
                     PaymentMethod = Objects.PaymentMethod.M1;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.ChangeSubscription:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.ChangeSubscription:
                     PaymentMethod = Objects.PaymentMethod.ChangeSubscription;
                     break;
-                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.PaymentMethod.Offline:
+                case TVPPro.SiteManager.TvinciPlatform.ConditionalAccess.ePaymentMethod.Offline:
                     PaymentMethod = Objects.PaymentMethod.Offline;
                     break;
                 default:
