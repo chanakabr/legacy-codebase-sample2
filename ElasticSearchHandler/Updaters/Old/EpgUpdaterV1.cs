@@ -100,8 +100,14 @@ namespace ElasticSearchHandler.Updaters
                     break;
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                    result = UpdateEpg(IDs);
-                    break;              
+                    {
+                        // First we delete so we don't get this weird duplicate ID bug.
+                        result = DeleteEpg(IDs);
+
+                        // Only then we update normally
+                        result &= UpdateEpg(IDs);
+                        break;
+                    }                    break;              
                 default:
                     result = true;
                     break;
