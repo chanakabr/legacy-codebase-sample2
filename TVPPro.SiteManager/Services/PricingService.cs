@@ -14,7 +14,7 @@ namespace TVPPro.SiteManager.Services
     {
         #region Fields
         private static object lockObject = new object();
-        private TvinciPlatform.Pricing.mdoule m_Module;
+        private TvinciPlatform.Pricing.module m_Module;
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private string wsUserName = string.Empty;
         private string wsPassword = string.Empty;
@@ -23,7 +23,7 @@ namespace TVPPro.SiteManager.Services
         #region Constractor
         private PricingService()
         {
-            m_Module = new TvinciPlatform.Pricing.mdoule();
+            m_Module = new TvinciPlatform.Pricing.module();
             m_Module.Url = PlatformServicesConfiguration.Instance.Data.PricingService.URL;
             wsUserName = PlatformServicesConfiguration.Instance.Data.PricingService.DefaultUser;
             wsPassword = PlatformServicesConfiguration.Instance.Data.PricingService.DefaultPassword;

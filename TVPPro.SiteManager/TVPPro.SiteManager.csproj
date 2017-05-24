@@ -620,6 +620,7 @@
     <None Include="Web References\TvinciPlatform.Billing\InAppBillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.Billing\ws_billing_module.wsdl" />
     <None Include="Web References\TvinciPlatform.ConditionalAccess\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -635,7 +636,6 @@
     <None Include="Web References\TvinciPlatform.ConditionalAccess\MediaFileItemPricesContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.ConditionalAccess\module.wsdl" />
     <None Include="Web References\TvinciPlatform.ConditionalAccess\PermittedMediaContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -667,6 +667,7 @@
     <None Include="Web References\TvinciPlatform.ConditionalAccess\UserPrePaidContainer.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.wsdl" />
     <None Include="Web References\TvinciPlatform.Domains\DeviceResponseObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -682,7 +683,6 @@
     <None Include="Web References\TvinciPlatform.Domains\DomainResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.Domains\module.wsdl" />
     <None Include="Web References\TvinciPlatform.Domains\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -690,12 +690,14 @@
     <None Include="Web References\TvinciPlatform.Domains\User.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.Domains\ws_domains_module.wsdl" />
     <None Include="Web References\TvinciPlatform.Pricing\Campaign.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\TvinciPlatform.Pricing\PrePaidModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.Pricing\ws_pricing_module.wsdl" />
     <None Include="Web References\TvinciPlatform.Social\eSocialActionPrivacy.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -711,7 +713,6 @@
     <None Include="Web References\TvinciPlatform.Social\FriendWatchedObject2.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.Social\module.wsdl" />
     <None Include="Web References\TvinciPlatform.Social\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -725,6 +726,7 @@
     <None Include="Web References\TvinciPlatform.Social\UserSocialActionObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.Social\ws_social_module.wsdl" />
     <None Include="Web References\TvinciPlatform.Users\Country.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -734,7 +736,6 @@
     <None Include="Web References\TvinciPlatform.Users\KeyValuePair.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.Users\module.wsdl" />
     <None Include="Web References\TvinciPlatform.Users\ResponseStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -762,6 +763,7 @@
     <None Include="Web References\TvinciPlatform.Users\UserType1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <None Include="Web References\TvinciPlatform.Users\ws_users_module.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -770,10 +772,10 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="http://localhost/WS_ConditionalAccess/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/cas_v4_3/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.ConditionalAccess\</RelPath>
-      <UpdateFromURL>http://localhost/WS_ConditionalAccess/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/cas_v4_3/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -781,10 +783,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_api/api.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/api_v4_3/api.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.api\</RelPath>
-      <UpdateFromURL>http://localhost/ws_api/api.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/api_v4_3/api.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -792,10 +794,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_api_API</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Social/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/social_v4_3/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Social\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Social/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/social_v4_3/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -803,10 +805,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Social_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_Billing/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/billing_v4_3/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Billing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_Billing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/billing_v4_3/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -814,10 +816,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Billing_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_domains/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/domains_v4_3/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Domains\</RelPath>
-      <UpdateFromURL>http://localhost/ws_domains/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/domains_v4_3/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -825,10 +827,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Domains_module</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/WS_pricing/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/pRICING_v4_3/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Pricing\</RelPath>
-      <UpdateFromURL>http://localhost/WS_pricing/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/pRICING_v4_3/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -836,10 +838,10 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule</CachedSettingsPropName>
     </WebReferenceUrl>
-    <WebReferenceUrl Include="http://localhost/ws_users/module.asmx">
+    <WebReferenceUrl Include="http://34.249.122.223:8030/users_v4_3/module.asmx">
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\TvinciPlatform.Users\</RelPath>
-      <UpdateFromURL>http://localhost/ws_users/module.asmx</UpdateFromURL>
+      <UpdateFromURL>http://34.249.122.223:8030/users_v4_3/module.asmx</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
@@ -1144,7 +1146,6 @@
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Web References\TvinciPlatform.Pricing\module.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataEntities\dsProfiles.xsc">
@@ -1158,7 +1159,6 @@
     <None Include="DataEntities\dsProfiles.xss">
       <DependentUpon>dsProfiles.xsd</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.Billing\module.wsdl" />
     <None Include="Web References\TvinciPlatform.Pricing\CouponData.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -1174,7 +1174,6 @@
     <None Include="Web References\TvinciPlatform.Pricing\MediaFilePPVModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.Pricing\module.disco" />
     <None Include="Web References\TvinciPlatform.Pricing\PPVModule.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -1221,7 +1220,6 @@
     <None Include="Web References\TvinciPlatform.Billing\BillingResponse.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\TvinciPlatform.Billing\module.disco" />
     <None Include="Web References\TvinciPlatform.Billing\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -1254,16 +1252,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciPlatform.Domains\module.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Web References\TvinciPlatform.api\api.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciPlatform.ConditionalAccess\module.disco" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Web References\TvinciPlatform.Social\module.disco" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadataStorage Include="Service References\TvinciPlatform.Notification\" />
@@ -1281,13 +1270,28 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web References\TvinciPlatform.Users\module.disco" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Service References\TvinciPlatform.Notification\NotificationService1.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\TvinciPlatform.Notification\NotificationService.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciPlatform.Billing\ws_billing_module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciPlatform.ConditionalAccess\ws_cas_module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciPlatform.Domains\ws_domains_module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciPlatform.Pricing\ws_pricing_module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciPlatform.Social\ws_social_module.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Web References\TvinciPlatform.Users\ws_users_module.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -110,75 +110,75 @@
     <None Include="Service References\TvinciPlatform.Catalog\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service10.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service10.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service11.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service11.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service12.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service12.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service13.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service13.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service14.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service14.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service15.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service15.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service16.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service17.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service18.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\TvinciPlatform.Catalog\service19.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service22.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service20.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service23.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service21.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service24.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service22.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service25.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service23.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service26.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service27.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service28.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service29.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service24.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service30.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service4.wsdl" />
+    <None Include="Service References\TvinciPlatform.Catalog\service4.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\Service4.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service5.wsdl" />
-    <None Include="Service References\TvinciPlatform.Catalog\Service5.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service5.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service6.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service6.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service7.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service7.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service8.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service8.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service9.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service9.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\Tvinci.Data.Loaders.TvinciPlatform.Catalog.BaseResponse.datasource">
@@ -216,7 +216,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Catalog\Service2.disco" />
+    <None Include="Service References\TvinciPlatform.Catalog\service2.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
