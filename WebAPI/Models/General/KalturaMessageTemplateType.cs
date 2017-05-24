@@ -10,6 +10,8 @@ namespace WebAPI.Models.General
         Series = 0,
         Reminder = 1,
         Churn = 2,
-        SeriesReminder = 3
+        SeriesReminder = 3,
+        InterestVod = 4,
+        InterestEPG = 5
     }
 }

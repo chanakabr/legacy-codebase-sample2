@@ -576,6 +576,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case MessageTemplateType.SeriesReminder:
                     result = KalturaMessageTemplateType.SeriesReminder;
                     break;
+                case MessageTemplateType.InterestEPG:
+                    result = KalturaMessageTemplateType.InterestEPG;
+                    break;
+                case MessageTemplateType.InterestVod:
+                    result = KalturaMessageTemplateType.InterestVod;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown message Type");
             }
@@ -600,6 +606,12 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaMessageTemplateType.SeriesReminder:
                     result = MessageTemplateType.SeriesReminder;
+                    break;
+                case KalturaMessageTemplateType.InterestVod:
+                    result = MessageTemplateType.InterestVod;
+                    break;
+                case KalturaMessageTemplateType.InterestEPG:
+                    result = MessageTemplateType.InterestEPG;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown message Type");

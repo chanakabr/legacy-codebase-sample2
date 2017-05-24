@@ -481,7 +481,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
-             .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
+             .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))             
              .ForMember(dest => dest.DefaultValues, opt => opt.MapFrom(src => ConvertDefaultValues(src.DefaultValues)))
              ;
 
@@ -533,10 +533,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
         private static List<MetaFeatureType> ConvertFeatures(string metaFeatureType)
         {
-            List<MetaFeatureType> featureList = new List<MetaFeatureType>();
+            List<MetaFeatureType> featureList = null;
 
             if (!string.IsNullOrEmpty(metaFeatureType))
             {
+                featureList = new List<MetaFeatureType>();
                 string[] metaFeatures = metaFeatureType.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (string feature in metaFeatures)
                 {
