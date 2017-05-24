@@ -25,7 +25,7 @@ namespace Tvinci.Core.DAL
         private static readonly string CB_EPG_DOCUMENT_EXPIRY_DAYS = ODBCWrapper.Utils.GetTcmConfigValue("epg_doc_expiry");
         private static readonly string CB_PLAYCYCLE_DOC_EXPIRY_MIN = ODBCWrapper.Utils.GetTcmConfigValue("playCycle_doc_expiry_min");
 
-        private static readonly string TOPIC_NAME_FIELD = "TOPIC_NAME";
+        private static readonly string NAME_FIELD = "NAME";
         private static readonly string TOPIC_INTEREST_ID_FIELD = "TOPIC_INTEREST_ID";
         private static readonly string DEFAULT_OPTION_FIELD = "DEFAULT_OPTION";
         private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
@@ -4588,7 +4588,7 @@ namespace Tvinci.Core.DAL
 
                     for (int rowIndex = 0; rowIndex < ds.Tables[0].Rows.Count; rowIndex++)
                     {
-                        meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[rowIndex], TOPIC_NAME_FIELD) };
+                        meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[rowIndex], NAME_FIELD) };
 
                         meta.Features = new List<MetaFeatureType>();
                         meta.Features.Add(MetaFeatureType.USER_INTEREST);
