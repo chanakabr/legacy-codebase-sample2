@@ -4620,26 +4620,44 @@ namespace Tvinci.Core.DAL
             return topicInterestList;
         }
 
-        public static ApiObjects.Meta SetGroupTopicOptions(int partnerId, ApiObjects.Meta groupTopicOptions)
+        public static ApiObjects.Meta SetTopicInterest(int partnerId, ApiObjects.Meta topicInterest)
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_GroupTopicOptions");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_TopicInterest");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", partnerId);
-                sp.AddParameter("@topicName", groupTopicOptions.Name);
-                sp.AddIDListParameter("@defaultOptions", groupTopicOptions.DefaultValues, "STR");
+                sp.AddParameter("@metaName", topicInterest.Name);
+                if(topicInterest.Features!= null)
+                    sp.AddParameter("@enableNotification", topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION)? 1:0);                
+                sp.AddIDListParameter("@defaultOptions", topicInterest.DefaultValues, "STR");
                 DataSet ds = sp.ExecuteDataSet();
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    groupTopicOptions.DefaultValues = CreateTopicOptionsList(ds.Tables[0].Select());
+                    topicInterest.Features = new List<MetaFeatureType>();
+                    topicInterest.Features.Add(MetaFeatureType.USER_INTEREST);
+                    if (ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], ENABLE_NOTIFICATION_FIELD) == 1 ? true : false)
+                    {
+                        topicInterest.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
+                    }
+
+                    int topicInterestId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], "ID");
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        var tablesRows = ds.Tables[1].Select(string.Format("{0} = '{1}'", TOPIC_INTEREST_ID_FIELD, topicInterestId));
+                        if (tablesRows != null)
+                        {
+                            topicInterest.DefaultValues = CreateTopicOptionsList(tablesRows);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error at GetGroupTopicOptions. groupId: {0}. Error {1}", partnerId, ex);
             }
-            return groupTopicOptions;
+            return topicInterest;
         }
 
         private static List<string> CreateTopicOptionsList(DataRow[] dataRows)
@@ -4654,6 +4672,24 @@ namespace Tvinci.Core.DAL
             }
 
             return topicOptionsList;
+        }
+
+        public static bool DeleteTopicInterest(int groupId, string metaName)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_TopicInterest");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@metaName", metaName);
+                bool isDelete = sp.ExecuteReturnValue<bool>();
+                return isDelete;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at DeleteTopicInterest. groupId: {0}. Error {1}", groupId, ex);
+                return false;
+            }
         }
     }
 }
