@@ -192,7 +192,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var res = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType, FavoriteOrderBy.CreateDateDesc);
+                    var res = m_Module.GetUserFavorites(m_wsUserName, m_wsPassword, sSiteGuid, iDomainID, string.Empty, sItemType,  FavoriteOrderBy.CreateDateAsc);
                     response = res.Favorites;
                 }
             }
@@ -859,7 +859,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool AddItemToList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
+        public bool AddItemToList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool res = false;
 
@@ -868,7 +868,7 @@ namespace TVPApiModule.Services
                 UserItemList userItemList = new UserItemList()
                 {
                     itemObj = itemObjects,
-                    itemType = itemType,
+                    itemType = ConvertItemTypeToListItemType(itemType),
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -888,7 +888,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool RemoveItemFromList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
+        public bool RemoveItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool res = false;
 
@@ -897,7 +897,7 @@ namespace TVPApiModule.Services
                 UserItemList userItemList = new UserItemList()
                 {
                     itemObj = itemObjects,
-                    itemType = itemType,
+                    itemType = ConvertItemTypeToListItemType(itemType),
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -917,7 +917,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public bool UpdateItemInList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
+        public bool UpdateItemInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             bool res = false;
 
@@ -926,7 +926,7 @@ namespace TVPApiModule.Services
                 UserItemList userItemList = new UserItemList()
                 {
                     itemObj = itemObjects,
-                    itemType = itemType,
+                    itemType = ConvertItemTypeToListItemType(itemType),
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -946,7 +946,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public UserItemList[] GetItemFromList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
+        public UserItemList[] GetItemFromList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             UserItemList[] res = null;
 
@@ -955,7 +955,7 @@ namespace TVPApiModule.Services
                 UserItemList userItemList = new UserItemList()
                 {
                     itemObj = itemObjects,
-                    itemType = itemType,
+                    itemType = ConvertItemTypeToListItemType(itemType),
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -977,7 +977,7 @@ namespace TVPApiModule.Services
             return res;
         }
 
-        public KeyValuePair[] IsItemExistsInList(string siteGuid, ItemObj[] itemObjects, ListItemType itemType, ListType listType)
+        public KeyValuePair[] IsItemExistsInList(string siteGuid, ItemObj[] itemObjects, ItemType itemType, ListType listType)
         {
             KeyValuePair[] res = null;
 
@@ -986,7 +986,7 @@ namespace TVPApiModule.Services
                 UserItemList userItemList = new UserItemList()
                 {
                     itemObj = itemObjects,
-                    itemType = itemType,
+                    itemType = ConvertItemTypeToListItemType(itemType),
                     listType = listType,
                     siteGuid = siteGuid
 
@@ -1004,6 +1004,20 @@ namespace TVPApiModule.Services
             }
 
             return res;
+        }
+
+        private ListItemType ConvertItemTypeToListItemType(ItemType itemType)
+        {
+            switch (itemType)
+            {
+                case ItemType.All:
+                    return ListItemType.All;
+                case ItemType.Media:
+                    return ListItemType.Media;
+                default:
+                    logger.ErrorFormat("Unknown itemType: {0}", itemType.ToString());
+                    throw new Exception(string.Format("Unknown itemType: {0}", itemType.ToString()));
+            }
         }
 
         public ResponseStatus SetUserTypeByUserID(string sSiteGuid, int userTypeID)
@@ -1192,6 +1206,14 @@ namespace TVPApiModule.Services
 
             return clientResponse;
         }
+    }
+}
 
+namespace TVPPro.SiteManager.TvinciPlatform.Users
+{
+    public enum ItemType
+    {
+        All = 0,
+        Media = 2
     }
 }
