@@ -8102,27 +8102,50 @@ namespace Core.Catalog
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
                     return response;
                 }
-                
-                // update topicOptions if needed  
-                if( meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+
+                // update only DefaultValues 
+                if (meta.Features == null && meta.DefaultValues != null)
                 {
-                    response = SetGroupTopicOptions(groupId, meta);
-                }              
+                    // Get topicInterestList
+                    var metaName = new List<string>();
+                    metaName.Add(meta.Name);
+                    List<ApiObjects.Meta> topicInterest = CatalogDAL.GetTopicInterestList(groupId, metaName);
+                    if (topicInterest != null && topicInterest.Count == 1)
+                    {
+                        meta.Features = topicInterest[0].Features;
+                        response = SetTopicInterest(groupId, meta);
+                    }
+                }
+                else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                {
+                    // update 
+                    response = SetTopicInterest(groupId, meta);                    
+                }
+                else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                {
+                    // delete meta from TopicInterest
+                    if (!CatalogDAL.DeleteTopicInterest(groupId, meta.Name))
+                    {
+                        log.ErrorFormat("Error while DeleteTopicInterest. groupId: {0}, MetaName:{1}", groupId,meta.Name);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.ErrorFormat("Failed groupID={0}, meta={1}, error: {2}", groupId, JsonConvert.SerializeObject( meta), ex);
+                log.ErrorFormat("Failed groupID={0}, meta={1}, error: {2}", groupId, JsonConvert.SerializeObject(meta), ex);
             }
             return response;
         }
 
-        private static MetaResponse SetGroupTopicOptions(int groupId, ApiObjects.Meta meta)
+        private static MetaResponse SetTopicInterest(int groupId, ApiObjects.Meta meta)
         {
             MetaResponse response = new MetaResponse();
-            
-            ApiObjects.Meta updatedMeta = CatalogDAL.SetGroupTopicOptions(groupId, meta);
-            
+
+            ApiObjects.Meta updatedMeta = CatalogDAL.SetTopicInterest(groupId, meta);
+
             if (updatedMeta != null)
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Meta set changes");
