@@ -1112,9 +1112,14 @@
             List of supported features 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMeta.DefaultValues">
+        <member name="P:WebAPI.Models.API.KalturaMeta.MetaId">
             <summary>
-            User interest default values 
+            Meta id 
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.ParentMetaId">
+            <summary>
+            Parent meta id
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">

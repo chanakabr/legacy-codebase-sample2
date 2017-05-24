@@ -473,7 +473,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
-              .ForMember(dest => dest.DefaultValues, opt => opt.MapFrom(src => ConvertDefaultValues(src.DefaultValues)))
+              .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+              .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))
               ;
 
             Mapper.CreateMap<KalturaMeta, Meta>()
@@ -481,8 +482,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
-             .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))             
-             .ForMember(dest => dest.DefaultValues, opt => opt.MapFrom(src => ConvertDefaultValues(src.DefaultValues)))
+             .ForMember(dest => dest.SkipFeatures, opt => opt.MapFrom(src => src.Features == null))
+             .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
+             .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
+             .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))             
              ;
 
             #endregion
@@ -501,34 +504,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             #endregion
-        }
-
-        private static List<string> ConvertDefaultValues(List<KalturaStringValue> kalturaList)
-        {
-            List<string> list = null;
-            if (kalturaList != null)
-            {
-                list = new List<string>();
-                foreach (var stringValue in kalturaList)
-                {
-                    list.Add(stringValue.value);
-                }
-            }
-            return list;
-        }
-
-        private static List<KalturaStringValue> ConvertDefaultValues(List<string> list)
-        {
-            List<KalturaStringValue> kalturaList = null;
-            if (list != null)
-            {
-                kalturaList = new List<KalturaStringValue>();
-                foreach (var stringValue in list)
-                {
-                    kalturaList.Add(new KalturaStringValue() { value = stringValue });
-                }
-            }
-            return kalturaList;
         }
 
         private static List<MetaFeatureType> ConvertFeatures(string metaFeatureType)
@@ -561,7 +536,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 KalturaMetaFeatureTypeList = new List<KalturaMetaFeatureType>();
                 foreach (MetaFeatureType featureType in list)
                 {
-                    KalturaMetaFeatureTypeList.Add(ConvertMetaFeatureType(featureType));                                        
+                    KalturaMetaFeatureTypeList.Add(ConvertMetaFeatureType(featureType));
                 }
 
                 metaFeatureType = string.Join(",", KalturaMetaFeatureTypeList.ToArray());

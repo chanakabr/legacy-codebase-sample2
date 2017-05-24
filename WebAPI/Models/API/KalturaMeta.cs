@@ -57,13 +57,20 @@ namespace WebAPI.Models.API
         public string Features { get; set; }
 
         /// <summary>
-        /// User interest default values 
+        /// Meta id 
         /// </summary>
-        [DataMember(Name = "defaultValues")]
-        [JsonProperty("defaultValues")]
-        [XmlElement(ElementName = "defaultValues ")]
-        [XmlArrayItem(ElementName = "item")]
-        public List<KalturaStringValue> DefaultValues { get; set; }
+        [DataMember(Name = "metaId")]
+        [JsonProperty("metaId")]
+        [XmlElement(ElementName = "metaId")]
+        public string MetaId { get; set; }
+
+        /// <summary>
+        /// Parent meta id
+        /// </summary>
+        [DataMember(Name = "parentMetaId")]
+        [JsonProperty("parentMetaId")]
+        [XmlElement(ElementName = "parentMetaId")]
+        public string ParentMetaId{ get; set; }
 
         public List<KalturaMetaFeatureType> MetaFeatures()
         {
@@ -95,5 +102,4 @@ namespace WebAPI.Models.API
         USER_INTEREST,
         ENABLED_NOTIFICATION
     } 
-
 }

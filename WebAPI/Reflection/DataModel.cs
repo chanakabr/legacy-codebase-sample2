@@ -4101,14 +4101,16 @@ namespace WebAPI.Reflection
                     {
                         case "AssetType":
                             return "assetType";
-                        case "DefaultValues":
-                            return "defaultValues";
                         case "Features":
                             return "features";
                         case "FieldName":
                             return "fieldName";
+                        case "MetaId":
+                            return "metaId";
                         case "Name":
                             return "name";
+                        case "ParentMetaId":
+                            return "parentMetaId";
                         case "Type":
                             return "type";
                     }
