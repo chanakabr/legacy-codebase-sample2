@@ -1101,12 +1101,13 @@ namespace TVPPro.SiteManager.Services
             }
         }
 
-        public FavoritObject[] GetUserFavorite(string sMediaType, int DomainId, string DeviceId)
+        public FavoritObject[] GetUserFavorite(string sMediaType, int DomainId, string DeviceId, FavoriteOrderBy orderBy = FavoriteOrderBy.CreateDateAsc)
         {
             FavoritObject[] UserFavorites = null;
             try
             {
                 var res = PlatUserService.GetUserFavorites(wsUserName, wsPassword, GetUserID(), DomainId, DeviceId, sMediaType, FavoriteOrderBy.CreateDateAsc);
+
                 UserFavorites = res.Favorites;
             }
             catch (Exception ex)

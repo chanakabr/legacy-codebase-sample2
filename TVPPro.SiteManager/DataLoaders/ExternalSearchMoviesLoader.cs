@@ -158,6 +158,18 @@ namespace TVPPro.SiteManager.DataLoaders
                 Parameters.SetParameter<Status>(eParameterType.Retrieve, "ResponseStatus", value);
             }
         }
+
+        public int TotalResults
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "TotalResults", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "TotalResults", value);
+            }
+        }
         #endregion
 
         public ExternalSearchMoviesLoader(string query)
@@ -189,12 +201,14 @@ namespace TVPPro.SiteManager.DataLoaders
                     Platform = Platform.ToString(),
                     SiteGuid = SiteGuid
                 };
-                List<BaseObject> ret = m_oCatalogExternalSearchLoader.Execute() as List<BaseObject>;
+                
+                UnifiedSearchResponse ret = m_oCatalogExternalSearchLoader.Execute() as UnifiedSearchResponse;
                                 
                 this.RequestId = m_oCatalogExternalSearchLoader.RequestId;
                 this.Status = m_oCatalogExternalSearchLoader.Status;
+                this.TotalResults = ret.m_nTotalItems;
 
-                return ret;
+                return ret.m_lObj;
             }
             else
             {

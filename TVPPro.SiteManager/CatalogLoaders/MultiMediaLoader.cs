@@ -84,7 +84,7 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 m_oMediaCache.BuildRequest();
                 m_oResponse.m_lObj = (List<BaseObject>)m_oMediaCache.Execute();
             }
-            return m_oResponse != null ? m_oResponse.m_lObj : null;
+            return m_oResponse;// != null ? m_oResponse.m_lObj : null;
 
         }
 
