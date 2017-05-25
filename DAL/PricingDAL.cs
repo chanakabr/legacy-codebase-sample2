@@ -1452,7 +1452,7 @@ namespace DAL
         }
 
 
-        public static DataSet UpdateSubscriptionSet(int groupId, long setId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority)
+        public static DataSet UpdateSubscriptionSet(int groupId, long setId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority, bool shouldUpdateSubscriptionIds)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateSubscriptionSet");
             sp.SetConnectionKey("pricing_connection");
@@ -1460,7 +1460,7 @@ namespace DAL
             sp.AddParameter("@SetId", setId);
             sp.AddParameter("@Name", string.IsNullOrEmpty(name) ? null : name);
             sp.AddKeyValueListParameter<long, int>("@SubscriptionsIdsToPriority", subscriptionIdsToPriority, "key", "value");
-            sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);
+            sp.AddParameter("@SubscriptionsIdsToPriorityExist", shouldUpdateSubscriptionIds);
             return sp.ExecuteDataSet();
         }
 
