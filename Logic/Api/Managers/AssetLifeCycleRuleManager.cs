@@ -88,15 +88,16 @@ namespace Core.Api.Managers
                     List<AssetLifeCycleRule> rules = pair.Value;
                     Task<int>[] tasks = new Task<int>[rules.Count];
 
-                    for (int i = 0; i < rules.Count; i++)
+                    for (int ruleIndex = 0; ruleIndex < rules.Count; ruleIndex++)
                     {
-                        tasks[i] = Task.Run<int>(() =>
+                        tasks[ruleIndex] = new Task<int>(
+                            (obj) =>
                             {
                                 long ruleId = -1;
 
                                 try
                                 {
-                                    var rule = rules[i];
+                                    var rule = rules[(int)obj];
                                     ruleId = rule.Id;
 
                                     #region UnifiedSearchRequest
@@ -206,7 +207,9 @@ namespace Core.Api.Managers
                                     log.ErrorFormat("Failed doing actions of rule: groupId = {0}, ruleId = {1}, ex = {2}", groupId, ruleId, ex);
                                     return result;
                                 }
-                            });
+                            }, ruleIndex);
+
+                        tasks[ruleIndex].Start();
                     }
 
                     #region Finish tasks
