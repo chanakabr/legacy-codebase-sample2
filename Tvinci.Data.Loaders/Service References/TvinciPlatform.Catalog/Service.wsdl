@@ -7,7 +7,7 @@
       </wsp:All>
     </wsp:ExactlyOne>
   </wsp:Policy>
-  <wsdl:import namespace="" location="http://54.72.1.39:8030/catalog_v3_7/Service.svc?wsdl=wsdl0" />
+  <wsdl:import namespace="" location="http://34.249.122.223:8030/Catalog_V4_4/service.svc?wsdl=wsdl0" />
   <wsdl:types />
   <wsdl:binding name="WSHttpBinding_Iservice" type="Iservice">
     <wsp:PolicyReference URI="#WSHttpBinding_Iservice_policy" />
@@ -66,6 +66,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="RemoveChannelFromCache">
+      <soap12:operation soapAction="urn:Iservice/RemoveChannelFromCache" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="UpdateIndex">
       <soap12:operation soapAction="urn:Iservice/UpdateIndex" style="document" />
       <wsdl:input>
@@ -111,6 +120,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateEpgChannelIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateEpgChannelIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="RebuildIndex">
       <soap12:operation soapAction="urn:Iservice/RebuildIndex" style="document" />
       <wsdl:input>
@@ -138,12 +156,48 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="UpdateRecordingsIndex">
+      <soap12:operation soapAction="urn:Iservice/UpdateRecordingsIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RebuildEpgChannel">
+      <soap12:operation soapAction="urn:Iservice/RebuildEpgChannel" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ClearStatistics">
+      <soap12:operation soapAction="urn:Iservice/ClearStatistics" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RebaseIndex">
+      <soap12:operation soapAction="urn:Iservice/RebaseIndex" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="Service">
     <wsdl:port name="WSHttpBinding_Iservice" binding="tns:WSHttpBinding_Iservice">
-      <soap12:address location="http://54.72.1.39:8030/catalog_v3_7/Service.svc" />
+      <soap12:address location="http://34.249.122.223:8030/Catalog_V4_4/service.svc" />
       <wsa10:EndpointReference>
-        <wsa10:Address>http://54.72.1.39:8030/catalog_v3_7/Service.svc</wsa10:Address>
+        <wsa10:Address>http://34.249.122.223:8030/Catalog_V4_4/service.svc</wsa10:Address>
       </wsa10:EndpointReference>
     </wsdl:port>
   </wsdl:service>

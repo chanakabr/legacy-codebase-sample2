@@ -103,11 +103,11 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\Service.wsdl" />
-    <None Include="Service References\TvinciPlatform.Catalog\Service.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service1.wsdl" />
-    <None Include="Service References\TvinciPlatform.Catalog\Service1.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service1.wsdl" />
+    <None Include="Service References\TvinciPlatform.Catalog\service1.xsd">
       <SubType>Designer</SubType>
     </None>
     <None Include="Service References\TvinciPlatform.Catalog\service10.xsd">
@@ -128,44 +128,27 @@
     <None Include="Service References\TvinciPlatform.Catalog\service15.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service2.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service16.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service22.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service17.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service23.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service18.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service24.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service19.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service25.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service2.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service26.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service3.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service27.xsd">
+    <None Include="Service References\TvinciPlatform.Catalog\service4.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service28.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service29.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service30.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\Service4.wsdl" />
-    <None Include="Service References\TvinciPlatform.Catalog\Service4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\TvinciPlatform.Catalog\service5.wsdl" />
     <None Include="Service References\TvinciPlatform.Catalog\service5.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -201,7 +184,7 @@
     <WCFMetadataStorage Include="Service References\TvinciPlatform.Catalog\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Catalog\Service.disco" />
+    <None Include="Service References\TvinciPlatform.Catalog\service.disco" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\TvinciPlatform.Catalog\configuration91.svcinfo" />
@@ -214,9 +197,6 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\TvinciPlatform.Catalog\service2.disco" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
