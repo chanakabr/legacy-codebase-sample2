@@ -6820,7 +6820,7 @@ namespace Core.Catalog
                                     CatalogLogic.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid, out mediaParentalRulesTags, out epgParentalRulesTags);
                                 }
                             }
-                            
+
                             List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
                             List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
 
@@ -8114,15 +8114,15 @@ namespace Core.Catalog
 
                 int currentGroupId = meta.PartnerId;
 
-                if(meta.SkipFeatures )
+                if (meta.SkipFeatures)
                 {
                     // get meta from DB - check if exist
                     //than update
                     List<string> topicNames = new List<string>();
-                    topicNames.Add(meta.Name) ;
+                    topicNames.Add(meta.Name);
                     List<ApiObjects.Meta> apiMetas = CatalogDAL.GetTopicInterestList(currentGroupId, topicNames);
 
-                    if( apiMetas == null || apiMetas.Count == 0 )
+                    if (apiMetas == null || apiMetas.Count == 0)
                     {
                         log.ErrorFormat("Error while UpdateGroupMeta. currentGroupId: {0}, MetaName:{1}", currentGroupId, meta.Name);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotaTopicInterestMeta, "Not a topic interest meta");
@@ -8131,22 +8131,17 @@ namespace Core.Catalog
 
                     meta.Features = apiMetas[0].Features;
                     // update 
-                    response = SetTopicInterest(currentGroupId, meta);     
+                    response = SetTopicInterest(currentGroupId, meta);
                 }
                 else if (meta.Features != null && !meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
                     // delete meta from TopicInterest
-                    if (!CatalogDAL.DeleteTopicInterest(currentGroupId, meta.Name))
-                    {
-                        log.ErrorFormat("Error while DeleteTopicInterest. currentGroupId: {0}, MetaName:{1}", currentGroupId, meta.Name);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
-                    }                    
+                    response = DeleteTopicInterest(currentGroupId, meta);
                 }
                 else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
                     // update 
-                    response = SetTopicInterest(currentGroupId, meta);                    
+                    response = SetTopicInterest(currentGroupId, meta);
                 }
             }
             catch (Exception ex)
@@ -8173,6 +8168,28 @@ namespace Core.Catalog
             {
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Meta failed set changes");
             }
+            return response;
+        }
+
+        private static MetaResponse DeleteTopicInterest(int groupId, ApiObjects.Meta meta)
+        {
+            MetaResponse response = new MetaResponse();
+
+            if (!CatalogDAL.DeleteTopicInterest(groupId, meta.Name))
+            {
+                log.ErrorFormat("Error while DeleteTopicInterest. groupId: {0}, MetaName:{1}", groupId, meta.Name);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
+            }
+
+            response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Meta set changes");
+
+            //clear userInterset values
+            meta.Features = null;
+            meta.ParentMetaId = string.Empty;
+
+            response.MetaList = new List<ApiObjects.Meta>();
+            response.MetaList.Add(meta);
             return response;
         }
     }
