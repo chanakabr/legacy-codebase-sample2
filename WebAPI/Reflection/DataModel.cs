@@ -6056,6 +6056,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaUserInterest":
+                    switch(property.Name)
+                    {
+                        case "MetaId":
+                            return "metaId";
+                        case "Topic":
+                            return "topic";
+                    }
+                    break;
+                    
                 case "KalturaUserLoginPin":
                     switch(property.Name)
                     {
@@ -6129,30 +6139,6 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
-                    }
-                    break;
-                    
-                case "KlalturaUserInterest":
-                    switch(property.Name)
-                    {
-                        case "UserId":
-                            return "userId";
-                    }
-                    break;
-                    
-                case "KlalturaUserInterestMeta":
-                    switch(property.Name)
-                    {
-                        case "Name":
-                            return "name";
-                    }
-                    break;
-                    
-                case "KlalturaUserInterestTag":
-                    switch(property.Name)
-                    {
-                        case "Name":
-                            return "name";
                     }
                     break;
                     

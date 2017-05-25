@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
@@ -6,46 +8,46 @@ using WebAPI.Models.General;
 namespace WebAPI.Models.API
 {
     /// <summary>
-    /// Asset meta
+    /// User Interest
     /// </summary>
-    public class KlalturaUserInterest : KalturaOTTObject
+    public class KalturaUserInterest : KalturaOTTObject
     {
         /// <summary>
-        /// Meta name for the partner
+        /// Meta identifier
         /// </summary>
-        [DataMember(Name = "userId")]
-        [JsonProperty("userId")]
-        [XmlElement(ElementName = "userId")]
-        public string UserId { get; set; }
+        [DataMember(Name = "metaId")]
+        [JsonProperty("metaId")]
+        [XmlElement(ElementName = "metaId")]
+        public string MetaId { get; set; }
 
-
+        /// <summary>
+        /// Topic
+        /// </summary>
+        [DataMember(Name = "topic")]
+        [JsonProperty("topic")]
+        [XmlElement(ElementName = "topic")]
+        public KalturaUserInterestTopic Topic { get; set; }
     }
 
     /// <summary>
-    /// Asset meta
+    /// User interest topic
     /// </summary>
-    public class KlalturaUserInterestTag : KlalturaUserInterest
+    public class KalturaUserInterestTopic
     {
         /// <summary>
-        /// Meta name for the partner
+        /// Meta identifier
         /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
-    }
+        [DataMember(Name = "metaId")]
+        [JsonProperty("metaId")]
+        [XmlElement(ElementName = "metaId")]
+        public string Value { get; set; }
 
-    /// <summary>
-    /// Asset meta
-    /// </summary>
-    public class KlalturaUserInterestMeta : KlalturaUserInterest
-    {
         /// <summary>
-        /// Meta name for the partner
+        /// Parent topic
         /// </summary>
-        [DataMember(Name = "name")]
-        [JsonProperty("name")]
-        [XmlElement(ElementName = "name")]
-        public string Name { get; set; }
+        [DataMember(Name = "parentTopic")]
+        [JsonProperty("parentTopic")]
+        [XmlElement(ElementName = "parentTopic")]
+        public KalturaUserInterestTopic ParentTopic { get; set; }
     }
 }

@@ -1222,34 +1222,34 @@
             Unique Device ID
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KlalturaUserInterest">
+        <member name="T:WebAPI.Models.API.KalturaUserInterest">
             <summary>
-            Asset meta
+            User Interest
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KlalturaUserInterest.UserId">
+        <member name="P:WebAPI.Models.API.KalturaUserInterest.MetaId">
             <summary>
-            Meta name for the partner
+            Meta identifier
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KlalturaUserInterestTag">
+        <member name="P:WebAPI.Models.API.KalturaUserInterest.Topic">
             <summary>
-            Asset meta
+            Topic
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KlalturaUserInterestTag.Name">
+        <member name="T:WebAPI.Models.API.KalturaUserInterestTopic">
             <summary>
-            Meta name for the partner
+            User interest topic
             </summary>
         </member>
-        <member name="T:WebAPI.Models.API.KlalturaUserInterestMeta">
+        <member name="P:WebAPI.Models.API.KalturaUserInterestTopic.Value">
             <summary>
-            Asset meta
+            Meta identifier
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KlalturaUserInterestMeta.Name">
+        <member name="P:WebAPI.Models.API.KalturaUserInterestTopic.ParentTopic">
             <summary>
-            Meta name for the partner
+            Parent topic
             </summary>
         </member>
         <member name="T:WebAPI.Models.Catalog.KalturaAssetCountListResponse">
