@@ -113,7 +113,7 @@ namespace Core.Notification
 
             // build the filter query for the search
             string ksql = string.Format("(and {0} = '{1}' epg_channel_id = '{2}' {3} start_date > '0')",
-                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
+                seriesIdName, seriesId, epgChannelId, seasonNumber.HasValue && seasonNumber.Value != 0  ? string.Format("{0} = '{1}' ", seasonNumberName, seasonNumber) : string.Empty);
 
             // get program ids
             try

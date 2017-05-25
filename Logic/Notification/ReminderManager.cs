@@ -325,7 +325,6 @@ namespace Core.Notification
                 response.Status = GetUserNotificationData(dbSeriesReminder.GroupId, userId, out userNotificationData);
                 if (response.Status.Code != (int)eResponseStatus.OK || userNotificationData == null)
                 {
-                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
@@ -339,7 +338,6 @@ namespace Core.Notification
                     // user already set the reminder
                     log.DebugFormat("User is already set a series reminder. PID: {0}, UID: {1}, ReminderID: {2}", dbSeriesReminder.GroupId, userId, dbSeriesReminder.ID);
                     response.Status = new Status((int)eResponseStatus.UserAlreadySetReminder, "User already set a reminder");
-                    Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
 
