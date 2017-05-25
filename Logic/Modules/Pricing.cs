@@ -1197,7 +1197,7 @@ namespace Core.Pricing
                     subscriptionSet.SubscriptionIds = new List<long>(subscriptionIds);
                 }
 
-                SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, subscriptionSet.SubscriptionIds);
+                SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, subscriptionSet.SubscriptionIds, shouldUpdateSubscriptionIds);
                 if (subscriptionSet != null && subscriptionSet.Id > 0)
                 {
                     response.SubscriptionSets.Clear();
