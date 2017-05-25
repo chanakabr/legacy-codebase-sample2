@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<<<<<<< HEAD
 <SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="YCdbM19OkR4P/M/HirxLtwlDpLQ=">
+=======
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="tjU34bl+h/lS9eVPKGuv5ktNrFs=">
+>>>>>>> origin/Vision
   <bindingConfigurations>
     <bindingConfiguration bindingType="wsHttpBinding" name="WSHttpBinding_Iservice1">
       <properties>
@@ -127,10 +131,17 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
+<<<<<<< HEAD
     <endpoint name="WSHttpBinding_Iservice1" contract="TvinciPlatform.Catalog.Iservice" bindingType="wsHttpBinding" address="http://34.249.122.223:8030/Catalog_V4_4/service.svc" bindingConfiguration="WSHttpBinding_Iservice1">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>http://34.249.122.223:8030/Catalog_V4_4/service.svc</serializedValue>
+=======
+    <endpoint name="WSHttpBinding_Iservice1" contract="TvinciPlatform.Catalog.Iservice" bindingType="wsHttpBinding" address="http://34.249.122.223:8030/Catalog_V4_3/service.svc" bindingConfiguration="WSHttpBinding_Iservice1">
+      <properties>
+        <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+          <serializedValue>http://34.249.122.223:8030/Catalog_V4_3/service.svc</serializedValue>
+>>>>>>> origin/Vision
         </property>
         <property path="/behaviorConfiguration" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />

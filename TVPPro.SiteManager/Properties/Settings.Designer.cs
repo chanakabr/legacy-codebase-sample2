@@ -46,11 +46,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/BILLING_v4_4/ws_billing_module.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/BILLING_v4_3/ws_billing_module.asmx")]
->>>>>>> origin/Vision
         public string TVPPro_SiteManager_TvinciPlatform_Billing_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Billing_module"]));
@@ -60,11 +56,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/USERS_v4_4/ws_users_module.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/USERS_v4_3/ws_users_module.asmx")]
->>>>>>> origin/Vision
         public string TVPPro_SiteManager_TvinciPlatform_Users_UsersService {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Users_UsersService"]));
@@ -74,11 +66,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/DOMAINS_v4_4/ws_domains_module.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/DOMAINS_v4_3/ws_domains_module.asmx")]
->>>>>>> origin/Vision
         public string TVPPro_SiteManager_TvinciPlatform_Domains_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Domains_module"]));
@@ -88,11 +76,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/SOCIAL_v4_4/ws_social_module.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/SOCIAL_v4_3/ws_social_module.asmx")]
->>>>>>> origin/Vision
         public string TVPPro_SiteManager_TvinciPlatform_Social_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Social_module"]));
@@ -102,11 +86,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/api_v4_4/api.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/api_v4_3/api.asmx")]
->>>>>>> origin/Vision
         public string TVPPro_SiteManager_TvinciPlatform_api_API {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_api_API"]));
@@ -116,11 +96,7 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/PRICING_v4_4/ws_pricing_module.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/PRICING_v4_3/ws_pricing_module.asmx")]
->>>>>>> origin/Vision
         public string TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_Pricing_mdoule"]));
@@ -130,11 +106,8 @@ namespace TVPPro.SiteManager.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.WebServiceUrl)]
-<<<<<<< HEAD
         [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/CAS_V4_4/ws_cas_module.asmx")]
-=======
-        [global::System.Configuration.DefaultSettingValueAttribute("http://34.249.122.223:8030/CAS_V4_3/ws_cas_module.asmx")]
->>>>>>> origin/Vision
+
         public string TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module {
             get {
                 return ((string)(this["TVPPro_SiteManager_TvinciPlatform_ConditionalAccess_module"]));

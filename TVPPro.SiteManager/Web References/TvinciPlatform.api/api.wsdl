@@ -1251,9 +1251,10 @@
           <s:element minOccurs="1" maxOccurs="1" name="FieldName" type="tns:MetaFieldName" />
           <s:element minOccurs="1" maxOccurs="1" name="Type" type="tns:MetaType" />
           <s:element minOccurs="1" maxOccurs="1" name="AssetType" type="s1:eAssetTypes" />
+          <s:element minOccurs="1" maxOccurs="1" name="SkipFeatures" type="s:boolean" />
           <s:element minOccurs="0" maxOccurs="1" name="Features" type="tns:ArrayOfMetaFeatureType" />
-          <s:element minOccurs="0" maxOccurs="1" name="DefaultValues" type="tns:ArrayOfString" />
           <s:element minOccurs="0" maxOccurs="1" name="ParentMetaId" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="PartnerId" type="s:int" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfMetaFeatureType">
@@ -1674,6 +1675,24 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="MediaStatistics">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:BaseCacheObject">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="m_nTotalViews" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nRatingSum" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nRatingCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nLoRateCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_nHiRateCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_n1RateCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_n2RateCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_n3RateCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_n4RateCount" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="m_n5RateCount" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="MetaBoolObject">
         <s:complexContent mixed="false">
           <s:extension base="tns:BaseCacheObject">
@@ -1788,24 +1807,6 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_oBreak" type="tns:MediaAdObject" />
           <s:element minOccurs="0" maxOccurs="1" name="m_oOverlay" type="tns:MediaAdObject" />
         </s:sequence>
-      </s:complexType>
-      <s:complexType name="MediaStatistics">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:BaseCacheObject">
-            <s:sequence>
-              <s:element minOccurs="1" maxOccurs="1" name="m_nTotalViews" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nRatingSum" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nRatingCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nLoRateCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_nHiRateCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_n1RateCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_n2RateCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_n3RateCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_n4RateCount" type="s:int" />
-              <s:element minOccurs="1" maxOccurs="1" name="m_n5RateCount" type="s:int" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
       </s:complexType>
       <s:complexType name="ArrayOfMediaFileObject">
         <s:sequence>
@@ -2865,21 +2866,24 @@
           <s:enumeration value="Churn" />
         </s:restriction>
       </s:simpleType>
+      <s:complexType name="CinepolisPurchaseMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="CinepolisRenewalFailMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ChangePasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2904,60 +2908,6 @@
               <s:element minOccurs="0" maxOccurs="1" name="m_sMasterUsername" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sNewUsername" type="s:string" />
               <s:element minOccurs="0" maxOccurs="1" name="m_sNewFirstName" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="ForgotPasswordMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="WelcomeMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="CinepolisPurchaseMailRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPurchaseDate" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sItemName" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sPrice" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
-            </s:sequence>
-          </s:extension>
-        </s:complexContent>
-      </s:complexType>
-      <s:complexType name="SendAdminTokenRequest">
-        <s:complexContent mixed="false">
-          <s:extension base="tns:MailRequestObj">
-            <s:sequence>
-              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -2992,13 +2942,22 @@
           <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
         </s:sequence>
       </s:complexType>
-      <s:complexType name="ChangedPinMailRequest">
+      <s:complexType name="SendPasswordMailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:MailRequestObj">
             <s:sequence>
               <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
-              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ForgotPasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -3023,6 +2982,11 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
+      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PurchaseMailRequest" />
+        </s:complexContent>
+      </s:complexType>
       <s:complexType name="PurchaseWithPreviewModuleRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest">
@@ -3032,14 +2996,51 @@
           </s:extension>
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PreviewModuleCancelOrRefundRequest">
+      <s:complexType name="PurchaseFailRequest">
         <s:complexContent mixed="false">
           <s:extension base="tns:PurchaseMailRequest" />
         </s:complexContent>
       </s:complexType>
-      <s:complexType name="PurchaseFailRequest">
+      <s:complexType name="ChangedPinMailRequest">
         <s:complexContent mixed="false">
-          <s:extension base="tns:PurchaseMailRequest" />
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sSiteGuid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sRuleName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ChangePasswordMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SendAdminTokenRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sIP" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sDuration" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="WelcomeMailRequest">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:MailRequestObj">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="m_sToken" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sUsername" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="m_sPassword" type="s:string" />
+            </s:sequence>
+          </s:extension>
         </s:complexContent>
       </s:complexType>
       <s:element name="SendMailTemplateResponse">
