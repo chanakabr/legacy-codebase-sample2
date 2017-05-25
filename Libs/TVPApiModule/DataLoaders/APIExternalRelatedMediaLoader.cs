@@ -98,6 +98,18 @@ namespace TVPApi
             }
         }
 
+        public int TotalResults
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "TotalResults", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "TotalResults", value);
+            }
+        }
+
         public List<string> With { get; set; }
         #endregion
 
@@ -124,12 +136,14 @@ namespace TVPApi
                     DomainId = DomainID
                 };
 
-                List<BaseObject> ret = m_oCatalogExternalRelatedLoader.Execute() as List<BaseObject>;
+                //List<BaseObject> 
+                MediaIdsStatusResponse ret = m_oCatalogExternalRelatedLoader.Execute()  as MediaIdsStatusResponse;//as List<BaseObject>;
 
+                this.TotalResults = ret.m_nTotalItems;
                 this.RequestId = m_oCatalogExternalRelatedLoader.RequestId;
                 this.Status = m_oCatalogExternalRelatedLoader.Status;
 
-                return ret;
+                return ret.m_lObj;
             }
             else
             {
