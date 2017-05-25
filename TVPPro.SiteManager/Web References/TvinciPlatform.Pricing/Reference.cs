@@ -4127,6 +4127,7 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
     }
     
     /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(NpvrServiceObject))]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -4155,6 +4156,27 @@ namespace TVPPro.SiteManager.TvinciPlatform.Pricing {
             }
             set {
                 this.nameField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1590.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://pricing.tvinci.com/")]
+    public partial class NpvrServiceObject : ServiceObject {
+        
+        private long quotaField;
+        
+        /// <remarks/>
+        public long Quota {
+            get {
+                return this.quotaField;
+            }
+            set {
+                this.quotaField = value;
             }
         }
     }
