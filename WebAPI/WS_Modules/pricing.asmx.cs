@@ -57,6 +57,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetSubscriptionsList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             
@@ -90,6 +91,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetSubscriptionsContainingUserTypes(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName, int nIsActive, int[] userTypesIDs)
         {
             
@@ -124,6 +126,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetSubscriptionsContainingMedia(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID)
         {
             
@@ -157,6 +160,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual string GetSubscriptionsContainingMediaSTR(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID)
         {
             
@@ -190,6 +194,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetIndexedSubscriptionsContainingMedia(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID, int count)
         {
             
@@ -223,6 +228,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetSubscriptionsContainingMediaShrinked(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nFileTypeID)
         {
             
@@ -256,6 +262,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BaseSubscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetSubscriptionsContainingMediaFile(string sWSUserName, string sWSPassword, Int32 nMediaID, Int32 nMediaFileID)
         {
             
@@ -306,6 +313,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Subscription))]
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription[] GetSubscriptionsShrinkList(string sWSUserName, string sWSPassword, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             
@@ -420,6 +428,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(Subscription))]
         [System.Xml.Serialization.XmlInclude(typeof(Collection))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription GetSubscriptionData(string sWSUserName, string sWSPassword, string sSubscriptionCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
@@ -486,6 +495,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(PPVModule))]
         [System.Xml.Serialization.XmlInclude(typeof(Subscription))]
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual Subscription GetSubscriptionDataByProductCode(string sWSUserName, string sWSPassword, string sProductCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
         {
@@ -1174,6 +1184,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PreviewModule))]
         [System.Xml.Serialization.XmlInclude(typeof(SubscriptionsResponse))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual SubscriptionsResponse GetSubscriptionsData(string sWSUsername, string sWSPassword, string[] oSubCodes,
             string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
@@ -1198,6 +1209,7 @@ namespace WS_Pricing
         [System.Xml.Serialization.XmlInclude(typeof(BundleCodeContainer))]
         [System.Xml.Serialization.XmlInclude(typeof(PreviewModule))]
         [System.Xml.Serialization.XmlInclude(typeof(SubscriptionsResponse))]
+        [System.Xml.Serialization.XmlInclude(typeof(NpvrServiceObject))]
         public virtual SubscriptionsResponse GetSubscriptions(string sWSUsername, string sWSPassword, string[] oSubCodes,
             string sCountryCd2, string sLanguageCode3, string sDeviceName, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc)
         {
