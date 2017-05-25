@@ -54,11 +54,11 @@ namespace TVPApiModule.CatalogLoaders
                 return base.Process();
             else
             {
-                response.m_lObj = (List<BaseObject>)base.Process();
+                response = (MediaIdsStatusResponse)base.Process();
                 m_oResponse = response;
             }
 
-            return m_oResponse != null ? m_oResponse.m_lObj : null;
+            return m_oResponse;// != null ? m_oResponse.m_lObj : null;
         }
     }
 }

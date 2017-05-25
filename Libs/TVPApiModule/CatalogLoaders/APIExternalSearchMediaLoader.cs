@@ -50,15 +50,17 @@ namespace TVPApiModule.CatalogLoaders
         {
             // response should be media ids with status, try to save it and override just the obj.
             MediaIdsStatusResponse response = m_oResponse as MediaIdsStatusResponse;
+            //UnifiedSearchResponse response = new UnifiedSearchResponse();
             if (response == null)
                 return base.Process();
             else
             {
-                response.m_lObj = (List<BaseObject>)base.Process();
+                response = (MediaIdsStatusResponse)base.Process();
+                //response.m_lObj = (List<BaseObject>)base.Process();
                 m_oResponse = response;
             }
 
-            return m_oResponse != null ? m_oResponse.m_lObj : null;
+            return m_oResponse; // != null ? m_oResponse.m_lObj : null;
         }
     }
 }

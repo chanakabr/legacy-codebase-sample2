@@ -1179,7 +1179,7 @@ namespace TVPApi
             {
                 List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
 
-                ret.TotalItems = mediaList.Count;
+                ret.TotalItems = externalRelatedLoader.TotalResults;
                 ret.Assets = mediaList.Select(m => new AssetInfo(m,
                                                                 mediaAssetsStatsDic.ContainsKey(m.AssetId) ? mediaAssetsStatsDic[m.AssetId] : null, 
                                                                 shouldAddFiles)).ToList();
@@ -1220,7 +1220,7 @@ namespace TVPApi
                 DomainID = initObj.DomainID,
                 With = with
             };
-            mediaInfo = externalRelatedLoader.Execute();
+            mediaInfo = externalRelatedLoader.Execute();            
 
             bool shouldAddFiles = false;
             bool shouldAddImages = false;
@@ -1258,8 +1258,8 @@ namespace TVPApi
             try
             {
                 List<MediaObj> mediaList = mediaInfo.Cast<MediaObj>().ToList();
-
-                ret.TotalItems = mediaList.Count;
+                               
+                ret.TotalItems = externalRelatedLoader.TotalResults;
                 ret.Assets = mediaList.Select(m => new AssetInfo(m,
                                                                 mediaAssetsStatsDic.ContainsKey(m.AssetId) ? mediaAssetsStatsDic[m.AssetId] : null, 
                                                                 shouldAddFiles)).ToList();

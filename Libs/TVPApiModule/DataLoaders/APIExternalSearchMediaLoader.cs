@@ -99,6 +99,18 @@ namespace TVPApi
         }
 
         public List<string> With { get; set; }
+
+        public int TotalResults
+        {
+            get
+            {
+                return Parameters.GetParameter<int>(eParameterType.Retrieve, "TotalResults", 0);
+            }
+            set
+            {
+                Parameters.SetParameter<int>(eParameterType.Retrieve, "TotalResults", value);
+            }
+        }
 #endregion
 
         public override List<BaseObject> Execute()
@@ -123,12 +135,13 @@ namespace TVPApi
                     DomainId = DomainID
                 };
 
-                List<BaseObject> ret = m_oCatalogExternalSearchLoader.Execute() as List<BaseObject>;
-
+                //List<BaseObject> 
+                MediaIdsStatusResponse ret = m_oCatalogExternalSearchLoader.Execute() as MediaIdsStatusResponse; // List<BaseObject>;
+                this.TotalResults = ret.m_nTotalItems;
                 this.RequestId = m_oCatalogExternalSearchLoader.RequestId;
                 this.Status = m_oCatalogExternalSearchLoader.Status;
 
-                return ret;
+                return ret.m_lObj;
             }
             else
             {
