@@ -92,6 +92,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_relatedFileTypes" type="tns:ArrayOfInt" />
           <s:element minOccurs="0" maxOccurs="1" name="m_Product_Code" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_bFirstDeviceLimitation" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="alias" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="PriceCode">
@@ -128,6 +129,7 @@
               <s:element minOccurs="1" maxOccurs="1" name="m_dStartDate" type="s:dateTime" />
               <s:element minOccurs="1" maxOccurs="1" name="m_dEndDate" type="s:dateTime" />
               <s:element minOccurs="0" maxOccurs="1" name="m_oWhenAlgo" type="tns:WhenAlgo" />
+              <s:element minOccurs="0" maxOccurs="1" name="alias" type="s:string" />
             </s:sequence>
           </s:extension>
         </s:complexContent>
@@ -183,8 +185,16 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sGroupName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nFinancialEntityID" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_nMaxRecurringUsesCountForCoupon" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="alias" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="couponGroupType" type="tns:CouponGroupType" />
         </s:sequence>
       </s:complexType>
+      <s:simpleType name="CouponGroupType">
+        <s:restriction base="s:string">
+          <s:enumeration value="Coupon" />
+          <s:enumeration value="GiftCard" />
+        </s:restriction>
+      </s:simpleType>
       <s:complexType name="ArrayOfInt">
         <s:sequence>
           <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
@@ -243,6 +253,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="m_sName" type="s:string" />
           <s:element minOccurs="1" maxOccurs="1" name="m_tsFullLifeCycle" type="s:int" />
           <s:element minOccurs="1" maxOccurs="1" name="m_tsNonRenewPeriod" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="alias" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfServiceObject">
@@ -255,6 +266,15 @@
           <s:element minOccurs="1" maxOccurs="1" name="ID" type="s:long" />
           <s:element minOccurs="0" maxOccurs="1" name="Name" type="s:string" />
         </s:sequence>
+      </s:complexType>
+      <s:complexType name="NpvrServiceObject">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:ServiceObject">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="Quota" type="s:long" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
       </s:complexType>
       <s:element name="GetSubscriptionsContainingUserTypes">
         <s:complexType>
@@ -1066,6 +1086,7 @@
           <s:element minOccurs="1" maxOccurs="1" name="m_campID" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="m_ownerGUID" type="s:long" />
           <s:element minOccurs="1" maxOccurs="1" name="m_ownerMedia" type="s:long" />
+          <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:simpleType name="CouponsStatus">
@@ -1213,6 +1234,32 @@
           <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
         </s:sequence>
       </s:complexType>
+      <s:element name="GetSubscriptions">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUsername" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="oSubCodes" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="orderBy" type="tns:SubscriptionOrderBy" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="SubscriptionOrderBy">
+        <s:restriction base="s:string">
+          <s:enumeration value="StartDateAsc" />
+          <s:enumeration value="StartDateDesc" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="GetSubscriptionsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSubscriptionsResult" type="tns:SubscriptionsResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetCollectionsData">
         <s:complexType>
           <s:sequence>
@@ -1286,6 +1333,301 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetPPVModulesData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVCode" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModulesDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPPVModulesDataResult" type="tns:PPVModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PPVModuleResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PPVModules" type="tns:ArrayOfPPVModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="InsertPPV">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="ppv" type="tns:IngestPPV" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="IngestPPV">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:IngestModule">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="PriceCode" type="tns:IngestPriceCode" />
+              <s:element minOccurs="0" maxOccurs="1" name="UsageModule" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="Discount" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CouponGroup" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="SubscriptionOnly" nillable="true" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="Descriptions" type="tns:ArrayOfKeyValuePair" />
+              <s:element minOccurs="1" maxOccurs="1" name="FirstDeviceLimitation" nillable="true" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="ProductCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="FileTypes" type="tns:ArrayOfString" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" nillable="true" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="IngestModule" abstract="true">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="Code" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="Action" type="tns:eIngestAction" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="eIngestAction">
+        <s:restriction base="s:string">
+          <s:enumeration value="Insert" />
+          <s:enumeration value="Update" />
+          <s:enumeration value="Delete" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="IngestPriceCode">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Price" nillable="true" type="s:double" />
+          <s:element minOccurs="0" maxOccurs="1" name="Currency" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfKeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="KeyValuePair" nillable="true" type="tns:KeyValuePair" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="KeyValuePair">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="key" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="value" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="InsertPPVResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertPPVResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="BusinessModuleResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Id" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdatePPV">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="ppv" type="tns:IngestPPV" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePPVResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdatePPVResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeletePPV">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="ppv" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeletePPVResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeletePPVResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertMPP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="multiPricePlan" type="tns:IngestMultiPricePlan" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="IngestMultiPricePlan">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:IngestModule">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="Titles" type="tns:ArrayOfKeyValuePair" />
+              <s:element minOccurs="0" maxOccurs="1" name="Descriptions" type="tns:ArrayOfKeyValuePair" />
+              <s:element minOccurs="1" maxOccurs="1" name="StartDate" nillable="true" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="EndDate" nillable="true" type="s:dateTime" />
+              <s:element minOccurs="0" maxOccurs="1" name="InternalDiscount" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="CouponGroup" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ProductCode" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" nillable="true" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="PreviewModule" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="DomainLimitationModule" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="GracePeriodMinutes" nillable="true" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="PricePlansCodes" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="Channels" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="FileTypes" type="tns:ArrayOfString" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" nillable="true" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="OrderNumber" nillable="true" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="InsertMPPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertMPPResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateMPP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="multiPricePlan" type="tns:IngestMultiPricePlan" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateMPPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateMPPResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteMPP">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="multiPricePlan" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteMPPResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteMPPResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="InsertPricePlan">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="pricePlan" type="tns:IngestPricePlan" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="IngestPricePlan">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:IngestModule">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="FullLifeCycle" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ViewLifeCycle" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="MaxViews" nillable="true" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="PriceCode" type="tns:IngestPriceCode" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsRenewable" nillable="true" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="RecurringPeriods" nillable="true" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="IsActive" nillable="true" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="Discount" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="InsertPricePlanResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="InsertPricePlanResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePricePlan">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="pricePlan" type="tns:IngestPricePlan" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePricePlanResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdatePricePlanResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeletePricePlan">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="groupID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="pricePlan" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeletePricePlanResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeletePricePlanResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="test">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="testResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="testResult" type="tns:BusinessModuleResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModuleResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sWSUserName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sWSPassword" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sPPVCode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sCountryCd2" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sLanguageCode3" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sDeviceName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetPPVModuleResponseResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetPPVModuleResponseResult" type="tns:PPVModuleDataResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="PPVModuleDataResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="PPVModule" type="tns:PPVModule" />
+          <s:element minOccurs="0" maxOccurs="1" name="Status" type="tns:Status" />
+        </s:sequence>
+      </s:complexType>
       <s:element name="Currency" nillable="true" type="tns:Currency" />
       <s:element name="ArrayOfSubscription" nillable="true" type="tns:ArrayOfSubscription" />
       <s:element name="string" nillable="true" type="s:string" />
@@ -1316,6 +1658,9 @@
       <s:element name="ArrayOfPreviewModule" nillable="true" type="tns:ArrayOfPreviewModule" />
       <s:element name="SubscriptionsResponse" nillable="true" type="tns:SubscriptionsResponse" />
       <s:element name="ArrayOfCollection" nillable="true" type="tns:ArrayOfCollection" />
+      <s:element name="PPVModuleResponse" nillable="true" type="tns:PPVModuleResponse" />
+      <s:element name="BusinessModuleResponse" nillable="true" type="tns:BusinessModuleResponse" />
+      <s:element name="PPVModuleDataResponse" nillable="true" type="tns:PPVModuleDataResponse" />
     </s:schema>
     <s:schema targetNamespace="http://pricing.tvinci.com/AbstractTypes">
       <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
@@ -1600,6 +1945,12 @@
   <wsdl:message name="GetSubscriptionsDataSoapOut">
     <wsdl:part name="parameters" element="tns:GetSubscriptionsDataResponse" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSubscriptions" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSubscriptionsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetCollectionsDataSoapIn">
     <wsdl:part name="parameters" element="tns:GetCollectionsData" />
   </wsdl:message>
@@ -1623,6 +1974,78 @@
   </wsdl:message>
   <wsdl:message name="GetPPVModulesByProductCodesSoapOut">
     <wsdl:part name="parameters" element="tns:GetPPVModulesByProductCodesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesData" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPPVModulesDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertPPVSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertPPV" />
+  </wsdl:message>
+  <wsdl:message name="InsertPPVSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertPPVResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePPVSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePPV" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePPVSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePPVResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePPVSoapIn">
+    <wsdl:part name="parameters" element="tns:DeletePPV" />
+  </wsdl:message>
+  <wsdl:message name="DeletePPVSoapOut">
+    <wsdl:part name="parameters" element="tns:DeletePPVResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertMPPSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertMPP" />
+  </wsdl:message>
+  <wsdl:message name="InsertMPPSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertMPPResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMPPSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateMPP" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMPPSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateMPPResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteMPPSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteMPP" />
+  </wsdl:message>
+  <wsdl:message name="DeleteMPPSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteMPPResponse" />
+  </wsdl:message>
+  <wsdl:message name="InsertPricePlanSoapIn">
+    <wsdl:part name="parameters" element="tns:InsertPricePlan" />
+  </wsdl:message>
+  <wsdl:message name="InsertPricePlanSoapOut">
+    <wsdl:part name="parameters" element="tns:InsertPricePlanResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePricePlanSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePricePlan" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePricePlanSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePricePlanResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePricePlanSoapIn">
+    <wsdl:part name="parameters" element="tns:DeletePricePlan" />
+  </wsdl:message>
+  <wsdl:message name="DeletePricePlanSoapOut">
+    <wsdl:part name="parameters" element="tns:DeletePricePlanResponse" />
+  </wsdl:message>
+  <wsdl:message name="testSoapIn">
+    <wsdl:part name="parameters" element="tns:test" />
+  </wsdl:message>
+  <wsdl:message name="testSoapOut">
+    <wsdl:part name="parameters" element="tns:testResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleResponseSoapIn">
+    <wsdl:part name="parameters" element="tns:GetPPVModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleResponseSoapOut">
+    <wsdl:part name="parameters" element="tns:GetPPVModuleResponseResponse" />
   </wsdl:message>
   <wsdl:message name="GetCurrencyValuesHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
@@ -2064,6 +2487,18 @@
   <wsdl:message name="GetSubscriptionsDataHttpPostOut">
     <wsdl:part name="Body" element="tns:SubscriptionsResponse" />
   </wsdl:message>
+  <wsdl:message name="GetSubscriptionsHttpPostIn">
+    <wsdl:part name="sWSUsername" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="oSubCodes" type="s1:StringArray" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+    <wsdl:part name="orderBy" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetSubscriptionsHttpPostOut">
+    <wsdl:part name="Body" element="tns:SubscriptionsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetCollectionsDataHttpPostIn">
     <wsdl:part name="sWSUserName" type="s:string" />
     <wsdl:part name="sWSPassword" type="s:string" />
@@ -2099,6 +2534,57 @@
   </wsdl:message>
   <wsdl:message name="GetPPVModulesByProductCodesHttpPostOut">
     <wsdl:part name="Body" element="tns:ArrayOfPPVModule" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPPVCode" type="s1:StringArray" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModulesDataHttpPostOut">
+    <wsdl:part name="Body" element="tns:PPVModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePPVHttpPostIn">
+    <wsdl:part name="groupID" type="s:string" />
+    <wsdl:part name="ppv" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeletePPVHttpPostOut">
+    <wsdl:part name="Body" element="tns:BusinessModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteMPPHttpPostIn">
+    <wsdl:part name="groupID" type="s:string" />
+    <wsdl:part name="multiPricePlan" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeleteMPPHttpPostOut">
+    <wsdl:part name="Body" element="tns:BusinessModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeletePricePlanHttpPostIn">
+    <wsdl:part name="groupID" type="s:string" />
+    <wsdl:part name="pricePlan" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="DeletePricePlanHttpPostOut">
+    <wsdl:part name="Body" element="tns:BusinessModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="testHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="name" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="testHttpPostOut">
+    <wsdl:part name="Body" element="tns:BusinessModuleResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleResponseHttpPostIn">
+    <wsdl:part name="sWSUserName" type="s:string" />
+    <wsdl:part name="sWSPassword" type="s:string" />
+    <wsdl:part name="sPPVCode" type="s:string" />
+    <wsdl:part name="sCountryCd2" type="s:string" />
+    <wsdl:part name="sLanguageCode3" type="s:string" />
+    <wsdl:part name="sDeviceName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetPPVModuleResponseHttpPostOut">
+    <wsdl:part name="Body" element="tns:PPVModuleDataResponse" />
   </wsdl:message>
   <wsdl:portType name="mdouleSoap">
     <wsdl:operation name="GetCurrencyValues">
@@ -2281,6 +2767,10 @@
       <wsdl:input message="tns:GetSubscriptionsDataSoapIn" />
       <wsdl:output message="tns:GetSubscriptionsDataSoapOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <wsdl:input message="tns:GetSubscriptionsSoapIn" />
+      <wsdl:output message="tns:GetSubscriptionsSoapOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <wsdl:input message="tns:GetCollectionsDataSoapIn" />
       <wsdl:output message="tns:GetCollectionsDataSoapOut" />
@@ -2296,6 +2786,54 @@
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <wsdl:input message="tns:GetPPVModulesByProductCodesSoapIn" />
       <wsdl:output message="tns:GetPPVModulesByProductCodesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <wsdl:input message="tns:GetPPVModulesDataSoapIn" />
+      <wsdl:output message="tns:GetPPVModulesDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertPPV">
+      <wsdl:input message="tns:InsertPPVSoapIn" />
+      <wsdl:output message="tns:InsertPPVSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePPV">
+      <wsdl:input message="tns:UpdatePPVSoapIn" />
+      <wsdl:output message="tns:UpdatePPVSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePPV">
+      <wsdl:input message="tns:DeletePPVSoapIn" />
+      <wsdl:output message="tns:DeletePPVSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertMPP">
+      <wsdl:input message="tns:InsertMPPSoapIn" />
+      <wsdl:output message="tns:InsertMPPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMPP">
+      <wsdl:input message="tns:UpdateMPPSoapIn" />
+      <wsdl:output message="tns:UpdateMPPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMPP">
+      <wsdl:input message="tns:DeleteMPPSoapIn" />
+      <wsdl:output message="tns:DeleteMPPSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="InsertPricePlan">
+      <wsdl:input message="tns:InsertPricePlanSoapIn" />
+      <wsdl:output message="tns:InsertPricePlanSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePricePlan">
+      <wsdl:input message="tns:UpdatePricePlanSoapIn" />
+      <wsdl:output message="tns:UpdatePricePlanSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePlan">
+      <wsdl:input message="tns:DeletePricePlanSoapIn" />
+      <wsdl:output message="tns:DeletePricePlanSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <wsdl:input message="tns:testSoapIn" />
+      <wsdl:output message="tns:testSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleResponse">
+      <wsdl:input message="tns:GetPPVModuleResponseSoapIn" />
+      <wsdl:output message="tns:GetPPVModuleResponseSoapOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:portType name="mdouleHttpPost">
@@ -2479,6 +3017,10 @@
       <wsdl:input message="tns:GetSubscriptionsDataHttpPostIn" />
       <wsdl:output message="tns:GetSubscriptionsDataHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <wsdl:input message="tns:GetSubscriptionsHttpPostIn" />
+      <wsdl:output message="tns:GetSubscriptionsHttpPostOut" />
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <wsdl:input message="tns:GetCollectionsDataHttpPostIn" />
       <wsdl:output message="tns:GetCollectionsDataHttpPostOut" />
@@ -2494,6 +3036,30 @@
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <wsdl:input message="tns:GetPPVModulesByProductCodesHttpPostIn" />
       <wsdl:output message="tns:GetPPVModulesByProductCodesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <wsdl:input message="tns:GetPPVModulesDataHttpPostIn" />
+      <wsdl:output message="tns:GetPPVModulesDataHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePPV">
+      <wsdl:input message="tns:DeletePPVHttpPostIn" />
+      <wsdl:output message="tns:DeletePPVHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMPP">
+      <wsdl:input message="tns:DeleteMPPHttpPostIn" />
+      <wsdl:output message="tns:DeleteMPPHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePlan">
+      <wsdl:input message="tns:DeletePricePlanHttpPostIn" />
+      <wsdl:output message="tns:DeletePricePlanHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <wsdl:input message="tns:testHttpPostIn" />
+      <wsdl:output message="tns:testHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleResponse">
+      <wsdl:input message="tns:GetPPVModuleResponseHttpPostIn" />
+      <wsdl:output message="tns:GetPPVModuleResponseHttpPostOut" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="mdouleSoap" type="tns:mdouleSoap">
@@ -2903,6 +3469,15 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetSubscriptions" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <soap:operation soapAction="http://pricing.tvinci.com/GetCollectionsData" style="document" />
       <wsdl:input>
@@ -2932,6 +3507,114 @@
     </wsdl:operation>
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModulesByProductCodes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModulesData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertPPV">
+      <soap:operation soapAction="http://pricing.tvinci.com/InsertPPV" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePPV">
+      <soap:operation soapAction="http://pricing.tvinci.com/UpdatePPV" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePPV">
+      <soap:operation soapAction="http://pricing.tvinci.com/DeletePPV" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertMPP">
+      <soap:operation soapAction="http://pricing.tvinci.com/InsertMPP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMPP">
+      <soap:operation soapAction="http://pricing.tvinci.com/UpdateMPP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMPP">
+      <soap:operation soapAction="http://pricing.tvinci.com/DeleteMPP" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertPricePlan">
+      <soap:operation soapAction="http://pricing.tvinci.com/InsertPricePlan" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePricePlan">
+      <soap:operation soapAction="http://pricing.tvinci.com/UpdatePricePlan" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePlan">
+      <soap:operation soapAction="http://pricing.tvinci.com/DeletePricePlan" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <soap:operation soapAction="http://pricing.tvinci.com/test" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleResponse">
+      <soap:operation soapAction="http://pricing.tvinci.com/GetPPVModuleResponse" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -3347,6 +4030,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetSubscriptions" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <soap12:operation soapAction="http://pricing.tvinci.com/GetCollectionsData" style="document" />
       <wsdl:input>
@@ -3376,6 +4068,114 @@
     </wsdl:operation>
     <wsdl:operation name="GetPPVModulesByProductCodes">
       <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModulesByProductCodes" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModulesData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertPPV">
+      <soap12:operation soapAction="http://pricing.tvinci.com/InsertPPV" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePPV">
+      <soap12:operation soapAction="http://pricing.tvinci.com/UpdatePPV" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePPV">
+      <soap12:operation soapAction="http://pricing.tvinci.com/DeletePPV" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertMPP">
+      <soap12:operation soapAction="http://pricing.tvinci.com/InsertMPP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMPP">
+      <soap12:operation soapAction="http://pricing.tvinci.com/UpdateMPP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMPP">
+      <soap12:operation soapAction="http://pricing.tvinci.com/DeleteMPP" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InsertPricePlan">
+      <soap12:operation soapAction="http://pricing.tvinci.com/InsertPricePlan" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePricePlan">
+      <soap12:operation soapAction="http://pricing.tvinci.com/UpdatePricePlan" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePlan">
+      <soap12:operation soapAction="http://pricing.tvinci.com/DeletePricePlan" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <soap12:operation soapAction="http://pricing.tvinci.com/test" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleResponse">
+      <soap12:operation soapAction="http://pricing.tvinci.com/GetPPVModuleResponse" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -3791,6 +4591,15 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetSubscriptions">
+      <http:operation location="/GetSubscriptions" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="GetCollectionsData">
       <http:operation location="/GetCollectionsData" />
       <wsdl:input>
@@ -3827,16 +4636,70 @@
         <mime:mimeXml part="Body" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="GetPPVModulesData">
+      <http:operation location="/GetPPVModulesData" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePPV">
+      <http:operation location="/DeletePPV" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteMPP">
+      <http:operation location="/DeleteMPP" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeletePricePlan">
+      <http:operation location="/DeletePricePlan" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="test">
+      <http:operation location="/test" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPPVModuleResponse">
+      <http:operation location="/GetPPVModuleResponse" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="mdoule">
     <wsdl:port name="mdouleSoap" binding="tns:mdouleSoap">
-      <soap:address location="http://54.72.1.39:8030/pricing_v3_7/module.asmx" />
+      <soap:address location="http://localhost/V_Pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleSoap12" binding="tns:mdouleSoap12">
-      <soap12:address location="http://54.72.1.39:8030/pricing_v3_7/module.asmx" />
+      <soap12:address location="http://localhost/V_Pricing/module.asmx" />
     </wsdl:port>
     <wsdl:port name="mdouleHttpPost" binding="tns:mdouleHttpPost">
-      <http:address location="http://54.72.1.39:8030/pricing_v3_7/module.asmx" />
+      <http:address location="http://localhost/V_Pricing/module.asmx" />
     </wsdl:port>
   </wsdl:service>
 </wsdl:definitions>
