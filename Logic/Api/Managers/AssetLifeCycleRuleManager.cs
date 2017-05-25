@@ -68,7 +68,7 @@ namespace Core.Api.Managers
             catch (Exception ex)
             {
                 log.Error(string.Format("ApplyLifeCycleRulesOnAssets failed, assetIds: {0}, ruleToApply: {1}",
-                                            assetIds != null && assetIds.Count > 0 ? string.Join(",", assetIds, ruleToApply.ToString()) : string.Empty), ex);
+                                            assetIds != null && assetIds.Count > 0 ? string.Join(",", assetIds) : string.Empty, ruleToApply.ToString()), ex);
             }
 
             return res;

@@ -1174,8 +1174,8 @@ namespace Core.Pricing
                     response.Status = new Status((int)eResponseStatus.SubscriptionSetDoesNotExist, eResponseStatus.SubscriptionSetDoesNotExist.ToString());
                     return response;
                 }
-
-                SubscriptionSet subscriptionSet = response.SubscriptionSets[0];
+                
+                SubscriptionSet subscriptionSet = response.SubscriptionSets[0];                
                 subscriptionSet.Name = !string.IsNullOrEmpty(name) ? name : subscriptionSet.Name;
                 if (shouldUpdateSubscriptionIds)
                 {
@@ -1200,6 +1200,7 @@ namespace Core.Pricing
                 SubscriptionSet updatedSubscriptionSet = Utils.UpdateSubscriptionSet(groupId, subscriptionSet.Id, subscriptionSet.Name, subscriptionSet.SubscriptionIds);
                 if (subscriptionSet != null && subscriptionSet.Id > 0)
                 {
+                    response.SubscriptionSets.Clear();
                     response.SubscriptionSets.Add(subscriptionSet);
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }

@@ -267,7 +267,9 @@ namespace ApiObjects
         Series = 1,
         Reminder = 2,
         Churn = 3,
-        SeriesReminder = 4
+        SeriesReminder = 4,
+        InterestVod = 5,
+        InterestEPG = 6
     }
 
     public enum eOTTAssetTypes
@@ -587,7 +589,24 @@ namespace ApiObjects
         ChannelName = 0,
         StartDate = 1,
         SeriesName = 2,
-        SeasonNumber = 3
+        EpisodeName = 3,
+    }
+
+    public enum eInterestVodPlaceHolders
+    {
+        MediaName = 0,
+        SeriesName = 1,
+        CatalaogStartDate = 2,
+        StartDate = 3,
+        MediaId = 4
+    }
+
+    public enum eInterestEPGPlaceHolders
+    {
+        ProgramName = 0,
+        ChannelName = 1,
+        StartDate = 2,
+        ProgramId = 3
     }
 
     public enum TstvRecordingStatus
@@ -887,4 +906,11 @@ namespace ApiObjects
         ExtendingRecordingLifetime = 0,
         LimitedByRecordingLifetime = 1
     }
+
+    public enum SubscriptionSetModifyPurchaseType
+    {
+        Upgrade,
+        Downgrade
+    }
+
 }

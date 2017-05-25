@@ -1171,7 +1171,7 @@ namespace Core.Notification
                     seriesReminderTemplate = messageTemplates.FirstOrDefault(x => x.TemplateType == MessageTemplateType.SeriesReminder);
                     if (seriesReminderTemplate != null)
                     {
-                        SendSeriesMessageReminder(partnerId, program, dbReminderSendDate, seriesReminderTemplate, reminderId);
+                        SendSeriesMessageReminder(partnerId, program, dbReminderSendDate, seriesReminderTemplate, reminderId, mediaChannel);
                         log.DebugFormat("sent series reminder, reminderId = {0}", reminder.ID);
                     }
                     else
@@ -1235,7 +1235,7 @@ namespace Core.Notification
             }
         }
 
-        private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId)
+        private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId, MediaObj mediaChannel)
         {
             log.DebugFormat("SendSeriesMessageReminder started");
 
@@ -1273,13 +1273,13 @@ namespace Core.Notification
                             Category = seriesReminderTemplate.Action,
                             Sound = seriesReminderTemplate.Sound,
                             Url = seriesReminderTemplate.URL.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
-                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
-                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeasonNumber + "}", seasonNumber.ToString()),
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.EpisodeName + "}", program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty),
                             Alert = seriesReminderTemplate.Message.Replace("{" + eSeriesReminderPlaceHolders.StartDate + "}", dbReminderSendDate.ToString(seriesReminderTemplate.DateFormat)).
-                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.ChannelName + "}", mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty).
                                                                  Replace("{" + eSeriesReminderPlaceHolders.SeriesName + "}", seriesId).
-                                                                 Replace("{" + eSeriesReminderPlaceHolders.SeasonNumber + "}", seasonNumber.ToString())
+                                                                 Replace("{" + eSeriesReminderPlaceHolders.EpisodeName + "}", program.m_oProgram.NAME != null ? program.m_oProgram.NAME : string.Empty)
                         };
 
                         string serializedMessage = JsonConvert.SerializeObject(seriesMessageData);

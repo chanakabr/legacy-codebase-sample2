@@ -3008,5 +3008,31 @@ namespace Core.ConditionalAccess
             }
             return response;
         }
+
+        public static TransactionResponse SubscriptionSetModifySubscription(int groupId, string siteguid, long housholdId, double price, string currency, int contentId, int productId,
+                                                                            eTransactionType transactionType, string coupon, string userIp, string udid, int paymentGatewayId, int paymentMethodId,
+                                                                            string adapterData, SubscriptionSetModifyPurchaseType purchaseType)
+        {
+            TransactionResponse response = new TransactionResponse();
+
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupId);
+
+            if (casImpl != null)
+            {
+                response = casImpl.SubscriptionSetModifySubscription(siteguid, housholdId, price, currency, contentId, productId, transactionType, coupon, userIp, udid,
+                                                                    paymentGatewayId, paymentMethodId, adapterData, purchaseType);
+                if (response == null)
+                {
+                    response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                }
+            }
+            return response;
+        }
+
     }
 }

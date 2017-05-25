@@ -487,6 +487,7 @@
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="UserType.cs" />
+    <Compile Include="ApiObjectsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

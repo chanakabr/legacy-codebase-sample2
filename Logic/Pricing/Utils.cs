@@ -783,7 +783,7 @@ namespace Core.Pricing
             SubscriptionSet subscriptionSet = null;
             try
             {
-                List<KeyValuePair<long, int>> subscriptionIdsToPriority = null;
+                List<KeyValuePair<long, int>> subscriptionIdsToPriority = new List<KeyValuePair<long,int>>();
                 if (subscriptionIds != null && subscriptionIds.Count > 0)
                 {
                     int priority = 1;

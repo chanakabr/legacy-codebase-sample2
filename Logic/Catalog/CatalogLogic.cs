@@ -20,6 +20,7 @@ using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
@@ -73,6 +74,10 @@ namespace Core.Catalog
         protected static readonly string META_DATE_PREFIX = "date";
 
         private static readonly string CB_MEDIA_MARK_DESGIN = ODBCWrapper.Utils.GetTcmConfigValue("cb_media_mark_design");
+
+        private const string NO_META_TO_UPDATE = "No meta update";
+        private const string NAME_REQUIRED = "Name must have a value";
+        private const string META_NOT_EXIST = "Meta not exist";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -1265,7 +1270,7 @@ namespace Core.Catalog
                 List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to, out aggregationResult);
 
                 if (searchResults != null)
-                {                   
+                {
                     searchResultsList = searchResults;
                 }
             }
@@ -6815,7 +6820,7 @@ namespace Core.Catalog
                                     CatalogLogic.GetParentalRulesTags(request.m_nGroupID, request.m_sSiteGuid, out mediaParentalRulesTags, out epgParentalRulesTags);
                                 }
                             }
-
+                            
                             List<BooleanPhraseNode> newMediaNodes = new List<BooleanPhraseNode>();
                             List<BooleanPhraseNode> newEpgNodes = new List<BooleanPhraseNode>();
 
@@ -6827,7 +6832,7 @@ namespace Core.Catalog
                                 // Create a Not-in leaf for each of the tags
                                 BooleanLeaf newLeaf = new BooleanLeaf(
                                     string.Concat("tags.", tagValues.Key.ToLower()),
-                                    tagValues.Value,
+                                    tagValues.Value.Select(value => value.ToLower()).ToList(),
                                     typeof(List<string>),
                                     ComparisonOperator.NotIn,
                                     true);
@@ -6851,7 +6856,7 @@ namespace Core.Catalog
                                 // Create a Not-in leaf for each of the tags
                                 BooleanLeaf newLeaf = new BooleanLeaf(
                                     string.Concat("tags.", tagValues.Key.ToLower()),
-                                    tagValues.Value,
+                                    tagValues.Value.Select(value => value.ToLower()).ToList(),
                                     typeof(List<string>),
                                     ComparisonOperator.NotIn,
                                     true);
@@ -7026,9 +7031,18 @@ namespace Core.Catalog
 
             // if the epoch time is greater then 1980 - it's a date, otherwise it's relative (to now) time in seconds
             if (epoch > UNIX_TIME_1980)
+            {
                 leaf.value = DateUtils.UnixTimeStampToDateTime(epoch);
+            }
             else
+            {
+                if (serverTime == default(DateTime) || serverTime == DateTime.MinValue)
+                {
+                    serverTime = DateTime.UtcNow;
+                }
+
                 leaf.value = serverTime.AddSeconds(epoch);
+            }
         }
 
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group)
@@ -7163,7 +7177,7 @@ namespace Core.Catalog
                     }
                 }
 
-                if (searcherOrderObj.m_eOrderBy == OrderBy.META && 
+                if (searcherOrderObj.m_eOrderBy == OrderBy.META &&
                     !Utils.CheckMetaExsits(definitions.shouldSearchEpg, definitions.shouldSearchMedia, definitions.shouldSearchRecordings, group, searcherOrderObj.m_sOrderValue.ToLower()))
                 {
                     //return error - meta not erxsits
@@ -8078,6 +8092,67 @@ namespace Core.Catalog
         internal static Dictionary<string, List<string>> GetUserPreferences(string siteGuid, int groupId)
         {
             throw new NotImplementedException();
+        }
+
+        internal static MetaResponse UpdateGroupMeta(int groupId, ApiObjects.Meta meta)
+        {
+            MetaResponse response = new MetaResponse();
+
+            try
+            {
+                if (meta == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NoMetaToUpdate, NO_META_TO_UPDATE);
+                    return response;
+                }
+
+                if (string.IsNullOrEmpty(meta.Name))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NameRequired, NAME_REQUIRED);
+                    return response;
+                }
+
+               if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                {
+                    // update 
+                    response = SetTopicInterest(groupId, meta);                    
+                }
+                else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                {
+                    // delete meta from TopicInterest
+                    if (!CatalogDAL.DeleteTopicInterest(groupId, meta.Name))
+                    {
+                        log.ErrorFormat("Error while DeleteTopicInterest. groupId: {0}, MetaName:{1}", groupId,meta.Name);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                log.ErrorFormat("Failed groupID={0}, meta={1}, error: {2}", groupId, JsonConvert.SerializeObject(meta), ex);
+            }
+            return response;
+        }
+
+        private static MetaResponse SetTopicInterest(int groupId, ApiObjects.Meta meta)
+        {
+            MetaResponse response = new MetaResponse();
+
+            ApiObjects.Meta updatedMeta = CatalogDAL.SetTopicInterest(groupId, meta);
+
+            if (updatedMeta != null)
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "Meta set changes");
+                response.MetaList = new List<ApiObjects.Meta>();
+                response.MetaList.Add(updatedMeta);
+            }
+            else
+            {
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Meta failed set changes");
+            }
+            return response;
         }
     }
 }

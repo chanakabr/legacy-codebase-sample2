@@ -1,9 +1,5 @@
 ﻿using ApiObjects.Response;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiObjects
 {
@@ -26,5 +22,22 @@ namespace ApiObjects
         public MetaFieldName FieldName { get; set; }
         public MetaType Type { get; set; }
         public eAssetTypes AssetType { get; set; }
+        public bool SkipFeatures { get; set; }        
+        public List<MetaFeatureType> Features { get; set; }
+        public string ParentMetaId { get; set; }
+        public int PartnerId { get; set; }
+        public string MetaId {
+            get
+            {
+                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}", PartnerId, Name));
+                //return string.Format("{0}_{1}", PartnerId, Name);
+            }
+        }
+    }
+
+    public enum MetaFeatureType
+    {
+        USER_INTEREST,
+        ENABLED_NOTIFICATION
     }
 }

@@ -164,6 +164,12 @@ namespace Core.Notification
                 case ApiObjects.MessageTemplateType.SeriesReminder:
                     validationStatus = ValidatePlaceholders<eSeriesReminderPlaceHolders>(ref message);
                     break;
+                case ApiObjects.MessageTemplateType.InterestVod:
+                    validationStatus = ValidatePlaceholders<eInterestVodPlaceHolders>(ref message);
+                    break;
+                case ApiObjects.MessageTemplateType.InterestEPG:
+                    validationStatus = ValidatePlaceholders<eInterestEPGPlaceHolders>(ref message);
+                    break;
                 default:
                     break;
             }
@@ -193,6 +199,12 @@ namespace Core.Notification
                     break;
                 case ApiObjects.MessageTemplateType.SeriesReminder:
                     validationStatus = ValidatePlaceholders<eSeriesReminderPlaceHolders>(ref url);
+                    break;
+                case ApiObjects.MessageTemplateType.InterestEPG:
+                    validationStatus = ValidatePlaceholders<eInterestEPGPlaceHolders>(ref url);
+                    break;
+                case ApiObjects.MessageTemplateType.InterestVod:
+                    validationStatus = ValidatePlaceholders<eInterestVodPlaceHolders>(ref url);
                     break;
                 default:
                     break;

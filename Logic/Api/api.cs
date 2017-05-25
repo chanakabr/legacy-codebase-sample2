@@ -11,7 +11,6 @@ using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ApiObjects.SearchObjects;
-using ApiObjects.Statistics;
 using ApiObjects.TimeShiftedTv;
 using CachingHelpers;
 using CachingProvider.LayeredCache;
@@ -87,7 +86,7 @@ namespace Core.Api
         private const string PURCHASE_SETTINGS_TYPE_INVALID = "Purchase settings type invalid";
 
         protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-        protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";        
+        protected const string ROUTING_KEY_CHECK_PENDING_TRANSACTION = "PROCESS_CHECK_PENDING_TRANSACTION\\{0}";
 
         protected const string QUEUE_ASSEMBLY_NAME = "QueueWrapper";
 
@@ -9104,7 +9103,7 @@ namespace Core.Api
         public static ApiObjects.CountryLocaleResponse GetCountryList(List<int> countryIds, int groupId = 0)
         {
             ApiObjects.CountryLocaleResponse result = new ApiObjects.CountryLocaleResponse();
-            List<Country> countries = new List<Country>();            
+            List<Country> countries = new List<Country>();
             DataTable dt = DAL.ApiDAL.GetCountries(countryIds);
             if (dt != null && dt.Rows != null)
             {
@@ -9122,10 +9121,10 @@ namespace Core.Api
                         };
                         if (country.Id > 0)
                         {
-                            countries.Add(country);                            
+                            countries.Add(country);
                         }
                     }
-                }                
+                }
             }
 
             Dictionary<int, CountryLocale> countriesLocaleMap = null;
@@ -9310,7 +9309,8 @@ namespace Core.Api
                                         AssetType = eAssetTypes.MEDIA,
                                         FieldName = MetaFieldName.None,
                                         Name = metaVal.Value,
-                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key)
+                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
+                                        PartnerId = group.m_oMetasValuesByGroupId.Keys.First()
                                     };
 
                                     if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
@@ -9335,6 +9335,23 @@ namespace Core.Api
 
                                 response.MetaList.Add(meta);
                             }
+                        }
+                    }
+                }
+
+                // Get all group_topic_options according to MetaName
+                if (response.MetaList != null && response.MetaList.Count > 0)
+                {
+                    List<string> metasName = response.MetaList.Select(x => x.Name).ToList();
+                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(groupId, metasName);
+                    if (topicInterestList != null)
+                    {
+                        Meta meta;
+                        foreach (Meta topicInterest in topicInterestList)
+                        {
+                            meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
+                            meta.Features = topicInterest.Features;
+                            meta.ParentMetaId = topicInterest.ParentMetaId;                            
                         }
                     }
                 }
@@ -9387,7 +9404,7 @@ namespace Core.Api
         public static bool DoActionRules()
         {
             double alcrScheduledTaskIntervalSec = 0;
-            bool shouldEnqueueFollowUp = false;            
+            bool shouldEnqueueFollowUp = false;
             try
             {
                 // try to get interval for next run take default
@@ -9397,8 +9414,8 @@ namespace Core.Api
                 ScheduledTaskLastRunDetails lastRunDetails = assetLifeCycleRuleScheduledTask.GetLastRunDetails();
                 assetLifeCycleRuleScheduledTask = lastRunDetails != null ? (BaseScheduledTaskLastRunDetails)lastRunDetails : null;
 
-                if (assetLifeCycleRuleScheduledTask != null && 
-                    assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK && 
+                if (assetLifeCycleRuleScheduledTask != null &&
+                    assetLifeCycleRuleScheduledTask.Status.Code == (int)eResponseStatus.OK &&
                     assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds > 0)
                 {
                     alcrScheduledTaskIntervalSec = assetLifeCycleRuleScheduledTask.NextRunIntervalInSeconds;
@@ -9408,7 +9425,7 @@ namespace Core.Api
                         return true;
                     }
                     else
-                    {                        
+                    {
                         shouldEnqueueFollowUp = true;
                     }
                 }
@@ -9445,7 +9462,7 @@ namespace Core.Api
                 shouldEnqueueFollowUp = true;
             }
             finally
-            {               
+            {
                 if (shouldEnqueueFollowUp)
                 {
                     if (alcrScheduledTaskIntervalSec == 0)
@@ -9500,7 +9517,7 @@ namespace Core.Api
 
                             rule.TagNamesToAdd = new List<string>(tagNamesToAdd);
                         }
-                        
+
                         if (rule.Actions.TagIdsToRemove != null && rule.Actions.TagIdsToRemove.Count > 0)
                         {
                             tagNamesToRemove = AssetLifeCycleRuleManager.GetTagNamesByTagIds(groupId, filterTagTypeId, rule.Actions.TagIdsToRemove);
@@ -9571,7 +9588,7 @@ namespace Core.Api
                         result.Status = new Status((int)eResponseStatus.CountryNotFound, eResponseStatus.CountryNotFound.ToString());
                         return result;
                     }
-                                        
+
                     Dictionary<int, CountryLocale> countriesLocaleMap = APILogic.Utils.GetCountriesLocaleMap(groupId, new List<int>() { country.Id });
                     if (countriesLocaleMap != null && countriesLocaleMap.ContainsKey(country.Id))
                     {
@@ -9646,7 +9663,7 @@ namespace Core.Api
                         {
                             string code = ODBCWrapper.Utils.GetSafeStr(dr, "CODE3");
                             string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                            string sign = ODBCWrapper.Utils.GetSafeStr(dr, "CURRENCY_SIGN");                            
+                            string sign = ODBCWrapper.Utils.GetSafeStr(dr, "CURRENCY_SIGN");
                             int isDefault = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_DEFAULT");
                             result.Currencies.Add(new Currency(id, name, code, sign, isDefault == 1));
                         }
@@ -9724,7 +9741,7 @@ namespace Core.Api
                 int totalItems = 0;
 
                 response.Searches = SearchHistory.List(groupId, userId, udid, language, pageIndex, pageSize, out totalItems);
-                
+
                 response.TotalItems = totalItems;
                 response.Status = new Status();
             }
