@@ -475,6 +475,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
               .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))
+              .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
               ;
 
             Mapper.CreateMap<KalturaMeta, Meta>()
@@ -485,7 +486,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.SkipFeatures, opt => opt.MapFrom(src => src.Features == null))
              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
              .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
-             .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))             
+             .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))
+             .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
              ;
 
             #endregion

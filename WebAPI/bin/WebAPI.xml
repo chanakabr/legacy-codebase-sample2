@@ -1122,6 +1122,11 @@
             Parent meta id
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMeta.PartnerId">
+            <summary>
+            Partner Id
+            </summary>
+        </member>
         <member name="P:WebAPI.Models.API.KalturaDeviceBrandListResponse.Objects">
             <summary>
             Device brands

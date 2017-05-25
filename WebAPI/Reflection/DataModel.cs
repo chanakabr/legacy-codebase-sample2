@@ -4111,6 +4111,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "ParentMetaId":
                             return "parentMetaId";
+                        case "PartnerId":
+                            return "partnerId";
                         case "Type":
                             return "type";
                     }

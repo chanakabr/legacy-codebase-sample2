@@ -72,28 +72,13 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "parentMetaId")]
         public string ParentMetaId{ get; set; }
 
-        public List<KalturaMetaFeatureType> MetaFeatures()
-        {
-            List<KalturaMetaFeatureType> featureList = new List<KalturaMetaFeatureType>();
-            if (!string.IsNullOrEmpty(this.Features))
-            {
-                string[] metaFeatures = this.Features.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string feature in metaFeatures)
-                {
-                    KalturaMetaFeatureType socialActionType;
-                    if (Enum.TryParse<KalturaMetaFeatureType>(feature.ToUpper(), out socialActionType))
-                    {
-                        featureList.Add(socialActionType);
-                    }
-                }
-            }
-            else // fill in with all features
-            {
-                featureList.AddRange(Enum.GetValues(typeof(KalturaMetaFeatureType)).Cast<KalturaMetaFeatureType>().ToList());
-            }
-
-            return featureList;
-        }
+        /// <summary>
+        /// Partner Id
+        /// </summary>
+        [DataMember(Name = "partnerId")]
+        [JsonProperty("partnerId")]
+        [XmlElement(ElementName = "partnerId")]
+        public int PartnerId { get; set; }
     }
 
     [Serializable]
