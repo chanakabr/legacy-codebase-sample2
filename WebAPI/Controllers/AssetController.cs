@@ -875,7 +875,7 @@ namespace WebAPI.Controllers
                     KalturaDrmPlaybackPluginData drmData;
                     List<KalturaDrmSchemeName> schemes;
                     Group group = GroupsManager.GetGroup(ks.GroupId);
-                    
+
                     string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];
                     string xKProxyProto = HttpContext.Current.Request.Headers["X-KProxy-Proto"];
 

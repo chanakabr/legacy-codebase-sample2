@@ -345,8 +345,6 @@ namespace WebAPI.Clients
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -498,8 +496,6 @@ namespace WebAPI.Clients
         {
             KalturaDevicePin result;
             DevicePinResponse response = null;
-
-            
 
             try
             {

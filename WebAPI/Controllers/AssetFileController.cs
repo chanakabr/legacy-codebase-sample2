@@ -128,7 +128,6 @@ namespace WebAPI.Controllers
 
                 response = ClientsManager.ConditionalAccessClient().GetPlayManifest(partnerId, userId, assetId, assetType, assetFileId, udid, contextType);
 
-
                 if (!string.IsNullOrEmpty(response))
                 {
                     // pass query string params
@@ -143,7 +142,6 @@ namespace WebAPI.Controllers
                             response = string.Format("{0}{1}playSessionId={2}", response, response.Contains("?") ? "&" : "?", HttpContext.Current.Items["playSessionId"]);
                         }
                     }
-
 
                     HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Origin", "*");
                     HttpContext.Current.Response.Redirect(response);
