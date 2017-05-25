@@ -1822,15 +1822,20 @@ namespace Core.ConditionalAccess
                         }
 
                         //cancellationWindow by relevantSub
-                        if (relevantSub != null && relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
+                        if (relevantSub != null && subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
                         {
-                            if (subsPurchase.ContainsKey(relevantSub.m_SubscriptionCode))
+                            nWaiver = subsPurchase[relevantSub.m_SubscriptionCode].nWaiver;
+                            dPurchaseDate = subsPurchase[relevantSub.m_SubscriptionCode].dtPurchaseDate;
+                            p_dtStartDate = dPurchaseDate;
+                            p_dtEndDate = subsPurchase[relevantSub.m_SubscriptionCode].dtEndDate;
+
+                            if (relevantSub.m_MultiSubscriptionUsageModule != null && relevantSub.m_MultiSubscriptionUsageModule.Count() > 0)
                             {
-                                nWaiver = subsPurchase[relevantSub.m_SubscriptionCode].nWaiver;
-                                dPurchaseDate = subsPurchase[relevantSub.m_SubscriptionCode].dtPurchaseDate;
-                                p_dtStartDate = dPurchaseDate;
-                                p_dtEndDate = subsPurchase[relevantSub.m_SubscriptionCode].dtEndDate;
                                 bCancellationWindow = IsCancellationWindowPerPurchase(relevantSub.m_MultiSubscriptionUsageModule[0], bCancellationWindow, nWaiver, dPurchaseDate);
+                            }
+                            else if (relevantSub.m_oSubscriptionUsageModule != null)
+                            {
+                                bCancellationWindow = IsCancellationWindowPerPurchase(relevantSub.m_oSubscriptionUsageModule, bCancellationWindow, nWaiver, dPurchaseDate);
                             }
                         }
                     }
