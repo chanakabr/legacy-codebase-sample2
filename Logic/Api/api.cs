@@ -9343,7 +9343,8 @@ namespace Core.Api
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
                     List<string> metasName = response.MetaList.Select(x => x.Name).ToList();
-                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(groupId, metasName);
+                    int currentGroupId = response.MetaList.Select(x => x.PartnerId).FirstOrDefault();
+                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(currentGroupId, metasName);
                     if (topicInterestList != null)
                     {
                         Meta meta;

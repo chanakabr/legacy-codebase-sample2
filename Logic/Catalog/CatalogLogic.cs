@@ -8112,20 +8112,41 @@ namespace Core.Catalog
                     return response;
                 }
 
-               if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                int currentGroupId = meta.PartnerId;
+
+                if(meta.SkipFeatures )
                 {
+                    // get meta from DB - check if exist
+                    //than update
+                    List<string> topicNames = new List<string>();
+                    topicNames.Add(meta.Name) ;
+                    List<ApiObjects.Meta> apiMetas = CatalogDAL.GetTopicInterestList(currentGroupId, topicNames);
+
+                    if( apiMetas == null || apiMetas.Count == 0 )
+                    {
+                        log.ErrorFormat("Error while UpdateGroupMeta. currentGroupId: {0}, MetaName:{1}", currentGroupId, meta.Name);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotaTopicInterestMeta, "Not a topic interest meta");
+                        return response;
+                    }
+
+                    meta.Features = apiMetas[0].Features;
                     // update 
-                    response = SetTopicInterest(groupId, meta);                    
+                    response = SetTopicInterest(currentGroupId, meta);     
+                }
+                else if (meta.Features != null && !meta.Features.Contains(MetaFeatureType.USER_INTEREST))
+                {
+                    // delete meta from TopicInterest
+                    if (!CatalogDAL.DeleteTopicInterest(currentGroupId, meta.Name))
+                    {
+                        log.ErrorFormat("Error while DeleteTopicInterest. currentGroupId: {0}, MetaName:{1}", currentGroupId, meta.Name);
+                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }                    
                 }
                 else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
-                    // delete meta from TopicInterest
-                    if (!CatalogDAL.DeleteTopicInterest(groupId, meta.Name))
-                    {
-                        log.ErrorFormat("Error while DeleteTopicInterest. groupId: {0}, MetaName:{1}", groupId,meta.Name);
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                        return response;
-                    }
+                    // update 
+                    response = SetTopicInterest(currentGroupId, meta);                    
                 }
             }
             catch (Exception ex)
