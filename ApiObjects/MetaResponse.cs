@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Response;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace ApiObjects
@@ -23,16 +22,16 @@ namespace ApiObjects
         public MetaFieldName FieldName { get; set; }
         public MetaType Type { get; set; }
         public eAssetTypes AssetType { get; set; }
+        public bool SkipFeatures { get; set; }        
         public List<MetaFeatureType> Features { get; set; }
-        public List<string> DefaultValues { get; set; }
         public string ParentMetaId { get; set; }
+        public int PartnerId { get; set; }
         public string MetaId {
             get
             {
-                return this.Name;
-            }
+                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}", PartnerId, Name));                
+            }            
         }
-
     }
 
     public enum MetaFeatureType

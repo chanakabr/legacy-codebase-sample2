@@ -9309,7 +9309,8 @@ namespace Core.Api
                                         AssetType = eAssetTypes.MEDIA,
                                         FieldName = MetaFieldName.None,
                                         Name = metaVal.Value,
-                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key)
+                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
+                                        PartnerId = group.m_oMetasValuesByGroupId.Keys.First()
                                     };
 
                                     if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
@@ -9342,19 +9343,19 @@ namespace Core.Api
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
                     List<string> metasName = response.MetaList.Select(x => x.Name).ToList();
-                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(groupId, metasName);
+                    int currentGroupId = response.MetaList.Select(x => x.PartnerId).FirstOrDefault();
+                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(currentGroupId, metasName);
                     if (topicInterestList != null)
                     {
                         Meta meta;
                         foreach (Meta topicInterest in topicInterestList)
                         {
                             meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
-                            meta.DefaultValues = topicInterest.DefaultValues;
-                            meta.Features = topicInterest.Features;   
+                            meta.Features = topicInterest.Features;
+                            meta.ParentMetaId = topicInterest.ParentMetaId;                            
                         }
                     }
                 }
-
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }

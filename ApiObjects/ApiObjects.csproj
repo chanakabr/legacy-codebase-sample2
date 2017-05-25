@@ -195,6 +195,8 @@
     <Compile Include="Notification\GetAllMessageAnnouncementsResponse.cs" />
     <Compile Include="Notification\GetUserFollowsResponse.cs" />
     <Compile Include="Notification\Engagement.cs" />
+    <Compile Include="Notification\InterestNotification.cs" />
+    <Compile Include="Notification\InterestNotificationMessage.cs" />
     <Compile Include="Notification\MessageAnnouncement.cs" />
     <Compile Include="Notification\Notification.cs" />
     <Compile Include="Notification\NotificationMessage.cs" />
@@ -485,6 +487,7 @@
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="UserType.cs" />
+    <Compile Include="ApiObjectsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
