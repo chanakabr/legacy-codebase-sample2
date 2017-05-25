@@ -26,12 +26,12 @@ namespace WebAPI.Managers.Scheme
 
         public SchemeInputAttribute()
         {
-            MaxLength  = -1;
-            MinLength  = -1;
+            MaxLength = -1;
+            MinLength = -1;
             DynamicMinInt = int.MinValue;
             DynamicMaxInt = int.MaxValue;
-            MaxInteger  = int.MaxValue;
-            MinInteger  = int.MinValue;
+            MaxInteger = int.MaxValue;
+            MinInteger = int.MinValue;
             MaxLong = long.MaxValue;
             MinLong = long.MinValue;
             MaxFloat = float.MaxValue;
@@ -41,7 +41,7 @@ namespace WebAPI.Managers.Scheme
         internal void Validate(string name, object value)
         {
             RequestType requiresPermission = RequestType.READ;
-            if(HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
+            if (HttpContext.Current.Items[RequestParser.REQUEST_TYPE] != null)
                 requiresPermission = (RequestType)HttpContext.Current.Items[RequestParser.REQUEST_TYPE];
 
             if (DynamicType != null)
@@ -49,7 +49,8 @@ namespace WebAPI.Managers.Scheme
                 string sValue = (string)Convert.ChangeType(value, typeof(string));
                 try
                 {
-                    Enum.Parse(DynamicType, sValue, true);
+                    if (!string.IsNullOrEmpty(sValue))
+                        Enum.Parse(DynamicType, sValue, true);
                 }
                 catch (ArgumentException e)
                 {
