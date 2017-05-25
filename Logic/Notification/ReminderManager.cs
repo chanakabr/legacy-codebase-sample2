@@ -1327,7 +1327,7 @@ namespace Core.Notification
             if (reminder.RouteName != null)
             {
                 // enqueue message with small expiration date
-                MessageAnnouncementFullData data = new MessageAnnouncementFullData(partnerId, messageData.Alert, messageData.Alert, messageData.Sound, messageData.Category, reminder.SendTime);
+                MessageAnnouncementFullData data = new MessageAnnouncementFullData(partnerId, messageData.Alert, messageData.Url, messageData.Sound, messageData.Category, reminder.SendTime);
                 GeneralDynamicQueue q = new GeneralDynamicQueue(reminder.RouteName, QueueWrapper.Enums.ConfigType.PushNotifications);
                 if (!q.Enqueue(data, reminder.RouteName, AnnouncementManager.PUSH_MESSAGE_EXPIRATION_MILLI_SEC))
                 {
