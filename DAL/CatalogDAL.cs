@@ -4576,7 +4576,6 @@ namespace Tvinci.Core.DAL
 
             try
             {
-
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TopicInterestList");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", partnerId);
@@ -4652,7 +4651,7 @@ namespace Tvinci.Core.DAL
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_TopicInterest");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@metaName", metaName);
+                sp.AddParameter("@name", metaName);
                 bool isDelete = sp.ExecuteReturnValue<bool>();
                 return isDelete;
             }
