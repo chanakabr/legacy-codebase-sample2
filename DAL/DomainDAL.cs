@@ -2122,7 +2122,7 @@ namespace DAL
         public static DrmPolicy GetDrmPolicy(int groupId)
         {   
             DrmPolicy response = null;
-            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.CACHE);
+            CouchbaseManager.CouchbaseManager cbClient = new CouchbaseManager.CouchbaseManager("OTT_Apps");
             int limitRetries = RETRY_LIMIT;
             Random r = new Random();
             Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();

@@ -1134,21 +1134,30 @@ namespace ElasticSearch.Common
             string res = string.Empty;
             try
             {
-                HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-                HttpStatusCode sCode = webResponse.StatusCode;
-                nStatusCode = GetResponseCode(sCode);
-                StreamReader sr = null;
-                try
-                {
-                    sr = new StreamReader(webResponse.GetResponseStream());
-                    res = sr.ReadToEnd();
-                }
-                finally
-                {
-                    if (sr != null)
-                        sr.Close();
-                }
+                string requestGuid = Guid.NewGuid().ToString();
 
+                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_ELASTIC, null, null, null, null)
+                {
+                    Database = sUrl,
+                    Table = requestGuid
+                })
+                {
+                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
+                    HttpStatusCode sCode = webResponse.StatusCode;
+                    nStatusCode = GetResponseCode(sCode);
+                    StreamReader sr = null;
+
+                    try
+                    {
+                        sr = new StreamReader(webResponse.GetResponseStream());
+                        res = sr.ReadToEnd();
+                    }
+                    finally
+                    {
+                        if (sr != null)
+                            sr.Close();
+                    }
+                }
             }
             catch (WebException ex)
             {

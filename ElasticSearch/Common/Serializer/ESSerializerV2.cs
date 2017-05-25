@@ -795,13 +795,39 @@ namespace ElasticSearch.Common
                 index = eMappingIndex.not_analyzed,
                 format = DATE_FORMAT
             });
-            mappingObj.AddProperty(new BasicMappingPropertyV2()
+
+            ElasticSearch.Common.FieldsMappingPropertyV2 cridProperty = new FieldsMappingPropertyV2()
             {
                 name = "crid",
-                index = eMappingIndex.not_analyzed,
+                type = eESFieldType.STRING,
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER,
+                null_value = ""
+            };
+
+            cridProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "crid",
+                type = ElasticSearch.Common.eESFieldType.STRING,
                 null_value = "",
-                type = eESFieldType.STRING
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
             });
+
+            cridProperty.fields.Add(new BasicMappingPropertyV2()
+            {
+                name = "lowercase",
+                type = ElasticSearch.Common.eESFieldType.STRING,
+                null_value = "",
+                index = eMappingIndex.analyzed,
+                search_analyzer = LOWERCASE_ANALYZER,
+                analyzer = LOWERCASE_ANALYZER
+            });
+
+            mappingObj.AddProperty(cridProperty);
+
             #endregion
 
             #region Add tags mapping
