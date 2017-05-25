@@ -2409,7 +2409,7 @@ namespace DAL
 
             int rowsFound = sp.ExecuteReturnValue<int>();
 
-            return rowsFound == 0;
+            return rowsFound == 1;
         }
 
         public static List<DbSeriesReminder> GetSeriesReminderBySeries(int groupId, string seriesId, long? seasonNum, string epgChannelId)
