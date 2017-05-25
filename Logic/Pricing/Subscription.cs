@@ -91,7 +91,7 @@ namespace Core.Pricing
                     }
                 }
 
-                if (fictivicGroupID > 0)
+                if (fictivicGroupID > 0 && !string.IsNullOrEmpty(paramName))
                 {
                     mediaSelectQuery = new ODBCWrapper.DataSetSelectQuery();
                     mediaSelectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
