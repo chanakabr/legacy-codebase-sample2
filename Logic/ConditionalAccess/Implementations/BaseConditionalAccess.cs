@@ -12868,7 +12868,7 @@ namespace Core.ConditionalAccess
 						System.Threading.Tasks.Task async = Task.Run(() =>
 						{
 							contextData.Load();
-							if (!CompleteDomainSeriesRecordings(domainId))
+							if (!CompleteDomainSeriesRecordings((long)domainId))
 							{
 								log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
 							}

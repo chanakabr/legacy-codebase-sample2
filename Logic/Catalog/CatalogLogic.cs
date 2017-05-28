@@ -3794,12 +3794,12 @@ namespace Core.Catalog
                             Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                             for (int i = 0; i < lAssetIDs.Count; i++)
                             {
-                                tasks[i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
+                                tasks[(int)i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
                                 {
                                     // load monitor and logs context data
                                     contextData.Load();
 
-                                    return GetSocialAssetStats(nGroupID, lAssetIDs[i], eType, dStartDate, dEndDate);
+                                    return GetSocialAssetStats(nGroupID, lAssetIDs[(int)i], eType, dStartDate, dEndDate);
                                 });
                             }
                             Task.WaitAll(tasks);
@@ -3875,12 +3875,12 @@ namespace Core.Catalog
                                 Task<AssetStatsResult.SocialPartialAssetStatsResult>[] tasks = new Task<AssetStatsResult.SocialPartialAssetStatsResult>[lAssetIDs.Count];
                                 for (int i = 0; i < lAssetIDs.Count; i++)
                                 {
-                                    tasks[i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
+                                    tasks[(int)i] = Task.Run<AssetStatsResult.SocialPartialAssetStatsResult>(() =>
                                     {
                                         // load monitor and logs context data
                                         contextData.Load();
 
-                                        return GetSocialAssetStats(nGroupID, lAssetIDs[i], eType, dStartDate, dEndDate);
+                                        return GetSocialAssetStats(nGroupID, lAssetIDs[(int)i], eType, dStartDate, dEndDate);
                                     });
                                 }
                                 Task.WaitAll(tasks);
