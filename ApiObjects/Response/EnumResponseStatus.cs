@@ -133,6 +133,10 @@ namespace ApiObjects.Response
         CouponPromotionDateNotStarted = 3058,
         SubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3059,
         SubscriptionSetDoesNotExist = 3060,
+        CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet = 3061,
+        CanOnlyUpgradeOrDowngradeSubscriptionInTheSameSubscriptionSet = 3062,
+        CanOnlyUpgradeSubscriptionWithHigherPriority = 3063,
+        CanOnlyDowngradeSubscriptionWithLowerPriority = 3064,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

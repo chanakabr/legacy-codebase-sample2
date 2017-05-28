@@ -1103,7 +1103,7 @@ namespace Core.ConditionalAccess
         }
 
         internal static Price GetSubscriptionFinalPrice(int groupId, string subCode, string userId, string couponCode, ref PriceReason theReason, ref Subscription theSub,
-                                                        string countryCode, string languageCode, string udid, string ip, string currencyCode = null)
+                                                        string countryCode, string languageCode, string udid, string ip, string currencyCode = null, bool isSubscriptionSetModifySubscription = false)
         {
             Price price = null;
             Subscription subscription = null;
@@ -1185,7 +1185,7 @@ namespace Core.ConditionalAccess
 
                     if (theReason != PriceReason.SubscriptionPurchased)
                     {
-                        if (subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
+                        if (!isSubscriptionSetModifySubscription && subscription.m_oPreviewModule != null && IsEntitledToPreviewModule(userId, groupId, subCode, subscription, ref price, ref theReason, domainID))
                         {
                             return price;
                         }
