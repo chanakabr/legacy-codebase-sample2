@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Web;
-using System.Web.Services;
-using System.Xml;
-using System.Xml.Serialization;
-using APILogic;
-using ApiObjects;
+﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
-using KLogMonitor;
 using ApiObjects.TimeShiftedTv;
-using ScheduledTasks;
-using Core.Catalog.Response;
-using ApiObjects.AssetLifeCycleRules;
-using System.Linq;
-using System.Linq.Expressions;
-using Core.Api.Managers;
-using Core.Pricing;
-using Newtonsoft.Json.Linq;
 using Core.Api.Modules;
+using Core.Catalog.Response;
+using Core.Pricing;
+using KLogMonitor;
+using Newtonsoft.Json.Linq;
+using ScheduledTasks;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Web;
+using System.Xml;
 
 namespace Core.Api
 {
@@ -1797,6 +1791,11 @@ namespace Core.Api
         public static Status DeleteSearchHistory(int groupId, string userId, string id)
         {
             return Core.Api.api.DeleteSearchHistory(groupId, userId, id);
+        }
+
+        public static UserInterestResponse AddUserInterest(UserInterest userInterest)
+        {
+            return Core.Api.api.AddUserInterest(userInterest);
         }
     }
 }

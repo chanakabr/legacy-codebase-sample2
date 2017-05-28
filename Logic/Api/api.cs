@@ -1,6 +1,7 @@
 ﻿using AdapterControllers;
 using ApiLogic;
 using APILogic;
+using APILogic.Notification;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -20,8 +21,10 @@ using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Pricing;
+using DAL;
 using EpgBL;
 using KLogMonitor;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -9798,6 +9801,22 @@ namespace Core.Api
             }
 
             return status;
+        }
+
+        internal static UserInterestResponse AddUserInterest(UserInterest userInterest)
+        {
+            UserInterestResponse response = new UserInterestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            try
+            {
+                return TopicInterestManager.AddUserInterest(userInterest);                    
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterest), ex);
+            }
+
+            return response;
         }
     }
 }
