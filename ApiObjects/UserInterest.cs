@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects
 {
-    public class UserInterest
+    public class UserInterests
     {
         public string DocType { get; set; }
         public int UserId { get; set; }
         public int PartnerId { get; set; }
-        public string MetaId { get; set; }
-        public UserInterestTopic Topic { get; set; }
+        public List<UserInterest> UserInterestList { get; set; }
 
-        public UserInterest()
+        public UserInterests()
         {
             this.DocType = "UserInterest";
         }
+    }
+
+    public class UserInterest
+    {
+        public string MetaId { get; set; }
+        public UserInterestTopic Topic { get; set; }
     }
 
     public class UserInterestTopic 
