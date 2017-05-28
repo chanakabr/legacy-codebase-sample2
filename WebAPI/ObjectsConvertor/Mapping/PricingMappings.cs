@@ -245,7 +245,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_sProductCode));
 
             // KalturaSubscriptionSet
-            Mapper.CreateMap<SubscriptionSet, KalturaSubscriptionSetSwitch>()
+            Mapper.CreateMap<SubscriptionSet, KalturaSubscriptionSwitchSet>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty));
