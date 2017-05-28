@@ -184,6 +184,10 @@ namespace ObjectsConvertor.Mapping
             // Country
             Mapper.CreateMap<int, Core.Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src));
+
+            
+
+
         }
 
         private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)

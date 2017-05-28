@@ -1,6 +1,4 @@
-﻿using ApiObjects;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
@@ -32,7 +30,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// User interest topic
     /// </summary>
-    public class KalturaUserInterestTopic
+    public class KalturaUserInterestTopic : KalturaOTTObject
     {
         /// <summary>
         /// Meta identifier

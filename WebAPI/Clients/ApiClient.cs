@@ -3671,5 +3671,40 @@ namespace WebAPI.Clients
 
             return success;
         }
+
+        internal KalturaUserInterest InsertUserInterest(int groupId, string user, KalturaUserInterest userInterest)
+        {
+            UserInterestResponse response = null;
+            KalturaUserInterest kalturaUserInterest = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    UserInterest request = Mapper.Map<UserInterest>(userInterest);
+                    request.PartnerId = groupId;
+                    request.UserId = int.Parse(user);
+                    response = Core.Api.Module.AddUserInterest(request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while InsertUserInterest.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException((int)response.Status.Code, response.Status.Message);
+            }
+
+            kalturaUserInterest = Mapper.Map<KalturaUserInterest>(response.UserInterest);
+            return kalturaUserInterest;
+        }
     }
 }

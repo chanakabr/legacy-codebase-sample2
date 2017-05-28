@@ -6080,6 +6080,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaUserInterestTopic":
+                    switch(property.Name)
+                    {
+                        case "ParentTopic":
+                            return "parentTopic";
+                        case "Value":
+                            return "metaId";
+                    }
+                    break;
+                    
                 case "KalturaUserLoginPin":
                     switch(property.Name)
                     {
