@@ -12,6 +12,7 @@ namespace ApiObjects
         public UserInterests()
         {
             this.DocType = "UserInterest";
+            UserInterestList = new List<UserInterest>();
         }
     }
 

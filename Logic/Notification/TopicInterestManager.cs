@@ -22,16 +22,39 @@ namespace APILogic.Notification
             ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 
             UserInterests userInterests = null;
+            bool updateIsNeeded = false;
             try
             {
                 // Get user interests 
-
-                // Update with new interest
+                userInterests = InterestDal.GetUserInterest(partnerId, userId);
+                if (userInterests == null)
+                {
+                    userInterests = new UserInterests() { PartnerId = partnerId, UserId = userId };
+                    userInterests.UserInterestList.Add(userInterest);
+                    updateIsNeeded = true;
+                }
+                else
+                {
+                    // Update with new interest
+                    string userInterestItemString = string.Empty;
+                    string newUserInterestString = JsonConvert.SerializeObject(userInterest);
+                    foreach (var UserInterestItem in userInterests.UserInterestList)
+                    {
+                        userInterestItemString = JsonConvert.SerializeObject(UserInterestItem);
+                        if (!newUserInterestString.Equals(userInterestItemString))
+                        {
+                            userInterests.UserInterestList.Add(userInterest);
+                            updateIsNeeded = true;
+                        }
+                    }
+                }
 
                 // Set CB with new interest
-                // insert user interest to CB                
-                if (!InterestDal.SetUserInterest(userInterests))
-                    log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+                if (updateIsNeeded)
+                {
+                    if (!InterestDal.SetUserInterest(userInterests))
+                        log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+                }
 
                 response.Code = (int)eResponseStatus.OK;
                 response.Message = eResponseStatus.OK.ToString();
