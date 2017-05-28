@@ -1614,8 +1614,8 @@ namespace ElasticSearch.Searcher
                         {
                             field = string.Format("{0}.phonetic", leaf.field);
                         }
-
-                        else if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
+                        else if (leaf.operand == ApiObjects.ComparisonOperator.Equals &&
+                            leaf.shouldLowercase)
                         {
                             field = string.Format("{0}.lowercase", leaf.field);
                         }
