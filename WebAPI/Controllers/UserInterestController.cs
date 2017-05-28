@@ -44,5 +44,38 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Returns all Engagement for partner
+        /// </summary>
+        /// <remarks>       
+        /// </remarks>
+        /// <param name="pager">Page size and index</param>                
+        [Route("list"), HttpPost]
+        [ApiAuthorize]
+        public KalturaUserInterestListResponse List()
+        {
+            List<KalturaUserInterest> list = null;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                list = ClientsManager.ApiClient().GetUserInterests(groupId, user);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            KalturaUserInterestListResponse response = new KalturaUserInterestListResponse()
+            {
+                UserInterests = list,
+                TotalCount = list.Count
+            };
+
+            return response;
+        }
     }
 }

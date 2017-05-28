@@ -3672,24 +3672,51 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal KalturaUserInterest InsertUserInterest(int groupId, string user, KalturaUserInterest userInterest)
+        internal KalturaUserInterest InsertUserInterest(int groupId, string user, KalturaUserInterest kalturaUserInterest)
         {
-            UserInterestResponse response = null;
-            KalturaUserInterest kalturaUserInterest = null;
+            ApiObjects.Response.Status response = null;
 
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    UserInterest request = Mapper.Map<UserInterest>(userInterest);
-                    request.PartnerId = groupId;
-                    request.UserId = int.Parse(user);
-                    response = Core.Api.Module.AddUserInterest(request);
+                    UserInterest request = Mapper.Map<UserInterest>(kalturaUserInterest);
+                    response = Core.Api.Module.AddUserInterest(groupId, int.Parse(user), request);
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while InsertUserInterest.  groupID: {0}, exception: {1}", groupId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null )
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+            if (response.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Code, response.Message);
+            }
+
+            return kalturaUserInterest;
+        }
+
+        internal List<KalturaUserInterest> GetUserInterests(int groupId, string user)
+        {
+            List<KalturaUserInterest> list = null;
+            UserInterestResponseList response = null;
+           
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetUserInterests(groupId,  int.Parse(user));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserInterests. groupID: {0}, exception: {1}", groupId, ex);
                 ErrorUtils.HandleWSException(ex);
             }
 
@@ -3703,8 +3730,9 @@ namespace WebAPI.Clients
                 throw new ClientException((int)response.Status.Code, response.Status.Message);
             }
 
-            kalturaUserInterest = Mapper.Map<KalturaUserInterest>(response.UserInterest);
-            return kalturaUserInterest;
+            list = Mapper.Map<List<KalturaUserInterest>>(response.UserInterests);
+
+            return list;
         }
     }
 }

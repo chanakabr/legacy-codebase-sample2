@@ -278,6 +278,7 @@
     <Compile Include="Models\API\KalturaCurrency.cs" />
     <Compile Include="Models\API\KalturaCurrencyFilter.cs" />
     <Compile Include="Models\API\KalturaCurrencyOrderBy.cs" />
+    <Compile Include="Models\API\KalturaUserInterestListResponse.cs" />
     <Compile Include="Models\API\KalturaLanguageOrderBy.cs" />
     <Compile Include="Models\API\KalturaLanguageFilter.cs" />
     <Compile Include="Models\API\KalturaLanguage.cs" />
@@ -295,7 +296,7 @@
     <Compile Include="Models\API\KalturaOSSAdapterProfileListResponse.cs" />
     <Compile Include="Models\API\KalturaSearchHistory.cs" />
     <Compile Include="Models\API\KalturaSearchHistoryFilter.cs" />
-    <Compile Include="Models\API\KlalturaUserInterest.cs" />
+    <Compile Include="Models\API\KalturaUserInterest.cs" />
     <Compile Include="Models\Catalog\KalturaAssetCount.cs" />
     <Compile Include="Models\Catalog\KalturaAssetGroupBy.cs" />
     <Compile Include="Models\Catalog\KalturaDynamicOrderBy.cs" />

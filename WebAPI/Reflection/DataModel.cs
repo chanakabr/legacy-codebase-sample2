@@ -6080,6 +6080,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaUserInterestListResponse":
+                    switch(property.Name)
+                    {
+                        case "UserInterests":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaUserInterestTopic":
                     switch(property.Name)
                     {
