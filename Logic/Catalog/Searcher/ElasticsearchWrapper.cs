@@ -749,7 +749,7 @@ namespace Core.Catalog
                              // load monitor and logs context data
                              contextData.Load();
 
-                             string sIndex = lDateAliases[i];
+                             string sIndex = lDateAliases[(int)i];
                              return (m_oESApi.IndexExists(sIndex)) ? sIndex : string.Empty;
                          });
                 }

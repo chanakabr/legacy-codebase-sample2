@@ -443,6 +443,7 @@
     <Compile Include="Notification\SMSNotification.cs" />
     <Compile Include="Notification\TagIDValue.cs" />
     <Compile Include="Notification\TestHelper.cs" />
+    <Compile Include="Notification\TopicInterestManager.cs" />
     <Compile Include="Notification\UserMessageFlow.cs" />
     <Compile Include="Notification\UserSettings.cs" />
     <Compile Include="Notification\Utils.cs" />

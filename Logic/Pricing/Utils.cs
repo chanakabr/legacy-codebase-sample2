@@ -778,7 +778,7 @@ namespace Core.Pricing
             return subscriptionSet;
         }
 
-        internal static SubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds)
+        internal static SubscriptionSet UpdateSubscriptionSet(int groupId, long setId, string name, List<long> subscriptionIds, bool shouldUpdateSubscriptionIds)
         {
             SubscriptionSet subscriptionSet = null;
             try
@@ -794,7 +794,7 @@ namespace Core.Pricing
                     }
                 }
 
-                DataSet ds = PricingDAL.UpdateSubscriptionSet(groupId, setId, name, subscriptionIdsToPriority);
+                DataSet ds = PricingDAL.UpdateSubscriptionSet(groupId, setId, name, subscriptionIdsToPriority, shouldUpdateSubscriptionIds);
                 List<SubscriptionSet> updateResult = CreateSubscriptionSetsFromDataSet(ds);
                 if (updateResult != null && updateResult.Count == 1 && updateResult[0].Id > 0)
                 {

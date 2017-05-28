@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using System.Web;
-using System.Web.Services;
-using System.Xml;
-using System.Xml.Serialization;
-using APILogic;
-using ApiObjects;
+﻿using ApiObjects;
+using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
 using ApiObjects.Response;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
-using KLogMonitor;
 using ApiObjects.TimeShiftedTv;
-using ScheduledTasks;
-using Core.Catalog.Response;
-using ApiObjects.AssetLifeCycleRules;
-using System.Linq;
-using System.Linq.Expressions;
-using Core.Api.Managers;
-using Core.Pricing;
-using Newtonsoft.Json.Linq;
 using Core.Api.Modules;
+using Core.Catalog.Response;
+using Core.Pricing;
+using KLogMonitor;
+using Newtonsoft.Json.Linq;
+using ScheduledTasks;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Web;
+using System.Xml;
 
 namespace Core.Api
 {
@@ -932,7 +926,7 @@ namespace Core.Api
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
-            
+
             if (ruleId == 0)
             {
                 return Core.Api.api.SetParentalPIN(groupId, domainId, siteGuid, pin);
@@ -994,7 +988,7 @@ namespace Core.Api
 
             PurchaseSettingsResponse response = new PurchaseSettingsResponse();
 
-            
+
             response.status = Core.Api.api.SetPurchaseSettings(groupId, domainId, siteGuid, setting);
             if (response.status.Code == (int)eResponseStatus.OK)
                 response = Core.Api.api.GetPurchaseSettings(groupId, domainId, siteGuid);
@@ -1672,7 +1666,7 @@ namespace Core.Api
             if (layeredCacheSettingsToExclude == null)
             {
                 layeredCacheSettingsToExclude = new string[0];
-            }                
+            }
 
             return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
         }
@@ -1682,7 +1676,7 @@ namespace Core.Api
             bool result = false;
 
             try
-            {               
+            {
                 result = Core.Api.api.DoActionRules();
             }
             catch (Exception ex)
@@ -1720,7 +1714,7 @@ namespace Core.Api
                 result = Core.Api.api.GetFriendlyAssetLifeCycleRule(groupId, id);
             }
             catch (Exception ex)
-            {                
+            {
                 log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}", groupId, id), ex);
             }
 
@@ -1797,6 +1791,16 @@ namespace Core.Api
         public static Status DeleteSearchHistory(int groupId, string userId, string id)
         {
             return Core.Api.api.DeleteSearchHistory(groupId, userId, id);
+        }
+
+        public static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
+        {
+            return Core.Api.api.AddUserInterest( groupId, userId, userInterest);
+        }
+
+        public static UserInterestResponseList GetUserInterests(int groupId, int userId)
+        {
+            return Core.Api.api.GetUserInterests(groupId, userId);
         }
     }
 }

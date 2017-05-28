@@ -134,6 +134,8 @@
     <Compile Include="ConditionalAccess\enums.cs" />
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
+    <Compile Include="UserInterestResponseList.cs" />
+    <Compile Include="UserInterestResponse.cs" />
     <Compile Include="IngestBusinessModules\SubscriptionCouponGroup.cs" />
     <Compile Include="LanguageResponse.cs" />
     <Compile Include="CoreObject.cs" />
@@ -484,6 +486,7 @@
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettings.cs" />
     <Compile Include="TimeShiftedTv\TimeShiftedTvPartnerSettingsResponse.cs" />
     <Compile Include="UserComment.cs" />
+    <Compile Include="UserInterest.cs" />
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
     <Compile Include="UserType.cs" />
