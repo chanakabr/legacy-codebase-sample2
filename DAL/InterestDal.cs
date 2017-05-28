@@ -24,6 +24,34 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
         private const int TTL_USER_INTEREST_DAYS = 30;
 
+        private static string GetUserInterestKey(int partnerId, int userId)
+        {
+            return string.Format("user_interests:{0}:{1}", partnerId, userId);
+        }
+
+        public static int InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId)
+        {
+            int id = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotification");
+                spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                spInsert.AddParameter("@group_id", groupId);
+                spInsert.AddParameter("@name", name);
+                spInsert.AddParameter("@external_id", externalId);
+                spInsert.AddParameter("@template_type", TemplateType);
+                spInsert.AddParameter("@topic_name_value", topicNameValue);
+                spInsert.AddParameter("@topic_interest_id", topicInterestId);
+
+                id = spInsert.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("error in InsertTopicInterestNotification. groupId: {0}, name: {1}, externalId: {2}, TemplateType: {3}, topicNameValue: {4}, topicInterestId: {5}, ex: {6}", groupId, name, externalId, TemplateType.ToString(), topicNameValue, topicInterestId, ex);
+            }
+            return id;
+        }
+
         public static List<InterestNotification> GetTopicInterestNotificationsByGroupId(int groupId)
         {
             List<InterestNotification> result = new List<InterestNotification>();
@@ -98,24 +126,6 @@ namespace DAL
             return result;
         }
 
-        public static bool DeleteTopicInterestNotification(int groupId, long id)
-        {
-            int affectedRows = 0;
-            try
-            {
-                ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("DeleteTopicInterestsNotification");
-                spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-                spInsertUserNotification.AddParameter("@id", id);
-                spInsertUserNotification.AddParameter("@groupId", groupId);
-                affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error at DeleteTopicInterestNotification. groupId: {0}, id: {1} . Error {2}", groupId, id, ex);
-            }
-            return affectedRows > 0;
-        }
-
         public static bool UpdateTopicInterestNotification(int groupId, int id, string externalId = null, DateTime? lastMessageSentDate = null, string queueName = null)
         {
             int rowCount = 0;
@@ -150,6 +160,46 @@ namespace DAL
             }
 
             return rowCount > 0;
+        }
+
+        public static bool DeleteTopicInterestNotification(int groupId, long id)
+        {
+            int affectedRows = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("DeleteTopicInterestsNotification");
+                spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                spInsertUserNotification.AddParameter("@id", id);
+                spInsertUserNotification.AddParameter("@groupId", groupId);
+                affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at DeleteTopicInterestNotification. groupId: {0}, id: {1} . Error {2}", groupId, id, ex);
+            }
+            return affectedRows > 0;
+        }
+
+        public static int InsertTopicInterestNotificationMessage(int groupId, string name, string message, DateTime sendTime, int topicInterestNotificationId)
+        {
+            int id = 0;
+            try
+            {
+                ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotificationMessage");
+                spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                spInsert.AddParameter("@group_id", groupId);
+                spInsert.AddParameter("@name", name);
+                spInsert.AddParameter("@message", message);
+                spInsert.AddParameter("@send_time", sendTime);
+                spInsert.AddParameter("@message_type", topicInterestNotificationId);
+
+                id = spInsert.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("error in InsertTopicInterestNotificationMessage. groupId: {0}, name: {1}, message: {2}, sendTime: {3}, topicInterestNotificationId: {4}, ex: {5}", groupId, name, message, sendTime, topicInterestNotificationId, ex);
+            }
+            return id;
         }
 
         public static InterestNotificationMessage GetTopicInterestsNotificationMessageById(int groupId, int id)
@@ -268,56 +318,6 @@ namespace DAL
                 TopicNameValue = ODBCWrapper.Utils.GetSafeStr(row, "topic_name_value"),
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), templateType) ? (MessageTemplateType)templateType : MessageTemplateType.None
             };
-        }
-
-        public static int InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId)
-        {
-            int id = 0;
-            try
-            {
-                ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotification");
-                spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-                spInsert.AddParameter("@group_id", groupId);
-                spInsert.AddParameter("@name", name);
-                spInsert.AddParameter("@external_id", externalId);
-                spInsert.AddParameter("@template_type", TemplateType);
-                spInsert.AddParameter("@topic_name_value", topicNameValue);
-                spInsert.AddParameter("@topic_interest_id", topicInterestId);
-
-                id = spInsert.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("error in InsertTopicInterestNotification. groupId: {0}, name: {1}, externalId: {2}, TemplateType: {3}, topicNameValue: {4}, topicInterestId: {5}, ex: {6}", groupId, name, externalId, TemplateType.ToString(), topicNameValue, topicInterestId, ex);
-            }
-            return id;
-        }
-
-        public static int InsertTopicInterestNotificationMessage(int groupId, string name, string message, DateTime sendTime, int topicInterestNotificationId)
-        {
-            int id = 0;
-            try
-            {
-                ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotificationMessage");
-                spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-                spInsert.AddParameter("@group_id", groupId);
-                spInsert.AddParameter("@name", name);
-                spInsert.AddParameter("@message", message);
-                spInsert.AddParameter("@send_time", sendTime);
-                spInsert.AddParameter("@message_type", topicInterestNotificationId);
-
-                id = spInsert.ExecuteReturnValue<int>();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("error in InsertTopicInterestNotificationMessage. groupId: {0}, name: {1}, message: {2}, sendTime: {3}, topicInterestNotificationId: {4}, ex: {5}", groupId, name, message, sendTime, topicInterestNotificationId, ex);
-            }
-            return id;
-        }
-
-        private static string GetUserInterestKey(int partnerId, int userId)
-        {
-            return string.Format("user_interests:{0}:{1}", partnerId, userId);
         }
 
         public static bool SetUserInterest(UserInterest userInterest)
