@@ -5772,7 +5772,7 @@ namespace WebAPI.Reflection
                         case "Name":
                             return "name";
                         case "SubscriptionIds":
-                            return "subscriptions";
+                            return "subscriptionIds";
                     }
                     break;
                     

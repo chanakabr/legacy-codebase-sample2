@@ -17,12 +17,12 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription details
     /// </summary>
-    public class KalturaSubscriptionSetModify : KalturaSubscriptionSet
+    public class KalturaSubscriptionSetSwitch : KalturaSubscriptionSet
     {        
 
     }
 
-    public enum KalturaSubscriptionSetModifyPurchaseType
+    public enum KalturaSubscriptionSetSwitchPurchaseType
     {
         upgrade,
         downgrade

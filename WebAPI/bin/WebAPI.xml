@@ -8243,7 +8243,7 @@
             Partner configuration type
             </summary>
         </member>
-        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetModify">
+        <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSetSwitch">
             <summary>
             Subscription details
             </summary>

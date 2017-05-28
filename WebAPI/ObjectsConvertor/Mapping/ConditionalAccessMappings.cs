@@ -905,15 +905,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        internal static SubscriptionSetModifyPurchaseType ConvertSubscriptionSetModifyPurchaseType(KalturaSubscriptionSetModifyPurchaseType subscriptinSetModifyPurchaseType)
+        internal static SubscriptionSetModifyPurchaseType ConvertSubscriptionSetModifyPurchaseType(KalturaSubscriptionSetSwitchPurchaseType subscriptinSetModifyPurchaseType)
         {
             SubscriptionSetModifyPurchaseType result;
             switch (subscriptinSetModifyPurchaseType)
             {
-                case KalturaSubscriptionSetModifyPurchaseType.upgrade:
+                case KalturaSubscriptionSetSwitchPurchaseType.upgrade:
                     result = SubscriptionSetModifyPurchaseType.Upgrade;
                     break;
-                case KalturaSubscriptionSetModifyPurchaseType.downgrade:
+                case KalturaSubscriptionSetSwitchPurchaseType.downgrade:
                     result = SubscriptionSetModifyPurchaseType.Downgrade;
                     break;
                 default:

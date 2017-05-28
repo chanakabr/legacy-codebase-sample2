@@ -2159,7 +2159,7 @@ namespace WebAPI.Clients
         }
 
         internal KalturaTransaction SubscriptionSetModifySubscription(int groupId, string siteguid, long houshold, double price, string currency, int contentId, int productId, KalturaTransactionType clientTransactionType,
-                                                        string coupon, string udid, int paymentGatewayId, int paymentMethodId, string adapterData, KalturaSubscriptionSetModifyPurchaseType subscriptinSetModifyPurchaseType)
+                                                        string coupon, string udid, int paymentGatewayId, int paymentMethodId, string adapterData, KalturaSubscriptionSetSwitchPurchaseType subscriptinSetModifyPurchaseType)
         {
             KalturaTransaction clientResponse = null;
             TransactionResponse wsResponse = new TransactionResponse();

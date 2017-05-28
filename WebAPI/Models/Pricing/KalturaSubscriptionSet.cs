@@ -18,7 +18,7 @@ namespace WebAPI.Models.Pricing
     /// Subscription details
     /// </summary>
     [Serializable]
-    [XmlInclude(typeof(KalturaSubscriptionSetModify))]
+    [XmlInclude(typeof(KalturaSubscriptionSetSwitch))]
     public abstract class KalturaSubscriptionSet : KalturaOTTObject
     {
         /// <summary>
@@ -41,10 +41,9 @@ namespace WebAPI.Models.Pricing
         /// <summary>
         /// A list of comma separated subscription ids associated with this set ordered by priority ascending
         /// </summary>
-        [DataMember(Name = "subscriptions")]
-        [JsonProperty("subscriptions")]
-        [XmlArray(ElementName = "subscriptions", IsNullable = true)]
-        [XmlArrayItem("item")]
+        [DataMember(Name = "subscriptionIds")]
+        [JsonProperty("subscriptionIds")]
+        [XmlElement(ElementName = "subscriptionIds", IsNullable = true)]        
         public string SubscriptionIds { get; set; }
 
         public List<long> GetSubscriptionIds()
