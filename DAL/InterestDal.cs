@@ -381,7 +381,11 @@ namespace DAL
                     userInterests = cbManager.Get<UserInterests>(key, out status);
                     if (userInterests == null)
                     {
-                        if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
+                        if (status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
+                            return userInterests;
+                        }
+                        else if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
                             numOfTries++;
                             log.ErrorFormat("Error while getting user interest data. number of tries: {0}/{1}. key: {2}",
