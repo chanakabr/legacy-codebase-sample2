@@ -1619,6 +1619,10 @@ namespace ElasticSearch.Searcher
                         {
                             field = string.Format("{0}.lowercase", leaf.field);
                         }
+                        else
+                        {
+                            field = leaf.field;
+                        }
 
                         term = new ESMatchQuery(null)
                         {
