@@ -6341,16 +6341,16 @@ namespace WebAPI.Reflection
             return false;
         }
         
-        public static Type getNewObjectType(Type oldType)
+        public static Type getNewObjectType(string objectType)
         {
-            switch (oldType.Name)
+            switch (objectType)
             {
                 case "KalturaReminderFilter":
                     return typeof(WebAPI.Models.Notification.KalturaAssetReminderFilter);
                     
             }
             
-            return oldType;
+            return null;
         }
         
     }

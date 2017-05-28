@@ -952,6 +952,11 @@ namespace WebAPI.Filters
                 var possibleType = Type.GetType(string.Format("{0},WebAPI", possibleTypeName));
                 if (possibleType == null)
                 {
+                    possibleType = DataModel.getNewObjectType(possibleTypeName);
+                }
+
+                if (possibleType == null)
+                {
                     Assembly assembly = Assembly.GetExecutingAssembly();
                     var possibleTypes = assembly.GetTypes().Where(myType => myType.Name == possibleTypeName);
                     possibleType = possibleTypes.First();
@@ -959,10 +964,7 @@ namespace WebAPI.Filters
 
                 if (possibleType.Name.ToLower() != type.Name.ToLower()) // reflect only if type is different
                 {
-                    if (IsSubclassOfRawGeneric(type, possibleType)) // we know that the objectType that came from the user is right, and we can use it to initiate the object\
-                    {
-                        type = DataModel.getNewObjectType(possibleType);
-                    }
+                    type = possibleType;
                 }
             }
 
@@ -1210,20 +1212,6 @@ namespace WebAPI.Filters
         private static bool IsKsFormat(string ksVal)
         {
             return ksVal.Length > accessTokenLength;
-        }
-
-        private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
-        {
-            while (toCheck != null && toCheck != typeof(object))
-            {
-                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
-                if (generic.Name.Equals(cur.Name))
-                {
-                    return true;
-                }
-                toCheck = toCheck.BaseType;
-            }
-            return false;
         }
     }
 }

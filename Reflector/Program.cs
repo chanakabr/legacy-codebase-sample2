@@ -136,9 +136,9 @@ namespace Reflector
 
         static void wrtieGetNewObjectType()
         {
-            file.WriteLine("        public static Type getNewObjectType(Type oldType)");
+            file.WriteLine("        public static Type getNewObjectType(string objectType)");
             file.WriteLine("        {");
-            file.WriteLine("            switch (oldType.Name)");
+            file.WriteLine("            switch (objectType)");
             file.WriteLine("            {");
 
             foreach (Type type in types)
@@ -154,7 +154,7 @@ namespace Reflector
 
             file.WriteLine("            }");
             file.WriteLine("            ");
-            file.WriteLine("            return oldType;");
+            file.WriteLine("            return null;");
             file.WriteLine("        }");
             file.WriteLine("        ");
 
