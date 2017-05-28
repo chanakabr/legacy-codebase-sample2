@@ -320,7 +320,7 @@ namespace DAL
             };
         }
 
-        public static bool SetUserInterest(UserInterest userInterest)
+        public static bool SetUserInterest(UserInterests userInterests)
         {
             bool result = false;
             try
@@ -333,14 +333,14 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_TRIES)
                 {
-                    result = cbManager.Set(GetUserInterestKey(userInterest.PartnerId, userInterest.UserId), userInterest, (uint)TimeSpan.FromDays(userInterestTtl).TotalSeconds);
+                    result = cbManager.Set(GetUserInterestKey(userInterests.PartnerId, userInterests.UserId), userInterests, (uint)TimeSpan.FromDays(userInterestTtl).TotalSeconds);
                     if (!result)
                     {
                         numOfTries++;
                         log.ErrorFormat("Error while setting user interest document. number of tries: {0}/{1}. User interest object: {2}",
                              numOfTries,
                             NUM_OF_TRIES,
-                            JsonConvert.SerializeObject(userInterest));
+                            JsonConvert.SerializeObject(userInterests));
 
                         Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
                     }
@@ -353,22 +353,22 @@ namespace DAL
                             log.DebugFormat("successfully set user interest document. number of tries: {0}/{1}. User interest object {2}",
                             numOfTries,
                             NUM_OF_TRIES,
-                            JsonConvert.SerializeObject(userInterest));
+                            JsonConvert.SerializeObject(userInterests));
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error while setting user interest document.  User interest object: {0}, ex: {1}", JsonConvert.SerializeObject(userInterest), ex);
+                log.ErrorFormat("Error while setting user interest document.  User interest object: {0}, ex: {1}", JsonConvert.SerializeObject(userInterests), ex);
             }
 
             return result;
         }
 
-        public static UserInterest GetUserInterest(int partnerId, int userId)
+        public static UserInterests GetUserInterest(int partnerId, int userId)
         {
-            UserInterest userInterest = null;
+            UserInterests userInterests = null;
             Couchbase.IO.ResponseStatus status = Couchbase.IO.ResponseStatus.None;
             string key = GetUserInterestKey(partnerId, userId);
 
@@ -378,8 +378,8 @@ namespace DAL
                 int numOfTries = 0;
                 while (!result && numOfTries < NUM_OF_TRIES)
                 {
-                    userInterest = cbManager.Get<UserInterest>(key, out status);
-                    if (userInterest == null)
+                    userInterests = cbManager.Get<UserInterests>(key, out status);
+                    if (userInterests == null)
                     {
                         if (status != Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
@@ -413,7 +413,7 @@ namespace DAL
                 log.ErrorFormat("Error while trying to get user interest data. key: {0}, ex: {1}", key, ex);
             }
 
-            return userInterest;
+            return userInterests;
         }
     }
 }
