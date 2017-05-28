@@ -251,25 +251,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.SubscriptionIds != null ? string.Join(",", src.SubscriptionIds) : string.Empty));
         }
 
-        private static List<KalturaKeyValue> ConvertProductCodes(List<KeyValuePair<VerificationPaymentGateway, string>> list)
+        private static List<KalturaProductCode> ConvertProductCodes(List<KeyValuePair<VerificationPaymentGateway, string>> list)
         {
-            List<KalturaKeyValue> res = new List<KalturaKeyValue>();
+            List<KalturaProductCode> res = new List<KalturaProductCode>();
             if (list != null && list.Count > 0)
             {
-                KalturaKeyValue kvp = null;
+                KalturaProductCode kpc = null;
                 foreach (KeyValuePair<VerificationPaymentGateway, string> item in list)
                 {
-                    kvp = new KalturaKeyValue();
+                    kpc = new KalturaProductCode();
                     switch (item.Key)
                     {
                         case VerificationPaymentGateway.Apple:
-                            kvp.key = VerificationPaymentGateway.Apple.ToString();
+                            kpc.InappProvider = VerificationPaymentGateway.Apple.ToString();
                             break;
                         case VerificationPaymentGateway.Google:
-                            kvp.key = VerificationPaymentGateway.Google.ToString();
+                            kpc.InappProvider = VerificationPaymentGateway.Google.ToString();
                             break;
                         case VerificationPaymentGateway.Roku:
-                            kvp.key = VerificationPaymentGateway.Roku.ToString();
+                            kpc.InappProvider = VerificationPaymentGateway.Roku.ToString();
                             break;
                         default:
                             throw new ClientException((int)StatusCode.Error, "Unknown verification payment gateway");
@@ -277,8 +277,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                     if (!string.IsNullOrEmpty(item.Value))
                     {
-                        kvp.value = item.Value;
-                        res.Add(kvp);
+                        kpc.Code = item.Value;
+                        res.Add(kpc);
                     }
                 }
             }

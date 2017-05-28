@@ -153,6 +153,7 @@
     <Content Include="api.asmx" />
     <Content Include="bin\WebAPI.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="clear_cache.aspx" />
     <Content Include="NotificationService.svc" />
@@ -663,6 +664,7 @@
     <Compile Include="Models\Partner\KalturaPartnerConfiguration.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Pricing\KalturaProductCode.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSwitchSet.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetFilter.cs" />
     <Compile Include="Models\Pricing\KalturaSubscriptionSetListResponse.cs" />

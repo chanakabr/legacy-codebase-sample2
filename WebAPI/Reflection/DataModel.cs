@@ -18,10 +18,14 @@ namespace WebAPI.Reflection
                 case "KalturaSubscription":
                     switch (propertyName)
                     {
+                        case "CouponsGroup":
+                            return DeprecatedAttribute.IsDeprecated("3.6.287.13944");
                         case "Descriptions":
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
                         case "Names":
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
+                        case "ProductCode":
+                            return DeprecatedAttribute.IsDeprecated("3.6.287.13944");
                     };
                     break;
                     
@@ -4869,6 +4873,16 @@ namespace WebAPI.Reflection
                             return "shouldGetOnlyLowest";
                         case "SubscriptionsIds":
                             return "subscriptionsIds";
+                    }
+                    break;
+                    
+                case "KalturaProductCode":
+                    switch(property.Name)
+                    {
+                        case "Code":
+                            return "code";
+                        case "InappProvider":
+                            return "inappProvider";
                     }
                     break;
                     

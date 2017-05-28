@@ -8243,6 +8243,21 @@
             Partner configuration type
             </summary>
         </member>
+        <member name="T:WebAPI.Models.Pricing.KalturaProductCode">
+            <summary>
+            Product Code
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductCode.InappProvider">
+            <summary>
+            Provider Name
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.Pricing.KalturaProductCode.Code">
+            <summary>
+            Product Code
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.Pricing.KalturaSubscriptionSwitchSet">
             <summary>
             Subscription details
