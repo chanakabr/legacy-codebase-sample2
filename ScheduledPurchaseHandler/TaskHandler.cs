@@ -26,7 +26,7 @@ namespace ScheduledPurchaseHandler
                 ScheduledPurchaseTaskRequest request = JsonConvert.DeserializeObject<ScheduledPurchaseTaskRequest>(data);
 
                 TransactionResponse transactionResult = Core.ConditionalAccess.Module.Purchase(request.GroupId, request.Siteguid, request.Household, request.Price, request.Currency, request.ContentId,
-                                                                                               request.ProductId, request.TransactionType, request.Coupon, request.UserIp, request.DeviceName, 
+                                                                                               request.ProductId, request.TransactionType, request.Coupon, request.UserIp, request.DeviceName,
                                                                                                request.PaymentGwId, request.PaymentMethodId, request.adapterData);
                 if (transactionResult != null && transactionResult.Status.Code == (int)eResponseStatus.OK)
                 {
