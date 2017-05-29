@@ -926,7 +926,7 @@ namespace Core.Api
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = siteGuid != null ? siteGuid : "null";
 
-            
+
             if (ruleId == 0)
             {
                 return Core.Api.api.SetParentalPIN(groupId, domainId, siteGuid, pin);
@@ -988,7 +988,7 @@ namespace Core.Api
 
             PurchaseSettingsResponse response = new PurchaseSettingsResponse();
 
-            
+
             response.status = Core.Api.api.SetPurchaseSettings(groupId, domainId, siteGuid, setting);
             if (response.status.Code == (int)eResponseStatus.OK)
                 response = Core.Api.api.GetPurchaseSettings(groupId, domainId, siteGuid);
@@ -1666,7 +1666,7 @@ namespace Core.Api
             if (layeredCacheSettingsToExclude == null)
             {
                 layeredCacheSettingsToExclude = new string[0];
-            }                
+            }
 
             return Core.Api.api.UpdateLayeredCacheGroupConfig(groupId, version, disableLayeredCache, new List<string>(layeredCacheSettingsToExclude), shouldOverrideExistingExludeSettings);
         }
@@ -1676,7 +1676,7 @@ namespace Core.Api
             bool result = false;
 
             try
-            {               
+            {
                 result = Core.Api.api.DoActionRules();
             }
             catch (Exception ex)
@@ -1714,7 +1714,7 @@ namespace Core.Api
                 result = Core.Api.api.GetFriendlyAssetLifeCycleRule(groupId, id);
             }
             catch (Exception ex)
-            {                
+            {
                 log.Error(string.Format("Error in GetFriendlyAssetLifeCycleRule, groupId: {0}, id: {1}", groupId, id), ex);
             }
 
@@ -1793,9 +1793,14 @@ namespace Core.Api
             return Core.Api.api.DeleteSearchHistory(groupId, userId, id);
         }
 
-        public static UserInterestResponse AddUserInterest(UserInterest userInterest)
+        public static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
         {
-            return Core.Api.api.AddUserInterest(userInterest);
+            return Core.Api.api.AddUserInterest( groupId, userId, userInterest);
+        }
+
+        public static UserInterestResponseList GetUserInterests(int groupId, int userId)
+        {
+            return Core.Api.api.GetUserInterests(groupId, userId);
         }
     }
 }

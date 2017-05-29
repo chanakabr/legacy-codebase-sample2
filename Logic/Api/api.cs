@@ -9803,17 +9803,33 @@ namespace Core.Api
             return status;
         }
 
-        internal static UserInterestResponse AddUserInterest(UserInterest userInterest)
+        internal static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
         {
-            UserInterestResponse response = new UserInterestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
 
             try
             {
-                return TopicInterestManager.AddUserInterest(userInterest);                    
+                return TopicInterestManager.AddUserInterest(groupId, userId, userInterest);                    
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterest), ex);
+            }
+
+            return response;
+        }
+
+        internal static UserInterestResponseList GetUserInterests(int groupId, int userId)
+        {
+            UserInterestResponseList response = new UserInterestResponseList() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
+
+            try
+            {
+                return TopicInterestManager.GetUserInterests(groupId, userId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error getting user interest. groupId: {0} User: {1}, exception {2} ", groupId,userId, ex);
             }
 
             return response;

@@ -1583,6 +1583,7 @@ namespace Core.Notification
                         }
                         if (dbReminder == null)
                         {
+                            log.DebugFormat("reminder was not found for ingested EPG: group {0}, program ID: {1}", partnerId, program.m_oProgram.EPG_ID);
                             Dictionary<string, string> epgFieldMappings = ConditionalAccess.Utils.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
                             if (epgFieldMappings != null && epgFieldMappings.Count > 0)
                             {
@@ -1602,6 +1603,8 @@ namespace Core.Notification
                                     if (reminderResponse == null || reminderResponse.Status == null || reminderResponse.Status.Code != (int)eResponseStatus.OK)
                                     {
                                         log.ErrorFormat("Failed adding reminder for groupId: {0}, epgId: {1}", partnerId, program.m_oProgram.EPG_ID);
+                                        if (reminderResponse != null && reminderResponse.Status != null)
+                                            log.ErrorFormat("Failed adding reminder. code = {0}, msg = {1}", reminderResponse.Status.Code, reminderResponse.Status.Message);
                                         continue;
                                     }
                                     else
@@ -1609,9 +1612,16 @@ namespace Core.Notification
                                         log.DebugFormat("reminder added for groupId: {0}, epgId: {1}", partnerId, program.m_oProgram.EPG_ID);
                                     }
                                 }
+                                else
+                                {
+                                    log.DebugFormat("reminder not required for ingested EPG: group {0}, program ID: {1}, seriesId = {2}, season = {3}",
+                                        partnerId, program.m_oProgram.EPG_ID, seriesId, seasonNum);
+                                }
                             }
-
-                            log.DebugFormat("reminder was not found for ingested EPG: group {0}, program ID: {1}", partnerId, program.m_oProgram.EPG_ID);
+                            else
+                            {
+                                log.DebugFormat("Alias mapping were not found");
+                            }
                         }
                         else
                         {
@@ -1625,7 +1635,7 @@ namespace Core.Notification
 
                             log.DebugFormat("reminder found for ingested EPG: GID: {0}, program ID: {1}, reminder ID: {2}, reminder name: {3}, old send date: {4}, new send date: {5}. should update: {6}",
                                 partnerId,                          // {0}
-                                program.m_oProgram.EPG_ID,                     // {1}
+                                program.m_oProgram.EPG_ID,                    // {1}
                                 dbReminder.ID,                      // {2}
                                 dbReminder.Name,                    // {3}
                                 oldEpgSendDate,                     // {4}
