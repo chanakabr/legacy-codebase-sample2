@@ -514,26 +514,29 @@ namespace Core.Notification
 
             if (userNotificationData.Reminders != null && userNotificationData.Reminders.Count > 0)
             {
-                List<ProgramObj> programs = GetEpgPrograms(groupId, userNotificationData.Reminders.Select(r => (int)r.AnnouncementId).ToList());
-
-                List<ProgramObj> episodesToRemove = new List<ProgramObj>();
-                foreach (ProgramObj program in programs)
+                List<DbReminder> reminders = Utils.GetReminders(groupId, userNotificationData.Reminders.Select(r => r.AnnouncementId).ToList());
+                if (reminders != null && reminders.Count > 0)
                 {
-                    if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
-                        (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
-                        (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ?
-                        ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
-                        (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()))
-                        : true))
+                    List<ProgramObj> programs = GetEpgPrograms(groupId, reminders.Select(r => (int)r.Reference).ToList());
+                    List<ProgramObj> episodesToRemove = new List<ProgramObj>();
+                    foreach (ProgramObj program in programs)
                     {
-                        episodesToRemove.Add(program);
+                        if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
+                            (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
+                            (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ?
+                            ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
+                            (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()))
+                            : true))
+                        {
+                            episodesToRemove.Add(program);
+                        }
                     }
-                }
 
-                if (episodesToRemove != null && episodesToRemove.Count > 0)
-                {
-                    remindersIdsToRemove = remindersToRemove = episodesToRemove.Select(e => long.Parse(e.AssetId)).ToList();
-                    userNotificationData.Reminders = userNotificationData.Reminders.Where(r => !remindersIdsToRemove.Contains(r.AnnouncementId)).ToList();
+                    if (episodesToRemove != null && episodesToRemove.Count > 0)
+                    {
+                        remindersIdsToRemove = remindersToRemove = episodesToRemove.Select(e => long.Parse(e.AssetId)).ToList();
+                        userNotificationData.Reminders = userNotificationData.Reminders.Where(r => !remindersIdsToRemove.Contains(r.AnnouncementId)).ToList();
+                    }
                 }
             }
 
