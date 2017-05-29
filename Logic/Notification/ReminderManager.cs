@@ -1807,14 +1807,17 @@ namespace Core.Notification
                 return response;
             }
 
-            if (seriesIds != null && seriesIds.Count > 0)
+            // seasons filtering
+            if (seriesIds != null && seriesIds.Count == 1 && seasonNumbers != null && seasonNumbers.Count > 0)
             {
-                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId)).ToList();
+                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId) && sr.SeasonNumber.HasValue && seasonNumbers.Contains(sr.SeasonNumber.Value)).ToList();
             }
-            if (seasonNumbers != null && seasonNumbers.Count > 0)
+            // series filter
+            else if (seriesIds != null && seriesIds.Count > 0 && (seasonNumbers == null || seasonNumbers.Count == 0))
             {
-                dbSeriesReminders = dbSeriesReminders.Where(sr => sr.SeasonNumber.HasValue && seasonNumbers.Contains(sr.SeasonNumber.Value)).ToList();
+                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId) && sr.SeasonNumber == 0).ToList();
             }
+
             if (epgChannelId.HasValue && epgChannelId.Value != 0)
             {
                 dbSeriesReminders = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId.Value).ToList();
