@@ -4572,7 +4572,6 @@ namespace Tvinci.Core.DAL
         public static List<ApiObjects.Meta> GetTopicInterestList(int partnerId, List<string> topicNames)
         {
             List<ApiObjects.Meta> topicInterestList = null;
-            ApiObjects.Meta meta = null;
 
             try
             {
@@ -4583,29 +4582,37 @@ namespace Tvinci.Core.DAL
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    topicInterestList = new List<ApiObjects.Meta>();
-
-                    for (int rowIndex = 0; rowIndex < ds.Tables[0].Rows.Count; rowIndex++)
-                    {
-                        meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[rowIndex], NAME_FIELD) };
-
-                        meta.Features = new List<MetaFeatureType>();
-                        meta.Features.Add(MetaFeatureType.USER_INTEREST);
-                        if(ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[rowIndex], ENABLE_NOTIFICATION_FIELD) == 1 ? true : false)
-                        {
-                           meta.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
-                        }
-
-                        meta.ParentMetaId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[rowIndex], PARENT_META_ID_FIELD);
-                        meta.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[rowIndex], GROUP_ID_FIELD);
-
-                        topicInterestList.Add(meta);
-                    }
+                    topicInterestList = CreateTopicInterestList(ds.Tables[0]);
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error at GetTopicInterestList. groupId: {0}. Error {1}", partnerId, ex);
+            }
+
+            return topicInterestList;
+        }
+
+        private static List<ApiObjects.Meta> CreateTopicInterestList(DataTable result)
+        {
+            List<ApiObjects.Meta> topicInterestList = new List<ApiObjects.Meta>();
+            ApiObjects.Meta meta = null;
+
+            for (int rowIndex = 0; rowIndex < result.Rows.Count; rowIndex++)
+            {
+                meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(result.Rows[rowIndex], NAME_FIELD) };
+
+                meta.Features = new List<MetaFeatureType>();
+                meta.Features.Add(MetaFeatureType.USER_INTEREST);
+                if (ODBCWrapper.Utils.GetIntSafeVal(result.Rows[rowIndex], ENABLE_NOTIFICATION_FIELD) == 1 ? true : false)
+                {
+                    meta.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
+                }
+
+                meta.ParentMetaId = ODBCWrapper.Utils.GetSafeStr(result.Rows[rowIndex], PARENT_META_ID_FIELD);
+                meta.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(result.Rows[rowIndex], GROUP_ID_FIELD);
+
+                topicInterestList.Add(meta);
             }
 
             return topicInterestList;
@@ -4622,8 +4629,8 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@assetType", (int)topicInterest.AssetType);
                 sp.AddParameter("@metaId", topicInterest.MetaId);
                 sp.AddParameter("@parentMetaId", topicInterest.ParentMetaId);
-                if(topicInterest.Features!= null)
-                    sp.AddParameter("@enableNotification", topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION)? 1:0);                                
+                if (topicInterest.Features != null)
+                    sp.AddParameter("@enableNotification", topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION) ? 1 : 0);
                 DataSet ds = sp.ExecuteDataSet();
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
@@ -4644,7 +4651,30 @@ namespace Tvinci.Core.DAL
             }
             return topicInterest;
         }
-       
+
+        public static List<ApiObjects.Meta> GetTopicInterest(int partnerId)
+        {
+            List<ApiObjects.Meta> topicInterestList = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_TopicInterestByGroup");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@groupId", partnerId);
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    topicInterestList = CreateTopicInterestList(ds.Tables[0]);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetGroupTopicOptions. groupId: {0}. Error {1}", partnerId, ex);
+            }
+
+            return topicInterestList;
+        }
+
         public static bool DeleteTopicInterest(int groupId, string metaName)
         {
             try
@@ -4661,6 +4691,6 @@ namespace Tvinci.Core.DAL
                 log.ErrorFormat("Error at DeleteTopicInterest. groupId: {0}. Error {1}", groupId, ex);
                 return false;
             }
-        }             
+        }
     }
 }
