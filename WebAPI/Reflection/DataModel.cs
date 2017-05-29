@@ -19,13 +19,13 @@ namespace WebAPI.Reflection
                     switch (propertyName)
                     {
                         case "CouponsGroup":
-                            return DeprecatedAttribute.IsDeprecated("3.6.287.13944");
+                            return DeprecatedAttribute.IsDeprecated("4.3.0.0");
                         case "Descriptions":
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
                         case "Names":
                             return DeprecatedAttribute.IsDeprecated("3.6.287.27312");
                         case "ProductCode":
-                            return DeprecatedAttribute.IsDeprecated("3.6.287.13944");
+                            return DeprecatedAttribute.IsDeprecated("4.3.0.0");
                     };
                     break;
                     
