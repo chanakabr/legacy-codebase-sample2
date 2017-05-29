@@ -9,6 +9,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ApiObjects.Notification;
+using QueueWrapper.Queues.QueueObjects;
+using ApiObjects.QueueObjects;
+using TVinciShared;
 
 namespace APILogic.Notification
 {
@@ -16,6 +20,8 @@ namespace APILogic.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string USER_INTEREST_NOT_EXIST = "User interest not exist";
+
+        private const string ROUTING_KEY_INTEREST_MESSAGES = "PROCESS_MESSAGE_INTERESTS";
 
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest userInterest)
         {
@@ -147,5 +153,33 @@ namespace APILogic.Notification
 
             return response;
         }
-    }     
+
+        public static string GetInterestKeyValueName(string key, string value)
+        {
+            return string.Format("{0}_{1}", key, value);
+        }
+
+        public static bool AddInterestToQueue(int groupId, InterestNotificationMessage interestNotificationMessage)
+        {
+            MessageInterestQueue que = new MessageInterestQueue();
+            MessageInterestData messageReminderData = new MessageInterestData(groupId, DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime), interestNotificationMessage.Id)
+            {
+                ETA = interestNotificationMessage.SendTime
+            };
+
+            bool res = que.Enqueue(messageReminderData, ROUTING_KEY_INTEREST_MESSAGES);
+
+            if (res)
+                log.DebugFormat("Successfully inserted interest notification message to interest queue: {0}", messageReminderData);
+            else
+                log.ErrorFormat("Error while inserting interest notification message to queue. Message: {0}", messageReminderData);
+
+            return res;
+        }
+
+        internal static bool SendMessageInterest(int nGroupID, long startTime, int notificationInterestId)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
