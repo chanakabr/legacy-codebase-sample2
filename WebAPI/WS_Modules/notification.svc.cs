@@ -65,7 +65,7 @@ namespace WS_Notification
             log.DebugFormat("EpgEvent - Source IP: {0}, Program ID: {1}, partner ID: {2}", TVinciShared.PageUtils.GetCallerIP(), string.Join(",", programIds.ToArray(), partnerId));
             if (partnerId > 0)
             {
-                return Core.Notification.Module.HandleEpgEvent(partnerId, programIds);
+                return Core.Notification.Module.HandleEpgEvent(partnerId, programIds.ConvertAll(i => (int)i));
             }
             else
                 HttpContext.Current.Response.StatusCode = 404;
