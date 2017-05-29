@@ -1,7 +1,6 @@
 ﻿using AdapterControllers;
 using ApiLogic;
 using APILogic;
-using APILogic.Notification;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -21,10 +20,8 @@ using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Pricing;
-using DAL;
 using EpgBL;
 using KLogMonitor;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -9801,54 +9798,6 @@ namespace Core.Api
             }
 
             return status;
-        }
-
-        internal static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
-            try
-            {
-                return TopicInterestManager.AddUserInterest(groupId, userId, userInterest);                    
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterest), ex);
-            }
-
-            return response;
-        }
-
-        internal static UserInterestResponseList GetUserInterests(int groupId, int userId)
-        {
-            UserInterestResponseList response = new UserInterestResponseList() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
-
-            try
-            {
-                return TopicInterestManager.GetUserInterests(groupId, userId);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error getting user interest. groupId: {0} User: {1}, exception {2} ", groupId,userId, ex);
-            }
-
-            return response;
-        }
-
-        internal static Status DeleteUserInterest(int groupId, int userId, string id)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
-            try
-            {
-                return TopicInterestManager.DeleteUserInterest(groupId, userId, id);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error remove user interest  from CB. User interest id {0}, exception {1} ", id, ex);
-            }
-
-            return response;
-        }
+        }       
     }
 }
