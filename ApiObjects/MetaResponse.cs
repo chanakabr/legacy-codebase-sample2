@@ -29,7 +29,7 @@ namespace ApiObjects
         public string MetaId {
             get
             {
-                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}", PartnerId, Name));                
+                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", PartnerId, AssetType.ToString(), Name));                
             }            
         }
     }
