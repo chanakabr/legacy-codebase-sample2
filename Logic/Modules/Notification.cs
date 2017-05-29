@@ -93,7 +93,7 @@ namespace Core.Notification
             }
         }
 
-        public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
+        public static bool HandleEpgEvent(int partnerId, List<int> programIds)
         {
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, partnerId);
