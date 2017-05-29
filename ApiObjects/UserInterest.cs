@@ -12,11 +12,13 @@ namespace ApiObjects
         public UserInterests()
         {
             this.DocType = "UserInterest";
+            UserInterestList = new List<UserInterest>();
         }
     }
 
     public class UserInterest
     {
+        public string Id { get; set; }
         public string MetaId { get; set; }
         public UserInterestTopic Topic { get; set; }
     }
