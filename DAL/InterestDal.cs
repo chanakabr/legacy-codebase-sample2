@@ -29,27 +29,33 @@ namespace DAL
             return string.Format("user_interests:{0}:{1}", partnerId, userId);
         }
 
-        public static int InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId)
+        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId)
         {
-            int id = 0;
+            InterestNotification result = null;
             try
             {
-                ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotification");
-                spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-                spInsert.AddParameter("@group_id", groupId);
-                spInsert.AddParameter("@name", name);
-                spInsert.AddParameter("@external_id", externalId);
-                spInsert.AddParameter("@template_type", TemplateType);
-                spInsert.AddParameter("@topic_name_value", topicNameValue);
-                spInsert.AddParameter("@topic_interest_id", topicInterestId);
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotification");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@external_id", externalId);
+                sp.AddParameter("@template_type", TemplateType);
+                sp.AddParameter("@topic_name_value", topicNameValue);
+                sp.AddParameter("@topic_interest_id", topicInterestId);
 
-                id = spInsert.ExecuteReturnValue<int>();
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                        result = CreateInterestNotification(ds.Tables[0].Rows[0]);
+                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("error in InsertTopicInterestNotification. groupId: {0}, name: {1}, externalId: {2}, TemplateType: {3}, topicNameValue: {4}, topicInterestId: {5}, ex: {6}", groupId, name, externalId, TemplateType.ToString(), topicNameValue, topicInterestId, ex);
             }
-            return id;
+            return result;
         }
 
         public static List<InterestNotification> GetTopicInterestNotificationsByGroupId(int groupId)
@@ -78,9 +84,9 @@ namespace DAL
             return result;
         }
 
-        public static InterestNotificationMessage GetTopicInterestNotificationsById(int groupId, int id)
+        public static InterestNotification GetTopicInterestNotificationsById(int groupId, int id)
         {
-            InterestNotificationMessage result = null;
+            InterestNotification result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicInterestNotificationsById");
@@ -92,7 +98,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 0)
-                        result = CreateInterestNotificationMessage(ds.Tables[0].Rows[0]);
+                        result = CreateInterestNotification(ds.Tables[0].Rows[0]);
                 }
             }
             catch (Exception ex)
@@ -102,9 +108,9 @@ namespace DAL
             return result;
         }
 
-        public static InterestNotificationMessage GetTopicInterestNotificationsByTopicNameValue(int groupId, string topicNameValue)
+        public static InterestNotification GetTopicInterestNotificationsByTopicNameValue(int groupId, string topicNameValue)
         {
-            InterestNotificationMessage result = null;
+            InterestNotification result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicInterestNotificationsByTopicNameValue");
@@ -116,7 +122,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     if (ds.Tables[0].Rows.Count > 0)
-                        result = CreateInterestNotificationMessage(ds.Tables[0].Rows[0]);
+                        result = CreateInterestNotification(ds.Tables[0].Rows[0]);
                 }
             }
             catch (Exception ex)
@@ -126,9 +132,9 @@ namespace DAL
             return result;
         }
 
-        public static bool UpdateTopicInterestNotification(int groupId, int id, string externalId = null, DateTime? lastMessageSentDate = null, string queueName = null)
+        public static InterestNotification UpdateTopicInterestNotification(int groupId, int id, string externalId = null, DateTime? lastMessageSentDate = null, string queueName = null)
         {
-            int rowCount = 0;
+            InterestNotification result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_TopicInterestNotification");
@@ -146,7 +152,12 @@ namespace DAL
                 if (!string.IsNullOrEmpty(queueName))
                     sp.AddParameter("@queueName", queueName);
 
-                rowCount = sp.ExecuteReturnValue<int>();
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                        result = CreateInterestNotification(ds.Tables[0].Rows[0]);
+                }
             }
             catch (Exception ex)
             {
@@ -159,7 +170,7 @@ namespace DAL
                     ex);
             }
 
-            return rowCount > 0;
+            return result;
         }
 
         public static bool DeleteTopicInterestNotification(int groupId, long id)
@@ -167,10 +178,10 @@ namespace DAL
             int affectedRows = 0;
             try
             {
-                ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("DeleteTopicInterestsNotification");
+                ODBCWrapper.StoredProcedure spInsertUserNotification = new ODBCWrapper.StoredProcedure("DeleteTopicInterestNotification");
                 spInsertUserNotification.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 spInsertUserNotification.AddParameter("@id", id);
-                spInsertUserNotification.AddParameter("@groupId", groupId);
+                spInsertUserNotification.AddParameter("@group_id", groupId);
                 affectedRows = spInsertUserNotification.ExecuteReturnValue<int>();
             }
             catch (Exception ex)
@@ -180,26 +191,32 @@ namespace DAL
             return affectedRows > 0;
         }
 
-        public static int InsertTopicInterestNotificationMessage(int groupId, string name, string message, DateTime sendTime, int topicInterestNotificationId)
+        public static InterestNotificationMessage InsertTopicInterestNotificationMessage(int groupId, string name, string message, DateTime sendTime, int topicInterestNotificationId)
         {
-            int id = 0;
+            InterestNotificationMessage result = null;
             try
             {
-                ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotificationMessage");
-                spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
-                spInsert.AddParameter("@group_id", groupId);
-                spInsert.AddParameter("@name", name);
-                spInsert.AddParameter("@message", message);
-                spInsert.AddParameter("@send_time", sendTime);
-                spInsert.AddParameter("@message_type", topicInterestNotificationId);
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopicInterestNotificationMessage");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@group_id", groupId);
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@message", message);
+                sp.AddParameter("@send_time", sendTime);
+                sp.AddParameter("@topic_interests_notifications_id", topicInterestNotificationId);
 
-                id = spInsert.ExecuteReturnValue<int>();
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                        result = CreateInterestNotificationMessage(ds.Tables[0].Rows[0]);
+                }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("error in InsertTopicInterestNotificationMessage. groupId: {0}, name: {1}, message: {2}, sendTime: {3}, topicInterestNotificationId: {4}, ex: {5}", groupId, name, message, sendTime, topicInterestNotificationId, ex);
             }
-            return id;
+            return result;
         }
 
         public static InterestNotificationMessage GetTopicInterestsNotificationMessageById(int groupId, int id)
@@ -252,9 +269,9 @@ namespace DAL
 
         }
 
-        public static bool UpdateTopicInterestNotificationMessage(int groupId, int id, string message = null, bool? isSent = null, string pushResultMessageId = null, DateTime? responseDate = null)
+        public static InterestNotificationMessage UpdateTopicInterestNotificationMessage(int groupId, int id, string message = null, bool? isSent = null, string pushResultMessageId = null, DateTime? responseDate = null)
         {
-            int rowCount = 0;
+            InterestNotificationMessage result = null;
             try
             {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopicInterestNotificationMessage");
@@ -274,7 +291,13 @@ namespace DAL
                 if (responseDate.HasValue)
                     sp.AddParameter("@push_response_date", responseDate.Value);
 
-                rowCount = sp.ExecuteReturnValue<int>();
+                DataSet ds = sp.ExecuteDataSet();
+
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                        result = CreateInterestNotificationMessage(ds.Tables[0].Rows[0]);
+                }
             }
             catch (Exception ex)
             {
@@ -288,7 +311,7 @@ namespace DAL
                     ex);
             }
 
-            return rowCount > 0;
+            return result;
         }
 
         private static InterestNotificationMessage CreateInterestNotificationMessage(DataRow row)
