@@ -1,13 +1,8 @@
-﻿using ApiObjects.Response;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Managers.Scheme;
-using WebAPI.Models.API;
-using WebAPI.Models.General;
-using WebAPI.Models.Notification;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -35,7 +30,37 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertUserInterest(groupId, user, userInterest);
+                response = ClientsManager.UsersClient().InsertUserInterest(groupId, user, userInterest);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+
+        /// <summary>
+        /// Delete new user interest for partner user
+        /// </summary>
+        /// <remarks>
+        /// Possible status codes:             
+        /// </remarks>
+        /// <param name="id">User interest identifier</param>
+        [Route("delete"), HttpPost]
+        [ApiAuthorize]
+        public bool Delete(string id)
+        {
+            bool response = false;
+
+            int groupId = KS.GetFromRequest().GroupId;
+            string user = KS.GetFromRequest().UserId;
+
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().DeleteUserInterest(groupId, user, id);
             }
             catch (ClientException ex)
             {
@@ -63,7 +88,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                list = ClientsManager.ApiClient().GetUserInterests(groupId, user);
+                list = ClientsManager.UsersClient().GetUserInterests(groupId, user);
             }
             catch (ClientException ex)
             {

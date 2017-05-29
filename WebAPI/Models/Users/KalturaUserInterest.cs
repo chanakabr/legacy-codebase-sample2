@@ -3,13 +3,21 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Users
 {
     /// <summary>
     /// User Interest
     /// </summary>
     public class KalturaUserInterest : KalturaOTTObject
     {
+        /// <summary>
+        /// Identifier
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public string Id { get; set; }
+
         /// <summary>
         /// Meta identifier
         /// </summary>
