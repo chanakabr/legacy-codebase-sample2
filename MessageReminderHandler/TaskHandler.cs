@@ -28,14 +28,6 @@ namespace MessageReminderHandler
 
                 MessageReminderRequest request = JsonConvert.DeserializeObject<MessageReminderRequest>(data);
 
-                string url = WS_Utils.GetTcmConfigValue("ws_notifications");
-
-                if (string.IsNullOrEmpty(url))
-                {
-                    log.Error("did not find ws_notifications URL");
-                    throw new Exception("did not find ws_notifications URL");
-                }
-
                 bool success = Core.Notification.Module.SendMessageReminder(request.GroupId, request.StartTime, request.MessageReminderId);
 
                 if (!success)
@@ -45,7 +37,7 @@ namespace MessageReminderHandler
             }
             catch (Exception ex)
             {
-                log.Error("Message reminder did not finish successfully. Exception occured. Data: " + data, ex);
+                log.Error("Message reminder did not finish successfully. Exception occurred. Data: " + data, ex);
                 throw ex;
             }
 
