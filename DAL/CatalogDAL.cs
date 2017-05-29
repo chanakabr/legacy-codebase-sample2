@@ -4619,6 +4619,7 @@ namespace Tvinci.Core.DAL
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddParameter("@name", topicInterest.Name);
+                sp.AddParameter("@assetType", (int)topicInterest.AssetType);
                 sp.AddParameter("@metaId", topicInterest.MetaId);
                 sp.AddParameter("@parentMetaId", topicInterest.ParentMetaId);
                 if(topicInterest.Features!= null)
