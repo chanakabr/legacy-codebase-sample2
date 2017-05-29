@@ -1,17 +1,14 @@
-﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ApiObjects;
+using AutoMapper;
+using Core.Users;
 using DAL;
-using WebAPI.Models.Users;
-using WebAPI.Utils;
-using WebAPI.Models.General;
-using WebAPI.Models.Catalog;
+using System.Collections.Generic;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using ApiObjects;
-using Core.Users;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
+using WebAPI.Models.Users;
+using WebAPI.Utils;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -185,9 +182,31 @@ namespace ObjectsConvertor.Mapping
             Mapper.CreateMap<int, Core.Users.Country>()
                 .ForMember(dest => dest.m_nObjecrtID, opt => opt.MapFrom(src => src));
 
-            
+            #region UserInterest
 
+            Mapper.CreateMap<KalturaUserInterest, UserInterest>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MetaId))
+               .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
+               ;
 
+            Mapper.CreateMap<UserInterest, KalturaUserInterest>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
+               ;
+
+            Mapper.CreateMap<KalturaUserInterestTopic, UserInterestTopic>()
+               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+               .ForMember(dest => dest.ParentTopic, opt => opt.MapFrom(src => src.ParentTopic))
+               ;
+
+            Mapper.CreateMap<UserInterestTopic, KalturaUserInterestTopic>()
+             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+             .ForMember(dest => dest.ParentTopic, opt => opt.MapFrom(src => src.ParentTopic))
+             ;
+
+            #endregion
         }
 
         private static Core.Users.Country ConvertContry(KalturaCountry country, int? countryId)

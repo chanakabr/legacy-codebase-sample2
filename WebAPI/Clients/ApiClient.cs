@@ -1,34 +1,28 @@
-﻿using AutoMapper;
+﻿using ApiObjects;
+using ApiObjects.BulkExport;
+using ApiObjects.CDNAdapter;
+using ApiObjects.Response;
+using ApiObjects.Roles;
+using ApiObjects.Rules;
+using ApiObjects.TimeShiftedTv;
+using AutoMapper;
+using Core.Pricing;
 using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Models.API;
-using WebAPI.Models.General;
-using WebAPI.Utils;
-using System.Linq;
-using WebAPI.Models.ConditionalAccess;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Domains;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
-using ApiObjects;
-using ApiObjects.Rules;
-using ApiObjects.Response;
-using ApiObjects.TimeShiftedTv;
-using ApiObjects.Roles;
-using ApiObjects.CDNAdapter;
-using ApiObjects.BulkExport;
-using Core.Pricing;
-using Newtonsoft.Json.Linq;
-using Core.Api.Modules;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 namespace WebAPI.Clients
 {
@@ -3670,104 +3664,6 @@ namespace WebAPI.Clients
             }
 
             return success;
-        }
-
-        internal KalturaUserInterest InsertUserInterest(int groupId, string user, KalturaUserInterest kalturaUserInterest)
-        {
-            ApiObjects.Response.Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    UserInterest request = Mapper.Map<UserInterest>(kalturaUserInterest);
-                    response = Core.Api.Module.AddUserInterest(groupId, int.Parse(user), request);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while InsertUserInterest.  groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null )
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Code, response.Message);
-            }
-
-            return kalturaUserInterest;
-        }
-
-        internal List<KalturaUserInterest> GetUserInterests(int groupId, string user)
-        {
-            List<KalturaUserInterest> list = null;
-            UserInterestResponseList response = null;
-           
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.GetUserInterests(groupId,  int.Parse(user));
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetUserInterests. groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Status.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException((int)response.Status.Code, response.Status.Message);
-            }
-
-            list = Mapper.Map<List<KalturaUserInterest>>(response.UserInterests);
-
-            return list;
-        }
-
-        internal bool DeleteUserInterest(int groupId, string user, string id)
-        {
-            Status response = null;
-            bool success = false;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Api.Module.DeleteUserInterest(groupId, int.Parse(user), id);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {1}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response.Code, response.Message);
-            }
-            else
-            {
-                success = true;
-            }
-
-            return success;
-        }
+        }       
     }
 }

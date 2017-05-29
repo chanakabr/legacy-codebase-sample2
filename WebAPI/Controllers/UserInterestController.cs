@@ -3,7 +3,7 @@ using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using WebAPI.Models.API;
+using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 namespace WebAPI.Controllers
@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().InsertUserInterest(groupId, user, userInterest);
+                response = ClientsManager.UsersClient().InsertUserInterest(groupId, user, userInterest);
             }
             catch (ClientException ex)
             {
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ApiClient().DeleteUserInterest(groupId, user, id);
+                response = ClientsManager.UsersClient().DeleteUserInterest(groupId, user, id);
             }
             catch (ClientException ex)
             {
@@ -88,7 +88,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                list = ClientsManager.ApiClient().GetUserInterests(groupId, user);
+                list = ClientsManager.UsersClient().GetUserInterests(groupId, user);
             }
             catch (ClientException ex)
             {
