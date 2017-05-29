@@ -21,7 +21,7 @@ namespace ApiObjects.Notification
     public class DbSeriesReminder : DbReminder
     {
         public string SeriesId { get; set; }
-        public long? SeasonNumber { get; set; }
+        public long SeasonNumber { get; set; }
         public long EpgChannelId { get; set; }
         public DateTime? LastSendDate { get; set; }
     }
