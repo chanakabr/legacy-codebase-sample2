@@ -343,7 +343,7 @@ namespace Core.Notification
                 }
 
 
-                dbSeriesReminder.Name = clientReminder.SeasonNumber.HasValue && clientReminder.SeasonNumber.Value != 0 ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
+                dbSeriesReminder.Name = clientReminder.SeasonNumber != 0 ? string.Format("{0}, season {1}", clientReminder.SeriesId, clientReminder.SeasonNumber) : clientReminder.SeriesId.ToString();
 
                 // Need to save in database in 2 cases:
                 // 1. A new reminder 
@@ -387,6 +387,10 @@ namespace Core.Notification
                     AddedDateSec = addedSecs
                 });
 
+                List<long> remindersToRemove = null;
+                List<long> seriesRemindersToRemove = null;
+                FilterRedundendReminders(clientReminder.GroupId, clientReminder.SeriesId, clientReminder.SeasonNumber, clientReminder.EpgChannelId, ref userNotificationData, out remindersToRemove, out seriesRemindersToRemove);
+
                 // update CB userNotificationData
                 if (!DAL.NotificationDal.SetUserNotificationData(dbSeriesReminder.GroupId, userId, userNotificationData))
                 {
@@ -395,10 +399,6 @@ namespace Core.Notification
                     Utils.WaitForAllTasksToFinish(tasks);
                     return response;
                 }
-
-                List<long> remindersToRemove = null;
-                List<long> seriesRemindersToRemove = null;
-                FilterRedundendReminders(clientReminder.GroupId, clientReminder.SeriesId, clientReminder.SeasonNumber, clientReminder.EpgChannelId, ref userNotificationData, out remindersToRemove, out seriesRemindersToRemove);
 
                 // update user devices
                 if (userNotificationData.devices != null &&
@@ -491,14 +491,14 @@ namespace Core.Notification
             return response;
         }
 
-        private static bool IsSeriesAlreadyFollowed(int groupId, string seriesId, long? seasonNumber, long epgChannelId, UserNotification userNotificationData)
+        private static bool IsSeriesAlreadyFollowed(int groupId, string seriesId, long seasonNumber, long epgChannelId, UserNotification userNotificationData)
         {
             List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
             return dbSeriesReminders != null &&
-                dbSeriesReminders.Where(sr => sr.SeriesId == seriesId && (!sr.SeasonNumber.HasValue || sr.SeasonNumber.Value == 0) && sr.EpgChannelId == epgChannelId).FirstOrDefault() != null;
+                dbSeriesReminders.Where(sr => sr.SeriesId == seriesId && (sr.SeasonNumber == 0) && sr.EpgChannelId == epgChannelId).FirstOrDefault() != null;
         }
 
-        private static void FilterRedundendReminders(int groupId, string seriesId, long? seasonNumber, long epgChannelId, ref UserNotification userNotificationData, out List<long> remindersToRemove, out List<long> seriesRemindersToRemove)
+        private static void FilterRedundendReminders(int groupId, string seriesId, long seasonNumber, long epgChannelId, ref UserNotification userNotificationData, out List<long> remindersToRemove, out List<long> seriesRemindersToRemove)
         {
             remindersToRemove = null;
             seriesRemindersToRemove = null;
@@ -515,30 +515,37 @@ namespace Core.Notification
 
             if (userNotificationData.Reminders != null && userNotificationData.Reminders.Count > 0)
             {
-                List<ProgramObj> programs = GetEpgPrograms(groupId, userNotificationData.Reminders.Select(r => (int)r.AnnouncementId).ToList());
-
-                List<ProgramObj> episodesToRemove = new List<ProgramObj>();
-                foreach (ProgramObj program in programs)
+                List<DbReminder> reminders = Utils.GetReminders(groupId, userNotificationData.Reminders.Select(r => r.AnnouncementId).ToList());
+                if (reminders != null && reminders.Count > 0)
                 {
-                    if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
-                        (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
-                        (seasonNumber.HasValue && seasonNumber.Value != 0 && seasonNumberNameType != null ?
-                        ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
-                        (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()))
-                        : true))
+                    List<ProgramObj> programs = GetEpgPrograms(groupId, reminders.Select(r => (int)r.Reference).ToList());
+                    if (programs != null && programs.Count > 0)
                     {
-                        episodesToRemove.Add(program);
-                    }
-                }
+                        List<ProgramObj> episodesToRemove = new List<ProgramObj>();
+                        foreach (ProgramObj program in programs)
+                        {
+                            if (((seriesIdNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId) ||
+                                (seriesIdNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seriesIdNameType.Item1).FirstOrDefault().Value == seriesId)) &&
+                                (seasonNumber != 0 && seasonNumberNameType != null ?
+                                ((seasonNumberNameType.Item2 == FieldTypes.Meta && program.m_oProgram.EPG_Meta.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()) ||
+                                (seasonNumberNameType.Item2 == FieldTypes.Tag && program.m_oProgram.EPG_TAGS.Where(pm => pm.Key == seasonNumberNameType.Item1).FirstOrDefault().Value == seasonNumber.ToString()))
+                                : true))
+                            {
+                                episodesToRemove.Add(program);
+                            }
+                        }
 
-                if (episodesToRemove != null && episodesToRemove.Count > 0)
-                {
-                    remindersIdsToRemove = remindersToRemove = episodesToRemove.Select(e => long.Parse(e.AssetId)).ToList();
-                    userNotificationData.Reminders = userNotificationData.Reminders.Where(r => !remindersIdsToRemove.Contains(r.AnnouncementId)).ToList();
+                        if (episodesToRemove != null && episodesToRemove.Count > 0)
+                        {
+                            var episodesIdsToRemove = episodesToRemove.Select(e => long.Parse(e.AssetId));
+                            remindersIdsToRemove = remindersToRemove = reminders.Where(r => episodesIdsToRemove.Contains(r.Reference)).Select(r => (long)r.ID).ToList(); 
+                            userNotificationData.Reminders = userNotificationData.Reminders.Where(r => !remindersIdsToRemove.Contains(r.AnnouncementId)).ToList();
+                        }
+                    }
                 }
             }
 
-            if ((!seasonNumber.HasValue || seasonNumber.Value == 0) && userNotificationData.SeriesReminders != null && userNotificationData.SeriesReminders.Count > 0)
+            if (seasonNumber == 0 && userNotificationData.SeriesReminders != null && userNotificationData.SeriesReminders.Count > 0)
             {
                 List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
                 if (dbSeriesReminders != null && dbSeriesReminders.Count > 0)
@@ -621,7 +628,7 @@ namespace Core.Notification
             return false;
         }
 
-        public static void SetRemindersForSerieEpisodes(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
+        public static void SetRemindersForSerieEpisodes(int groupId, string seriesId, long seasonNumber, long epgChannelId)
         {
             List<UnifiedSearchResult> episodeResults = Utils.SearchSeriesEpisodes(groupId, seriesId, seasonNumber, epgChannelId);
             if (episodeResults != null && episodeResults.Count > 0)
@@ -1888,14 +1895,17 @@ namespace Core.Notification
                 return response;
             }
 
-            if (seriesIds != null && seriesIds.Count > 0)
+            // seasons filtering
+            if (seriesIds != null && seriesIds.Count == 1 && seasonNumbers != null && seasonNumbers.Count > 0)
             {
-                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId)).ToList();
+                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId) && seasonNumbers.Contains(sr.SeasonNumber)).ToList();
             }
-            if (seasonNumbers != null && seasonNumbers.Count > 0)
+            // series filter
+            else if (seriesIds != null && seriesIds.Count > 0 && (seasonNumbers == null || seasonNumbers.Count == 0))
             {
-                dbSeriesReminders = dbSeriesReminders.Where(sr => sr.SeasonNumber.HasValue && seasonNumbers.Contains(sr.SeasonNumber.Value)).ToList();
+                dbSeriesReminders = dbSeriesReminders.Where(sr => seriesIds.Contains(sr.SeriesId) && sr.SeasonNumber == 0).ToList();
             }
+
             if (epgChannelId.HasValue && epgChannelId.Value != 0)
             {
                 dbSeriesReminders = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId.Value).ToList();
