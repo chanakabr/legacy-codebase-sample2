@@ -24,7 +24,7 @@ namespace WebAPI.Models.Notifications
         [DataMember(Name = "seasonNumber")]
         [JsonProperty(PropertyName = "seasonNumber")]
         [XmlElement(ElementName = "seasonNumber")]
-        public long SeasonNumber { get; set; }
+        public long? SeasonNumber { get; set; }
 
         /// <summary>
         /// EPG channel identifier 
