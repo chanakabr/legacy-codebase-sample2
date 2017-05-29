@@ -261,14 +261,28 @@ namespace ApiObjects
         Churn = 1
     }
 
+    [Serializable]
     public enum MessageTemplateType
     {
+        [EnumMember]
         None = 0,
+
+        [EnumMember]
         Series = 1,
+
+        [EnumMember]
         Reminder = 2,
+
+        [EnumMember]
         Churn = 3,
+
+        [EnumMember]
         SeriesReminder = 4,
+
+        [EnumMember]
         InterestVod = 5,
+
+        [EnumMember]
         InterestEPG = 6
     }
 
@@ -559,7 +573,7 @@ namespace ApiObjects
         Error = 1,
         SignatureMismatch = 2,
         NoConfigurationFound = 3
-    }   
+    }
 
     public enum eFollowSeriesPlaceHolders
     {
