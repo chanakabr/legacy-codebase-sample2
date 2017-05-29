@@ -4652,7 +4652,7 @@ namespace Tvinci.Core.DAL
             return topicInterest;
         }
 
-        public static List<ApiObjects.Meta> GetTopicInterest(int partnerId)
+        public static List<ApiObjects.Meta> GetTopicInterests(int partnerId)
         {
             List<ApiObjects.Meta> topicInterestList = null;
 
