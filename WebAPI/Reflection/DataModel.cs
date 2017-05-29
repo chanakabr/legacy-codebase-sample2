@@ -6073,6 +6073,8 @@ namespace WebAPI.Reflection
                 case "KalturaUserInterest":
                     switch(property.Name)
                     {
+                        case "Id":
+                            return "id";
                         case "MetaId":
                             return "metaId";
                         case "Topic":

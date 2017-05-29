@@ -946,6 +946,15 @@
             </remarks>
             <param name="userInterest">User interest Object</param>
         </member>
+        <member name="M:WebAPI.Controllers.UserInterestController.Delete(System.String)">
+            <summary>
+            Delete new user interest for partner user
+            </summary>
+            <remarks>
+            Possible status codes:             
+            </remarks>
+            <param name="id">User interest identifier</param>
+        </member>
         <member name="M:WebAPI.Controllers.UserInterestController.List">
             <summary>
             Returns all Engagement for partner
@@ -1252,6 +1261,11 @@
         <member name="T:WebAPI.Models.API.KalturaUserInterest">
             <summary>
             User Interest
+            </summary>
+        </member>
+        <member name="P:WebAPI.Models.API.KalturaUserInterest.Id">
+            <summary>
+            Identifier
             </summary>
         </member>
         <member name="P:WebAPI.Models.API.KalturaUserInterest.MetaId">

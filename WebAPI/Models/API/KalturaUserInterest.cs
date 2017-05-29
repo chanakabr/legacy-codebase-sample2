@@ -11,6 +11,14 @@ namespace WebAPI.Models.API
     public class KalturaUserInterest : KalturaOTTObject
     {
         /// <summary>
+        /// Identifier
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public string Id { get; set; }
+
+        /// <summary>
         /// Meta identifier
         /// </summary>
         [DataMember(Name = "metaId")]
