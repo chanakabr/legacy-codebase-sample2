@@ -538,7 +538,7 @@ namespace Core.Notification
                         if (episodesToRemove != null && episodesToRemove.Count > 0)
                         {
                             var episodesIdsToRemove = episodesToRemove.Select(e => long.Parse(e.AssetId));
-                            remindersIdsToRemove = remindersToRemove = reminders.Where(r => episodesIdsToRemove.Contains(r.Reference)).Select(r => (long)r.ID).ToList(); 
+                            remindersIdsToRemove = remindersToRemove = reminders.Where(r => episodesIdsToRemove.Contains(r.Reference)).Select(r => (long)r.ID).ToList();
                             userNotificationData.Reminders = userNotificationData.Reminders.Where(r => !remindersIdsToRemove.Contains(r.AnnouncementId)).ToList();
                         }
                     }
@@ -1584,24 +1584,23 @@ namespace Core.Notification
                             programNotificationTopics = program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList();
                     }
 
-
+                    // check if user requested an interest notification
                     if (programNotificationTopics != null)
                     {
                         foreach (var programNotificationTopic in programNotificationTopics)
                         {
                             // check if topic interest exists
                             string keyValueTopic = TopicInterestManager.GetInterestKeyValueName(programNotificationTopic.Key, programNotificationTopic.Value);
-                            InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, keyValueTopic);
-
+                            InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, keyValueTopic, eAssetTypes.EPG);
                             if (interestNotification == null)
                             {
                                 log.DebugFormat("No interest notification for topic key-value: {0}, partner ID: {1}", keyValueTopic, partnerId);
                                 continue;
                             }
 
-                            // send push interest
+                            // check if future message was not already sent and we only need to update
 
-                            // send inbox message
+                            // send rabbit
                         }
 
                     }

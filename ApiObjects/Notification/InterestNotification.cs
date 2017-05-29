@@ -23,6 +23,9 @@ namespace ApiObjects.Notification
         public MessageTemplateType TemplateType { get; set; }
 
         [DataMember]
+        public eAssetTypes AssetType { get; set; }
+
+        [DataMember]
         public long LastMessageSentDateSec { get; set; }
 
         [DataMember]

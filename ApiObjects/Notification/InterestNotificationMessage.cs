@@ -24,5 +24,8 @@ namespace ApiObjects.Notification
 
         [DataMember]
         public string TopicInterestsNotificationsId { get; set; }
+
+        [DataMember]
+        public int ReferenceAssetId { get; set; }
     }
 }
