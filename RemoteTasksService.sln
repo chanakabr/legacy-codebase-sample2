@@ -106,8 +106,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActionRuleHandler", "Action
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngagementHandler", "EngagementHandler\EngagementHandler.csproj", "{7F38AA35-1508-4699-AE07-4740D669BB0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduledPurchaseHandler", "ScheduledPurchaseHandler\ScheduledPurchaseHandler.csproj", "{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -696,18 +694,6 @@ Global
 		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F38AA35-1508-4699-AE07-4740D669BB0B}.Release|x86.ActiveCfg = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Basic|Any CPU.ActiveCfg = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Basic|Any CPU.Build.0 = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Basic|x86.ActiveCfg = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Local|Any CPU.ActiveCfg = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Local|Any CPU.Build.0 = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Local|x86.ActiveCfg = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7BFDF68C-5A48-4D5E-BC2A-CA98650EE71A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
