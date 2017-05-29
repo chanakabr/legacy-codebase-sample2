@@ -9784,7 +9784,7 @@ namespace Core.Api
             {
                 SearchHistory searchHistory = SearchHistory.Get(documentId);
 
-                if (searchHistory.userId != userId)
+                if (searchHistory == null || searchHistory.userId != userId)
                 {
                     status = new Status((int)eResponseStatus.ItemNotFound, "Could not find a search history item with this ID for this user");
                 }
