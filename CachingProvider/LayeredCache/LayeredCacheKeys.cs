@@ -245,7 +245,6 @@ namespace CachingProvider.LayeredCache
             return result;            
         }
 
-
         public static string GetAliasMappingFieldsInvalidationKey(int groupId)
         {
             return string.Format("AliasMappingFieldsInvalidationKey_{0}", groupId);
@@ -255,5 +254,30 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("AliasMappingFields_{0}", groupId);
         }
+
+        public static Dictionary<string, List<string>> GetRemindersInvalidationKeysMap(int groupId, List<long> reminderIds)
+        {
+            Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+            if (reminderIds != null && reminderIds.Count > 0)
+            {
+                reminderIds = reminderIds.Distinct().ToList();
+                foreach (long id in reminderIds)
+                {
+                    result.Add(GetRemindersKey(groupId, id), new List<string>() { GetSeriesRemindersInvalidationKey(groupId, id) });
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetRemindersKey(int groupId, long reminderId)
+        {
+            return string.Format("Reminder_groupId_{0}_id_{1}", groupId, reminderId);
+        }
+
+        public static string GetRemindersInvalidationKey(int groupId, long reminderId)
+        {
+            return string.Format("ReminderInvalidationKey_g_{0}_id_{1}", groupId, reminderId);
+        }  
     }
 }
