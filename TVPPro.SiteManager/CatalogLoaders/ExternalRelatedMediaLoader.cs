@@ -101,5 +101,46 @@ namespace TVPPro.SiteManager.CatalogLoaders
             }
             logger.Debug(sText.ToString());
         }
+
+
+        protected override object Process()
+        {
+            string cacheKey = GetLoaderCachekey();
+
+            if (m_oResponse is UnifiedSearchResponse)
+            {
+                UnifiedSearchResponse usr = (m_oResponse as UnifiedSearchResponse);
+                MediaIdsStatusResponse newResp = new MediaIdsStatusResponse()
+                {
+                    ExtensionData = usr.ExtensionData,
+                    m_lObj = usr.m_lObj,
+                    Status = usr.status,
+                    m_nTotalItems = usr.m_nTotalItems,
+                    m_nMediaIds = usr.searchResults.Select(x => new SearchResult() { assetID = int.Parse(x.AssetId), ExtensionData = x.ExtensionData, UpdateDate = x.m_dUpdateDate }).ToList()
+                };
+                m_oResponse = newResp;
+            }
+
+            if (m_oResponse != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds.Count > 0)
+            {
+                CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
+                m_oMediaCache = new MediaCache(((MediaIdsResponse)m_oResponse).m_nMediaIds, GroupID, m_sUserIP, m_oFilter);
+            }
+            else if (m_oResponse == null)// No Response from Catalog, gets medias from cache
+            {
+                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
+                if (m_oResponse != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds.Count > 0)
+                {
+                    m_oMediaCache = new MediaCache(((MediaIdsResponse)m_oResponse).m_nMediaIds, GroupID, m_sUserIP, m_oFilter);
+                }
+            }
+            if (m_oMediaCache != null)
+            {
+                m_oMediaCache.BuildRequest();
+                m_oResponse.m_lObj = (List<BaseObject>)m_oMediaCache.Execute();
+            }
+            return m_oResponse;// != null ? m_oResponse.m_lObj : null;
+
+        }
     }
 }
