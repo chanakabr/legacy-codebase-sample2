@@ -194,6 +194,7 @@ namespace ApiObjects.Response
         CDNPartnerSettingsNotFound = 5025,
         NoMetaToUpdate = 5026,
         NotaTopicInterestMeta = 5027,
+        UserInterestNotExist = 5028,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,

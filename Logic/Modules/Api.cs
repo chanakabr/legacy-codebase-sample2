@@ -1795,12 +1795,17 @@ namespace Core.Api
 
         public static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
         {
-            return Core.Api.api.AddUserInterest( groupId, userId, userInterest);
+            return Core.Api.api.AddUserInterest(groupId, userId, userInterest);
         }
 
         public static UserInterestResponseList GetUserInterests(int groupId, int userId)
         {
             return Core.Api.api.GetUserInterests(groupId, userId);
+        }
+
+        public static Status DeleteUserInterest(int groupId, int userId, string id)
+        {
+            return Core.Api.api.DeleteUserInterest(groupId, userId, id);
         }
     }
 }

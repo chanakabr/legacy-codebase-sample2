@@ -9355,7 +9355,7 @@ namespace Core.Api
                         {
                             meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
                             meta.Features = topicInterest.Features;
-                            meta.ParentMetaId = topicInterest.ParentMetaId;                            
+                            meta.ParentMetaId = topicInterest.ParentMetaId;
                         }
                     }
                 }
@@ -9830,6 +9830,22 @@ namespace Core.Api
             catch (Exception ex)
             {
                 log.ErrorFormat("Error getting user interest. groupId: {0} User: {1}, exception {2} ", groupId,userId, ex);
+            }
+
+            return response;
+        }
+
+        internal static Status DeleteUserInterest(int groupId, int userId, string id)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+
+            try
+            {
+                return TopicInterestManager.DeleteUserInterest(groupId, userId, id);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error remove user interest  from CB. User interest id {0}, exception {1} ", id, ex);
             }
 
             return response;

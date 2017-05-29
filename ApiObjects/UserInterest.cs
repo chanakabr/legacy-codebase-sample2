@@ -18,6 +18,7 @@ namespace ApiObjects
 
     public class UserInterest
     {
+        public string Id { get; set; }
         public string MetaId { get; set; }
         public UserInterestTopic Topic { get; set; }
     }

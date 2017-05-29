@@ -15,7 +15,7 @@ namespace APILogic.Notification
     public class TopicInterestManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private const string USER_INTEREST_NOT_EXIST = "User interest not exist";
 
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest userInterest)
         {
@@ -25,27 +25,33 @@ namespace APILogic.Notification
             bool updateIsNeeded = false;
             try
             {
+                // Validate data
+                // 1. validate user
+                // 2. validate with topic_interenst make sure that parent and child valid
+
+                // 3. check that userInterest not already exist
+
+
                 // Get user interests 
                 userInterests = InterestDal.GetUserInterest(partnerId, userId);
                 if (userInterests == null)
                 {
                     userInterests = new UserInterests() { PartnerId = partnerId, UserId = userId };
+                    userInterest.Id = Guid.NewGuid().ToString();
                     userInterests.UserInterestList.Add(userInterest);
                     updateIsNeeded = true;
                 }
                 else
                 {
-                    // Update with new interest
-                    string userInterestItemString = string.Empty;
                     string newUserInterestString = JsonConvert.SerializeObject(userInterest);
-                    foreach (var UserInterestItem in userInterests.UserInterestList)
+
+                    var userInterestItem = userInterests.UserInterestList.Where(x => JsonConvert.SerializeObject(x) == newUserInterestString).FirstOrDefault();
+
+                    if (userInterestItem == null)
                     {
-                        userInterestItemString = JsonConvert.SerializeObject(UserInterestItem);
-                        if (!newUserInterestString.Equals(userInterestItemString))
-                        {
-                            userInterests.UserInterestList.Add(userInterest);
-                            updateIsNeeded = true;
-                        }
+                        userInterest.Id = Guid.NewGuid().ToString();
+                        userInterests.UserInterestList.Add(userInterest);
+                        updateIsNeeded = true;
                     }
                 }
 
@@ -90,5 +96,56 @@ namespace APILogic.Notification
 
             return response;
         }
-    }
+
+        internal static Status DeleteUserInterest(int partnerId, int userId, string id)
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
+
+            UserInterests userInterests = null;
+            bool updateIsNeeded = false;
+            try
+            {
+                // Get user interests 
+                userInterests = InterestDal.GetUserInterest(partnerId, userId);
+                if (userInterests == null)
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserInterestNotExist, USER_INTEREST_NOT_EXIST);
+                    return response;
+                }
+                else
+                {
+                    foreach (var UserInterestItem in userInterests.UserInterestList)
+                    {
+                        if (UserInterestItem.Id == id)
+                        {
+                            userInterests.UserInterestList.Remove(UserInterestItem);
+                            updateIsNeeded = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Set CB with new interest
+                if (updateIsNeeded)
+                {
+                    if (!InterestDal.SetUserInterest(userInterests))
+                        log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+                }
+                else
+                {
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.UserInterestNotExist, USER_INTEREST_NOT_EXIST);
+                    return response;
+                }
+
+                response.Code = (int)eResponseStatus.OK;
+                response.Message = eResponseStatus.OK.ToString();
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterests), ex);
+            }
+
+            return response;
+        }
+    }     
 }
