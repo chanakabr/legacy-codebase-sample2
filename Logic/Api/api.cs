@@ -8729,7 +8729,7 @@ namespace Core.Api
         public static CDNPartnerSettingsResponse UpdateCDNPartnerSettings(int groupId, CDNPartnerSettings settings)
         {
             CDNPartnerSettingsResponse response = new CDNPartnerSettingsResponse();
-            
+
             try
             {
                 List<int> adaptersIds = new List<int>();
@@ -9342,17 +9342,15 @@ namespace Core.Api
                 // Get all group_topic_options according to MetaName
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
-                    List<string> metasName = response.MetaList.Select(x => x.Name).ToList();
-                    int currentGroupId = response.MetaList.Select(x => x.PartnerId).FirstOrDefault();
-                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(currentGroupId, metasName);
-                    if (topicInterestList != null)
+                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterest(groupId);
+                    Meta topicInterestMeta;
+                    foreach (var meta in response.MetaList)
                     {
-                        Meta meta;
-                        foreach (Meta topicInterest in topicInterestList)
+                        topicInterestMeta = topicInterestList.Where(x => x.MetaId.Equals(meta.MetaId)).FirstOrDefault();
+                        if (topicInterestMeta != null)
                         {
-                            meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
-                            meta.Features = topicInterest.Features;
-                            meta.ParentMetaId = topicInterest.ParentMetaId;
+                            meta.Features = topicInterestMeta.Features;
+                            meta.ParentMetaId = topicInterestMeta.ParentMetaId;
                         }
                     }
                 }
@@ -9798,6 +9796,6 @@ namespace Core.Api
             }
 
             return status;
-        }       
+        }
     }
 }
