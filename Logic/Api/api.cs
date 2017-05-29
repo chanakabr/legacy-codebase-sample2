@@ -9795,7 +9795,7 @@ namespace Core.Api
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Error when cleaning search history. groupId = {0}, userId = {1}; ex = {2}",
+                log.ErrorFormat("Error when deleting search history. groupId = {0}, userId = {1}; ex = {2}",
                     groupId, userId, ex);
                 status = new Status((int)eResponseStatus.Error);
             }
