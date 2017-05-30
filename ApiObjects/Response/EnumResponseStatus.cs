@@ -78,6 +78,8 @@ namespace ApiObjects.Response
         DefaultUserCannotBeDeleted = 2030,
         ExclusiveMasterUserCannotBeDeleted = 2031,
         ItemNotFound = 2032,
+        UserInterestNotExist = 2033,
+        UserInterestAlreadyExist = 2034,
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
@@ -194,7 +196,6 @@ namespace ApiObjects.Response
         CDNPartnerSettingsNotFound = 5025,
         NoMetaToUpdate = 5026,
         NotaTopicInterestMeta = 5027,
-        UserInterestNotExist = 5028,
 
         // Billing 6000 - 6999
         IncorrectPrice = 6000,
@@ -308,7 +309,7 @@ namespace ApiObjects.Response
         EngagementIllegalSendTime = 8035,
         FutureScheduledEngagementDetected = 8036,
         EngagementTemplateNotFound = 8037,
-        EngagementScheduleWithoutAdapter = 8038,
+        EngagementScheduleWithoutAdapter = 8038,        
 
         //Pricing 9000-9999
         InvalidPriceCode = 9000,

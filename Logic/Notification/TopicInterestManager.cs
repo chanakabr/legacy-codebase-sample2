@@ -27,8 +27,7 @@ namespace APILogic.Notification
 
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest userInterest)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
+            ApiObjects.Response.Status response = null;
             UserInterests userInterests = null;
             bool updateIsNeeded = false;
             try
@@ -36,15 +35,18 @@ namespace APILogic.Notification
                 // Validate data
                 // 1. validate user
 
-                // 2. validate with topic_interenst make sure that parent and child valid
+                // 2. validate with topic_interest make sure that parent and child valid
                 List<Meta> groupsMeta = CatalogDAL.GetTopicInterests(partnerId);
-
-
-                // 3. check that userInterest not already exist
                 bool a = ValidateInterestNode(userInterest, groupsMeta);
 
+                Meta groupTopicInterest = groupsMeta.Where(x => x.MetaId == userInterest.MetaId).FirstOrDefault();
+                if (groupTopicInterest == null)
+                {
+                    log.ErrorFormat("UserInterest meta not recognize at group topic interest groupId = {0}, userInterest = {1}", partnerId, JsonConvert.SerializeObject(userInterest));
+                    return new Status((int)eResponseStatus.NotaTopicInterestMeta, "Not a topic interest meta");
+                }
 
-                // Get user interests 
+                // 3. check that userInterest does not already exist 
                 userInterests = InterestDal.GetUserInterest(partnerId, userId);
                 if (userInterests == null)
                 {
@@ -55,16 +57,18 @@ namespace APILogic.Notification
                 }
                 else
                 {
-                    string newUserInterestString = JsonConvert.SerializeObject(userInterest);
-
-                    var userInterestItem = userInterests.UserInterestList.Where(x => JsonConvert.SerializeObject(x) == newUserInterestString).FirstOrDefault();
-
-                    if (userInterestItem == null)
+                    foreach (var currentUserInterest in userInterests.UserInterestList)
                     {
-                        userInterest.Id = Guid.NewGuid().ToString();
-                        userInterests.UserInterestList.Add(userInterest);
-                        updateIsNeeded = true;
+                        if (currentUserInterest.Equals(userInterest))
+                        {
+                            return new Status() { Code = (int)eResponseStatus.UserInterestAlreadyExist, Message = "User interest already exist" };
+                        }
                     }
+
+                    // UserInterest should ne added
+                    userInterest.Id = Guid.NewGuid().ToString();
+                    userInterests.UserInterestList.Add(userInterest);
+                    updateIsNeeded = true;
                 }
 
                 // Set CB with new interest
@@ -74,55 +78,90 @@ namespace APILogic.Notification
                         log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
                 }
 
-
-                //After validation
-                // 1  feature - allow _notifaction
-                // if true
-                // 2 check if topic exist 
-                // get the name userInterest.MetaId
-                string metaName = string.Empty;
-                string metaNameValue = string.Format("{0}_{1}", metaName, userInterest.Topic.Value);
-
-                InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, metaNameValue, eAssetTypes.MEDIA);
-                if (interestNotification == null)
+                // Send notification incase feature is ENABLED_NOTIFICATION                
+                if (groupTopicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
                 {
-                    // create
-                }
+                    // get interestNotification - according to userInterest
+                    string topicNameValue;
+                    InterestNotification interestNotification;
+                    response = GetInterestNotification(partnerId, userInterest, groupTopicInterest, out topicNameValue, out interestNotification);
 
-                // if partner push enable 
-                //  true:
-                //
+                    if (response.Code != (int)eResponseStatus.OK)
+                        return response;
 
-                // create Amazon topic 
-                string externalId = string.Empty;
-                if (NotificationSettings.IsPartnerPushEnabled(partnerId))
-                {
-                    if (string.IsNullOrEmpty(interestNotification.ExternalId))
+                    // create Amazon topic in case partner push is enabled 
+                    if (NotificationSettings.IsPartnerPushEnabled(partnerId))
                     {
-                        externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", metaNameValue));
-                        if (string.IsNullOrEmpty(externalId))
+                        // create Amazon topic 
+                        string externalId = string.Empty;
+                        if (string.IsNullOrEmpty(interestNotification.ExternalId))
                         {
-                            log.DebugFormat("failed to create announcement groupID = {0}, metaNameValue = {1}", partnerId, metaNameValue);
-                            return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
+                            //TODO: check with Amishai metaNameValue or topicNameValue 
+                            externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", topicNameValue));
+                            if (string.IsNullOrEmpty(externalId))
+                            {
+                                log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, topicNameValue);
+                                return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
+                            }
+
+                            // update table with external id
+                            interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
+                            if (interestNotification == null)
+                            {
+                                log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
+                            }
                         }
 
-                        // update table with external id
+                        // register user to topic
+
 
                     }
-
-                    // register user to topic
-
                 }
 
-                response.Code = (int)eResponseStatus.OK;
-                response.Message = eResponseStatus.OK.ToString();
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterests), ex);
             }
 
-            return response;
+            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+        }
+
+        private static ApiObjects.Response.Status GetInterestNotification(int partnerId, UserInterest userInterest, Meta groupTopicInterest,
+            out string topicNameValue, out InterestNotification interestNotification)
+        {
+            topicNameValue = string.Format("{0}_{1}", groupTopicInterest.Name, userInterest.Topic.Value);
+            interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, groupTopicInterest.AssetType);
+
+            if (interestNotification == null)
+            {
+                // select meesageTempalte
+                MessageTemplateType messageTemplateType;
+                switch (groupTopicInterest.AssetType)
+                {
+                    case eAssetTypes.EPG:
+                        messageTemplateType = MessageTemplateType.InterestEPG;
+                        break;
+                    case eAssetTypes.MEDIA:
+                        messageTemplateType = MessageTemplateType.InterestVod;
+                        break;
+                    case eAssetTypes.UNKNOWN:
+                    case eAssetTypes.NPVR:
+                    default:
+                        log.ErrorFormat("Asset type is not recognized. TopicInterest : {0}", JsonConvert.SerializeObject(groupTopicInterest));
+                        return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                }
+                //TODO: talks with amishai topicInterestId (0)
+                interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue, 0, groupTopicInterest.AssetType);
+
+                if (interestNotification == null)
+                {
+                    log.ErrorFormat("Error to create DB interestNotification. TopicInterest : {0}", JsonConvert.SerializeObject(groupTopicInterest));
+                    return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                }
+            }
+
+            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
         private static bool ValidateInterestNode(UserInterest userInterest, List<Meta> groupsMeta)
