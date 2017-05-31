@@ -1910,8 +1910,8 @@ namespace Core.ConditionalAccess
         ///transactionType : Package type. Possible values: PPV, Subscription, Collection (eTransactionType not include prepaid)
         ///coupon :	A valid coupon to apply for this purchase
 
-        public static TransactionResponse Purchase(int groupID, string siteguid, long householdId, double price, string currency, Int32 contentId,
-            int productId, eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGatewayId, int paymentMethodId, string adapterData)
+        public static TransactionResponse Purchase(int groupID, string siteguid, long householdId, double price, string currency, Int32 contentId, int productId, eTransactionType transactionType,
+                                                    string coupon, string userIp, string deviceName, int paymentGatewayId, int paymentMethodId, string adapterData)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -1924,7 +1924,8 @@ namespace Core.ConditionalAccess
 
             if (casImpl != null)
             {
-                response = casImpl.Purchase(siteguid, householdId, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGatewayId, paymentMethodId, adapterData);
+                response = casImpl.Purchase(siteguid, householdId, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName, paymentGatewayId,
+                                            paymentMethodId, adapterData);
                 if (response == null)
                 {
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -3009,9 +3010,8 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static TransactionResponse SubscriptionSetModifySubscription(int groupId, string siteguid, long housholdId, double price, string currency, int contentId, int productId,
-                                                                            eTransactionType transactionType, string coupon, string userIp, string udid, int paymentGatewayId, int paymentMethodId,
-                                                                            string adapterData, SubscriptionSetModifyPurchaseType purchaseType)
+        public static TransactionResponse SubscriptionSetModifySubscription(int groupId, string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp,
+                                                                            string udid, int paymentGatewayId, int paymentMethodId, string adapterData, bool isUpgrade)
         {
             TransactionResponse response = new TransactionResponse();
 
@@ -3024,13 +3024,51 @@ namespace Core.ConditionalAccess
 
             if (casImpl != null)
             {
-                response = casImpl.SubscriptionSetModifySubscription(siteguid, housholdId, price, currency, contentId, productId, transactionType, coupon, userIp, udid,
-                                                                    paymentGatewayId, paymentMethodId, adapterData, purchaseType);
+                response = casImpl.SubscriptionSetModifySubscription(siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId, paymentMethodId, adapterData, isUpgrade);
                 if (response == null)
                 {
                     response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 }
             }
+            return response;
+        }
+
+        public static bool Downgrade(int groupId, string siteguid, long subscriptionSetModifyDetailsId)
+        {
+            bool response = false;
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupId);
+
+            if (casImpl != null)
+            {
+                bool shouldUpdateTaskStatus = true;
+                try
+                {
+                    response = casImpl.Downgrade(siteguid, subscriptionSetModifyDetailsId);
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error while trying to Downgrade", ex);
+                }
+            }
+
+            return response;
+        }
+
+        public static Status CancelScheduledSubscription(int groupId, long scheduledSubscriptionId)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+            }
+            catch (Exception ex)
+            {
+                response = new Status((int)eResponseStatus.Error, "Error");
+                log.Error(string.Format("Failed CancelScheduledSubscription, groupId: {0}, scheduledSubscriptionId: {1}", groupId, scheduledSubscriptionId), ex);
+            }
+
             return response;
         }
 

@@ -3,6 +3,7 @@ using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
+using ApiObjects.SubscriptionSet;
 using CachingProvider.LayeredCache;
 using Core.Pricing;
 using DAL;
@@ -23,8 +24,7 @@ namespace Core.ConditionalAccess
         #region Consts
 
         private const string ILLEGAL_CONTENT_ID = "Illegal content ID";
-        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";
-        private const string ROUTING_KEY_PROCESS_SCHEDULED_PURCHASE = "PROCESS_SCHEDULED_PURCHASE\\{0}";
+        protected const string ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION = "PROCESS_RENEW_SUBSCRIPTION\\{0}";        
 
         #endregion
 
@@ -36,32 +36,20 @@ namespace Core.ConditionalAccess
 
         #region Static Methods
 
-        internal static TransactionResponse SubscriptionSetModifySubscription(BaseConditionalAccess cas, int groupId, string siteguid, long domainId, double price, string currency,
-                                                                              int contentId, int productId, eTransactionType transactionType, string couponCode, string userIp, string udid, int paymentGatewayId,
-                                                                              int paymentMethodId, string adapterData, SubscriptionSetModifyPurchaseType purchaseType)
+        internal static TransactionResponse SubscriptionSetModifySubscription(BaseConditionalAccess cas, int groupId, string userId, long domainId, double price, string currencyCode, int productId,
+                                                                              string couponCode, string userIp, string udid, int paymentGatewayId, int paymentMethodId, string adapterData, bool isUpgrade)
         {
             TransactionResponse response = new TransactionResponse((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // log request
-            string logString = string.Format("SubscriptionSetModifySubscription request: siteguid {0}, household {1}, price {2}, currency {3}, contentId {4}, " +
-                "productId {5}, productType {6}, coupon {7}, userIp {8}, deviceName {9}, paymentGwId {10}, paymentMethodId {11}, adapterData {12}, purchaseType {13}",
-                !string.IsNullOrEmpty(siteguid) ? siteguid : string.Empty,     // {0}
-                domainId,                                                     // {1}
-                price,                                                         // {2}  
-                !string.IsNullOrEmpty(currency) ? currency : string.Empty,     // {3}
-                contentId,                                                     // {4}
-                productId,                                                     // {5}   
-                transactionType.ToString(),                                    // {6}
-                !string.IsNullOrEmpty(couponCode) ? couponCode : string.Empty,         // {7}
-                !string.IsNullOrEmpty(userIp) ? userIp : string.Empty,         // {8}
-                !string.IsNullOrEmpty(udid) ? udid : string.Empty,             // {9}
-                paymentGatewayId, paymentMethodId, adapterData,                 // {10,11,12}
-                purchaseType);                                                 // {13}
-
-            log.Debug(logString);
+            string logString = string.Format(@"SubscriptionSetModifySubscription request: groupId {0}, userId {1}, domainId {2}, price {3}, currencyCode {4}, productId {5}, couponCode {6}, userIp {7}, udid {8},
+                                            paymentGatewayId {9}, paymentMethodId {10}, adapterData {11}, isUpgrade {12}", groupId, !string.IsNullOrEmpty(userId) ? userId : string.Empty, domainId, price,
+                                            !string.IsNullOrEmpty(currencyCode) ? currencyCode : string.Empty, productId, !string.IsNullOrEmpty(couponCode) ? couponCode : string.Empty,
+                                            !string.IsNullOrEmpty(userIp) ? userIp : string.Empty, !string.IsNullOrEmpty(udid) ? udid : string.Empty, paymentGatewayId, paymentMethodId, adapterData, isUpgrade);
+            log.DebugFormat(logString);
 
             // validate siteguid
-            if (string.IsNullOrEmpty(siteguid))
+            if (string.IsNullOrEmpty(userId))
             {
                 response.Status.Message = "Illegal user ID";
                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
@@ -69,7 +57,7 @@ namespace Core.ConditionalAccess
             }
 
             // validate currency
-            if (string.IsNullOrEmpty(currency))
+            if (string.IsNullOrEmpty(currencyCode))
             {
                 response.Status.Message = "Illegal currency";
                 log.ErrorFormat("Error: {0}, data: {1}", response.Status.Message, logString);
@@ -88,7 +76,7 @@ namespace Core.ConditionalAccess
             {
                 // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
-                userValidStatus = Utils.ValidateUser(groupId, siteguid, ref domainId);
+                userValidStatus = Utils.ValidateUser(groupId, userId, ref domainId);
 
                 if (userValidStatus != ResponseStatus.OK)
                 {
@@ -133,66 +121,96 @@ namespace Core.ConditionalAccess
                 Subscription subscription = null;
                 bool isGiftCard = false;
                 Price priceResponse = null;
-                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
-                    ref priceReason, ref subscription, country, string.Empty, udid, userIp, currency, true);
+                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), userId, couponCode,
+                    ref priceReason, ref subscription, country, string.Empty, udid, userIp, currencyCode, true);
 
                 if (subscription == null)
                 {
                     response.Status.Message = "ProductId doesn't exist";
                     return response;
                 }
+
+                if (!subscription.m_bIsRecurring)
+                {
+                    response.Status = new Status((int)eResponseStatus.SubscriptionNotRenewable, eResponseStatus.SubscriptionNotRenewable.ToString());
+                    return response;
+                }
                 
-                if (subscription.SubscriptionSetIdsToPriority == null || subscription.SubscriptionSetIdsToPriority.Count > 0)
+                if (subscription.SubscriptionSetIdsToPriority == null || subscription.SubscriptionSetIdsToPriority.Count == 0)
                 {
                     response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionInTheSameSubscriptionSet,
-                                                "Can only upgrade or downgrade subscription in the same subscriptionSet, please use Purchase");
+                                                "Can only upgrade or downgrade subscription in the same subscriptionSet");
+                    return response;
                 }
 
                 Subscription subscriptionInTheSameSet = null;
                 KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
-                Core.ConditionalAccess.Utils.UserBundlePurchase oldSubscriptionPurchaseDetails = null;
-                if (!IsEntitlementsContainSameSetSubscription(groupId, domainId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref oldSubscriptionPurchaseDetails))
+                Core.ConditionalAccess.Utils.UserBundlePurchase previousSubsriptionPurchaseDetails = null;
+                if (!IsEntitlementsContainSameSetSubscription(groupId, domainId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref previousSubsriptionPurchaseDetails))
                 {
                     response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionInTheSameSubscriptionSet,
-                    "Can only upgrade or downgrade subscription in the same subscriptionSet, please use Purchase");
+                    "Can only upgrade or downgrade subscription in the same subscriptionSet");
+                    return response;
                 }
-
-                /********************************************* add validation for currency***********************************
-                 ************************************************************************************************************/
 
                 Dictionary<long, int> subscriptionInTheSameSetSubscriptionIds = subscriptionInTheSameSet.GetSubscriptionSetIdsToPriority();
-                if (purchaseType == SubscriptionSetModifyPurchaseType.Upgrade && setAndPriority.Value <= subscriptionInTheSameSetSubscriptionIds[setAndPriority.Key])
+                if (isUpgrade && setAndPriority.Value <= subscriptionInTheSameSetSubscriptionIds[setAndPriority.Key])
                 {
-                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority, eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority.ToString());                        
+                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority, eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority.ToString());
+                    return response;
                 }
-                else if (purchaseType == SubscriptionSetModifyPurchaseType.Downgrade && setAndPriority.Value > subscriptionInTheSameSetSubscriptionIds[setAndPriority.Key])
+                else if (!isUpgrade && setAndPriority.Value > subscriptionInTheSameSetSubscriptionIds[setAndPriority.Key])
                 {
                     response.Status = new Status((int)eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority, eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority.ToString());
+                    return response;
                 }
 
-                Status cancelRenewalStatus = null;
+                if (!Utils.IsFirstSubscriptionSetModify(domainId, previousSubsriptionPurchaseDetails.sBundleCode))
+                {                    
+                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce, eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce.ToString());
+                    return response;
+                }
+
+                #region Downgrade
 
                 // downgrade logic
-                if (purchaseType == SubscriptionSetModifyPurchaseType.Downgrade)
+                if (!isUpgrade)
                 {
                     // cancel existing subscription renewal
-                    cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_ProductCode);
-                    if (cancelRenewalStatus == null && cancelRenewalStatus.Code != (int)eResponseStatus.OK)
+                    Status cancelRenewalStatus = cas.CancelSubscriptionRenewal((int)domainId, subscriptionInTheSameSet.m_sObjectCode);
+                    if (cancelRenewalStatus == null || cancelRenewalStatus.Code != (int)eResponseStatus.OK)
                     {
-                        log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_ProductCode);
+                        log.ErrorFormat("Failed cas.CancelSubscriptionRenewal for domainId: {0}, subscriptionCode: {1}", domainId, subscriptionInTheSameSet.m_sObjectCode);
                         response.Status = cancelRenewalStatus != null ? cancelRenewalStatus : new Status((int)eResponseStatus.Error, "Failed while canceling renewal");
+                        return response;
+                    }
+
+                    long subscriptionSetModifyDetailsId = Utils.InsertSubscriptionSetModifyDetails(groupId, domainId, previousSubsriptionPurchaseDetails.nPurchaseId, productId, SubscriptionSetModifyType.Downgrade);
+                    if (subscriptionSetModifyDetailsId <= 0)
+                    {
+                        log.ErrorFormat("Failed to insert subscription set modify details, groupId: {0}, domainId: {1}, oldSubscriptionPurchaseDetails.nPurchaseId: {2}, productId: {3}, type: {4}",
+                                        groupId, domainId, previousSubsriptionPurchaseDetails.nPurchaseId, productId, SubscriptionSetModifyType.Downgrade.ToString());
+                        return response;
+                    }
+                    
+                    SubscriptionSetDowngradeDetails subscriptionSetDowngradeDetails = new SubscriptionSetDowngradeDetails(subscriptionSetModifyDetailsId, groupId, userId, domainId, productId, udid, userIp,
+                                                                                                                            price, currencyCode, couponCode, paymentGatewayId, paymentMethodId, adapterData,
+                                                                                                                            previousSubsriptionPurchaseDetails.dtEndDate);
+                    if (!Utils.InsertSubscriptionSetDowngradeDetails(subscriptionSetDowngradeDetails))
+                    {
+                        log.ErrorFormat("Failed to insert subscription set downgrade details, groupId: {0}, domainId: {1}, subscriptionSetModifyDetailsId: {2}", groupId, domainId, subscriptionSetModifyDetailsId);
                         return response;
                     }
 
                     // enqueue scheduled purchase transaction
                     GenericCeleryQueue queue = new GenericCeleryQueue();
-                    ScheduledPurchaseData data = new ScheduledPurchaseData(groupId, siteguid, domainId, price, currency, 0, productId, eTransactionType.Subscription, couponCode, userIp,
-                                                                            udid, paymentGatewayId, paymentMethodId, adapterData, oldSubscriptionPurchaseDetails.dtEndDate.AddMinutes(1));
-                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_SCHEDULED_PURCHASE, groupId));
+                    RenewTransactionData data = new RenewTransactionData(groupId, userId, subscriptionSetModifyDetailsId, string.Empty, 0,
+                                                                         previousSubsriptionPurchaseDetails.dtEndDate.AddMinutes(-1), eSubscriptionRenewRequestType.Downgrade);
+                    bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
                     if (!enqueueSuccessful)
                     {
-                        log.ErrorFormat("Failed enqueue of scheduled purchase {0}", data);
-                        response.Status = new Status((int)eResponseStatus.Error, "Failed to enqueue scheduled purchase");                
+                        log.ErrorFormat("Failed enqueue of subscription set downgrade scheduled purchase {0}", data);
+                        response.Status = new Status((int)eResponseStatus.Error, "Failed to enqueue subscription set downgrade scheduled purchase");                
                     }
                     else
                     {
@@ -203,9 +221,25 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
+                #endregion
+
+                string previousSubscriptionCurrencyCode = Utils.GetCurrencyCodeOfPurchaseByPurchaseId(previousSubsriptionPurchaseDetails.nPurchaseId);
+                if (string.IsNullOrEmpty(previousSubscriptionCurrencyCode))
+                {
+                    log.ErrorFormat("Failed to get previous subscription purchase currency code for groupId: {0}, purchaseId: {1}", groupId, previousSubsriptionPurchaseDetails.nPurchaseId);
+                        response.Status = new Status((int)eResponseStatus.Error, "Failed to get previous subscription currency code");
+                }
+
+                if (previousSubscriptionCurrencyCode != currencyCode)
+                {
+                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription,
+                                                eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription.ToString());
+                    return response;
+                }
+
                 // upgrade logic
                 double upgradePriceToAdd = 0;
-                if (!CalculateUpgradePriceToAdd(cas, domainId, subscriptionInTheSameSet, subscription, oldSubscriptionPurchaseDetails, ref upgradePriceToAdd))
+                if (!CalculateUpgradePriceToAdd(cas, domainId, subscriptionInTheSameSet, subscription, previousSubsriptionPurchaseDetails, ref upgradePriceToAdd))
                 {
                     log.ErrorFormat("Failed upgrading subscription, domainId: {0}, oldSubscriptionId: {1}, newSubscriptionId: {2}", domainId, subscriptionInTheSameSet.m_ProductCode, productId);
                     response.Status = new Status((int)eResponseStatus.Error, "Failed calculating upgrade price");
@@ -224,7 +258,7 @@ namespace Core.ConditionalAccess
                         m_dPrice = 0.0,
                         m_oCurrency = new Currency()
                         {
-                            m_sCurrencyCD3 = currency
+                            m_sCurrencyCD3 = currencyCode
                         }
                     };
                 }
@@ -236,10 +270,10 @@ namespace Core.ConditionalAccess
                     // item is for purchase
                     if (priceResponse != null &&
                         priceResponse.m_dPrice == price &&
-                        priceResponse.m_oCurrency.m_sCurrencyCD3 == currency)
+                        priceResponse.m_oCurrency.m_sCurrencyCD3 == currencyCode)
                     {
                         // price is validated, create custom data
-                        string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, siteguid, price, currency,
+                        string customData = cas.GetCustomDataForSubscription(subscription, null, productId.ToString(), string.Empty, userId, price, currencyCode,
                                                                             couponCode, userIp, country, string.Empty, udid, string.Empty, string.Empty, false);
 
                         // create new GUID for billing transaction
@@ -248,12 +282,12 @@ namespace Core.ConditionalAccess
                         // purchase
                         if (couponFullDiscount || isGiftCard)
                         {
-                            response = HandleFullCouponPurchase(cas, groupId, siteguid, price, currency, userIp,
+                            response = HandleFullCouponPurchase(cas, groupId, userId, price, currencyCode, userIp,
                                 customData, productId, eTransactionType.Subscription, billingGuid, 0, isGiftCard);
                         }
                         else
                         {
-                            response = HandlePurchase(cas, groupId, siteguid, domainId, price, currency, userIp, customData, productId,
+                            response = HandlePurchase(cas, groupId, userId, domainId, price, currencyCode, userIp, customData, productId,
                                                       eTransactionType.Subscription, billingGuid, paymentGatewayId, 0, paymentMethodId, adapterData);
                         }
                         if (response != null &&
@@ -279,13 +313,13 @@ namespace Core.ConditionalAccess
 
                                 // grant entitlement
                                 bool handleBillingPassed =
-                                    cas.HandleSubscriptionBillingSuccess(ref response, siteguid, domainId, subscription, price, currency, couponCode,
+                                    cas.HandleSubscriptionBillingSuccess(ref response, userId, domainId, subscription, price, currencyCode, couponCode,
                                         userIp, country, udid, long.Parse(response.TransactionID), customData, productId, billingGuid.ToString(),
                                         false, subscription.m_bIsRecurring, entitlementDate, ref purchaseID, ref endDate, SubscriptionPurchaseStatus.OK);
 
                                 if (handleBillingPassed && endDate.HasValue)
                                 {
-                                    cas.WriteToUserLog(siteguid, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
+                                    cas.WriteToUserLog(userId, string.Format("Subscription Purchase, productId:{0}, PurchaseID:{1}, BillingTransactionID:{2}",
                                         productId, purchaseID, response.TransactionID));
 
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
@@ -330,7 +364,7 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, siteguid, domainId, purchaseID, billingGuid);
+                                            PurchaseManager.SendReminderEmails(cas, groupId, endDateUnix, nextRenewalDate, userId, domainId, purchaseID, billingGuid);
                                         }
 
                                         // enqueue renew transaction
@@ -338,7 +372,7 @@ namespace Core.ConditionalAccess
 
                                         RenewTransactionsQueue queue = new RenewTransactionsQueue();
 
-                                        RenewTransactionData data = new RenewTransactionData(groupId, siteguid, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
+                                        RenewTransactionData data = new RenewTransactionData(groupId, userId, purchaseID, billingGuid, endDateUnix, nextRenewalDate);
                                         bool enqueueSuccessful = queue.Enqueue(data, string.Format(ROUTING_KEY_PROCESS_RENEW_SUBSCRIPTION, groupId));
 
                                         if (!enqueueSuccessful)
@@ -359,7 +393,7 @@ namespace Core.ConditionalAccess
                                     {
                                         {"SubscriptionCode", productId},
                                         {"BillingTransactionID", response.TransactionID},
-                                        {"SiteGUID", siteguid},
+                                        {"SiteGUID", userId},
                                         {"PurchaseID", purchaseID},
                                         {"CouponCode", couponCode},
                                         {"CustomData", customData}
@@ -804,7 +838,7 @@ namespace Core.ConditionalAccess
                 Subscription subscription = null;
 
                 bool isGiftCard = false;
-                Price priceResponse = null;
+                Price priceResponse = null;                
 
                 priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), siteguid, couponCode,
                     ref priceReason, ref subscription, country, string.Empty, deviceName, userIp, currency);
@@ -1455,6 +1489,11 @@ namespace Core.ConditionalAccess
         }
 
         #endregion        
+    
+        public static bool Downgrade(string siteguid, long subscriptionSetModifyDetailsId)
+        {
+            throw new NotImplementedException();
+        }
 
     }
 }

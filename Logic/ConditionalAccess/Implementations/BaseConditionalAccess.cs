@@ -1768,6 +1768,12 @@ namespace Core.ConditionalAccess
 									};
 
 									EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData);
+
+                                    string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(p_nDomainId);
+                                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                    {
+                                        log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
+                                    }
 								}
 								else
 								{
@@ -10817,7 +10823,8 @@ namespace Core.ConditionalAccess
 		/// Purchase
 		/// </summary>
 		public virtual TransactionResponse Purchase(string siteguid, long household, double price, string currency, int contentId, int productId,
-												 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId, int paymentMethodId, string adapterData)
+												 eTransactionType transactionType, string coupon, string userIp, string deviceName, int paymentGwId,
+                                                int paymentMethodId, string adapterData)
 		{
 			return PurchaseManager.Purchase(this, this.m_nGroupID, siteguid, household, price, currency, contentId, productId, transactionType, coupon, userIp, deviceName,
 				paymentGwId, paymentMethodId, adapterData);
@@ -15615,12 +15622,16 @@ namespace Core.ConditionalAccess
 			return EntitelemantManager.GetCompensation(this, m_nGroupID, compensationId);
 		}
 
-        public virtual TransactionResponse SubscriptionSetModifySubscription(string siteguid, long housholdId, double price, string currency, int contentId, int productId,
-                                                                             eTransactionType transactionType, string coupon, string userIp, string udid, int paymentGatewayId,
-                                                                             int paymentMethodId, string adapterData, SubscriptionSetModifyPurchaseType purchaseType)
+        public virtual TransactionResponse SubscriptionSetModifySubscription(string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp, string udid,
+                                                                            int paymentGatewayId, int paymentMethodId, string adapterData, bool isUpgrade)
         {
-            return PurchaseManager.SubscriptionSetModifySubscription(this, this.m_nGroupID, siteguid, housholdId, price, currency, contentId, productId, transactionType, coupon,
-                                                                    userIp, udid, paymentGatewayId, paymentMethodId, adapterData, purchaseType);
+            return PurchaseManager.SubscriptionSetModifySubscription(this, this.m_nGroupID, siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId,
+                                                                    paymentMethodId, adapterData, isUpgrade);
+        }
+
+        public bool Downgrade(string siteguid, long subscriptionSetModifyDetailsId)
+        {
+            return PurchaseManager.Downgrade(siteguid, subscriptionSetModifyDetailsId);
         }
 
     }
