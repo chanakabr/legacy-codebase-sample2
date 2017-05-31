@@ -1,7 +1,6 @@
 ﻿using AdapterControllers;
 using ApiLogic;
 using APILogic;
-using APILogic.Notification;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -21,10 +20,8 @@ using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Pricing;
-using DAL;
 using EpgBL;
 using KLogMonitor;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
 using QueueWrapper.Queues.QueueObjects;
@@ -8732,7 +8729,7 @@ namespace Core.Api
         public static CDNPartnerSettingsResponse UpdateCDNPartnerSettings(int groupId, CDNPartnerSettings settings)
         {
             CDNPartnerSettingsResponse response = new CDNPartnerSettingsResponse();
-            
+
             try
             {
                 List<int> adaptersIds = new List<int>();
@@ -9342,20 +9339,18 @@ namespace Core.Api
                     }
                 }
 
-                // Get all group_topic_options according to MetaName
+                //// Get all group_topic_options according to MetaName
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
-                    List<string> metasName = response.MetaList.Select(x => x.Name).ToList();
-                    int currentGroupId = response.MetaList.Select(x => x.PartnerId).FirstOrDefault();
-                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterestList(currentGroupId, metasName);
-                    if (topicInterestList != null)
+                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterests(groupId);
+                    Meta topicInterestMeta;
+                    foreach (var meta in response.MetaList)
                     {
-                        Meta meta;
-                        foreach (Meta topicInterest in topicInterestList)
+                        topicInterestMeta = topicInterestList.Where(x => x.MetaId.Equals(meta.MetaId)).FirstOrDefault();
+                        if (topicInterestMeta != null)
                         {
-                            meta = response.MetaList.Where(x => x.Name == topicInterest.Name).First();
-                            meta.Features = topicInterest.Features;
-                            meta.ParentMetaId = topicInterest.ParentMetaId;                            
+                            meta.Features = topicInterestMeta.Features;
+                            meta.ParentMetaId = topicInterestMeta.ParentMetaId;
                         }
                     }
                 }
@@ -9801,38 +9796,6 @@ namespace Core.Api
             }
 
             return status;
-        }
-
-        internal static ApiObjects.Response.Status AddUserInterest(int groupId, int userId, UserInterest userInterest)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-
-            try
-            {
-                return TopicInterestManager.AddUserInterest(groupId, userId, userInterest);                    
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error inserting user interest  into CB. User interest {0}, exception {1} ", JsonConvert.SerializeObject(userInterest), ex);
-            }
-
-            return response;
-        }
-
-        internal static UserInterestResponseList GetUserInterests(int groupId, int userId)
-        {
-            UserInterestResponseList response = new UserInterestResponseList() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
-
-            try
-            {
-                return TopicInterestManager.GetUserInterests(groupId, userId);
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error getting user interest. groupId: {0} User: {1}, exception {2} ", groupId,userId, ex);
-            }
-
-            return response;
         }
     }
 }

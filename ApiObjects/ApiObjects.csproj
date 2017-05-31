@@ -136,6 +136,7 @@
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
     <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />
+    <Compile Include="QueueObjects\MessageInterestData.cs" />
     <Compile Include="UserInterestResponseList.cs" />
     <Compile Include="UserInterestResponse.cs" />
     <Compile Include="IngestBusinessModules\SubscriptionCouponGroup.cs" />

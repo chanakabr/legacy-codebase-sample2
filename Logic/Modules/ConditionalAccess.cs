@@ -3042,8 +3042,7 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref casImpl, groupId);
 
             if (casImpl != null)
-            {
-                bool shouldUpdateTaskStatus = true;
+            {                
                 try
                 {
                     response = casImpl.Downgrade(siteguid, subscriptionSetModifyDetailsId);

@@ -8118,18 +8118,17 @@ namespace Core.Catalog
                 {
                     // get meta from DB - check if exist
                     //than update
-                    List<string> topicNames = new List<string>();
-                    topicNames.Add(meta.Name);
-                    List<ApiObjects.Meta> apiMetas = CatalogDAL.GetTopicInterestList(currentGroupId, topicNames);
+                    ApiObjects.Meta apiMeta = CatalogDAL.GetTopicInterest(currentGroupId, meta.Name, meta.AssetType);
 
-                    if (apiMetas == null || apiMetas.Count == 0)
+                    if (apiMeta == null)
                     {
                         log.ErrorFormat("Error while UpdateGroupMeta. currentGroupId: {0}, MetaName:{1}", currentGroupId, meta.Name);
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotaTopicInterestMeta, "Not a topic interest meta");
                         return response;
                     }
 
-                    meta.Features = apiMetas[0].Features;
+                    meta.Features = apiMeta.Features;
+
                     // update 
                     response = SetTopicInterest(currentGroupId, meta);
                 }

@@ -16,6 +16,7 @@ using System.Web;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
 using QueueWrapper.Queues.QueueObjects;
+using APILogic.Notification;
 
 namespace Core.Notification
 {
@@ -93,7 +94,7 @@ namespace Core.Notification
             }
         }
 
-        public static bool HandleEpgEvent(int partnerId, List<ulong> programIds)
+        public static bool HandleEpgEvent(int partnerId, List<int> programIds)
         {
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, partnerId);
@@ -1176,7 +1177,23 @@ namespace Core.Notification
                 log.Error("AddUserReminder failed", ex);
             }
             return response;
+        }
 
+        /// <summary>
+        /// Sends a Message interest.
+        /// </summary>
+        /// <returns></returns>
+        public static bool SendMessageInterest(int nGroupID, long startTime, int notificationInterestMessageId)
+        {
+            try
+            {
+                return TopicInterestManager.SendMessageInterest(nGroupID, startTime, notificationInterestMessageId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendMessageReminder caught an exception: GroupID: {0}, notification interest message id: {1}, ex: {2}", nGroupID, notificationInterestMessageId, ex);
+                return false;
+            }
         }
     }
 }

@@ -263,7 +263,6 @@ namespace Core.Notification
             return new Tuple<Dictionary<string, DbSeriesReminder>, bool>(result, res);
         }
 
-
         internal static bool GetSeriesMetaTagsFieldsNamesAndTypes(int groupId, out Tuple<string, FieldTypes> seriesIdName,
             out Tuple<string, FieldTypes> seasonNumberName, out Tuple<string, FieldTypes> episodeNumberName)
         {
@@ -298,6 +297,86 @@ namespace Core.Notification
             }
 
             return true;
+        }
+
+        internal static List<DbReminder> GetReminders(int groupId, List<long> reminderIds)
+        {
+            List<DbReminder> res = null;
+            if (reminderIds == null || reminderIds.Count == 0)
+            {
+                return res;
+            }
+
+            try
+            {
+                Dictionary<string, DbReminder> reminderMap = null;
+                List<string> keys = new List<string>();
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetRemindersInvalidationKeysMap(groupId, reminderIds);
+                if (invalidationKeysMap != null && invalidationKeysMap.Count > 0)
+                {
+                    keys = invalidationKeysMap.Keys.ToList();
+                }
+
+                if (!LayeredCache.Instance.GetValues<DbReminder>(keys, ref reminderMap, GetReminders, new Dictionary<string, object>() { { "groupId", groupId },
+                                                                        { "reminderIds", reminderIds } }, groupId, LayeredCacheConfigNames.GET_REMINDERS_CACHE_CONFIG_NAME,
+                                                                        invalidationKeysMap))
+                {
+                    log.ErrorFormat("Failed getting reminders from LayeredCache, groupId: {0}, reminderIds", groupId, string.Join(",", reminderIds));
+                }
+                else if (reminderMap != null)
+                {
+                    res = reminderMap.Values.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetReminders for groupId: {0}, reminderIds: {1}", groupId, string.Join(",", reminderIds)), ex);
+            }
+
+            return res;
+        }
+
+        internal static Tuple<Dictionary<string, DbReminder>, bool> GetReminders(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<string, DbReminder> result = new Dictionary<string, DbReminder>();
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("reminderIds"))
+                {
+                    int? groupId = funcParams["groupId"] as int?;
+                    List<long> reminderIds = funcParams["reminderIds"] != null ? funcParams["reminderIds"] as List<long> : null;
+
+                    if (reminderIds != null && reminderIds.Count > 0 && groupId.HasValue)
+                    {
+                        Dictionary<long, DbReminder> tempResult = new Dictionary<long, DbReminder>();
+                        List<DbReminder> reminders = NotificationDal.GetReminders(groupId.Value, reminderIds);
+                        if (reminders != null && reminders.Count > 0)
+                        {
+                            tempResult = reminders.ToDictionary(x => long.Parse(x.ID.ToString()), x => x);
+                        }
+
+                        List<long> missingIds = reminderIds.Where(x => !tempResult.ContainsKey(x)).ToList();
+                        if (missingIds != null)
+                        {
+                            foreach (long missingId in missingIds)
+                            {
+                                tempResult.Add(missingId, new DbReminder());
+                            }
+                        }
+
+                        result = tempResult.ToDictionary(x => LayeredCacheKeys.GetRemindersKey(groupId.Value, x.Key), x => x.Value);
+                    }
+
+                    res = result.Keys.Count() == reminderIds.Count();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetReminders failed with params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<Dictionary<string, DbReminder>, bool>(result, res);
         }
     }
 }
