@@ -36,9 +36,10 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency,
-                                                                                        purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
-                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData, WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.upgrade);
+                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                                                                                                        purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
+                                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData,
+                                                                                                        WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.upgrade);
             }
             catch (ClientException ex)
             {
@@ -68,9 +69,10 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price, purchase.Currency,
-                                                                                        purchase.getContentId(), purchase.ProductId, purchase.ProductType, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
-                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData, WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.downgrade);
+                response = ClientsManager.ConditionalAccessClient().SubscriptionSetModifySubscription(groupId, KS.GetFromRequest().UserId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), purchase.Price,
+                                                                                                        purchase.Currency, purchase.ProductId, purchase.getCoupon(), udid, purchase.getPaymentGatewayId(),
+                                                                                                        purchase.getPaymentMethodId(), purchase.AdapterData,
+                                                                                                        WebAPI.Models.Pricing.KalturaSubscriptionSetSwitchPurchaseType.downgrade);
             }
             catch (ClientException ex)
             {
@@ -117,6 +119,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UnknownTransactionState)]
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet)]
         public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
