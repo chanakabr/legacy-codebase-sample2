@@ -390,13 +390,16 @@ namespace CachingProvider.LayeredCache
             insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
             try
             {
+                HashSet<string> keysToGet = new HashSet<string>(keys);
+                Dictionary<string, Tuple<T, long>> resultsToAdd = new Dictionary<string, Tuple<T, long>>();
+                tupleResults = new Dictionary<string, Tuple<T, long>>();
                 if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
                     Dictionary<string, KeyValuePair<bool, long>> inValidationKeysMaxDateMapping = null;
                     bool hasMaxInvalidationDates = false;
                     foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
-                        if (TryGetValuesFromICachingService<T>(keys, ref tupleResults, cacheConfig, groupId) && tupleResults != null && tupleResults.Count > 0)
+                        if (TryGetValuesFromICachingService<T>(keysToGet.ToList(), ref resultsToAdd, cacheConfig, groupId) && resultsToAdd != null && resultsToAdd.Count > 0)
                         {
                             if (!hasMaxInvalidationDates)
                             {
@@ -404,23 +407,37 @@ namespace CachingProvider.LayeredCache
                                 if (!hasMaxInvalidationDates)
                                 {
                                     log.ErrorFormat("Error getting inValidationKeysMaxDateMapping for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}",
-                                                     string.Join(",", keys), layeredCacheConfigName, groupId);
-                                    insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                                                     string.Join(",", keysToGet), layeredCacheConfigName, groupId);
+                                    insertToCacheConfig.Add(cacheConfig, new List<string>(keysToGet));
                                     continue;
                                 }
                             }
-                            foreach (KeyValuePair<string, Tuple<T, long>> pair in tupleResults)
+
+                            List<string> keysToIterate = new List<string>(keysToGet);
+                            foreach (string keyToGet in keysToIterate)
                             {
-                                long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(pair.Key) ? inValidationKeysMaxDateMapping[pair.Key].Value + 1 : 0;
-                                if (pair.Value == null || pair.Value.Item1 == null || pair.Value.Item2 <= maxInValidationDate)
+                                bool isKeyInTupleResult = false;
+                                if (resultsToAdd.ContainsKey(keyToGet))
+                                {
+                                    Tuple<T, long> tuple = resultsToAdd[keyToGet];
+                                    long maxInValidationDate = inValidationKeysMaxDateMapping != null && inValidationKeysMaxDateMapping.Count > 0 && inValidationKeysMaxDateMapping.ContainsKey(keyToGet) ? inValidationKeysMaxDateMapping[keyToGet].Value + 1 : 0;
+                                    if (tuple != null && tuple.Item1 != null && tuple.Item2 > maxInValidationDate)
+                                    {
+                                        tupleResults.Add(keyToGet, new Tuple<T, long>(tuple.Item1, tuple.Item2));
+                                        isKeyInTupleResult = true;
+                                        keysToGet.Remove(keyToGet);
+                                    }
+                                }
+
+                                if (!isKeyInTupleResult)
                                 {
                                     if (insertToCacheConfig.ContainsKey(cacheConfig))
                                     {
-                                        insertToCacheConfig[cacheConfig].Add(pair.Key);
+                                        insertToCacheConfig[cacheConfig].Add(keyToGet);
                                     }
                                     else
                                     {
-                                        insertToCacheConfig.Add(cacheConfig, new List<string>() { pair.Key });
+                                        insertToCacheConfig.Add(cacheConfig, new List<string>() { keyToGet });
                                     }
                                 }
                             }
@@ -434,13 +451,13 @@ namespace CachingProvider.LayeredCache
                         else
                         {
                             // if result=true we won't get here (break) and if it isn't we need to insert all the keys into this cache later
-                            insertToCacheConfig.Add(cacheConfig, new List<string>(keys));
+                            insertToCacheConfig.Add(cacheConfig, new List<string>(keysToGet));
                         }
                     }
                 }
                 else
                 {
-                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keys), layeredCacheConfigName, groupId);
+                    log.ErrorFormat("Didn't go to cache for key: {0}, layeredCacheConfigName: {1}, groupId: {2}", string.Join(",", keysToGet), layeredCacheConfigName, groupId);
                 }
 
                 if (!result)
@@ -451,7 +468,10 @@ namespace CachingProvider.LayeredCache
                         result = tuple.Item2;
                         if (tuple.Item1 != null)
                         {
-                            tupleResults = tuple.Item1.ToDictionary(x => x.Key, x => new Tuple<T, long>(x.Value, Utils.UnixTimeStampNow()));
+                            foreach (KeyValuePair<string, T> pair in tuple.Item1)
+                            {
+                                tupleResults.Add(pair.Key, new Tuple<T, long>(pair.Value, Utils.UnixTimeStampNow()));
+                            }
                         }
                     }
 
