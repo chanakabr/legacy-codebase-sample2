@@ -114,7 +114,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("couponsGroup")]
         [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
         [OldStandardProperty("coupons_group")]
-        [Deprecated("3.6.287.13944")]
+        [Deprecated("4.3.0.0")]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("productCode")]
         [XmlElement(ElementName = "productCode")]
         [OldStandardProperty("product_code")]
-        [Deprecated("3.6.287.13944")]
+        [Deprecated("4.3.0.0")]
         public string ProductCode { get; set; }
 
         /// <summary>

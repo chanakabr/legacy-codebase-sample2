@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.API
+namespace WebAPI.Models.Users
 {
     /// <summary>
     /// User interest list
