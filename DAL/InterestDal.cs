@@ -29,7 +29,7 @@ namespace DAL
             return string.Format("user_interests:{0}:{1}", partnerId, userId);
         }
 
-        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId)
+        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId, eAssetTypes assetType)
         {
             InterestNotification result = null;
             try
@@ -42,6 +42,7 @@ namespace DAL
                 sp.AddParameter("@template_type", TemplateType);
                 sp.AddParameter("@topic_name_value", topicNameValue);
                 sp.AddParameter("@topic_interest_id", topicInterestId);
+                sp.AddParameter("@asset_type", (int)assetType);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -108,7 +109,7 @@ namespace DAL
             return result;
         }
 
-        public static InterestNotification GetTopicInterestNotificationsByTopicNameValue(int groupId, string topicNameValue)
+        public static InterestNotification GetTopicInterestNotificationsByTopicNameValue(int groupId, string topicNameValue, eAssetTypes assetType)
         {
             InterestNotification result = null;
             try
@@ -117,6 +118,7 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@topicNameValue", topicNameValue);
+                sp.AddParameter("@asset_type", (int)assetType);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -191,7 +193,7 @@ namespace DAL
             return affectedRows > 0;
         }
 
-        public static InterestNotificationMessage InsertTopicInterestNotificationMessage(int groupId, string name, string message, DateTime sendTime, int topicInterestNotificationId)
+        public static InterestNotificationMessage InsertTopicInterestNotificationMessage(int groupId, string name, string message, DateTime sendTime, int topicInterestNotificationId, int referenceAssetId)
         {
             InterestNotificationMessage result = null;
             try
@@ -203,6 +205,7 @@ namespace DAL
                 sp.AddParameter("@message", message);
                 sp.AddParameter("@send_time", sendTime);
                 sp.AddParameter("@topic_interests_notifications_id", topicInterestNotificationId);
+                sp.AddParameter("@reference_asset_id", referenceAssetId);
 
                 DataSet ds = sp.ExecuteDataSet();
 
@@ -243,7 +246,7 @@ namespace DAL
             return result;
         }
 
-        public static InterestNotificationMessage GetTopicInterestNotificationMessageByInterestNotificationId(int groupId, int interestNotificationId)
+        public static InterestNotificationMessage GetTopicInterestNotificationMessageByInterestNotificationId(int groupId, int interestNotificationId, int referenceAssetId)
         {
             InterestNotificationMessage result = null;
             try
@@ -252,6 +255,7 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@Interest_Notification_ID", interestNotificationId);
+                sp.AddParameter("@reference_asset_id", referenceAssetId);
                 DataSet ds = sp.ExecuteDataSet();
 
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
@@ -322,13 +326,15 @@ namespace DAL
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
                 SendTime = ODBCWrapper.Utils.GetDateSafeVal(row, "send_time"),
-                TopicInterestsNotificationsId = ODBCWrapper.Utils.GetSafeStr(row, "topic_interests_notifications_id")
+                TopicInterestsNotificationsId = ODBCWrapper.Utils.GetSafeStr(row, "topic_interests_notifications_id"),
+                ReferenceAssetId = ODBCWrapper.Utils.GetIntSafeVal(row, "reference_asset_id")
             };
         }
 
         private static InterestNotification CreateInterestNotification(DataRow row)
         {
             int templateType = ODBCWrapper.Utils.GetIntSafeVal(row, "template_type");
+            int assetType = ODBCWrapper.Utils.GetIntSafeVal(row, "asset_type");
 
             return new InterestNotification()
             {
@@ -339,7 +345,8 @@ namespace DAL
                 QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
                 TopicInterestId = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_interest_id"),
                 TopicNameValue = ODBCWrapper.Utils.GetSafeStr(row, "topic_name_value"),
-                TemplateType = Enum.IsDefined(typeof(MessageTemplateType), templateType) ? (MessageTemplateType)templateType : MessageTemplateType.None
+                TemplateType = Enum.IsDefined(typeof(MessageTemplateType), templateType) ? (MessageTemplateType)templateType : MessageTemplateType.None,
+                AssetType = Enum.IsDefined(typeof(eAssetTypes), assetType) ? (eAssetTypes)assetType : eAssetTypes.UNKNOWN
             };
         }
 
