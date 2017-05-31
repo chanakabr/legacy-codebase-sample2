@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using KLogMonitor;
 using System.Reflection;
 using ApiObjects.TimeShiftedTv;
-using ApiObjects.SubscriptionSet;
 
 namespace DAL
 {
@@ -2631,99 +2630,99 @@ namespace DAL
             return response;
         }
 
-        public static bool InsertSubscriptionSetDowngradeDetails(SubscriptionSetDowngradeDetails subscriptionSetDowngradeDetails)
-        {
-            bool result = false;
-            CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            string key = UtilsDal.GetSubscriptionSetModifyKey(subscriptionSetDowngradeDetails.GroupId, subscriptionSetDowngradeDetails.Id, subscriptionSetDowngradeDetails.Type);
-            if (string.IsNullOrEmpty(key))
-            {
-                log.ErrorFormat("Failed getting SubscriptionSetModifyKey for groupId: {0}, id: {1}, type: {2}",
-                                subscriptionSetDowngradeDetails.GroupId, subscriptionSetDowngradeDetails.Id, subscriptionSetDowngradeDetails.Type);
-            }
-            else
-            {
-                try
-                {
-                    int numOfRetries = 0;
-                    while (!result && numOfRetries < limitRetries)
-                    {
-                        ulong docVersion;
-                        Couchbase.IO.ResponseStatus status;
-                        SubscriptionSetDowngradeDetails currentCachedEntitlementResults = cbManager.GetWithVersion<SubscriptionSetDowngradeDetails>(key, out docVersion, out status);
-                        if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
-                        {
-                            string totalSeconds = (subscriptionSetDowngradeDetails.StartDate.AddDays(7) - DateTime.UtcNow).TotalSeconds.ToString();
-                            uint ttl = 0;
-                            if (uint.TryParse(totalSeconds, out ttl) && ttl > 0)
-                            {
-                                result = cbManager.SetWithVersion<SubscriptionSetDowngradeDetails>(key, subscriptionSetDowngradeDetails, docVersion, ttl);
-                            }
-                        }
+        //public static bool InsertSubscriptionSetDowngradeDetails(SubscriptionSetDowngradeDetails subscriptionSetDowngradeDetails)
+        //{
+        //    bool result = false;
+        //    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+        //    int limitRetries = RETRY_LIMIT;
+        //    Random r = new Random();
+        //    string key = UtilsDal.GetSubscriptionSetModifyKey(subscriptionSetDowngradeDetails.GroupId, subscriptionSetDowngradeDetails.Id, subscriptionSetDowngradeDetails.Type);
+        //    if (string.IsNullOrEmpty(key))
+        //    {
+        //        log.ErrorFormat("Failed getting SubscriptionSetModifyKey for groupId: {0}, id: {1}, type: {2}",
+        //                        subscriptionSetDowngradeDetails.GroupId, subscriptionSetDowngradeDetails.Id, subscriptionSetDowngradeDetails.Type);
+        //    }
+        //    else
+        //    {
+        //        try
+        //        {
+        //            int numOfRetries = 0;
+        //            while (!result && numOfRetries < limitRetries)
+        //            {
+        //                ulong docVersion;
+        //                Couchbase.IO.ResponseStatus status;
+        //                SubscriptionSetDowngradeDetails currentCachedEntitlementResults = cbManager.GetWithVersion<SubscriptionSetDowngradeDetails>(key, out docVersion, out status);
+        //                if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
+        //                {
+        //                    string totalSeconds = (subscriptionSetDowngradeDetails.StartDate.AddDays(7) - DateTime.UtcNow).TotalSeconds.ToString();
+        //                    uint ttl = 0;
+        //                    if (uint.TryParse(totalSeconds, out ttl) && ttl > 0)
+        //                    {
+        //                        result = cbManager.SetWithVersion<SubscriptionSetDowngradeDetails>(key, subscriptionSetDowngradeDetails, docVersion, ttl);
+        //                    }
+        //                }
 
-                        if (!result)
-                        {
-                            numOfRetries++;
-                            log.ErrorFormat("Error while updating SubscriptionSetDowngradeDetails: {0}", subscriptionSetDowngradeDetails.ToString());
-                            System.Threading.Thread.Sleep(r.Next(50));
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Format("Error on InsertSubscriptionSetDowngradeDetails, SubscriptionSetDowngradeDetails: {0}", subscriptionSetDowngradeDetails.ToString()), ex);
-                }
-            }
+        //                if (!result)
+        //                {
+        //                    numOfRetries++;
+        //                    log.ErrorFormat("Error while updating SubscriptionSetDowngradeDetails: {0}", subscriptionSetDowngradeDetails.ToString());
+        //                    System.Threading.Thread.Sleep(r.Next(50));
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            log.Error(string.Format("Error on InsertSubscriptionSetDowngradeDetails, SubscriptionSetDowngradeDetails: {0}", subscriptionSetDowngradeDetails.ToString()), ex);
+        //        }
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
 
-        public static SubscriptionSetDowngradeDetails GetSubscriptionSetDowngradeDetails(int groupId, long id)
-        {
-            SubscriptionSetDowngradeDetails response = null;
-            CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
-            int limitRetries = RETRY_LIMIT;
-            Random r = new Random();
-            Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
-            string key = UtilsDal.GetSubscriptionSetModifyKey(groupId, id, SubscriptionSetModifyType.Downgrade);
-            if (string.IsNullOrEmpty(key))
-            {
-                log.ErrorFormat("Failed getting SubscriptionSetModifyKey for groupId: {0}, id: {1}, type: {2}", groupId, id, SubscriptionSetModifyType.Downgrade.ToString());
-                return response;
-            }
+        //public static SubscriptionSetDowngradeDetails GetSubscriptionSetDowngradeDetails(int groupId, long id)
+        //{
+        //    SubscriptionSetDowngradeDetails response = null;
+        //    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.SCHEDULED_TASKS);
+        //    int limitRetries = RETRY_LIMIT;
+        //    Random r = new Random();
+        //    Couchbase.IO.ResponseStatus getResult = new Couchbase.IO.ResponseStatus();
+        //    string key = UtilsDal.GetSubscriptionSetModifyKey(groupId, id, SubscriptionSetModifyType.Downgrade);
+        //    if (string.IsNullOrEmpty(key))
+        //    {
+        //        log.ErrorFormat("Failed getting SubscriptionSetModifyKey for groupId: {0}, id: {1}, type: {2}", groupId, id, SubscriptionSetModifyType.Downgrade.ToString());
+        //        return response;
+        //    }
 
-            try
-            {
-                int numOfRetries = 0;
-                while (numOfRetries < limitRetries)
-                {
-                    response = cbManager.Get<SubscriptionSetDowngradeDetails>(key, out getResult);
-                    if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
-                    {
-                        log.ErrorFormat("Error while trying to get SubscriptionSetDowngradeDetails, KeyNotFound. key: {0}", key);
-                        break;
-                    }
-                    else if (getResult == Couchbase.IO.ResponseStatus.Success)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        log.ErrorFormat("Retrieving SubscriptionSetDowngradeDetails with key {0} failed with status: {1}, retryAttempt: {2}, maxRetries: {3}", key, getResult, numOfRetries, limitRetries);
-                        numOfRetries++;
-                        System.Threading.Thread.Sleep(r.Next(50));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Error on GetSubscriptionSetDowngradeDetails, groupId: {0}, id: {1}, type: {2}", groupId, id, SubscriptionSetModifyType.Downgrade.ToString()), ex); ;
-            }
+        //    try
+        //    {
+        //        int numOfRetries = 0;
+        //        while (numOfRetries < limitRetries)
+        //        {
+        //            response = cbManager.Get<SubscriptionSetDowngradeDetails>(key, out getResult);
+        //            if (getResult == Couchbase.IO.ResponseStatus.KeyNotFound)
+        //            {
+        //                log.ErrorFormat("Error while trying to get SubscriptionSetDowngradeDetails, KeyNotFound. key: {0}", key);
+        //                break;
+        //            }
+        //            else if (getResult == Couchbase.IO.ResponseStatus.Success)
+        //            {
+        //                break;
+        //            }
+        //            else
+        //            {
+        //                log.ErrorFormat("Retrieving SubscriptionSetDowngradeDetails with key {0} failed with status: {1}, retryAttempt: {2}, maxRetries: {3}", key, getResult, numOfRetries, limitRetries);
+        //                numOfRetries++;
+        //                System.Threading.Thread.Sleep(r.Next(50));
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        log.Error(string.Format("Error on GetSubscriptionSetDowngradeDetails, groupId: {0}, id: {1}, type: {2}", groupId, id, SubscriptionSetModifyType.Downgrade.ToString()), ex); ;
+        //    }
 
-            return response;
-        }
+        //    return response;
+        //}
 
         #endregion
 
@@ -2999,18 +2998,18 @@ namespace DAL
             return epgChannelId;
         }
 
-        public static long InsertSubscriptionSetModifyDetails(int groupId, long domainId, long associatedPurchaseId, long scheduledSubscriptionId, SubscriptionSetModifyType type)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionSetModifyDetails");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@DomainId", domainId);
-            sp.AddParameter("@AssociatedPurchaseId", associatedPurchaseId);
-            sp.AddParameter("@ScheduledSubscriptionId", scheduledSubscriptionId);
-            sp.AddParameter("@Type", (int)type);
+        //public static long InsertSubscriptionSetModifyDetails(int groupId, long domainId, long associatedPurchaseId, long scheduledSubscriptionId, SubscriptionSetModifyType type)
+        //{
+        //    ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertSubscriptionSetModifyDetails");
+        //    sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        //    sp.AddParameter("@GroupId", groupId);
+        //    sp.AddParameter("@DomainId", domainId);
+        //    sp.AddParameter("@AssociatedPurchaseId", associatedPurchaseId);
+        //    sp.AddParameter("@ScheduledSubscriptionId", scheduledSubscriptionId);
+        //    sp.AddParameter("@Type", (int)type);
 
-            return sp.ExecuteReturnValue<long>();
-        }
+        //    return sp.ExecuteReturnValue<long>();
+        //}
 
     }
 }
