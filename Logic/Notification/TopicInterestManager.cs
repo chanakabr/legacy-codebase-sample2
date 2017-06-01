@@ -13,6 +13,10 @@ using ApiObjects.Notification;
 using QueueWrapper.Queues.QueueObjects;
 using ApiObjects.QueueObjects;
 using TVinciShared;
+using Core.Notification;
+using APILogic.AmazonSnsAdapter;
+using Core.Notification.Adapters;
+using ChannelsSchema;
 
 namespace APILogic.Notification
 {
@@ -20,7 +24,6 @@ namespace APILogic.Notification
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string USER_INTEREST_NOT_EXIST = "User interest not exist";
-
         private const string ROUTING_KEY_INTEREST_MESSAGES = "PROCESS_MESSAGE_INTERESTS";
 
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest userInterest)
@@ -177,9 +180,334 @@ namespace APILogic.Notification
             return res;
         }
 
-        internal static bool SendMessageInterest(int nGroupID, long startTime, int notificationInterestId)
+        private static bool PushToWeb(int partnerId, int interestMessageId, string routeName, MessageData messageData, long sendTime)
         {
-            throw new NotImplementedException();
+            bool isSent = false;
+            if (string.IsNullOrEmpty(routeName))
+            {
+                log.DebugFormat("no queues found for push to web. interest message ID: {0}", interestMessageId);
+                return isSent;
+            }
+
+            // enqueue message with small expiration date
+            MessageAnnouncementFullData data = new MessageAnnouncementFullData(partnerId, messageData.Alert, messageData.Url, messageData.Sound, messageData.Category, sendTime);
+            GeneralDynamicQueue q = new GeneralDynamicQueue(routeName, QueueWrapper.Enums.ConfigType.PushNotifications);
+            if (!q.Enqueue(data, routeName, AnnouncementManager.PUSH_MESSAGE_EXPIRATION_MILLI_SEC))
+            {
+                log.ErrorFormat("Failed to insert push interest message to web push queue. reminder ID: {0}, route name: {1}",
+                    interestMessageId,
+                    routeName);
+            }
+            else
+            {
+                log.DebugFormat("Successfully inserted push interest message to web push queue data: {0}, reminder ID: {1}, route name: {2}",
+                 JsonConvert.SerializeObject(data),
+                 interestMessageId,
+                 routeName);
+
+                isSent = true;
+            }
+
+            return isSent;
+        }
+
+        internal static bool SendMessageInterest(int partnerId, long startTime, int notificationInterestMessageId)
+        {
+            // get partner notifications settings
+            var partnerSettings = NotificationSettings.GetPartnerNotificationSettings(partnerId);
+            if (partnerSettings == null && partnerSettings.settings != null)
+            {
+                log.ErrorFormat("Could not find partner notification settings. Partner ID: {0}", partnerId);
+                return false;
+            }
+
+            // get interest message
+            InterestNotificationMessage interestNotificationMessage = InterestDal.GetTopicInterestsNotificationMessageById(partnerId, notificationInterestMessageId);
+            if (interestNotificationMessage == null)
+            {
+                log.ErrorFormat("could not find interest notification message. partner ID: {0}, start time: {1}, interest message ID: {2}", partnerId, startTime, notificationInterestMessageId);
+                return false;
+            }
+
+            // get interest 
+            InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsById(partnerId, interestNotificationMessage.TopicInterestsNotificationsId);
+            if (interestNotification == null)
+            {
+                log.ErrorFormat("could not find interest notification. partner ID: {0}, start time: {1}, interest message ID: {2}", partnerId, startTime, notificationInterestMessageId);
+                return false;
+            }
+
+            switch (interestNotification.AssetType)
+            {
+                case eAssetTypes.EPG:
+                    return SendMessageInterestEpg(partnerId, startTime, interestNotification, interestNotificationMessage, partnerSettings);
+
+                case eAssetTypes.MEDIA:
+                    return SendMessageInterestVod(partnerId, startTime, interestNotification, interestNotificationMessage, partnerSettings);
+
+                case eAssetTypes.UNKNOWN:
+                case eAssetTypes.NPVR:
+                default:
+
+                    log.ErrorFormat("Interest message asset type was not implemented. partner ID: {0}, interest message ID: {1}, asset type: {2}", partnerId, startTime, notificationInterestMessageId, interestNotification.AssetType.ToString());
+                    return true;
+            }
+        }
+
+        internal static bool SendMessageInterestEpg(int partnerId, long startTime, InterestNotification interestNotification, InterestNotificationMessage interestNotificationMessage, NotificationPartnerSettingsResponse partnerSettings)
+        {
+            // get EPG program
+            Core.Catalog.ProgramObj program = null;
+            var status = AnnouncementManager.GetEpgProgram(partnerId, interestNotificationMessage.ReferenceAssetId, out program);
+            if (status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("program was not found. partner ID: {0}, start time: {1}, interest message ID: {2}, programId = ", partnerId, startTime, interestNotificationMessage.Id, interestNotificationMessage.ReferenceAssetId);
+                return false;
+            }
+
+            // get media
+            Core.Catalog.Response.MediaObj mediaChannel = null;
+            string seriesName = string.Empty;
+            status = AnnouncementManager.GetMedia(partnerId, (int)program.m_oProgram.LINEAR_MEDIA_ID, out mediaChannel, out seriesName);
+            if (status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("linear media for channel was not found. partner ID: {0}, start time: {1}, interest message ID: {2}, linear media Id= ", partnerId, startTime, interestNotificationMessage.Id, program.m_oProgram.LINEAR_MEDIA_ID);
+                return false;
+            }
+
+            // Parse start date
+            DateTime interestSendDate;
+            if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out interestSendDate))
+            {
+                log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
+                return false;
+            }
+
+            // get reminder pre-padding
+            double prePadding = 0;
+            if (partnerSettings.settings.RemindersPrePaddingSec.HasValue)
+                prePadding = (double)partnerSettings.settings.RemindersPrePaddingSec;
+
+            // validate program did not passed (10 min threshold)
+            DateTime currentDate = DateTime.UtcNow;
+            if (currentDate.AddMinutes(5) < interestSendDate.AddSeconds(-prePadding) ||
+               (currentDate.AddMinutes(-5) > interestSendDate.AddSeconds(-prePadding)))
+            {
+                log.ErrorFormat("Program date passed. interest ID: {0}, current date: {1}, startDate: {2}", interestNotificationMessage.Id, currentDate, interestSendDate);
+                return false;
+            }
+
+            // validate send time is same as send time in DB
+            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)
+            {
+                log.ErrorFormat("Message sending time is not the same as DB reminder send date. program ID: {0}, message send date: {1}, DB send date: {2}",
+                    interestNotificationMessage.Id,
+                    DateUtils.UnixTimeStampToDateTime(Convert.ToInt64(startTime)),
+                    interestNotificationMessage.SendTime);
+                return false;
+            }
+
+            // send push messages
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            {
+                // get message templates
+                MessageTemplate template = null;
+                List<MessageTemplate> messageTemplates = NotificationCache.Instance().GetMessageTemplates(partnerId);
+                if (messageTemplates == null)
+                {
+                    log.ErrorFormat("message templates were not found for partnerId = {0}", partnerId);
+                    return false;
+                }
+
+                template = messageTemplates.FirstOrDefault(x => x.TemplateType == MessageTemplateType.InterestEPG);
+                if (template == null)
+                {
+                    log.ErrorFormat("reminder message template was not found. group: {0}", partnerId);
+                    return false;
+                }
+
+                // build message 
+                MessageData messageData = new MessageData()
+                {
+                    Category = template.Action,
+                    Sound = template.Sound,
+                    Url = template.URL.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
+                                                         Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                         Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                         Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty),
+                    Alert = template.Message.Replace("{" + eReminderPlaceHolders.StartDate + "}", interestSendDate.ToString(template.DateFormat)).
+                                                           Replace("{" + eReminderPlaceHolders.ProgramId + "}", program.m_oProgram.EPG_ID.ToString()).
+                                                           Replace("{" + eReminderPlaceHolders.ProgramName + "}", program.m_oProgram.NAME).
+                                                           Replace("{" + eReminderPlaceHolders.ChannelName + "}", mediaChannel != null && mediaChannel.m_sName != null ? mediaChannel.m_sName : string.Empty)
+                };
+
+                // send to Amazon
+                if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+                {
+                    log.ErrorFormat("External push ID wasn't found. interest message: {0}", JsonConvert.SerializeObject(interestNotificationMessage));
+                    return false;
+                }
+
+                // update message reminder
+                interestNotificationMessage.Message = JsonConvert.SerializeObject(messageData);
+
+                string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, interestNotification.ExternalPushId, string.Empty, messageData);
+                if (string.IsNullOrEmpty(resultMsgId))
+                    log.ErrorFormat("failed to publish interest message to push topic. result message id is empty for reminder {0}", interestNotificationMessage.Id);
+                else
+                {
+                    log.DebugFormat("Successfully sent interest message. interest message Id: {0}", interestNotificationMessage.Id);
+
+                    // update external push result
+                    InterestNotificationMessage updatedInterestNotificationMessage = DAL.InterestDal.UpdateTopicInterestNotificationMessage(partnerId, interestNotificationMessage.Id, null, interestNotificationMessage.Message, true, resultMsgId, currentDate);
+                    if (updatedInterestNotificationMessage == null)
+                    {
+                        log.ErrorFormat("Failed to update interest message. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                    }
+
+                    // update interest notification 
+                    InterestNotification updatedInterestNotification = DAL.InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, null, currentDate);
+                    if (updatedInterestNotification == null)
+                    {
+                        log.ErrorFormat("Failed to update interest notification last send date. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                    }
+                }
+
+                // send to push web - rabbit.                
+                PushToWeb(partnerId, interestNotificationMessage.Id, interestNotification.QueueName, messageData, DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime));
+               
+            }
+            return true;
+        }
+
+        internal static bool SendMessageInterestVod(int partnerId, long startTime, InterestNotification interestNotification, InterestNotificationMessage interestNotificationMessage, NotificationPartnerSettingsResponse partnerSettings)
+        {
+            // get media
+            Core.Catalog.Response.MediaObj vodAsset = null;
+            string seriesName = string.Empty;
+            Status status = AnnouncementManager.GetMedia(partnerId, (int)interestNotificationMessage.ReferenceAssetId, out vodAsset, out seriesName);
+            if (status.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("interest VOD asset was not found. partner ID: {0}, start time: {1}, interest message ID: {2}", partnerId, startTime, interestNotificationMessage.Id);
+                return false;
+            }
+
+            DateTime interestSendDate = vodAsset.m_dCatalogStartDate;
+
+            // validate program did not passed (10 min threshold)
+            DateTime currentDate = DateTime.UtcNow;
+            if (currentDate.AddMinutes(5) < interestSendDate ||
+               (currentDate.AddMinutes(-5) > interestSendDate))
+            {
+                log.ErrorFormat("VOD date passed. interest ID: {0}, current date: {1}, startDate: {2}", interestNotificationMessage.Id, currentDate, interestSendDate);
+                return false;
+            }
+
+            // validate send time is same as send time in DB
+            if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)
+            {
+                log.ErrorFormat("Message sending time is not the same as DB interest send date. asset ID: {0}, message send date: {1}, DB send date: {2}",
+                    interestNotificationMessage.Id,
+                    DateUtils.UnixTimeStampToDateTime(Convert.ToInt64(startTime)),
+                    interestNotificationMessage.SendTime);
+                return false;
+            }
+
+            // send push messages
+            if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+            {
+                // get message templates
+                MessageTemplate template = null;
+                List<MessageTemplate> messageTemplates = NotificationCache.Instance().GetMessageTemplates(partnerId);
+                if (messageTemplates == null)
+                {
+                    log.ErrorFormat("message templates were not found for partnerId = {0}", partnerId);
+                    return false;
+                }
+
+                template = messageTemplates.FirstOrDefault(x => x.TemplateType == MessageTemplateType.InterestVod);
+                if (template == null)
+                {
+                    log.ErrorFormat("reminder message template was not found. group: {0}", partnerId);
+                    return false;
+                }
+
+                // build message 
+                MessageData messageData = new MessageData()
+                {
+                    Category = template.Action,
+                    Sound = template.Sound,
+                    Url = template.URL.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", vodAsset.m_dCatalogStartDate.ToString(template.DateFormat)).
+                                                            Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", interestNotificationMessage.ReferenceAssetId.ToString()).
+                                                            Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", vodAsset.m_sName).
+                                                            Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", seriesName).
+                                                            Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", vodAsset.m_dStartDate.ToString(template.DateFormat)),
+                    Alert = template.Message.Replace("{" + eFollowSeriesPlaceHolders.CatalaogStartDate + "}", vodAsset.m_dCatalogStartDate.ToString(template.DateFormat)).
+                                                          Replace("{" + eFollowSeriesPlaceHolders.MediaId + "}", interestNotificationMessage.ReferenceAssetId.ToString()).
+                                                          Replace("{" + eFollowSeriesPlaceHolders.MediaName + "}", vodAsset.m_sName).
+                                                          Replace("{" + eFollowSeriesPlaceHolders.SeriesName + "}", seriesName).
+                                                          Replace("{" + eFollowSeriesPlaceHolders.StartDate + "}", vodAsset.m_dStartDate.ToString(template.DateFormat))
+                };
+
+                // send to Amazon
+                if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+                {
+                    log.ErrorFormat("External push ID wasn't found. interest message: {0}", JsonConvert.SerializeObject(interestNotificationMessage));
+                    return false;
+                }
+
+                // update message reminder
+                interestNotificationMessage.Message = JsonConvert.SerializeObject(messageData);
+
+                string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, interestNotification.ExternalPushId, string.Empty, messageData);
+                if (string.IsNullOrEmpty(resultMsgId))
+                    log.ErrorFormat("failed to publish interest message to push topic. result message id is empty for reminder {0}", interestNotificationMessage.Id);
+                else
+                {
+                    log.DebugFormat("Successfully sent interest message. interest message Id: {0}", interestNotificationMessage.Id);
+
+                    // update external push result
+                    InterestNotificationMessage updatedInterestNotificationMessage = DAL.InterestDal.UpdateTopicInterestNotificationMessage(partnerId, interestNotificationMessage.Id, null, interestNotificationMessage.Message, true, resultMsgId, DateTime.UtcNow);
+                    if (updatedInterestNotificationMessage == null)
+                    {
+                        log.ErrorFormat("Failed to update interest message. partner ID: {0}, reminder ID: {1} ", partnerId, interestNotificationMessage.Id);
+                    }
+                }
+
+                // send to push web - rabbit.                
+                PushToWeb(partnerId, interestNotificationMessage.Id, interestNotification.QueueName, messageData, DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime));
+
+                // send inbox messages
+                if (NotificationSettings.IsPartnerInboxEnabled(partnerId))
+                {
+                    List<int> users = InterestDal.GetUsersListbyInterestId(partnerId, interestNotification.Id);
+                    if (users != null)
+                    {
+                        foreach (var userId in users)
+                        {
+                            InboxMessage inboxMessage = new InboxMessage()
+                            {
+                                Category = eMessageCategory.Followed,
+                                CreatedAtSec = DateUtils.DateTimeToUnixTimestamp(currentDate),
+                                Id = Guid.NewGuid().ToString(),
+                                Message = messageData.Alert,
+                                State = eMessageState.Unread,
+                                UpdatedAtSec = DateUtils.DateTimeToUnixTimestamp(currentDate),
+                                Url = messageData.Url,
+                                UserId = userId
+                            };
+
+                            if (!NotificationDal.SetUserInboxMessage(partnerId, inboxMessage, NotificationSettings.GetInboxMessageTTLDays(partnerId)))
+                            {
+                                log.ErrorFormat("Error while setting user interest inbox message. GID: {0}, InboxMessage: {1}",
+                                    partnerId,
+                                    JsonConvert.SerializeObject(inboxMessage));
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace ApiObjects.Notification
         public DateTime SendTime { get; set; }
 
         [DataMember]
-        public string TopicInterestsNotificationsId { get; set; }
+        public int TopicInterestsNotificationsId { get; set; }
 
         [DataMember]
         public int ReferenceAssetId { get; set; }
