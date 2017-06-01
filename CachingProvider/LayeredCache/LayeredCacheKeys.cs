@@ -72,7 +72,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainEntitlementsKey(int groupId, int domainId)
         {
-            return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
+            return string.Format("domainEntitlements_v2_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetFileCdnDataKey(int fileId)
@@ -93,6 +93,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCancelSubscriptionInvalidationKey(long domainId)
         {
             return string.Format("cancel_subscription_domainId_{0}", domainId);
+        }
+
+        public static string GetCancelSubscriptionRenewalInvalidationKey(long domainId)
+        {
+            return string.Format("cancel_subscription_renewal_domainId_{0}", domainId);
         }
 
         public static string GetCancelTransactionInvalidationKey(long domainId)

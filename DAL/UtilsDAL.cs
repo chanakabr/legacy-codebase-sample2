@@ -758,7 +758,6 @@ namespace DAL
             return string.Format("media_group_file_type_{0}", mediaID.ToString());
         }
 
-
         public static string GetDrmPolicyKey(int groupId)
         {
             return string.Format("drm_policy_{0}", groupId);
@@ -773,5 +772,10 @@ namespace DAL
         {
             return string.Format("drmId_{0}", drmId);
         }
+
+        //internal static string GetSubscriptionSetModifyKey(int groupId, long id, SubscriptionSetModifyType type)
+        //{
+        //    return string.Format("groupId_{0}_Id_{1}_type_{2}", groupId, id, type.ToString());
+        //}
     }
 }

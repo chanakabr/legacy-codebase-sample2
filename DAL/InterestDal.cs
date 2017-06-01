@@ -30,6 +30,7 @@ namespace DAL
             return string.Format("user_interests:{0}:{1}", partnerId, userId);
         }
 
+<<<<<<< HEAD
         private static string GetUserListByInterestKey(int groupId, long userId, long interestId)
         {
             return string.Format("user_interests_item:{0}:{1}:{2}", groupId, userId, interestId);
@@ -126,6 +127,9 @@ namespace DAL
         }
 
         public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId, eAssetTypes assetType)
+=======
+        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, string metaId, eAssetTypes assetType)
+>>>>>>> 79c4a00e6b8ad5c2bf09ef5eb4134ad6ec427a7f
         {
             InterestNotification result = null;
             try
@@ -137,7 +141,7 @@ namespace DAL
                 sp.AddParameter("@external_id", externalId);
                 sp.AddParameter("@template_type", TemplateType);
                 sp.AddParameter("@topic_name_value", topicNameValue);
-                sp.AddParameter("@topic_interest_id", topicInterestId);
+                sp.AddParameter("@topic_interest_id", metaId);
                 sp.AddParameter("@asset_type", (int)assetType);
 
                 DataSet ds = sp.ExecuteDataSet();
@@ -150,7 +154,7 @@ namespace DAL
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("error in InsertTopicInterestNotification. groupId: {0}, name: {1}, externalId: {2}, TemplateType: {3}, topicNameValue: {4}, topicInterestId: {5}, ex: {6}", groupId, name, externalId, TemplateType.ToString(), topicNameValue, topicInterestId, ex);
+                log.ErrorFormat("error in InsertTopicInterestNotification. groupId: {0}, name: {1}, externalId: {2}, TemplateType: {3}, topicNameValue: {4}, topicInterestId: {5}, ex: {6}", groupId, name, externalId, TemplateType.ToString(), topicNameValue, metaId, ex);
             }
             return result;
         }
