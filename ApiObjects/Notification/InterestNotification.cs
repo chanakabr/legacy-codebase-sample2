@@ -17,7 +17,7 @@ namespace ApiObjects.Notification
         public string Name { get; set; }
 
         [DataMember]
-        public string ExternalId { get; set; }
+        public string ExternalPushId { get; set; }
 
         [DataMember]
         public MessageTemplateType TemplateType { get; set; }
@@ -35,6 +35,6 @@ namespace ApiObjects.Notification
         public string TopicNameValue { get; set; }
 
         [DataMember]
-        public int TopicInterestId { get; set; }
+        public string TopicInterestId { get; set; }
     }
 }

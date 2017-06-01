@@ -134,6 +134,8 @@
     <Compile Include="ConditionalAccess\enums.cs" />
     <Compile Include="ConditionalAccess\Eutelsat3SSObjects.cs" />
     <Compile Include="ConditionalAccess\NPVRResponse.cs" />
+    <Compile Include="SubscriptionSet\SubscriptionSetModifyDetails.cs" />
+    <Compile Include="SubscriptionSet\SubscriptionSetDowngradeDetails.cs" />
     <Compile Include="QueueObjects\MessageInterestData.cs" />
     <Compile Include="UserInterestResponseList.cs" />
     <Compile Include="UserInterestResponse.cs" />
@@ -276,7 +278,6 @@
     <Compile Include="Pricing\enums.cs" />
     <Compile Include="LanguageContainer.cs" />
     <Compile Include="Pricing\ServiceObject.cs" />
-    <Compile Include="QueueObjects\ScheduledPurchaseData.cs" />
     <Compile Include="QueueObjects\EngagementData.cs" />
     <Compile Include="QueueObjects\MessageReminderData.cs" />
     <Compile Include="QueueObjects\RecordingModificationData.cs" />

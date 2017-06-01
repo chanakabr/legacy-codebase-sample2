@@ -872,7 +872,8 @@ namespace ApiObjects
     public enum eSubscriptionRenewRequestType
     {
         Renew = 0,
-        Reminder = 1
+        Reminder = 1,
+        Downgrade = 2
     }
 
     public enum GrantContext
@@ -921,10 +922,10 @@ namespace ApiObjects
         LimitedByRecordingLifetime = 1
     }
 
-    public enum SubscriptionSetModifyPurchaseType
+    public enum SubscriptionSetModifyType
     {
-        Upgrade,
-        Downgrade
+        Unknown = 0,
+        Downgrade = 1
     }
 
 }

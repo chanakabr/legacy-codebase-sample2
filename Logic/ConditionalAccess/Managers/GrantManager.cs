@@ -603,8 +603,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                Subscription s = null;
-                string pricingUsername = string.Empty, pricingPassword = string.Empty;
+                Subscription s = null;                
                 s = Core.Pricing.Module.GetSubscriptionData(groupId, newSubscriptionCode.ToString(), string.Empty, string.Empty, string.Empty, false);
                 if (s == null || string.IsNullOrEmpty(s.m_SubscriptionCode))
                 {
