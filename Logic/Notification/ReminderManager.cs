@@ -550,7 +550,7 @@ namespace Core.Notification
                 List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
                 if (dbSeriesReminders != null && dbSeriesReminders.Count > 0)
                 {
-                    seriesReminderIdsToRemove = seriesRemindersToRemove = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId && sr.SeriesId == seriesId).Select(sr => (long)sr.ID).ToList();
+                    seriesReminderIdsToRemove = seriesRemindersToRemove = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId && sr.SeriesId == seriesId && sr.SeasonNumber != 0).Select(sr => (long)sr.ID).ToList();
                     userNotificationData.SeriesReminders = userNotificationData.SeriesReminders.Where(sr => !seriesReminderIdsToRemove.Contains(sr.AnnouncementId)).ToList();
                 }
             }

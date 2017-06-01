@@ -89,7 +89,6 @@ namespace Core.Catalog.Request
                     request.m_dServerTime = DateTime.UtcNow;
                 }
 
-
                 int totalItems;
                 List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
 
