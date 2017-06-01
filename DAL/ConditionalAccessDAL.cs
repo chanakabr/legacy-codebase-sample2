@@ -2033,9 +2033,9 @@ namespace DAL
             return allEntitlments;
         }
 
-        public static Dictionary<string, Dictionary<string, int>> Get_AllMediaIdGroupFileTypesMappings(HashSet<int> mediaIds)
+        public static Dictionary<string, Dictionary<string, List<int>>> Get_AllMediaIdGroupFileTypesMappings(HashSet<int> mediaIds)
         {
-            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
+            Dictionary<string, Dictionary<string, List<int>>> result = new Dictionary<string, Dictionary<string, List<int>>>();
             DataTable dt = null;
             string resultKey = string.Empty;
 
@@ -2056,12 +2056,19 @@ namespace DAL
 
                     if (result.Keys.Contains(resultKey))
                     {
-                        result[resultKey].Add(key, mediaFileID); 
+                        if (result[resultKey].ContainsKey(key))
+                        {
+                            result[resultKey][key].Add(mediaFileID);
+                        }
+                        else
+                        {
+                            result[resultKey].Add(key, new List<int>() { mediaFileID });
+                        }
                     }
                     else
                     {
-                        result.Add(resultKey, new Dictionary<string, int>() { {key, mediaFileID}});
-                    }                    
+                        result.Add(resultKey, new Dictionary<string, List<int>>() { { key, new List<int>() { mediaFileID } } });
+                    }
                 }
             }
 
