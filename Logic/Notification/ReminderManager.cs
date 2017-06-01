@@ -34,7 +34,7 @@ namespace Core.Notification
         private static string outerPushServerSecret = ODBCWrapper.Utils.GetTcmConfigValue("PushServerKey");
         private static string outerPushServerIV = ODBCWrapper.Utils.GetTcmConfigValue("PushServerIV");
         private static string outerPushDomainName = ODBCWrapper.Utils.GetTcmConfigValue("PushDomainName");
-        private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
 
         private static string CatalogSignString = Guid.NewGuid().ToString();
         private static string CatalogSignatureKey = ODBCWrapper.Utils.GetTcmConfigValue("CatalogSignatureKey");
@@ -83,7 +83,7 @@ namespace Core.Notification
                 if (epgProgram == null)
                 {
                     // update reminder name and startDate according to epgAssetId
-                    status = GetEpgProgram(dbReminder.GroupId, (int)dbReminder.Reference, out epgProgram);
+                    status = AnnouncementManager.GetEpgProgram(dbReminder.GroupId, (int)dbReminder.Reference, out epgProgram);
                     if (status.Code != (int)eResponseStatus.OK)
                     {
                         response.Status = status;
@@ -105,7 +105,7 @@ namespace Core.Notification
                 {
                     // update date
                     DateTime newEpgSendDate;
-                    if (!DateTime.TryParseExact(epgProgram.m_oProgram.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
+                    if (!DateTime.TryParseExact(epgProgram.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
                     {
                         log.ErrorFormat("Failed parsing EPG start date form EPG program setting, epgID: {0}, startDate: {1}", epgProgram.m_oProgram.EPG_ID, epgProgram.m_oProgram.START_DATE);
                         response.Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -550,7 +550,7 @@ namespace Core.Notification
                 List<DbSeriesReminder> dbSeriesReminders = Utils.GetSeriesReminders(groupId, userNotificationData.SeriesReminders.Select(userAnn => userAnn.AnnouncementId).ToList());
                 if (dbSeriesReminders != null && dbSeriesReminders.Count > 0)
                 {
-                    seriesReminderIdsToRemove = seriesRemindersToRemove = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId && sr.SeriesId == seriesId).Select(sr => (long)sr.ID).ToList();
+                    seriesReminderIdsToRemove = seriesRemindersToRemove = dbSeriesReminders.Where(sr => sr.EpgChannelId == epgChannelId && sr.SeriesId == seriesId && sr.SeasonNumber != 0).Select(sr => (long)sr.ID).ToList();
                     userNotificationData.SeriesReminders = userNotificationData.SeriesReminders.Where(sr => !seriesReminderIdsToRemove.Contains(sr.AnnouncementId)).ToList();
                 }
             }
@@ -693,89 +693,6 @@ namespace Core.Notification
             }
 
             return response;
-        }
-
-        private static Status GetMedia(int partnerId, int assetId, out MediaObj media)
-        {
-            Status status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-            media = null;
-
-            try
-            {
-                // send get media to catalog
-                MediaResponse mediaResponse = null;
-                var request = new MediasProtocolRequest()
-                {
-                    m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
-                    m_sSignString = CatalogSignString,
-                    m_lMediasIds = new List<int> { assetId },
-                    m_nGroupID = partnerId,
-                    m_oFilter = new Filter() { m_bOnlyActiveMedia = false }
-                };
-
-                mediaResponse = request.GetMediasByIDs(request);
-
-                // check response params
-                if (mediaResponse != null &&
-                    mediaResponse.m_lObj != null &&
-                    mediaResponse.m_lObj.Count > 0 &&
-                    mediaResponse.m_lObj.First() != null &&
-                    mediaResponse.m_lObj.First() is MediaObj)
-                {
-                    media = mediaResponse.m_lObj.First() as MediaObj;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error getting media. partner ID: {0}, asset ID: {1}. ex: {2}", partnerId, assetId, ex);
-                return status;
-            }
-            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
-        }
-
-        private static Status GetEpgProgram(int groupId, int assetId, out ProgramObj epgProgram)
-        {
-            Status status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-            EpgProgramResponse epgProgramResponse = null;
-            epgProgram = null;
-            EpgProgramDetailsRequest epgRequest = new EpgProgramDetailsRequest();
-
-            try
-            {
-                // get EPG information
-                epgRequest = new EpgProgramDetailsRequest()
-                {
-                    m_lProgramsIds = new List<int> { assetId },
-                    m_nGroupID = groupId,
-                    m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
-                    m_sSignString = CatalogSignString
-                };
-
-                epgProgramResponse = epgRequest.GetProgramsByIDs(epgRequest);
-
-                if (epgProgramResponse != null && epgProgramResponse.m_lObj != null && epgProgramResponse.m_lObj.Count > 0)
-                {
-                    epgProgram = epgProgramResponse.m_lObj[0] as ProgramObj;
-                    if (epgProgram == null)
-                    {
-                        log.ErrorFormat("Error when getting EPG information. request: {0}", JsonConvert.SerializeObject(epgRequest));
-                        return status;
-                    }
-                }
-                else
-                {
-                    log.ErrorFormat("Error when getting EPG information. request: {0}", JsonConvert.SerializeObject(epgRequest));
-                    status = new Status((int)eResponseStatus.ProgramDoesntExist, "program does not exists");
-                    return status;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error when calling catalog to get EPG information. request: {0}, ex: {1}", JsonConvert.SerializeObject(epgRequest), ex);
-                return status;
-            }
-
-            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
         private static List<ProgramObj> GetEpgPrograms(int groupId, List<int> assetIds)
@@ -1111,7 +1028,7 @@ namespace Core.Notification
 
             // get EPG program
             ProgramObj program = null;
-            var status = GetEpgProgram(partnerId, (int)reminder.Reference, out program);
+            var status = AnnouncementManager.GetEpgProgram(partnerId, (int)reminder.Reference, out program);
             if (status.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("program was not found. partner ID: {0}, start time: {1}, reminder ID: {2}, programId = ", partnerId, startTime, reminderId, reminder.Reference);
@@ -1120,7 +1037,8 @@ namespace Core.Notification
 
             // get media
             MediaObj mediaChannel = null;
-            status = GetMedia(partnerId, (int)program.m_oProgram.LINEAR_MEDIA_ID, out mediaChannel);
+            string seriesName = string.Empty;
+            status = AnnouncementManager.GetMedia(partnerId, (int)program.m_oProgram.LINEAR_MEDIA_ID, out mediaChannel, out seriesName);
             if (status.Code != (int)eResponseStatus.OK)
             {
                 log.ErrorFormat("linear media for channel was not found. partner ID: {0}, start time: {1}, reminder ID: {2}, linear media Id= ", partnerId, startTime, reminderId, program.m_oProgram.LINEAR_MEDIA_ID);
@@ -1129,16 +1047,23 @@ namespace Core.Notification
 
             // Parse start date
             DateTime dbReminderSendDate;
-            if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dbReminderSendDate))
+            if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dbReminderSendDate))
             {
                 log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
                 return false;
             }
 
+            // get reminder pre-padding
+            double prePadding = 0;
+            if (partnerSettings.settings.RemindersPrePaddingSec.HasValue)
+            {
+                prePadding = (double)partnerSettings.settings.RemindersPrePaddingSec;
+            }
+
             // validate program did not passed (10 min threshold)
             DateTime currentDate = DateTime.UtcNow;
-            if (currentDate.AddMinutes(5) < dbReminderSendDate ||
-               (currentDate.AddMinutes(-5) > dbReminderSendDate))
+            if (currentDate.AddMinutes(5) < dbReminderSendDate.AddSeconds(-prePadding) ||
+               (currentDate.AddMinutes(-5) > dbReminderSendDate.AddSeconds(-prePadding)))
             {
                 log.ErrorFormat("Program date passed. reminder ID: {0}, current date: {1}, startDate: {2}", reminderId, currentDate, dbReminderSendDate);
                 return false;
@@ -1213,32 +1138,35 @@ namespace Core.Notification
             };
 
             // send to Amazon
-            if (!string.IsNullOrEmpty(reminder.ExternalPushId))
+            if (string.IsNullOrEmpty(reminder.ExternalPushId))
             {
-                // update message reminder
-                reminder.Message = JsonConvert.SerializeObject(messageData);
-
-                string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, reminder.ExternalPushId, string.Empty, messageData);
-                if (string.IsNullOrEmpty(resultMsgId))
-                    log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for reminder {0}", reminder.ID);
-                else
-                {
-
-                    log.DebugFormat("Successfully sent reminder. reminder Id: {0}", reminder.ID);
-                    // update external push result
-                    reminder.ExternalResult = resultMsgId;
-                    reminder.IsSent = true;
-
-                    // update reminder 
-                    if (DAL.NotificationDal.SetReminder(reminder) == 0)
-                    {
-                        log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
-                    }
-                }
-
-                // send to push web - rabbit.                
-                PushToWeb(partnerId, reminder, messageData);
+                log.ErrorFormat("External push ID wasn't found. reminder: {0}", JsonConvert.SerializeObject(reminder));
+                return;
             }
+
+            // update message reminder
+            reminder.Message = JsonConvert.SerializeObject(messageData);
+
+            string resultMsgId = NotificationAdapter.PublishToAnnouncement(partnerId, reminder.ExternalPushId, string.Empty, messageData);
+            if (string.IsNullOrEmpty(resultMsgId))
+                log.ErrorFormat("failed to publish remind message to push topic. result message id is empty for reminder {0}", reminder.ID);
+            else
+            {
+
+                log.DebugFormat("Successfully sent reminder. reminder Id: {0}", reminder.ID);
+                // update external push result
+                reminder.ExternalResult = resultMsgId;
+                reminder.IsSent = true;
+
+                // update reminder 
+                if (DAL.NotificationDal.SetReminder(reminder) == 0)
+                {
+                    log.ErrorFormat("Failed to update reminder. partner ID: {0}, reminder ID: {1} ", partnerId, reminder.ID);
+                }
+            }
+
+            // send to push web - rabbit.                
+            PushToWeb(partnerId, reminder, messageData);
         }
 
         private static void SendSeriesMessageReminder(int partnerId, ProgramObj program, DateTime dbReminderSendDate, MessageTemplate seriesReminderTemplate, long reminderId, MediaObj mediaChannel)
@@ -1516,7 +1444,7 @@ namespace Core.Notification
 
             try
             {
-                SendReminders(partnerId, partnerSettings, epgs);
+                HandleEpgEventForReminders(partnerId, partnerSettings, epgs);
             }
             catch (Exception ex)
             {
@@ -1525,7 +1453,7 @@ namespace Core.Notification
 
             try
             {
-                //SendUserInterests(partnerId, partnerSettings, epgs);
+                TopicInterestManager.HandleEpgEventForInterests(partnerId, partnerSettings, epgs);
             }
             catch (Exception ex)
             {
@@ -1535,93 +1463,7 @@ namespace Core.Notification
             return true;
         }
 
-        private static void SendUserInterests(int partnerId, NotificationPartnerSettingsResponse partnerSettings, List<ProgramObj> programs)
-        {
-            // get interests topic
-            List<ApiObjects.Meta> availableTopics = Tvinci.Core.DAL.CatalogDAL.GetTopicInterests(partnerId);
-            if (availableTopics == null || availableTopics.Count == 0)
-            {
-                log.ErrorFormat("Available partner topics were not found. Partner ID: {0}", partnerId);
-                return;
-            }
-
-            // remove irrelevant topics - relevant topics are EGPs and ENABLED_NOTIFICATION
-            availableTopics.RemoveAll(x => x.AssetType != eAssetTypes.EPG ||
-                                         x.Features == null ||
-                                         !x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION));
-
-            if (availableTopics.Count == 0)
-            {
-                log.ErrorFormat("Available partner EPG notifications topics were not found. Partner ID: {0}", partnerId);
-                return;
-            }
-
-            foreach (ProgramObj program in programs)
-            {
-                // check EPG validity
-                if (program == null || program.AssetType != eAssetTypes.EPG || program.m_oProgram == null || program.m_oProgram.EPG_ID < 1)
-                {
-                    log.ErrorFormat("Error with received EPG program: {0}", JsonConvert.SerializeObject(program));
-                    continue;
-                }
-
-                // Iterate through all programs and get all topics which should be notified
-                List<EPGDictionary> programNotificationTopics;
-                foreach (var availableTopic in availableTopics)
-                {
-                    programNotificationTopics = new List<EPGDictionary>();
-
-                    // check if program contains an allowed meta notification
-                    if (program.m_oProgram.EPG_Meta.Exists(x => x.Key == availableTopic.Name))
-                        programNotificationTopics = program.m_oProgram.EPG_Meta.Where(x => x.Key == availableTopic.Name).ToList();
-
-                    // check if program contains an allowed tag notification
-                    if (program.m_oProgram.EPG_TAGS.Exists(x => x.Key == availableTopic.Name))
-                    {
-                        if (programNotificationTopics.Count > 0)
-                            programNotificationTopics.AddRange(program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList());
-                        else
-                            programNotificationTopics = program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList();
-                    }
-
-                    // check if user requested an interest notification
-                    if (programNotificationTopics != null)
-                    {
-                        foreach (var programNotificationTopic in programNotificationTopics)
-                        {
-                            // check if topic interest exists
-                            string keyValueTopic = TopicInterestManager.GetInterestKeyValueName(programNotificationTopic.Key, programNotificationTopic.Value);
-                            InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, keyValueTopic, eAssetTypes.EPG);
-                            if (interestNotification == null)
-                            {
-                                log.DebugFormat("No interest notification for topic key-value: {0}, partner ID: {1}", keyValueTopic, partnerId);
-                                continue;
-                            }
-
-                            // check if future message was not already sent and we only need to update
-
-                            // send rabbit
-                        }
-
-                    }
-                }
-
-                //program.m_oProgram.EPG_Meta.Where(x=> x.Key == 
-
-                //availableTopics.Where(x=>
-
-                //List<ApiObjects.Meta> pushTopics = availableTopics.Where(x => x.Features != null &&
-                //    x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION) &&
-                //    x.AssetType == eAssetTypes.EPG &&
-                //   (program.m_oProgram.EPG_Meta.FirstOrDefault(y => y.Key == x.Name)) != null);
-                ////program.m_oProgram.EPG_Meta
-
-
-            }
-        }
-
-
-        public static bool SendReminders(int partnerId, NotificationPartnerSettingsResponse partnerSettings, List<ProgramObj> programs)
+        public static bool HandleEpgEventForReminders(int partnerId, NotificationPartnerSettingsResponse partnerSettings, List<ProgramObj> programs)
         {
             // validate reminder is enabled
             if (!NotificationSettings.IsPartnerRemindersEnabled(partnerId))
@@ -1644,7 +1486,7 @@ namespace Core.Notification
 
                 // Parse start date
                 DateTime newEpgSendDate;
-                if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
+                if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
                 {
                     log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
                     continue;

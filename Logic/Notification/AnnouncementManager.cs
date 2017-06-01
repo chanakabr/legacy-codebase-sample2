@@ -52,6 +52,8 @@ namespace Core.Notification
         //private static string PushNotificationQueueTTLMilliSec = ODBCWrapper.Utils.GetTcmConfigValue("PushNotificationQueueTTLMilliSec");
         public const int PUSH_MESSAGE_EXPIRATION_MILLI_SEC = 3000;
 
+        public const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
         public static AddMessageAnnouncementResponse AddMessageAnnouncement(int groupId, MessageAnnouncement announcement, bool enforceMsgAllowedTime = false, bool validateMsgStartTime = true)
         {
             AddMessageAnnouncementResponse response = new AddMessageAnnouncementResponse();
@@ -1321,6 +1323,102 @@ namespace Core.Notification
                 response.NotificationId = loggedAnnouncementId;
             }
             return response;
+        }
+
+        public static Status GetEpgProgram(int groupId, int assetId, out ProgramObj epgProgram)
+        {
+            Status status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            EpgProgramResponse epgProgramResponse = null;
+            epgProgram = null;
+            EpgProgramDetailsRequest epgRequest = new EpgProgramDetailsRequest();
+
+            try
+            {
+                // get EPG information
+                epgRequest = new EpgProgramDetailsRequest()
+                {
+                    m_lProgramsIds = new List<int> { assetId },
+                    m_nGroupID = groupId,
+                    m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
+                    m_sSignString = CatalogSignString
+                };
+
+                epgProgramResponse = epgRequest.GetProgramsByIDs(epgRequest);
+
+                if (epgProgramResponse != null && epgProgramResponse.m_lObj != null && epgProgramResponse.m_lObj.Count > 0)
+                {
+                    epgProgram = epgProgramResponse.m_lObj[0] as ProgramObj;
+                    if (epgProgram == null)
+                    {
+                        log.ErrorFormat("Error when getting EPG information. request: {0}", JsonConvert.SerializeObject(epgRequest));
+                        return status;
+                    }
+                }
+                else
+                {
+                    log.ErrorFormat("Error when getting EPG information. request: {0}", JsonConvert.SerializeObject(epgRequest));
+                    status = new Status((int)eResponseStatus.ProgramDoesntExist, "program does not exists");
+                    return status;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error when calling catalog to get EPG information. request: {0}, ex: {1}", JsonConvert.SerializeObject(epgRequest), ex);
+                return status;
+            }
+
+            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+        }
+
+        public static Status GetMedia(int partnerId, int assetId, out MediaObj media, out string seriesName)
+        {
+            Status status = new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            media = null;
+            seriesName = string.Empty;
+
+            try
+            {
+                // send get media to catalog
+                MediaResponse mediaResponse = null;
+                var request = new MediasProtocolRequest()
+                {
+                    m_sSignature = NotificationUtils.GetSignature(CatalogSignString, CatalogSignatureKey),
+                    m_sSignString = CatalogSignString,
+                    m_lMediasIds = new List<int> { assetId },
+                    m_nGroupID = partnerId,
+                    m_oFilter = new Filter() { m_bOnlyActiveMedia = false }
+                };
+
+                mediaResponse = request.GetMediasByIDs(request);
+
+                // check response params
+                if (mediaResponse != null &&
+                    mediaResponse.m_lObj != null &&
+                    mediaResponse.m_lObj.Count > 0 &&
+                    mediaResponse.m_lObj.First() != null &&
+                    mediaResponse.m_lObj.First() is MediaObj)
+                {
+                    media = mediaResponse.m_lObj.First() as MediaObj;
+
+                    // check if part of a series
+                    foreach (var tag in media.m_lTags)
+                    {
+                        if (tag.m_oTagMeta != null &&
+                            tag.m_oTagMeta.m_sName.ToLower().Trim() == FollowManager.GetEpisodeAssociationTag(partnerId).ToLower().Trim())
+                        {
+                            seriesName = tag.m_lValues.First();
+                            break;
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error getting media. partner ID: {0}, asset ID: {1}. ex: {2}", partnerId, assetId, ex);
+                return status;
+            }
+            return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
     }
 }

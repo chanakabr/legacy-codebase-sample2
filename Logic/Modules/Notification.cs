@@ -67,6 +67,9 @@ namespace Core.Notification
                         // call new follow flow
                         FollowManager.AddFollowRequest(nGroupID, siteGuid, nMediaID);
 
+                        // call new follow flow
+                        TopicInterestManager.HandleVodEventForInterest(nGroupID, nMediaID);
+
                         // call old flow
                         List<FollowUpTagNotification> lNotifications = NotificationManager.Instance.GetNotifications(nGroupID, NotificationTriggerType.FollowUpByTag, nMediaID);
 

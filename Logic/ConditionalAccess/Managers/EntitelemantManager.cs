@@ -266,7 +266,14 @@ namespace Core.ConditionalAccess
                                     }
                                 }
 
-                                strViewLifeCycle = tsViewLeftSpan.TotalMilliseconds > tsFullLeftSpan.TotalMilliseconds ? tsFullLeftSpan.ToString() : tsViewLeftSpan.ToString();
+                                if (tsFullLeftSpan.TotalMilliseconds > 0 && tsViewLeftSpan.TotalMilliseconds > tsFullLeftSpan.TotalMilliseconds)
+                                {
+                                    strViewLifeCycle = tsFullLeftSpan.ToString();
+                                }
+                                else
+                                {
+                                    strViewLifeCycle = tsViewLeftSpan.ToString();
+                                }
                             }
                         }
                     }
