@@ -40,6 +40,7 @@ using ApiObjects.Pricing;
 using NPVR;
 using CachingProvider.LayeredCache;
 using Core.ConditionalAccess.Modules;
+using ApiObjects.SubscriptionSet;
 
 namespace Core.ConditionalAccess
 {
@@ -15625,13 +15626,18 @@ namespace Core.ConditionalAccess
         public virtual TransactionResponse SubscriptionSetModifySubscription(string siteguid, long housholdId, double price, string currency, int productId, string coupon, string userIp, string udid,
                                                                             int paymentGatewayId, int paymentMethodId, string adapterData, bool isUpgrade)
         {
-            return PurchaseManager.SubscriptionSetModifySubscription(this, this.m_nGroupID, siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId,
+            return PurchaseManager.SubscriptionSetModifySubscription(this, m_nGroupID, siteguid, housholdId, price, currency, productId, coupon, userIp, udid, paymentGatewayId,
                                                                     paymentMethodId, adapterData, isUpgrade);
         }
 
-        public bool Downgrade(string siteguid, long subscriptionSetModifyDetailsId)
+        public bool Downgrade(string siteguid, long subscriptionSetModifyDetailsId, ref bool shouldResetModifyStatus)
         {
-            return PurchaseManager.Downgrade(siteguid, subscriptionSetModifyDetailsId);
+            return PurchaseManager.Downgrade(this, m_nGroupID, siteguid, subscriptionSetModifyDetailsId, ref shouldResetModifyStatus);
+        }
+
+        public ApiObjects.Response.Status CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)
+        {
+            return EntitelemantManager.CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);            
         }
 
     }

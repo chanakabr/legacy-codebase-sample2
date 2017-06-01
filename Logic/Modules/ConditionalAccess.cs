@@ -3037,15 +3037,19 @@ namespace Core.ConditionalAccess
         {
             bool response = false;
 
+            // add siteguid to logs/monitor
+            HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = siteguid != null ? siteguid : "null";
+
             // get partner implementation and group ID
             BaseConditionalAccess casImpl = null;
             Utils.GetBaseConditionalAccessImpl(ref casImpl, groupId);
+            bool shouldResetModifyStatus = false;
 
             if (casImpl != null)
-            {                
+            {
                 try
                 {
-                    response = casImpl.Downgrade(siteguid, subscriptionSetModifyDetailsId);
+                    response = casImpl.Downgrade(siteguid, subscriptionSetModifyDetailsId, ref shouldResetModifyStatus);
                 }
                 catch (Exception ex)
                 {
@@ -3053,19 +3057,26 @@ namespace Core.ConditionalAccess
                 }
             }
 
+            if (shouldResetModifyStatus && !DAL.ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 1, 1))
+            {
+                log.ErrorFormat("Failed to Update SubscriptionSetModifyDetails to pending, groupId: {0}, siteguid: {1}, subscriptionSetModifyDetailsId: {2}",
+                                groupId, siteguid, subscriptionSetModifyDetailsId);
+            }
+
             return response;
         }
 
-        public static Status CancelScheduledSubscription(int groupId, long scheduledSubscriptionId)
+        public static Status CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            try
+
+            // get partner implementation and group ID
+            BaseConditionalAccess casImpl = null;
+            Utils.GetBaseConditionalAccessImpl(ref casImpl, groupId);
+
+            if (casImpl != null)
             {
-            }
-            catch (Exception ex)
-            {
-                response = new Status((int)eResponseStatus.Error, "Error");
-                log.Error(string.Format("Failed CancelScheduledSubscription, groupId: {0}, scheduledSubscriptionId: {1}", groupId, scheduledSubscriptionId), ex);
+                response = casImpl.CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);
             }
 
             return response;

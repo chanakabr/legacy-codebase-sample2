@@ -20,6 +20,8 @@ namespace ApiObjects.SubscriptionSet
 
         public long SubscriptionId { get; set; }
 
+        public long PreviousSubscriptionId { get; set; }
+
         public string UDID { get; set; }
 
         public string UserIp { get; set; }
@@ -38,12 +40,18 @@ namespace ApiObjects.SubscriptionSet
             Type = SubscriptionSetModifyType.Unknown;
         }
 
-        public SubscriptionSetModifyDetails(long id, int groupId, string userId, long domainId, long subscriptionId, string udid, string userIp, SubscriptionSetModifyType type)
+        public SubscriptionSetModifyDetails(long id, int groupId, string userId, long domainId, long subscriptionId, string previousSubscriptionId, string udid, string userIp, SubscriptionSetModifyType type)
         {
             Id = id;
             GroupId = groupId;
             UserId = userId;
             DomainId = domainId;
+            long prevSubId = 0;
+            if (long.TryParse(previousSubscriptionId, out prevSubId) && prevSubId > 0)
+            {
+                PreviousSubscriptionId = prevSubId;
+            }
+
             SubscriptionId = subscriptionId;
             UDID = udid;
             UserIp = userIp;
@@ -58,6 +66,7 @@ namespace ApiObjects.SubscriptionSet
             sb.AppendFormat("UserId: {0}, ", string.IsNullOrEmpty(UserId) ? string.Empty : UserId);
             sb.AppendFormat("DomainId: {0}, ", DomainId);
             sb.AppendFormat("SubscriptionId: {0}, ", SubscriptionId);
+            sb.AppendFormat("PreviousSubscriptionId: {0}, ", PreviousSubscriptionId);
             sb.AppendFormat("UDID: {0}, ", string.IsNullOrEmpty(UDID) ? string.Empty : UDID);
             sb.AppendFormat("UserIp: {0}, ", string.IsNullOrEmpty(UserIp) ? string.Empty : UserIp);
             sb.AppendFormat("Type: {0}, ", Type.ToString());

@@ -7518,16 +7518,17 @@ namespace Core.ConditionalAccess
             return new Tuple<List<ApiObjects.Epg.FieldTypeEntity>, bool>(result, res);
         }
 
-        internal static bool IsFirstSubscriptionSetModify(long domainId, string subscriptionId)
+        internal static bool IsFirstSubscriptionSetModify(int groupId, long domainId, long associatedPurchaseId, long scheduledSubscriptionId)
         {
             bool res = false;
             try
-            {                
-            }
-            catch (Exception)
             {
-                
-                throw;
+                return ConditionalAccessDAL.IsFirstSubscriptionSetModify(groupId, domainId, associatedPurchaseId, scheduledSubscriptionId);
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed IsFirstSubscriptionSetModify, groupId: {0}, domaindId: {1}, associatedPurchaseId: {2}, scheduledSubscriptionId: {3}",
+                                        groupId, domainId, associatedPurchaseId, scheduledSubscriptionId), ex);
             }
 
             return res;
@@ -7564,10 +7565,50 @@ namespace Core.ConditionalAccess
             return ConditionalAccessDAL.GetSubscriptionSetDowngradeDetails(groupId, id);
         }
 
-
-        internal static string GetCurrencyCodeOfPurchaseByPurchaseId(long p)
+        internal static bool DeleteSubscriptionSetDowngradeDetails(int groupId, long id)
         {
-            throw new NotImplementedException();
+            return ConditionalAccessDAL.DeleteSubscriptionSetDowngradeDetails(groupId, id);
         }
+
+        internal static string GetCurrencyCodeOfPurchaseByPurchaseId(long purchaseId)
+        {
+            string currencyCodeOfPurchase = string.Empty;
+            try
+            {
+                DataRow currentPurchaseDetails = ConditionalAccessDAL.GetPurchaseByID((int)purchaseId);
+                if (currentPurchaseDetails != null)
+                {
+                    currencyCodeOfPurchase = ODBCWrapper.Utils.GetSafeStr(currentPurchaseDetails, "CURRENCY_CD");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetCurrencyCodeOfPurchaseByPurchaseId, purchaseId: {0}", purchaseId), ex);
+            }
+
+            return currencyCodeOfPurchase;
+        }
+
+        internal static bool GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(int groupId, long domainId, long scheduledSubscriptionId, ref long subscriptionSetModifyDetailsId, ref long purchaseId)
+        {
+            bool res = false;
+            try
+            {
+                DataTable dt = ConditionalAccessDAL.GetSubscriptionSetModifyDetailsByDomainIdAndSubscriptionId(groupId, domainId, scheduledSubscriptionId);
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    subscriptionSetModifyDetailsId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                    purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "PURCHASE_ID", 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId, groupId: {0}, domainId: {1}, scheduledSubscriptionId: {2}",
+                                        groupId, domainId, scheduledSubscriptionId), ex);
+            }
+
+            return res;
+        }
+
     }
 }

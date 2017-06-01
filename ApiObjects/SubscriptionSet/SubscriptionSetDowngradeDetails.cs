@@ -36,9 +36,9 @@ namespace ApiObjects.SubscriptionSet
             StartDate = DateTime.MinValue;
         }
 
-        public SubscriptionSetDowngradeDetails(long id, int groupId, string userId, long domainId, long subscriptionId, string udid, string userIp, double price, string currencyCode,
-                                                string couponCode, int paymentGatewayId, int paymentMethodId, string adapterData, DateTime startDate)
-            : base(id, groupId, userId, domainId, subscriptionId, udid, userIp, SubscriptionSetModifyType.Downgrade)
+        public SubscriptionSetDowngradeDetails(long id, int groupId, string userId, long domainId, long subscriptionId, string previousSubscriptionId, string udid, string userIp, double price,
+                                                string currencyCode, string couponCode, int paymentGatewayId, int paymentMethodId, string adapterData, DateTime startDate)
+            : base(id, groupId, userId, domainId, subscriptionId, previousSubscriptionId, udid, userIp, SubscriptionSetModifyType.Downgrade)
         {
             Price = price;
             CurrencyCode = currencyCode;

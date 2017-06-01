@@ -2,6 +2,7 @@
 using ApiObjects.Billing;
 using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
+using CachingProvider.LayeredCache;
 using Core.ConditionalAccess.Response;
 using Core.Pricing;
 using Core.Users;
@@ -918,5 +919,56 @@ namespace Core.ConditionalAccess
 
             return response;
         }
+
+        internal static ApiObjects.Response.Status CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)
+        {
+            ApiObjects.Response.Status res = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+
+            try
+            {
+                long subscriptionSetModifyDetailsId = 0, purchaseId = 0;
+                if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId))
+                {
+                    res = new ApiObjects.Response.Status((int)eResponseStatus.ScheduledSubscriptionNotFound, eResponseStatus.ScheduledSubscriptionNotFound.ToString());
+                    return res;
+                }
+
+                // set original purchase recurring_status to 1
+                if (!ConditionalAccessDAL.UpdateSubscriptionPurchaseRenewalStatus(purchaseId, 1))
+                {
+                    log.ErrorFormat("Failed to Update Subscription purchase renewal status, groupId: {0}, domainId: {1}, scheduledSubscriptionId: {2}, purchaseId: {3}",
+                                    groupId, domainId, scheduledSubscriptionId, purchaseId);
+                    return res;
+                }
+
+                if (!ConditionalAccessDAL.UpdateSubscriptionSetModifyDetails(subscriptionSetModifyDetailsId, 2, null))
+                {
+                    log.ErrorFormat("Failed to Update SubscriptionSetModifyDetails to canceled, groupId: {0}, domainId: {1}, scheduledSubscriptionId: {2}", groupId, domainId, scheduledSubscriptionId);
+                    return res;
+                }
+
+                if (!Utils.DeleteSubscriptionSetDowngradeDetails(groupId, subscriptionSetModifyDetailsId))
+                {
+                    log.WarnFormat("Failed to delete SubscriptionSetModifyDetails, groupId: {0}, domainId: {1}, scheduledSubscriptionId: {2}, subscriptionSetModifyDetailsId: {3}",
+                                    groupId, domainId, scheduledSubscriptionId, subscriptionSetModifyDetailsId);
+                }
+
+                string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key on CancelScheduledSubscription key = {0}", invalidationKey);
+                }
+
+                res = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed CancelScheduledSubscription, , groupId: {0}, domainId: {1}, scheduledSubscriptionId: {2}", groupId, domainId, scheduledSubscriptionId), ex);
+            }
+
+            return res;
+        }
+
     }
 }
