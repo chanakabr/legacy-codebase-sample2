@@ -181,6 +181,34 @@ namespace DAL
             return result;
         }
 
+        public static List<InterestNotification> GetTopicInterestNotificationsByGroupId(int groupId, List<long> interestNotificationIds)
+        {
+            List<InterestNotification> result = null;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetTopicInterestNotificationsByIds");
+                sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddIDListParameter<long>("@notificationInterestIds", interestNotificationIds, "id");
+
+                DataSet ds = sp.ExecuteDataSet();
+                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+                {
+                    if (ds.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (DataRow row in ds.Tables[0].Rows)
+                            result.Add(CreateInterestNotification(row));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error at GetTopicInterestNotificationsByGroupId. groupId: {0}, interestNotificationIds: {1}, Error {2}", groupId, JsonConvert.SerializeObject(interestNotificationIds), ex);
+            }
+            return result;
+        }
+
         public static InterestNotification GetTopicInterestNotificationsById(int groupId, int id)
         {
             InterestNotification result = null;
