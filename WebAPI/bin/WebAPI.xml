@@ -1553,6 +1553,11 @@
             The Identifier of the purchasing household
             </summary>
         </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.ScheduledSubscriptionId">
+            <summary>
+            Scheduled Subscription Identifier
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
             <summary>
             Compensation request parameters
@@ -4053,6 +4058,13 @@
              UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
             ,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
              </remarks>
+        </member>
+        <member name="M:WebAPI.Controllers.EntitlementController.CancelScheduledSubscription(System.Int64)">
+            <summary>
+            Cancel Scheduled Subscription
+            </summary>
+            <param name="scheduledSubscriptionId">Scheduled Subscription Identifier</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.FavoriteController.Add(WebAPI.Models.Users.KalturaFavorite)">
             <summary>

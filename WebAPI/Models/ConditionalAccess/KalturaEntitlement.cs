@@ -247,5 +247,13 @@ namespace WebAPI.Models.ConditionalAccess
             set;
         }
 
+        /// <summary>
+        /// Scheduled Subscription Identifier
+        /// </summary>
+        [DataMember(Name = "scheduledSubscriptionId")]
+        [JsonProperty("scheduledSubscriptionId")]
+        [XmlElement(ElementName = "scheduledSubscriptionId", IsNullable = true)]
+        public long? ScheduledSubscriptionId { get; set; }
+
     }
 }

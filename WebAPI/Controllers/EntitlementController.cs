@@ -463,6 +463,7 @@ namespace WebAPI.Controllers
             }
             return null;
         }
+
         /// <summary>        
         /// Swap current entitlement (subscription) with new entitlement (subscription) - only Grant
         /// </summary>
@@ -495,5 +496,35 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        /// <summary>
+        /// Cancel Scheduled Subscription
+        /// </summary>
+        /// <param name="scheduledSubscriptionId">Scheduled Subscription Identifier</param>
+        /// <returns></returns>
+        [Route("cancelScheduledSubscription"), HttpPost]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [SchemeArgument("scheduledSubscriptionId", MinLong = 1)]
+        [Throws(eResponseStatus.ScheduledSubscriptionNotFound)]
+        public bool CancelScheduledSubscription(long scheduledSubscriptionId)
+        {
+            bool result = false;
+            int groupId = KS.GetFromRequest().GroupId;
+            long domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
+
+            try
+            {
+                // call client
+                result = ClientsManager.ConditionalAccessClient().CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
     }
 }

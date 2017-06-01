@@ -3197,6 +3197,8 @@ namespace WebAPI.Reflection
                             return "purchaseDate";
                         case "PurchaseId":
                             return "purchaseId";
+                        case "ScheduledSubscriptionId":
+                            return "scheduledSubscriptionId";
                         case "Type":
                             return "type";
                         case "UserId":
