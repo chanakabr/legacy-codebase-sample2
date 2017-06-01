@@ -23,13 +23,109 @@ namespace DAL
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
         private const int NUM_OF_TRIES = 3;
         private const int TTL_USER_INTEREST_DAYS = 30;
+        private const string CB_DESIGN_DOC_NOTIFICATION = "notification";
 
         private static string GetUserInterestKey(int partnerId, int userId)
         {
             return string.Format("user_interests:{0}:{1}", partnerId, userId);
         }
 
-        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, int topicInterestId, eAssetTypes assetType)
+        private static string GetUserListByInterestKey(int groupId, long userId, long interestId)
+        {
+            return string.Format("user_interests_item:{0}:{1}:{2}", groupId, userId, interestId);
+        }
+
+        public static bool SetUserInterestMapping(int groupId, int userId, int notificatonInterestId)
+        {
+            bool result = false;
+            try
+            {
+                int numOfTries = 0;
+                while (!result && numOfTries < NUM_OF_TRIES)
+                {
+                    result = cbManager.Set(GetUserListByInterestKey(groupId, userId, notificatonInterestId), userId);
+                    if (!result)
+                    {
+                        numOfTries++;
+                        log.ErrorFormat("Error while set user interest notification mapping. number of tries: {0}/{1}. GID: {2}, interest notification ID: {3}. userId: {4}",
+                             numOfTries,
+                            NUM_OF_TRIES,
+                            groupId,
+                            notificatonInterestId,
+                            userId);
+                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
+                    }
+                    else
+                    {
+                        // log success on retry
+                        if (numOfTries > 0)
+                        {
+                            numOfTries++;
+                            log.DebugFormat("successfully set user follow notification data. number of tries: {0}/{1}. GID: {2}, interest notification ID: {3}. userId: {4}",
+                            numOfTries,
+                            NUM_OF_TRIES,
+                            groupId,
+                            notificatonInterestId,
+                            userId);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while setting user interest mapping.  GID: {0}, interest notification ID: {1}. userId: {2}. error:{3}",
+                  groupId, notificatonInterestId, userId, ex);
+            }
+
+            return result;
+        }
+
+        public static bool RemoveUserInterestMapping(int groupId, int userId, long notificatonInterestId)
+        {
+            bool passed = false;
+            string userNotificationItemKey = GetUserListByInterestKey(groupId, userId, notificatonInterestId);
+
+            try
+            {
+                passed = cbManager.Remove(userNotificationItemKey);
+                if (passed)
+                    log.DebugFormat("Successfully removed {0}", userNotificationItemKey);
+                else
+                    log.ErrorFormat("Error while removing {0}", userNotificationItemKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing {0}. ex: {1}", userNotificationItemKey, ex);
+            }
+
+            return passed;
+        }
+
+        public static List<int> GetUsersListbyInterestId(int groupId, int interestId)
+        {
+            List<int> userIds = null;
+            try
+            {
+                // prepare view request
+                ViewManager viewManager = new ViewManager(CB_DESIGN_DOC_NOTIFICATION, "get_users_interests")
+                {
+                    startKey = new object[] { groupId, interestId },
+                    endKey = new object[] { groupId, interestId },
+                    staleState = ViewStaleState.False
+                };
+
+                // execute request
+                userIds = cbManager.View<int>(viewManager);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while trying to get users interest notification. GID: {0}, notification ID: {1}, ex: {2}", groupId, interestId, ex);
+            }
+
+            return userIds;
+        }
+
+        public static InterestNotification InsertTopicInterestNotification(int groupId, string name, string externalId, MessageTemplateType TemplateType, string topicNameValue, string topicInterestId, eAssetTypes assetType)
         {
             InterestNotification result = null;
             try
@@ -273,7 +369,7 @@ namespace DAL
 
         }
 
-        public static InterestNotificationMessage UpdateTopicInterestNotificationMessage(int groupId, int id, string message = null, bool? isSent = null, string pushResultMessageId = null, DateTime? responseDate = null)
+        public static InterestNotificationMessage UpdateTopicInterestNotificationMessage(int groupId, int id, DateTime? sendTime = null, string message = null, bool? isSent = null, string pushResultMessageId = null, DateTime? responseDate = null)
         {
             InterestNotificationMessage result = null;
             try
@@ -282,6 +378,9 @@ namespace DAL
                 sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@id", id);
+
+                if (sendTime.HasValue)
+                    sp.AddParameter("@send_time", sendTime.Value);
 
                 if (!string.IsNullOrEmpty(message))
                     sp.AddParameter("@message", message);
@@ -326,7 +425,7 @@ namespace DAL
                 Message = ODBCWrapper.Utils.GetSafeStr(row, "MESSAGE"),
                 Name = ODBCWrapper.Utils.GetSafeStr(row, "NAME"),
                 SendTime = ODBCWrapper.Utils.GetDateSafeVal(row, "send_time"),
-                TopicInterestsNotificationsId = ODBCWrapper.Utils.GetSafeStr(row, "topic_interests_notifications_id"),
+                TopicInterestsNotificationsId = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_interests_notifications_id"),
                 ReferenceAssetId = ODBCWrapper.Utils.GetIntSafeVal(row, "reference_asset_id")
             };
         }
@@ -339,11 +438,11 @@ namespace DAL
             return new InterestNotification()
             {
                 Id = ODBCWrapper.Utils.GetIntSafeVal(row, "ID"),
-                ExternalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
+                ExternalPushId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
                 LastMessageSentDateSec = ODBCWrapper.Utils.GetIntSafeVal(row, "last_message_sent_date_sec"),
                 Name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
                 QueueName = ODBCWrapper.Utils.GetSafeStr(row, "queue_name"),
-                TopicInterestId = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_interest_id"),
+                TopicInterestId = ODBCWrapper.Utils.GetSafeStr(row, "topic_interest_id"),
                 TopicNameValue = ODBCWrapper.Utils.GetSafeStr(row, "topic_name_value"),
                 TemplateType = Enum.IsDefined(typeof(MessageTemplateType), templateType) ? (MessageTemplateType)templateType : MessageTemplateType.None,
                 AssetType = Enum.IsDefined(typeof(eAssetTypes), assetType) ? (eAssetTypes)assetType : eAssetTypes.UNKNOWN
