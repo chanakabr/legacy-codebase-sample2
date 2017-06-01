@@ -322,6 +322,7 @@ namespace ObjectsConvertor.Mapping
                 switch (type)
                 {
                     case ResponseStatus.OK:
+                    case ResponseStatus.UserSuspended:
                         result = KalturaUserState.ok;
                         break;
                     case ResponseStatus.UserWithNoDomain:

@@ -117,12 +117,19 @@ namespace WebAPI.Controllers
                 throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "OTT-User", userIdToSwitch);
             }
 
-            // switch notification users
-            string udid = KSUtils.ExtractKSPayload().UDID;
-            ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, udid);
+            try
+            {
+                // switch notification users
+                string udid = KSUtils.ExtractKSPayload().UDID;
+                ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, udid);
 
-            loginSession = AuthorizationManager.GenerateSession(userIdToSwitch, groupId, false, false, udid);
-            AuthorizationManager.LogOut(ks);
+                loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, udid);
+                AuthorizationManager.LogOut(ks);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
 
             return loginSession;
         }

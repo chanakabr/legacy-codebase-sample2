@@ -118,18 +118,6 @@ namespace WebAPI.Managers
             // get group configurations
             Group group = GetGroupConfiguration(groupId);
 
-            // validate user is active
-            bool isUserActivated = false;
-            try
-            {
-                isUserActivated = ClientsManager.UsersClient().IsUserActivated(groupId, userId);
-            }
-            catch (ClientException ex)
-            {
-                log.ErrorFormat("GenerateSession: error while getting user. userId = {0}, exception = {1}", userId, ex);
-                ErrorUtils.HandleClientException(ex);
-            }
-
             // generate access token and refresh token pair
             ApiToken token = new ApiToken(userId, groupId, udid, isAdmin, group, isLoginWithPin);
             string tokenKey = string.Format(group.TokenKeyFormat, token.RefreshToken);
@@ -681,5 +669,26 @@ namespace WebAPI.Managers
                 log.ErrorFormat("RemoveUserSessions: failed to remove UserSessions from CB, key = {0}, uderId = {1}", userSessionsCbKey, userId);
             }
         }
+
+        public static KalturaLoginSession SwitchUser(string userId, int groupId, string udid = null)
+        {
+            KalturaLoginSession loginSession = null;
+
+            // validate user is active
+            try
+            {
+                bool isUserActivated = ClientsManager.UsersClient().IsUserActivated(groupId, userId);
+            }
+            catch (ClientException ex)
+            {
+                log.ErrorFormat("SwitchUser: error while getting user. userId = {0}, exception = {1}", userId, ex);
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            loginSession = AuthorizationManager.GenerateSession(userId, groupId, false, false, udid);
+
+            return loginSession;
+        }
+
     }
 }
