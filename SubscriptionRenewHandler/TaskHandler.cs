@@ -50,6 +50,10 @@ namespace SubscriptionRenewHandler
                         success = Core.ConditionalAccess.Module.GiftCardReminder(request.GroupID, request.SiteGuid, request.PurchaseId, request.BillingGuid, request.EndDate);
                         break;
                     }
+                    case eSubscriptionRenewRequestType.Downgrade:
+                    {
+                        success = Core.ConditionalAccess.Module.Downgrade(request.GroupID, request.SiteGuid, request.PurchaseId);
+                    }
                     default:
                     break;
                 }
