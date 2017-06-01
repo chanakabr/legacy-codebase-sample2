@@ -80,6 +80,10 @@ namespace ApiObjects.Response
         ItemNotFound = 2032,
         UserInterestNotExist = 2033,
         UserInterestAlreadyExist = 2034,
+        NoUserInterestToInsert = 2035,
+        MetaIdRequired = 2036,
+        MetaValueRequired = 2037,
+
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,
