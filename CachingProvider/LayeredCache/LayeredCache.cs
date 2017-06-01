@@ -468,7 +468,7 @@ namespace CachingProvider.LayeredCache
                         result = tuple.Item2;
                         if (tuple.Item1 != null)
                         {
-                            foreach (KeyValuePair<string, T> pair in tuple.Item1)
+                            foreach (KeyValuePair<string, T> pair in tuple.Item1.Where(x => keysToGet.Contains(x.Key)))
                             {
                                 tupleResults.Add(pair.Key, new Tuple<T, long>(pair.Value, Utils.UnixTimeStampNow()));
                             }
