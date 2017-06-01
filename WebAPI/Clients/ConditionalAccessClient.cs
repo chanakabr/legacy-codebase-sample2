@@ -2200,7 +2200,7 @@ namespace WebAPI.Clients
             return clientResponse;
         }
 
-        internal bool CancelScheduledSubscription(int groupId, long scheduledSubscriptionId)
+        internal bool CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)
         {
             Status response = null;
 
@@ -2209,7 +2209,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     // fire request
-                    response = Core.ConditionalAccess.Module.CancelScheduledSubscription(groupId, scheduledSubscriptionId);
+                    response = Core.ConditionalAccess.Module.CancelScheduledSubscription(groupId, domainId, scheduledSubscriptionId);
                 }
             }
             catch (Exception ex)
