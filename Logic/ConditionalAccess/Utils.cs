@@ -3314,7 +3314,7 @@ namespace Core.ConditionalAccess
             return domainPpvEntitlements;
         }
 
-        private static List<int> GetRelatedFileIDs(int mediaID, int[] ppvGroupFileTypes, Dictionary<string, int> mediaIdGroupFileTypeMappings)
+        private static List<int> GetRelatedFileIDs(int mediaID, int[] ppvGroupFileTypes, Dictionary<string, List<int>> mediaIdGroupFileTypeMappings)
         {
             List<int> relatedFileTypes = new List<int>();
             if (ppvGroupFileTypes != null && ppvGroupFileTypes.Length > 0 && mediaIdGroupFileTypeMappings.Count > 0)
@@ -3324,13 +3324,13 @@ namespace Core.ConditionalAccess
                     string mapKey = mediaID + "_" + groupFileTypeID;
                     if (mediaIdGroupFileTypeMappings.ContainsKey(mapKey))
                     {
-                        relatedFileTypes.Add(mediaIdGroupFileTypeMappings[mapKey]);
+                        relatedFileTypes.AddRange(mediaIdGroupFileTypeMappings[mapKey]);
                     }
                 }
             }
             else
             {
-                foreach (int mediaFileID in mediaIdGroupFileTypeMappings.Where(dic => dic.Key.StartsWith(mediaID.ToString())).Select(dic => dic.Value).ToList<int>())
+                foreach (int mediaFileID in mediaIdGroupFileTypeMappings.Where(dic => dic.Key.StartsWith(mediaID.ToString())).SelectMany(dic => dic.Value))
                 {
                     relatedFileTypes.Add(mediaFileID);
                 }
@@ -6724,8 +6724,8 @@ namespace Core.ConditionalAccess
                             }
                         }
 
-                        Dictionary<string, Dictionary<string, int>> mediaIdGroupFileTypeMapper = null;                        
-                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, int>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
+                        Dictionary<string, Dictionary<string, List<int>>> mediaIdGroupFileTypeMapper = null;
+                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, List<int>>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
                                                                                                     new Dictionary<string, object>() { { "mediaIds", mediaIdsToMap } },
                                                                                                     groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME,
                                                                                                     invalidationKeysMap);
@@ -6734,12 +6734,12 @@ namespace Core.ConditionalAccess
                             log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file types mappings from cache keys: {0}", string.Join(",", keys)));
                         }
 
-                        Dictionary<string, int> mapping = new Dictionary<string, int>();
+                        Dictionary<string, List<int>> mapping = new Dictionary<string, List<int>>();
 
                         // combine all the results (all dictionaries that return to ONE dictionary)
-                        foreach (Dictionary<string, int> val in mediaIdGroupFileTypeMapper.Values)
+                        foreach (Dictionary<string, List<int>> val in mediaIdGroupFileTypeMapper.Values)
                         {
-                            foreach (KeyValuePair<string, int> item in val)
+                            foreach (KeyValuePair<string, List<int>> item in val)
                             {
                                 if (!mapping.ContainsKey(item.Key))
                                 {
@@ -7013,10 +7013,10 @@ namespace Core.ConditionalAccess
             return new Tuple<int, bool>(mediaFileID, res);
         }
 
-        private static Tuple<Dictionary<string, Dictionary<string, int>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
+        private static Tuple<Dictionary<string, Dictionary<string, List<int>>>, bool> Get_AllMediaIdGroupFileTypesMappings(Dictionary<string, object> funcParams)
         {
             bool res = false;
-            Dictionary<string, Dictionary<string, int>> result = new Dictionary<string, Dictionary<string, int>>();
+            Dictionary<string, Dictionary<string, List<int>>> result = new Dictionary<string, Dictionary<string, List<int>>>();
             try
             {
                 if (funcParams.ContainsKey("mediaIds"))
@@ -7035,7 +7035,7 @@ namespace Core.ConditionalAccess
                 log.Error(string.Format("Get_FileAndMediaBasicDetails faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
-            return new Tuple<Dictionary<string, Dictionary<string, int>>, bool>(result, res);
+            return new Tuple<Dictionary<string, Dictionary<string, List<int>>>, bool>(result, res);
         }
 
         internal static ApiObjects.Response.Status ValidatePPVModuleCode(int groupId, int productId, int contentId, ref PPVModule thePPVModule)
