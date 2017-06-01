@@ -1453,7 +1453,7 @@ namespace Core.Notification
 
             try
             {
-                HandleEpgEventForInterests(partnerId, partnerSettings, epgs);
+                TopicInterestManager.HandleEpgEventForInterests(partnerId, partnerSettings, epgs);
             }
             catch (Exception ex)
             {
@@ -1461,126 +1461,6 @@ namespace Core.Notification
             }
 
             return true;
-        }
-
-        private static void HandleEpgEventForInterests(int partnerId, NotificationPartnerSettingsResponse partnerSettings, List<ProgramObj> programs)
-        {
-            // get interests topic
-            List<ApiObjects.Meta> availableTopics = Tvinci.Core.DAL.CatalogDAL.GetTopicInterests(partnerId);
-            if (availableTopics == null || availableTopics.Count == 0)
-            {
-                log.ErrorFormat("Available partner topics were not found. Partner ID: {0}", partnerId);
-                return;
-            }
-
-            // remove irrelevant topics - relevant topics are EGPs and ENABLED_NOTIFICATION
-            availableTopics.RemoveAll(x => x.AssetType != eAssetTypes.EPG ||
-                                         x.Features == null ||
-                                         !x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION));
-
-            if (availableTopics.Count == 0)
-            {
-                log.ErrorFormat("Available partner EPG notifications topics were not found. Partner ID: {0}", partnerId);
-                return;
-            }
-
-            foreach (ProgramObj program in programs)
-            {
-                // check EPG validity
-                if (program == null || program.AssetType != eAssetTypes.EPG || program.m_oProgram == null || program.m_oProgram.EPG_ID < 1)
-                {
-                    log.ErrorFormat("Error with received EPG program: {0}", JsonConvert.SerializeObject(program));
-                    continue;
-                }
-
-                // Iterate through all programs and get all topics which should be notified
-                List<EPGDictionary> programNotificationTopics;
-                foreach (var availableTopic in availableTopics)
-                {
-                    programNotificationTopics = new List<EPGDictionary>();
-
-                    // check if program contains an allowed meta notification
-                    if (program.m_oProgram.EPG_Meta.Exists(x => x.Key == availableTopic.Name))
-                        programNotificationTopics = program.m_oProgram.EPG_Meta.Where(x => x.Key == availableTopic.Name).ToList();
-
-                    // check if program contains an allowed tag notification
-                    if (program.m_oProgram.EPG_TAGS.Exists(x => x.Key == availableTopic.Name))
-                    {
-                        if (programNotificationTopics.Count > 0)
-                            programNotificationTopics.AddRange(program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList());
-                        else
-                            programNotificationTopics = program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList();
-                    }
-
-                    // check if user requested an interest notification
-                    if (programNotificationTopics != null)
-                    {
-                        InterestNotificationMessage newInterestMessage;
-                        foreach (var programNotificationTopic in programNotificationTopics)
-                        {
-                            // Parse program start date (with reminder pre-padding)
-                            DateTime newEpgSendDate;
-                            if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
-                            {
-                                log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
-                                continue;
-                            }
-                            newEpgSendDate = newEpgSendDate.AddSeconds((double)partnerSettings.settings.RemindersPrePaddingSec * -1);
-
-                            // check if topic interest exists
-                            string keyValueTopic = TopicInterestManager.GetInterestKeyValueName(programNotificationTopic.Key, programNotificationTopic.Value);
-                            InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, keyValueTopic, eAssetTypes.EPG);
-                            if (interestNotification == null)
-                            {
-                                log.DebugFormat("No interest notification for topic key-value: {0}, partner ID: {1}", keyValueTopic, partnerId);
-                                continue;
-                            }
-
-                            // check if future message was not already sent and we only need to update
-                            InterestNotificationMessage oldInterestMessage = InterestDal.GetTopicInterestNotificationMessageByInterestNotificationId(partnerId, interestNotification.Id, (int)program.m_oProgram.EPG_ID);
-                            if (oldInterestMessage == null)
-                            {
-                                // interest message wasn't found - create a new one
-                                newInterestMessage = new InterestNotificationMessage()
-                                {
-                                    Name = string.Format("Interest_{0}_{1}", keyValueTopic, program.m_oProgram.NAME),
-                                    ReferenceAssetId = (int)program.m_oProgram.EPG_ID,
-                                    SendTime = newEpgSendDate,
-                                    TopicInterestsNotificationsId = interestNotification.Id
-                                };
-
-                                // insert to DB
-                                newInterestMessage = InterestDal.InsertTopicInterestNotificationMessage(partnerId, newInterestMessage.Name, newInterestMessage.Message, newInterestMessage.SendTime, newInterestMessage.TopicInterestsNotificationsId, newInterestMessage.ReferenceAssetId);
-                                if (newInterestMessage == null || newInterestMessage.Id == 0)
-                                {
-                                    log.ErrorFormat("Error while trying to insert new interest message. topic: {0}, program: {1}", JsonConvert.SerializeObject(programNotificationTopic), JsonConvert.SerializeObject(program));
-                                    continue;
-                                }
-
-                                // send rabbit
-                                TopicInterestManager.AddInterestToQueue(partnerId, newInterestMessage);
-                            }
-                            else
-                            {
-                                // interest found - check if send date changed
-                                if ((oldInterestMessage.SendTime - newEpgSendDate).Duration() > TimeSpan.FromMinutes(1))
-                                {
-                                    // epg program date changed - update DB
-                                    newInterestMessage = InterestDal.UpdateTopicInterestNotificationMessage(partnerId, oldInterestMessage.Id, newEpgSendDate);
-                                    if (newInterestMessage == null || newInterestMessage.Id == 0)
-                                    {
-                                        log.ErrorFormat("Error while trying to update interest message time. topic: {0}, program: {1}", JsonConvert.SerializeObject(programNotificationTopic), JsonConvert.SerializeObject(program));
-                                        continue;
-                                    }
-
-                                    // send rabbit
-                                    TopicInterestManager.AddInterestToQueue(partnerId, newInterestMessage);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         public static bool HandleEpgEventForReminders(int partnerId, NotificationPartnerSettingsResponse partnerSettings, List<ProgramObj> programs)
