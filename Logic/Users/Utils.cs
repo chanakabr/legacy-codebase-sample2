@@ -696,9 +696,16 @@ namespace Core.Users
         }
 
 
-        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status)
+        public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus status, bool isLogin = false)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status();
+
+            if (isLogin && status == ResponseStatus.UserSuspended)
+            {
+                result.Code = (int)eResponseStatus.OK;
+                result.Message = "OK";
+                return result;
+            }
 
             switch (status)
             {
