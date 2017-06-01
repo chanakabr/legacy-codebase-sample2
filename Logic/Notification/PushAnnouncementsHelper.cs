@@ -58,6 +58,11 @@ namespace Core.Notification
             result.AddRange(temp);
             temp = null;
 
+            // Get list of series interests to subscribe 
+            temp = PrepareUserInterestSubscriptions(groupId, userNotificationData, deviceData, pushExternalToken);
+            result.AddRange(temp);
+            temp = null;
+
             return result;
         }
 
@@ -108,6 +113,17 @@ namespace Core.Notification
                     foreach (var reminderSubscription in deviceData.SubscribedSeriesReminders)
                     {
                         subscriptionToRemove = new UnSubscribe() { SubscriptionArn = reminderSubscription.ExternalId, ExternalId = reminderSubscription.Id };
+                        result.Add(subscriptionToRemove);
+                    }
+                }
+
+                // prepare interests subscription to cancel list
+                if (deviceData.SubscribedUserInterests != null)
+                {
+                    UnSubscribe subscriptionToRemove;
+                    foreach (var interestSubscription in deviceData.SubscribedUserInterests)
+                    {
+                        subscriptionToRemove = new UnSubscribe() { SubscriptionArn = interestSubscription.ExternalId, ExternalId = interestSubscription.Id };
                         result.Add(subscriptionToRemove);
                     }
                 }
@@ -447,6 +463,86 @@ namespace Core.Notification
                 }
 
                 result.Add(reminderAnnouncement);
+            }
+
+            return result;
+        }
+
+        public static List<AnnouncementSubscriptionData> PrepareUserInterestSubscriptions(int groupId, UserNotification userNotificationData, DeviceNotificationData deviceData, string pushExternalToken)
+        {
+            List<AnnouncementSubscriptionData> result = new List<AnnouncementSubscriptionData>();
+
+            // get notification list from user object
+            List<long> interestIDs = new List<long>();
+            if (userNotificationData != null && userNotificationData.UserInterests != null)
+                interestIDs = userNotificationData.UserInterests.Select(x => x.AnnouncementId).ToList();
+            else
+                log.DebugFormat("User doesn't have any notification interests. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+
+
+            // get interests from DB
+            var interestNotifications = InterestDal.GetTopicInterestNotificationsByGroupId(groupId, interestIDs);
+
+            AnnouncementSubscriptionData interestAnnouncement;
+            foreach (var interestId in interestIDs)
+            {
+                if (interestNotifications == null || interestNotifications.Count() == 0)
+                {
+                    log.ErrorFormat("device interest wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, interest notification ID: {3}",
+                        groupId, userNotificationData.UserId,
+                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
+                        interestId);
+                    continue;
+                }
+
+                var interestNotification = interestNotifications.FirstOrDefault(x => x.Id == interestId);
+                if (interestNotification == null)
+                {
+                    log.ErrorFormat("device interest wasn't found. partner ID: {0}, user ID: {1}, UDID: {2}, interest ID: {3}",
+                        groupId, userNotificationData.UserId,
+                        deviceData != null && deviceData.Udid != null ? deviceData.Udid : string.Empty,
+                        interestId);
+                    continue;
+                }
+
+                // validate external announcement ID
+                string topicArn = interestNotification.ExternalPushId;
+                if (string.IsNullOrEmpty(topicArn))
+                {
+                    log.ErrorFormat("interest doesn't have external push ID. interest: {0}", JsonConvert.SerializeObject(interestNotification));
+                    continue;
+                }
+
+                // create subscription announcement
+                interestAnnouncement = new AnnouncementSubscriptionData()
+                {
+                    Protocol = EnumseDeliveryProtocol.application,
+                    TopicArn = topicArn,
+                    EndPointArn = pushExternalToken,
+                    ExternalId = interestNotification.Id
+                };
+
+                // validate partner enabled push notifications
+                if (!NotificationSettings.IsPartnerPushEnabled(groupId))
+                {
+                    log.ErrorFormat("Partner push notification is disabled. PID: {0}, UID: {1}", groupId, userNotificationData.UserId);
+                    break;
+                }
+
+                // validate device doesn't already has the follow push
+                if (deviceData != null &&
+                    deviceData.SubscribedUserInterests != null &&
+                    deviceData.SubscribedUserInterests.FirstOrDefault(x => x.Id == interestNotification.Id) != null)
+                {
+                    log.DebugFormat("Device already has the interest. PID: {0}, UID: {1}, UDID: {2}, interest ID: {3}",
+                        groupId,
+                        userNotificationData.UserId,
+                        deviceData.Udid,
+                        interestNotification.Id);
+                    continue;
+                }
+
+                result.Add(interestAnnouncement);
             }
 
             return result;
