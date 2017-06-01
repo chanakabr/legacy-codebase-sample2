@@ -53,6 +53,7 @@ namespace SubscriptionRenewHandler
                     case eSubscriptionRenewRequestType.Downgrade:
                     {
                         success = Core.ConditionalAccess.Module.Downgrade(request.GroupID, request.SiteGuid, request.PurchaseId);
+                        break;
                     }
                     default:
                     break;
@@ -60,11 +61,12 @@ namespace SubscriptionRenewHandler
 
                 if (!success)
                 {
-                    throw new Exception(string.Format("Renew subscription request did not finish successfully. Purchase id = {0}, siteguid = {1}, BillingGuid = {2}, EndDate = {3}.",
+                    throw new Exception(string.Format("Renew subscription request did not finish successfully. Purchase id = {0}, siteguid = {1}, BillingGuid = {2}, EndDate = {3}, requestType = {4}",
                         request != null ? request.PurchaseId : 0,                                            // {0}
                         request != null && request.SiteGuid != null ? request.SiteGuid : string.Empty,       // {1}
                         request != null && request.BillingGuid != null ? request.BillingGuid : string.Empty, // {2}
-                        request != null ? request.EndDate : 0));                                             // {3}
+                        request != null ? request.EndDate : 0,                                               // {3}
+                        requestType));                                                                       // {4}
                 }
 
                 result = "success";
