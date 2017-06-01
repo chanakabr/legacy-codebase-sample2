@@ -112,7 +112,7 @@ namespace APILogic.Notification
 
                         // create Amazon topic 
                         string externalId = string.Empty;
-                        if (string.IsNullOrEmpty(interestNotification.ExternalId))
+                        if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
                         {
                             externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", topicNameValue));
                             if (string.IsNullOrEmpty(externalId))
@@ -203,7 +203,7 @@ namespace APILogic.Notification
                                     {
                                         EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
                                         Protocol = EnumseDeliveryProtocol.application,
-                                        TopicArn = interestNotification.ExternalId,
+                                        TopicArn = interestNotification.ExternalPushId,
                                         ExternalId = interestNotification.Id
                                     };
 
