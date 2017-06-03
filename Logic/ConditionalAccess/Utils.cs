@@ -2947,13 +2947,19 @@ namespace Core.ConditionalAccess
             Dictionary<string, DataTable> result = new Dictionary<string, DataTable>();            
             try
             {
-                if (funcParams != null && funcParams.Count == 2 && funcParams.ContainsKey("fileIDs") && funcParams.ContainsKey("groupId"))
+                if (funcParams != null && funcParams.ContainsKey("fileIDs") && funcParams.ContainsKey("groupId"))
                 {
                     string key = string.Empty;
                     int[] fileIDs;
-
                     int? groupId = funcParams["groupId"] as int?;
-                    fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        fileIDs = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToArray();
+                    }
+                    else
+                    {
+                        fileIDs = funcParams["fileIDs"] != null ? funcParams["fileIDs"] as int[] : null;
+                    }
 
                     if (fileIDs != null && groupId.HasValue)
                     {
@@ -7007,15 +7013,20 @@ namespace Core.ConditionalAccess
             Dictionary<string, Dictionary<string, List<int>>> result = new Dictionary<string, Dictionary<string, List<int>>>();
             try
             {
-                if (funcParams.ContainsKey("mediaIds"))
+                HashSet<int> mediaIds = null;
+                if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                 {
-                    HashSet<int> mediaIds;
+                    List<int> ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => int.Parse(x)).ToList();
+                    mediaIds = new HashSet<int>(ids);
+                }
+                else if (funcParams.ContainsKey("mediaIds"))
+                {
                     mediaIds = funcParams["mediaIds"] != null ? funcParams["mediaIds"] as HashSet<int> : null;
-                    if (mediaIds != null)
-                    {
-                        result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIds);
-                        res = true;
-                    }
+                }
+                if (mediaIds != null)
+                {
+                    result = ConditionalAccessDAL.Get_AllMediaIdGroupFileTypesMappings(mediaIds);
+                    res = true;
                 }
             }
             catch (Exception ex)
