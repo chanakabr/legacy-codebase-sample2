@@ -194,14 +194,9 @@ namespace Core.Notification
             try
             {
                 Dictionary<string, DbSeriesReminder> seriesReminderMap = null;
-                List<string> keys = new List<string>();
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetSeriesRemindersKeysMap(groupId, seriesReminderIds);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetSeriesRemindersInvalidationKeysMap(groupId, seriesReminderIds);
-                if (invalidationKeysMap != null && invalidationKeysMap.Count > 0)
-                {
-                    keys = invalidationKeysMap.Keys.ToList();
-                }
-
-                if (!LayeredCache.Instance.GetValues<DbSeriesReminder>(keys, ref seriesReminderMap, GetSeriesReminder, new Dictionary<string, object>() { { "groupId", groupId },
+                if (!LayeredCache.Instance.GetValues<DbSeriesReminder>(keyToOriginalValueMap, ref seriesReminderMap, GetSeriesReminder, new Dictionary<string, object>() { { "groupId", groupId },
                                                                         { "seriesReminderIds", seriesReminderIds } }, groupId, LayeredCacheConfigNames.GET_SERIES_REMINDERS_CACHE_CONFIG_NAME,
                                                                         invalidationKeysMap))
                 {
@@ -229,7 +224,15 @@ namespace Core.Notification
                 if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("seriesReminderIds"))
                 {                                        
                     int? groupId = funcParams["groupId"] as int?;
-                    List<long> seriesReminderIds = funcParams["seriesReminderIds"] != null ? funcParams["seriesReminderIds"] as List<long> : null;
+                    List<long> seriesReminderIds = null;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        seriesReminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();                        
+                    }
+                    else
+                    {
+                        seriesReminderIds = funcParams["seriesReminderIds"] != null ? funcParams["seriesReminderIds"] as List<long> : null;
+                    }
 
                     if (seriesReminderIds != null && seriesReminderIds.Count > 0 && groupId.HasValue)
                     {
@@ -310,14 +313,9 @@ namespace Core.Notification
             try
             {
                 Dictionary<string, DbReminder> reminderMap = null;
-                List<string> keys = new List<string>();
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetRemindersKeysMap(groupId, reminderIds);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetRemindersInvalidationKeysMap(groupId, reminderIds);
-                if (invalidationKeysMap != null && invalidationKeysMap.Count > 0)
-                {
-                    keys = invalidationKeysMap.Keys.ToList();
-                }
-
-                if (!LayeredCache.Instance.GetValues<DbReminder>(keys, ref reminderMap, GetReminders, new Dictionary<string, object>() { { "groupId", groupId },
+                if (!LayeredCache.Instance.GetValues<DbReminder>(keyToOriginalValueMap, ref reminderMap, GetReminders, new Dictionary<string, object>() { { "groupId", groupId },
                                                                         { "reminderIds", reminderIds } }, groupId, LayeredCacheConfigNames.GET_REMINDERS_CACHE_CONFIG_NAME,
                                                                         invalidationKeysMap))
                 {
@@ -345,7 +343,15 @@ namespace Core.Notification
                 if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("reminderIds"))
                 {
                     int? groupId = funcParams["groupId"] as int?;
-                    List<long> reminderIds = funcParams["reminderIds"] != null ? funcParams["reminderIds"] as List<long> : null;
+                    List<long> reminderIds = null;
+                    if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+                    {
+                        reminderIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();                        
+                    }
+                    else
+                    {
+                        reminderIds = funcParams["reminderIds"] != null ? funcParams["reminderIds"] as List<long> : null;
+                    }
 
                     if (reminderIds != null && reminderIds.Count > 0 && groupId.HasValue)
                     {
@@ -378,5 +384,6 @@ namespace Core.Notification
 
             return new Tuple<Dictionary<string, DbReminder>, bool>(result, res);
         }
+
     }
 }
