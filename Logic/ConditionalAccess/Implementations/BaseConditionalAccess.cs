@@ -1768,6 +1768,12 @@ namespace Core.ConditionalAccess
 									};
 
 									EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData);
+
+                                    string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(p_nDomainId);
+                                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                                    {
+                                        log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
+                                    }
 								}
 								else
 								{

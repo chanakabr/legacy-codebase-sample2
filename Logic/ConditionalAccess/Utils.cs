@@ -6806,7 +6806,8 @@ namespace Core.ConditionalAccess
                 LayeredCacheKeys.GetPurchaseInvalidationKey(domainId),
                 LayeredCacheKeys.GetGrantEntitlementInvalidationKey(domainId),
                 LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId),
-                LayeredCacheKeys.GetRenewInvalidationKey(domainId)
+                LayeredCacheKeys.GetRenewInvalidationKey(domainId),
+                LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId)
             };
         }
 
