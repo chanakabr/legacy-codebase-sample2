@@ -3013,10 +3013,10 @@ namespace Core.ConditionalAccess
 
                 // get basic file details from cach / DB                 
                 Dictionary<string, DataTable> fileDatatables = null;
-                List<string> keys = nMediaFiles.Select(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x, groupId)).ToList();
+                Dictionary<string, string> keysToOriginalValueMap = nMediaFiles.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x, groupId), x => x.ToString());
 
                 // try to get from cache            
-                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keys, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles }, { "groupId", groupId } },
+                bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keysToOriginalValueMap, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles }, { "groupId", groupId } },
                                                                                 groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
 
                 int mediaFileID;
@@ -3120,7 +3120,7 @@ namespace Core.ConditionalAccess
                 }
                 else
                 {
-                    log.Error(string.Format("ValidateMediaFiles -  LayeredCache return false for keys :{0}", string.Join(",", keys)));
+                    log.Error(string.Format("ValidateMediaFiles -  LayeredCache return false for keys :{0}", string.Join(",", keysToOriginalValueMap.Keys)));
                 }
             }
             catch (Exception ex)
@@ -6701,25 +6701,25 @@ namespace Core.ConditionalAccess
                     {
                         HashSet<int> mediaIdsToMap = new HashSet<int>();
                         Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
-                        List<string> keys = new List<string>();
+                        Dictionary<string, string> keyToOriginalValueMap = new Dictionary<string, string>();
                         foreach (MeidaMaper mediaMapper in mapper)
                         {
                             if (!mediaIdsToMap.Contains(mediaMapper.m_nMediaID))
                             {
                                 mediaIdsToMap.Add(mediaMapper.m_nMediaID);
-                                invalidationKeysMap.Add(mediaMapper.m_nMediaID.ToString(), new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaMapper.m_nMediaID) });
-                                keys.Add(DAL.UtilsDal.MediaIdGroupFileTypesKey(mediaMapper.m_nMediaID));
+                                invalidationKeysMap.Add(DAL.UtilsDal.MediaIdGroupFileTypesKey(mediaMapper.m_nMediaID), new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaMapper.m_nMediaID) });
+                                keyToOriginalValueMap.Add(DAL.UtilsDal.MediaIdGroupFileTypesKey(mediaMapper.m_nMediaID), mediaMapper.m_nMediaID.ToString());
                             }
                         }
 
                         Dictionary<string, Dictionary<string, List<int>>> mediaIdGroupFileTypeMapper = null;
-                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, List<int>>>(keys, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
+                        bool cacheResult = LayeredCache.Instance.GetValues<Dictionary<string, List<int>>>(keyToOriginalValueMap, ref mediaIdGroupFileTypeMapper, Get_AllMediaIdGroupFileTypesMappings,
                                                                                                     new Dictionary<string, object>() { { "mediaIds", mediaIdsToMap } },
                                                                                                     groupId, LayeredCacheConfigNames.GET_MEDIA_ID_GROUP_FILE_MAPPER_LAYERED_CACHE_CONFIG_NAME,
                                                                                                     invalidationKeysMap);
                         if (!cacheResult)
                         {
-                            log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file types mappings from cache keys: {0}", string.Join(",", keys)));
+                            log.Error(string.Format("InitializeUsersEntitlements fail get mediaId group file types mappings from cache keys: {0}", string.Join(",", keyToOriginalValueMap.Keys)));
                         }
 
                         Dictionary<string, List<int>> mapping = new Dictionary<string, List<int>>();
