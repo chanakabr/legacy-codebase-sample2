@@ -17,6 +17,8 @@ namespace CachingProvider.LayeredCache
         private static LayeredCache instance = null;
         private static JsonSerializerSettings layeredCacheConfigSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
 
+        public const string MISSING_KEYS = "NeededKeys";
+
         private LayeredCache() { }
 
         public static LayeredCache Instance
@@ -79,7 +81,7 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public bool GetValues<T>(List<string> keys, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
+        public bool GetValues<T>(Dictionary<string, string> KeyToOriginalValueMap, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
                                     Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
             bool res = false;
@@ -87,11 +89,11 @@ namespace CachingProvider.LayeredCache
             Dictionary<string, Tuple<T, long>> resultsMapping = null;
             try
             {
-                res = TryGetValuesFromCacheByConfig<T>(keys, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod, funcParameters, groupId, inValidationKeysMap);
+                res = TryGetValuesFromCacheByConfig<T>(KeyToOriginalValueMap, ref resultsMapping, layeredCacheConfigName, out insertToCacheConfigMappings, fillObjectsMethod, funcParameters, groupId, inValidationKeysMap);
                 results = resultsMapping != null && resultsMapping.Count > 0 ? resultsMapping.ToDictionary(x => x.Key, x => x.Value.Item1) : null;
                 if (insertToCacheConfigMappings != null && insertToCacheConfigMappings.Count > 0 && res && results != null)
                 {
-                    Dictionary<string, string> keyToVersionMappings = GetOriginalKeyToVersionKeyMap(keys, groupId);
+                    Dictionary<string, string> keyToVersionMappings = GetOriginalKeyToVersionKeyMap(KeyToOriginalValueMap.Keys.ToList(), groupId);
                     if (keyToVersionMappings != null && keyToVersionMappings.Count > 0)
                     {
                         foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfigMappings)
@@ -119,7 +121,7 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", keys),
+                log.Error(string.Format("Failed GetValues with keys {0} from LayeredCache, layeredCacheConfigName {1}, MethodName {2} and funcParameters {3}", string.Join(",", KeyToOriginalValueMap.Keys),
                                         string.IsNullOrEmpty(layeredCacheConfigName) ? string.Empty : layeredCacheConfigName,
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
@@ -381,7 +383,7 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        private bool TryGetValuesFromCacheByConfig<T>(List<string> keys, ref Dictionary<string, Tuple<T, long>> tupleResults, string layeredCacheConfigName,
+        private bool TryGetValuesFromCacheByConfig<T>(Dictionary<string, string> KeyToOriginalValueMap, ref Dictionary<string, Tuple<T, long>> tupleResults, string layeredCacheConfigName,
                                                         out Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfig, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
                                                         Dictionary<string, object> funcParameters, int groupId, Dictionary<string, List<string>> inValidationKeysMap = null)
         {
@@ -390,7 +392,7 @@ namespace CachingProvider.LayeredCache
             insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
             try
             {
-                HashSet<string> keysToGet = new HashSet<string>(keys);
+                HashSet<string> keysToGet = new HashSet<string>(KeyToOriginalValueMap.Keys);
                 Dictionary<string, Tuple<T, long>> resultsToAdd = new Dictionary<string, Tuple<T, long>>();
                 tupleResults = new Dictionary<string, Tuple<T, long>>();
                 if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
@@ -462,6 +464,14 @@ namespace CachingProvider.LayeredCache
 
                 if (!result)
                 {
+                    if (keysToGet.Count < KeyToOriginalValueMap.Count)
+                    {
+                        if (funcParameters != null && !funcParameters.ContainsKey(MISSING_KEYS))
+                        {
+                            funcParameters.Add(MISSING_KEYS, KeyToOriginalValueMap.Where(x => keysToGet.Contains(x.Key)).Select(x => x.Value).ToList());
+                        }
+                    }
+
                     Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
                     if (tuple != null)
                     {
@@ -477,7 +487,7 @@ namespace CachingProvider.LayeredCache
 
                     if (!result)
                     {
-                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", string.Join(",", keys),
+                        log.ErrorFormat("Failed fillingObjectFromDbMethod for key {0} with MethodName {1} and funcParameters {2}", string.Join(",", KeyToOriginalValueMap.Keys),
                                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters");
                     }
@@ -486,7 +496,7 @@ namespace CachingProvider.LayeredCache
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", string.Join(",", keys), GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
+                log.Error(string.Format("Failed TryGetValuesFromCacheByConfig with keys {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", string.Join(",", KeyToOriginalValueMap.Keys), GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
                         fillObjectsMethod.Method != null ? fillObjectsMethod.Method.Name : "No_Method_Name",
                         funcParameters != null && funcParameters.Count > 0 ? string.Join(",", funcParameters.Keys.ToList()) : "No_Func_Parameters"), ex);
             }
