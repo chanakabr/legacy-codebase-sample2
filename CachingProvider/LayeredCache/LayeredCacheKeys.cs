@@ -95,6 +95,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("cancel_subscription_domainId_{0}", domainId);
         }
 
+        public static string GetCancelSubscriptionRenewalInvalidationKey(long domainId)
+        {
+            return string.Format("cancel_subscription_renewal_domainId_{0}", domainId);
+        }
+
         public static string GetCancelTransactionInvalidationKey(long domainId)
         {
             return string.Format("cancel_transaction_domainId_{0}", domainId);
