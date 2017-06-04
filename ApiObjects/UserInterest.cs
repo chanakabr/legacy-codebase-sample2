@@ -20,33 +20,14 @@ namespace ApiObjects
 
     public class UserInterest 
     {
-        public string Id { get; set; }
-        public string MetaId { get; set; }
+        public string UserInterestId { get; set; }
         public UserInterestTopic Topic { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            var userInterest = obj as UserInterest;
-
-            if (userInterest == null)
-            {
-                return false;
-            }
-
-            return this.MetaId == userInterest.MetaId && JsonConvert.SerializeObject(this.Topic) == JsonConvert.SerializeObject(userInterest.Topic);
-        }
     }
 
     public class UserInterestTopic 
     {
+        public string MetaId { get; set; }
         public string Value { get; set; }
         public UserInterestTopic ParentTopic { get; set; }
-    }
-
-    //TODO: anat remove
-    //class Test
-    //{
-    //    UserInterest a = new UserInterest() { MetaId = "203_Media_team", Topic = new UserInterestTopic() { Value = "Maccbi Haifa", ParentTopic = new UserInterestTopic() { Value = "HAAL" } } };
-        
-    //}
+    }   
 }

@@ -9347,11 +9347,11 @@ namespace Core.Api
                     Meta topicInterestMeta;
                     foreach (var meta in response.MetaList)
                     {
-                        topicInterestMeta = topicInterestList.Where(x => x.MetaId.Equals(meta.MetaId)).FirstOrDefault();
+                        topicInterestMeta = topicInterestList.Where(x => x.Id.Equals(meta.Id)).FirstOrDefault();
                         if (topicInterestMeta != null)
                         {
                             meta.Features = topicInterestMeta.Features;
-                            meta.ParentMetaId = topicInterestMeta.ParentMetaId;
+                            meta.ParentId = topicInterestMeta.ParentId;
                         }
                     }
                 }

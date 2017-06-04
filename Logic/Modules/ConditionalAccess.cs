@@ -3033,7 +3033,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static bool Downgrade(int groupId, string siteguid, long subscriptionSetModifyDetailsId)
+        public static bool HandleDowngrade(int groupId, string siteguid, long subscriptionSetModifyDetailsId)
         {
             bool response = false;
 
@@ -3049,11 +3049,11 @@ namespace Core.ConditionalAccess
             {
                 try
                 {
-                    response = casImpl.Downgrade(siteguid, subscriptionSetModifyDetailsId, ref shouldResetModifyStatus);
+                    response = casImpl.HandleDowngrade(siteguid, subscriptionSetModifyDetailsId, ref shouldResetModifyStatus);
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error while trying to Downgrade", ex);
+                    log.Error("Error while trying to HandleDowngrade", ex);
                 }
             }
 

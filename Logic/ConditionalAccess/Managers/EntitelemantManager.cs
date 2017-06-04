@@ -378,23 +378,23 @@ namespace Core.ConditionalAccess
             return response;
         }
         
-        internal static Entitlements GetUsersEntitlementSubscriptionsItems(BaseConditionalAccess cas, int groupId, List<int> userIds, bool isExpired, int domainID, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
+        internal static Entitlements GetUsersEntitlementSubscriptionsItems(BaseConditionalAccess cas, int groupId, List<int> userIds, bool isExpired, int domainId, bool shouldCheckByDomain, int pageSize, int pageIndex, EntitlementOrderBy orderBy)
         {
             Entitlements entitlementsResponse = new Entitlements();
 
             try
             {
                 // Get domainID from one of the users
-                if (shouldCheckByDomain && domainID == 0 && userIds.Count > 0)
+                if (shouldCheckByDomain && domainId == 0 && userIds.Count > 0)
                 {
                     UserResponseObject user = Utils.GetExistUser(userIds.First().ToString(), groupId);
                     if (user != null && user.m_RespStatus == ResponseStatus.OK && user.m_user != null)
                     {
-                        domainID = user.m_user.m_domianID;
+                        domainId = user.m_user.m_domianID;
                     }
                 }
 
-                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainID, (int)orderBy);
+                DataTable allSubscriptionsPurchases = ConditionalAccessDAL.Get_UsersPermittedSubscriptions(userIds, isExpired, domainId, (int)orderBy);
 
                 if (allSubscriptionsPurchases == null || allSubscriptionsPurchases.Rows == null || allSubscriptionsPurchases.Rows.Count == 0)
                 {
@@ -416,10 +416,13 @@ namespace Core.ConditionalAccess
                     renewPaymentDetails = Core.Billing.Module.GetPaymentDetails(groupId, billingGuids);
                 }
 
+                List<long> purchaseIds = (from row in iterationRows                                          
+                                          select row.Field<long>("ID")).ToList(); // 
+                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(groupId, domainId, purchaseIds, SubscriptionSetModifyType.Downgrade);
                 ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
-                    entitlement = CreateSubscriptionEntitelment(cas, dr, isExpired, renewPaymentDetails);
+                    entitlement = CreateSubscriptionEntitelment(cas, dr, isExpired, renewPaymentDetails, purchaseIdToScheduledSubscriptionId);
                     if (entitlement != null)
                     {
                         entitlementsResponse.entitelments.Add(entitlement);
@@ -542,8 +545,8 @@ namespace Core.ConditionalAccess
             return entitlementsResponse;
         }
 
-
-        private static ConditionalAccess.Response.Entitlement CreateSubscriptionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired, List<PaymentDetails> renewPaymentDetails)
+        private static ConditionalAccess.Response.Entitlement CreateSubscriptionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired,
+                                                                                            List<PaymentDetails> renewPaymentDetails, Dictionary<long, long> purchaseIdToScheduledSubscriptionId = null)
         {
             UsageModule oUsageModule = null;
             ConditionalAccess.Response.Entitlement entitlement = new ConditionalAccess.Response.Entitlement();
@@ -620,6 +623,12 @@ namespace Core.ConditionalAccess
             }
 
             entitlement.mediaFileID = 0;
+
+            if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.ContainsKey(entitlement.purchaseID))
+            {
+                entitlement.ScheduledSubscriptionId = purchaseIdToScheduledSubscriptionId[entitlement.purchaseID];
+            }
+
             return entitlement;
         }
 
@@ -840,7 +849,8 @@ namespace Core.ConditionalAccess
                 ApiObjects.Response.Status verificationStatus = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 try
                 {
-                    verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid);
+                    PaymentDetails paymentDetails = null;
+                    verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref paymentDetails);
                 }
                 catch (Exception ex)
                 {
@@ -934,7 +944,7 @@ namespace Core.ConditionalAccess
             try
             {
                 long subscriptionSetModifyDetailsId = 0, purchaseId = 0;
-                if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId))
+                if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId, SubscriptionSetModifyType.Downgrade))
                 {
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ScheduledSubscriptionNotFound, eResponseStatus.ScheduledSubscriptionNotFound.ToString());
                     return res;
