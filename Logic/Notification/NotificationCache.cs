@@ -17,7 +17,8 @@ namespace Core.Notification
         EpisodeAssociationTagName,
         EpisodeMediaTypeId,
         Reminders,
-        MessageTemplate
+        MessageTemplate,
+        TopicInterests
     }
 
     public class NotificationCache
@@ -54,6 +55,8 @@ namespace Core.Notification
                     return string.Format("Reminders_{0}", groupId);
                 case eNotificationCacheTypes.MessageTemplate:
                     return string.Format("MessageTemplates_{0}", groupId);
+                case eNotificationCacheTypes.TopicInterests:
+                    return string.Format("TopicInterests_{0}", groupId);
                 default:
                     break;
             }
@@ -193,6 +196,47 @@ namespace Core.Notification
                 log.ErrorFormat("Error while getting cache message templates. GID {0}, ex: {1}", groupId, ex);
             }
             return messageTemplates;
+        }
+
+        public List<ApiObjects.Meta> GetPartnerTopicInterests(int groupId)
+        {
+            List<ApiObjects.Meta> topicInterests = null;
+            try
+            {
+                string sKey = GetKey(eNotificationCacheTypes.TopicInterests, groupId);
+
+                // search reminders in cache
+                topicInterests = Get<List<ApiObjects.Meta>>(sKey);
+                if (topicInterests == null || topicInterests.Count == 0)
+                {
+                    // get reminders DB
+                    topicInterests = Tvinci.Core.DAL.CatalogDAL.GetTopicInterests(groupId);
+
+                    if (topicInterests != null && topicInterests.Count > 0)
+                    {
+                        // update cache
+                        Set(sKey, topicInterests, SHORT_IN_CACHE_MINUTES);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while getting cache topic interests. GID {0}, ex: {1}", groupId, ex);
+            }
+            return topicInterests;
+        }
+
+        public void RemoveTopicInterestsFromCache(int groupId)
+        {
+            try
+            {
+                string sKey = GetKey(eNotificationCacheTypes.TopicInterests, groupId);
+                this.Remove(sKey);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while removing cached topic interest. GID {0}, ex: {1}", groupId, ex);
+            }
         }
 
         public NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupId)
