@@ -1233,5 +1233,25 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+
+
+
+        public static bool SetTopicInterests(string xml, int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_TopicInterests");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@xmlDoc", xml);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public static DataSet GetMetasTagsByGroupId(int groupId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MetasTagsByGroupId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+            return ds;
+        }
     }    
 }
