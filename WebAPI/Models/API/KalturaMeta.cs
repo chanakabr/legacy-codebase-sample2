@@ -59,18 +59,18 @@ namespace WebAPI.Models.API
         /// <summary>
         /// Meta id 
         /// </summary>
-        [DataMember(Name = "metaId")]
-        [JsonProperty("metaId")]
-        [XmlElement(ElementName = "metaId")]
-        public string MetaId { get; set; }
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        public string Id { get; set; }
 
         /// <summary>
         /// Parent meta id
         /// </summary>
-        [DataMember(Name = "parentMetaId")]
-        [JsonProperty("parentMetaId")]
-        [XmlElement(ElementName = "parentMetaId")]
-        public string ParentMetaId{ get; set; }
+        [DataMember(Name = "parentId")]
+        [JsonProperty("parentId")]
+        [XmlElement(ElementName = "parentId")]
+        public string ParentId{ get; set; }
 
         /// <summary>
         /// Partner Id
