@@ -1194,7 +1194,7 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("SendMessageReminder caught an exception: GroupID: {0}, notification interest message id: {1}, ex: {2}", nGroupID, notificationInterestMessageId, ex);
+                log.ErrorFormat("SendMessageInterest caught an exception: GroupID: {0}, notification interest message id: {1}, ex: {2}", nGroupID, notificationInterestMessageId, ex);
                 return false;
             }
         }

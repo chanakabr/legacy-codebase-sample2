@@ -48,7 +48,7 @@ namespace APILogic.Notification
                 }
 
                 // 2. validate with topic_interest make sure that parent and child valid
-                List<Meta> groupTopics = CatalogDAL.GetTopicInterests(partnerId);
+                List<Meta> groupTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
                 response = ValidateUserInterest(userInterest, groupTopics);
                 if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
@@ -585,8 +585,8 @@ namespace APILogic.Notification
             status = AnnouncementManager.GetMedia(partnerId, (int)program.m_oProgram.LINEAR_MEDIA_ID, out mediaChannel, out seriesName);
             if (status.Code != (int)eResponseStatus.OK)
             {
-                log.ErrorFormat("linear media for channel was not found. partner ID: {0}, start time: {1}, interest message ID: {2}, linear media Id= ", partnerId, startTime, interestNotificationMessage.Id, program.m_oProgram.LINEAR_MEDIA_ID);
-                return false;
+                log.DebugFormat("linear media for channel was not found. partner ID: {0}, start time: {1}, interest message ID: {2}, linear media Id= ", partnerId, startTime, interestNotificationMessage.Id, program.m_oProgram.LINEAR_MEDIA_ID);
+                // return false;
             }
 
             // Parse start date
@@ -827,7 +827,7 @@ namespace APILogic.Notification
         internal static void HandleVodEventForInterest(int partnerId, int assetId)
         {
             // get interests topic
-            List<ApiObjects.Meta> availableTopics = Tvinci.Core.DAL.CatalogDAL.GetTopicInterests(partnerId);
+            List<ApiObjects.Meta> availableTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
             if (availableTopics == null || availableTopics.Count == 0)
             {
                 log.ErrorFormat("Available partner topics were not found. Partner ID: {0}", partnerId);
@@ -953,7 +953,7 @@ namespace APILogic.Notification
         public static void HandleEpgEventForInterests(int partnerId, NotificationPartnerSettingsResponse partnerSettings, List<Core.Catalog.ProgramObj> programs)
         {
             // get interests topic
-            List<ApiObjects.Meta> availableTopics = Tvinci.Core.DAL.CatalogDAL.GetTopicInterests(partnerId);
+            List<ApiObjects.Meta> availableTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
             if (availableTopics == null || availableTopics.Count == 0)
             {
                 log.ErrorFormat("Available partner topics were not found. Partner ID: {0}", partnerId);

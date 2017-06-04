@@ -39,6 +39,7 @@ using System.Xml;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
+using Core.Notification;
 
 namespace Core.Api
 {
@@ -9342,7 +9343,7 @@ namespace Core.Api
                 //// Get all group_topic_options according to MetaName
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
-                    List<Meta> topicInterestList = CatalogDAL.GetTopicInterests(groupId);
+                    List<Meta> topicInterestList = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
                     Meta topicInterestMeta;
                     foreach (var meta in response.MetaList)
                     {
