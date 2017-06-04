@@ -1199,14 +1199,13 @@ namespace Core.Billing
             return result;
         }
 
-        public static ApiObjects.Response.Status GetPaymentGatewayVerificationStatus(int nGroupID, string billingGuid)
+        public static ApiObjects.Response.Status GetPaymentGatewayVerificationStatus(int nGroupID, string billingGuid, ref PaymentDetails paymentDetails)
         {
             ApiObjects.Response.Status result = new ApiObjects.Response.Status((int)ApiObjects.Response.eResponseStatus.Error, ApiObjects.Response.eResponseStatus.Error.ToString());
-
             BasePaymentGateway t = new BasePaymentGateway(nGroupID);
             if (t != null)
-            {
-                result = t.GetPaymentGatewayVerificationStatus(billingGuid);
+            {                
+                result = t.GetPaymentGatewayVerificationStatus(billingGuid, ref paymentDetails);
             }
 
             return result;

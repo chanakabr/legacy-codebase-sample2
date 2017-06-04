@@ -418,7 +418,7 @@ namespace Core.ConditionalAccess
 
                 List<long> purchaseIds = (from row in iterationRows                                          
                                           select row.Field<long>("ID")).ToList(); // 
-                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(groupId, domainId, purchaseIds);
+                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(groupId, domainId, purchaseIds, SubscriptionSetModifyType.Downgrade);
                 ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
@@ -849,7 +849,8 @@ namespace Core.ConditionalAccess
                 ApiObjects.Response.Status verificationStatus = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 try
                 {
-                    verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid);
+                    PaymentDetails paymentDetails = null;
+                    verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(groupId, billingGuid, ref paymentDetails);
                 }
                 catch (Exception ex)
                 {
@@ -943,7 +944,7 @@ namespace Core.ConditionalAccess
             try
             {
                 long subscriptionSetModifyDetailsId = 0, purchaseId = 0;
-                if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId))
+                if (!Utils.GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, ref subscriptionSetModifyDetailsId, ref purchaseId, SubscriptionSetModifyType.Downgrade))
                 {
                     res = new ApiObjects.Response.Status((int)eResponseStatus.ScheduledSubscriptionNotFound, eResponseStatus.ScheduledSubscriptionNotFound.ToString());
                     return res;

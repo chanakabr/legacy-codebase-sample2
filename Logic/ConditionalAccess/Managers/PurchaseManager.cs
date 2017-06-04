@@ -40,6 +40,8 @@ namespace Core.ConditionalAccess
             public double Price { get; set; }
             public string CurrencyCode { get; set; }
             public bool IsRecurring { get; set; }
+            public string BillingGuid { get; set; }
+            public bool IsFirstSubscriptionSetModify { get; set; }
 
             public DomainSubscriptionPurchaseDetails()
                 : base()
@@ -48,9 +50,12 @@ namespace Core.ConditionalAccess
                 this.Price = 0;
                 this.CurrencyCode = string.Empty;
                 IsRecurring = false;
+                this.BillingGuid = string.Empty;
+                this.IsFirstSubscriptionSetModify = false;
             }
 
-            public DomainSubscriptionPurchaseDetails(Core.ConditionalAccess.Utils.UserBundlePurchase bundlePurchae, long purchaseId, double price, string currencyCode, bool isRecurring)
+            public DomainSubscriptionPurchaseDetails(Core.ConditionalAccess.Utils.UserBundlePurchase bundlePurchae, long purchaseId, double price, string currencyCode, bool isRecurring,
+                                                     string billingGuid, bool isFirstSubscriptionSetModify)
                 : base()
             {
                 this.sBundleCode = bundlePurchae.sBundleCode;
@@ -63,6 +68,8 @@ namespace Core.ConditionalAccess
                 this.Price = price;
                 this.CurrencyCode = currencyCode;
                 this.IsRecurring = IsRecurring;
+                this.BillingGuid = billingGuid;
+                this.IsFirstSubscriptionSetModify = IsFirstSubscriptionSetModify;
             }
         }
 
@@ -158,17 +165,7 @@ namespace Core.ConditionalAccess
 
                 // validate price
                 PriceReason priceReason = PriceReason.UnKnown;
-                Subscription subscription = null;
-                bool isGiftCard = false;
-                Price priceResponse = null;
-                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), userId, couponCode,
-                    ref priceReason, ref subscription, country, string.Empty, udid, userIp, currencyCode, true);
-
-                if (priceReason != PriceReason.ForPurchase)
-                {
-                    response.Status.Message = "Product not for purchase";
-                    return response;
-                }
+                Subscription subscription = Utils.GetSubscription(groupId, productId);
 
                 if (subscription == null)
                 {
@@ -192,10 +189,16 @@ namespace Core.ConditionalAccess
                 KeyValuePair<long, int> setAndPriority = subscription.GetSubscriptionSetIdsToPriority().First();
                 Subscription subscriptionInTheSameSet = null;
                 DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails = null;
-                if (!IsEntitlementContainSameSetSubscription(groupId, domainId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref previousSubsriptionPurchaseDetails, true))
+                if (!IsEntitlementContainSameSetSubscription(groupId, domainId, productId, setAndPriority.Key, ref subscriptionInTheSameSet, ref previousSubsriptionPurchaseDetails) || !previousSubsriptionPurchaseDetails.IsRecurring)
                 {
                     response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet,
                     "Can only upgrade or downgrade recurring subscription in the same subscriptionSet");
+                    return response;
+                }
+
+                if (!previousSubsriptionPurchaseDetails.IsFirstSubscriptionSetModify)
+                {
+                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce, eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce.ToString());
                     return response;
                 }
 
@@ -211,11 +214,36 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (!Utils.IsFirstSubscriptionSetModify(groupId, domainId, previousSubsriptionPurchaseDetails.PurchaseId, productId))
-                {                    
-                    response.Status = new Status((int)eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce, eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce.ToString());
+                PaymentDetails paymentDetails = null;
+                ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(groupId, previousSubsriptionPurchaseDetails.BillingGuid, ref paymentDetails);
+                if (verificationStatus == null)
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     return response;
-                }                
+                }
+                else if (verificationStatus.Code != (int)eResponseStatus.OK || paymentDetails == null)
+                {
+                    response.Status = verificationStatus;
+                    log.ErrorFormat("Verification payment gateway does not support SubscriptionSetModifySubscription. billingGuid = {0}", previousSubsriptionPurchaseDetails.BillingGuid);
+                    return response;
+                }
+                // Update payment details to be as the previous subscription purchase
+                else if (paymentGatewayId == 0)                                
+                {
+                    paymentGatewayId = paymentDetails.PaymentGatewayId;
+                    paymentMethodId = paymentDetails.PaymentMethodId;
+                }
+
+                bool isGiftCard = false;
+                Price priceResponse = null;
+                priceResponse = Utils.GetSubscriptionFinalPrice(groupId, productId.ToString(), userId, couponCode,
+                    ref priceReason, ref subscription, country, string.Empty, udid, userIp, currencyCode, true);
+
+                if (priceReason != PriceReason.ForPurchase)
+                {
+                    response.Status.Message = "Product not for purchase";
+                    return response;
+                }
 
                 // downgrade logic
                 if (!isUpgrade)
@@ -223,7 +251,7 @@ namespace Core.ConditionalAccess
                     return Downgrade(cas, groupId, userId, domainId, price, currencyCode, productId, couponCode, userIp, udid, paymentGatewayId, paymentMethodId,
                                      adapterData, ref response, subscriptionInTheSameSet, previousSubsriptionPurchaseDetails);
                 }
-
+                // upgrade logic
                 else
                 {
                     return Upgrade(cas, groupId, userId, domainId, currencyCode, productId, couponCode, userIp, udid, paymentGatewayId, paymentMethodId, adapterData, ref response,
@@ -243,8 +271,7 @@ namespace Core.ConditionalAccess
                                                     int paymentGatewayId, int paymentMethodId, string adapterData, ref TransactionResponse response, string logString, CouponData couponData, string country,
                                                     PriceReason priceReason, Subscription subscription, ref bool isGiftCard, ref Price priceResponse, Subscription subscriptionInTheSameSet,
                                                     DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails)
-        {
-            // upgrade logic                
+        {            
             if (string.IsNullOrEmpty(previousSubsriptionPurchaseDetails.CurrencyCode))
             {
                 log.ErrorFormat("Failed to get previous subscription purchase currency code for groupId: {0}, purchaseId: {1}", groupId, previousSubsriptionPurchaseDetails.PurchaseId);
@@ -257,8 +284,7 @@ namespace Core.ConditionalAccess
                                             eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription.ToString());
                 return response;
             }
-
-            // upgrade logic                
+                       
             if (!CalculateUpgradePrice(cas, domainId, subscriptionInTheSameSet, ref priceResponse, previousSubsriptionPurchaseDetails))
             {
                 log.ErrorFormat("Failed upgrading subscription, domainId: {0}, oldSubscriptionId: {1}, newSubscriptionId: {2}", domainId, subscriptionInTheSameSet.m_ProductCode, productId);
@@ -601,7 +627,7 @@ namespace Core.ConditionalAccess
         }
 
         private static bool IsEntitlementContainSameSetSubscription(int groupId, long domainId, int subscriptionId, long setId, ref Subscription subscriptionInTheSameSet,
-                                                                     ref DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails, bool shouldCheckPreviousSubscriptionIsRecurring = false)
+                                                                     ref DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails)
         {
             bool res = false;
             DomainEntitlements domainEntitlements = null;
@@ -613,16 +639,8 @@ namespace Core.ConditionalAccess
                                                 && x.Value.GetSubscriptionSetIdsToPriority().ContainsKey(setId) && x.Key != subscriptionId).Select(x => x.Value).FirstOrDefault();
                     if (subscriptionInTheSameSet != null)
                     {
-                        if (Utils.GetPreviousSubscriptionPurchaseDetails(groupId, domainId, domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions[subscriptionInTheSameSet.m_sObjectCode],
-                                                                            ref previousSubsriptionPurchaseDetails))
-                        {
-                            res = true;
-                            if (shouldCheckPreviousSubscriptionIsRecurring)
-                            {
-                                res = res && previousSubsriptionPurchaseDetails.IsRecurring;
-                            }
-                        }
-                        
+                        res = Utils.GetPreviousSubscriptionPurchaseDetails(groupId, domainId, domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions[subscriptionInTheSameSet.m_sObjectCode],
+                                                                            SubscriptionSetModifyType.Downgrade, ref previousSubsriptionPurchaseDetails);
                     }
                 }
             }
