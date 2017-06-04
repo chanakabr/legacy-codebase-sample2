@@ -33,6 +33,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CancelationWindowPeriodExpired)]
         [Throws(eResponseStatus.ContentAlreadyConsumed)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
         public bool Cancel(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;
@@ -125,6 +126,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
+        [Throws(eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending)]
         public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
