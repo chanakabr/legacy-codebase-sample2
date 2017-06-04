@@ -1444,6 +1444,7 @@ namespace Core.Notification
 
             try
             {
+                // handle reminders 
                 HandleEpgEventForReminders(partnerId, partnerSettings, epgs);
             }
             catch (Exception ex)
@@ -1453,6 +1454,7 @@ namespace Core.Notification
 
             try
             {
+                // handle interests
                 TopicInterestManager.HandleEpgEventForInterests(partnerId, partnerSettings, epgs);
             }
             catch (Exception ex)

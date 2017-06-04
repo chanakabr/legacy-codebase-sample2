@@ -845,6 +845,7 @@ namespace APILogic.Notification
                 return;
             }
 
+            // get VOD
             Core.Catalog.Response.MediaObj assetVod = null;
             string seriesName = string.Empty;
             Status status = AnnouncementManager.GetMedia(partnerId, assetId, out assetVod, out seriesName);
@@ -854,22 +855,22 @@ namespace APILogic.Notification
                 return;
             }
 
-            // Iterate through all programs and get all topics which should be notified
+            // Iterate through all configured "should notified" partner topics
             Dictionary<string, string> relevantMediaTopics = new Dictionary<string, string>();
             foreach (var availableTopic in availableTopics)
             {
+                // search for VOD Meta to notify
                 if (assetVod.m_lMetas != null)
                 {
                     var assetMetasForNotification = assetVod.m_lMetas.Where(x => x.m_oTagMeta != null && x.m_oTagMeta.m_sName == availableTopic.Name);
                     if (assetMetasForNotification.Count() > 0)
                     {
                         foreach (var meta in assetMetasForNotification)
-                        {
                             relevantMediaTopics.Add(meta.m_oTagMeta.m_sName, meta.m_sValue);
-                        }
                     }
                 }
 
+                // search for VOD Tag to notify
                 if (assetVod.m_lTags != null)
                 {
                     var assetTagsForNotification = assetVod.m_lTags.Where(x => x.m_oTagMeta != null && x.m_oTagMeta.m_sName == availableTopic.Name);
@@ -877,8 +878,11 @@ namespace APILogic.Notification
                     {
                         foreach (var tag in assetTagsForNotification)
                         {
-                            // ???
-                            relevantMediaTopics.Add(tag.m_oTagMeta.m_sName, tag.m_lValues[0]);
+                            if (tag.Values != null)
+                            {
+                                foreach (var tagValue in tag.m_lValues)
+                                    relevantMediaTopics.Add(tag.m_oTagMeta.m_sName, tagValue);
+                            }
                         }
                     }
                 }
@@ -976,40 +980,46 @@ namespace APILogic.Notification
                     continue;
                 }
 
-                // Iterate through all programs and get all topics which should be notified
+                // Iterate through all configured "should notified" partner topics
                 List<EPGDictionary> programNotificationTopics;
                 foreach (var availableTopic in availableTopics)
                 {
                     programNotificationTopics = new List<EPGDictionary>();
 
                     // check if program contains an allowed meta notification
-                    if (program.m_oProgram.EPG_Meta.Exists(x => x.Key == availableTopic.Name))
-                        programNotificationTopics = program.m_oProgram.EPG_Meta.Where(x => x.Key == availableTopic.Name).ToList();
-
-                    // check if program contains an allowed tag notification
-                    if (program.m_oProgram.EPG_TAGS.Exists(x => x.Key == availableTopic.Name))
+                    if (program.m_oProgram.EPG_Meta != null)
                     {
-                        if (programNotificationTopics.Count > 0)
-                            programNotificationTopics.AddRange(program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList());
-                        else
-                            programNotificationTopics = program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList();
+                        if (program.m_oProgram.EPG_Meta.Exists(x => x.Key == availableTopic.Name))
+                            programNotificationTopics = program.m_oProgram.EPG_Meta.Where(x => x.Key == availableTopic.Name).ToList();
                     }
 
-                    // check if user requested an interest notification
+                    // check if program contains an allowed tag notification
+                    if (program.m_oProgram.EPG_TAGS != null)
+                    {
+                        if (program.m_oProgram.EPG_TAGS.Exists(x => x.Key == availableTopic.Name))
+                        {
+                            if (programNotificationTopics.Count > 0)
+                                programNotificationTopics.AddRange(program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList());
+                            else
+                                programNotificationTopics = program.m_oProgram.EPG_TAGS.Where(x => x.Key == availableTopic.Name).ToList();
+                        }
+                    }
+
+                    // check if any user requested an interest notification
                     if (programNotificationTopics != null)
                     {
+                        // Parse program start date (with reminder pre-padding)
+                        DateTime newEpgSendDate;
+                        if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
+                        {
+                            log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
+                            continue;
+                        }
+                        newEpgSendDate = newEpgSendDate.AddSeconds((double)partnerSettings.settings.RemindersPrePaddingSec * -1);
+
                         InterestNotificationMessage newInterestMessage;
                         foreach (var programNotificationTopic in programNotificationTopics)
                         {
-                            // Parse program start date (with reminder pre-padding)
-                            DateTime newEpgSendDate;
-                            if (!DateTime.TryParseExact(program.m_oProgram.START_DATE, AnnouncementManager.EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgSendDate))
-                            {
-                                log.ErrorFormat("Failed parsing EPG start date for EPG notification event, epgID: {0}, startDate: {1}", program.m_oProgram.EPG_ID, program.m_oProgram.START_DATE);
-                                continue;
-                            }
-                            newEpgSendDate = newEpgSendDate.AddSeconds((double)partnerSettings.settings.RemindersPrePaddingSec * -1);
-
                             // check if topic interest exists
                             string keyValueTopic = TopicInterestManager.GetInterestKeyValueName(programNotificationTopic.Key, programNotificationTopic.Value);
                             InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, keyValueTopic, eAssetTypes.EPG);
@@ -1048,7 +1058,13 @@ namespace APILogic.Notification
                                 // interest found - check if send date changed
                                 if ((oldInterestMessage.SendTime - newEpgSendDate).Duration() > TimeSpan.FromMinutes(1))
                                 {
-                                    // epg program date changed - update DB
+                                    log.DebugFormat("Asset EPG changed it start date - updating in interest message. partner ID: {0}, asset ID: {1}, original send time: {2}, new send time: {3}",
+                                             partnerId,
+                                             program.AssetId,
+                                             oldInterestMessage.SendTime.ToString(),
+                                             newEpgSendDate.ToString());
+
+                                    // EPG program date changed - update DB
                                     newInterestMessage = InterestDal.UpdateTopicInterestNotificationMessage(partnerId, oldInterestMessage.Id, newEpgSendDate);
                                     if (newInterestMessage == null || newInterestMessage.Id == 0)
                                     {
