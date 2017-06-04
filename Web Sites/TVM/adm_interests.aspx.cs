@@ -83,11 +83,7 @@ public partial class adm_interests : System.Web.UI.Page
 
     private bool SetTopicInterests(string xml, int groupId)
     {
-        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_TopicInterests");
-        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-        sp.AddParameter("@GroupID", groupId);
-        sp.AddParameter("@xmlDoc", xml);
-        return sp.ExecuteReturnValue<int>() > 0;
+        return DAL.TvmDAL.SetTopicInterests(xml, groupId);
     }
 
     private string GetPageData()
@@ -177,8 +173,7 @@ public partial class adm_interests : System.Web.UI.Page
         }
         return xmlDoc.InnerXml;
     }
-
-
+    
     public void GetHeader()
     {
         string sRet = PageUtils.GetPreHeader() + ": Interests";       
@@ -224,11 +219,8 @@ public partial class adm_interests : System.Web.UI.Page
 
     private void AddFields(ref DBRecordWebEditor theRecord)
     {
-        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MetasTagsByGroupId");
-        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-        sp.AddParameter("@GroupID", LoginManager.GetLoginGroupID());
-        DataSet ds = sp.ExecuteDataSet();
-
+        DataSet ds = DAL.TvmDAL.GetMetasTagsByGroupId(LoginManager.GetLoginGroupID());
+        
         if (ds != null && ds.Tables != null)
         {
             foreach (DataTable dt in ds.Tables)
