@@ -146,6 +146,7 @@ namespace ApiObjects.Response
         CanOnlyUpgradeOrDowngradeSubscriptionOnce = 3065,
         CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription = 3066,
         ScheduledSubscriptionNotFound = 3067,
+        CanNotCancelSubscriptionWithPendingDowngrade = 3068,
 
         //Catalog 4000 - 4999
         MediaConcurrencyLimitation = 4000,

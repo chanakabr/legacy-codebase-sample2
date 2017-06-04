@@ -9607,19 +9607,19 @@ namespace Core.ConditionalAccess
 		/// Immediately cancel a household service 
 		/// Cancel immediately if within cancellation window and content not already consumed OR if force flag is provided
 		/// </summary>
-		/// <param name="domainID"></param>
+		/// <param name="domainId"></param>
 		/// <param name="assetID"></param>
 		/// <param name="transactionType"></param>
 		/// <param name="isForce"></param>
 		/// <returns></returns>
-		public virtual ApiObjects.Response.Status CancelServiceNow(int domainID, int assetID, eTransactionType transactionType, bool isForce = false)
+		public virtual ApiObjects.Response.Status CancelServiceNow(int domainId, int assetID, eTransactionType transactionType, bool isForce = false)
 		{
 			ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 
 			try
 			{
 				// Start with getting domain info for validation
-				Domain domain = Utils.GetDomainInfo(domainID, this.m_nGroupID);
+				Domain domain = Utils.GetDomainInfo(domainId, this.m_nGroupID);
 
 				// Check if the domain is OK
 				if (domain == null)
@@ -9654,7 +9654,7 @@ namespace Core.ConditionalAccess
 						string billingGuid = string.Empty;
 
 						// Check if within cancellation window
-						bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainID, ref billingGuid);
+						bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
 
 						// Check if the user purchased the asset at all
 						if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -9669,7 +9669,8 @@ namespace Core.ConditionalAccess
 						{
 							try
 							{
-								ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(m_nGroupID, billingGuid);
+                                PaymentDetails paymentDetails = null;
+                                ApiObjects.Response.Status verificationStatus = Core.Billing.Module.GetPaymentGatewayVerificationStatus(m_nGroupID, billingGuid, ref paymentDetails);
 
 								if (verificationStatus == null)
 								{
@@ -9738,8 +9739,18 @@ namespace Core.ConditionalAccess
 											break;
 										}
 									case eTransactionType.Subscription:
-										{
+										{                                            
 											long subscriptionPurchaseId = ODBCWrapper.Utils.ExtractValue<long>(userPurchaseRow, "ID");
+                                            if (subscriptionPurchaseId > 0)
+                                            {
+                                                Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(m_nGroupID, domainId,
+                                                                                                             new List<long>() { subscriptionPurchaseId }, SubscriptionSetModifyType.Downgrade);
+                                                if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.Count > 0)
+                                                {
+
+                                                }
+                                            }
+
 											int maxNumberOfViews = ODBCWrapper.Utils.ExtractInteger(userPurchaseRow, "MAX_NUM_OF_USES");
 											DateTime endDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
 											DateTime createDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "CREATE_DATE");
@@ -9766,7 +9777,7 @@ namespace Core.ConditionalAccess
 										}
 									case eTransactionType.Collection:
 										{
-											dalResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(purchasingSiteGuid, assetID, domainID);
+											dalResult = DAL.ConditionalAccessDAL.CancelCollectionPurchaseTransaction(purchasingSiteGuid, assetID, domainId);
 											break;
 										}
 									default:
@@ -9778,11 +9789,11 @@ namespace Core.ConditionalAccess
 								if (dalResult)
 								{
 									// Update domain with last domain DLM
-									UpdateDLM(domainID, 0);
+									UpdateDLM(domainId, 0);
 
 									// Report to user log
 									WriteToUserLog(purchasingSiteGuid,
-										string.Format("user :{0} CancelServiceNow for {1} item :{2}", domainID, Enum.GetName(typeof(eTransactionType), transactionType),
+										string.Format("user :{0} CancelServiceNow for {1} item :{2}", domainId, Enum.GetName(typeof(eTransactionType), transactionType),
 										assetID));
 									//call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
@@ -9793,10 +9804,10 @@ namespace Core.ConditionalAccess
 									{
 										DateTime dtEndDate = ODBCWrapper.Utils.ExtractDateTime(userPurchaseRow, "END_DATE");
 
-										EnqueueCancelServiceRecord(domainID, assetID, transactionType, dtEndDate);
+										EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate);
 									}
 
-									string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainID);
+									string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
 									if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
 									{
 										log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
@@ -9822,7 +9833,7 @@ namespace Core.ConditionalAccess
 				#region Logging
 				string sLoggingMessage =
 					string.Format("Exception at CancelServiceNow. Ex Msg: {0}, Domain Id: {1}, Asset ID: {2}. Trans Type: {6}. This is {3}, Ex type: {4}, ST: {5}",
-					ex.Message, domainID, assetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, transactionType.ToString());
+					ex.Message, domainId, assetID, this.GetType().Name, ex.GetType().Name, ex.StackTrace, transactionType.ToString());
 				StringBuilder sb = new StringBuilder("Exception at CancelServiceNow. ");
 
 				log.Error("Exception - " + sLoggingMessage, ex);

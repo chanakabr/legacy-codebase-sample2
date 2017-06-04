@@ -4044,21 +4044,20 @@ namespace Core.Billing
             return response;
         }
 
-        public Status GetPaymentGatewayVerificationStatus(string billingGuid)
+        public Status GetPaymentGatewayVerificationStatus(string billingGuid, ref PaymentDetails paymentDetails)
         {
             Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-            List<PaymentDetails> paymentDetails = GetPaymentDetails(new List<string>() { billingGuid });               
+            List<PaymentDetails> paymentDetailsResult = GetPaymentDetails(new List<string>() { billingGuid });               
 
             int currentPaymentGatewayId, currentPaymentMethodId;
 
-            PaymentDetails pd = paymentDetails != null ? paymentDetails.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
+            paymentDetails = paymentDetailsResult != null ? paymentDetailsResult.Where(x => x.BillingGuid == billingGuid).FirstOrDefault() : null;
 
-            if (pd != null)
+            if (paymentDetails != null)
             {
-                currentPaymentGatewayId = pd.PaymentGatewayId;
-                currentPaymentMethodId = pd.PaymentMethodId;
-
+                currentPaymentGatewayId = paymentDetails.PaymentGatewayId;
+                currentPaymentMethodId = paymentDetails.PaymentMethodId;
                 PaymentGateway currentPaymentGateway = DAL.BillingDAL.GetPaymentGateway(groupID, currentPaymentGatewayId);
 
                 // check if IsVerificationPaymentGateway
@@ -4067,6 +4066,7 @@ namespace Core.Billing
                     response = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "Payment gateway is not valid for action");
                 }
             }
+
             return response;
         }
     }
