@@ -3086,13 +3086,14 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() == 1;
         }
 
-        public static DataTable GetSubscriptionSetModifyDetailsByDomainIdAndSubscriptionId(int groupId, long domainId, long scheduledSubscriptionId)
+        public static DataTable GetSubscriptionSetModifyDetailsByDomainIdAndSubscriptionId(int groupId, long domainId, long scheduledSubscriptionId, SubscriptionSetModifyType type)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetSubscriptionSetModifyDetailsByDomainIdAndSubscriptionId");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DomainId", domainId);
             sp.AddParameter("@SubscriptionId", scheduledSubscriptionId);
+            sp.AddParameter("@Type", (int)type);
 
             return sp.Execute();
         }
@@ -3107,13 +3108,14 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() == 1;
         }
 
-        public static DataTable GetScheduledSubscriptionIdsByPurchaseIdsAndDomainId(int groupId, int domainId, List<long> purchaseIds)
+        public static DataTable GetScheduledSubscriptionIdsByPurchaseIdsAndDomainId(int groupId, int domainId, List<long> purchaseIds, SubscriptionSetModifyType type)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetScheduledSubscriptionIdsByPurchaseIdsAndDomainId");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DomainId", domainId);
-            sp.AddIDListParameter("@PurchaseIds", purchaseIds, "id");            
+            sp.AddIDListParameter("@PurchaseIds", purchaseIds, "id");
+            sp.AddParameter("@Type", (int)type);
 
             return sp.Execute();
         }
