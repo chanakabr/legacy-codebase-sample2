@@ -31,10 +31,10 @@ namespace Core.ConditionalAccess
 
         public int paymentGatewayId;
         public int paymentMethodId;
-
+        public long? ScheduledSubscriptionId { get; set; }
 
         public PermittedSubscriptionContainer()
-        {
+        {            
             m_sSubscriptionCode = "";
             m_nMaxUses = 0;
             m_nCurrentUses = 0;
@@ -58,7 +58,7 @@ namespace Core.ConditionalAccess
             DateTime dEndTime, DateTime dCurrentDate, DateTime dLastViewDate, DateTime dPurchaseDate, DateTime dNextRenewalDate,
             bool bRecurringStatus, bool bIsSubRenewable, Int32 nSubscriptionPurchaseID, ePaymentMethod payMethod, string sDeviceUDID, bool bCancelWindow = false, bool isInGracePeriod = false,
             int paymentGatewayId = 0, int paymentMethodId = 0)
-        {
+        {            
             m_nSubscriptionPurchaseID = nSubscriptionPurchaseID;
             m_sSubscriptionCode = sSubscriptionCode;
             m_nMaxUses = nMaxUses;

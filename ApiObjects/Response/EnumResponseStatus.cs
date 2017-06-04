@@ -140,7 +140,7 @@ namespace ApiObjects.Response
         SubscriptionAlreadyBelongsToAnotherSubscriptionSet = 3059,
         SubscriptionSetDoesNotExist = 3060,
         CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet = 3061,
-        CanOnlyUpgradeOrDowngradeSubscriptionInTheSameSubscriptionSet = 3062,
+        CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet = 3062,
         CanOnlyUpgradeSubscriptionWithHigherPriority = 3063,
         CanOnlyDowngradeSubscriptionWithLowerPriority = 3064,
         CanOnlyUpgradeOrDowngradeSubscriptionOnce = 3065,

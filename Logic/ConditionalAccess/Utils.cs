@@ -634,11 +634,9 @@ namespace Core.ConditionalAccess
                         purchaseDate = DateTime.MinValue;
                         endDate = DateTime.MinValue;
                         int gracePeriodMinutes = 0;
-                        long purchaseId = 0;
-                        bool isRecurring = false;
 
                         GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref purchaseId, ref isRecurring);
+                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes);
 
                         // decide which is the correct end period
                         if (endDate < DateTime.UtcNow)
@@ -664,9 +662,7 @@ namespace Core.ConditionalAccess
                                         sBundleCode = bundleCode,
                                         nWaiver = waiver,
                                         dtPurchaseDate = purchaseDate,
-                                        dtEndDate = endDate,
-                                        nPurchaseId = purchaseId,
-                                        bIsRecurring = isRecurring
+                                        dtEndDate = endDate
                                     });
                                 }
                             }
@@ -826,8 +822,6 @@ namespace Core.ConditionalAccess
             public DateTime dtEndDate;
             public int nNumOfUses;
             public int nMaxNumOfUses;
-            public long nPurchaseId;
-            public bool bIsRecurring;
 
             public UserBundlePurchase() { }
         }
@@ -915,7 +909,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void GetSubscriptionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses, ref string bundleCode, ref int waiver,
-                                                                ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin, ref long purchaseId, ref bool isRecurring)
+                                                                ref DateTime purchaseDate, ref DateTime endDate, ref int gracePeriodMin)
         {
             numOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["NUM_OF_USES"]);
             maxNumOfUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow["MAX_NUM_OF_USES"]);
@@ -924,8 +918,6 @@ namespace Core.ConditionalAccess
             purchaseDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "CREATE_DATE");
             endDate = ODBCWrapper.Utils.ExtractDateTime(dataRow, "END_DATE");
             gracePeriodMin = ODBCWrapper.Utils.GetIntSafeVal(dataRow["GRACE_PERIOD_MINUTES"]);
-            purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "ID");
-            isRecurring = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_RECURRING_STATUS", 0) == 1;
         }
 
         private static void GetCollectionBundlePurchaseData(DataRow dataRow, string codeColumnName, ref int numOfUses, ref int maxNumOfUses,
@@ -3376,10 +3368,8 @@ namespace Core.ConditionalAccess
                         int maxNumOfUses = 0;
                         string bundleCode = string.Empty;
                         int gracePeriodMinutes = 0;
-                        long purchaseId = 0;
-                        bool isRecurring = false;
                         GetSubscriptionBundlePurchaseData(subs.Rows[i], "SUBSCRIPTION_CODE", ref numOfUses, ref maxNumOfUses, ref bundleCode, ref waiver,
-                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes, ref purchaseId, ref isRecurring);
+                                                            ref purchaseDate, ref endDate, ref gracePeriodMinutes);
 
                         // decide which is the correct end period
                         if (endDate < DateTime.UtcNow)
@@ -3397,9 +3387,7 @@ namespace Core.ConditionalAccess
                                     dtPurchaseDate = purchaseDate,
                                     dtEndDate = endDate,
                                     nNumOfUses = numOfUses,
-                                    nMaxNumOfUses = maxNumOfUses,
-                                    nPurchaseId = purchaseId,
-                                    bIsRecurring = isRecurring
+                                    nMaxNumOfUses = maxNumOfUses
                                 });
                             }
                         }
@@ -7586,25 +7574,6 @@ namespace Core.ConditionalAccess
             return ConditionalAccessDAL.DeleteSubscriptionSetDowngradeDetails(groupId, id);
         }
 
-        internal static string GetCurrencyCodeOfPurchaseByPurchaseId(long purchaseId)
-        {
-            string currencyCodeOfPurchase = string.Empty;
-            try
-            {
-                DataRow currentPurchaseDetails = ConditionalAccessDAL.GetPurchaseByID((int)purchaseId);
-                if (currentPurchaseDetails != null)
-                {
-                    currencyCodeOfPurchase = ODBCWrapper.Utils.GetSafeStr(currentPurchaseDetails, "CURRENCY_CD");
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetCurrencyCodeOfPurchaseByPurchaseId, purchaseId: {0}", purchaseId), ex);
-            }
-
-            return currencyCodeOfPurchase;
-        }
-
         internal static bool GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(int groupId, long domainId, long scheduledSubscriptionId, ref long subscriptionSetModifyDetailsId, ref long purchaseId)
         {
             bool res = false;
@@ -7615,12 +7584,72 @@ namespace Core.ConditionalAccess
                 {
                     subscriptionSetModifyDetailsId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                     purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "PURCHASE_ID", 0);
+                    res = subscriptionSetModifyDetailsId > 0 && purchaseId > 0;
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId, groupId: {0}, domainId: {1}, scheduledSubscriptionId: {2}",
                                         groupId, domainId, scheduledSubscriptionId), ex);
+            }
+
+            return res;
+        }
+
+        internal static Dictionary<long, long> GetPurchaseIdToScheduledSubscriptionIdMap(int groupId, int domainId, List<long> purchaseIds)
+        {
+            Dictionary<long, long> result = new Dictionary<long, long>();
+            try
+            {
+                DataTable dt = ConditionalAccessDAL.GetScheduledSubscriptionIdsByPurchaseIdsAndDomainId(groupId, domainId, purchaseIds);
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "PURCHASE_ID", 0);
+                        long subscriptionId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "SUBSCRIPTION_ID", 0);
+                        if (purchaseId > 0 && subscriptionId > 0 && !result.ContainsKey(purchaseId))
+                        {
+                            result.Add(purchaseId, subscriptionId);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetPurchaseIdToScheduledSubscriptionIdMap, groupId: {0}, purchaseIds: {1}",
+                                        groupId, purchaseIds != null && purchaseIds.Count > 0 ? string.Join(",", purchaseIds) : string.Empty), ex);
+            }
+
+            return result;
+        }
+
+        internal static bool GetPreviousSubscriptionPurchaseDetails(int groupId, long domainId, UserBundlePurchase previousBundlePurchase, 
+                                                                    ref Core.ConditionalAccess.PurchaseManager.DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails)
+        {
+            bool res = false;
+            try
+            {                
+                if (!string.IsNullOrEmpty(previousBundlePurchase.sBundleCode))
+                {
+                    DataTable dt = ConditionalAccessDAL.GetPreviousSubscriptionPurchaseDetails(groupId, domainId, previousBundlePurchase.sBundleCode);
+                    if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                    {
+                        long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                        double price = ODBCWrapper.Utils.GetDoubleSafeVal(dt.Rows[0], "PRICE");
+                        string currencyCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CURRENCY_CD");
+                        bool isRecurring = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_RECURRING", 0) == 1;
+                        if (purchaseId > 0)
+                        {
+                            previousSubsriptionPurchaseDetails = new PurchaseManager.DomainSubscriptionPurchaseDetails(previousBundlePurchase, purchaseId, price, currencyCode, isRecurring);
+                            res = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetPreviousSubscriptionPurchaseDetails, groupId: {0}, domainId: {1}, previousSubscriptionId: {2}", groupId, domainId, previousBundlePurchase.sBundleCode), ex);
             }
 
             return res;

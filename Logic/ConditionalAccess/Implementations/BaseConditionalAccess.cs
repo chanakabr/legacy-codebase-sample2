@@ -15630,9 +15630,9 @@ namespace Core.ConditionalAccess
                                                                     paymentMethodId, adapterData, isUpgrade);
         }
 
-        public bool Downgrade(string siteguid, long subscriptionSetModifyDetailsId, ref bool shouldResetModifyStatus)
+        public bool HandleDowngrade(string siteguid, long subscriptionSetModifyDetailsId, ref bool shouldResetModifyStatus)
         {
-            return PurchaseManager.Downgrade(this, m_nGroupID, siteguid, subscriptionSetModifyDetailsId, ref shouldResetModifyStatus);
+            return PurchaseManager.HandleDowngrade(this, m_nGroupID, siteguid, subscriptionSetModifyDetailsId, ref shouldResetModifyStatus);
         }
 
         public ApiObjects.Response.Status CancelScheduledSubscription(int groupId, long domainId, long scheduledSubscriptionId)

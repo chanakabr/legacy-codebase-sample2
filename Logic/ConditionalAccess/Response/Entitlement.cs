@@ -52,7 +52,8 @@ namespace Core.ConditionalAccess.Response
         public int paymentGatewayId { get; set; } // subscription only
         public int paymentMethodId { get; set; } // subscription only
         public bool IsInGracePeriod { get; set; } // subscription only
-        
+        public long? ScheduledSubscriptionId { get; set; } // subscription only
+
         public Int32 mediaFileID; // ppv only
         public int mediaID { get; set; } // ppv only
 
@@ -75,7 +76,7 @@ namespace Core.ConditionalAccess.Response
             this.recurringStatus = item.m_bRecurringStatus;
             this.isRenewable = item.m_bIsSubRenewable;
             this.IsInGracePeriod = item.m_bIsInGracePeriod;
-
+            this.ScheduledSubscriptionId = item.ScheduledSubscriptionId;
             this.mediaFileID = 0;
         }
 
@@ -91,7 +92,7 @@ namespace Core.ConditionalAccess.Response
             this.paymentMethod = item.m_paymentMethod;
             this.deviceUDID = item.m_sDeviceUDID;
             this.deviceName = item.m_sDeviceName;
-            this.cancelWindow = item.m_bCancelWindow;
+            this.cancelWindow = item.m_bCancelWindow;            
         }
 
         public Entitlement(PermittedMediaContainer item)
@@ -114,7 +115,7 @@ namespace Core.ConditionalAccess.Response
         }
         
         public Entitlement()
-        {
+        {            
         }
     }
 }
