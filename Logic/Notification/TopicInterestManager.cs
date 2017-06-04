@@ -38,6 +38,7 @@ namespace APILogic.Notification
             UserInterests userInterests = null;
             bool updateIsNeeded = false;
             bool isRegiesterNotificationNeeded = false;
+            eAssetTypes assetType = eAssetTypes.UNKNOWN;
             try
             {
                 // 1. validate user                                
@@ -48,7 +49,11 @@ namespace APILogic.Notification
                     return response;
                 }
 
-                // 2. validate with topic_interest make sure that parent and child valid                
+                // set userInterest assetType according to topicUserInterest.
+                Meta topicUserInterest = NotificationCache.Instance().GetPartnerTopicInterests(partnerId).Where(x => x.Id == userInterest.Topic.MetaId).FirstOrDefault();
+                assetType = topicUserInterest.AssetType;
+
+                // 2. validate with topic_interest make sure that parent and child valid                 
                 response = ValidateNewUserInterest(userInterest, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));
                 if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
@@ -83,7 +88,7 @@ namespace APILogic.Notification
                     // checking whether user already register to an upper topic level
                     // for example: user register to "ligat Haal" and now ask for "Maccaci" ( both are enable notification true) 
                     // in this case user should be register to "Maccabi" but without a specific notification.
-                    isRegiesterNotificationNeeded = IsRegiesterNotificationNeeded(userInterest, userInterests, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));                   
+                    isRegiesterNotificationNeeded = IsRegiesterNotificationNeeded(userInterest, userInterests, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));
                 }
 
                 // Set CB with new interest
@@ -102,7 +107,6 @@ namespace APILogic.Notification
                 // 4. Send/Create Amazon Topic                
                 if (NotificationSettings.IsPartnerPushEnabled(partnerId))
                 {
-                    Meta topicUserInterest = NotificationCache.Instance().GetPartnerTopicInterests(partnerId).Where(x => x.Id == userInterest.Topic.MetaId).FirstOrDefault();
 
                     // Send notification incase feature is ENABLED_NOTIFICATION                
                     if (topicUserInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
@@ -405,62 +409,72 @@ namespace APILogic.Notification
                 return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
             }
 
-            // check recursively as long parent not empty. value should be filled 
-            if (userInterest.Topic.ParentTopic != null && ValidateParentsValues(userInterest.Topic.ParentTopic))
-            {
-                log.ErrorFormat("Error ValidateUserInterest. ParentTopic value Required :{0}", JsonConvert.SerializeObject(userInterest));
-                return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
-            }
+            eAssetTypes assetType = GetuserInterestAssetType(userInterest);
 
-            //Check recursively for each parent level there is a topic meta
-            return ValidateTopicUserInterest(userInterest.Topic, topicUserInterest, groupsTopics);
+            //Check recursively for each parent level there is a topic meta configured, same asset type and have a value
+            return ValidateTopicUserInterest(userInterest.Topic, topicUserInterest, assetType, groupsTopics);
         }
 
-        /// <summary>
-        /// Check recursively values for each parent level.
-        /// </summary>
-        private static bool ValidateParentsValues(UserInterestTopic userInterestTopic)
+        private static eAssetTypes GetuserInterestAssetType(UserInterest newUserInterest)
         {
-            if (userInterestTopic.ParentTopic != null && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
-                return false;
+            // partnerId_AssetType_ColumnIndex  || partnerId_AssetType_TagId
+            var metaIdSplited = newUserInterest.Topic.MetaId.Split('_').ToList();
+            eAssetTypes newUserInterestAssetType;
+            Enum.TryParse(metaIdSplited[1].ToUpper(), out newUserInterestAssetType);
 
-            if (userInterestTopic.ParentTopic == null)
-                return true;
-
-            return ValidateParentsValues(userInterestTopic.ParentTopic);
+            return newUserInterestAssetType;
         }
 
         /// <summary>
         /// Check recursively for each parent level there is a topic meta.        
         /// </summary>
-        private static Status ValidateTopicUserInterest(UserInterestTopic userInterestTopic, Meta currentMeta, List<Meta> groupsTopics)
+        private static Status ValidateTopicUserInterest(UserInterestTopic userInterestTopic, Meta currentMeta, eAssetTypes assetType, List<Meta> groupsTopics)
         {
+            string errorMessageData = string.Format(" userInterestTopic: {0}, currentMeta: {1}",JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
 
-            if (userInterestTopic.ParentTopic == null && currentMeta.ParentId != null)
+            if (assetType != currentMeta.AssetType)
             {
-                log.ErrorFormat("Error ParentTopic have no value but ParentMetaId does have value. userInterestTopic: {0}, currentMeta: {1}",
-                    JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
+                log.ErrorFormat("Error ParentTopic asset type not equal to ParentMetaId asset type. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic != null && currentMeta.ParentId == null)
+            if (userInterestTopic.ParentTopic == null && !string.IsNullOrEmpty(currentMeta.ParentId))
             {
-                log.ErrorFormat("Error ParentTopic have value but ParentMetaId does have no value. userInterestTopic: {0}, currentMeta: {1}",
-                    JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
+                log.ErrorFormat("Error ParentTopic have no value but ParentMetaId does have value. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic == null && currentMeta.ParentId == null)
+            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && string.IsNullOrEmpty(currentMeta.ParentId))
+            {
+                log.ErrorFormat("Error ParentTopic have value but ParentMetaId does have no value. {0}", errorMessageData);
+                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            }
+
+            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(currentMeta.ParentId) 
+                && !userInterestTopic.ParentTopic.MetaId.Equals(currentMeta.ParentId))
+            {
+                log.ErrorFormat("Error ParentTopic MetaId not Equals to ParentMetaId. {0}", errorMessageData);
+                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            }
+
+            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(currentMeta.ParentId)
+               && userInterestTopic.ParentTopic.MetaId.Equals(currentMeta.ParentId) && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
+            {
+                log.ErrorFormat("Error ParentTopic value is missing. {0}", errorMessageData);
+                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            }
+
+            if (userInterestTopic.ParentTopic == null && string.IsNullOrEmpty(currentMeta.ParentId))
                 return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
             Meta parentMeta = groupsTopics.Where(x => x.Id == currentMeta.ParentId).FirstOrDefault();
             if (parentMeta == null)
             {
-                log.ErrorFormat("Error ParentTopic have value but ParentMetaId not found. userInterestTopic: {0}, currentMeta: {1}",
-                    JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
+                log.ErrorFormat("Error ParentTopic have value but ParentMetaId not found. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
-            return ValidateTopicUserInterest(userInterestTopic.ParentTopic, parentMeta, groupsTopics);
+
+            return ValidateTopicUserInterest(userInterestTopic.ParentTopic, parentMeta, assetType, groupsTopics);
         }
 
         internal static UserInterestResponseList GetUserInterests(int groupId, int userId)
