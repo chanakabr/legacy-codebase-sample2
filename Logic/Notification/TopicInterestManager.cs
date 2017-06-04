@@ -898,6 +898,8 @@ namespace APILogic.Notification
                         log.DebugFormat("No interest notification for topic key-value: {0}, partner ID: {1}", keyValueTopic, partnerId);
                         continue;
                     }
+                    else
+                        log.DebugFormat("VOD topic was found for notification. Asset ID: {0}, key-value topic: {1}", assetId, keyValueTopic);
 
                     // check if future message was not already sent and we only need to update
                     InterestNotificationMessage oldInterestMessage = InterestDal.GetTopicInterestNotificationMessageByInterestNotificationId(partnerId, interestNotification.Id, assetId);
@@ -1028,6 +1030,8 @@ namespace APILogic.Notification
                                 log.DebugFormat("No interest notification for topic key-value: {0}, partner ID: {1}", keyValueTopic, partnerId);
                                 continue;
                             }
+                            else
+                                log.DebugFormat("Program topic was found for notification. Program ID: {0}, key-value topic: {1}", program.AssetId, keyValueTopic);
 
                             // check if future message was not already sent and we only need to update
                             InterestNotificationMessage oldInterestMessage = InterestDal.GetTopicInterestNotificationMessageByInterestNotificationId(partnerId, interestNotification.Id, (int)program.m_oProgram.EPG_ID);
