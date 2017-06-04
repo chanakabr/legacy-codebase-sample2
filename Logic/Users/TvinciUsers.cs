@@ -2116,7 +2116,7 @@ namespace Core.Users
             else
             {
                 log.ErrorFormat("ChangeUsers: User and new user and identical. {0}", userId);
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Cannot change to same user");
                 return response;
             }
         }
