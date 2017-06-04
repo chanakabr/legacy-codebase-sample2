@@ -86,8 +86,11 @@ namespace Ingest
                             }
                         case eIngestType.KalturaEpg:
                             {
-                                OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "EPG Ingest";
-                                
+                                if (OperationContext.Current != null)
+                                {
+                                    OperationContext.Current.IncomingMessageProperties[Constants.TOPIC] = "EPG Ingest";
+                                }
+
                                 bool isSucceeded = false;
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();
                                 
