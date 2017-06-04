@@ -1900,5 +1900,38 @@ namespace Core.Users
 
             return response;
         }
+
+        public static UserResponseObject SignInWithUserId(int groupID, int userId, string sessionID, string sIP, string deviceID, bool bPreventDoubleLogins, List<ApiObjects.KeyValuePair> KeyValuePairs)
+        {
+            try
+            {
+                // add siteguid to logs/monitor
+                HttpContext.Current.Items[Constants.USER_ID] = userId;
+
+                if (Utils.IsGroupIDContainedInConfig(groupID, "EXCLUDE_PS_DLL_IMPLEMENTATION", ';'))
+                {
+                    // old Core to PS flow
+                    BaseUsers t = null;
+                    Utils.GetBaseImpl(ref t, groupID);
+                    if (t != null)
+                        return t.SignIn(userId, 3, 3, groupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
+                }
+                else
+                {
+                    // new Core to PS flow
+                    KalturaBaseUsers kUser = null;
+
+                    // get group ID + user type
+                    Utils.GetBaseImpl(ref kUser, groupID);
+                    if (kUser != null)
+                        return FlowManager.SignIn(userId, kUser, nMaxFailCount, nLockMinutes, groupID, sessionID, sIP, deviceID, bPreventDoubleLogins, KeyValuePairs);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("", ex);
+            }
+            return null;
+        }
     }
 }

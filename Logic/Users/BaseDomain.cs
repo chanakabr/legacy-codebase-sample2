@@ -1916,6 +1916,76 @@ namespace Core.Users
                 }
             }
             return false;
-        }      
+        }
+
+        internal UserResponse LoginWithDevicePIN(int groupId, string pin, string sessionID, string ip, string udid, bool preventDoubleLogins, List<KeyValuePair> keyValueList)
+        {
+            UserResponse response = new UserResponse();
+
+            // get device
+            Device device = new Device();
+            device.Initialize(udid);
+            if (device != null)
+            {
+                log.ErrorFormat("Device does not exist, UDID = {0}", udid);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
+                return response;
+            }
+            
+            // validations
+            if (string.IsNullOrEmpty(device.m_pin))
+            {
+                log.ErrorFormat("Device pin does not exists, UDID = {0}, pin = {1}", udid, pin);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "Device pin does not exists");
+                return response;
+            }
+
+            if (device.m_domainID == 0)
+            {
+                log.ErrorFormat("Device is not in a domain, UDID = {0}", udid);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotInDomain, "Device is not in a domain");
+                return response;
+            }
+
+            // login with master user
+            DomainsCache domainCache = DomainsCache.Instance();
+            Domain domain = domainCache.GetDomain(device.m_domainID, groupId);
+            if (domain == null || domain.m_DomainStatus == DomainStatus.Error || domain.m_DomainStatus == DomainStatus.DomainNotExists)
+            {
+                log.ErrorFormat("Domain does not exist, UDID = {0}, domainId", udid, device.m_domainID);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DomainNotExists, "Domain does not exist");
+                return response;
+            }
+
+            if (domain.m_masterGUIDs == null || domain.m_masterGUIDs.Count == 0)
+            {
+                log.ErrorFormat("Domain master users do not exist, UDID = {0}, domainId", udid, device.m_domainID);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.MasterUserNotFound, "Master user was not found");
+                return response;
+            }
+
+            int masterUserId = domain.m_masterGUIDs[0];
+
+            response.user = Core.Users.Module.SignInWithUserId(groupId, masterUserId, sessionID, ip, udid, preventDoubleLogins, keyValueList);
+            if (response.user == null)
+            {
+                log.ErrorFormat("Failed to login with master user ID = {0}", masterUserId);
+                return response;
+            }
+
+            response.resp = Utils.ConvertResponseStatusToResponseObject(response.user.m_RespStatus);
+
+            if (response.resp.Code != (int)eResponseStatus.OK)
+            {
+                log.ErrorFormat("Failed to login with master user ID = {0}, code = {1}, message = {2}", masterUserId, response.resp.Code, response.resp.Message);
+                return response;
+            }
+
+            // delete pin from DB - for single login 
+            DomainDal.DeleteDevicePin(udid, pin);
+            
+
+            return response;
+        }
     }
 }

@@ -47,6 +47,7 @@ namespace ApiObjects.Response
         HomeNetworkDoesNotExist = 1033,
         HomeNetworkFrequency = 1034,
         DlmExist = 1035,
+        MasterUserNotFound = 1036,
 
         // User Section 2000 - 2999
         UserDoesNotExist = 2000,

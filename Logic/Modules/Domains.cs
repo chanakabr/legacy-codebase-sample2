@@ -943,5 +943,19 @@ namespace Core.Domains
 
             return false;
         }
+
+        public static UserResponse LoginWithDevicePIN(int groupID, string pin, string sessionID, string ip, string udid, bool preventDoubleLogins, List<ApiObjects.KeyValuePair> keyValueList)
+        {
+            UserResponse response = new UserResponse();
+
+            Core.Users.BaseDomain t = null;
+            Utils.GetBaseImpl(ref t, groupID);
+            if (t != null)
+            {
+                response = t.LoginWithDevicePIN(groupID, pin, sessionID, ip, udid, preventDoubleLogins, keyValueList);
+            }
+
+            return response;
+        }
     }
 }

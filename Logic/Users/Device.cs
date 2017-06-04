@@ -361,7 +361,7 @@ namespace Core.Users
                     //Search for new PIN in devices table - if found, regenerate, else, return new PIN
                     selectQuery = new ODBCWrapper.DataSetSelectQuery();
                     selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                    selectQuery += "select * from devices with (nolock) where status=1 and";
+                    selectQuery += "select id from devices with (nolock) where status=1 and";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_groupID);
                     selectQuery += "and";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("PIN", "=", sNewPIN);
