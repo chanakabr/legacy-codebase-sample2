@@ -52,7 +52,7 @@ namespace SubscriptionRenewHandler
                     }
                     case eSubscriptionRenewRequestType.Downgrade:
                     {
-                        success = Core.ConditionalAccess.Module.Downgrade(request.GroupID, request.SiteGuid, request.PurchaseId);
+                        success = Core.ConditionalAccess.Module.HandleDowngrade(request.GroupID, request.SiteGuid, request.PurchaseId);
                         break;
                     }
                     default:
