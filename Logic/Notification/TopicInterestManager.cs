@@ -37,6 +37,7 @@ namespace APILogic.Notification
             Status response = null;
             UserInterests userInterests = null;
             bool updateIsNeeded = false;
+            bool isRegiesterNotificationNeeded = false;
             try
             {
                 // 1. validate user                                
@@ -47,20 +48,12 @@ namespace APILogic.Notification
                     return response;
                 }
 
-                // 2. validate with topic_interest make sure that parent and child valid
-                List<Meta> groupTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
-                response = ValidateUserInterest(userInterest, groupTopics);
+                // 2. validate with topic_interest make sure that parent and child valid                
+                response = ValidateNewUserInterest(userInterest, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));
                 if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
                     log.ErrorFormat("Validate UserInterest failed: user: {0} not valid, partnerId: {1}, userInterest:{2}", userId, partnerId, JsonConvert.SerializeObject(userInterest));
                     return response;
-                }
-
-                Meta topicUserInterest = groupTopics.Where(x => x.MetaId == userInterest.MetaId).FirstOrDefault();
-                if (topicUserInterest == null)
-                {
-                    log.ErrorFormat("UserInterest meta not recognize at group topic interest groupId = {0}, userInterest = {1}", partnerId, JsonConvert.SerializeObject(userInterest));
-                    return new Status((int)eResponseStatus.NotaTopicInterestMeta, "Not a topic interest meta");
                 }
 
                 // 3. check that userInterest does not already exist 
@@ -68,7 +61,7 @@ namespace APILogic.Notification
                 if (userInterests == null)
                 {
                     userInterests = new UserInterests() { PartnerId = partnerId, UserId = userId };
-                    userInterest.Id = Guid.NewGuid().ToString();
+                    userInterest.UserInterestId = Guid.NewGuid().ToString();
                     userInterests.UserInterestList.Add(userInterest);
                     updateIsNeeded = true;
                 }
@@ -83,9 +76,14 @@ namespace APILogic.Notification
                     }
 
                     // UserInterest should be added
-                    userInterest.Id = Guid.NewGuid().ToString();
+                    userInterest.UserInterestId = Guid.NewGuid().ToString();
                     userInterests.UserInterestList.Add(userInterest);
                     updateIsNeeded = true;
+
+                    // checking whether user already register to an upper topic level
+                    // for example: user register to "ligat Haal" and now ask for "Maccaci" ( both are enable notification true) 
+                    // in this case user should be register to "Maccabi" but without a specific notification.
+                    isRegiesterNotificationNeeded = IsRegiesterNotificationNeeded(userInterest, userInterests, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));                   
                 }
 
                 // Set CB with new interest
@@ -95,9 +93,17 @@ namespace APILogic.Notification
                         log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
                 }
 
+
+
+
+
+
+
                 // 4. Send/Create Amazon Topic                
                 if (NotificationSettings.IsPartnerPushEnabled(partnerId))
                 {
+                    Meta topicUserInterest = NotificationCache.Instance().GetPartnerTopicInterests(partnerId).Where(x => x.Id == userInterest.Topic.MetaId).FirstOrDefault();
+
                     // Send notification incase feature is ENABLED_NOTIFICATION                
                     if (topicUserInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
                     {
@@ -127,7 +133,6 @@ namespace APILogic.Notification
                             {
                                 log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
                                 return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic"); //TODO: Anat change error code and message
-
                             }
                         }
 
@@ -263,6 +268,48 @@ namespace APILogic.Notification
             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
+        private static bool IsRegiesterNotificationNeeded(UserInterest newUserInterest, UserInterests userInterests, List<Meta> groupsTopics)
+        {
+            // get partner metas with notification (metaid)
+            List<string> metasWithNotification = groupsTopics.Where(x => x.Features != null && x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION)).Select(y => y.Id).ToList();
+
+            if (metasWithNotification.Count == 0)
+                return false;
+
+            // get userInterests MetaIds and values
+            var userInterestsLeafs = userInterests.UserInterestList.Where(x => x.Topic.ParentTopic == null).Select(y => new KeyValuePair<string, string>(y.Topic.MetaId, y.Topic.Value)).ToList();
+
+            List<string> newUserInterestValues = new List<string>();
+            GetNewUserInterestMetaIds(newUserInterest.Topic, ref newUserInterestValues);
+
+            foreach (string metaValue in newUserInterestValues)
+            {
+                var metaId = userInterestsLeafs.FirstOrDefault(x => x.Value == metaValue).Key;
+                if (!string.IsNullOrEmpty(metaId))
+                {
+                    if (metasWithNotification.Contains(metaId))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns user interest values
+        /// </summary>
+        private static bool GetNewUserInterestMetaIds(UserInterestTopic userInterestTopic, ref List<string> newUserInterestValues)
+        {
+            if (userInterestTopic == null || string.IsNullOrEmpty(userInterestTopic.Value))
+                return false;
+
+            newUserInterestValues.Add(userInterestTopic.Value);
+
+            return GetNewUserInterestMetaIds(userInterestTopic.ParentTopic, ref newUserInterestValues);
+        }
+
         private static ApiObjects.Response.Status ValidateUser(int partnerId, int userId)
         {
             // validate user            
@@ -319,7 +366,7 @@ namespace APILogic.Notification
                         return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
                 }
 
-                interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue, groupTopicInterest.MetaId
+                interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue, groupTopicInterest.Id
                     , groupTopicInterest.AssetType);
 
                 if (interestNotification == null)
@@ -332,61 +379,81 @@ namespace APILogic.Notification
             return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
-        private static Status ValidateUserInterest(UserInterest userInterest, List<Meta> groupsTopics)
+        private static Status ValidateNewUserInterest(UserInterest userInterest, List<Meta> groupsTopics)
         {
             if (userInterest == null)
             {
                 return new Status() { Code = (int)eResponseStatus.NoUserInterestToInsert, Message = NO_USER_INTEREST_TO_INSERT };
             }
 
-            if (!string.IsNullOrEmpty(userInterest.MetaId))
+            if (userInterest.Topic == null || string.IsNullOrEmpty(userInterest.Topic.MetaId))
             {
                 log.ErrorFormat("Error ValidateUserInterest. MetaIdRequired :{0}", JsonConvert.SerializeObject(userInterest));
                 return new Status() { Code = (int)eResponseStatus.MetaIdRequired, Message = META_ID_REQUIRED };
             }
 
-            if (userInterest.Topic == null || string.IsNullOrEmpty(userInterest.Topic.Value))
-            {
-                log.ErrorFormat("Error ValidateUserInterest. MetaValueRequired :{0}", JsonConvert.SerializeObject(userInterest));
-                return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
-            }
-
-            if (userInterest.Topic.ParentTopic != null || string.IsNullOrEmpty(userInterest.Topic.ParentTopic.Value))
-            {
-                log.ErrorFormat("Error ValidateUserInterest. ParentTopic MetaValueRequired :{0}", JsonConvert.SerializeObject(userInterest));
-                return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
-            }
-
-            Meta topicUserInterest = groupsTopics.Where(x => x.MetaId == userInterest.MetaId).FirstOrDefault();
+            Meta topicUserInterest = groupsTopics.Where(x => x.Id == userInterest.Topic.MetaId).FirstOrDefault();
             if (topicUserInterest == null)
             {
                 log.ErrorFormat("Error topic not recognized at UserInterest. userInterest :{0}", JsonConvert.SerializeObject(userInterest));
                 return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
             }
 
+            if (string.IsNullOrEmpty(userInterest.Topic.Value))
+            {
+                log.ErrorFormat("Error ValidateUserInterest. MetaValueRequired :{0}", JsonConvert.SerializeObject(userInterest));
+                return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
+            }
+
+            // check recursively as long parent not empty. value should be filled 
+            if (userInterest.Topic.ParentTopic != null && ValidateParentsValues(userInterest.Topic.ParentTopic))
+            {
+                log.ErrorFormat("Error ValidateUserInterest. ParentTopic value Required :{0}", JsonConvert.SerializeObject(userInterest));
+                return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
+            }
+
+            //Check recursively for each parent level there is a topic meta
             return ValidateTopicUserInterest(userInterest.Topic, topicUserInterest, groupsTopics);
         }
 
+        /// <summary>
+        /// Check recursively values for each parent level.
+        /// </summary>
+        private static bool ValidateParentsValues(UserInterestTopic userInterestTopic)
+        {
+            if (userInterestTopic.ParentTopic != null && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
+                return false;
+
+            if (userInterestTopic.ParentTopic == null)
+                return true;
+
+            return ValidateParentsValues(userInterestTopic.ParentTopic);
+        }
+
+        /// <summary>
+        /// Check recursively for each parent level there is a topic meta.        
+        /// </summary>
         private static Status ValidateTopicUserInterest(UserInterestTopic userInterestTopic, Meta currentMeta, List<Meta> groupsTopics)
         {
-            if (userInterestTopic.ParentTopic == null && currentMeta.ParentMetaId != null)
+
+            if (userInterestTopic.ParentTopic == null && currentMeta.ParentId != null)
             {
                 log.ErrorFormat("Error ParentTopic have no value but ParentMetaId does have value. userInterestTopic: {0}, currentMeta: {1}",
                     JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic != null && currentMeta.ParentMetaId == null)
+            if (userInterestTopic.ParentTopic != null && currentMeta.ParentId == null)
             {
                 log.ErrorFormat("Error ParentTopic have value but ParentMetaId does have no value. userInterestTopic: {0}, currentMeta: {1}",
                     JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic == null && currentMeta.ParentMetaId == null)
+            if (userInterestTopic.ParentTopic == null && currentMeta.ParentId == null)
                 return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
-            Meta parentMeta = groupsTopics.Where(x => x.MetaId == currentMeta.ParentMetaId).FirstOrDefault();
+            Meta parentMeta = groupsTopics.Where(x => x.Id == currentMeta.ParentId).FirstOrDefault();
             if (parentMeta == null)
             {
                 log.ErrorFormat("Error ParentTopic have value but ParentMetaId not found. userInterestTopic: {0}, currentMeta: {1}",
@@ -439,7 +506,7 @@ namespace APILogic.Notification
                 {
                     foreach (var UserInterestItem in userInterests.UserInterestList)
                     {
-                        if (UserInterestItem.Id == id)
+                        if (UserInterestItem.UserInterestId == id)
                         {
                             userInterests.UserInterestList.Remove(UserInterestItem);
                             updateIsNeeded = true;
