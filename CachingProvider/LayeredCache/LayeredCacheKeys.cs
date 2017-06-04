@@ -72,7 +72,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainEntitlementsKey(int groupId, int domainId)
         {
-            return string.Format("domainEntitlements_v2_groupId_{0}_domainId_{1}", groupId, domainId);
+            return string.Format("domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetFileCdnDataKey(int fileId)
