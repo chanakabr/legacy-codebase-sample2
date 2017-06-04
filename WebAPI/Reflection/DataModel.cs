@@ -3197,8 +3197,6 @@ namespace WebAPI.Reflection
                             return "purchaseDate";
                         case "PurchaseId":
                             return "purchaseId";
-                        case "ScheduledSubscriptionId":
-                            return "scheduledSubscriptionId";
                         case "Type":
                             return "type";
                         case "UserId":
@@ -5749,6 +5747,8 @@ namespace WebAPI.Reflection
                             return "paymentGatewayId";
                         case "PaymentMethodId":
                             return "paymentMethodId";
+                        case "ScheduledSubscriptionId":
+                            return "scheduledSubscriptionId";
                     }
                     break;
                     
