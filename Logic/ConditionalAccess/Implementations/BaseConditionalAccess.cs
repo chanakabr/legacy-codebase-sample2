@@ -1682,24 +1682,24 @@ namespace Core.ConditionalAccess
 		/// <summary>
 		/// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.
 		/// </summary>
-		/// <param name="p_nDomainId"></param>
+		/// <param name="domainId"></param>
 		/// <param name="p_sSubscriptionCode"></param>
 		/// <returns></returns>
-		public virtual ApiObjects.Response.Status CancelSubscriptionRenewal(int p_nDomainId, string p_sSubscriptionCode)
+		public virtual ApiObjects.Response.Status CancelSubscriptionRenewal(int domainId, string p_sSubscriptionCode)
 		{
-			ApiObjects.Response.Status oResult = new ApiObjects.Response.Status();
+			ApiObjects.Response.Status result = new ApiObjects.Response.Status();
 			bool bResult = false;
 
 			try
 			{
 				// Get domain info - both for validation and for getting users in domain
-				Domain oDomain = Utils.GetDomainInfo(p_nDomainId, this.m_nGroupID);
+				Domain oDomain = Utils.GetDomainInfo(domainId, this.m_nGroupID);
 
 				// Check if the domain is OK
 				if (oDomain == null)
 				{
-					oResult.Code = (int)eResponseStatus.DomainNotExists;
-					oResult.Message = "Domain doesn't exist";
+					result.Code = (int)eResponseStatus.DomainNotExists;
+					result.Message = "Domain doesn't exist";
 					log.Error("Domain doesn't exist");
 				}
 				else
@@ -1709,13 +1709,13 @@ namespace Core.ConditionalAccess
 					{
 						if (oDomain.m_DomainStatus == DomainStatus.DomainSuspended)
 						{
-							oResult.Code = (int)eResponseStatus.DomainSuspended;
-							oResult.Message = "Domain suspended";
+							result.Code = (int)eResponseStatus.DomainSuspended;
+							result.Message = "Domain suspended";
 						}
 						else
 						{
-							oResult.Code = (int)eResponseStatus.DomainNotExists;
-							oResult.Message = "Domain doesn't exist";
+							result.Code = (int)eResponseStatus.DomainNotExists;
+							result.Message = "Domain doesn't exist";
 						}
 						log.Error("Domain status: " + oDomain.m_DomainStatus.ToString());
 					}
@@ -1723,13 +1723,13 @@ namespace Core.ConditionalAccess
 					{
 						int[] arrUsers = oDomain.m_UsersIDs.ToArray();
 
-						DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers, p_nDomainId);
+						DataRow drUserPurchase = GetSubscriptionPurchaseRow(p_sSubscriptionCode, arrUsers, domainId);
 
 						// If all of the users didn't purchase this subscription
 						if (drUserPurchase == null)
 						{
-							oResult.Code = (int)eResponseStatus.InvalidPurchase;
-							oResult.Message = "Subscription is not permitted for this domain";
+							result.Code = (int)eResponseStatus.InvalidPurchase;
+							result.Message = "Subscription is not permitted for this domain";
 						}
 						else
 						{
@@ -1740,11 +1740,23 @@ namespace Core.ConditionalAccess
 							// If the subscription is not recurring already
 							if (nIsRecurringStatus != 1)
 							{
-								oResult.Code = (int)eResponseStatus.SubscriptionNotRenewable;
-								oResult.Message = "Subscription already does not renew";
+								result.Code = (int)eResponseStatus.SubscriptionNotRenewable;
+								result.Message = "Subscription already does not renew";
 							}
 							else
 							{
+                                if (nPurchaseID > 0)
+                                {
+                                    Dictionary<long, long> purchaseIdToScheduledSubscriptionId = Utils.GetPurchaseIdToScheduledSubscriptionIdMap(m_nGroupID, domainId,
+                                                                                                 new List<long>() { nPurchaseID }, SubscriptionSetModifyType.Downgrade);
+                                    if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.Count > 0)
+                                    {
+                                        result = new ApiObjects.Response.Status((int)eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending,
+                                                                                    eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending.ToString());
+                                        return result;
+                                    }
+                                }
+
 								// Try to cancel subscription
 								bResult = ConditionalAccessDAL.CancelSubscription(nPurchaseID, m_nGroupID, sPurchasingSiteGuid, p_sSubscriptionCode, (int)SubscriptionPurchaseStatus.Cancel) > 0;
 
@@ -1755,22 +1767,22 @@ namespace Core.ConditionalAccess
 										String.Concat("Sub ID: ", p_sSubscriptionCode, " with Purchase ID: ",
 										ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
 
-									oResult.Code = (int)eResponseStatus.OK;
-									oResult.Message = "Subscription renewal cancelled";
+									result.Code = (int)eResponseStatus.OK;
+									result.Message = "Subscription renewal cancelled";
 
 									DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
 
 									// Fire event that action occurred
 									Dictionary<string, object> dicData = new Dictionary<string, object>()
 									{
-										{"DomainId", p_nDomainId},
+										{"DomainId", domainId},
 										{"ServiceID", p_sSubscriptionCode},
 										{"ServiceEndDate", dtServiceEndDate}
 									};
 
 									EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData);
 
-                                    string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(p_nDomainId);
+                                    string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
                                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                     {
                                         log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
@@ -1780,14 +1792,14 @@ namespace Core.ConditionalAccess
 								{
 									#region Logging
 									StringBuilder sb = new StringBuilder("CancelSubscriptionRenewal. Probably failed to cancel subscription on DB. ");
-									sb.Append(String.Concat("Domain Id: ", p_nDomainId));
+									sb.Append(String.Concat("Domain Id: ", domainId));
 									sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
 
 									log.Error("Error - " + sb.ToString());
 									#endregion
 
-									oResult.Code = (int)eResponseStatus.Error;
-									oResult.Message = "Error while cancelling";
+									result.Code = (int)eResponseStatus.Error;
+									result.Message = "Error while cancelling";
 								}
 							}
 						}
@@ -1799,7 +1811,7 @@ namespace Core.ConditionalAccess
 				#region Logging
 				StringBuilder sb = new StringBuilder("Exception at CancelSubscriptionRenewal. ");
 				sb.Append(String.Concat(" Ex Msg: ", ex.Message));
-				sb.Append(String.Concat(" Domain Id: ", p_nDomainId));
+				sb.Append(String.Concat(" Domain Id: ", domainId));
 				sb.Append(String.Concat(" Sub Code: ", p_sSubscriptionCode));
 				sb.Append(String.Concat(" this is: ", this.GetType().Name));
 				sb.Append(String.Concat(" Ex Type: ", ex.GetType().Name));
@@ -1808,11 +1820,11 @@ namespace Core.ConditionalAccess
 				log.Error("Exception - " + sb.ToString(), ex);
 				#endregion
 
-				oResult.Code = (int)eResponseStatus.Error;
-				oResult.Message = "Unexpected error occurred";
+				result.Code = (int)eResponseStatus.Error;
+				result.Message = "Unexpected error occurred";
 			}
 
-			return oResult;
+			return result;
 		}
 
 		/// <summary>
@@ -9747,7 +9759,9 @@ namespace Core.ConditionalAccess
                                                                                                              new List<long>() { subscriptionPurchaseId }, SubscriptionSetModifyType.Downgrade);
                                                 if (purchaseIdToScheduledSubscriptionId != null && purchaseIdToScheduledSubscriptionId.Count > 0)
                                                 {
-
+                                                    result = new ApiObjects.Response.Status((int)eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending,
+                                                                                                eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending.ToString());
+                                                    return result;
                                                 }
                                             }
 
