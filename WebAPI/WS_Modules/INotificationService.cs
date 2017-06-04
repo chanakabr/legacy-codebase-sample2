@@ -179,5 +179,8 @@ namespace WS_Notification
 
         [OperationContract]
         bool SendBulkEngagement(string wsUserName, string wsSPassword, int engagementId, int engagementBulkId, int startTime);
+
+        [OperationContract]
+        bool SendMessageInterest(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId);
     }
 }

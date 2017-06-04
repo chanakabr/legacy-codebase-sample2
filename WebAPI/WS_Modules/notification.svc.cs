@@ -1201,5 +1201,24 @@ namespace WS_Notification
 
             return response;
         }
+
+        public bool SendMessageInterest(string wsUserName, string wsSPassword, long startTime, int notificationInterestMessageId)
+        {
+            bool response = false;
+            int groupID = TVinciShared.WS_Utils.GetGroupID("notifications", wsUserName, wsSPassword);
+
+            try
+            {
+                if (groupID != 0)
+                    return Core.Notification.Module.SendMessageInterest(groupID, startTime, notificationInterestMessageId);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("SendMessageInterest caught an exception: GroupID: {0}, notificationInterestMessageId: {1}, ex: {2}", groupID, notificationInterestMessageId, ex);
+                HttpContext.Current.Response.StatusCode = 404;
+            }
+
+            return response;
+        }
     }
 }
