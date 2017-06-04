@@ -4109,12 +4109,12 @@ namespace WebAPI.Reflection
                             return "features";
                         case "FieldName":
                             return "fieldName";
-                        case "MetaId":
-                            return "metaId";
+                        case "Id":
+                            return "id";
                         case "Name":
                             return "name";
-                        case "ParentMetaId":
-                            return "parentMetaId";
+                        case "ParentId":
+                            return "parentId";
                         case "PartnerId":
                             return "partnerId";
                         case "Type":

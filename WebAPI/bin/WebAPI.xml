@@ -1148,12 +1148,12 @@
             List of supported features 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMeta.MetaId">
+        <member name="P:WebAPI.Models.API.KalturaMeta.Id">
             <summary>
             Meta id 
             </summary>
         </member>
-        <member name="P:WebAPI.Models.API.KalturaMeta.ParentMetaId">
+        <member name="P:WebAPI.Models.API.KalturaMeta.ParentId">
             <summary>
             Parent meta id
             </summary>

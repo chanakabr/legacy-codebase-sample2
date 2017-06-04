@@ -474,8 +474,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
               .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
-              .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
-              .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
               .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
               ;
 
@@ -486,8 +486,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
              .ForMember(dest => dest.SkipFeatures, opt => opt.MapFrom(src => src.Features == null))
              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
-             .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
-             .ForMember(dest => dest.ParentMetaId, opt => opt.MapFrom(src => src.ParentMetaId))
+             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+             .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
              .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
              ;
 

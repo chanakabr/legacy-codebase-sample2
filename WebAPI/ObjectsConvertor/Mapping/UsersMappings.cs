@@ -185,14 +185,14 @@ namespace ObjectsConvertor.Mapping
             #region UserInterest
 
             Mapper.CreateMap<KalturaUserInterest, UserInterest>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.MetaId))
+               .ForMember(dest => dest.UserInterestId, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.UserInterestId, opt => opt.MapFrom(src => src.MetaId))
                .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
                ;
 
             Mapper.CreateMap<UserInterest, KalturaUserInterest>()
-               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserInterestId))
+               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.UserInterestId))
                .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
                ;
 
