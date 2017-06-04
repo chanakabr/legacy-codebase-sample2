@@ -71,5 +71,14 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "paymentMethodId")]
         [SchemeProperty(MinInteger = 1)]
         public int? PaymentMethodId { get; set; }
+
+        /// <summary>
+        /// Scheduled Subscription Identifier
+        /// </summary>
+        [DataMember(Name = "scheduledSubscriptionId")]
+        [JsonProperty("scheduledSubscriptionId")]
+        [XmlElement(ElementName = "scheduledSubscriptionId", IsNullable = true)]
+        public long? ScheduledSubscriptionId { get; set; }
+
     }
 }

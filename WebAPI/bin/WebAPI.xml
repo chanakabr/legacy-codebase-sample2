@@ -1553,11 +1553,6 @@
             The Identifier of the purchasing household
             </summary>
         </member>
-        <member name="P:WebAPI.Models.ConditionalAccess.KalturaEntitlement.ScheduledSubscriptionId">
-            <summary>
-            Scheduled Subscription Identifier
-            </summary>
-        </member>
         <member name="T:WebAPI.Models.ConditionalAccess.KalturaCompensation">
             <summary>
             Compensation request parameters
@@ -1862,6 +1857,11 @@
              <summary>
             Payment Method identifier
              </summary>
+        </member>
+        <member name="P:WebAPI.Models.ConditionalAccess.KalturaSubscriptionEntitlement.ScheduledSubscriptionId">
+            <summary>
+            Scheduled Subscription Identifier
+            </summary>
         </member>
         <member name="P:WebAPI.Models.DMS.KalturaConfigurations.Id">
             <summary>

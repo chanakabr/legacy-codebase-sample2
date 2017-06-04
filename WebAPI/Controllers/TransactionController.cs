@@ -47,7 +47,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
-        [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionInTheSameSubscriptionSet)]
+        [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet)]
         [Throws(eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
         [Throws(eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription)]
@@ -107,7 +107,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
-        [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionInTheSameSubscriptionSet)]
+        [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet)]
         [Throws(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
         public KalturaTransaction Downgrade(KalturaPurchase purchase)

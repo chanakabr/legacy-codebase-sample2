@@ -43,14 +43,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.nextRenewalDate)))
                .ForMember(dest => dest.IsRenewableForPurchase, opt => opt.MapFrom(src => src.recurringStatus))
-               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))               
+               .ForMember(dest => dest.IsRenewable, opt => opt.MapFrom(src => src.isRenewable))
                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.type))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => SerializationUtils.ConvertToUnixTimestamp(src.endDate)))
                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => ConvertPaymentMethod(src.paymentMethod)))
                .ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
                .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => GetNullableInt(src.paymentGatewayId)))
                .ForMember(dest => dest.PaymentMethodId, opt => opt.MapFrom(src => GetNullableInt(src.paymentMethodId)))
-               ;
+               .ForMember(dest => dest.ScheduledSubscriptionId, opt => opt.MapFrom(src => src.ScheduledSubscriptionId));
+
             Mapper.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
               .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.productId))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.subscription))
