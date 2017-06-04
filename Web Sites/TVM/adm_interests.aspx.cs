@@ -1,0 +1,300 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+using System.Reflection;
+using TvinciImporter;
+using TVinciShared;
+using KLogMonitor;
+using ApiObjects;
+using System.Collections.Specialized;
+using System.Xml;
+using ApiObjects.Response;
+using System.Data;
+
+public partial class adm_interests : System.Web.UI.Page
+{
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+    protected string m_sMenu;
+    protected string m_sSubMenu;
+    protected string m_sLangMenu;
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        Int32 nMenuID = 0;
+
+        if (LoginManager.CheckLogin() == false)
+            Response.Redirect("login.html");
+        if (LoginManager.IsPagePermitted("adm_engagements.aspx") == false)
+            LoginManager.LogoutFromSite("login.html");
+        if (LoginManager.IsActionPermittedOnPage("adm_engagements.aspx", LoginManager.PAGE_PERMISION_TYPE.EDIT) == false)
+            LoginManager.LogoutFromSite("login.html");
+
+        if (AMS.Web.RemoteScripting.InvokeMethod(this))
+            return;
+        if (!IsPostBack)
+        {
+            m_sMenu = TVinciShared.Menu.GetMainMenu(23, true, ref nMenuID);
+            m_sSubMenu = TVinciShared.Menu.GetSubMenu(nMenuID, 7, true);
+
+            if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString().Trim() == "1")
+            {
+                int groupId = LoginManager.GetLoginGroupID();
+                bool result = false;
+
+                string xml = GetPageData();
+                
+                if (!string.IsNullOrEmpty(xml))
+                {
+                    result = SetTopicInterests(xml, groupId);
+                }
+
+                if (result == null || !result)
+                {
+                    Session["error_msg_s"] = "Error";
+                    Session["error_msg"] = "Error";
+                }
+                else
+                {
+                    EndOfAction();
+                }
+            }
+
+            if (Request.QueryString["type"] != null && Request.QueryString["type"].ToString() != "")
+            {
+                Session["type"] = int.Parse(Request.QueryString["type"].ToString());
+            }
+
+            if (Session["error_msg_s"] != null && Session["error_msg_s"].ToString() != "")
+            {
+                lblError.Visible = true;
+                lblError.Text = Session["error_msg_s"].ToString();
+                Session["error_msg_s"] = null;
+            }
+            else
+            {
+                lblError.Visible = false;
+                lblError.Text = "";
+            }
+        }
+    }
+
+    private bool SetTopicInterests(string xml, int groupId)
+    {
+        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_TopicInterests");
+        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        sp.AddParameter("@GroupID", groupId);
+        sp.AddParameter("@xmlDoc", xml);
+        return sp.ExecuteReturnValue<int>() > 0;
+    }
+
+    private string GetPageData()
+    {
+        int groupId = LoginManager.GetLoginGroupID();
+        NameValueCollection nvc = Request.Form;
+
+        XmlDocument xmlDoc = new XmlDocument();
+        XmlNode rootNode = xmlDoc.CreateElement("root");
+        xmlDoc.AppendChild(rootNode);
+
+        XmlNode rowNode;
+
+        XmlNode idNode;
+        XmlNode nameIdNode;
+        XmlNode assetTypeIdNode;
+        XmlNode enableNotificationIdNode;
+
+        XmlNode groupIdNode;
+        int i = 0;
+        while (i < nvc.Count)
+        {
+            rowNode = xmlDoc.CreateElement("row");
+            groupIdNode = xmlDoc.CreateElement("group_id");
+            if (!string.IsNullOrEmpty(groupId.ToString()))
+            {
+                groupIdNode.InnerText = groupId.ToString();
+            }
+            enableNotificationIdNode = xmlDoc.CreateElement("enable_notification");
+            nameIdNode = xmlDoc.CreateElement("name");
+            assetTypeIdNode = xmlDoc.CreateElement("asset_type");
+            idNode = xmlDoc.CreateElement("id");
+            bool insertData = false;
+            for (int j = i; j <= i + 4; j++)
+            {
+                if (nvc[j.ToString() + "_fieldName"] != null)
+                {
+                    string sFieldName = nvc[j.ToString() + "_field"].ToString();
+                    string sVal = "";
+                    if (nvc[j.ToString() + "_val"] != null)
+                    {
+                        sVal = nvc[j.ToString() + "_val"].ToString();
+                    }
+
+                    switch (sFieldName)
+                    {
+                        case "user_interest":
+                            if (sVal == "on") insertData = true; ;
+                            break;
+                        case "id":
+                             if (!string.IsNullOrEmpty(sVal))
+                             {
+                                 idNode.InnerText = sVal;
+                             }
+                            break;
+                        case "name":                            
+                            if (!string.IsNullOrEmpty(sVal))
+                            {
+                                nameIdNode.InnerText = sVal;
+                            }                            
+                            break;
+                        case "asset_type":                            
+                            if (!string.IsNullOrEmpty(sVal))
+                            {
+                                assetTypeIdNode.InnerText = sVal;
+                            }                           
+                            break;
+                        case "enable_notification":                        
+                            enableNotificationIdNode.InnerText = sVal == "on" ? "1" : "0";                                 
+                            break;
+                        default:
+                            break;
+
+                    }
+                }
+            }
+            if (insertData)
+            {
+                rowNode.AppendChild(idNode);
+                rowNode.AppendChild(groupIdNode);
+                rowNode.AppendChild(enableNotificationIdNode);
+                rowNode.AppendChild(assetTypeIdNode);
+                rowNode.AppendChild(nameIdNode);
+                rootNode.AppendChild(rowNode);
+            }
+            i = i + 5;
+        }
+        return xmlDoc.InnerXml;
+    }
+
+
+    public void GetHeader()
+    {
+        string sRet = PageUtils.GetPreHeader() + ": Interests";       
+        Response.Write(sRet);
+    }
+
+    protected void GetMainMenu()
+    {
+        Response.Write(m_sMenu);
+    }
+
+    protected void GetSubMenu()
+    {
+        Response.Write(m_sSubMenu);
+    }
+
+    protected void GetLangMenu()
+    {
+        Response.Write(m_sLangMenu);
+    }
+
+    public string GetPageContent(string sOrderBy, string sPageNum)
+    {
+        object t = null;
+
+        if (Session["error_msg"] != null && Session["error_msg"].ToString() != "")
+        {
+            Session["error_msg"] = "";
+            return Session["last_page_html"].ToString();
+        }
+
+        object groupId = LoginManager.GetLoginGroupID();
+        string sTable = string.Empty;
+        string sBack = "adm_interests.aspx?search_save=1";
+        DBRecordWebEditor theRecord = new DBRecordWebEditor("topic_interest", "adm_table_pager", sBack, "", "ID", t, sBack, "");
+        theRecord.SetConnectionKey("pricing_connection");
+
+        AddFields(ref theRecord);
+
+        sTable = theRecord.GetTableHTML("adm_interests.aspx?submited=1");
+        return sTable;
+    }
+
+    private void AddFields(ref DBRecordWebEditor theRecord)
+    {
+        ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_MetasTagsByGroupId");
+        sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+        sp.AddParameter("@GroupID", LoginManager.GetLoginGroupID());
+        DataSet ds = sp.ExecuteDataSet();
+
+        if (ds != null && ds.Tables != null)
+        {
+            foreach (DataTable dt in ds.Tables)
+            {
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        //metaVod.value , ti.ENABLE_NOTIFICATION ,case when ti.id is null then 0 else 1 end as user_interest, 2 as ASSET_TYPE, 'metaVod' as tableName
+                        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", false, 60, 3);
+                        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "name", false);
+                        dr_name.SetValue(ODBCWrapper.Utils.GetSafeStr(dr, "value"));
+                        theRecord.AddRecord(dr_name);
+
+                        DataRecordShortIntField dr_asset_type = new DataRecordShortIntField(false, 9, 9);
+                        dr_asset_type.Initialize("asset_type", "adm_table_header_nbg", "FormInput", "asset_type", false);
+                        dr_asset_type.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_type"));
+                        theRecord.AddRecord(dr_asset_type);
+
+                        DataRecordShortIntField dr_id = new DataRecordShortIntField(false, 9, 9);
+                        dr_id.Initialize("id", "adm_table_header_nbg", "FormInput", "id", false);
+                        dr_id.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "id"));
+                        theRecord.AddRecord(dr_id);
+
+                        DataRecordCheckBoxField dr_enable_notification = new DataRecordCheckBoxField(true);
+                        dr_enable_notification.Initialize("Enable Notification", "adm_table_header_nbg", "FormInput", "enable_notification", false);
+                        dr_enable_notification.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_notification"));
+                        theRecord.AddRecord(dr_enable_notification);
+
+                        DataRecordCheckBoxField dr_user_interest = new DataRecordCheckBoxField(true);
+                        dr_user_interest.Initialize("User Interest", "adm_table_header_nbg", "FormInput", "user_interest", false);
+                        dr_user_interest.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "user_interest"));
+                        theRecord.AddRecord(dr_user_interest);
+                    }
+                }
+            }
+        }
+    }
+ 
+    private void EndOfAction()
+    {
+        System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
+        if (HttpContext.Current.Session["error_msg"] != null && HttpContext.Current.Session["error_msg"].ToString() != "")
+        {
+            // string sFailure = coll["failure_back_page"].ToString();
+            if (coll["failure_back_page"] != null)
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["failure_back_page"].ToString() + "';</script>");
+            else
+                HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+        }
+        else
+        {
+            if (HttpContext.Current.Request.QueryString["back_n_next"] != null)
+            {
+                HttpContext.Current.Session["last_page_html"] = null;
+                string s = HttpContext.Current.Session["back_n_next"].ToString();
+                HttpContext.Current.Response.Write("<script>window.document.location.href='" + s.ToString() + "';</script>");
+                HttpContext.Current.Session["back_n_next"] = null;
+            }
+            else
+            {
+                if (coll["success_back_page"] != null)
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='" + coll["success_back_page"].ToString() + "';</script>");
+                else
+                    HttpContext.Current.Response.Write("<script>window.document.location.href='login.aspx';</script>");
+            }
+        }
+    }
+}
