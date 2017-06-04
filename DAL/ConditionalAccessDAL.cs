@@ -3064,19 +3064,7 @@ namespace DAL
             sp.AddParameter("@Type", (int)type);
 
             return sp.ExecuteReturnValue<long>();
-        }
-
-        public static bool IsFirstSubscriptionSetModify(int groupId, long domainId, long associatedPurchaseId, long scheduledSubscriptionId)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("IsFirstSubscriptionSetModify");
-            sp.SetConnectionKey("CA_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@DomainId", domainId);
-            sp.AddParameter("@AssociatedPurchaseId", associatedPurchaseId);
-            sp.AddParameter("@ScheduledSubscriptionId", scheduledSubscriptionId);            
-
-            return sp.ExecuteReturnValue<int>() == 1;
-        }
+        }        
 
         public static bool ValidateSubscriptionSetModifyDetailsById(long subscriptionSetModifyDetailsId)
         {
@@ -3130,13 +3118,14 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static DataTable GetPreviousSubscriptionPurchaseDetails(int groupId, long domainId, string previousSubscriptionCode)
+        public static DataTable GetPreviousSubscriptionPurchaseDetails(int groupId, long domainId, string previousSubscriptionCode, SubscriptionSetModifyType type)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPreviousSubscriptionPurchaseDetails");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@DomainId", domainId);
             sp.AddParameter("@SubscriptionId", previousSubscriptionCode);
+            sp.AddParameter("@Type", (int)type);
 
             return sp.Execute();
         }
