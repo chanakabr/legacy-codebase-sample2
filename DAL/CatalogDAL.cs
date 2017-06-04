@@ -4598,7 +4598,7 @@ namespace Tvinci.Core.DAL
                 meta.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
             }
 
-            meta.ParentMetaId = ODBCWrapper.Utils.GetSafeStr(dr, PARENT_META_ID_FIELD);
+            meta.ParentId = ODBCWrapper.Utils.GetSafeStr(dr, PARENT_META_ID_FIELD);
             meta.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dr, GROUP_ID_FIELD);
             assetType = ODBCWrapper.Utils.GetIntSafeVal(dr, ASSET_TYPE_FIELD);
             meta.AssetType = Enum.IsDefined(typeof(eAssetTypes), assetType) ? (eAssetTypes)assetType : eAssetTypes.UNKNOWN;
@@ -4615,8 +4615,8 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddParameter("@name", topicInterest.Name);
                 sp.AddParameter("@assetType", (int)topicInterest.AssetType);
-                sp.AddParameter("@metaId", topicInterest.MetaId);
-                sp.AddParameter("@parentMetaId", topicInterest.ParentMetaId);
+                sp.AddParameter("@metaId", topicInterest.Id);
+                sp.AddParameter("@parentMetaId", topicInterest.ParentId);
                 if (topicInterest.Features != null)
                     sp.AddParameter("@enableNotification", topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION) ? 1 : 0);
                 DataSet ds = sp.ExecuteDataSet();
@@ -4629,7 +4629,7 @@ namespace Tvinci.Core.DAL
                         topicInterest.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
                     }
 
-                    topicInterest.ParentMetaId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], PARENT_META_ID_FIELD);
+                    topicInterest.ParentId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], PARENT_META_ID_FIELD);
                     topicInterest.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].Rows[0], GROUP_ID_FIELD);
                 }
             }
