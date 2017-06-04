@@ -8089,7 +8089,7 @@ namespace Core.Catalog
             }
         }
 
-        internal static Dictionary<string, List<string>> GetUserPreferences(string siteGuid, int groupId)
+        internal static UserInterestsMetasAndTags GetUserPreferences(string siteGuid, int groupId)
         {
             throw new NotImplementedException();
         }

@@ -491,6 +491,7 @@
     <Compile Include="UserInterest.cs" />
     <Compile Include="UserIMRequestObject.cs" />
     <Compile Include="Credentials.cs" />
+    <Compile Include="UserInterestsForSearch.cs" />
     <Compile Include="UserType.cs" />
     <Compile Include="ApiObjectsUtils.cs" />
   </ItemGroup>
