@@ -44,7 +44,7 @@ namespace WebAPI.Models.Notifications
 
     public enum KalturaReminderType
     {
-        SINGLE,
-        ASSET
+        ASSET,
+        SERIES
     }
 }
