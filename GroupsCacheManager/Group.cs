@@ -34,6 +34,8 @@ namespace GroupsCacheManager
         public Dictionary<int, Dictionary<string, string>> m_oMetasValuesByGroupId { get; set; } // Holds mapped meta columns (<groupId, <meta , meta name>>)
         [JsonProperty("m_oGroupTags")]
         public Dictionary<int, string> m_oGroupTags { get; set; }
+        [JsonProperty("tagToGroup")]
+        public Dictionary<int, int> TagToGroup { get; set; }        
         [JsonProperty("m_oEpgGroupSettings")]
         public EpgGroupSettings m_oEpgGroupSettings { get; set; }
         [JsonProperty("m_sPermittedWatchRules")]

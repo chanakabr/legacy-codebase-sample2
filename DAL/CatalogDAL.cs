@@ -849,7 +849,7 @@ namespace Tvinci.Core.DAL
         public static DataTable GetMediaTagsTypesByGroupIds(string sAllGroups)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-            selectQuery += "select id, name from media_tags_types where status=1 and group_id in (" + sAllGroups + ") order by id";
+            selectQuery += "select id, name, group_id from media_tags_types where status=1 and group_id in (" + sAllGroups + ") order by id";
             selectQuery.SetCachedSec(0);
             selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
             DataTable mediaTagsTypeIds = null;
