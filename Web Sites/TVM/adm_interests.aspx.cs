@@ -287,7 +287,7 @@ public partial class adm_interests : System.Web.UI.Page
 
                         DataRecordCheckBoxField dr_user_interest = new DataRecordCheckBoxField(true);
                         dr_user_interest.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "user_interest"));
-                        dr_user_interest.Initialize(string.Format("{0}-{1}", name,"User Interest"), "adm_table_header_nbg", "FormInput", "user_interest", false);
+                        dr_user_interest.Initialize(string.Format("{0} ({1}) - {2}", name, assetType ==2 ? "VOD" : "EPG", "User Interest"), "adm_table_header_nbg", "FormInput", "user_interest", false);
                         dr_user_interest.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "user_interest"));
                         theRecord.AddRecord(dr_user_interest);
 
