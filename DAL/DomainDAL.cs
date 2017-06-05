@@ -2322,5 +2322,17 @@ namespace DAL
             }
             return result;
         }
+
+        public static bool SetDevicePinToNull(int groupId, string udid, string pin)
+        {
+            StoredProcedure sp = new StoredProcedure("SetDevicePinToNull");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@udid", udid);
+            sp.AddParameter("@pin", pin);
+
+            int result = sp.ExecuteReturnValue<int>();
+            return result > 0;
+        }
     }
 }
