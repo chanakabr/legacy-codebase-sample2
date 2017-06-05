@@ -3627,6 +3627,20 @@
             Household does not exist = 1006, Household user failed = 1007
             </remarks>
         </member>
+        <member name="M:WebAPI.Controllers.HouseholdDeviceController.LoginWithPin(System.Int32,System.String,System.String)">
+            <summary>
+            User sign-in via a time-expired sign-in PIN.        
+            </summary>
+            <param name="partnerId">Partner Identifier</param>
+            <param name="pin">pin code</param>
+            <param name="secret">Additional security parameter to validate the login</param>
+            <param name="udid">Device UDID</param>
+            <remarks>Possible status codes: 
+            UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
+            LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+            UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
+            </remarks>
+        </member>
         <member name="M:WebAPI.Controllers.BookmarkController.ListOldStandard(WebAPI.Models.Catalog.KalturaAssetsFilter)">
             <summary>
             Returns player position record/s for the requested asset and the requesting user. 

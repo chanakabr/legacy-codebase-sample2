@@ -6,9 +6,11 @@ using System.Web;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
+using WebAPI.Models.Users;
 using WebAPI.Utils;
 
 
@@ -415,6 +417,54 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// User sign-in via a time-expired sign-in PIN.        
+        /// </summary>
+        /// <param name="partnerId">Partner Identifier</param>
+        /// <param name="pin">pin code</param>
+        /// <param name="secret">Additional security parameter to validate the login</param>
+        /// <param name="udid">Device UDID</param>
+        /// <remarks>Possible status codes: 
+        /// UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
+        /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
+        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
+        /// </remarks>
+        [Route("loginWithPin"), HttpPost]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.PinNotExists)]
+        [Throws(eResponseStatus.PinExpired)]
+        [Throws(eResponseStatus.NoValidPin)]
+        [Throws(eResponseStatus.SecretIsWrong)]
+        [Throws(eResponseStatus.LoginViaPinNotAllowed)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.InsideLockTime)]
+        [Throws(eResponseStatus.UserNotActivated)]
+        [Throws(eResponseStatus.UserAllreadyLoggedIn)]
+        [Throws(eResponseStatus.UserDoubleLogIn)]
+        [Throws(eResponseStatus.DeviceNotRegistered)]
+        [Throws(eResponseStatus.ErrorOnInitUser)]
+        [Throws(eResponseStatus.UserNotMasterApproved)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
+        {
+            KalturaOTTUser response = null;
+            
+            try
+            {
+                // call client
+                response = ClientsManager.UsersClient().LoginWithDevicePin(partnerId, udid, pin);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return new KalturaLoginResponse() { LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, udid), User = response };
         }
     }
 }

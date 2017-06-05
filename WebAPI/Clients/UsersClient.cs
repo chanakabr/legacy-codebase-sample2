@@ -1356,5 +1356,40 @@ namespace WebAPI.Clients
 
             return success;
         }
+
+        internal KalturaOTTUser LoginWithDevicePin(int groupId, string udid, string pin)
+        {
+            WebAPI.Models.Users.KalturaOTTUser user = null;
+
+
+            UserResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Domains.Module.LoginWithDevicePIN(groupId, pin, string.Empty, Utils.Utils.GetClientIP(), udid, false, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling users service", true, ex);
+
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null || response.user == null)
+            {
+                throw new ClientException((int)StatusCode.Error, StatusCode.Error.ToString());
+            }
+
+            if (response.resp.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.resp.Code, response.resp.Message);
+            }
+
+            user = Mapper.Map<WebAPI.Models.Users.KalturaOTTUser>(response.user);
+
+            return user;
+        }
     }
 }
