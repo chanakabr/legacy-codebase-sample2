@@ -644,9 +644,9 @@ namespace APILogic
                             xml.Append("</tags>");
                         }
                     }
-
-                    xml.Append("</programme>");
                 }
+
+                xml.Append("</programme>");
             }
             catch (Exception ex)
             {

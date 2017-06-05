@@ -8232,7 +8232,7 @@ namespace Core.Catalog
 
             //clear userInterset values
             meta.Features = null;
-            meta.ParentMetaId = string.Empty;
+            meta.ParentId = string.Empty;
 
             response.MetaList = new List<ApiObjects.Meta>();
             response.MetaList.Add(meta);

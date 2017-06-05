@@ -7522,22 +7522,6 @@ namespace Core.ConditionalAccess
             return new Tuple<List<ApiObjects.Epg.FieldTypeEntity>, bool>(result, res);
         }
 
-        internal static bool IsFirstSubscriptionSetModify(int groupId, long domainId, long associatedPurchaseId, long scheduledSubscriptionId)
-        {
-            bool res = false;
-            try
-            {
-                return ConditionalAccessDAL.IsFirstSubscriptionSetModify(groupId, domainId, associatedPurchaseId, scheduledSubscriptionId);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed IsFirstSubscriptionSetModify, groupId: {0}, domaindId: {1}, associatedPurchaseId: {2}, scheduledSubscriptionId: {3}",
-                                        groupId, domainId, associatedPurchaseId, scheduledSubscriptionId), ex);
-            }
-
-            return res;
-        }
-
         internal static long InsertSubscriptionSetModifyDetails(int groupId, long domainId, long associatedPurchaseId, long scheduledSubscriptionId, SubscriptionSetModifyType type)
         {
             long id = 0;
@@ -7574,12 +7558,13 @@ namespace Core.ConditionalAccess
             return ConditionalAccessDAL.DeleteSubscriptionSetDowngradeDetails(groupId, id);
         }
 
-        internal static bool GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(int groupId, long domainId, long scheduledSubscriptionId, ref long subscriptionSetModifyDetailsId, ref long purchaseId)
+        internal static bool GetSubscriptionSetModifyDetailsByDomainAndSubscriptionId(int groupId, long domainId, long scheduledSubscriptionId, ref long subscriptionSetModifyDetailsId,
+                                                                                        ref long purchaseId, SubscriptionSetModifyType type)
         {
             bool res = false;
             try
             {
-                DataTable dt = ConditionalAccessDAL.GetSubscriptionSetModifyDetailsByDomainIdAndSubscriptionId(groupId, domainId, scheduledSubscriptionId);
+                DataTable dt = ConditionalAccessDAL.GetSubscriptionSetModifyDetailsByDomainIdAndSubscriptionId(groupId, domainId, scheduledSubscriptionId, type);
                 if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                 {
                     subscriptionSetModifyDetailsId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
@@ -7596,12 +7581,12 @@ namespace Core.ConditionalAccess
             return res;
         }
 
-        internal static Dictionary<long, long> GetPurchaseIdToScheduledSubscriptionIdMap(int groupId, int domainId, List<long> purchaseIds)
+        internal static Dictionary<long, long> GetPurchaseIdToScheduledSubscriptionIdMap(int groupId, int domainId, List<long> purchaseIds, SubscriptionSetModifyType type)
         {
             Dictionary<long, long> result = new Dictionary<long, long>();
             try
             {
-                DataTable dt = ConditionalAccessDAL.GetScheduledSubscriptionIdsByPurchaseIdsAndDomainId(groupId, domainId, purchaseIds);
+                DataTable dt = ConditionalAccessDAL.GetScheduledSubscriptionIdsByPurchaseIdsAndDomainId(groupId, domainId, purchaseIds, type);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
@@ -7624,7 +7609,7 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static bool GetPreviousSubscriptionPurchaseDetails(int groupId, long domainId, UserBundlePurchase previousBundlePurchase, 
+        internal static bool GetPreviousSubscriptionPurchaseDetails(int groupId, long domainId, UserBundlePurchase previousBundlePurchase, SubscriptionSetModifyType type,
                                                                     ref Core.ConditionalAccess.PurchaseManager.DomainSubscriptionPurchaseDetails previousSubsriptionPurchaseDetails)
         {
             bool res = false;
@@ -7632,16 +7617,18 @@ namespace Core.ConditionalAccess
             {                
                 if (!string.IsNullOrEmpty(previousBundlePurchase.sBundleCode))
                 {
-                    DataTable dt = ConditionalAccessDAL.GetPreviousSubscriptionPurchaseDetails(groupId, domainId, previousBundlePurchase.sBundleCode);
+                    DataTable dt = ConditionalAccessDAL.GetPreviousSubscriptionPurchaseDetails(groupId, domainId, previousBundlePurchase.sBundleCode, type);
                     if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
                     {
                         long purchaseId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
                         double price = ODBCWrapper.Utils.GetDoubleSafeVal(dt.Rows[0], "PRICE");
                         string currencyCode = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CURRENCY_CD");
                         bool isRecurring = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_RECURRING", 0) == 1;
+                        string billingGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "CURRENCY_CD");
+                        bool isFirstSubscriptionSetModify = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_FIRST_SUBSCRIPTION_SET_MODIFY", 0) == 0;
                         if (purchaseId > 0)
                         {
-                            previousSubsriptionPurchaseDetails = new PurchaseManager.DomainSubscriptionPurchaseDetails(previousBundlePurchase, purchaseId, price, currencyCode, isRecurring);
+                            previousSubsriptionPurchaseDetails = new PurchaseManager.DomainSubscriptionPurchaseDetails(previousBundlePurchase, purchaseId, price, currencyCode, isRecurring, billingGuid, isFirstSubscriptionSetModify);
                             res = true;
                         }
                     }

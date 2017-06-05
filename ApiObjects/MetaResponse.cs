@@ -24,14 +24,9 @@ namespace ApiObjects
         public eAssetTypes AssetType { get; set; }
         public bool SkipFeatures { get; set; }        
         public List<MetaFeatureType> Features { get; set; }
-        public string ParentMetaId { get; set; }
+        public string ParentId { get; set; }
         public int PartnerId { get; set; }
-        public string MetaId {
-            get
-            {
-                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", PartnerId, AssetType.ToString(), Name));                
-            }            
-        }
+        public string Id { get; set; }  // partnerId_AssetType_ColumnIndex  || partnerId_AssetType_TagId              
     }
 
     public enum MetaFeatureType
