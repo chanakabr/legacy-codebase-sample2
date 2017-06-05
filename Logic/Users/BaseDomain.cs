@@ -1923,9 +1923,9 @@ namespace Core.Users
             UserResponse response = new UserResponse();
 
             // get device
-            Device device = new Device();
+            Device device = new Device(groupId);
             device.Initialize(udid);
-            if (device != null)
+            if (device == null)
             {
                 log.ErrorFormat("Device does not exist, UDID = {0}", udid);
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
@@ -1982,7 +1982,7 @@ namespace Core.Users
             }
 
             // delete pin from DB - for single login 
-            if (!DomainDal.DeleteDevicePin(udid, pin))
+            if (!DomainDal.SetDevicePinToNull(groupId, udid, pin))
             {
                 // TODO: Return OK???
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
