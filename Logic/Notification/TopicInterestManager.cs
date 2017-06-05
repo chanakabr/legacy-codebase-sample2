@@ -789,16 +789,7 @@ namespace APILogic.Notification
 
             DateTime interestSendDate = vodAsset.m_dCatalogStartDate;
 
-            // validate program did not passed (10 min threshold)
-            DateTime currentDate = DateTime.UtcNow;
-            if (currentDate.AddMinutes(5) < interestSendDate ||
-               (currentDate.AddMinutes(-5) > interestSendDate))
-            {
-                log.ErrorFormat("VOD date passed. interest ID: {0}, current date: {1}, startDate: {2}", interestNotificationMessage.Id, currentDate, interestSendDate);
-                return false;
-            }
-
-            // validate send time is same as send time in DB
+            // validate send time is same as send time in DB 
             if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)
             {
                 log.ErrorFormat("Message sending time is not the same as DB interest send date. asset ID: {0}, message send date: {1}, DB send date: {2}",
