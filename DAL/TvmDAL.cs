@@ -1236,11 +1236,12 @@ namespace DAL
 
 
 
-        public static bool SetTopicInterests(string xml, int groupId)
+        public static bool SetTopicInterests(string xml, int groupId, int updaterId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_TopicInterests");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@UpdaterId", updaterId);
             sp.AddParameter("@xmlDoc", xml);
             return sp.ExecuteReturnValue<int>() > 0;
         }
