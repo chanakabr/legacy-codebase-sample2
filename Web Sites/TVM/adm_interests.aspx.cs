@@ -285,17 +285,17 @@ public partial class adm_interests : System.Web.UI.Page
                         dr_is_tag.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "is_tag"));
                         theRecord.AddRecord(dr_is_tag);
 
-                        DataRecordCheckBoxField dr_enable_notification = new DataRecordCheckBoxField(true);
-                        dr_enable_notification.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "enable_notification"));
-                        dr_enable_notification.Initialize(string.Format("{0}-{1}", name, "Enable Notification"), "adm_table_header_nbg", "FormInput", "enable_notification", false);
-                        dr_enable_notification.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_notification"));
-                        theRecord.AddRecord(dr_enable_notification);
-
                         DataRecordCheckBoxField dr_user_interest = new DataRecordCheckBoxField(true);
                         dr_user_interest.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "user_interest"));
-                        dr_user_interest.Initialize("User Interest", "adm_table_header_nbg", "FormInput", "user_interest", false);
+                        dr_user_interest.Initialize(string.Format("{0}-{1}", name,"User Interest"), "adm_table_header_nbg", "FormInput", "user_interest", false);
                         dr_user_interest.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "user_interest"));
                         theRecord.AddRecord(dr_user_interest);
+
+                        DataRecordCheckBoxField dr_enable_notification = new DataRecordCheckBoxField(true);
+                        dr_enable_notification.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "enable_notification"));
+                        dr_enable_notification.Initialize("Enable Notification", "adm_table_header_nbg", "FormInput", "enable_notification", false);
+                        dr_enable_notification.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_notification"));
+                        theRecord.AddRecord(dr_enable_notification);
 
                         System.Data.DataTable parentTopics = GetParentTopics(dt, assetType);
 
