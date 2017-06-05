@@ -10,5 +10,11 @@ namespace ApiObjects
     {
         public Dictionary<string, List<string>> Metas { get; set; }
         public Dictionary<string, List<string>> Tags { get; set; }
+
+        public UserInterestsMetasAndTags()
+        {
+            Metas = new Dictionary<string, List<string>>();
+            Tags = new Dictionary<string, List<string>>();
+        }
     }
 }
