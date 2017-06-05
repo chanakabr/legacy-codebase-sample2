@@ -2331,7 +2331,7 @@ namespace Core.Api
                         if (nONLY_OR_BUT == 1)
                             isBlocked = bExsitInRuleM2M;
 
-                        if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) > 0) // then check what about the proxy - is it reliable 
+                        if (!isBlocked && ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "PROXY_RULE", 0) == 1) // then check what about the proxy - is it reliable 
                         {
                             isBlocked = (APILogic.Utils.IsProxyBlocked(groupId, ip));
                         }
