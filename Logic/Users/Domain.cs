@@ -857,7 +857,7 @@ namespace Core.Users
                 if (long.TryParse(Utils.GetTcmConfigValue("master_role_id"), out roleId) && DAL.UsersDal.Insert_UserRole(nGroupID, nUserID.ToString(), roleId, true) > 0)
                 {
                     // add invalidation key for user roles cache
-                    string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(nUserID.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nUserID.ToString());
                     if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
@@ -2844,7 +2844,7 @@ namespace Core.Users
                     usersCache.RemoveUser(userId, m_nGroupID);
 
                     // add invalidation key for user roles cache
-                    string invalidationKey = LayeredCacheKeys.GetAddRoleInvalidationKey(userId.ToString());
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
                     if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         log.ErrorFormat("Failed to set invalidation key on RemoveDomain key = {0}", invalidationKey);
                 }
