@@ -1982,7 +1982,11 @@ namespace Core.Users
             }
 
             // delete pin from DB - for single login 
-            DomainDal.DeleteDevicePin(udid, pin);
+            if (!DomainDal.DeleteDevicePin(udid, pin))
+            {
+                // TODO: Return OK???
+                log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
+            }
             
 
             return response;
