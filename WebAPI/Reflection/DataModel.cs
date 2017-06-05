@@ -6223,6 +6223,15 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "HouseholdDeviceController":
+                    switch(action.Name)
+                    {
+                        case "LoginWithPin":
+                            return;
+                            
+                    }
+                    break;
+                    
                 case "MultiRequestController":
                     return;
                     
