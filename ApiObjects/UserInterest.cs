@@ -22,6 +22,15 @@ namespace ApiObjects
     {
         public string UserInterestId { get; set; }
         public UserInterestTopic Topic { get; set; }
+        
+        public override bool Equals(object userInterestToCompare)
+        {
+            var userInterest = userInterestToCompare as UserInterest;
+            if(userInterest == null)
+                throw new Exception("Error while comparing userInterest");
+
+            return JsonConvert.SerializeObject(this.Topic) == JsonConvert.SerializeObject(userInterest.Topic);            
+        }   
     }
 
     public class UserInterestTopic 

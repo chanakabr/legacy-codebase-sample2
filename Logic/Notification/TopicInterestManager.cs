@@ -31,235 +31,248 @@ namespace APILogic.Notification
         private const string NO_USER_INTEREST_TO_INSERT = "No user interest to insert";
         private const string META_ID_REQUIRED = "MetaId required";
         private const string META_VALUE_REQUIRED = "Meta value required";
+        private const string TOPIC_NOT_FOUND = "Topic not found";
 
-        public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest userInterest)
+        public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest newUserInterest)
         {
             Status response = null;
             UserInterests userInterests = null;
-            bool updateIsNeeded = false;
             bool isRegiesterNotificationNeeded = false;
-            eAssetTypes assetType = eAssetTypes.UNKNOWN;
+
             try
             {
-                // 1. validate user                                
+                // validate user                                
                 response = ValidateUser(partnerId, userId);
                 if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
-                    log.ErrorFormat("Adding UserInterest failed: user: {0} not valid, partnerId: {1}, userInterest:{2}", userId, partnerId, JsonConvert.SerializeObject(userInterest));
+                    log.ErrorFormat("Adding UserInterest failed: user: {0} not valid, partnerId: {1}, userInterest:{2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
                     return response;
                 }
 
-                // set userInterest assetType according to topicUserInterest.
-                Meta topicUserInterest = NotificationCache.Instance().GetPartnerTopicInterests(partnerId).Where(x => x.Id == userInterest.Topic.MetaId).FirstOrDefault();
-                assetType = topicUserInterest.AssetType;
+                var partnerTopicInterests = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
+                if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
+                {
+                    log.ErrorFormat("Error getting partnerTopicInterests. user: {0} not valid, partnerId: {1}, userInterest:{2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                }
 
-                // 2. validate with topic_interest make sure that parent and child valid                 
-                response = ValidateNewUserInterest(userInterest, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));
+                // validate with topic_interest make sure that parent and child valid                 
+                response = ValidateNewUserInterest(newUserInterest, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));
                 if (response == null || response.Code != (int)eResponseStatus.OK)
                 {
-                    log.ErrorFormat("Validate UserInterest failed: user: {0} not valid, partnerId: {1}, userInterest:{2}", userId, partnerId, JsonConvert.SerializeObject(userInterest));
+                    log.ErrorFormat("Validate UserInterest failed: user: {0} not valid, partnerId: {1}, userInterest:{2}", userId, partnerId, JsonConvert.SerializeObject(newUserInterest));
                     return response;
                 }
 
-                // 3. check that userInterest does not already exist 
+                // check if newUserInterest does not already exist 
                 userInterests = InterestDal.GetUserInterest(partnerId, userId);
                 if (userInterests == null)
                 {
                     userInterests = new UserInterests() { PartnerId = partnerId, UserId = userId };
-                    userInterest.UserInterestId = Guid.NewGuid().ToString();
-                    userInterests.UserInterestList.Add(userInterest);
-                    updateIsNeeded = true;
+                    newUserInterest.UserInterestId = Guid.NewGuid().ToString();
+                    userInterests.UserInterestList.Add(newUserInterest);
+                    isRegiesterNotificationNeeded = true;
                 }
                 else
                 {
                     foreach (var currentUserInterest in userInterests.UserInterestList)
                     {
-                        if (currentUserInterest.Equals(userInterest))
+                        if (currentUserInterest.Equals(newUserInterest))
                         {
                             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.UserInterestAlreadyExist, Message = "User interest already exist" };
                         }
                     }
 
-                    // UserInterest should be added
-                    userInterest.UserInterestId = Guid.NewGuid().ToString();
-                    userInterests.UserInterestList.Add(userInterest);
-                    updateIsNeeded = true;
-
                     // checking whether user already register to an upper topic level
                     // for example: user register to "ligat Haal" and now ask for "Maccaci" ( both are enable notification true) 
                     // in this case user should be register to "Maccabi" but without a specific notification.
-                    isRegiesterNotificationNeeded = IsRegiesterNotificationNeeded(userInterest, userInterests, NotificationCache.Instance().GetPartnerTopicInterests(partnerId));
+                    isRegiesterNotificationNeeded = IsRegiesterNotificationNeeded(newUserInterest, userInterests, partnerTopicInterests);
+
+                    // UserInterest should be added
+                    newUserInterest.UserInterestId = Guid.NewGuid().ToString();
+                    userInterests.UserInterestList.Add(newUserInterest);
                 }
 
                 // Set CB with new interest
-                if (updateIsNeeded)
+                if (!InterestDal.SetUserInterest(userInterests))
+                    log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+
+                if (!isRegiesterNotificationNeeded)
                 {
-                    if (!InterestDal.SetUserInterest(userInterests))
-                        log.ErrorFormat("Error inserting user interest  into CB. User interest {0}", JsonConvert.SerializeObject(userInterests));
+                    log.DebugFormat("Success. RegiesterNotificationNeeded not needed. group: {0}, user id: {1}", partnerId, userId);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
 
-
-
-
-
-
-
-                // 4. Send/Create Amazon Topic                
-                if (NotificationSettings.IsPartnerPushEnabled(partnerId))
+                Meta topicInterest = partnerTopicInterests.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
+                // Send notification incase feature is ENABLED_NOTIFICATION                
+                if (!topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
                 {
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
 
-                    // Send notification incase feature is ENABLED_NOTIFICATION                
-                    if (topicUserInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
+                // get interestNotification - according to userInterest
+                string topicNameValue = TopicInterestManager.GetInterestKeyValueName(topicInterest.Name, newUserInterest.Topic.Value);
+                InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, topicInterest.AssetType);
+                if (interestNotification == null)
+                    response = CreateInterestNotification(partnerId, newUserInterest, topicInterest, out interestNotification);
+
+                if (response.Code != (int)eResponseStatus.OK)
+                    return response;
+
+                if (topicInterest.AssetType == eAssetTypes.MEDIA)
+                {
+                    if (!InterestDal.SetUserInterestMapping(partnerId, userId, interestNotification.Id))
                     {
-                        // get interestNotification - according to userInterest
-                        string topicNameValue = TopicInterestManager.GetInterestKeyValueName(topicUserInterest.Name, userInterest.Topic.Value);
-                        InterestNotification interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, topicUserInterest.AssetType);
-                        if (interestNotification == null)
-                            response = CreateInterestNotification(partnerId, userInterest, topicUserInterest, out interestNotification);
+                        log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                        return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                    }
+                }
 
-                        if (response.Code != (int)eResponseStatus.OK)
-                            return response;
+                // Send/Create Amazon Topic                
+                if (!NotificationSettings.IsPartnerPushEnabled(partnerId))
+                {
+                    log.DebugFormat("Success. adding userInterst PartnerPushEnabled = false. group: {0}, user id: {1}", partnerId, userId);
+                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                }
 
-                        // create Amazon topic 
-                        string externalId = string.Empty;
-                        if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+                // create Amazon topic 
+                string externalId = string.Empty;
+                if (string.IsNullOrEmpty(interestNotification.ExternalPushId))
+                {
+                    externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", topicNameValue));
+                    if (string.IsNullOrEmpty(externalId))
+                    {
+                        log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, topicNameValue);
+                        return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
+                    }
+
+                    // update table with external id
+                    interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
+                    if (interestNotification == null)
+                    {
+                        log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
+                        return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic"); //TODO: Anat change error code and message
+                    }
+                }
+
+                // register user to topic
+                bool docExists = false;
+                UserNotification userNotificationData = NotificationDal.GetUserNotificationData(partnerId, userId, ref docExists);
+                if (userNotificationData == null)
+                {
+                    if (docExists)
+                    {
+                        // error while getting user notification data
+                        log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", partnerId, userId);
+                        response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                        return response;
+                    }
+                    else
+                    {
+                        log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", partnerId, userId);
+
+                        // create user notification object
+                        userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
+
+                        //update user settings according to partner settings configuration                    
+                        userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(partnerId, userId);
+                    }
+                }
+
+                // create added time
+                long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);                
+                // update user notification object
+                userNotificationData.UserInterests.Add(new Announcement()
+                {
+                    AnnouncementId = interestNotification.Id,
+                    AnnouncementName = topicNameValue,
+                    AddedDateSec = addedSecs
+                });
+
+                if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
+                    log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
+                else
+                {
+                    log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", partnerId, userId);
+                }
+
+                // update user's devices 
+                if (userNotificationData.devices != null && userNotificationData.devices.Count > 0)
+                {
+                    foreach (UserDevice device in userNotificationData.devices)
+                    {
+                        if (string.IsNullOrEmpty(device.Udid))
                         {
-                            externalId = NotificationAdapter.CreateAnnouncement(partnerId, string.Format("Interest_{0}", topicNameValue));
-                            if (string.IsNullOrEmpty(externalId))
-                            {
-                                log.DebugFormat("failed to create announcement groupID = {0}, topicNameValue = {1}", partnerId, topicNameValue);
-                                return new ApiObjects.Response.Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic");
-                            }
-
-                            // update table with external id
-                            interestNotification = InterestDal.UpdateTopicInterestNotification(partnerId, interestNotification.Id, externalId);
-                            if (interestNotification == null)
-                            {
-                                log.DebugFormat("failed to update topic interest notification: {0} with externalId: {1}, groupId = {2}", interestNotification.Id, externalId, partnerId);
-                                return new Status((int)eResponseStatus.FailCreateAnnouncement, "fail create Amazon interest topic"); //TODO: Anat change error code and message
-                            }
+                            log.Error("device UDID is empty: " + device.Udid);
+                            continue;
                         }
 
-                        // register user to topic
-                        bool docExists = false;
-                        UserNotification userNotificationData = NotificationDal.GetUserNotificationData(partnerId, userId, ref docExists);
-                        if (userNotificationData == null)
+                        log.DebugFormat("adding user interest to device group: {0}, user: {1}, UDID: {2}, interestNotificationId: {3}", partnerId, userId, device.Udid, interestNotification.Id);
+
+                        // get device notification data
+                        docExists = false;
+                        DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, device.Udid, ref docExists);
+                        if (deviceNotificationData == null)
                         {
-                            if (docExists)
+                            log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
+                            continue;
+                        }
+
+                        try
+                        {
+                            // validate device doesn't already have the announcement
+                            var subscribedUserInterests = deviceNotificationData.SubscribedUserInterests.Where(x => x.Id == interestNotification.Id);
+                            if (subscribedUserInterests != null && subscribedUserInterests.Count() > 0)
                             {
-                                // error while getting user notification data
-                                log.ErrorFormat("error retrieving user announcement data. GID: {0}, UID: {1}", partnerId, userId);
-                                response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                                return response;
+                                log.ErrorFormat("user already subscribed on userInterests on device. group: {0}, UDID: {1}", partnerId, device.Udid);
+                                continue;
                             }
+
+                            // get push data
+                            APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, device.Udid, string.Empty);
+                            if (pushData == null)
+                            {
+                                log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
+                                continue;
+                            }
+
+                            // subscribe device to announcement
+                            AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
+                            {
+                                EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
+                                Protocol = EnumseDeliveryProtocol.application,
+                                TopicArn = interestNotification.ExternalPushId,
+                                ExternalId = interestNotification.Id
+                            };
+
+                            List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
+                            subs = NotificationAdapter.SubscribeToAnnouncement(partnerId, subs);
+                            if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
+                            {
+                                log.ErrorFormat("Error registering device to announcement. group: {0}, UDID: {1}", partnerId, device.Udid);
+                                continue;
+                            }
+
+                            // update device notification object
+                            NotificationSubscription sub = new NotificationSubscription()
+                            {
+                                ExternalId = subs.First().SubscriptionArnResult,
+                                Id = interestNotification.Id,
+                                SubscribedAtSec = addedSecs
+                            };
+                            deviceNotificationData.SubscribedUserInterests.Add(sub);
+
+                            if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, device.Udid, deviceNotificationData))
+                                log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
                             else
                             {
-                                log.DebugFormat("user announcement data wasn't found - going to create a new one. GID: {0}, UID: {1}", partnerId, userId);
-
-                                // create user notification object
-                                userNotificationData = new UserNotification(userId) { CreateDateSec = TVinciShared.DateUtils.UnixTimeStampNow() };
-
-                                //update user settings according to partner settings configuration                    
-                                userNotificationData.Settings.EnablePush = NotificationSettings.IsPartnerPushEnabled(partnerId, userId);
+                                log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
                             }
                         }
-
-                        // create added time
-                        long addedSecs = ODBCWrapper.Utils.DateTimeToUnixTimestampUtc(DateTime.UtcNow);
-
-                        if (userNotificationData.devices != null && userNotificationData.devices.Count > 0)
+                        catch (Exception ex)
                         {
-                            foreach (UserDevice device in userNotificationData.devices)
-                            {
-                                string udid = device.Udid;
-                                if (string.IsNullOrEmpty(udid))
-                                {
-                                    log.Error("device UDID is empty: " + device.Udid);
-                                    continue;
-                                }
-
-                                log.DebugFormat("adding user interest to device group: {0}, user: {1}, UDID: {2}, interestNotificationId: {3}", partnerId, userId, udid, interestNotification.Id);
-
-                                // get device notification data
-                                docExists = false;
-                                DeviceNotificationData deviceNotificationData = DAL.NotificationDal.GetDeviceNotificationData(partnerId, udid, ref docExists);
-                                if (deviceNotificationData == null)
-                                {
-                                    log.ErrorFormat("device notification data not found group: {0}, UDID: {1}", partnerId, device.Udid);
-                                    continue;
-                                }
-
-                                try
-                                {
-                                    // validate device doesn't already have the announcement
-                                    var subscribedUserInterests = deviceNotificationData.SubscribedUserInterests.Where(x => x.Id == interestNotification.Id);
-                                    if (subscribedUserInterests != null && subscribedUserInterests.Count() > 0)
-                                    {
-                                        log.ErrorFormat("user already subscribed on userInterests on device. group: {0}, UDID: {1}", partnerId, device.Udid);
-                                        continue;
-                                    }
-
-                                    // get push data
-                                    APILogic.DmsService.PushData pushData = PushAnnouncementsHelper.GetPushData(partnerId, udid, string.Empty);
-                                    if (pushData == null)
-                                    {
-                                        log.ErrorFormat("push data not found. group: {0}, UDID: {1}", partnerId, device.Udid);
-                                        continue;
-                                    }
-
-                                    // subscribe device to announcement
-                                    AnnouncementSubscriptionData subData = new AnnouncementSubscriptionData()
-                                    {
-                                        EndPointArn = pushData.ExternalToken, // take from pushdata (with UDID)
-                                        Protocol = EnumseDeliveryProtocol.application,
-                                        TopicArn = interestNotification.ExternalPushId,
-                                        ExternalId = interestNotification.Id
-                                    };
-
-                                    List<AnnouncementSubscriptionData> subs = new List<AnnouncementSubscriptionData>() { subData };
-                                    subs = NotificationAdapter.SubscribeToAnnouncement(partnerId, subs);
-                                    if (subs == null || subs.Count == 0 || string.IsNullOrEmpty(subs.First().SubscriptionArnResult))
-                                    {
-                                        log.ErrorFormat("Error registering device to announcement. group: {0}, UDID: {1}", partnerId, device.Udid);
-                                        continue;
-                                    }
-
-                                    // update device notification object
-                                    NotificationSubscription sub = new NotificationSubscription()
-                                    {
-                                        ExternalId = subs.First().SubscriptionArnResult,
-                                        Id = interestNotification.Id,
-                                        SubscribedAtSec = addedSecs
-                                    };
-                                    deviceNotificationData.SubscribedUserInterests.Add(sub);
-
-                                    if (!DAL.NotificationDal.SetDeviceNotificationData(partnerId, udid, deviceNotificationData))
-                                        log.ErrorFormat("error setting device notification data. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
-                                    else
-                                    {
-                                        log.DebugFormat("Successfully registered device to announcement. group: {0}, UDID: {1}, topic: {2}", partnerId, device.Udid, subData.EndPointArn);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.Error("Error in follow", ex);
-                                }
-                            }
-                        }
-
-                        // update user notification object
-                        userNotificationData.UserInterests.Add(new Announcement()
-                        {
-                            AnnouncementId = interestNotification.Id,
-                            AnnouncementName = topicNameValue,
-                            AddedDateSec = addedSecs
-                        });
-
-                        if (!DAL.NotificationDal.SetUserNotificationData(partnerId, userId, userNotificationData))
-                            log.ErrorFormat("error setting user notification data. group: {0}, user id: {1}", partnerId, userId);
-                        else
-                        {
-                            log.DebugFormat("successfully updated user notification data. group: {0}, user id: {1}", partnerId, userId);
+                            log.Error("Error in follow", ex);
                         }
                     }
                 }
@@ -348,36 +361,33 @@ namespace APILogic.Notification
 
         private static ApiObjects.Response.Status CreateInterestNotification(int partnerId, UserInterest userInterest, Meta groupTopicInterest, out InterestNotification interestNotification)
         {
+            interestNotification = null;
             string topicNameValue = TopicInterestManager.GetInterestKeyValueName(groupTopicInterest.Name, userInterest.Topic.Value);
-            interestNotification = InterestDal.GetTopicInterestNotificationsByTopicNameValue(partnerId, topicNameValue, groupTopicInterest.AssetType);
+
+            // select meesageTempalte
+            MessageTemplateType messageTemplateType;
+            switch (groupTopicInterest.AssetType)
+            {
+                case eAssetTypes.EPG:
+                    messageTemplateType = MessageTemplateType.InterestEPG;
+                    break;
+                case eAssetTypes.MEDIA:
+                    messageTemplateType = MessageTemplateType.InterestVod;
+                    break;
+                case eAssetTypes.UNKNOWN:
+                case eAssetTypes.NPVR:
+                default:
+                    log.ErrorFormat("Asset type is not recognized. TopicInterest : {0}", JsonConvert.SerializeObject(groupTopicInterest));
+                    return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+            }
+
+            interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue, groupTopicInterest.Id
+                , groupTopicInterest.AssetType);
 
             if (interestNotification == null)
             {
-                // select meesageTempalte
-                MessageTemplateType messageTemplateType;
-                switch (groupTopicInterest.AssetType)
-                {
-                    case eAssetTypes.EPG:
-                        messageTemplateType = MessageTemplateType.InterestEPG;
-                        break;
-                    case eAssetTypes.MEDIA:
-                        messageTemplateType = MessageTemplateType.InterestVod;
-                        break;
-                    case eAssetTypes.UNKNOWN:
-                    case eAssetTypes.NPVR:
-                    default:
-                        log.ErrorFormat("Asset type is not recognized. TopicInterest : {0}", JsonConvert.SerializeObject(groupTopicInterest));
-                        return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-                }
-
-                interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue, groupTopicInterest.Id
-                    , groupTopicInterest.AssetType);
-
-                if (interestNotification == null)
-                {
-                    log.ErrorFormat("Error to create DB interestNotification. TopicInterest : {0}", JsonConvert.SerializeObject(groupTopicInterest));
-                    return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-                }
+                log.ErrorFormat("Error to create DB interestNotification. TopicInterest : {0}", JsonConvert.SerializeObject(groupTopicInterest));
+                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
             return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
@@ -399,8 +409,8 @@ namespace APILogic.Notification
             Meta topicUserInterest = groupsTopics.Where(x => x.Id == userInterest.Topic.MetaId).FirstOrDefault();
             if (topicUserInterest == null)
             {
-                log.ErrorFormat("Error topic not recognized at UserInterest. userInterest :{0}", JsonConvert.SerializeObject(userInterest));
-                return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
+                log.ErrorFormat("Error partner topic not configured as UserInterest. userInterest :{0}", JsonConvert.SerializeObject(userInterest));
+                return new Status() { Code = (int)eResponseStatus.TopicNotFound, Message = TOPIC_NOT_FOUND };
             }
 
             if (string.IsNullOrEmpty(userInterest.Topic.Value))
@@ -409,72 +419,54 @@ namespace APILogic.Notification
                 return new Status() { Code = (int)eResponseStatus.MetaValueRequired, Message = META_VALUE_REQUIRED };
             }
 
-            eAssetTypes assetType = GetuserInterestAssetType(userInterest);
-
-            //Check recursively for each parent level there is a topic meta configured, same asset type and have a value
-            return ValidateTopicUserInterest(userInterest.Topic, topicUserInterest, assetType, groupsTopics);
-        }
-
-        private static eAssetTypes GetuserInterestAssetType(UserInterest newUserInterest)
-        {
-            // partnerId_AssetType_ColumnIndex  || partnerId_AssetType_TagId
-            var metaIdSplited = newUserInterest.Topic.MetaId.Split('_').ToList();
-            eAssetTypes newUserInterestAssetType;
-            Enum.TryParse(metaIdSplited[1].ToUpper(), out newUserInterestAssetType);
-
-            return newUserInterestAssetType;
+            //Check recursively for each parent level there is a topic meta configured, have a value
+            return ValidateTopicUserInterest(userInterest.Topic, topicUserInterest, groupsTopics);
         }
 
         /// <summary>
         /// Check recursively for each parent level there is a topic meta.        
         /// </summary>
-        private static Status ValidateTopicUserInterest(UserInterestTopic userInterestTopic, Meta currentMeta, eAssetTypes assetType, List<Meta> groupsTopics)
+        private static Status ValidateTopicUserInterest(UserInterestTopic userInterestTopic, Meta partnerMeta, List<Meta> groupsTopics)
         {
-            string errorMessageData = string.Format(" userInterestTopic: {0}, currentMeta: {1}",JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(currentMeta));
+            string errorMessageData = string.Format(" userInterestTopic: {0}, currentMeta: {1}", JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(partnerMeta));
 
-            if (assetType != currentMeta.AssetType)
+            if (userInterestTopic.ParentTopic == null && !string.IsNullOrEmpty(partnerMeta.ParentId))
             {
-                log.ErrorFormat("Error ParentTopic asset type not equal to ParentMetaId asset type. {0}", errorMessageData);
+                log.ErrorFormat("Error ParentTopic have no value but partnerMetaId does have value. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic == null && !string.IsNullOrEmpty(currentMeta.ParentId))
+            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && string.IsNullOrEmpty(partnerMeta.ParentId))
             {
-                log.ErrorFormat("Error ParentTopic have no value but ParentMetaId does have value. {0}", errorMessageData);
+                log.ErrorFormat("Error ParentTopic have value but partnerMetaId does have no value. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && string.IsNullOrEmpty(currentMeta.ParentId))
+            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(partnerMeta.ParentId)
+                && userInterestTopic.ParentTopic.MetaId != partnerMeta.ParentId)
             {
-                log.ErrorFormat("Error ParentTopic have value but ParentMetaId does have no value. {0}", errorMessageData);
+                log.ErrorFormat("Error ParentTopic MetaId not Equals to partnerMetaId. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(currentMeta.ParentId) 
-                && !userInterestTopic.ParentTopic.MetaId.Equals(currentMeta.ParentId))
-            {
-                log.ErrorFormat("Error ParentTopic MetaId not Equals to ParentMetaId. {0}", errorMessageData);
-                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-            }
-
-            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(currentMeta.ParentId)
-               && userInterestTopic.ParentTopic.MetaId.Equals(currentMeta.ParentId) && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
+            if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(partnerMeta.ParentId)
+               && userInterestTopic.ParentTopic.MetaId.Equals(partnerMeta.ParentId) && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
             {
                 log.ErrorFormat("Error ParentTopic value is missing. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            if (userInterestTopic.ParentTopic == null && string.IsNullOrEmpty(currentMeta.ParentId))
+            if (userInterestTopic.ParentTopic == null && string.IsNullOrEmpty(partnerMeta.ParentId))
                 return new Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
 
-            Meta parentMeta = groupsTopics.Where(x => x.Id == currentMeta.ParentId).FirstOrDefault();
-            if (parentMeta == null)
+            partnerMeta = groupsTopics.Where(x => x.Id == partnerMeta.ParentId).FirstOrDefault();
+            if (partnerMeta == null)
             {
-                log.ErrorFormat("Error ParentTopic have value but ParentMetaId not found. {0}", errorMessageData);
+                log.ErrorFormat("Error ParentTopic have value but partnerMetaId not found. {0}", errorMessageData);
                 return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            return ValidateTopicUserInterest(userInterestTopic.ParentTopic, parentMeta, assetType, groupsTopics);
+            return ValidateTopicUserInterest(userInterestTopic.ParentTopic, partnerMeta, groupsTopics);
         }
 
         internal static UserInterestResponseList GetUserInterests(int groupId, int userId)
@@ -554,7 +546,7 @@ namespace APILogic.Notification
 
         public static string GetInterestKeyValueName(string key, string value)
         {
-            return string.Format("{0}_{1}", key, value);
+            return string.Format("{0}_{1}", key, value).ToLower();
         }
 
         public static bool AddInterestToQueue(int groupId, InterestNotificationMessage interestNotificationMessage)
@@ -788,15 +780,7 @@ namespace APILogic.Notification
             }
 
             DateTime interestSendDate = vodAsset.m_dCatalogStartDate;
-
-            // validate program did not passed (10 min threshold)
             DateTime currentDate = DateTime.UtcNow;
-            if (currentDate.AddMinutes(5) < interestSendDate ||
-               (currentDate.AddMinutes(-5) > interestSendDate))
-            {
-                log.ErrorFormat("VOD date passed. interest ID: {0}, current date: {1}, startDate: {2}", interestNotificationMessage.Id, currentDate, interestSendDate);
-                return false;
-            }
 
             // validate send time is same as send time in DB
             if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)

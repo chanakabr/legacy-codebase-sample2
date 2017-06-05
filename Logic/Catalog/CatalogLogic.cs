@@ -37,6 +37,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Core.Notification;
 
 namespace Core.Catalog
 {
@@ -8089,9 +8090,55 @@ namespace Core.Catalog
             }
         }
 
-        internal static UserInterestsMetasAndTags GetUserPreferences(string siteGuid, int groupId)
+        public static UserInterestsMetasAndTags GetUserPreferences(int partnerId, int userId)
         {
-            throw new NotImplementedException();
+            UserInterestsMetasAndTags result = new UserInterestsMetasAndTags();
+
+            // get user interests
+            UserInterests userInterests = InterestDal.GetUserInterest(partnerId, userId);
+            if (userInterests == null || userInterests.UserInterestList == null || userInterests.UserInterestList.Count == 0)
+            {
+                log.DebugFormat("User interests were not found. Partner ID: {0}, User ID: {1}", partnerId, userId);
+                return null;
+            }
+
+            // get partner interests configuration
+            List<ApiObjects.Meta> availableTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
+            if (availableTopics == null || availableTopics.Count == 0)
+            {
+                log.DebugFormat("Partner interest configuration was not found. Partner ID: {0}, User ID: {1}", partnerId, userId);
+                return null;
+            }
+
+            foreach (var interestLeaf in userInterests.UserInterestList)
+            {
+                UserInterestTopic parent = interestLeaf.Topic;
+                while (parent != null)
+                {
+                    // get topic
+                    var topic = availableTopics.FirstOrDefault(x => x.Id == parent.MetaId);
+                    if (topic != null)
+                    {
+                        if (topic.IsTag)
+                        {
+                            if (result.Tags[topic.Name] == null)
+                                result.Tags.Add(topic.Name, new List<string> { parent.Value });
+                            else
+                                result.Tags[topic.Name].Add(parent.Value);
+                        }
+                        else
+                        {
+                            if (result.Metas[topic.Name] == null)
+                                result.Metas.Add(topic.Name, new List<string> { parent.Value });
+                            else
+                                result.Metas[topic.Name].Add(parent.Value);
+                        }
+                    }
+                    parent = interestLeaf.Topic.ParentTopic;
+                }
+            }
+
+            return result;
         }
 
         internal static MetaResponse UpdateGroupMeta(int groupId, ApiObjects.Meta meta)

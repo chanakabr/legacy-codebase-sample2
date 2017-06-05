@@ -2840,7 +2840,7 @@ namespace Core.ConditionalAccess
 
         internal static bool GetMediaFileIDByCoGuid(string coGuid, int groupID, string siteGuid, ref int mediaFileID)
         {
-            string key = LayeredCacheKeys.GetFileCoGuidKey(coGuid);
+            string key = LayeredCacheKeys.GetFileByCoGuidKey(coGuid);
             bool cacheResult = LayeredCache.Instance.Get<int>(key, ref mediaFileID, Get_MediaFileIDByCoGuid, new Dictionary<string, object>() { { "groupID", groupID }, { "coGuid", coGuid } },
                                                               groupID, LayeredCacheConfigNames.MEDIA_FILE_ID_BY_CO_GUID_LAYERED_CACHE_CONFIG_NAME);
             if (!cacheResult)
