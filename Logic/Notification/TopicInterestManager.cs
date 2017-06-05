@@ -554,7 +554,7 @@ namespace APILogic.Notification
 
         public static string GetInterestKeyValueName(string key, string value)
         {
-            return string.Format("{0}_{1}", key, value);
+            return string.Format("{0}_{1}", key, value).ToLower();
         }
 
         public static bool AddInterestToQueue(int groupId, InterestNotificationMessage interestNotificationMessage)
