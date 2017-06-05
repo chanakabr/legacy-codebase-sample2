@@ -17,6 +17,7 @@ using System.Data;
 public partial class adm_interests : System.Web.UI.Page
 {
     private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+    private static readonly string sep = "|";
     protected string m_sMenu;
     protected string m_sSubMenu;
     protected string m_sLangMenu;
@@ -101,9 +102,17 @@ public partial class adm_interests : System.Web.UI.Page
         XmlNode nameIdNode;
         XmlNode assetTypeIdNode;
         XmlNode enableNotificationIdNode;
-
+        XmlNode parentMetaIdNode;
+        XmlNode metaIdNode;
+        XmlNode isTagIdNode;
         XmlNode groupIdNode;
+
         int i = 0;
+        string sFieldName = string.Empty;
+        string metaOrTagName = string.Empty;
+        string metaOrTagId = string.Empty;
+        string[] tempFieldName;
+
         while (i < nvc.Count)
         {
             rowNode = xmlDoc.CreateElement("row");
@@ -116,12 +125,23 @@ public partial class adm_interests : System.Web.UI.Page
             nameIdNode = xmlDoc.CreateElement("name");
             assetTypeIdNode = xmlDoc.CreateElement("asset_type");
             idNode = xmlDoc.CreateElement("id");
+            parentMetaIdNode = xmlDoc.CreateElement("parent_meta_id");
+            metaIdNode = xmlDoc.CreateElement("meta_id");
+            isTagIdNode = xmlDoc.CreateElement("is_tag");
             bool insertData = false;
-            for (int j = i; j <= i + 4; j++)
+            for (int j = i; j <= i + 5; j++)
             {
                 if (nvc[j.ToString() + "_fieldName"] != null)
                 {
-                    string sFieldName = nvc[j.ToString() + "_field"].ToString();
+                    tempFieldName = nvc[j.ToString() + "_fieldName"].Split(sep.ToArray());
+                    
+                    if (tempFieldName != null && tempFieldName.Count() > 2)
+                    {                        
+                        metaOrTagName = tempFieldName[0];
+                        metaOrTagId = tempFieldName[1];
+                        sFieldName = tempFieldName[2];
+                    }
+
                     string sVal = "";
                     if (nvc[j.ToString() + "_val"] != null)
                     {
@@ -139,12 +159,6 @@ public partial class adm_interests : System.Web.UI.Page
                                  idNode.InnerText = sVal;
                              }
                             break;
-                        case "name":                            
-                            if (!string.IsNullOrEmpty(sVal))
-                            {
-                                nameIdNode.InnerText = sVal;
-                            }                            
-                            break;
                         case "asset_type":                            
                             if (!string.IsNullOrEmpty(sVal))
                             {
@@ -152,8 +166,15 @@ public partial class adm_interests : System.Web.UI.Page
                             }                           
                             break;
                         case "enable_notification":                        
-                            enableNotificationIdNode.InnerText = sVal == "on" ? "1" : "0";                                 
+                            enableNotificationIdNode.InnerText = sVal == "on" ? "1" : "0";
                             break;
+                        case "parent_meta_id":
+                            parentMetaIdNode.InnerText = sVal;
+                            break;                     
+                        case "is_tag":
+                            isTagIdNode.InnerText = sVal;
+                            break;
+
                         default:
                             break;
 
@@ -166,10 +187,19 @@ public partial class adm_interests : System.Web.UI.Page
                 rowNode.AppendChild(groupIdNode);
                 rowNode.AppendChild(enableNotificationIdNode);
                 rowNode.AppendChild(assetTypeIdNode);
+
+                nameIdNode.InnerText = metaOrTagName;
                 rowNode.AppendChild(nameIdNode);
+
+                rowNode.AppendChild(parentMetaIdNode);
+
+                metaIdNode.InnerText = string.Format("{0}_{1}_{2}", groupId, assetTypeIdNode.InnerText, metaOrTagId);
+                rowNode.AppendChild(metaIdNode);
+                
+                rowNode.AppendChild(isTagIdNode);
                 rootNode.AppendChild(rowNode);
             }
-            i = i + 5;
+            i = i + 6;
         }
         return xmlDoc.InnerXml;
     }
@@ -219,8 +249,12 @@ public partial class adm_interests : System.Web.UI.Page
 
     private void AddFields(ref DBRecordWebEditor theRecord)
     {
-        DataSet ds = DAL.TvmDAL.GetMetasTagsByGroupId(LoginManager.GetLoginGroupID());
-        
+        int groupId = LoginManager.GetLoginGroupID();
+        DataSet ds = DAL.TvmDAL.GetMetasTagsByGroupId(groupId);
+
+        string name = string.Empty;
+        string metaTagId = string.Empty;
+        int assetType = 0;
         if (ds != null && ds.Tables != null)
         {
             foreach (DataTable dt in ds.Tables)
@@ -228,38 +262,75 @@ public partial class adm_interests : System.Web.UI.Page
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
-                    {
-                        //metaVod.value , ti.ENABLE_NOTIFICATION ,case when ti.id is null then 0 else 1 end as user_interest, 2 as ASSET_TYPE, 'metaVod' as tableName
-                        DataRecordShortTextField dr_name = new DataRecordShortTextField("ltr", false, 60, 3);
-                        dr_name.Initialize("Name", "adm_table_header_nbg", "FormInput", "name", false);
-                        dr_name.SetValue(ODBCWrapper.Utils.GetSafeStr(dr, "value"));
-                        theRecord.AddRecord(dr_name);
+                    {   
+                        name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                        metaTagId = ODBCWrapper.Utils.GetSafeStr(dr, "metaTagId");
 
                         DataRecordShortIntField dr_asset_type = new DataRecordShortIntField(false, 9, 9);
+                        dr_asset_type.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "asset_type"));
                         dr_asset_type.Initialize("asset_type", "adm_table_header_nbg", "FormInput", "asset_type", false);
-                        dr_asset_type.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_type"));
+                        assetType = ODBCWrapper.Utils.GetIntSafeVal(dr, "asset_type");
+                        dr_asset_type.SetDefault(assetType);
                         theRecord.AddRecord(dr_asset_type);
 
                         DataRecordShortIntField dr_id = new DataRecordShortIntField(false, 9, 9);
-                        dr_id.Initialize("id", "adm_table_header_nbg", "FormInput", "id", false);
+                        dr_id.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "id"));
+                        dr_id.Initialize("id", "adm_table_header_nbg", "FormInput", "id", false);                        
                         dr_id.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "id"));
                         theRecord.AddRecord(dr_id);
 
+                        DataRecordShortIntField dr_is_tag = new DataRecordShortIntField(false, 9, 9);
+                        dr_is_tag.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep,"is_tag"));
+                        dr_is_tag.Initialize("is_tag", "adm_table_header_nbg", "FormInput", "is_tag", false);
+                        dr_is_tag.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "is_tag"));
+                        theRecord.AddRecord(dr_is_tag);
+
                         DataRecordCheckBoxField dr_enable_notification = new DataRecordCheckBoxField(true);
-                        dr_enable_notification.Initialize("Enable Notification", "adm_table_header_nbg", "FormInput", "enable_notification", false);
+                        dr_enable_notification.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "enable_notification"));
+                        dr_enable_notification.Initialize(string.Format("{0}-{1}", name, "Enable Notification"), "adm_table_header_nbg", "FormInput", "enable_notification", false);
                         dr_enable_notification.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_notification"));
                         theRecord.AddRecord(dr_enable_notification);
 
                         DataRecordCheckBoxField dr_user_interest = new DataRecordCheckBoxField(true);
+                        dr_user_interest.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "user_interest"));
                         dr_user_interest.Initialize("User Interest", "adm_table_header_nbg", "FormInput", "user_interest", false);
                         dr_user_interest.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "user_interest"));
                         theRecord.AddRecord(dr_user_interest);
+
+                        System.Data.DataTable parentTopics = GetParentTopics(dt, assetType);
+
+                        DataRecordDropDownField dr_parent = new DataRecordDropDownField("", "txt", "id", "", null, 60, true);
+                        dr_parent.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "parent_meta_id"));
+                        dr_parent.SetFieldType("string");
+                        dr_parent.Initialize("Parent Topic", "adm_table_header_nbg", "FormInput", "parent_meta_id", false);
+                        dr_parent.SetSelectsDT(parentTopics);
+                        string defaultParentTopic = ODBCWrapper.Utils.GetSafeStr(dr, "PARENT_META_ID");
+                        dr_parent.SetDefaultVal(defaultParentTopic);
+                        theRecord.AddRecord(dr_parent);
+
                     }
                 }
             }
         }
     }
- 
+
+    private System.Data.DataTable GetParentTopics(DataTable dt, int asset_type)
+    {
+        System.Data.DataTable dtP = new System.Data.DataTable();
+        
+        dtP.Columns.Add("txt", typeof(string));
+        dtP.Columns.Add("id", typeof(string));
+
+        int groupId = LoginManager.GetLoginGroupID();
+        string name = string.Empty;
+        foreach (DataRow dr in dt.Rows)
+        {
+            name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+            dtP.Rows.Add(name, string.Format("{0}_{1}_{2}", groupId, asset_type.ToString(), name));
+        }
+        return dtP;
+    }
+
     private void EndOfAction()
     {
         System.Collections.Specialized.NameValueCollection coll = HttpContext.Current.Request.Form;
