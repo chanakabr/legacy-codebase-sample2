@@ -8090,7 +8090,7 @@ namespace Core.Catalog
             }
         }
 
-        internal static UserInterestsMetasAndTags GetUserPreferences(int partnerId, int userId)
+        public static UserInterestsMetasAndTags GetUserPreferences(int partnerId, int userId)
         {
             UserInterestsMetasAndTags result = new UserInterestsMetasAndTags();
 
@@ -8112,33 +8112,33 @@ namespace Core.Catalog
 
             foreach (var interestLeaf in userInterests.UserInterestList)
             {
-                bool isTag = false;
-                var topic = availableTopics.FirstOrDefault(x => x.MetaId == interestLeaf.MetaId);
-                if (topic != null)
+                UserInterestTopic parent = interestLeaf.Topic;
+                while (parent != null)
                 {
-                    if (isTag)
+                    // get topic
+                    var topic = availableTopics.FirstOrDefault(x => x.Id == parent.MetaId);
+                    if (topic != null)
                     {
-                        if (result.Metas[topic.Name] == null)
+                        if (topic.IsTag)
                         {
-                            result.Metas.Add(topic.Name, new List<string> { interestLeaf.Topic.Value });
+                            if (result.Tags[topic.Name] == null)
+                                result.Tags.Add(topic.Name, new List<string> { parent.Value });
+                            else
+                                result.Tags[topic.Name].Add(parent.Value);
                         }
                         else
-                            result.Metas[topic.Name].Add(interestLeaf.Topic.Value);
-                    }
-                    else
-                    {
-                        if (result.Tags[topic.Name] == null)
                         {
-                            result.Tags.Add(topic.Name, new List<string> { interestLeaf.Topic.Value });
+                            if (result.Metas[topic.Name] == null)
+                                result.Metas.Add(topic.Name, new List<string> { parent.Value });
+                            else
+                                result.Metas[topic.Name].Add(parent.Value);
                         }
-                        else
-                            result.Tags[topic.Name].Add(interestLeaf.Topic.Value);
                     }
+                    parent = interestLeaf.Topic.ParentTopic;
                 }
             }
 
             return result;
-
         }
 
         internal static MetaResponse UpdateGroupMeta(int groupId, ApiObjects.Meta meta)
