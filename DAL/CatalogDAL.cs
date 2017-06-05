@@ -28,6 +28,7 @@ namespace Tvinci.Core.DAL
         private static readonly string NAME_FIELD = "NAME";
         private static readonly string ASSET_TYPE_FIELD = "ASSET_TYPE";
         private static readonly string GROUP_ID_FIELD = "GROUP_ID";
+        private static readonly string META_ID_FIELD = "META_ID";
         private static readonly string PARENT_META_ID_FIELD = "PARENT_META_ID";
         private static readonly string ENABLE_NOTIFICATION_FIELD = "ENABLE_NOTIFICATION";
 
@@ -4589,7 +4590,7 @@ namespace Tvinci.Core.DAL
         {
             int assetType = 0;
 
-            ApiObjects.Meta  meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(dr, NAME_FIELD) };
+            ApiObjects.Meta meta = new ApiObjects.Meta() { Name = ODBCWrapper.Utils.GetSafeStr(dr, NAME_FIELD) };
 
             meta.Features = new List<MetaFeatureType>();
             meta.Features.Add(MetaFeatureType.USER_INTEREST);
@@ -4598,6 +4599,7 @@ namespace Tvinci.Core.DAL
                 meta.Features.Add(MetaFeatureType.ENABLED_NOTIFICATION);
             }
 
+            meta.Id = ODBCWrapper.Utils.GetSafeStr(dr, META_ID_FIELD);
             meta.ParentId = ODBCWrapper.Utils.GetSafeStr(dr, PARENT_META_ID_FIELD);
             meta.PartnerId = ODBCWrapper.Utils.GetIntSafeVal(dr, GROUP_ID_FIELD);
             assetType = ODBCWrapper.Utils.GetIntSafeVal(dr, ASSET_TYPE_FIELD);
@@ -4615,6 +4617,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@groupId", partnerId);
                 sp.AddParameter("@name", topicInterest.Name);
                 sp.AddParameter("@assetType", (int)topicInterest.AssetType);
+                sp.AddParameter("@isTag", topicInterest.IsTag ? 1 : 0);
                 sp.AddParameter("@metaId", topicInterest.Id);
                 sp.AddParameter("@parentMetaId", topicInterest.ParentId);
                 if (topicInterest.Features != null)
