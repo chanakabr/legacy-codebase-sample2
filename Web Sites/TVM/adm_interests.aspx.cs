@@ -83,13 +83,14 @@ public partial class adm_interests : System.Web.UI.Page
     }
 
     private bool SetTopicInterests(string xml, int groupId)
-    {
-        return DAL.TvmDAL.SetTopicInterests(xml, groupId);
+    {     
+        return DAL.TvmDAL.SetTopicInterests(xml, groupId, LoginManager.GetLoginID());
     }
 
     private string GetPageData()
     {
         int groupId = LoginManager.GetLoginGroupID();
+        
         NameValueCollection nvc = Request.Form;
 
         XmlDocument xmlDoc = new XmlDocument();
@@ -105,7 +106,6 @@ public partial class adm_interests : System.Web.UI.Page
         XmlNode parentMetaIdNode;
         XmlNode metaIdNode;
         XmlNode isTagIdNode;
-        XmlNode groupIdNode;
 
         int i = 0;
         string sFieldName = string.Empty;
@@ -116,11 +116,7 @@ public partial class adm_interests : System.Web.UI.Page
         while (i < nvc.Count)
         {
             rowNode = xmlDoc.CreateElement("row");
-            groupIdNode = xmlDoc.CreateElement("group_id");
-            if (!string.IsNullOrEmpty(groupId.ToString()))
-            {
-                groupIdNode.InnerText = groupId.ToString();
-            }
+
             enableNotificationIdNode = xmlDoc.CreateElement("enable_notification");
             nameIdNode = xmlDoc.CreateElement("name");
             assetTypeIdNode = xmlDoc.CreateElement("asset_type");
@@ -184,7 +180,6 @@ public partial class adm_interests : System.Web.UI.Page
             if (insertData)
             {
                 rowNode.AppendChild(idNode);
-                rowNode.AppendChild(groupIdNode);
                 rowNode.AppendChild(enableNotificationIdNode);
                 rowNode.AppendChild(assetTypeIdNode);
 
@@ -322,11 +317,13 @@ public partial class adm_interests : System.Web.UI.Page
         dtP.Columns.Add("id", typeof(string));
 
         int groupId = LoginManager.GetLoginGroupID();
+        string metaTagId = string.Empty;
         string name = string.Empty;
         foreach (DataRow dr in dt.Rows)
         {
+            metaTagId = ODBCWrapper.Utils.GetSafeStr(dr, "metaTagId");
             name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-            dtP.Rows.Add(name, string.Format("{0}_{1}_{2}", groupId, asset_type.ToString(), name));
+            dtP.Rows.Add(name, string.Format("{0}_{1}_{2}", groupId, asset_type.ToString(), metaTagId));
         }
         return dtP;
     }
