@@ -9194,7 +9194,7 @@ namespace Core.Api
                                 Type = map.FieldType == FieldTypes.Tag ? ApiObjects.MetaType.Tag : ApiObjects.MetaType.String
                             };
 
-                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, "TagorMeta");
+                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, "TagorMeta");
 
                             if (metaType == ApiObjects.MetaType.All || metaType == meta.Type)
                             {
@@ -9267,8 +9267,8 @@ namespace Core.Api
                                         };
 
                                         meta.PartnerId = partnerId;
-                                        meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, columnname);
-                                        
+                                        meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, columnname);
+
                                         metaDict.Add(name, meta);
                                     }
                                 }
@@ -9294,7 +9294,7 @@ namespace Core.Api
                                                 Type = ApiObjects.MetaType.Tag
                                             };
 
-                                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, meta.Type);                                       
+                                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, meta.Type);
 
                                             metaDict.Add(name, meta);
                                         }
@@ -9333,7 +9333,7 @@ namespace Core.Api
                                         PartnerId = partnerId
                                     };
 
-                                    meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, metaVal.Key); 
+                                    meta.Id = string.Format("{0}_{1}_{2}_NAME", meta.PartnerId, (int)meta.AssetType, metaVal.Key);
 
                                     if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
                                     {
@@ -9356,7 +9356,7 @@ namespace Core.Api
                                 };
 
                                 meta.PartnerId = GetPartnerIdforTag(tagVal, group);
-                                meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, tagVal.Key); 
+                                meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, tagVal.Key);
 
 
                                 response.MetaList.Add(meta);
@@ -9370,15 +9370,19 @@ namespace Core.Api
                 {
                     List<Meta> topicInterestList = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
                     Meta topicInterestMeta;
-                    
-                    foreach (var meta in response.MetaList)
+
+                    if (topicInterestList != null && topicInterestList.Count > 0)
                     {
-                        //topicInterestMeta = topicInterestList.Where(x => x.Id.Equals(meta.Id)).FirstOrDefault();
-                        //if (topicInterestMeta != null)
-                        //{
-                        //    meta.Features = topicInterestMeta.Features;
-                        //    meta.ParentId = topicInterestMeta.ParentId;
-                        //}
+                        foreach (var meta in response.MetaList)
+                        {
+                            topicInterestMeta = topicInterestList.Where(x => x.Id == meta.Id).FirstOrDefault();
+                            if (topicInterestMeta != null)
+                            {
+                                meta.Features = topicInterestMeta.Features;
+                                meta.ParentId = topicInterestMeta.ParentId;
+                                //meta.IsTag = topicInterestMeta.IsTag;
+                            }
+                        }
                     }
                 }
 
@@ -9398,7 +9402,7 @@ namespace Core.Api
                 return group.TagToGroup[tagVal.Key];
             }
 
-            log.ErrorFormat("Failed to get groupId from group.TagToGroup. tagVal.key:{0}", tagVal.Key); 
+            log.ErrorFormat("Failed to get groupId from group.TagToGroup. tagVal.key:{0}", tagVal.Key);
             return 0;
         }
 
