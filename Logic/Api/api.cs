@@ -9170,6 +9170,9 @@ namespace Core.Api
 
             try
             {
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                GroupsCacheManager.Group group = null;
+
                 response.MetaList = new List<Meta>();
 
                 if (assetType == eAssetTypes.EPG || assetType == eAssetTypes.NPVR || assetType == eAssetTypes.UNKNOWN)
@@ -9190,6 +9193,8 @@ namespace Core.Api
                                 Name = map.Name,
                                 Type = map.FieldType == FieldTypes.Tag ? ApiObjects.MetaType.Tag : ApiObjects.MetaType.String
                             };
+
+                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, "TagorMeta");
 
                             if (metaType == ApiObjects.MetaType.All || metaType == meta.Type)
                             {
@@ -9244,9 +9249,13 @@ namespace Core.Api
                             {
                                 response.MetaList = new List<Meta>();
                                 Meta meta;
+                                string columnname = string.Empty;
+                                int partnerId = 0;
                                 foreach (DataRow dr in dt.Rows)
                                 {
                                     string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
+                                    columnname = ODBCWrapper.Utils.GetSafeStr(dr, "columnname");
+                                    partnerId = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
                                     if (!metaDict.ContainsKey(name))
                                     {
                                         meta = new Meta()
@@ -9257,6 +9266,9 @@ namespace Core.Api
                                             Type = ApiObjects.MetaType.String
                                         };
 
+                                        meta.PartnerId = partnerId;
+                                        meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, columnname);
+                                        
                                         metaDict.Add(name, meta);
                                     }
                                 }
@@ -9282,6 +9294,8 @@ namespace Core.Api
                                                 Type = ApiObjects.MetaType.Tag
                                             };
 
+                                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, meta.Type);                                       
+
                                             metaDict.Add(name, meta);
                                         }
                                     }
@@ -9293,7 +9307,7 @@ namespace Core.Api
                 }
                 if (assetType == eAssetTypes.MEDIA || assetType == eAssetTypes.UNKNOWN)
                 {
-                    GroupsCacheManager.Group group = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId);
+                    group = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId);
 
                     if (group != null)
                     {
@@ -9301,8 +9315,13 @@ namespace Core.Api
 
                         if (metaType != ApiObjects.MetaType.Tag && group.m_oMetasValuesByGroupId != null)
                         {
-                            foreach (var groupMetas in group.m_oMetasValuesByGroupId.Values)
+                            List<int> partnerIds = group.m_oMetasValuesByGroupId.Keys.ToList();
+                            int keyIndex = 0;
+                            int partnerId = 0;
+                            foreach (Dictionary<string, string> groupMetas in group.m_oMetasValuesByGroupId.Values)
                             {
+                                partnerId = partnerIds[keyIndex];
+                                keyIndex++;
                                 foreach (var metaVal in groupMetas)
                                 {
                                     meta = new Meta()
@@ -9311,8 +9330,10 @@ namespace Core.Api
                                         FieldName = MetaFieldName.None,
                                         Name = metaVal.Value,
                                         Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
-                                        PartnerId = group.m_oMetasValuesByGroupId.Keys.First()
+                                        PartnerId = partnerId
                                     };
+
+                                    meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, metaVal.Key); 
 
                                     if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
                                     {
@@ -9334,6 +9355,10 @@ namespace Core.Api
                                     Type = ApiObjects.MetaType.Tag
                                 };
 
+                                meta.PartnerId = GetPartnerIdforTag(tagVal, group);
+                                meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, meta.AssetType, tagVal.Key); 
+
+
                                 response.MetaList.Add(meta);
                             }
                         }
@@ -9345,14 +9370,15 @@ namespace Core.Api
                 {
                     List<Meta> topicInterestList = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
                     Meta topicInterestMeta;
+                    
                     foreach (var meta in response.MetaList)
                     {
-                        topicInterestMeta = topicInterestList.Where(x => x.Id.Equals(meta.Id)).FirstOrDefault();
-                        if (topicInterestMeta != null)
-                        {
-                            meta.Features = topicInterestMeta.Features;
-                            meta.ParentId = topicInterestMeta.ParentId;
-                        }
+                        //topicInterestMeta = topicInterestList.Where(x => x.Id.Equals(meta.Id)).FirstOrDefault();
+                        //if (topicInterestMeta != null)
+                        //{
+                        //    meta.Features = topicInterestMeta.Features;
+                        //    meta.ParentId = topicInterestMeta.ParentId;
+                        //}
                     }
                 }
 
@@ -9363,6 +9389,17 @@ namespace Core.Api
                 log.Error(string.Format("Failed to get meta for group = {0}", groupId), ex);
             }
             return response;
+        }
+
+        private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)
+        {
+            if (group.TagToGroup != null && group.TagToGroup.ContainsKey(tagVal.Key))
+            {
+                return group.TagToGroup[tagVal.Key];
+            }
+
+            log.ErrorFormat("Failed to get groupId from group.TagToGroup. tagVal.key:{0}", tagVal.Key); 
+            return 0;
         }
 
         public static string GetLayeredCacheGroupConfig(int groupId)
