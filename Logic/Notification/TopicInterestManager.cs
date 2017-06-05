@@ -788,8 +788,9 @@ namespace APILogic.Notification
             }
 
             DateTime interestSendDate = vodAsset.m_dCatalogStartDate;
+            DateTime currentDate = DateTime.UtcNow;
 
-            // validate send time is same as send time in DB 
+            // validate send time is same as send time in DB
             if (Math.Abs(DateUtils.DateTimeToUnixTimestamp(interestNotificationMessage.SendTime) - startTime) > 5)
             {
                 log.ErrorFormat("Message sending time is not the same as DB interest send date. asset ID: {0}, message send date: {1}, DB send date: {2}",
