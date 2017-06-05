@@ -41,7 +41,7 @@ namespace WS_Notification
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, nGroupID);
 
-            log.Debug("AddNotificationRequest - " + string.Format("{0},{1},{2},{3}", sWSUserName, sWSPassword, TVinciShared.PageUtils.GetCallerIP(), nGroupID));
+            log.Debug("AddNotificationRequest - " + string.Format("Partner ID: {0}, Media ID: {1}", nGroupID, nMediaID));
 
             if (nGroupID != 0)
             {
@@ -62,11 +62,9 @@ namespace WS_Notification
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, partnerId);
 
-            log.DebugFormat("EpgEvent - Source IP: {0}, Program ID: {1}, partner ID: {2}", TVinciShared.PageUtils.GetCallerIP(), string.Join(",", programIds.ToArray(), partnerId));
+            log.DebugFormat("EpgEvent - partner ID: {0}, Program IDs: {1}", partnerId, string.Join(",", programIds.ToArray()));
             if (partnerId > 0)
-            {
                 return Core.Notification.Module.HandleEpgEvent(partnerId, programIds.ConvertAll(i => (int)i));
-            }
             else
                 HttpContext.Current.Response.StatusCode = 404;
 

@@ -484,6 +484,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.FieldName, opt => opt.MapFrom(src => ConvertMetaFieldName(src.FieldName)))
              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertMetaType(src.Type)))
+             .ForMember(dest => dest.IsTag, opt => opt.MapFrom(src => ConvertIsTag(src.Type)))
              .ForMember(dest => dest.SkipFeatures, opt => opt.MapFrom(src => src.Features == null))
              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => ConvertFeatures(src.Features)))
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -507,6 +508,23 @@ namespace WebAPI.ObjectsConvertor.Mapping
               ;
 
             #endregion            
+        }
+
+        private static bool ConvertIsTag(KalturaMetaType kalturaMetaType)
+        {
+            switch (kalturaMetaType)
+            {
+                case KalturaMetaType.STRING:
+                    return false;
+                case KalturaMetaType.NUMBER:
+                    return false;                    
+                case KalturaMetaType.BOOLEAN:
+                    return false;                    
+                case KalturaMetaType.STRING_ARRAY:
+                    return true;
+                default:
+                    return false;                                        
+            }
         }
 
         private static List<MetaFeatureType> ConvertFeatures(string metaFeatureType)
