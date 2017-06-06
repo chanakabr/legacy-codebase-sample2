@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Reflection;
-using TvinciImporter;
-using TVinciShared;
+﻿using ApiObjects;
 using KLogMonitor;
-using ApiObjects;
+using System;
 using System.Collections.Specialized;
-using System.Xml;
-using ApiObjects.Response;
 using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Web;
+using System.Xml;
+using TVinciShared;
 
 public partial class adm_interests : System.Web.UI.Page
 {
@@ -46,7 +41,7 @@ public partial class adm_interests : System.Web.UI.Page
                 bool result = false;
 
                 string xml = GetPageData();
-                
+
                 if (!string.IsNullOrEmpty(xml))
                 {
                     result = SetTopicInterests(xml, groupId);
@@ -83,14 +78,14 @@ public partial class adm_interests : System.Web.UI.Page
     }
 
     private bool SetTopicInterests(string xml, int groupId)
-    {     
+    {
         return DAL.TvmDAL.SetTopicInterests(xml, groupId, LoginManager.GetLoginID());
     }
 
     private string GetPageData()
     {
         int groupId = LoginManager.GetLoginGroupID();
-        
+
         NameValueCollection nvc = Request.Form;
 
         XmlDocument xmlDoc = new XmlDocument();
@@ -130,9 +125,9 @@ public partial class adm_interests : System.Web.UI.Page
                 if (nvc[j.ToString() + "_fieldName"] != null)
                 {
                     tempFieldName = nvc[j.ToString() + "_fieldName"].Split(sep.ToArray());
-                    
+
                     if (tempFieldName != null && tempFieldName.Count() > 2)
-                    {                        
+                    {
                         metaOrTagName = tempFieldName[0];
                         metaOrTagId = tempFieldName[1];
                         sFieldName = tempFieldName[2];
@@ -150,23 +145,26 @@ public partial class adm_interests : System.Web.UI.Page
                             if (sVal == "on") insertData = true; ;
                             break;
                         case "id":
-                             if (!string.IsNullOrEmpty(sVal))
-                             {
-                                 idNode.InnerText = sVal;
-                             }
+                            if (!string.IsNullOrEmpty(sVal))
+                            {
+                                idNode.InnerText = sVal;
+                            }
                             break;
-                        case "asset_type":                            
+                        case "asset_type":
                             if (!string.IsNullOrEmpty(sVal))
                             {
                                 assetTypeIdNode.InnerText = sVal;
-                            }                           
+                            }
                             break;
-                        case "enable_notification":                        
+                        case "enable_notification":
                             enableNotificationIdNode.InnerText = sVal == "on" ? "1" : "0";
                             break;
                         case "parent_meta_id":
-                            parentMetaIdNode.InnerText = sVal;
-                            break;                     
+                            if (sVal == "0")
+                                parentMetaIdNode.InnerText = "0";
+                            else
+                                parentMetaIdNode.InnerText = sVal;
+                            break;
                         case "is_tag":
                             isTagIdNode.InnerText = sVal;
                             break;
@@ -185,12 +183,11 @@ public partial class adm_interests : System.Web.UI.Page
 
                 nameIdNode.InnerText = metaOrTagName;
                 rowNode.AppendChild(nameIdNode);
-
                 rowNode.AppendChild(parentMetaIdNode);
 
-                metaIdNode.InnerText = string.Format("{0}_{1}_{2}", groupId, assetTypeIdNode.InnerText, metaOrTagId);
+                metaIdNode.InnerText = ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", groupId, assetTypeIdNode.InnerText, metaOrTagId));
                 rowNode.AppendChild(metaIdNode);
-                
+
                 rowNode.AppendChild(isTagIdNode);
                 rootNode.AppendChild(rowNode);
             }
@@ -198,10 +195,10 @@ public partial class adm_interests : System.Web.UI.Page
         }
         return xmlDoc.InnerXml;
     }
-    
+
     public void GetHeader()
     {
-        string sRet = PageUtils.GetPreHeader() + ": Interests";       
+        string sRet = PageUtils.GetPreHeader() + ": Interests";
         Response.Write(sRet);
     }
 
@@ -257,7 +254,7 @@ public partial class adm_interests : System.Web.UI.Page
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
-                    {   
+                    {
                         name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
                         metaTagId = ODBCWrapper.Utils.GetSafeStr(dr, "metaTagId");
 
@@ -270,19 +267,19 @@ public partial class adm_interests : System.Web.UI.Page
 
                         DataRecordShortIntField dr_id = new DataRecordShortIntField(false, 9, 9);
                         dr_id.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "id"));
-                        dr_id.Initialize("id", "adm_table_header_nbg", "FormInput", "id", false);                        
+                        dr_id.Initialize("id", "adm_table_header_nbg", "FormInput", "id", false);
                         dr_id.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "id"));
                         theRecord.AddRecord(dr_id);
 
                         DataRecordShortIntField dr_is_tag = new DataRecordShortIntField(false, 9, 9);
-                        dr_is_tag.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep,"is_tag"));
+                        dr_is_tag.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "is_tag"));
                         dr_is_tag.Initialize("is_tag", "adm_table_header_nbg", "FormInput", "is_tag", false);
                         dr_is_tag.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "is_tag"));
                         theRecord.AddRecord(dr_is_tag);
 
                         DataRecordCheckBoxField dr_user_interest = new DataRecordCheckBoxField(true);
                         dr_user_interest.setFiledName(string.Format("{0}{1}{2}{3}{4}", name, sep, metaTagId, sep, "user_interest"));
-                        dr_user_interest.Initialize(string.Format("{0} ({1}) - {2}", name, assetType ==2 ? "VOD" : "EPG", "User Interest"), "adm_table_header_nbg", "FormInput", "user_interest", false);
+                        dr_user_interest.Initialize(string.Format("{0} ({1}) - {2}", name, assetType == 2 ? "VOD" : "EPG", "User Interest"), "adm_table_header_nbg", "FormInput", "user_interest", false);
                         dr_user_interest.SetDefault(ODBCWrapper.Utils.GetIntSafeVal(dr, "user_interest"));
                         theRecord.AddRecord(dr_user_interest);
 
@@ -312,7 +309,7 @@ public partial class adm_interests : System.Web.UI.Page
     private System.Data.DataTable GetParentTopics(DataTable dt, int asset_type)
     {
         System.Data.DataTable dtP = new System.Data.DataTable();
-        
+
         dtP.Columns.Add("txt", typeof(string));
         dtP.Columns.Add("id", typeof(string));
 
@@ -323,7 +320,7 @@ public partial class adm_interests : System.Web.UI.Page
         {
             metaTagId = ODBCWrapper.Utils.GetSafeStr(dr, "metaTagId");
             name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-            dtP.Rows.Add(name, string.Format("{0}_{1}_{2}", groupId, asset_type.ToString(), metaTagId));
+            dtP.Rows.Add(name, ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", groupId, asset_type.ToString(), metaTagId)));
         }
         return dtP;
     }
