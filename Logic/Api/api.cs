@@ -9161,7 +9161,7 @@ namespace Core.Api
             return result;
         }
 
-        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual)
+        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
         {
             MetaResponse response = new MetaResponse()
             {
@@ -9181,7 +9181,7 @@ namespace Core.Api
 
                 response.MetaList = new List<Meta>();
 
-                if (assetType != eAssetTypes.MEDIA) 
+                if (assetType != eAssetTypes.MEDIA)
                 {
                     //var mappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
 
@@ -9299,64 +9299,59 @@ namespace Core.Api
                                 }
                             }
                         }
-                    }                  
+                    }
                 }
 
                 if (assetType == eAssetTypes.MEDIA || assetType == eAssetTypes.UNKNOWN)
                 {
-                    group = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId);
+                    Meta meta;
 
-                    if (group != null)
+                    if (metaType != ApiObjects.MetaType.Tag && group.m_oMetasValuesByGroupId != null)
                     {
-                        Meta meta;
-
-                        if (metaType != ApiObjects.MetaType.Tag && group.m_oMetasValuesByGroupId != null)
+                        List<int> partnerIds = group.m_oMetasValuesByGroupId.Keys.ToList();
+                        int keyIndex = 0;
+                        int partnerId = 0;
+                        foreach (Dictionary<string, string> groupMetas in group.m_oMetasValuesByGroupId.Values)
                         {
-                            List<int> partnerIds = group.m_oMetasValuesByGroupId.Keys.ToList();
-                            int keyIndex = 0;
-                            int partnerId = 0;
-                            foreach (Dictionary<string, string> groupMetas in group.m_oMetasValuesByGroupId.Values)
-                            {
-                                partnerId = partnerIds[keyIndex];
-                                keyIndex++;
-                                foreach (var metaVal in groupMetas)
-                                {
-                                    meta = new Meta()
-                                    {
-                                        AssetType = eAssetTypes.MEDIA,
-                                        FieldName = MetaFieldName.None,
-                                        Name = metaVal.Value,
-                                        Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
-                                        PartnerId = partnerId
-                                    };
-
-                                    meta.Id = BuildMetaId(meta, metaVal.Key);
-
-                                    if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
-                                    {
-                                        response.MetaList.Add(meta);
-                                    }
-                                }
-                            }
-                        }
-
-                        if ((metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All) && group.m_oGroupTags != null)
-                        {
-                            foreach (var tagVal in group.m_oGroupTags)
+                            partnerId = partnerIds[keyIndex];
+                            keyIndex++;
+                            foreach (var metaVal in groupMetas)
                             {
                                 meta = new Meta()
                                 {
                                     AssetType = eAssetTypes.MEDIA,
                                     FieldName = MetaFieldName.None,
-                                    Name = tagVal.Value,
-                                    Type = ApiObjects.MetaType.Tag
+                                    Name = metaVal.Value,
+                                    Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
+                                    PartnerId = partnerId
                                 };
 
-                                meta.PartnerId = GetPartnerIdforTag(tagVal, group);
-                                meta.Id = BuildMetaId(meta, tagVal.Key.ToString());
+                                meta.Id = BuildMetaId(meta, metaVal.Key);
 
-                                response.MetaList.Add(meta);
+                                if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
+                                {
+                                    response.MetaList.Add(meta);
+                                }
                             }
+                        }
+                    }
+
+                    if ((metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All) && group.m_oGroupTags != null)
+                    {
+                        foreach (var tagVal in group.m_oGroupTags)
+                        {
+                            meta = new Meta()
+                            {
+                                AssetType = eAssetTypes.MEDIA,
+                                FieldName = MetaFieldName.None,
+                                Name = tagVal.Value,
+                                Type = ApiObjects.MetaType.Tag
+                            };
+
+                            meta.PartnerId = GetPartnerIdforTag(tagVal, group);
+                            meta.Id = BuildMetaId(meta, tagVal.Key.ToString());
+
+                            response.MetaList.Add(meta);
                         }
                     }
                 }
@@ -9378,6 +9373,15 @@ namespace Core.Api
                                 meta.ParentId = topicInterestMeta.ParentId;
                                 meta.Id = topicInterestMeta.Id;
                             }
+                        }
+
+                        // filer metaFeatureTypeList if requested
+                        if (metaFeatureTypeList != null && metaFeatureTypeList.Count > 0)
+                        {
+                            //var output = emails.Where(e => domains.All(d => !e.EndsWith(d)));
+                            var a = response.MetaList.Where(x => metaFeatureTypeList.All(d => x.Features != null && x.Features.Contains(d)));
+                            if (a != null)
+                                response.MetaList = a.ToList();
                         }
                     }
                 }

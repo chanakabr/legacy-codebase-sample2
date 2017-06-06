@@ -1635,9 +1635,9 @@ namespace Core.Api
             return Core.Api.api.GetCountryList(countryIds, groupId);
         }
 
-        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual)
+        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
         {
-            return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual);
+            return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
         }
 
         public static Country GetCountryByIp(int groupId, string ip)
@@ -1791,6 +1791,6 @@ namespace Core.Api
         public static Status DeleteSearchHistory(int groupId, string userId, string id)
         {
             return Core.Api.api.DeleteSearchHistory(groupId, userId, id);
-        }       
+        }
     }
 }
