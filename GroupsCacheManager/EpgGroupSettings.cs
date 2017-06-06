@@ -12,6 +12,8 @@ namespace GroupsCacheManager
     {
         #region members
 
+        public int GroupId;
+
         public List<string> m_lTagsName;
         public List<string> m_lMetasName;
 
@@ -27,6 +29,8 @@ namespace GroupsCacheManager
 
             tags = new Dictionary<long, string>();
             metas = new Dictionary<long, string>();
+
+            GroupId = 0;
         }
     }
 }
