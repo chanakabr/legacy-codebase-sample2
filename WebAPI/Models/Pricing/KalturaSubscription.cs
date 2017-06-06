@@ -283,7 +283,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "couponsGroups")]
         [JsonProperty("couponsGroups")]
-        [XmlElement(ElementName = "couponsGroups", IsNullable = true)]
+        [XmlArray(ElementName = "couponsGroups", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaCouponsGroup> CouponGroups { get; set; }
 
@@ -292,7 +292,7 @@ namespace WebAPI.Models.Pricing
         /// </summary>
         [DataMember(Name = "productCodes")]
         [JsonProperty("productCodes")]
-        [XmlElement(ElementName = "productCodes", IsNullable = true)]
+        [XmlArray(ElementName = "productCodes", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaProductCode> ProductCodes { get; set; }
 

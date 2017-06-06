@@ -54,6 +54,7 @@ namespace WebAPI.Controllers
          /// <summary>
          /// Update meta's user interest
          /// </summary>
+         /// <param name="id">Meta identifier</param>           
          /// <param name="meta">Meta</param>           
          /// <returns></returns>
          /// <remarks>
@@ -62,9 +63,10 @@ namespace WebAPI.Controllers
          [Route("update"), HttpPost]
          [ApiAuthorize]
          [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-         public KalturaMeta Update(KalturaMeta meta)
+         public KalturaMeta Update(string id, KalturaMeta meta)
          {
              KalturaMeta response = null;
+             meta.Id = id;
 
              int groupId = KS.GetFromRequest().GroupId;
 

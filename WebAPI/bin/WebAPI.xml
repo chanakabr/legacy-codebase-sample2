@@ -893,10 +893,11 @@
             <param name="filter">Meta filter</param>
             <remarks></remarks>
         </member>
-        <member name="M:WebAPI.Controllers.MetaController.Update(WebAPI.Models.API.KalturaMeta)">
+        <member name="M:WebAPI.Controllers.MetaController.Update(System.String,WebAPI.Models.API.KalturaMeta)">
             <summary>
             Update meta's user interest
             </summary>
+            <param name="id">Meta identifier</param>           
             <param name="meta">Meta</param>           
             <returns></returns>
             <remarks>
