@@ -902,6 +902,7 @@
             <returns></returns>
             <remarks>
             Possible status codes: 
+            NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, InvalidParentId
             </remarks>
         </member>
         <member name="M:WebAPI.Controllers.DeviceBrandController.List">

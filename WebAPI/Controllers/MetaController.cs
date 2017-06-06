@@ -1,4 +1,5 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,10 +60,15 @@ namespace WebAPI.Controllers
          /// <returns></returns>
          /// <remarks>
          /// Possible status codes: 
+         /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, InvalidParentId
          /// </remarks>
          [Route("update"), HttpPost]
          [ApiAuthorize]
          [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+         [Throws(eResponseStatus.NoMetaToUpdate)]
+         [Throws(eResponseStatus.NameRequired)]
+         [Throws(eResponseStatus.NotaTopicInterestMeta)]
+         [Throws(eResponseStatus.InvalidParentId)]
          public KalturaMeta Update(string id, KalturaMeta meta)
          {
              KalturaMeta response = null;
