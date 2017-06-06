@@ -157,6 +157,11 @@ namespace GroupsCacheManager
                     {
                         foreach (DataRow row in ds.Tables[0].Rows)
                         {
+                            if (egs.GroupId == 0)
+                            {
+                                egs.GroupId = ODBCWrapper.Utils.ExtractValue<int>(row, "group_id");
+                            }
+
                             long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                             string name = ODBCWrapper.Utils.GetSafeStr(row["name"]);
 
@@ -173,6 +178,11 @@ namespace GroupsCacheManager
                     {
                         foreach (DataRow row in ds.Tables[1].Rows)
                         {
+                            if (egs.GroupId == 0)
+                            {
+                                egs.GroupId = ODBCWrapper.Utils.ExtractValue<int>(row, "group_id");
+                            }
+
                             long id = ODBCWrapper.Utils.ExtractValue<long>(row, "ID");
                             string name = ODBCWrapper.Utils.GetSafeStr(row["name"]);
 
