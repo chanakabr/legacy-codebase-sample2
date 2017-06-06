@@ -1810,19 +1810,31 @@ namespace ElasticSearch.Searcher
         {
             BoolQuery result = new BoolQuery();
 
-            //var userPreferences = this.SearchDefinitions.userPreferences;
+            var userPreferences = this.SearchDefinitions.userPreferences;
 
-            //foreach (var tag in userPreferences)
-            //{
-            //    ESTerms terms = new ESTerms(false)
-            //    {
-            //        Key = string.Format("tags.{0}", tag.Key)
-            //    };
+            foreach (var tag in userPreferences.Tags)
+            {
+                ESTerms terms = new ESTerms(false)
+                {
+                    Key = string.Format("tags.{0}", tag.Key.ToLower())
+                };
 
-            //    terms.Value.AddRange(tag.Value);
+                terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
 
-            //    result.AddChild(terms, CutWith.AND);
-            //}
+                result.AddChild(terms, CutWith.AND);
+            }
+
+            foreach (var meta in userPreferences.Metas)
+            {
+                ESTerms terms = new ESTerms(false)
+                {
+                    Key = string.Format("metas.{0}", meta.Key.ToLower())
+                };
+
+                terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
+
+                result.AddChild(terms, CutWith.AND);
+            }
 
             return result;
         }
