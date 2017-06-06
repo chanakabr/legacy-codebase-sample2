@@ -184,8 +184,7 @@ public partial class adm_interests : System.Web.UI.Page
                 nameIdNode.InnerText = metaOrTagName;
                 rowNode.AppendChild(nameIdNode);
                 rowNode.AppendChild(parentMetaIdNode);
-
-                metaIdNode.InnerText = ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", groupId, assetTypeIdNode.InnerText, metaOrTagId));
+                metaIdNode.InnerText = ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}", groupId, assetTypeIdNode.InnerText, isTagIdNode.InnerText, metaOrTagId));
                 rowNode.AppendChild(metaIdNode);
 
                 rowNode.AppendChild(isTagIdNode);
@@ -316,11 +315,13 @@ public partial class adm_interests : System.Web.UI.Page
         int groupId = LoginManager.GetLoginGroupID();
         string metaTagId = string.Empty;
         string name = string.Empty;
+        int isTag = 0;
         foreach (DataRow dr in dt.Rows)
         {
             metaTagId = ODBCWrapper.Utils.GetSafeStr(dr, "metaTagId");
             name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-            dtP.Rows.Add(name, ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", groupId, asset_type.ToString(), metaTagId)));
+            isTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "is_tag");
+            dtP.Rows.Add(name, ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}", groupId, asset_type.ToString(), isTag, metaTagId)));
         }
         return dtP;
     }
