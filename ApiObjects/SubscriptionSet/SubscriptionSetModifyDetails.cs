@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,23 +10,31 @@ namespace ApiObjects.SubscriptionSet
     [Serializable]
     public class SubscriptionSetModifyDetails
     {
-
+        [JsonProperty("Id")]
         public long Id { get; set; }
 
+        [JsonProperty("GroupId")]
         public int GroupId { get; set; }
 
+        [JsonProperty("UserId")]
         public string UserId { get; set; }
 
+        [JsonProperty("DomainId")]
         public long DomainId { get; set; }
 
+        [JsonProperty("SubscriptionId")]
         public long SubscriptionId { get; set; }
 
+        [JsonProperty("PreviousSubscriptionId")]
         public long PreviousSubscriptionId { get; set; }
 
+        [JsonProperty("UDID")]
         public string UDID { get; set; }
 
+        [JsonProperty("UserIp")]
         public string UserIp { get; set; }
 
+        [JsonProperty("Type")]
         public SubscriptionSetModifyType Type { get; set; }        
 
         public SubscriptionSetModifyDetails()
