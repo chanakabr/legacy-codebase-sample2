@@ -1947,6 +1947,13 @@ namespace Core.Users
                 return response;
             }
 
+            if (pin != device.m_pin)
+            {
+                log.ErrorFormat("Device pin does not match the supplied pin, UDID = {0}, pin = {1}, device pin = {3}", udid, pin, device.m_pin);
+                response.resp = new ApiObjects.Response.Status((int)eResponseStatus.NoValidPin, "Supplied pin is not valid");
+                return response;
+            }
+
             // login with master user
             DomainsCache domainCache = DomainsCache.Instance();
             Domain domain = domainCache.GetDomain(device.m_domainID, groupId);
