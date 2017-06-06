@@ -4111,12 +4111,12 @@ namespace WS_API
         }
 
         [WebMethod]
-        public MetaResponse GetGroupMetaList(string sWSUserName, string sWSPassword, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual)
+        public MetaResponse GetGroupMetaList(string sWSUserName, string sWSPassword, eAssetTypes assetType, MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList = null)
         {
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                return Core.Api.Module.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual);
+                return Core.Api.Module.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
             }
             else
             {

@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Web;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 
@@ -49,9 +46,37 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "assetTypeEqual")]
         public KalturaAssetType? AssetTypeEqual { get; set; }
 
+        /// <summary>
+        /// Features
+        /// </summary>
+        [DataMember(Name = "featuresIn")]
+        [JsonProperty("featuresIn")]
+        [XmlElement(ElementName = "featuresIn", IsNullable = true)]
+        public string FeaturesIn { get; set; }
+
         public override KalturaMetaOrderBy GetDefaultOrderByValue()
         {
             return KalturaMetaOrderBy.NONE;
+        }
+
+        public List<KalturaMetaFeatureType> GetFeaturesIn()
+        {
+            List<KalturaMetaFeatureType> featureList = new List<KalturaMetaFeatureType>();
+            if (!string.IsNullOrEmpty(FeaturesIn))
+            {
+                featureList = new List<KalturaMetaFeatureType>();
+                string[] metaFeatures = FeaturesIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string feature in metaFeatures)
+                {
+                    KalturaMetaFeatureType kalturaMetaFeatureType;
+                    if (Enum.TryParse<KalturaMetaFeatureType>(feature.ToUpper(), out kalturaMetaFeatureType))
+                    {
+                        featureList.Add(kalturaMetaFeatureType);
+                    }
+                }
+            }
+
+            return featureList;
         }
 
         internal void validate()

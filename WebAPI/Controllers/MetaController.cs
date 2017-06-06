@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
 
              try
              {
-                 response = ClientsManager.ApiClient().GetGroupMeta(groupId, filter.AssetTypeEqual, filter.TypeEqual, filter.FieldNameEqual, filter.FieldNameNotEqual);
+                 response = ClientsManager.ApiClient().GetGroupMeta(groupId, filter.AssetTypeEqual, filter.TypeEqual, filter.FieldNameEqual, filter.FieldNameNotEqual, filter.GetFeaturesIn());
              }
              catch (ClientException ex)
              {

@@ -4127,6 +4127,8 @@ namespace WebAPI.Reflection
                     {
                         case "AssetTypeEqual":
                             return "assetTypeEqual";
+                        case "FeaturesIn":
+                            return "featuresIn";
                         case "FieldNameEqual":
                             return "fieldNameEqual";
                         case "FieldNameNotEqual":

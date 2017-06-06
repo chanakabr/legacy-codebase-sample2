@@ -3314,7 +3314,7 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType? assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual)
+        internal KalturaMetaListResponse GetGroupMeta(int groupId, KalturaAssetType? assetType, KalturaMetaType? metaType, KalturaMetaFieldName? fieldNameEqual, KalturaMetaFieldName? fieldNameNotEqual, List<KalturaMetaFeatureType> metaFeatureTypeList)
         {
             
             KalturaMetaListResponse result = new KalturaMetaListResponse();
@@ -3328,7 +3328,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual);
+                    response = Core.Api.Module.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual, ApiMappings.ConvertMetaFeatureTypes(metaFeatureTypeList));
                 }
             }
             catch (Exception ex)
@@ -3664,6 +3664,6 @@ namespace WebAPI.Clients
             }
 
             return success;
-        }       
+        }
     }
 }

@@ -14,7 +14,6 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
-using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 
 namespace WebAPI.ObjectsConvertor.Mapping
@@ -590,6 +589,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     throw new ClientException((int)StatusCode.Error, string.Format("Unknown metaFeatureType value : {0}", featureType.ToString()));
             }
+        }
+
+        public static List<MetaFeatureType> ConvertMetaFeatureTypes(List<KalturaMetaFeatureType> kalturaMetaFeatureTypeList)
+        {
+            List<MetaFeatureType> list = new List<MetaFeatureType>();
+            if (kalturaMetaFeatureTypeList != null)
+            {
+                foreach (KalturaMetaFeatureType kalturaMetaFeatureType in kalturaMetaFeatureTypeList)
+                {
+                    list.Add(ConvertMetaFeatureType(kalturaMetaFeatureType));
+                }
+            }
+            
+            return list;
         }
 
         private static ProtectionPolicy? ConvertProtectionPolicy(KalturaProtectionPolicy? protectionPolicy)

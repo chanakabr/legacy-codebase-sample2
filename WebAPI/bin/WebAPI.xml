@@ -1109,6 +1109,11 @@
             Asset type to filter by
             </summary>
         </member>
+        <member name="P:WebAPI.Models.API.KalturaMetaFilter.FeaturesIn">
+            <summary>
+            Features
+            </summary>
+        </member>
         <member name="T:WebAPI.Models.API.KalturaMetaListResponse">
             <summary>
             Meta list response
