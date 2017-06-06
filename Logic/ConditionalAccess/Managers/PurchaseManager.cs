@@ -223,7 +223,7 @@ namespace Core.ConditionalAccess
                 }
                 else if (verificationStatus.Code != (int)eResponseStatus.OK || paymentDetails == null)
                 {
-                    response.Status = verificationStatus;
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.PaymentGatewayNotValid, "couldn't get previous payment details");
                     log.ErrorFormat("Verification payment gateway does not support SubscriptionSetModifySubscription. billingGuid = {0}", previousSubsriptionPurchaseDetails.BillingGuid);
                     return response;
                 }
