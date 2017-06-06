@@ -851,12 +851,18 @@ namespace CouchbaseManager
                 if (getResult != null)
                 {
                     if (getResult.Exception != null)
+                    {
                         throw getResult.Exception;
+                    }
 
                     if (getResult.Status == Couchbase.IO.ResponseStatus.Success)
+                    {
                         result = getResult.Value;
+                    }
                     else
+                    {
                         HandleStatusCode(getResult, key);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1446,9 +1452,13 @@ namespace CouchbaseManager
                     if (item.Value.Status != Couchbase.IO.ResponseStatus.Success)
                     {
                         if (item.Value.Status == Couchbase.IO.ResponseStatus.KeyNotFound)
+                        {
                             log.WarnFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                        }
                         else
-                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}", item.Key, item.Value.Status);
+                        {
+                            log.ErrorFormat("Couchbase manager: failed to get key {0}, status {1}, message {2}", item.Key, item.Value.Status, item.Value.Message);
+                        }
 
                         status = item.Value.Status;
 
@@ -1456,7 +1466,9 @@ namespace CouchbaseManager
                             break;
                     }
                     else
+                    {
                         log.DebugFormat("Couchbase manager: GetValues success - get key {0}, status {1}", item.Key, item.Value.Status);
+                    }
                 }
 
                 if (shouldAllowPartialQuery || status == Couchbase.IO.ResponseStatus.Success)
@@ -1467,11 +1479,15 @@ namespace CouchbaseManager
                     foreach (var item in getResult)
                     {
                         if (item.Value.Status == Couchbase.IO.ResponseStatus.Success)
+                        {
                             result.Add(item.Key, item.Value.Value);
+                        }
                     }
                 }
                 else
+                {
                     log.ErrorFormat("Error while executing action on CB. Status code = {0}; Status = {1}", (int)status, status.ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -1534,19 +1550,21 @@ namespace CouchbaseManager
 
         public bool GetValues<T>(List<string> keys, ref IDictionary<string, T> results, bool shouldAllowPartialQuery = false)
         {
-            bool res = false;
+            bool result = false;
+
             try
             {
                 results = GetValues<T>(keys, shouldAllowPartialQuery);
+
                 if (results != null)
                 {
                     if (shouldAllowPartialQuery)
                     {
-                        res = true;
+                        result = true;
                     }
                     else
                     {
-                        res = keys.Count == results.Count;
+                        result = keys.Count == results.Count;
                     }
                 }
             }
@@ -1555,7 +1573,7 @@ namespace CouchbaseManager
                 log.Error(string.Format("Error in GetValues<T> from CB while getting the following keys: {0}", string.Join(",", keys)), ex);
             }
 
-            return res;
+            return result;
         }
 
         #region View Methods
