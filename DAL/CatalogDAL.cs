@@ -4461,7 +4461,7 @@ namespace Tvinci.Core.DAL
                     foreach (DataRow dr in dtMeta.Rows)
                     {
                         FieldTypeEntity item = new FieldTypeEntity();
-                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                         item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "field_id"); // meta type id
                         item.FieldType = FieldTypes.Meta;
                         item.Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias_name");
@@ -4472,7 +4472,7 @@ namespace Tvinci.Core.DAL
                     foreach (DataRow dr in dtTag.Rows)
                     {
                         FieldTypeEntity item = new FieldTypeEntity();
-                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "Name");
+                        item.Name = ODBCWrapper.Utils.GetSafeStr(dr, "name");
                         item.ID = ODBCWrapper.Utils.GetIntSafeVal(dr, "field_id"); // tag type id
                         item.FieldType = FieldTypes.Tag;
                         item.Alias = ODBCWrapper.Utils.GetSafeStr(dr, "alias_name");
