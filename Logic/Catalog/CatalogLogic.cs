@@ -80,7 +80,7 @@ namespace Core.Catalog
         private const string NAME_REQUIRED = "Name must have a value";
         private const string META_NOT_EXIST = "Meta not exist";
         private static string INVALID_PARENT_ID = "Invalid parent id";
-
+        private static string META_DOES_NOT_A_USER_INTEREST = "Meta not a user interest";
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -8163,17 +8163,17 @@ namespace Core.Catalog
 
                 int currentGroupId = meta.PartnerId;
 
+                // get partner topics
+                var partnerTopicInterests = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
+                if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
+                {
+                    log.ErrorFormat("Error getting partner topic interests. Partner ID: {0}", groupId);
+                    response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                    return response;
+                }
+
                 if (meta.SkipFeatures)
                 {
-                    // get partner topics
-                    var partnerTopicInterests = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
-                    if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
-                    {
-                        log.ErrorFormat("Error getting partner topic interests. Partner ID: {0}", groupId);
-                        response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-                        return response;
-                    }
-
                     // get meta from DB - check if exist
                     ApiObjects.Meta apiMeta = partnerTopicInterests.Where(x => x.PartnerId == currentGroupId && x.Name == meta.Name && x.AssetType == meta.AssetType).FirstOrDefault();
                     if (apiMeta == null)
@@ -8185,39 +8185,18 @@ namespace Core.Catalog
 
                     meta.Features = apiMeta.Features;
 
-                    response.Status = ValidateTopic(meta, partnerTopicInterests);
-                    if (response.Status.Code != (int)eResponseStatus.OK)
-                    {
-                        return response;
-                    }
-
                     // update 
-                    response = SetTopicInterest(currentGroupId, meta);
+                    response = SetTopicInterest(currentGroupId, meta, partnerTopicInterests);
                 }
                 else if (meta.Features != null && !meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
                     // delete meta from TopicInterest
-                    response = DeleteTopicInterest(currentGroupId, meta);
+                    response = DeleteTopicInterest(currentGroupId, meta, partnerTopicInterests);
                 }
                 else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
-                    // get partner topics
-                    var partnerTopicInterests = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
-                    if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
-                    {
-                        log.ErrorFormat("Error getting partner topic interests. Partner ID: {0}", groupId);
-                        response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
-                        return response;
-                    }
-
-                    response.Status = ValidateTopic(meta, partnerTopicInterests);
-                    if (response.Status.Code != (int)eResponseStatus.OK)
-                    {
-                        return response;
-                    }
-
                     // update
-                    response = SetTopicInterest(currentGroupId, meta);
+                    response = SetTopicInterest(currentGroupId, meta, partnerTopicInterests);
                 }
 
                 // clear cache after update
@@ -8271,9 +8250,15 @@ namespace Core.Catalog
             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
-        private static MetaResponse SetTopicInterest(int groupId, ApiObjects.Meta meta)
+        private static MetaResponse SetTopicInterest(int groupId, ApiObjects.Meta meta, List<ApiObjects.Meta> partnerTopicInterests)
         {
             MetaResponse response = new MetaResponse();
+
+            response.Status = ValidateTopic(meta, partnerTopicInterests);
+            if (response.Status.Code != (int)eResponseStatus.OK)
+            {
+                return response;
+            }
 
             ApiObjects.Meta updatedMeta = CatalogDAL.SetTopicInterest(groupId, meta);
 
@@ -8290,9 +8275,18 @@ namespace Core.Catalog
             return response;
         }
 
-        private static MetaResponse DeleteTopicInterest(int groupId, ApiObjects.Meta meta)
+        private static MetaResponse DeleteTopicInterest(int groupId, ApiObjects.Meta meta, List<ApiObjects.Meta> partnerTopicInterests)
         {
             MetaResponse response = new MetaResponse();
+
+            // check if meta is user_interset before remove
+            ApiObjects.Meta dbMeta = partnerTopicInterests.Where(x => x.Id == meta.Id).FirstOrDefault();
+            if( dbMeta == null)
+            {
+                log.ErrorFormat("Error. Meta is not recognized as user interest. groupId: {0}, Meta:{1}", groupId, JsonConvert.SerializeObject(meta));
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.MetaNotAUserinterest, META_DOES_NOT_A_USER_INTEREST);
+                return response;
+            }
 
             if (!CatalogDAL.DeleteTopicInterest(groupId, meta.Name))
             {
