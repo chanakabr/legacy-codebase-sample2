@@ -9171,140 +9171,137 @@ namespace Core.Api
             try
             {
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                GroupsCacheManager.Group group = null;
+                GroupsCacheManager.Group group = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId);
+
+                if (group == null)
+                {
+                    log.ErrorFormat("Error. Group {0} data is empty.", groupId);
+                    return response;
+                }
 
                 response.MetaList = new List<Meta>();
 
-                if (assetType == eAssetTypes.EPG || assetType == eAssetTypes.NPVR || assetType == eAssetTypes.UNKNOWN)
+                if (assetType != eAssetTypes.MEDIA) 
                 {
-                    Dictionary<string, Meta> metaDict = new Dictionary<string, Meta>();
+                    //var mappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
 
-                    var mappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
+                    //// just the mapping
+                    //if (mappings != null && mappings.Count > 0)
+                    //{
+                    //    Meta meta;
+                    //    foreach (var map in mappings)
+                    //    {
+                    //        meta = new Meta()
+                    //        {
+                    //            AssetType = eAssetTypes.EPG,
+                    //            Name = map.Name,
+                    //            Type = map.FieldType == FieldTypes.Tag ? ApiObjects.MetaType.Tag : ApiObjects.MetaType.String
+                    //        };
 
-                    // just the mapping
-                    if (mappings != null && mappings.Count > 0)
+                    //        meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, "TagorMeta"); //TODO: ANat                            
+
+                    //        if (metaType == ApiObjects.MetaType.All || metaType == meta.Type)
+                    //        {
+                    //            switch (map.Alias)
+                    //            {
+                    //                case "series_id":
+                    //                    {
+                    //                        if (fieldNameEqual == MetaFieldName.SeriesId || (fieldNameEqual == MetaFieldName.All && (fieldNameNotEqual != MetaFieldName.SeriesId
+                    //                            || fieldNameNotEqual == MetaFieldName.None)) && fieldNameEqual != MetaFieldName.None)
+                    //                        {
+                    //                            meta.FieldName = MetaFieldName.SeriesId;
+                    //                            metaDict.Add(meta.Name, meta);
+                    //                        }
+                    //                    }
+                    //                    break;
+                    //                case "season_number":
+                    //                    {
+                    //                        if (fieldNameEqual == MetaFieldName.SeasonNumber || (fieldNameEqual == MetaFieldName.All && (fieldNameNotEqual != MetaFieldName.SeasonNumber
+                    //                            || fieldNameNotEqual == MetaFieldName.None)) && fieldNameEqual != MetaFieldName.None)
+                    //                        {
+                    //                            meta.FieldName = MetaFieldName.SeasonNumber;
+                    //                            metaDict.Add(meta.Name, meta);
+                    //                        }
+                    //                    }
+                    //                    break;
+                    //                case "episode_number":
+                    //                    {
+                    //                        if (fieldNameEqual == MetaFieldName.EpisodeNumber || (fieldNameEqual == MetaFieldName.All && (fieldNameNotEqual != MetaFieldName.EpisodeNumber
+                    //                            || fieldNameNotEqual == MetaFieldName.None)) && fieldNameEqual != MetaFieldName.None)
+                    //                        {
+                    //                            meta.FieldName = MetaFieldName.EpisodeNumber;
+                    //                            metaDict.Add(meta.Name, meta);
+                    //                        }
+                    //                    }
+                    //                    break;
+                    //                default:
+                    //                    break;
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+                    if (group.m_oEpgGroupSettings != null)
                     {
-                        Meta meta;
-                        foreach (var map in mappings)
+
+                        if (group.m_oEpgGroupSettings.metas != null && (metaType == ApiObjects.MetaType.String || metaType == ApiObjects.MetaType.All))
                         {
-                            meta = new Meta()
+                            foreach (long key in group.m_oEpgGroupSettings.metas.Keys)
                             {
-                                AssetType = eAssetTypes.EPG,
-                                Name = map.Name,
-                                Type = map.FieldType == FieldTypes.Tag ? ApiObjects.MetaType.Tag : ApiObjects.MetaType.String
-                            };
+                                string val = group.m_oEpgGroupSettings.metas[key];
 
-                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, "TagorMeta"); //TODO: ANat                            
-
-                            if (metaType == ApiObjects.MetaType.All || metaType == meta.Type)
-                            {
-                                switch (map.Alias)
+                                Meta meta = new Meta()
                                 {
-                                    case "series_id":
-                                        {
-                                            if (fieldNameEqual == MetaFieldName.SeriesId || (fieldNameEqual == MetaFieldName.All && (fieldNameNotEqual != MetaFieldName.SeriesId
-                                                || fieldNameNotEqual == MetaFieldName.None)) && fieldNameEqual != MetaFieldName.None)
-                                            {
-                                                meta.FieldName = MetaFieldName.SeriesId;
-                                                metaDict.Add(meta.Name, meta);
-                                            }
-                                        }
-                                        break;
-                                    case "season_number":
-                                        {
-                                            if (fieldNameEqual == MetaFieldName.SeasonNumber || (fieldNameEqual == MetaFieldName.All && (fieldNameNotEqual != MetaFieldName.SeasonNumber
-                                                || fieldNameNotEqual == MetaFieldName.None)) && fieldNameEqual != MetaFieldName.None)
-                                            {
-                                                meta.FieldName = MetaFieldName.SeasonNumber;
-                                                metaDict.Add(meta.Name, meta);
-                                            }
-                                        }
-                                        break;
-                                    case "episode_number":
-                                        {
-                                            if (fieldNameEqual == MetaFieldName.EpisodeNumber || (fieldNameEqual == MetaFieldName.All && (fieldNameNotEqual != MetaFieldName.EpisodeNumber
-                                                || fieldNameNotEqual == MetaFieldName.None)) && fieldNameEqual != MetaFieldName.None)
-                                            {
-                                                meta.FieldName = MetaFieldName.EpisodeNumber;
-                                                metaDict.Add(meta.Name, meta);
-                                            }
-                                        }
-                                        break;
-                                    default:
-                                        break;
+                                    AssetType = eAssetTypes.EPG,
+                                    FieldName = MetaFieldName.None,
+                                    Name = val,
+                                    Type = ApiObjects.MetaType.String,
+                                    IsTag = false,
+                                    PartnerId = group.m_oEpgGroupSettings.GroupId
+                                };
+
+                                meta.Id = BuildMetaId(meta, key.ToString());
+                                response.MetaList.Add(meta);
+                            }
+                        }
+
+                        if (group.m_oEpgGroupSettings.tags != null && (metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All))
+                        {
+                            foreach (long key in group.m_oEpgGroupSettings.tags.Keys)
+                            {
+                                string val = group.m_oEpgGroupSettings.tags[key];
+
+                                Meta meta = new Meta()
+                                {
+                                    AssetType = eAssetTypes.EPG,
+                                    FieldName = MetaFieldName.None,
+                                    Name = val,
+                                    Type = ApiObjects.MetaType.Tag,
+                                    IsTag = true,
+                                    PartnerId = group.m_oEpgGroupSettings.GroupId
+                                };
+
+                                meta.Id = BuildMetaId(meta, key.ToString());
+                                response.MetaList.Add(meta);
+                            }
+                        }
+
+                        var epgAliasMappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
+                        if (epgAliasMappings != null)
+                        {
+                            var metasMapping = response.MetaList.Where(x => epgAliasMappings.Select(y => y.Name).ToList().Contains(x.Name)).ToList();
+                            foreach (var metaMapping in metasMapping)
+                            {
+                                ApiObjects.Epg.FieldTypeEntity epgFieldTypeEntity = epgAliasMappings.Where(x => x.Name == metaMapping.Name).FirstOrDefault();
+                                if (epgFieldTypeEntity != null)
+                                {
+                                    metaMapping.FieldName = GetFieldNameByAlias(epgFieldTypeEntity.Alias);
                                 }
                             }
                         }
-                    }
-
-                    if ((fieldNameEqual == MetaFieldName.All || fieldNameEqual == MetaFieldName.None) && fieldNameNotEqual != MetaFieldName.None &&
-                        (metaType == ApiObjects.MetaType.String || metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All))
-                    {
-                        // all the rest
-                        DataSet ds = CatalogDAL.Get_MetasByGroup(groupId, null);
-                        if (ds != null && ds.Tables != null && ds.Tables.Count > 0 && (metaType == ApiObjects.MetaType.String || metaType == ApiObjects.MetaType.All))
-                        {
-                            DataTable dt = ds.Tables[0];
-                            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                            {
-                                response.MetaList = new List<Meta>();
-                                Meta meta;
-                                string columnname = string.Empty;
-                                int partnerId = 0;
-                                foreach (DataRow dr in dt.Rows)
-                                {
-                                    string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                                    columnname = ODBCWrapper.Utils.GetSafeStr(dr, "columnname");
-                                    partnerId = ODBCWrapper.Utils.GetIntSafeVal(dr, "id");
-                                    if (!metaDict.ContainsKey(name))
-                                    {
-                                        meta = new Meta()
-                                        {
-                                            AssetType = eAssetTypes.EPG,
-                                            FieldName = MetaFieldName.None,
-                                            Name = name,
-                                            Type = ApiObjects.MetaType.String
-                                        };
-
-                                        meta.PartnerId = partnerId;
-                                        meta.Id = BuildMetaId(meta, columnname);
-
-                                        metaDict.Add(name, meta);
-                                    }
-                                }
-                            }
-
-                            if (ds.Tables.Count > 1 && (metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All))
-                            {
-                                dt = ds.Tables[1];
-                                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                                {
-                                    response.MetaList = new List<Meta>();
-                                    Meta meta;
-                                    foreach (DataRow dr in dt.Rows)
-                                    {
-                                        string name = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-                                        if (!metaDict.ContainsKey(name))
-                                        {
-                                            meta = new Meta()
-                                            {
-                                                AssetType = eAssetTypes.EPG,
-                                                FieldName = MetaFieldName.None,
-                                                Name = name,
-                                                Type = ApiObjects.MetaType.Tag
-                                            };
-
-                                            BuildMetaId(meta, meta.Type.ToString()); //TODO: check ANat
-
-                                            metaDict.Add(name, meta);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    response.MetaList = metaDict.Values.ToList();
+                    }                  
                 }
+
                 if (assetType == eAssetTypes.MEDIA || assetType == eAssetTypes.UNKNOWN)
                 {
                     group = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId);
@@ -9394,12 +9391,26 @@ namespace Core.Api
             return response;
         }
 
-        private static string BuildMetaId(Meta meta, string columnname)
+        private static MetaFieldName GetFieldNameByAlias(string alias)
         {
-            if (meta.Type == ApiObjects.MetaType.String)
-                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_NAME", meta.PartnerId, (int)meta.AssetType, columnname));
-            else
-                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, columnname));
+            switch (alias)
+            {
+                case "episode_number":
+                    return MetaFieldName.EpisodeNumber;
+                case "season_number":
+                    return MetaFieldName.SeasonNumber;
+                case "series_id":
+                    return MetaFieldName.SeriesId;
+                default:
+                    log.ErrorFormat("The is no EPG FieldName mapping. alias: {0}", alias);
+                    throw new Exception(string.Format("The is no EPG FieldName mapping. alias: {0}", alias));
+            }
+        }
+
+        private static string BuildMetaId(Meta meta, string metaDBId)
+        {
+            string prefix = meta.AssetType == eAssetTypes.MEDIA && meta.Type == ApiObjects.MetaType.String ? "_NAME" : "";
+            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.IsTag ? 1 : 0, metaDBId, prefix));
         }
 
         private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)
