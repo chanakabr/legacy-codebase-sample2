@@ -391,10 +391,7 @@ namespace Core.Catalog
 
                 if (definitions.shouldGetUserPreferences)
                 {
-                    definitions.userPreferences = new Dictionary<string, List<string>>();
-
-                    definitions.userPreferences = null;
-                        //CatalogLogic.GetUserPreferences(request.m_sSiteGuid, request.m_nGroupID);
+                    definitions.userPreferences = CatalogLogic.GetUserPreferences(request.m_nGroupID, Convert.ToInt32(request.m_sSiteGuid));
                 }
 
                 #endregion

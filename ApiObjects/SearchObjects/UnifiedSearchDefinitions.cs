@@ -350,11 +350,11 @@ namespace ApiObjects.SearchObjects
         }
 
         /// <summary>
-        /// User preferences - key is tag name, value is list of tag values
+        /// User preferences (dictionary of metas and tags to their values)
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public Dictionary<string, List<string>> userPreferences;
+        public UserInterestsMetasAndTags userPreferences;
 
         #endregion
 
