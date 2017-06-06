@@ -1925,7 +1925,7 @@ namespace Core.Users
             // get device
             Device device = new Device(groupId);
             device.Initialize(udid);
-            if (device == null)
+            if (device == null || string.IsNullOrEmpty(device.m_deviceUDID))
             {
                 log.ErrorFormat("Device does not exist, UDID = {0}", udid);
                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
