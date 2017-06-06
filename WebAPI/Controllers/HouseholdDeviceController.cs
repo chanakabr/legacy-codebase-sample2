@@ -455,6 +455,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.MasterUserNotFound)]
+        [Throws(eResponseStatus.NoValidPin)]
         public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
         {
             KalturaOTTUser response = null;
