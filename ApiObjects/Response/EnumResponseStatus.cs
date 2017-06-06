@@ -85,6 +85,7 @@ namespace ApiObjects.Response
         MetaIdRequired = 2036,
         MetaValueRequired = 2037,
         TopicNotFound = 2038,
+        InvalidParentId = 2039,
 
 
         // CAS Section 3000 - 3999

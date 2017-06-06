@@ -79,6 +79,8 @@ namespace Core.Catalog
         private const string NO_META_TO_UPDATE = "No meta update";
         private const string NAME_REQUIRED = "Name must have a value";
         private const string META_NOT_EXIST = "Meta not exist";
+        private static string INVALID_PARENT_ID = "Invalid parent id";
+
 
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
 		            {
@@ -8163,10 +8165,17 @@ namespace Core.Catalog
 
                 if (meta.SkipFeatures)
                 {
-                    // get meta from DB - check if exist
-                    //than update
-                    ApiObjects.Meta apiMeta = CatalogDAL.GetTopicInterest(currentGroupId, meta.Name, meta.AssetType);
+                    // get partner topics
+                    var partnerTopicInterests = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
+                    if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
+                    {
+                        log.ErrorFormat("Error getting partner topic interests. Partner ID: {0}", groupId);
+                        response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                        return response;
+                    }
 
+                    // get meta from DB - check if exist
+                    ApiObjects.Meta apiMeta = partnerTopicInterests.Where(x => x.PartnerId == currentGroupId && x.Name == meta.Name && x.AssetType == meta.AssetType).FirstOrDefault();
                     if (apiMeta == null)
                     {
                         log.ErrorFormat("Error while UpdateGroupMeta. currentGroupId: {0}, MetaName:{1}", currentGroupId, meta.Name);
@@ -8175,6 +8184,12 @@ namespace Core.Catalog
                     }
 
                     meta.Features = apiMeta.Features;
+
+                    response.Status = ValidateTopic(meta, partnerTopicInterests);
+                    if (response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response;
+                    }
 
                     // update 
                     response = SetTopicInterest(currentGroupId, meta);
@@ -8186,9 +8201,27 @@ namespace Core.Catalog
                 }
                 else if (meta.Features != null && meta.Features.Contains(MetaFeatureType.USER_INTEREST))
                 {
-                    // update 
+                    // get partner topics
+                    var partnerTopicInterests = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
+                    if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
+                    {
+                        log.ErrorFormat("Error getting partner topic interests. Partner ID: {0}", groupId);
+                        response.Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                        return response;
+                    }
+
+                    response.Status = ValidateTopic(meta, partnerTopicInterests);
+                    if (response.Status.Code != (int)eResponseStatus.OK)
+                    {
+                        return response;
+                    }
+
+                    // update
                     response = SetTopicInterest(currentGroupId, meta);
                 }
+
+                // clear cache after update
+                NotificationCache.Instance().RemoveTopicInterestsFromCache(groupId);
             }
             catch (Exception ex)
             {
@@ -8196,6 +8229,46 @@ namespace Core.Catalog
                 log.ErrorFormat("Failed groupID={0}, meta={1}, error: {2}", groupId, JsonConvert.SerializeObject(meta), ex);
             }
             return response;
+        }
+
+        private static ApiObjects.Response.Status ValidateTopic(ApiObjects.Meta meta, List<ApiObjects.Meta> partnerTopicInterests)
+        {
+            if (string.IsNullOrEmpty(meta.ParentId) || meta.ParentId == "0")
+            {
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+            }
+
+            // parent meta id should not point to the meta itself.
+            if (meta.ParentId == meta.Id)
+            {
+                log.ErrorFormat("Error. Parent meta id should not point to the meta itself. {0}", JsonConvert.SerializeObject(meta));
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidParentId, Message = INVALID_PARENT_ID };
+            }
+
+            // parent meta id should be recognized as user_interst 
+            var parentMetaId = partnerTopicInterests.Where(x => x.Id == meta.ParentId).FirstOrDefault();
+            if (parentMetaId == null)
+            {
+                log.ErrorFormat("Error. Parent meta id should be recognized as user_interst. {0}", JsonConvert.SerializeObject(meta));
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidParentId, Message = INVALID_PARENT_ID };
+            }
+
+            // asset type of parent meta should be as meta asset type
+            if (parentMetaId.AssetType != meta.AssetType)
+            {
+                log.ErrorFormat("Error. asset type of parent meta should be as meta asset type. {0}", JsonConvert.SerializeObject(meta));
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidParentId, Message = INVALID_PARENT_ID };
+            }
+
+            // parentMetaId should be associated to only 1 meta
+            var someMeta = partnerTopicInterests.Where(x => x.ParentId == meta.ParentId).FirstOrDefault();
+            if (someMeta !=null && someMeta.Id != meta.Id)
+            {
+                log.ErrorFormat("Error. parentMetaId should be associated to only 1 meta. {0}", JsonConvert.SerializeObject(meta));
+                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.InvalidParentId, Message = INVALID_PARENT_ID };
+            }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
         }
 
         private static MetaResponse SetTopicInterest(int groupId, ApiObjects.Meta meta)
