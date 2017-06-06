@@ -9194,7 +9194,7 @@ namespace Core.Api
                                 Type = map.FieldType == FieldTypes.Tag ? ApiObjects.MetaType.Tag : ApiObjects.MetaType.String
                             };
 
-                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, "TagorMeta");
+                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, "TagorMeta"); //TODO: ANat                            
 
                             if (metaType == ApiObjects.MetaType.All || metaType == meta.Type)
                             {
@@ -9267,7 +9267,7 @@ namespace Core.Api
                                         };
 
                                         meta.PartnerId = partnerId;
-                                        meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, columnname);
+                                        meta.Id = BuildMetaId(meta, columnname);
 
                                         metaDict.Add(name, meta);
                                     }
@@ -9294,7 +9294,7 @@ namespace Core.Api
                                                 Type = ApiObjects.MetaType.Tag
                                             };
 
-                                            meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, meta.Type);
+                                            BuildMetaId(meta, meta.Type.ToString()); //TODO: check ANat
 
                                             metaDict.Add(name, meta);
                                         }
@@ -9333,7 +9333,7 @@ namespace Core.Api
                                         PartnerId = partnerId
                                     };
 
-                                    meta.Id = string.Format("{0}_{1}_{2}_NAME", meta.PartnerId, (int)meta.AssetType, metaVal.Key);
+                                    meta.Id = BuildMetaId(meta, metaVal.Key);
 
                                     if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
                                     {
@@ -9356,8 +9356,7 @@ namespace Core.Api
                                 };
 
                                 meta.PartnerId = GetPartnerIdforTag(tagVal, group);
-                                meta.Id = string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, tagVal.Key);
-
+                                meta.Id = BuildMetaId(meta, tagVal.Key.ToString());
 
                                 response.MetaList.Add(meta);
                             }
@@ -9365,7 +9364,7 @@ namespace Core.Api
                     }
                 }
 
-                //// Get all group_topic_options according to MetaName
+                // Update Meta with topic_interest
                 if (response.MetaList != null && response.MetaList.Count > 0)
                 {
                     List<Meta> topicInterestList = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
@@ -9380,7 +9379,7 @@ namespace Core.Api
                             {
                                 meta.Features = topicInterestMeta.Features;
                                 meta.ParentId = topicInterestMeta.ParentId;
-                                //meta.IsTag = topicInterestMeta.IsTag;
+                                meta.Id = topicInterestMeta.Id;
                             }
                         }
                     }
@@ -9393,6 +9392,14 @@ namespace Core.Api
                 log.Error(string.Format("Failed to get meta for group = {0}", groupId), ex);
             }
             return response;
+        }
+
+        private static string BuildMetaId(Meta meta, string columnname)
+        {
+            if (meta.Type == ApiObjects.MetaType.String)
+                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_NAME", meta.PartnerId, (int)meta.AssetType, columnname));
+            else
+                return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}", meta.PartnerId, (int)meta.AssetType, columnname));
         }
 
         private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)
