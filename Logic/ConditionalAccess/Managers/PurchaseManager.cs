@@ -67,9 +67,9 @@ namespace Core.ConditionalAccess
                 this.PurchaseId = purchaseId;
                 this.Price = price;
                 this.CurrencyCode = currencyCode;
-                this.IsRecurring = IsRecurring;
+                this.IsRecurring = isRecurring;
                 this.BillingGuid = billingGuid;
-                this.IsFirstSubscriptionSetModify = IsFirstSubscriptionSetModify;
+                this.IsFirstSubscriptionSetModify = isFirstSubscriptionSetModify;
             }
         }
 
