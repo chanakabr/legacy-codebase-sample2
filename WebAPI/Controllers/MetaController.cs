@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
          /// <returns></returns>
          /// <remarks>
          /// Possible status codes: 
-         /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, InvalidParentId
+         /// NoMetaToUpdate, NameRequired, NotaTopicInterestMeta, InvalidParentId, MetaNotAUserinterest
          /// </remarks>
          [Route("update"), HttpPost]
          [ApiAuthorize]
@@ -69,6 +69,7 @@ namespace WebAPI.Controllers
          [Throws(eResponseStatus.NameRequired)]
          [Throws(eResponseStatus.NotaTopicInterestMeta)]
          [Throws(eResponseStatus.InvalidParentId)]
+         [Throws(eResponseStatus.MetaNotAUserinterest)]
          public KalturaMeta Update(string id, KalturaMeta meta)
          {
              KalturaMeta response = null;
