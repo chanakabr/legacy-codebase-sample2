@@ -1610,7 +1610,7 @@ namespace TVPApiServices
 
                 try
                 {
-                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).ProcessReceipt(initObj.SiteGuid, content_id, product_id, product_type, string.Empty, purchase_receipt, payment_gateway_name);
+                    response = new TVPApiModule.Services.ApiConditionalAccessService(groupID, initObj.Platform).ProcessReceipt(initObj.SiteGuid, content_id, product_id, product_type, initObj.UDID, purchase_receipt, payment_gateway_name);
                 }
                 catch (Exception ex)
                 {
