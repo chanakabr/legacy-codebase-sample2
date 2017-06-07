@@ -8112,31 +8112,35 @@ namespace Core.Catalog
                 return null;
             }
 
+            // iterate through all tree
             foreach (var interestLeaf in userInterests.UserInterestList)
             {
-                UserInterestTopic parent = interestLeaf.Topic;
-                while (parent != null)
+                // iterate through branch
+                UserInterestTopic node = interestLeaf.Topic;
+                while (node != null)
                 {
-                    // get topic
-                    var topic = availableTopics.FirstOrDefault(x => x.Id == parent.MetaId);
+                    // process node 
+                    var topic = availableTopics.FirstOrDefault(x => x.Id == node.MetaId);
                     if (topic != null)
                     {
                         if (topic.IsTag)
                         {
                             if (result.Tags[topic.Name] == null)
-                                result.Tags.Add(topic.Name, new List<string> { parent.Value });
+                                result.Tags.Add(topic.Name, new List<string> { node.Value });
                             else
-                                result.Tags[topic.Name].Add(parent.Value);
+                                result.Tags[topic.Name].Add(node.Value);
                         }
                         else
                         {
                             if (result.Metas[topic.Name] == null)
-                                result.Metas.Add(topic.Name, new List<string> { parent.Value });
+                                result.Metas.Add(topic.Name, new List<string> { node.Value });
                             else
-                                result.Metas[topic.Name].Add(parent.Value);
+                                result.Metas[topic.Name].Add(node.Value);
                         }
                     }
-                    parent = interestLeaf.Topic.ParentTopic;
+
+                    // go to parent node
+                    node = node.ParentTopic;
                 }
             }
 

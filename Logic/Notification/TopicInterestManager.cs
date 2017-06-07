@@ -87,9 +87,10 @@ namespace APILogic.Notification
                 // checking whether user already register to an upper topic level
                 // for example: user register to "ligat Haal" and now ask for "Maccaci" ( both are enable notification true) 
                 // in this case user should be register to "Maccabi" but without a specific notification.
-                if (!IsRegiesterNotificationNeeded(newUserInterest, userInterests, partnerTopicInterests))
+                List<KeyValuePair> interestNotificationToCancel = new List<KeyValuePair>();
+                if (!IsNotificationRegistrationNeeded(newUserInterest, userInterests, partnerTopicInterests, out interestNotificationToCancel))
                 {
-                    log.DebugFormat("Success. RegiesterNotificationNeeded not needed. group: {0}, user id: {1}", partnerId, userId);
+                    log.DebugFormat("Notification registration is not needed. group: {0}, user id: {1}", partnerId, userId);
                     return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
                 }
 
@@ -287,8 +288,10 @@ namespace APILogic.Notification
             return response;
         }
 
-        private static bool IsRegiesterNotificationNeeded(UserInterest newUserInterest, UserInterests userInterests, List<Meta> groupsTopics)
+        private static bool IsNotificationRegistrationNeeded(UserInterest newUserInterest, UserInterests userInterests, List<Meta> groupsTopics, out List<KeyValuePair> interestNotificationToCancel)
         {
+            interestNotificationToCancel = new List<KeyValuePair>();
+
             // validate feature is ENABLED_NOTIFICATION   
             Meta topicInterest = groupsTopics.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
             if (!topicInterest.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION))
@@ -297,27 +300,54 @@ namespace APILogic.Notification
                 return false;
             }
 
-            // get partner metas with notification (metaid)
+            // get partner notification topics
             List<string> partnerMetasWithNotification = groupsTopics.Where(x => x.Features != null && x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION)).Select(y => y.Id).ToList();
             if (partnerMetasWithNotification.Count == 0)
                 return false;
 
-            // TODO: Anat - please verify my change!!!
-            // get userInterests MetaIds and values
-            //var userInterestsLeafs = userInterests.UserInterestList.Where(x => x.Topic.ParentTopic == null).Select(y => new KeyValuePair<string, string>(y.Topic.MetaId, y.Topic.Value)).ToList();
+            // get user interests leafs
             var userInterestsLeafs = userInterests.UserInterestList.Select(y => new KeyValuePair<string, string>(y.Topic.MetaId, y.Topic.Value)).ToList();
 
+            // get new user interest values
             List<string> newUserInterestValues = new List<string>();
             GetNewUserInterestMetaIds(newUserInterest.Topic, ref newUserInterestValues);
 
-            foreach (string metaValue in newUserInterestValues)
+            foreach (string userMetaValue in newUserInterestValues)
             {
-                var metaId = userInterestsLeafs.FirstOrDefault(x => x.Value == metaValue).Key;
-                if (!string.IsNullOrEmpty(metaId))
+                if (userInterestsLeafs.Exists(x => x.Value == userMetaValue))
                 {
+                    string metaId = userInterestsLeafs.First(x => x.Value == userMetaValue).Key;
                     if (partnerMetasWithNotification.Contains(metaId))
                     {
+                        log.DebugFormat("Registration of notification is not needed since the user is already registered to a parent notification node. Parent node value: {0}, requested node: {1}",
+                            userMetaValue,
+                            JsonConvert.SerializeObject(newUserInterest));
                         return false;
+                    }
+                }
+            }
+
+            // iterate through all tree
+            foreach (var interestLeaf in userInterests.UserInterestList)
+            {
+                // iterate through branch
+                UserInterestTopic node = interestLeaf.Topic;
+
+                // validate leaf is notification enabled
+                if (groupsTopics.Exists(x => x.Features != null && x.Features.Contains(MetaFeatureType.ENABLED_NOTIFICATION) && x.Id == node.MetaId))
+                {
+                    KeyValuePair branchInterestToCancel = new KeyValuePair() { key = node.MetaId, value = node.Value };
+
+                    while (node != null)
+                    {
+                        if (node.Value.ToLower() == newUserInterest.Topic.Value.ToLower())
+                        {
+                            interestNotificationToCancel.Add(branchInterestToCancel);
+                            break;
+                        }
+
+                        // go to parent node
+                        node = node.ParentTopic;
                     }
                 }
             }
