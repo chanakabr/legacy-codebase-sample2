@@ -2662,7 +2662,7 @@ namespace DAL
                         SubscriptionSetDowngradeDetails currentCachedEntitlementResults = cbManager.GetWithVersion<SubscriptionSetDowngradeDetails>(key, out docVersion, out status);
                         if (status == Couchbase.IO.ResponseStatus.Success || status == Couchbase.IO.ResponseStatus.KeyNotFound)
                         {
-                            string totalSeconds = (subscriptionSetDowngradeDetails.StartDate.AddDays(7) - DateTime.UtcNow).TotalSeconds.ToString();
+                            string totalSeconds = Math.Ceiling((subscriptionSetDowngradeDetails.StartDate.AddDays(7) - DateTime.UtcNow).TotalSeconds).ToString();
                             uint ttl = 0;
                             if (uint.TryParse(totalSeconds, out ttl) && ttl > 0)
                             {
