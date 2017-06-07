@@ -1808,32 +1808,49 @@ namespace ElasticSearch.Searcher
 
         private IESTerm BuildUserInterestsQuery()
         {
-            BoolQuery result = new BoolQuery();
+            IESTerm result = new BoolQuery();
 
             var userPreferences = this.SearchDefinitions.userPreferences;
 
-            foreach (var tag in userPreferences.Tags)
+            // Check that user has any preferences at all
+            if ((this.SearchDefinitions.userPreferences != null) &&
+                (((this.SearchDefinitions.userPreferences.Metas != null) &&
+                (this.SearchDefinitions.userPreferences.Metas.Count > 0)) ||
+                ((this.SearchDefinitions.userPreferences.Tags != null) &&
+                (this.SearchDefinitions.userPreferences.Tags.Count > 0))))
             {
-                ESTerms terms = new ESTerms(false)
+                foreach (var tag in userPreferences.Tags)
                 {
-                    Key = string.Format("tags.{0}", tag.Key.ToLower())
-                };
+                    ESTerms terms = new ESTerms(false)
+                    {
+                        Key = string.Format("tags.{0}", tag.Key.ToLower())
+                    };
 
-                terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
+                    terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
 
-                result.AddChild(terms, CutWith.AND);
+                    (result as BoolQuery).AddChild(terms, CutWith.AND);
+                }
+
+                foreach (var meta in userPreferences.Metas)
+                {
+                    ESTerms terms = new ESTerms(false)
+                    {
+                        Key = string.Format("metas.{0}", meta.Key.ToLower())
+                    };
+
+                    terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
+
+                    (result as BoolQuery).AddChild(terms, CutWith.AND);
+                }
             }
-
-            foreach (var meta in userPreferences.Metas)
+            else
             {
-                ESTerms terms = new ESTerms(false)
-                {
-                    Key = string.Format("metas.{0}", meta.Key.ToLower())
-                };
-
-                terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
-
-                result.AddChild(terms, CutWith.AND);
+                // If user has no preferences at all
+                result = new ESTerm(true)
+                    {
+                        Key = "_id",
+                        Value = "-1"
+                    };
             }
 
             return result;
@@ -2051,55 +2068,94 @@ namespace ElasticSearch.Searcher
             }
 
             // Create the term according to the comparison operator
-            if (leaf.operand == ApiObjects.ComparisonOperator.Equals)
+            switch (leaf.operand)
             {
-                term = new ESTerm(isNumeric)
+                case ApiObjects.ComparisonOperator.Equals:
                 {
-                    Key = leaf.field,
-                    Value = value
-                };
-            }
-            else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals)
-            {
-                term = new ESTerm(isNumeric)
-                {
-                    Key = leaf.field,
-                    Value = value,
-                    isNot = true
-                };
-            }
-            else if (leaf.operand == ApiObjects.ComparisonOperator.Prefix)
-            {
-                term = new ESPrefix()
-                {
-                    Key = leaf.field,
-                    Value = value
-                };
-            }
-            else if (leaf.operand == ApiObjects.ComparisonOperator.In)
-            {
-                term = new ESTerms(false)
-                {
-                    Key = leaf.field
-                };
+                    term = new ESTerm(isNumeric)
+                    {
+                        Key = leaf.field,
+                        Value = value
+                    };
 
-                (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
-            }
-            else if (leaf.operand == ApiObjects.ComparisonOperator.NotIn)
-            {
-                term = new ESTerms(false)
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.NotEquals:
                 {
-                    Key = leaf.field,
-                    isNot = true
-                };
+                    term = new ESTerm(isNumeric)
+                    {
+                        Key = leaf.field,
+                        Value = value,
+                        isNot = true
+                    };
 
-                (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
+                case ApiObjects.ComparisonOperator.GreaterThan:
+                case ApiObjects.ComparisonOperator.LessThanOrEqual:
+                case ApiObjects.ComparisonOperator.LessThan:
+                {
+                    term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.In:
+                {
+                    term = new ESTerms(false)
+                    {
+                        Key = leaf.field
+                    };
+
+                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.NotIn:
+                {
+                    term = new ESTerms(false)
+                    {
+                        Key = leaf.field,
+                        isNot = true
+                    };
+
+                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.Prefix:
+                {
+                    term = new ESPrefix()
+                    {
+                        Key = leaf.field,
+                        Value = value
+                    };
+
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.Exists:
+                {
+                    term = new ESExists()
+                    {
+                        Value = leaf.field
+                    };
+                    
+                    break;
+                }
+                case ApiObjects.ComparisonOperator.NotExists:
+                {
+                    term = new ESExists()
+                    {
+                        Value = leaf.field,
+                        isNot = true
+                    };
+                    
+                    break;
+                }
+                default:
+                break;
             }
-            else
-            {
-                term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
-            }
-            
+
             return (term);
         }
 
