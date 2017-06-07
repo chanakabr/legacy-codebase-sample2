@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using ApiObjects.Response;
+using System.Collections.Generic;
 using System.Web.Http;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -15,11 +17,24 @@ namespace WebAPI.Controllers
         /// Insert new user interest for partner user
         /// </summary>
         /// <remarks>
-        /// Possible status codes:             
+        /// Possible status codes:  
+        /// PartnerTopicInterestIsMissing, NoUserInterestToInsert, UserInterestAlreadyExist, MetaIdRequired, TopicNotFound , MetaValueRequired 
+        /// ParentTopicIsRequired, ParentTopicShouldNotHaveValue, ParentTopicMetaIdNotEqualToMetaParentMetaID, ParentTopicValueIsMissing, ParentIdNotAUserInterest
         /// </remarks>
         /// <param name="userInterest">User interest Object</param>
         [Route("add"), HttpPost]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PartnerTopicInterestIsMissing)]
+        [Throws(eResponseStatus.NoUserInterestToInsert)]
+        [Throws(eResponseStatus.UserInterestAlreadyExist)]
+        [Throws(eResponseStatus.MetaIdRequired)]
+        [Throws(eResponseStatus.TopicNotFound)]
+        [Throws(eResponseStatus.MetaValueRequired)]
+        [Throws(eResponseStatus.ParentTopicIsRequired)]
+        [Throws(eResponseStatus.ParentTopicShouldNotHaveValue)]
+        [Throws(eResponseStatus.ParentTopicMetaIdNotEqualToMetaParentMetaID)]
+        [Throws(eResponseStatus.ParentTopicValueIsMissing)]
+        [Throws(eResponseStatus.ParentIdNotAUserInterest)]
         public KalturaUserInterest Add(KalturaUserInterest userInterest)
         {
             KalturaUserInterest response = null;

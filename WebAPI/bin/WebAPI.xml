@@ -945,7 +945,9 @@
             Insert new user interest for partner user
             </summary>
             <remarks>
-            Possible status codes:             
+            Possible status codes:  
+            PartnerTopicInterestIsMissing, NoUserInterestToInsert, UserInterestAlreadyExist, MetaIdRequired, TopicNotFound , MetaValueRequired 
+            ParentTopicIsRequired, ParentTopicShouldNotHaveValue, ParentTopicMetaIdNotEqualToMetaParentMetaID, ParentTopicValueIsMissing, ParentIdNotAUserInterest
             </remarks>
             <param name="userInterest">User interest Object</param>
         </member>
