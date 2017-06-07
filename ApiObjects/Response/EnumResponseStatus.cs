@@ -94,6 +94,12 @@ namespace ApiObjects.Response
         MetaNotBelongtoPartner = 2045,
         WrongMetaName = 2046,
         ParentParnerDiffrentFromMetaPartner = 2048,
+        PartnerTopicInterestIsMissing = 2049,
+        ParentTopicIsRequired = 2050,
+        ParentTopicShouldNotHaveValue = 2051,
+        ParentTopicMetaIdNotEqualToMetaParentMetaID = 2052,
+        ParentTopicValueIsMissing = 2053,
+
 
         // CAS Section 3000 - 3999
         InvalidPurchase = 3000,

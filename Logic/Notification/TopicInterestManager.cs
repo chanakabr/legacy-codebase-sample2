@@ -32,6 +32,12 @@ namespace APILogic.Notification
         private const string META_ID_REQUIRED = "MetaId required";
         private const string META_VALUE_REQUIRED = "Meta value required";
         private const string TOPIC_NOT_FOUND = "Topic not found";
+        private static string PARTNER_TOPIC_INTEREST_IS_MISSING = "Partner topic interest is missing";
+        private static string PARENT_TOPIC_IS_REQUIRED = "Meta defined with parentMeta but ParentTopic have no value";
+        private static string PARENT_TOPIC_SHOULD_NOT_HAVE_VALUE = " ParentTopic have value but Meta defined without parentMeta";
+        private static string PARENT_TOPIC_META_ID_NOT_EQUAL_TO_META_PARENT_META_ID = "ParentTopic metaId not equal to Meta parentMeta";
+        private static string PARENT_TOPIC_VALUE_IS_MISSING = "Parent topic value is missing";
+        private static string PARENT_ID_NOT_A_USER_INTERSET = "Parent meta id should be recognized as user interest";
 
         public static ApiObjects.Response.Status AddUserInterest(int partnerId, int userId, UserInterest newUserInterest)
         {
@@ -52,7 +58,7 @@ namespace APILogic.Notification
                 if (partnerTopicInterests == null || partnerTopicInterests.Count == 0)
                 {
                     log.ErrorFormat("Error getting partner topic interests. User ID: {0}, Partner ID: {1}", userId, partnerId);
-                    return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                    return new ApiObjects.Response.Status((int)eResponseStatus.PartnerTopicInterestIsMissing, PARTNER_TOPIC_INTEREST_IS_MISSING);
                 }
 
                 // get user interests
@@ -611,12 +617,14 @@ namespace APILogic.Notification
                 }
             }
 
+            // metaId must have a value
             if (newUserInterest.Topic == null || string.IsNullOrEmpty(newUserInterest.Topic.MetaId))
             {
                 log.ErrorFormat("Error ValidateUserInterest. MetaIdRequired :{0}", JsonConvert.SerializeObject(newUserInterest));
                 return new Status() { Code = (int)eResponseStatus.MetaIdRequired, Message = META_ID_REQUIRED };
             }
 
+            //  Meta must be recognized as partner topic
             Meta topicUserInterest = groupsTopics.Where(x => x.Id == newUserInterest.Topic.MetaId).FirstOrDefault();
             if (topicUserInterest == null)
             {
@@ -624,6 +632,7 @@ namespace APILogic.Notification
                 return new Status() { Code = (int)eResponseStatus.TopicNotFound, Message = TOPIC_NOT_FOUND };
             }
 
+            // Value cannot be empty
             if (string.IsNullOrEmpty(newUserInterest.Topic.Value))
             {
                 log.ErrorFormat("Error ValidateUserInterest. MetaValueRequired :{0}", JsonConvert.SerializeObject(newUserInterest));
@@ -641,30 +650,34 @@ namespace APILogic.Notification
         {
             string errorMessageData = string.Format(" userInterestTopic: {0}, currentMeta: {1}", JsonConvert.SerializeObject(userInterestTopic), JsonConvert.SerializeObject(partnerMeta));
 
+            // Meta defined with parentMeta but ParentTopic have no value 
             if (userInterestTopic.ParentTopic == null && !string.IsNullOrEmpty(partnerMeta.ParentId))
             {
                 log.ErrorFormat("Error ParentTopic have no value but partnerMetaId does have value. {0}", errorMessageData);
-                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                return new Status((int)eResponseStatus.ParentTopicIsRequired, PARENT_TOPIC_IS_REQUIRED);
             }
 
+            // ParentTopic have value but Meta defined without parentMeta
             if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && string.IsNullOrEmpty(partnerMeta.ParentId))
             {
                 log.ErrorFormat("Error ParentTopic have value but partnerMetaId does have no value. {0}", errorMessageData);
-                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                return new Status((int)eResponseStatus.ParentTopicShouldNotHaveValue, PARENT_TOPIC_SHOULD_NOT_HAVE_VALUE);
             }
 
+            // ParentTopic metaId not equal to Meta parentMeta
             if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(partnerMeta.ParentId)
                 && userInterestTopic.ParentTopic.MetaId != partnerMeta.ParentId)
             {
                 log.ErrorFormat("Error ParentTopic MetaId not Equals to partnerMetaId. {0}", errorMessageData);
-                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                return new Status((int)eResponseStatus.ParentTopicMetaIdNotEqualToMetaParentMetaID, PARENT_TOPIC_META_ID_NOT_EQUAL_TO_META_PARENT_META_ID);
             }
 
+            // ParentTopic value is missing
             if (userInterestTopic.ParentTopic != null && !string.IsNullOrEmpty(userInterestTopic.ParentTopic.MetaId) && !string.IsNullOrEmpty(partnerMeta.ParentId)
-               && userInterestTopic.ParentTopic.MetaId.Equals(partnerMeta.ParentId) && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
+               && userInterestTopic.ParentTopic.MetaId == partnerMeta.ParentId && string.IsNullOrEmpty(userInterestTopic.ParentTopic.Value))
             {
                 log.ErrorFormat("Error ParentTopic value is missing. {0}", errorMessageData);
-                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                return new Status((int)eResponseStatus.ParentTopicValueIsMissing, PARENT_TOPIC_VALUE_IS_MISSING);
             }
 
             if (userInterestTopic.ParentTopic == null && string.IsNullOrEmpty(partnerMeta.ParentId))
@@ -674,7 +687,7 @@ namespace APILogic.Notification
             if (partnerMeta == null)
             {
                 log.ErrorFormat("Error ParentTopic have value but partnerMetaId not found. {0}", errorMessageData);
-                return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
+                return new Status((int)eResponseStatus.ParentIdNotAUserInterest, PARENT_ID_NOT_A_USER_INTERSET);
             }
 
             return ValidateTopicUserInterest(userInterestTopic.ParentTopic, partnerMeta, groupsTopics);
@@ -1359,4 +1372,5 @@ namespace APILogic.Notification
             }
         }
     }
+    
 }

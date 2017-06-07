@@ -8288,42 +8288,42 @@ namespace Core.Catalog
         {
             if (string.IsNullOrEmpty(meta.ParentId) || meta.ParentId == "0")
             {
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+                return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
             // parent meta id should not point to the meta itself.
             if (meta.ParentId == meta.Id)
             {
                 log.ErrorFormat("Error. Parent meta id should not point to the meta itself. {0}", JsonConvert.SerializeObject(meta));
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentIdShouldNotPointToItself, Message = PARENT_ID_SHOULD_NOT_POINT_TO_ITSELF };
+                return new ApiObjects.Response.Status((int)eResponseStatus.ParentIdShouldNotPointToItself, PARENT_ID_SHOULD_NOT_POINT_TO_ITSELF);
             }
 
             // parent meta id should be recognized as user_interst 
             if ((partnerTopicInterests == null || partnerTopicInterests.Count == 0) && (!string.IsNullOrEmpty(meta.ParentId) || meta.ParentId == "0"))
             {
                 log.ErrorFormat("Error. Parent meta id should be recognized as user_interst. {0}", JsonConvert.SerializeObject(meta));
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentIdNotAUserInterest, Message = PARENT_ID_NOT_A_USER_INTERSET };
+                return new ApiObjects.Response.Status((int)eResponseStatus.ParentIdNotAUserInterest, PARENT_ID_NOT_A_USER_INTERSET);
             }
 
             var parentMetaId = partnerTopicInterests.Where(x => x.Id == meta.ParentId).FirstOrDefault();
             if (parentMetaId == null)
             {
                 log.ErrorFormat("Error. Parent meta id should be recognized as user_interst. {0}", JsonConvert.SerializeObject(meta));
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentIdNotAUserInterest, Message = PARENT_ID_NOT_A_USER_INTERSET };
+                return new ApiObjects.Response.Status((int)eResponseStatus.ParentIdNotAUserInterest, PARENT_ID_NOT_A_USER_INTERSET);
             }
 
             // asset type of parent meta should be as meta asset type
             if (parentMetaId.AssetType != meta.AssetType)
             {
                 log.ErrorFormat("Error. asset type of parent meta should be as meta asset type. {0}", JsonConvert.SerializeObject(meta));
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentAssetTypeDiffrentFromMeta, Message = PARENT_ASSET_TYPE_DIFFRENT_FROM_META };
+                return new ApiObjects.Response.Status((int)eResponseStatus.ParentAssetTypeDiffrentFromMeta, PARENT_ASSET_TYPE_DIFFRENT_FROM_META);
             }
 
             // partner parent should be the some as meta partner
             if (parentMetaId.PartnerId != meta.PartnerId)
             {
                 log.ErrorFormat("Error. partner parent should be the some as meta partner. {0}", JsonConvert.SerializeObject(meta));
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentParnerDiffrentFromMetaPartner, Message = PARENT_PARNER_DIFFRENT_FROM_META_PARTNER };
+                return new ApiObjects.Response.Status((int)eResponseStatus.ParentParnerDiffrentFromMetaPartner, PARENT_PARNER_DIFFRENT_FROM_META_PARTNER);
             }
 
             // parentMetaId should be associated to only 1 meta
@@ -8331,10 +8331,10 @@ namespace Core.Catalog
             if (someMeta != null && someMeta.Id != meta.Id)
             {
                 log.ErrorFormat("Error. parentMetaId should be associated to only 1 meta. {0}", JsonConvert.SerializeObject(meta));
-                return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.ParentDuplicateAssociation, Message = PARENT_DUPLICATE_ASSOCIATION };
+                return new ApiObjects.Response.Status((int)eResponseStatus.ParentDuplicateAssociation, PARENT_DUPLICATE_ASSOCIATION);
             }
 
-            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK, Message = eResponseStatus.OK.ToString() };
+            return new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
         private static MetaResponse SetTopicInterest(int groupId, ApiObjects.Meta meta, List<ApiObjects.Meta> partnerTopicInterests)
