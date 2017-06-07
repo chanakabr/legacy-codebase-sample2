@@ -6079,8 +6079,6 @@ namespace WebAPI.Reflection
                     {
                         case "Id":
                             return "id";
-                        case "MetaId":
-                            return "metaId";
                         case "Topic":
                             return "topic";
                     }
@@ -6097,6 +6095,8 @@ namespace WebAPI.Reflection
                 case "KalturaUserInterestTopic":
                     switch(property.Name)
                     {
+                        case "MetaId":
+                            return "metaId";
                         case "ParentTopic":
                             return "parentTopic";
                         case "Value":

@@ -186,22 +186,22 @@ namespace ObjectsConvertor.Mapping
 
             Mapper.CreateMap<KalturaUserInterest, UserInterest>()
                .ForMember(dest => dest.UserInterestId, opt => opt.MapFrom(src => src.Id))
-               .ForMember(dest => dest.UserInterestId, opt => opt.MapFrom(src => src.MetaId))
                .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
                ;
 
             Mapper.CreateMap<UserInterest, KalturaUserInterest>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserInterestId))
-               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.UserInterestId))
                .ForMember(dest => dest.Topic, opt => opt.MapFrom(src => src.Topic))
                ;
 
             Mapper.CreateMap<KalturaUserInterestTopic, UserInterestTopic>()
+               .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
                .ForMember(dest => dest.ParentTopic, opt => opt.MapFrom(src => src.ParentTopic))
                ;
 
             Mapper.CreateMap<UserInterestTopic, KalturaUserInterestTopic>()
+             .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
              .ForMember(dest => dest.ParentTopic, opt => opt.MapFrom(src => src.ParentTopic))
              ;

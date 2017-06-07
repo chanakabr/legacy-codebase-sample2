@@ -16,15 +16,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Meta identifier
-        /// </summary>
-        [DataMember(Name = "metaId")]
-        [JsonProperty("metaId")]
-        [XmlElement(ElementName = "metaId")]
-        public string MetaId { get; set; }
+        public string Id { get; set; }        
 
         /// <summary>
         /// Topic
@@ -40,6 +32,14 @@ namespace WebAPI.Models.Users
     /// </summary>
     public class KalturaUserInterestTopic : KalturaOTTObject
     {
+        /// <summary>
+        /// Meta identifier
+        /// </summary>
+        [DataMember(Name = "metaId")]
+        [JsonProperty("metaId")]
+        [XmlElement(ElementName = "metaId")]
+        public string MetaId { get; set; }
+
         /// <summary>
         /// Meta identifier
         /// </summary>
