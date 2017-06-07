@@ -572,8 +572,15 @@ namespace APILogic.Notification
                     return new Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             }
 
-            interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue, groupTopicInterest.Id
-                , groupTopicInterest.AssetType);
+            log.DebugFormat("Creating new notification interest. partner ID: {0}, name: {1}, messageTemplateType: {2}, topicNameValue: {3}",
+                partnerId,
+                groupTopicInterest.Name,
+                messageTemplateType.ToString(),
+                topicNameValue);
+
+            interestNotification = InterestDal.InsertTopicInterestNotification(partnerId, groupTopicInterest.Name, string.Empty, messageTemplateType, topicNameValue,
+                groupTopicInterest.Id,
+                groupTopicInterest.AssetType);
 
             if (interestNotification == null)
             {
